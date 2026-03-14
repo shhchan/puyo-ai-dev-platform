@@ -4,12 +4,11 @@ from .core.constants import Action
 class InputHandler:
     def __init__(self):
         self.key_map = {
-            pygame.K_LEFT: Action.LEFT,
-            pygame.K_RIGHT: Action.RIGHT,
-            pygame.K_DOWN: Action.DOWN,
-            pygame.K_z: Action.ROTATE_LEFT,
-            pygame.K_x: Action.ROTATE_RIGHT,
-            pygame.K_UP: Action.ROTATE_RIGHT, # Alternative
+            pygame.K_a: Action.LEFT,
+            pygame.K_d: Action.RIGHT,
+            pygame.K_s: Action.DOWN,
+            pygame.K_LEFT: Action.ROTATE_LEFT,
+            pygame.K_RIGHT: Action.ROTATE_RIGHT,
             pygame.K_q: Action.QUIT,
             pygame.K_ESCAPE: Action.QUIT
         }
