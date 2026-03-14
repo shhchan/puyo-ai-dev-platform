@@ -25,6 +25,11 @@ class InputHandler:
             pygame.K_d: (DAS_INITIAL_DELAY, DAS_REPEAT_INTERVAL),
             pygame.K_s: (SOFT_DROP_REPEAT_INTERVAL, SOFT_DROP_REPEAT_INTERVAL),
         }
+        self.action_hold_keys = {
+            Action.LEFT: pygame.K_a,
+            Action.RIGHT: pygame.K_d,
+            Action.DOWN: pygame.K_s,
+        }
         self.held_keys = {key: False for key in self.hold_key_actions}
         self.next_repeat_at = {key: None for key in self.hold_key_actions}
 
@@ -94,3 +99,9 @@ class InputHandler:
             actions.append(Action.DOWN)
 
         return actions
+
+    def is_action_held(self, action):
+        key = self.action_hold_keys.get(action)
+        if key is None:
+            return False
+        return self.held_keys.get(key, False)

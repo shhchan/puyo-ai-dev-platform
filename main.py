@@ -2,7 +2,7 @@ import pygame
 import sys
 import time
 from src.core.game import GameState
-from src.core.constants import PUYO_SIZE, Action
+from src.core.constants import PUYO_SIZE, Action, SOFT_DROP_REPEAT_INTERVAL
 from src.ui.renderer import Renderer
 from src.input_handler import InputHandler
 
@@ -23,9 +23,9 @@ def main():
     last_gravity_time = time.time()
     gravity_interval = 1.0 # seconds
     
-    last_anim_time = time.time()
-    anim_interval = 0.3 # seconds for drop/vanish step
     last_frame_time = time.time()
+    last_soft_drop_move_time = time.time()
+    soft_drop_was_held = False
 
     running = True
     while running:
@@ -38,6 +38,30 @@ def main():
         if Action.QUIT in actions:
             running = False
 
+        down_held = input_handler.is_action_held(Action.DOWN)
+
+        fall_offset_cells = 0.0
+        if (
+            game_state.state == "control"
+            and game_state.current_puyo_1 is not None
+            and game_state.can_move(0, -1, game_state.puyo_rot)
+        ):
+            auto_progress = min(1.0, max(0.0, (current_time - last_gravity_time) / gravity_interval))
+            fall_offset_cells = auto_progress
+
+            if down_held:
+                if not soft_drop_was_held:
+                    last_soft_drop_move_time = current_time
+                elapsed = current_time - last_soft_drop_move_time
+                soft_drop_progress = 0.5 if elapsed >= (SOFT_DROP_REPEAT_INTERVAL * 0.5) else 0.0
+                fall_offset_cells = max(fall_offset_cells, soft_drop_progress)
+        else:
+            last_soft_drop_move_time = current_time
+
+        game_state.set_vertical_interpolation(fall_offset_cells)
+
+        prev_state = game_state.state
+        prev_y = game_state.puyo_y
         game_state.update(actions)
 
         # Update
@@ -46,24 +70,32 @@ def main():
         elif game_state.state == "control":
             # Gravity (Auto Drop)
             if current_time - last_gravity_time > gravity_interval:
+                before_gravity_y = game_state.puyo_y
                 game_state.step_gravity()
-                last_gravity_time = current_time
+                if game_state.puyo_y != before_gravity_y:
+                    last_gravity_time = current_time
         elif game_state.state == "animate":
-            if current_time - last_anim_time > anim_interval:
-                game_state.resolve_world()
-                last_anim_time = current_time
+            game_state.advance_animation(delta_time)
 
         if game_state.state != "control":
             last_gravity_time = current_time
 
-        fall_offset_px = 0.0
-        if (
-            game_state.state == "control"
-            and game_state.current_puyo_1 is not None
-            and game_state.can_move(0, -1, game_state.puyo_rot)
-        ):
-            progress = min(1.0, max(0.0, (current_time - last_gravity_time) / gravity_interval))
-            fall_offset_px = progress * PUYO_SIZE
+        manual_soft_drop_moved = (
+            prev_state == "control"
+            and game_state.state == "control"
+            and Action.DOWN in actions
+            and game_state.puyo_y < prev_y
+        )
+        if manual_soft_drop_moved:
+            last_soft_drop_move_time = current_time
+            game_state.set_vertical_interpolation(0.0)
+
+        soft_drop_was_held = down_held
+
+        if game_state.state != "control":
+            game_state.set_vertical_interpolation(0.0)
+
+        fall_offset_px = game_state.vertical_interpolation_progress * PUYO_SIZE
 
         # Draw
         renderer.draw(game_state, fall_offset_px=fall_offset_px)

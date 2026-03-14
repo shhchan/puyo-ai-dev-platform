@@ -65,5 +65,17 @@ class TestPuyoLogic(unittest.TestCase):
         self.assertEqual(len(vanish), 4)
         self.assertIn((0, 12), vanish)
 
+    def test_row14_puyo_does_not_fall(self):
+        f = Field()
+        top = Puyo(PuyoColor.RED)
+        floating = Puyo(PuyoColor.BLUE)
+        f.place_puyo(0, 13, top)
+        f.place_puyo(0, 3, floating)
+
+        f.drop_puyo()
+
+        self.assertEqual(f.get_puyo(0, 13).color, PuyoColor.RED)
+        self.assertEqual(f.get_puyo(0, 0).color, PuyoColor.BLUE)
+
 if __name__ == '__main__':
     unittest.main()

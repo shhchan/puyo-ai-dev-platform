@@ -8,6 +8,8 @@ from src.core.constants import (
     LOCK_CONTACT_LIMIT,
     LOCK_FRAME_LIMIT,
     COUNTDOWN_SECONDS,
+    VANISH_FLASH_SECONDS,
+    CHAIN_DROP_TWEEN_SECONDS,
 )
 from src.core.game import GameState
 from src.core.puyo import Puyo
@@ -125,6 +127,47 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_rot, Direction.DOWN)
         self.assertEqual(game.puyo_y, 1)
 
+    def test_horizontal_sweep_blocks_overstep_while_interpolating(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 3
+        game.puyo_rot = Direction.UP
+        game.field.place_puyo(1, 2, Puyo(PuyoColor.BLUE))
+
+        game.set_vertical_interpolation(0.6)
+        game.update([Action.LEFT])
+
+        self.assertEqual(game.puyo_x, 2)
+
+    def test_double_rotate_becomes_180_when_vertical_and_sides_blocked(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 5
+        game.puyo_rot = Direction.UP
+        game.field.place_puyo(1, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 6, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 6, Puyo(PuyoColor.RED))
+
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.UP)
+        game.update([Action.ROTATE_LEFT])
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+
+    def test_double_rotate_does_not_force_180_when_sides_not_blocked(self):
+        game = self._create_control_game()
+        game.puyo_rot = Direction.UP
+
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.RIGHT)
+        game.update([Action.ROTATE_LEFT])
+        self.assertEqual(game.puyo_rot, Direction.UP)
+
+    def test_axis_cannot_enter_row14_while_child_can(self):
+        game = self._create_control_game()
+        self.assertTrue(game.can_place_pair(2, 12, Direction.UP))
+        self.assertFalse(game.can_place_pair(2, 13, Direction.UP))
+
     def test_initial_state_is_ready_and_has_no_active_pair(self):
         game = GameState()
         self.assertEqual(game.state, "ready")
@@ -153,6 +196,33 @@ class TestControlPriority(unittest.TestCase):
         self.assertIs(game.next_puyo_queue[0][0], second_pair[0])
         self.assertIs(game.next_puyo_queue[0][1], second_pair[1])
         self.assertGreaterEqual(len(game.next_puyo_queue), 2)
+
+    def test_animate_vanish_flash_transitions_to_resolve(self):
+        game = GameState()
+        game.state = "animate"
+        game.animation_state = "resolve"
+        p = Puyo(PuyoColor.RED)
+        game.field.place_puyo(0, 0, p)
+        game.field.place_puyo(1, 0, p)
+        game.field.place_puyo(0, 1, p)
+        game.field.place_puyo(1, 1, p)
+
+        game.advance_animation(0.0)
+        self.assertEqual(game.animation_state, "vanish_flash")
+        game.advance_animation(VANISH_FLASH_SECONDS)
+        self.assertEqual(game.animation_state, "resolve")
+
+    def test_animate_drop_tween_transitions_to_resolve(self):
+        game = GameState()
+        game.state = "animate"
+        game.animation_state = "resolve"
+        game.field.place_puyo(0, 3, Puyo(PuyoColor.BLUE))
+
+        game.advance_animation(0.0)
+        self.assertEqual(game.animation_state, "drop_tween")
+        self.assertGreater(len(game.drop_tween_motions), 0)
+        game.advance_animation(CHAIN_DROP_TWEEN_SECONDS)
+        self.assertEqual(game.animation_state, "resolve")
 
 
 @unittest.skipUnless(INPUT_HANDLER_AVAILABLE, "pygame is not installed")
