@@ -29,3 +29,8 @@ GRID_HEIGHT = 14  # visible 12 + hidden 1 + ghost 1
 VISIBLE_HEIGHT = 12
 
 PUYO_SIZE = 32  # pixel size for rendering assumption, can be changed in renderer
+
+# Input repeat tuning
+DAS_INITIAL_DELAY = 0.15
+DAS_REPEAT_INTERVAL = 0.05
+SOFT_DROP_REPEAT_INTERVAL = 0.08

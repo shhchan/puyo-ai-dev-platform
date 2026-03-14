@@ -117,20 +117,32 @@ class GameState:
             return
 
         if self.state == "control":
+            left_pressed = Action.LEFT in actions
+            right_pressed = Action.RIGHT in actions
+            down_pressed = Action.DOWN in actions
+
+            horizontal_requested = False
+            horizontal_moved = False
+
+            if left_pressed and not right_pressed:
+                horizontal_requested = True
+                if self.can_move(-1, 0, self.puyo_rot):
+                    self.puyo_x -= 1
+                    horizontal_moved = True
+            elif right_pressed and not left_pressed:
+                horizontal_requested = True
+                if self.can_move(1, 0, self.puyo_rot):
+                    self.puyo_x += 1
+                    horizontal_moved = True
+
+            if down_pressed:
+                # Horizontal input has priority only when horizontal movement succeeds.
+                can_apply_down = (not horizontal_requested) or (not horizontal_moved)
+                if can_apply_down and self.can_move(0, -1, self.puyo_rot):
+                    self.puyo_y -= 1
+
             for action in actions:
-                if action == Action.LEFT:
-                    if self.can_move(-1, 0, self.puyo_rot):
-                        self.puyo_x -= 1
-                elif action == Action.RIGHT:
-                    if self.can_move(1, 0, self.puyo_rot):
-                        self.puyo_x += 1
-                elif action == Action.DOWN:
-                    if self.can_move(0, -1, self.puyo_rot): # Down is -Y
-                        self.puyo_y -= 1
-                    else:
-                        # Grounded? Maybe handled by gravity step or lock timer.
-                        pass
-                elif action == Action.ROTATE_RIGHT:
+                if action == Action.ROTATE_RIGHT:
                     self.rotate(True)
                 elif action == Action.ROTATE_LEFT:
                     self.rotate(False)
