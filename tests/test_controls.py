@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import patch
 
-from src.core.constants import Action
+from src.core.constants import Action, Direction, PuyoColor, LOCK_CONTACT_LIMIT, LOCK_FRAME_LIMIT
 from src.core.game import GameState
+from src.core.puyo import Puyo
 
 try:
     import pygame
@@ -57,6 +58,60 @@ class TestControlPriority(unittest.TestCase):
         game.update([Action.LEFT, Action.RIGHT])
 
         self.assertEqual(game.puyo_x, start_x)
+
+    def test_locks_after_32_ground_frames(self):
+        game = GameState()
+        game.puyo_x = 2
+        game.puyo_y = 0
+        game.puyo_rot = Direction.UP
+
+        for _ in range(LOCK_FRAME_LIMIT - 1):
+            game.update([])
+            self.assertEqual(game.state, "control")
+
+        game.update([])
+        self.assertEqual(game.state, "animate")
+
+    def test_locks_after_8_ground_contacts(self):
+        game = GameState()
+        game.puyo_x = 2
+        game.puyo_rot = Direction.UP
+
+        for _ in range(LOCK_CONTACT_LIMIT - 1):
+            game.puyo_y = 0
+            game.update([])  # grounded transition
+            self.assertEqual(game.state, "control")
+
+            game.puyo_y = 1
+            game.update([])  # ungrounded frame
+            self.assertEqual(game.state, "control")
+
+        game.puyo_y = 0
+        game.update([])
+        self.assertEqual(game.state, "animate")
+
+    def test_floor_kick_lifts_when_axis_below_is_blocked(self):
+        game = GameState()
+        game.puyo_x = 2
+        game.puyo_y = 1
+        game.puyo_rot = Direction.RIGHT
+        game.field.place_puyo(2, 0, Puyo(PuyoColor.RED))
+
+        game.rotate(True)
+
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 2)
+
+    def test_floor_kick_does_not_lift_when_axis_below_is_free(self):
+        game = GameState()
+        game.puyo_x = 2
+        game.puyo_y = 1
+        game.puyo_rot = Direction.RIGHT
+
+        game.rotate(True)
+
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 1)
 
 
 @unittest.skipUnless(INPUT_HANDLER_AVAILABLE, "pygame is not installed")

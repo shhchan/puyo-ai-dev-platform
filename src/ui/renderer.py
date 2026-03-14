@@ -59,8 +59,8 @@ class Renderer:
         top_y = panel_rect.y + 42
         bottom_y = top_y + preview_size + 6
 
-        top_color = self.colors.get(pair[0].color, (255, 255, 255))
-        bottom_color = self.colors.get(pair[1].color, (255, 255, 255))
+        top_color = self.colors.get(pair[1].color, (255, 255, 255))
+        bottom_color = self.colors.get(pair[0].color, (255, 255, 255))
 
         pygame.draw.rect(self.screen, top_color, (preview_x, top_y, preview_size, preview_size))
         pygame.draw.rect(self.screen, (18, 18, 18), (preview_x, top_y, preview_size, preview_size), 1)

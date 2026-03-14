@@ -1,6 +1,14 @@
 import random
 from collections import deque
-from .constants import GRID_WIDTH, GRID_HEIGHT, PuyoColor, Action, Direction
+from .constants import (
+    GRID_WIDTH,
+    GRID_HEIGHT,
+    PuyoColor,
+    Action,
+    Direction,
+    LOCK_CONTACT_LIMIT,
+    LOCK_FRAME_LIMIT,
+)
 from .puyo import Puyo
 from .field import Field
 
@@ -24,6 +32,9 @@ class GameState:
         self.state = "control" 
         self.animation_state = None 
         self.drop_timer = 0
+        self.ground_contact_count = 0
+        self.ground_frame_count = 0
+        self.was_grounded_prev_frame = False
         
     def _fill_next_queue(self):
         while len(self.next_puyo_queue) < 2:
@@ -60,6 +71,9 @@ class GameState:
         self.puyo_y = spawn_y 
         self.puyo_rot = Direction.UP 
         self.state = "control"
+        self.ground_contact_count = 0
+        self.ground_frame_count = 0
+        self.was_grounded_prev_frame = False
 
     def get_sub_puyo_offset(self, rotation):
         # UP = +Y (Screen UP) -> In Y=0 Bottom, UP is +1
@@ -101,16 +115,32 @@ class GameState:
         if self.can_move(0, 0, new_rot):
             self.puyo_rot = new_rot
         else:
-            if self.can_move(1, 0, new_rot):
+            axis_below_blocked = self.puyo_y == 0 or (not self.field.get_puyo(self.puyo_x, self.puyo_y - 1).is_empty())
+            if axis_below_blocked and self.can_move(0, 1, new_rot):
+                self.puyo_y += 1
+                self.puyo_rot = new_rot
+            elif self.can_move(1, 0, new_rot):
                 self.puyo_x += 1
                 self.puyo_rot = new_rot
             elif self.can_move(-1, 0, new_rot):
                 self.puyo_x -= 1
                 self.puyo_rot = new_rot
-            # Floor kick?
-            elif self.can_move(0, 1, new_rot): # Push Up (Y+)
-                 self.puyo_y += 1
-                 self.puyo_rot = new_rot
+
+    def _update_ground_lock(self):
+        if self.state != "control" or self.current_puyo_1 is None:
+            return
+
+        grounded = not self.can_move(0, -1, self.puyo_rot)
+        if grounded:
+            self.ground_frame_count += 1
+            if not self.was_grounded_prev_frame:
+                self.ground_contact_count += 1
+            self.was_grounded_prev_frame = True
+
+            if self.ground_contact_count >= LOCK_CONTACT_LIMIT or self.ground_frame_count >= LOCK_FRAME_LIMIT:
+                self.lock_puyo()
+        else:
+            self.was_grounded_prev_frame = False
 
     def update(self, actions):
         if self.state == "gameover":
@@ -147,12 +177,12 @@ class GameState:
                 elif action == Action.ROTATE_LEFT:
                     self.rotate(False)
 
+            self._update_ground_lock()
+
     def step_gravity(self):
         if self.state == "control":
             if self.can_move(0, -1, self.puyo_rot): # Down is -Y
                 self.puyo_y -= 1
-            else:
-                self.lock_puyo()
 
     def lock_puyo(self):
         self.field.place_puyo(self.puyo_x, self.puyo_y, self.current_puyo_1)

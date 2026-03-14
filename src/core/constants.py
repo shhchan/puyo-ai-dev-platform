@@ -34,3 +34,7 @@ PUYO_SIZE = 32  # pixel size for rendering assumption, can be changed in rendere
 DAS_INITIAL_DELAY = 0.15
 DAS_REPEAT_INTERVAL = 0.05
 SOFT_DROP_REPEAT_INTERVAL = 0.08
+
+# Ground lock tuning
+LOCK_CONTACT_LIMIT = 8
+LOCK_FRAME_LIMIT = 32
