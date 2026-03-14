@@ -1,6 +1,13 @@
 import pygame
 
-from ..core.constants import GRID_WIDTH, GRID_HEIGHT, PUYO_SIZE, PuyoColor, VISIBLE_HEIGHT
+from ..core.constants import (
+    GRID_WIDTH,
+    GRID_HEIGHT,
+    PUYO_SIZE,
+    PuyoColor,
+    VISIBLE_HEIGHT,
+    VANISH_BLINK_INTERVAL_SECONDS,
+)
 
 
 class Renderer:
@@ -51,8 +58,8 @@ class Renderer:
         pygame.draw.rect(self.screen, (18, 18, 18), (ix, iy, PUYO_SIZE, PUYO_SIZE), 1)
 
     def _draw_ghost_rect(self, x, y, color):
-        # Centered 75% ghost marker.
-        ghost_size = int(PUYO_SIZE * 0.75)
+        # Centered 65% ghost marker.
+        ghost_size = int(PUYO_SIZE * 0.65)
         offset = (PUYO_SIZE - ghost_size) // 2
         gx = int(round(x + offset))
         gy = int(round(y + offset))
@@ -205,7 +212,9 @@ class Renderer:
         if game_state.state == "animate" and game_state.animation_state == "drop_tween":
             self._draw_drop_tween(game_state)
         elif game_state.state == "animate" and game_state.animation_state == "vanish_flash":
-            blink_on = int(game_state.animation_timer / 0.04) % 2 == 0
+            blink_on = True
+            if VANISH_BLINK_INTERVAL_SECONDS > 0:
+                blink_on = int(game_state.animation_timer / VANISH_BLINK_INTERVAL_SECONDS) % 2 == 0
             skip_coords = set()
             if not blink_on:
                 skip_coords = set(game_state.vanish_coords)

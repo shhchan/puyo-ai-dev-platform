@@ -90,7 +90,8 @@ class GameState:
 
     def spawn_puyo(self):
         spawn_y = 12
-        if not self.field.get_puyo(2, spawn_y).is_empty():
+        # Choke point: 12th visible row, 3rd column from the left.
+        if not self.field.get_puyo(2, 11).is_empty():
             self.game_over = True
             self.state = "gameover"
             return

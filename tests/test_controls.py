@@ -197,6 +197,24 @@ class TestControlPriority(unittest.TestCase):
         self.assertIs(game.next_puyo_queue[0][1], second_pair[1])
         self.assertGreaterEqual(len(game.next_puyo_queue), 2)
 
+    def test_game_over_triggers_when_choke_point_is_filled(self):
+        game = GameState()
+        game.field.place_puyo(2, 11, Puyo(PuyoColor.RED))
+
+        game.spawn_puyo()
+
+        self.assertEqual(game.state, "gameover")
+        self.assertTrue(game.game_over)
+
+    def test_row_13_fill_alone_does_not_trigger_game_over(self):
+        game = GameState()
+        game.field.place_puyo(2, 12, Puyo(PuyoColor.BLUE))
+
+        game.spawn_puyo()
+
+        self.assertEqual(game.state, "control")
+        self.assertFalse(game.game_over)
+
     def test_animate_vanish_flash_transitions_to_resolve(self):
         game = GameState()
         game.state = "animate"

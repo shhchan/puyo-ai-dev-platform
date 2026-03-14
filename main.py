@@ -2,13 +2,28 @@ import pygame
 import sys
 import time
 from src.core.game import GameState
-from src.core.constants import PUYO_SIZE, Action, SOFT_DROP_REPEAT_INTERVAL
+from src.core.constants import (
+    PUYO_SIZE,
+    Action,
+    SOFT_DROP_REPEAT_INTERVAL,
+    GRAVITY_INTERVAL_SECONDS,
+)
 from src.ui.renderer import Renderer
 from src.input_handler import InputHandler
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 600
 FPS = 60
+
+
+def _quantize_half_cell(progress):
+    clamped = min(1.0, max(0.0, progress))
+    if clamped >= 1.0:
+        return 1.0
+    if clamped >= 0.5:
+        return 0.5
+    return 0.0
+
 
 def main():
     pygame.init()
@@ -21,7 +36,7 @@ def main():
     input_handler = InputHandler()
 
     last_gravity_time = time.time()
-    gravity_interval = 1.0 # seconds
+    gravity_interval = GRAVITY_INTERVAL_SECONDS
     
     last_frame_time = time.time()
     last_soft_drop_move_time = time.time()
@@ -47,7 +62,7 @@ def main():
             and game_state.can_move(0, -1, game_state.puyo_rot)
         ):
             auto_progress = min(1.0, max(0.0, (current_time - last_gravity_time) / gravity_interval))
-            fall_offset_cells = auto_progress
+            fall_offset_cells = _quantize_half_cell(auto_progress)
 
             if down_held:
                 if not soft_drop_was_held:
