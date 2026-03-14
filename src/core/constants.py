@@ -22,6 +22,7 @@ class Action(Enum):
     DOWN = auto()
     ROTATE_LEFT = auto()
     ROTATE_RIGHT = auto()
+    START = auto()
     QUIT = auto()
 
 GRID_WIDTH = 6
@@ -38,3 +39,5 @@ SOFT_DROP_REPEAT_INTERVAL = 0.08
 # Ground lock tuning
 LOCK_CONTACT_LIMIT = 8
 LOCK_FRAME_LIMIT = 32
+
+COUNTDOWN_SECONDS = 3.0

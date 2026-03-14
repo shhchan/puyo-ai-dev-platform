@@ -1,4 +1,5 @@
 import random
+import math
 from collections import deque
 from .constants import (
     GRID_WIDTH,
@@ -8,6 +9,7 @@ from .constants import (
     Direction,
     LOCK_CONTACT_LIMIT,
     LOCK_FRAME_LIMIT,
+    COUNTDOWN_SECONDS,
 )
 from .puyo import Puyo
 from .field import Field
@@ -27,14 +29,15 @@ class GameState:
         
         self.next_puyo_queue = deque()
         self._fill_next_queue()
-        self.spawn_puyo()
         
-        self.state = "control" 
+        self.state = "ready"
         self.animation_state = None 
         self.drop_timer = 0
         self.ground_contact_count = 0
         self.ground_frame_count = 0
         self.was_grounded_prev_frame = False
+        self.countdown_time_left = 0.0
+        self.countdown_number = None
         
     def _fill_next_queue(self):
         while len(self.next_puyo_queue) < 2:
@@ -74,6 +77,8 @@ class GameState:
         self.ground_contact_count = 0
         self.ground_frame_count = 0
         self.was_grounded_prev_frame = False
+        self.countdown_time_left = 0.0
+        self.countdown_number = None
 
     def get_sub_puyo_offset(self, rotation):
         # UP = +Y (Screen UP) -> In Y=0 Bottom, UP is +1
@@ -87,24 +92,52 @@ class GameState:
             return (-1, 0)
         return (0, 1)
 
-    def can_move(self, dx, dy, rot):
-        # dy = -1 for gravity (Down)
-        tx1, ty1 = self.puyo_x + dx, self.puyo_y + dy
-        if not (0 <= tx1 < GRID_WIDTH and 0 <= ty1 < GRID_HEIGHT):
+    def can_place_pair(self, axis_x, axis_y, rot):
+        if not (0 <= axis_x < GRID_WIDTH and 0 <= axis_y < GRID_HEIGHT):
             return False
-        if not self.field.get_puyo(tx1, ty1).is_empty():
+        if not self.field.get_puyo(axis_x, axis_y).is_empty():
             return False
-            
+
         ox, oy = self.get_sub_puyo_offset(rot)
-        tx2, ty2 = tx1 + ox, ty1 + oy
-        # Sub puyo can be at GRID_HEIGHT (14th row, Ind 13) momentarily during rotation?
-        # Yes, Ghost row exists.
-        if not (0 <= tx2 < GRID_WIDTH and 0 <= ty2 < GRID_HEIGHT):
+        sub_x, sub_y = axis_x + ox, axis_y + oy
+        if not (0 <= sub_x < GRID_WIDTH and 0 <= sub_y < GRID_HEIGHT):
             return False
-        if not self.field.get_puyo(tx2, ty2).is_empty():
+        if not self.field.get_puyo(sub_x, sub_y).is_empty():
             return False
-            
+
         return True
+
+    def can_move(self, dx, dy, rot):
+        return self.can_place_pair(self.puyo_x + dx, self.puyo_y + dy, rot)
+
+    def get_ghost_axis_position(self):
+        if self.current_puyo_1 is None or self.current_puyo_2 is None or self.state != "control":
+            return None
+
+        ghost_y = self.puyo_y
+        while self.can_place_pair(self.puyo_x, ghost_y - 1, self.puyo_rot):
+            ghost_y -= 1
+        return (self.puyo_x, ghost_y)
+
+    def start_countdown(self):
+        if self.state != "ready":
+            return
+
+        self.state = "countdown"
+        self.countdown_time_left = COUNTDOWN_SECONDS
+        self.countdown_number = int(math.ceil(self.countdown_time_left))
+
+    def advance_countdown(self, delta_time):
+        if self.state != "countdown":
+            return
+
+        self.countdown_time_left = max(0.0, self.countdown_time_left - delta_time)
+        if self.countdown_time_left > 0.0:
+            self.countdown_number = int(math.ceil(self.countdown_time_left))
+            return
+
+        self.countdown_number = None
+        self.spawn_puyo()
 
     def rotate(self, clockwise):
         dirs = [Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT]
@@ -143,7 +176,12 @@ class GameState:
             self.was_grounded_prev_frame = False
 
     def update(self, actions):
-        if self.state == "gameover":
+        if self.state == "ready":
+            if Action.START in actions:
+                self.start_countdown()
+            return
+
+        if self.state in ("countdown", "gameover"):
             return
 
         if self.state == "control":

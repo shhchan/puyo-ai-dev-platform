@@ -13,6 +13,7 @@ class InputHandler:
             pygame.K_LEFT: Action.ROTATE_LEFT,
             pygame.K_RIGHT: Action.ROTATE_RIGHT,
         }
+        self.start_keys = {pygame.K_SPACE, pygame.K_RETURN}
         self.quit_keys = {pygame.K_q, pygame.K_ESCAPE}
         self.hold_key_actions = {
             pygame.K_a: Action.LEFT,
@@ -65,6 +66,8 @@ class InputHandler:
             elif event.type == pygame.KEYDOWN:
                 if event.key in self.quit_keys:
                     actions.append(Action.QUIT)
+                elif event.key in self.start_keys:
+                    actions.append(Action.START)
                 elif event.key in self.rotation_key_map:
                     actions.append(self.rotation_key_map[event.key])
                 elif event.key in self.hold_key_actions:

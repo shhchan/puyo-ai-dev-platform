@@ -1,7 +1,14 @@
 import unittest
 from unittest.mock import patch
 
-from src.core.constants import Action, Direction, PuyoColor, LOCK_CONTACT_LIMIT, LOCK_FRAME_LIMIT
+from src.core.constants import (
+    Action,
+    Direction,
+    PuyoColor,
+    LOCK_CONTACT_LIMIT,
+    LOCK_FRAME_LIMIT,
+    COUNTDOWN_SECONDS,
+)
 from src.core.game import GameState
 from src.core.puyo import Puyo
 
@@ -31,8 +38,13 @@ class FakePressed:
 
 
 class TestControlPriority(unittest.TestCase):
-    def test_horizontal_has_priority_over_down_when_move_succeeds(self):
+    def _create_control_game(self):
         game = GameState()
+        game.spawn_puyo()
+        return game
+
+    def test_horizontal_has_priority_over_down_when_move_succeeds(self):
+        game = self._create_control_game()
         start_x = game.puyo_x
         start_y = game.puyo_y
 
@@ -42,7 +54,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_y, start_y)
 
     def test_down_executes_if_horizontal_is_blocked(self):
-        game = GameState()
+        game = self._create_control_game()
         game.puyo_x = 0
         start_y = game.puyo_y
 
@@ -52,7 +64,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_y, start_y - 1)
 
     def test_left_and_right_cancel_each_other(self):
-        game = GameState()
+        game = self._create_control_game()
         start_x = game.puyo_x
 
         game.update([Action.LEFT, Action.RIGHT])
@@ -60,7 +72,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_x, start_x)
 
     def test_locks_after_32_ground_frames(self):
-        game = GameState()
+        game = self._create_control_game()
         game.puyo_x = 2
         game.puyo_y = 0
         game.puyo_rot = Direction.UP
@@ -73,7 +85,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.state, "animate")
 
     def test_locks_after_8_ground_contacts(self):
-        game = GameState()
+        game = self._create_control_game()
         game.puyo_x = 2
         game.puyo_rot = Direction.UP
 
@@ -91,7 +103,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.state, "animate")
 
     def test_floor_kick_lifts_when_axis_below_is_blocked(self):
-        game = GameState()
+        game = self._create_control_game()
         game.puyo_x = 2
         game.puyo_y = 1
         game.puyo_rot = Direction.RIGHT
@@ -103,7 +115,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_y, 2)
 
     def test_floor_kick_does_not_lift_when_axis_below_is_free(self):
-        game = GameState()
+        game = self._create_control_game()
         game.puyo_x = 2
         game.puyo_y = 1
         game.puyo_rot = Direction.RIGHT
@@ -112,6 +124,35 @@ class TestControlPriority(unittest.TestCase):
 
         self.assertEqual(game.puyo_rot, Direction.DOWN)
         self.assertEqual(game.puyo_y, 1)
+
+    def test_initial_state_is_ready_and_has_no_active_pair(self):
+        game = GameState()
+        self.assertEqual(game.state, "ready")
+        self.assertIsNone(game.current_puyo_1)
+        self.assertIsNone(game.current_puyo_2)
+        self.assertGreaterEqual(len(game.next_puyo_queue), 2)
+
+    def test_start_action_transitions_to_countdown(self):
+        game = GameState()
+        game.update([Action.START])
+
+        self.assertEqual(game.state, "countdown")
+        self.assertEqual(game.countdown_number, 3)
+
+    def test_countdown_spawns_from_next_queue(self):
+        game = GameState()
+        first_pair = game.next_puyo_queue[0]
+        second_pair = game.next_puyo_queue[1]
+
+        game.update([Action.START])
+        game.advance_countdown(COUNTDOWN_SECONDS)
+
+        self.assertEqual(game.state, "control")
+        self.assertIs(game.current_puyo_1, first_pair[0])
+        self.assertIs(game.current_puyo_2, first_pair[1])
+        self.assertIs(game.next_puyo_queue[0][0], second_pair[0])
+        self.assertIs(game.next_puyo_queue[0][1], second_pair[1])
+        self.assertGreaterEqual(len(game.next_puyo_queue), 2)
 
 
 @unittest.skipUnless(INPUT_HANDLER_AVAILABLE, "pygame is not installed")
@@ -183,6 +224,16 @@ class TestInputHandler(unittest.TestCase):
         self.assertNotIn(Action.LEFT, actions)
         self.assertNotIn(Action.RIGHT, actions)
         self.assertIn(Action.DOWN, actions)
+
+    def test_start_key_emits_start_action(self):
+        handler = InputHandler()
+        actions = self._run_frame(
+            handler,
+            301.0,
+            [pygame.K_SPACE],
+            [pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)],
+        )
+        self.assertIn(Action.START, actions)
 
 
 if __name__ == "__main__":
