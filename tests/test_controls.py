@@ -180,6 +180,20 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_y, 3)
         self.assertEqual(game.ground_contact_count, 1)
 
+    def test_floor_kick_context_does_not_side_shift_on_wall(self):
+        game = self._create_control_game()
+        game.puyo_x = 5
+        game.puyo_y = 2
+        game.puyo_rot = Direction.UP
+        game.set_vertical_interpolation(0.5)
+        # Make floor-kick context active while right-facing rotation is blocked by wall.
+        game.field.place_puyo(5, 1, Puyo(PuyoColor.RED))
+
+        game.rotate(True)
+
+        self.assertEqual(game.puyo_x, 5)
+        self.assertEqual(game.puyo_rot, Direction.UP)
+
     def test_horizontal_sweep_blocks_overstep_while_interpolating(self):
         game = self._create_control_game()
         game.puyo_x = 2

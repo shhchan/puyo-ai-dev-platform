@@ -51,10 +51,10 @@ class TestPuyoLogic(unittest.TestCase):
         f.remove_puyos(vanish)
         self.assertTrue(f.get_puyo(0, 0).is_empty())
 
-    def test_hidden_row_vanish(self):
+    def test_hidden_row_is_not_vanish_target(self):
         f = Field()
-        # Place 4 Reds including High Y (Index 12)
-        # (0, 12), (0, 11), (0, 10), (0, 9)
+        # Visible rows are 0..11. Row 12 (13th row) must not be vanish target.
+        # (0, 12), (0, 11), (0, 10), (0, 9) would be 4-connect only if row 12 is counted.
         p = Puyo(PuyoColor.RED)
         f.place_puyo(0, 12, p)
         f.place_puyo(0, 11, p)
@@ -62,8 +62,7 @@ class TestPuyoLogic(unittest.TestCase):
         f.place_puyo(0, 9, p)
         
         vanish = f.check_vanish()
-        self.assertEqual(len(vanish), 4)
-        self.assertIn((0, 12), vanish)
+        self.assertEqual(len(vanish), 0)
 
     def test_row14_puyo_does_not_fall(self):
         f = Field()

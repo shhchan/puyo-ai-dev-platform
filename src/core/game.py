@@ -225,11 +225,15 @@ class GameState:
             return
 
         axis_below_blocked = self._is_axis_below_blocked()
-        if axis_below_blocked and self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, new_rot):
-            self.puyo_y += 1
-            self.puyo_rot = new_rot
-            self._register_interpolated_floor_kick_contact()
-        elif self._can_place_pair_with_vertical_sweep(self.puyo_x + 1, self.puyo_y, new_rot):
+        if axis_below_blocked:
+            if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, new_rot):
+                self.puyo_y += 1
+                self.puyo_rot = new_rot
+                self._register_interpolated_floor_kick_contact()
+            # When floor-kick context is active, never fallback to side-kick.
+            return
+
+        if self._can_place_pair_with_vertical_sweep(self.puyo_x + 1, self.puyo_y, new_rot):
             self.puyo_x += 1
             self.puyo_rot = new_rot
         elif self._can_place_pair_with_vertical_sweep(self.puyo_x - 1, self.puyo_y, new_rot):

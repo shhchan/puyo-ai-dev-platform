@@ -59,6 +59,14 @@ class Renderer:
     def _is_y_drawable(self, y):
         return self.draw_start_y <= y <= self.draw_max_y
 
+    def _is_active_cell_visible(self, y, fall_offset_px):
+        sx, sy = self._grid_to_screen(0, y)
+        draw_top = sy + fall_offset_px
+        draw_bottom = draw_top + PUYO_SIZE
+        field_top = self.field_inner_top
+        field_bottom = self.field_inner_top + self.field_height
+        return draw_bottom > field_top and draw_top < field_bottom
+
     def _draw_puyo_rect(self, x, y, color):
         ix, iy = int(round(x)), int(round(y))
         pygame.draw.rect(self.screen, color, (ix, iy, PUYO_SIZE, PUYO_SIZE))
@@ -209,7 +217,7 @@ class Renderer:
                 self._draw_ghost_rect(ghost_sx2, ghost_sy2, ghost_color_2)
 
         axis_x, axis_y = game_state.puyo_x, game_state.puyo_y
-        if 0 <= axis_y < GRID_HEIGHT and self._is_y_drawable(axis_y):
+        if 0 <= axis_y < GRID_HEIGHT and self._is_active_cell_visible(axis_y, fall_offset_px):
             sx, sy = self._grid_to_screen(axis_x, axis_y)
             sy += fall_offset_px
             color = self.colors.get(game_state.current_puyo_1.color, (255, 255, 255))
@@ -217,7 +225,7 @@ class Renderer:
 
         ox, oy = game_state.get_sub_puyo_offset(game_state.puyo_rot)
         sub_x, sub_y = axis_x + ox, axis_y + oy
-        if 0 <= sub_y < GRID_HEIGHT and self._is_y_drawable(sub_y):
+        if 0 <= sub_y < GRID_HEIGHT and self._is_active_cell_visible(sub_y, fall_offset_px):
             sx, sy = self._grid_to_screen(sub_x, sub_y)
             sy += fall_offset_px
             color = self.colors.get(game_state.current_puyo_2.color, (255, 255, 255))

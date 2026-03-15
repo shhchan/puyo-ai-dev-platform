@@ -1,4 +1,4 @@
-from .constants import GRID_WIDTH, GRID_HEIGHT, PuyoColor
+from .constants import GRID_WIDTH, GRID_HEIGHT, VISIBLE_HEIGHT, PuyoColor
 from .puyo import Puyo
 
 class Field:
@@ -61,8 +61,8 @@ class Field:
         """
         Check for connected puyos (4 or more).
         Returns a set of coordinates to vanish.
-        Include Index 12 (13th row, Hidden).
-        Exclude Index 13 (14th row).
+        Only visible rows (index 0..11) are removable.
+        Hidden rows (13th/14th) are excluded.
         """
         groups = self.get_vanish_groups()
         vanish_group = set()
@@ -73,8 +73,8 @@ class Field:
     def get_vanish_groups(self):
         """
         Returns list of connected groups (size >= 4) to vanish.
-        Include Index 12 (13th row, Hidden).
-        Exclude Index 13 (14th row).
+        Only visible rows (index 0..11) are removable.
+        Hidden rows (13th/14th) are excluded.
         """
         visited = set()
         vanish_groups = []
@@ -90,14 +90,14 @@ class Field:
                 
                 for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                     nx, ny = cx + dx, cy + dy
-                    if 0 <= nx < self.width and 0 <= ny < GRID_HEIGHT - 1: # Exclude 13 (14th)
+                    if 0 <= nx < self.width and 0 <= ny < VISIBLE_HEIGHT:
                         target = self.grid[ny][nx]
                         if not target.is_empty() and target.color == color and target.color != PuyoColor.OJAMA:
                             if (nx, ny) not in group:
                                 stack.append((nx, ny))
             return group
 
-        for y in range(GRID_HEIGHT - 1): # 0..12
+        for y in range(VISIBLE_HEIGHT):
             for x in range(self.width):
                 if (x, y) in visited:
                     continue
@@ -119,7 +119,7 @@ class Field:
         for (x, y) in coords:
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nx, ny = x + dx, y + dy
-                if 0 <= nx < self.width and 0 <= ny < GRID_HEIGHT - 1:
+                if 0 <= nx < self.width and 0 <= ny < VISIBLE_HEIGHT:
                     if self.grid[ny][nx].is_color_puyo() == False and self.grid[ny][nx].color == PuyoColor.OJAMA:
                         ojama_to_clear.add((nx, ny))
         
