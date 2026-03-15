@@ -65,7 +65,14 @@ def main(debug_mode=False):
         if Action.QUIT in actions:
             running = False
 
+        left_held = input_handler.is_action_held(Action.LEFT)
+        right_held = input_handler.is_action_held(Action.RIGHT)
         down_held = input_handler.is_action_held(Action.DOWN)
+        held_actions = {
+            Action.LEFT: left_held,
+            Action.RIGHT: right_held,
+            Action.DOWN: down_held,
+        }
 
         fall_offset_cells = 0.0
         if (
@@ -89,7 +96,7 @@ def main(debug_mode=False):
 
         prev_state = game_state.state
         prev_y = game_state.puyo_y
-        game_state.update(actions)
+        game_state.update(actions, held_actions=held_actions)
 
         # Update
         if game_state.state == "countdown":

@@ -65,6 +65,43 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_x, 0)
         self.assertEqual(game.puyo_y, start_y - 1)
 
+    def test_down_is_suppressed_when_right_held_and_right_is_still_possible(self):
+        game = self._create_control_game()
+        start_x = game.puyo_x
+        start_y = game.puyo_y
+
+        game.update(
+            [Action.DOWN],
+            held_actions={Action.RIGHT: True, Action.DOWN: True},
+        )
+
+        self.assertEqual(game.puyo_x, start_x)
+        self.assertEqual(game.puyo_y, start_y)
+
+    def test_down_applies_when_right_held_but_right_is_blocked(self):
+        game = self._create_control_game()
+        game.puyo_x = 5
+        start_y = game.puyo_y
+
+        game.update(
+            [Action.DOWN],
+            held_actions={Action.RIGHT: True, Action.DOWN: True},
+        )
+
+        self.assertEqual(game.puyo_x, 5)
+        self.assertEqual(game.puyo_y, start_y - 1)
+
+    def test_down_applies_when_left_and_right_are_held_together(self):
+        game = self._create_control_game()
+        start_y = game.puyo_y
+
+        game.update(
+            [Action.DOWN],
+            held_actions={Action.LEFT: True, Action.RIGHT: True, Action.DOWN: True},
+        )
+
+        self.assertEqual(game.puyo_y, start_y - 1)
+
     def test_left_and_right_cancel_each_other(self):
         game = self._create_control_game()
         start_x = game.puyo_x
