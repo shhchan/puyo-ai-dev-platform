@@ -156,6 +156,30 @@ class GameState:
             return self.can_place_pair(axis_x, axis_y - 1, rot)
         return True
 
+    def _can_place_pair_for_rotation(self, axis_x, axis_y, rot):
+        # Rotation uses pure board occupancy at the target orientation.
+        # Unlike horizontal movement, it should not apply y-1 sweep checks.
+        if self.can_place_pair(axis_x, axis_y, rot):
+            return True
+
+        # Temporary top-row allowance only while interpolating between rows.
+        # This enables floor-kick at 11.5 -> 12.5 cell heights.
+        if (
+            self.vertical_interpolation_progress > 0.0
+            and axis_y == GRID_HEIGHT - 1
+            and 0 <= axis_x < GRID_WIDTH
+            and self.field.get_puyo(axis_x, axis_y).is_empty()
+        ):
+            ox, oy = self.get_sub_puyo_offset(rot)
+            sub_x, sub_y = axis_x + ox, axis_y + oy
+            if (
+                0 <= sub_x < GRID_WIDTH
+                and 0 <= sub_y < GRID_HEIGHT
+                and self.field.get_puyo(sub_x, sub_y).is_empty()
+            ):
+                return True
+        return False
+
     def can_move_horizontal(self, dx):
         target_x = self.puyo_x + dx
         return self._can_place_pair_with_vertical_sweep(target_x, self.puyo_y, self.puyo_rot)
@@ -205,7 +229,11 @@ class GameState:
         return self.puyo_rot in (Direction.UP, Direction.DOWN)
 
     def _is_sides_blocked(self):
-        return (not self.can_move(-1, 0, self.puyo_rot)) and (not self.can_move(1, 0, self.puyo_rot))
+        # Use rotation placement semantics so interpolated top-row floor-kick
+        # states are not treated as permanently side-blocked.
+        return (not self._can_place_pair_for_rotation(self.puyo_x - 1, self.puyo_y, self.puyo_rot)) and (
+            not self._can_place_pair_for_rotation(self.puyo_x + 1, self.puyo_y, self.puyo_rot)
+        )
 
     def _register_interpolated_floor_kick_contact(self):
         # During half-cell falling interpolation, an up-kick should count as a
@@ -220,23 +248,23 @@ class GameState:
         new_idx = (idx + 1) % 4 if clockwise else (idx - 1) % 4
         new_rot = dirs[new_idx]
 
-        if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y, new_rot):
+        if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y, new_rot):
             self.puyo_rot = new_rot
             return
 
         axis_below_blocked = self._is_axis_below_blocked()
         if axis_below_blocked:
-            if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, new_rot):
+            if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y + 1, new_rot):
                 self.puyo_y += 1
                 self.puyo_rot = new_rot
                 self._register_interpolated_floor_kick_contact()
             # When floor-kick context is active, never fallback to side-kick.
             return
 
-        if self._can_place_pair_with_vertical_sweep(self.puyo_x + 1, self.puyo_y, new_rot):
+        if self._can_place_pair_for_rotation(self.puyo_x + 1, self.puyo_y, new_rot):
             self.puyo_x += 1
             self.puyo_rot = new_rot
-        elif self._can_place_pair_with_vertical_sweep(self.puyo_x - 1, self.puyo_y, new_rot):
+        elif self._can_place_pair_for_rotation(self.puyo_x - 1, self.puyo_y, new_rot):
             self.puyo_x -= 1
             self.puyo_rot = new_rot
 
@@ -248,11 +276,11 @@ class GameState:
         else:
             return False
 
-        if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y, target_rot):
+        if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y, target_rot):
             self.puyo_rot = target_rot
             return True
 
-        if self._is_axis_below_blocked() and self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, target_rot):
+        if self._is_axis_below_blocked() and self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y + 1, target_rot):
             self.puyo_y += 1
             self.puyo_rot = target_rot
             self._register_interpolated_floor_kick_contact()
@@ -276,7 +304,7 @@ class GameState:
 
     def _update_ground_lock(self):
         if self.state != "control" or self.current_puyo_1 is None:
-            return
+            return False
 
         grounded = not self.can_move(0, -1, self.puyo_rot)
         if grounded:

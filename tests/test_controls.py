@@ -170,9 +170,8 @@ class TestControlPriority(unittest.TestCase):
         game.puyo_y = 2
         game.puyo_rot = Direction.RIGHT
         game.set_vertical_interpolation(0.5)
-        # y=1 is empty but y=0 is blocked. With 0.5-cell fall interpolation,
-        # rotation should treat lower sweep as blocked and apply up-kick.
-        game.field.place_puyo(2, 0, Puyo(PuyoColor.RED))
+        # Child target at y=1 is blocked, so rotation needs an up-kick.
+        game.field.place_puyo(2, 1, Puyo(PuyoColor.RED))
 
         game.rotate(True)
 
@@ -193,6 +192,53 @@ class TestControlPriority(unittest.TestCase):
 
         self.assertEqual(game.puyo_x, 5)
         self.assertEqual(game.puyo_rot, Direction.UP)
+
+    def test_floor_kick_rotates_at_11_5_height_without_side_shift(self):
+        game = self._create_control_game()
+        game.puyo_x = 0
+        game.puyo_y = 12
+        game.puyo_rot = Direction.RIGHT
+        game.set_vertical_interpolation(0.5)
+        # Build first column up to visible top so floor-kick is required.
+        for y in range(12):
+            game.field.place_puyo(0, y, Puyo(PuyoColor.RED))
+        # Keep child target at y=12 empty for kicked placement.
+        game.field.place_puyo(0, 11, Puyo(PuyoColor.RED))
+
+        game.rotate(True)
+
+        self.assertEqual(game.puyo_x, 0)
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 13)
+
+    def test_rotation_stays_available_after_11_5_floor_kick(self):
+        game = self._create_control_game()
+        game.puyo_x = 1
+        game.puyo_y = 12
+        game.puyo_rot = Direction.RIGHT
+        game.set_vertical_interpolation(0.5)
+        for y in range(12):
+            game.field.place_puyo(1, y, Puyo(PuyoColor.RED))
+
+        game.rotate(True)
+        self.assertEqual(game.puyo_x, 1)
+        self.assertEqual(game.puyo_y, 13)
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+
+        game.rotate(True)
+        self.assertEqual(game.puyo_x, 1)
+        self.assertEqual(game.puyo_y, 13)
+        self.assertEqual(game.puyo_rot, Direction.LEFT)
+
+    def test_interpolated_top_rotation_disallows_sub_row_14(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 13
+        game.puyo_rot = Direction.RIGHT
+        game.set_vertical_interpolation(0.5)
+
+        self.assertFalse(game._can_place_pair_for_rotation(2, 13, Direction.UP))
+        self.assertTrue(game._can_place_pair_for_rotation(2, 13, Direction.DOWN))
 
     def test_horizontal_sweep_blocks_overstep_while_interpolating(self):
         game = self._create_control_game()
