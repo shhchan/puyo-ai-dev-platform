@@ -1,3 +1,4 @@
+import argparse
 import pygame
 import sys
 import time
@@ -25,14 +26,25 @@ def _quantize_half_cell(progress):
     return 0.0
 
 
-def main():
+def parse_cli_args(argv=None):
+    parser = argparse.ArgumentParser(description="Puyo Base")
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Show debug HUD and offscreen rows (13-14).",
+    )
+    return parser.parse_args(argv)
+
+
+def main(debug_mode=False):
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo Base")
     clock = pygame.time.Clock()
 
     game_state = GameState()
-    renderer = Renderer(screen)
+    renderer = Renderer(screen, debug_mode=debug_mode)
     input_handler = InputHandler()
 
     last_gravity_time = time.time()
@@ -121,4 +133,5 @@ def main():
     sys.exit()
 
 if __name__ == "__main__":
-    main()
+    args = parse_cli_args()
+    main(debug_mode=args.debug)

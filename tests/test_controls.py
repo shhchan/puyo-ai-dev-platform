@@ -127,6 +127,22 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_rot, Direction.DOWN)
         self.assertEqual(game.puyo_y, 1)
 
+    def test_floor_kick_lifts_while_half_cell_falling(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 2
+        game.puyo_rot = Direction.RIGHT
+        game.set_vertical_interpolation(0.5)
+        # y=1 is empty but y=0 is blocked. With 0.5-cell fall interpolation,
+        # rotation should treat lower sweep as blocked and apply up-kick.
+        game.field.place_puyo(2, 0, Puyo(PuyoColor.RED))
+
+        game.rotate(True)
+
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 3)
+        self.assertEqual(game.ground_contact_count, 1)
+
     def test_horizontal_sweep_blocks_overstep_while_interpolating(self):
         game = self._create_control_game()
         game.puyo_x = 2

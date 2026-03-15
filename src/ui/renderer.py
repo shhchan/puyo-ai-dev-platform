@@ -11,8 +11,9 @@ from ..core.constants import (
 
 
 class Renderer:
-    def __init__(self, screen):
+    def __init__(self, screen, debug_mode=False):
         self.screen = screen
+        self.debug_mode = debug_mode
         self.font = pygame.font.SysFont("Arial", 20)
         self.small_font = pygame.font.SysFont("Arial", 16)
         self.large_font = pygame.font.SysFont("Arial", 64, bold=True)
@@ -29,11 +30,14 @@ class Renderer:
 
         self.field_border = 6
         self.hidden_rows = GRID_HEIGHT - VISIBLE_HEIGHT
+        self.draw_start_y = 0
+        self.draw_row_count = GRID_HEIGHT if self.debug_mode else VISIBLE_HEIGHT
+        self.draw_max_y = self.draw_start_y + self.draw_row_count - 1
         self.field_inner_left = 56
         self.field_inner_top = 64
         self.field_width = GRID_WIDTH * PUYO_SIZE
-        self.field_height = GRID_HEIGHT * PUYO_SIZE
-        self.visible_top = self.field_inner_top + self.hidden_rows * PUYO_SIZE
+        self.field_height = self.draw_row_count * PUYO_SIZE
+        self.visible_top = self.field_inner_top + (self.hidden_rows * PUYO_SIZE if self.debug_mode else 0)
         self.visible_height = VISIBLE_HEIGHT * PUYO_SIZE
 
         self.field_outer_rect = pygame.Rect(
@@ -49,8 +53,11 @@ class Renderer:
 
     def _grid_to_screen(self, x, y):
         sx = self.field_inner_left + x * PUYO_SIZE
-        sy = self.field_inner_top + (GRID_HEIGHT - 1 - y) * PUYO_SIZE
+        sy = self.field_inner_top + (self.draw_max_y - y) * PUYO_SIZE
         return sx, sy
+
+    def _is_y_drawable(self, y):
+        return self.draw_start_y <= y <= self.draw_max_y
 
     def _draw_puyo_rect(self, x, y, color):
         ix, iy = int(round(x)), int(round(y))
@@ -94,30 +101,40 @@ class Renderer:
         pygame.draw.rect(self.screen, (18, 18, 18), (preview_x, bottom_y, preview_size, preview_size), 1)
 
     def _draw_field_background(self):
-        hidden_rect = pygame.Rect(
+        if self.debug_mode:
+            hidden_rect = pygame.Rect(
+                self.field_inner_left,
+                self.field_inner_top,
+                self.field_width,
+                self.hidden_rows * PUYO_SIZE,
+            )
+            visible_rect = pygame.Rect(
+                self.field_inner_left,
+                self.visible_top,
+                self.field_width,
+                self.visible_height,
+            )
+            pygame.draw.rect(self.screen, (44, 50, 63), hidden_rect)
+            pygame.draw.rect(self.screen, (24, 28, 36), visible_rect)
+            pygame.draw.line(
+                self.screen,
+                (218, 120, 120),
+                (self.field_inner_left, self.visible_top),
+                (self.field_inner_left + self.field_width, self.visible_top),
+                2,
+            )
+
+            hidden_label = self.small_font.render("OFFSCREEN (13-14)", True, (205, 160, 160))
+            self.screen.blit(hidden_label, (self.field_inner_left + 8, self.field_inner_top + 6))
+            return
+
+        visible_rect = pygame.Rect(
             self.field_inner_left,
             self.field_inner_top,
             self.field_width,
-            self.hidden_rows * PUYO_SIZE,
+            self.field_height,
         )
-        visible_rect = pygame.Rect(
-            self.field_inner_left,
-            self.visible_top,
-            self.field_width,
-            self.visible_height,
-        )
-        pygame.draw.rect(self.screen, (44, 50, 63), hidden_rect)
         pygame.draw.rect(self.screen, (24, 28, 36), visible_rect)
-        pygame.draw.line(
-            self.screen,
-            (218, 120, 120),
-            (self.field_inner_left, self.visible_top),
-            (self.field_inner_left + self.field_width, self.visible_top),
-            2,
-        )
-
-        hidden_label = self.small_font.render("OFFSCREEN (13-14)", True, (205, 160, 160))
-        self.screen.blit(hidden_label, (self.field_inner_left + 8, self.field_inner_top + 6))
 
     def _draw_field_grid_lines(self):
         for x in range(GRID_WIDTH + 1):
@@ -130,7 +147,7 @@ class Renderer:
                 1,
             )
 
-        for y in range(GRID_HEIGHT + 1):
+        for y in range(self.draw_row_count + 1):
             line_y = self.field_inner_top + y * PUYO_SIZE
             pygame.draw.line(
                 self.screen,
@@ -142,7 +159,7 @@ class Renderer:
 
     def _draw_field_cells(self, game_state, skip_coords=None):
         skip_coords = skip_coords or set()
-        for y in range(GRID_HEIGHT):
+        for y in range(self.draw_start_y, self.draw_start_y + self.draw_row_count):
             for x in range(GRID_WIDTH):
                 if (x, y) in skip_coords:
                     continue
@@ -156,6 +173,8 @@ class Renderer:
     def _draw_drop_tween(self, game_state):
         # Draw static cells from the snapshot before drop.
         for x, y, color in game_state.drop_tween_static_cells:
+            if not self._is_y_drawable(y):
+                continue
             sx, sy = self._grid_to_screen(x, y)
             draw_color = self.colors.get(color, (255, 255, 255))
             self._draw_puyo_rect(sx, sy, draw_color)
@@ -164,6 +183,8 @@ class Renderer:
         p = game_state.drop_tween_progress
         for x, from_y, to_y, color in game_state.drop_tween_motions:
             interp_y = from_y + (to_y - from_y) * p
+            if not self._is_y_drawable(interp_y):
+                continue
             sx, sy = self._grid_to_screen(x, interp_y)
             draw_color = self.colors.get(color, (255, 255, 255))
             self._draw_puyo_rect(sx, sy, draw_color)
@@ -176,18 +197,19 @@ class Renderer:
         if ghost_pos is not None:
             ghost_x, ghost_y = ghost_pos
             ghost_color_1 = self.colors.get(game_state.current_puyo_1.color, (255, 255, 255))
-            ghost_sx, ghost_sy = self._grid_to_screen(ghost_x, ghost_y)
-            self._draw_ghost_rect(ghost_sx, ghost_sy, ghost_color_1)
+            if self._is_y_drawable(ghost_y):
+                ghost_sx, ghost_sy = self._grid_to_screen(ghost_x, ghost_y)
+                self._draw_ghost_rect(ghost_sx, ghost_sy, ghost_color_1)
 
             ox, oy = game_state.get_sub_puyo_offset(game_state.puyo_rot)
             ghost_sub_x, ghost_sub_y = ghost_x + ox, ghost_y + oy
-            if 0 <= ghost_sub_y < GRID_HEIGHT:
+            if 0 <= ghost_sub_y < GRID_HEIGHT and self._is_y_drawable(ghost_sub_y):
                 ghost_color_2 = self.colors.get(game_state.current_puyo_2.color, (255, 255, 255))
                 ghost_sx2, ghost_sy2 = self._grid_to_screen(ghost_sub_x, ghost_sub_y)
                 self._draw_ghost_rect(ghost_sx2, ghost_sy2, ghost_color_2)
 
         axis_x, axis_y = game_state.puyo_x, game_state.puyo_y
-        if 0 <= axis_y < GRID_HEIGHT:
+        if 0 <= axis_y < GRID_HEIGHT and self._is_y_drawable(axis_y):
             sx, sy = self._grid_to_screen(axis_x, axis_y)
             sy += fall_offset_px
             color = self.colors.get(game_state.current_puyo_1.color, (255, 255, 255))
@@ -195,11 +217,26 @@ class Renderer:
 
         ox, oy = game_state.get_sub_puyo_offset(game_state.puyo_rot)
         sub_x, sub_y = axis_x + ox, axis_y + oy
-        if 0 <= sub_y < GRID_HEIGHT:
+        if 0 <= sub_y < GRID_HEIGHT and self._is_y_drawable(sub_y):
             sx, sy = self._grid_to_screen(sub_x, sub_y)
             sy += fall_offset_px
             color = self.colors.get(game_state.current_puyo_2.color, (255, 255, 255))
             self._draw_puyo_rect(sx, sy, color)
+
+    def _draw_debug_hud(self, game_state):
+        if not self.debug_mode:
+            return
+
+        ground_f = self.small_font.render(
+            f"Ground F: {game_state.ground_frame_count}", True, (210, 230, 255)
+        )
+        ground_c = self.small_font.render(
+            f"Ground C: {game_state.ground_contact_count}", True, (210, 230, 255)
+        )
+        hud_x = self.field_outer_rect.x
+        hud_y = self.field_outer_rect.bottom + 8
+        self.screen.blit(ground_f, (hud_x, hud_y))
+        self.screen.blit(ground_c, (hud_x, hud_y + 18))
 
     def draw(self, game_state, fall_offset_px=0.0):
         self.screen.fill((36, 39, 46))
@@ -229,6 +266,7 @@ class Renderer:
 
         score_surface = self.font.render(f"Score: {game_state.score}", True, (242, 242, 242))
         self.screen.blit(score_surface, (self.field_outer_rect.x, 22))
+        self._draw_debug_hud(game_state)
 
         next_pairs = list(game_state.next_puyo_queue)
         next_pair = next_pairs[0] if len(next_pairs) > 0 else None

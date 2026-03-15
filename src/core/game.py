@@ -144,16 +144,16 @@ class GameState:
     def can_move(self, dx, dy, rot):
         return self.can_place_pair(self.puyo_x + dx, self.puyo_y + dy, rot)
 
+    def _can_place_pair_with_vertical_sweep(self, axis_x, axis_y, rot):
+        if not self.can_place_pair(axis_x, axis_y, rot):
+            return False
+        if self.vertical_interpolation_progress > 0.0:
+            return self.can_place_pair(axis_x, axis_y - 1, rot)
+        return True
+
     def can_move_horizontal(self, dx):
         target_x = self.puyo_x + dx
-        if not self.can_place_pair(target_x, self.puyo_y, self.puyo_rot):
-            return False
-
-        # If currently between rows visually, sweep-check one row below too.
-        if self.vertical_interpolation_progress > 0.0:
-            return self.can_place_pair(target_x, self.puyo_y - 1, self.puyo_rot)
-
-        return True
+        return self._can_place_pair_with_vertical_sweep(target_x, self.puyo_y, self.puyo_rot)
 
     def get_ghost_axis_position(self):
         if self.current_puyo_1 is None or self.current_puyo_2 is None or self.state != "control":
@@ -185,7 +185,16 @@ class GameState:
         self.spawn_puyo()
 
     def _is_axis_below_blocked(self):
-        return self.puyo_y == 0 or (not self.field.get_puyo(self.puyo_x, self.puyo_y - 1).is_empty())
+        check_rows = [self.puyo_y - 1]
+        if self.vertical_interpolation_progress > 0.0:
+            check_rows.append(self.puyo_y - 2)
+
+        for row in check_rows:
+            if row < 0:
+                return True
+            if not self.field.get_puyo(self.puyo_x, row).is_empty():
+                return True
+        return False
 
     def _is_vertical(self):
         return self.puyo_rot in (Direction.UP, Direction.DOWN)
@@ -193,24 +202,32 @@ class GameState:
     def _is_sides_blocked(self):
         return (not self.can_move(-1, 0, self.puyo_rot)) and (not self.can_move(1, 0, self.puyo_rot))
 
+    def _register_interpolated_floor_kick_contact(self):
+        # During half-cell falling interpolation, an up-kick should count as a
+        # ground contact event for lock debugging/behavior visibility.
+        if self.vertical_interpolation_progress <= 0.0:
+            return
+        self.ground_contact_count += 1
+
     def _rotate_90(self, clockwise):
         dirs = [Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT]
         idx = dirs.index(self.puyo_rot)
         new_idx = (idx + 1) % 4 if clockwise else (idx - 1) % 4
         new_rot = dirs[new_idx]
 
-        if self.can_move(0, 0, new_rot):
+        if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y, new_rot):
             self.puyo_rot = new_rot
             return
 
         axis_below_blocked = self._is_axis_below_blocked()
-        if axis_below_blocked and self.can_move(0, 1, new_rot):
+        if axis_below_blocked and self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, new_rot):
             self.puyo_y += 1
             self.puyo_rot = new_rot
-        elif self.can_move(1, 0, new_rot):
+            self._register_interpolated_floor_kick_contact()
+        elif self._can_place_pair_with_vertical_sweep(self.puyo_x + 1, self.puyo_y, new_rot):
             self.puyo_x += 1
             self.puyo_rot = new_rot
-        elif self.can_move(-1, 0, new_rot):
+        elif self._can_place_pair_with_vertical_sweep(self.puyo_x - 1, self.puyo_y, new_rot):
             self.puyo_x -= 1
             self.puyo_rot = new_rot
 
@@ -222,13 +239,14 @@ class GameState:
         else:
             return False
 
-        if self.can_move(0, 0, target_rot):
+        if self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y, target_rot):
             self.puyo_rot = target_rot
             return True
 
-        if self._is_axis_below_blocked() and self.can_move(0, 1, target_rot):
+        if self._is_axis_below_blocked() and self._can_place_pair_with_vertical_sweep(self.puyo_x, self.puyo_y + 1, target_rot):
             self.puyo_y += 1
             self.puyo_rot = target_rot
+            self._register_interpolated_floor_kick_contact()
             return True
 
         return False
