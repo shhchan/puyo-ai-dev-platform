@@ -13,6 +13,9 @@ from .constants import (
     COUNTDOWN_SECONDS,
     VANISH_FLASH_SECONDS,
     CHAIN_DROP_TWEEN_SECONDS,
+    CHAIN_BONUS_TABLE,
+    COLOR_BONUS_TABLE,
+    get_connection_bonus,
 )
 from .puyo import Puyo
 from .field import Field
@@ -54,6 +57,7 @@ class GameState:
         self.animation_state = None
         self.animation_timer = 0.0
         self.vanish_coords = set()
+        self.vanish_groups = []
         self.drop_tween_progress = 0.0
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
@@ -83,6 +87,7 @@ class GameState:
         self.animation_state = None
         self.animation_timer = 0.0
         self.vanish_coords = set()
+        self.vanish_groups = []
         self.drop_tween_progress = 0.0
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
@@ -350,10 +355,32 @@ class GameState:
         self.animation_state = "resolve"
         self.animation_timer = 0.0
         self.vanish_coords = set()
+        self.vanish_groups = []
         self.drop_tween_progress = 0.0
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
         self.drop_tween_motions = []
+
+    def _calculate_chain_score(self):
+        puyo_count = len(self.vanish_coords)
+        if puyo_count == 0:
+            return 0
+
+        chain_index = self.chain_count + 1
+        chain_bonus_index = min(chain_index, len(CHAIN_BONUS_TABLE) - 1)
+        chain_bonus = CHAIN_BONUS_TABLE[chain_bonus_index]
+
+        connect_bonus = 0
+        colors = set()
+        for group in self.vanish_groups:
+            connect_bonus += get_connection_bonus(len(group))
+            if group:
+                sample_x, sample_y = next(iter(group))
+                colors.add(self.field.get_puyo(sample_x, sample_y).color)
+
+        color_bonus = COLOR_BONUS_TABLE.get(len(colors), 0)
+        coef = max(1, chain_bonus + connect_bonus + color_bonus)
+        return puyo_count * coef * 10
 
     def _prepare_drop_tween(self, before_snapshot):
         motions = []
@@ -401,9 +428,12 @@ class GameState:
             self._prepare_drop_tween(before_snapshot)
             return
 
-        vanish = self.field.check_vanish()
-        if vanish:
-            self.vanish_coords = vanish
+        vanish_groups = self.field.get_vanish_groups()
+        if vanish_groups:
+            self.vanish_groups = vanish_groups
+            self.vanish_coords = set()
+            for group in vanish_groups:
+                self.vanish_coords.update(group)
             self.animation_state = "vanish_flash"
             self.animation_timer = 0.0
             return
@@ -423,10 +453,11 @@ class GameState:
             if self.animation_timer < VANISH_FLASH_SECONDS:
                 return
 
+            self.score += self._calculate_chain_score()
             self.field.remove_puyos(self.vanish_coords)
-            self.score += len(self.vanish_coords) * 10 * (self.chain_count + 1)
             self.chain_count += 1
             self.vanish_coords = set()
+            self.vanish_groups = []
             self.animation_state = "resolve"
             self.animation_timer = 0.0
             return

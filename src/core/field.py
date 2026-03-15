@@ -64,8 +64,20 @@ class Field:
         Include Index 12 (13th row, Hidden).
         Exclude Index 13 (14th row).
         """
-        visited = set()
+        groups = self.get_vanish_groups()
         vanish_group = set()
+        for group in groups:
+            vanish_group.update(group)
+        return vanish_group
+
+    def get_vanish_groups(self):
+        """
+        Returns list of connected groups (size >= 4) to vanish.
+        Include Index 12 (13th row, Hidden).
+        Exclude Index 13 (14th row).
+        """
+        visited = set()
+        vanish_groups = []
         
         def get_connected(start_x, start_y, color):
             stack = [(start_x, start_y)]
@@ -98,9 +110,9 @@ class Field:
                 visited.update(group)
                 
                 if len(group) >= 4:
-                    vanish_group.update(group)
+                    vanish_groups.append(group)
                     
-        return vanish_group
+        return vanish_groups
 
     def remove_puyos(self, coords):
         ojama_to_clear = set()
