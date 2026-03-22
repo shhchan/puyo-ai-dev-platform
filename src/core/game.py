@@ -70,9 +70,7 @@ class GameState:
                 PuyoColor.BLUE,
                 PuyoColor.GREEN,
                 PuyoColor.YELLOW,
-                # ぷよの色は基本的に4色なので，いまはコメントアウトしておく
-                # TODO: ぷよの色数を変更可能にする
-                # PuyoColor.PURPLE,
+                PuyoColor.PURPLE,
             ]
             p1 = Puyo(random.choice(colors))
             p2 = Puyo(random.choice(colors))
