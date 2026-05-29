@@ -13,7 +13,7 @@ from src.ui.renderer import Renderer
 from src.input_handler import InputHandler
 
 SCREEN_WIDTH = 400
-SCREEN_HEIGHT = 600
+SCREEN_HEIGHT = 700
 FPS = 60
 
 

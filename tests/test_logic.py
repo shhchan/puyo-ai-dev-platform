@@ -1,7 +1,8 @@
 import unittest
 from src.core.field import Field
+from src.core.game import GameState
 from src.core.puyo import Puyo
-from src.core.constants import PuyoColor, GRID_HEIGHT
+from src.core.constants import PuyoColor, Direction
 
 class TestPuyoLogic(unittest.TestCase):
     def test_gravity(self):
@@ -75,6 +76,45 @@ class TestPuyoLogic(unittest.TestCase):
 
         self.assertEqual(f.get_puyo(0, 13).color, PuyoColor.RED)
         self.assertEqual(f.get_puyo(0, 0).color, PuyoColor.BLUE)
+
+
+class TestGhostHighlight(unittest.TestCase):
+    def _create_control_game(self):
+        game = GameState()
+        game.spawn_puyo()
+        return game
+
+    def test_ghost_highlight_marks_existing_puyos_when_next_drop_will_clear(self):
+        game = self._create_control_game()
+        game.current_puyo_1 = Puyo(PuyoColor.RED)
+        game.current_puyo_2 = Puyo(PuyoColor.RED)
+        game.puyo_x = 1
+        game.puyo_y = 5
+        game.puyo_rot = Direction.UP
+
+        game.field.place_puyo(1, 0, Puyo(PuyoColor.RED))
+        game.field.place_puyo(2, 0, Puyo(PuyoColor.RED))
+
+        highlight = game.get_ghost_highlight_coords()
+
+        self.assertEqual(highlight, {(1, 0), (2, 0)})
+
+    def test_ghost_highlight_ignores_groups_that_only_form_in_hidden_rows(self):
+        game = self._create_control_game()
+        game.current_puyo_1 = Puyo(PuyoColor.RED)
+        game.current_puyo_2 = Puyo(PuyoColor.RED)
+        game.puyo_x = 1
+        game.puyo_y = 13
+        game.puyo_rot = Direction.UP
+
+        game.field.place_puyo(1, 9, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 10, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 11, Puyo(PuyoColor.RED))
+
+        highlight = game.get_ghost_highlight_coords()
+
+        self.assertEqual(highlight, set())
+
 
 if __name__ == '__main__':
     unittest.main()

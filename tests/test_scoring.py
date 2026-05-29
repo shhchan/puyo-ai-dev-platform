@@ -1,6 +1,6 @@
 import unittest
 
-from src.core.constants import VANISH_FLASH_SECONDS, PuyoColor
+from src.core.constants import VANISH_FLASH_SECONDS, PuyoColor, Action
 from src.core.game import GameState
 from src.core.puyo import Puyo
 
@@ -16,6 +16,7 @@ class TestScoring(unittest.TestCase):
         for group in groups:
             for coord in group:
                 game.vanish_coords.add(coord)
+        game.chain_display_a, game.chain_display_b, game.chain_display_score = game._calculate_chain_score_components()
 
     def _place_group(self, game, coords, color):
         for x, y in coords:
@@ -72,6 +73,42 @@ class TestScoring(unittest.TestCase):
         game.advance_animation(VANISH_FLASH_SECONDS)
 
         self.assertEqual(game.score, 20480)
+
+    def test_score_display_is_zero_padded_when_not_chaining(self):
+        game = GameState()
+        game.score = 123
+        self.assertEqual(game.get_score_display_text(), "00000123")
+
+    def test_score_display_shows_axb_during_vanish_flash(self):
+        game = GameState()
+        group = {(0, 0), (1, 0), (0, 1), (1, 1)}
+        self._place_group(game, group, PuyoColor.RED)
+        self._setup_vanish_flash(game, [group], chain_count=0)
+
+        self.assertEqual(game.get_score_display_text(), "  40x  1")
+
+    def test_soft_drop_bonus_not_added_without_soft_drop(self):
+        game = GameState()
+        game.spawn_puyo()
+
+        game.lock_puyo()
+
+        self.assertEqual(game.score, 0)
+
+    def test_soft_drop_bonus_adds_cells_plus_landing_point(self):
+        game = GameState()
+        game.spawn_puyo()
+        start_y = game.puyo_y
+
+        game.update([Action.DOWN])
+        self.assertEqual(game.score, 1)
+        game.update([Action.DOWN])
+        self.assertEqual(game.score, 2)
+        self.assertEqual(game.puyo_y, start_y - 2)
+
+        game.lock_puyo()
+
+        self.assertEqual(game.score, 3)
 
 
 if __name__ == "__main__":

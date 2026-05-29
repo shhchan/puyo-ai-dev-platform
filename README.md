@@ -61,6 +61,13 @@ python3 main.py -d
 python3 -m unittest discover -s tests -q
 ```
 
+## 開発ワークフロー（VSCode x Codex x Jira）
+
+- セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
+- Codex運用ルール: [docs/development/codex_jira_operating_rules.md](docs/development/codex_jira_operating_rules.md)
+- VSCode MCP用サーバー定義: `mcp.json`
+- VSCode推奨拡張: `.vscode/extensions.json`
+
 ## ドキュメント
 
 - ゲームシステム詳細仕様（現行実装準拠）:  

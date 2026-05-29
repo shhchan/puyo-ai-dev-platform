@@ -5,6 +5,7 @@ from collections import deque
 from .constants import (
     GRID_WIDTH,
     GRID_HEIGHT,
+    VISIBLE_HEIGHT,
     PuyoColor,
     Action,
     Direction,
@@ -62,6 +63,12 @@ class GameState:
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
         self.drop_tween_motions = []
+        self.chain_display_a = None
+        self.chain_display_b = None
+        self.chain_display_score = 0
+        self.floor_kick_horizontal_grace = False
+        self.soft_drop_cells_this_pair = 0
+        self.soft_drop_used_this_pair = False
 
     def _fill_next_queue(self):
         while len(self.next_puyo_queue) < 2:
@@ -70,7 +77,9 @@ class GameState:
                 PuyoColor.BLUE,
                 PuyoColor.GREEN,
                 PuyoColor.YELLOW,
-                PuyoColor.PURPLE,
+                # ぷよの色は基本的に4色なので，いまはコメントアウトしておく
+                # TODO: ぷよの色数を変更可能にする
+                # PuyoColor.PURPLE,
             ]
             p1 = Puyo(random.choice(colors))
             p2 = Puyo(random.choice(colors))
@@ -82,6 +91,7 @@ class GameState:
         self.was_grounded_prev_frame = False
         self.blocked_rotate_input_count = 0
         self.vertical_interpolation_progress = 0.0
+        self.floor_kick_horizontal_grace = False
 
     def _reset_animation_data(self):
         self.animation_state = None
@@ -92,6 +102,13 @@ class GameState:
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
         self.drop_tween_motions = []
+        self.chain_display_a = None
+        self.chain_display_b = None
+        self.chain_display_score = 0
+
+    def _reset_drop_bonus_state(self):
+        self.soft_drop_cells_this_pair = 0
+        self.soft_drop_used_this_pair = False
 
     def spawn_puyo(self):
         spawn_y = 12
@@ -115,6 +132,7 @@ class GameState:
         self.countdown_number = None
         self._reset_control_counters()
         self._reset_animation_data()
+        self._reset_drop_bonus_state()
 
     def get_sub_puyo_offset(self, rotation):
         if rotation == Direction.UP:
@@ -131,8 +149,9 @@ class GameState:
         self.vertical_interpolation_progress = max(0.0, min(1.0, progress_cells))
 
     def can_place_pair(self, axis_x, axis_y, rot):
-        # Axis cannot enter row 14 (index 13). Child can.
-        if not (0 <= axis_x < GRID_WIDTH and 0 <= axis_y < GRID_HEIGHT - 1):
+        # Temporary investigation mode (PUYO-11):
+        # Axis is also allowed on row 14 (index 13) while sub remains in-bounds.
+        if not (0 <= axis_x < GRID_WIDTH and 0 <= axis_y < GRID_HEIGHT):
             return False
         if not self.field.get_puyo(axis_x, axis_y).is_empty():
             return False
@@ -156,32 +175,57 @@ class GameState:
             return self.can_place_pair(axis_x, axis_y - 1, rot)
         return True
 
-    def _can_place_pair_for_rotation(self, axis_x, axis_y, rot):
+    def _can_place_pair_for_rotation(self, axis_x, axis_y, rot, apply_interpolation_sweep=True):
         # Rotation uses pure board occupancy at the target orientation.
-        # Unlike horizontal movement, it should not apply y-1 sweep checks.
-        if self.can_place_pair(axis_x, axis_y, rot):
+        # At half-cell interpolation, rotation should respect intermediate
+        # occupancy so floor-kick resolves to +1.0 effective height.
+        can_place = self.can_place_pair(axis_x, axis_y, rot)
+        if can_place and apply_interpolation_sweep and self.vertical_interpolation_progress > 0.0:
+            can_place = self.can_place_pair(axis_x, axis_y - 1, rot)
+        if can_place:
             return True
 
         # Temporary top-row allowance only while interpolating between rows.
         # This enables floor-kick at 11.5 -> 12.5 cell heights.
+        allow_top_row = self.vertical_interpolation_progress > 0.0 or self.floor_kick_horizontal_grace
         if (
-            self.vertical_interpolation_progress > 0.0
+            allow_top_row
             and axis_y == GRID_HEIGHT - 1
             and 0 <= axis_x < GRID_WIDTH
             and self.field.get_puyo(axis_x, axis_y).is_empty()
         ):
             ox, oy = self.get_sub_puyo_offset(rot)
             sub_x, sub_y = axis_x + ox, axis_y + oy
-            if (
+            sub_in_field = (
                 0 <= sub_x < GRID_WIDTH
                 and 0 <= sub_y < GRID_HEIGHT
                 and self.field.get_puyo(sub_x, sub_y).is_empty()
-            ):
+            )
+            allow_sub_overflow_for_interp = (
+                self.vertical_interpolation_progress > 0.0
+                and oy == 1
+                and 0 <= sub_x < GRID_WIDTH
+                and sub_y == GRID_HEIGHT
+            )
+            if sub_in_field or allow_sub_overflow_for_interp:
+                if (
+                    apply_interpolation_sweep
+                    and axis_y - 1 >= 0
+                    and not self.can_place_pair(axis_x, axis_y - 1, rot)
+                ):
+                    return False
                 return True
         return False
 
     def can_move_horizontal(self, dx):
         target_x = self.puyo_x + dx
+        if self.floor_kick_horizontal_grace:
+            return self._can_place_pair_for_rotation(
+                target_x,
+                self.puyo_y,
+                self.puyo_rot,
+                apply_interpolation_sweep=False,
+            )
         return self._can_place_pair_with_vertical_sweep(target_x, self.puyo_y, self.puyo_rot)
 
     def get_ghost_axis_position(self):
@@ -241,6 +285,16 @@ class GameState:
         if self.vertical_interpolation_progress <= 0.0:
             return
         self.ground_contact_count += 1
+        self.floor_kick_horizontal_grace = True
+
+    def _clear_floor_kick_horizontal_grace(self):
+        self.floor_kick_horizontal_grace = False
+
+    def _should_forbid_row14_floor_kick(self, target_axis_y, axis_below_blocked):
+        # Temporary investigation mode (PUYO-11):
+        # keep floor-kick path unconstrained by axis row-14 rule.
+        _ = (target_axis_y, axis_below_blocked)
+        return False
 
     def _rotate_90(self, clockwise):
         dirs = [Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT]
@@ -254,12 +308,23 @@ class GameState:
 
         axis_below_blocked = self._is_axis_below_blocked()
         if axis_below_blocked:
-            if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y + 1, new_rot):
-                self.puyo_y += 1
+            kick_target_y = self.puyo_y + 1
+            forbid_row14_floor_kick = self._should_forbid_row14_floor_kick(kick_target_y, axis_below_blocked)
+            if (not forbid_row14_floor_kick) and self._can_place_pair_for_rotation(
+                self.puyo_x,
+                kick_target_y,
+                new_rot,
+                apply_interpolation_sweep=False,
+            ):
+                self.puyo_y = kick_target_y
                 self.puyo_rot = new_rot
                 self._register_interpolated_floor_kick_contact()
-            # When floor-kick context is active, never fallback to side-kick.
-            return
+                # When floor-kick context is active, never fallback to side-kick.
+                return
+            if not forbid_row14_floor_kick:
+                # Keep existing no-side-kick behavior unless this specific
+                # row14-axis rule is the reason kick is disallowed.
+                return
 
         if self._can_place_pair_for_rotation(self.puyo_x + 1, self.puyo_y, new_rot):
             self.puyo_x += 1
@@ -280,11 +345,21 @@ class GameState:
             self.puyo_rot = target_rot
             return True
 
-        if self._is_axis_below_blocked() and self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y + 1, target_rot):
-            self.puyo_y += 1
-            self.puyo_rot = target_rot
-            self._register_interpolated_floor_kick_contact()
-            return True
+        axis_below_blocked = self._is_axis_below_blocked()
+        if axis_below_blocked:
+            kick_target_y = self.puyo_y + 1
+            if self._should_forbid_row14_floor_kick(kick_target_y, axis_below_blocked):
+                return False
+            if self._can_place_pair_for_rotation(
+                self.puyo_x,
+                kick_target_y,
+                target_rot,
+                apply_interpolation_sweep=False,
+            ):
+                self.puyo_y = kick_target_y
+                self.puyo_rot = target_rot
+                self._register_interpolated_floor_kick_contact()
+                return True
 
         return False
 
@@ -370,6 +445,11 @@ class GameState:
 
             if can_apply_down and self.can_move(0, -1, self.puyo_rot):
                 self.puyo_y -= 1
+                if self.puyo_y <= VISIBLE_HEIGHT:
+                    self._clear_floor_kick_horizontal_grace()
+                self.soft_drop_cells_this_pair += 1
+                self.soft_drop_used_this_pair = True
+                self.score += 1
 
         for action in actions:
             if action == Action.ROTATE_RIGHT:
@@ -382,8 +462,13 @@ class GameState:
     def step_gravity(self):
         if self.state == "control" and self.can_move(0, -1, self.puyo_rot):
             self.puyo_y -= 1
+            if self.puyo_y <= VISIBLE_HEIGHT:
+                self._clear_floor_kick_horizontal_grace()
 
     def lock_puyo(self):
+        if self.soft_drop_used_this_pair:
+            self.score += 1
+
         self.field.place_puyo(self.puyo_x, self.puyo_y, self.current_puyo_1)
         ox, oy = self.get_sub_puyo_offset(self.puyo_rot)
         self.field.place_puyo(self.puyo_x + ox, self.puyo_y + oy, self.current_puyo_2)
@@ -392,6 +477,7 @@ class GameState:
         self.current_puyo_2 = None
         self.state = "animate"
         self.chain_count = 0
+        self._clear_floor_kick_horizontal_grace()
         self._start_resolve_phase()
 
     def _snapshot_field_colors(self):
@@ -412,11 +498,14 @@ class GameState:
         self.drop_tween_grid_before = None
         self.drop_tween_static_cells = []
         self.drop_tween_motions = []
+        self.chain_display_a = None
+        self.chain_display_b = None
+        self.chain_display_score = 0
 
-    def _calculate_chain_score(self):
+    def _calculate_chain_score_components(self):
         puyo_count = len(self.vanish_coords)
         if puyo_count == 0:
-            return 0
+            return (0, 0, 0)
 
         chain_index = self.chain_count + 1
         chain_bonus_index = min(chain_index, len(CHAIN_BONUS_TABLE) - 1)
@@ -431,8 +520,112 @@ class GameState:
                 colors.add(self.field.get_puyo(sample_x, sample_y).color)
 
         color_bonus = COLOR_BONUS_TABLE.get(len(colors), 0)
-        coef = max(1, chain_bonus + connect_bonus + color_bonus)
-        return puyo_count * coef * 10
+        raw_b = chain_bonus + connect_bonus + color_bonus
+        b = max(1, raw_b)
+        a = puyo_count * 10
+        return (a, b, a * b)
+
+    def _calculate_chain_score(self):
+        _, _, score = self._calculate_chain_score_components()
+        return score
+
+    def get_score_display_text(self):
+        if (
+            self.state == "animate"
+            and self.animation_state == "vanish_flash"
+            and self.chain_display_a is not None
+            and self.chain_display_b is not None
+        ):
+            return f"{self.chain_display_a:>3}x{self.chain_display_b:>3}".rjust(8)
+        return f"{self.score:08d}"
+
+    def _build_ghost_cells(self):
+        ghost_pos = self.get_ghost_axis_position()
+        if ghost_pos is None:
+            return []
+
+        ghost_x, ghost_y = ghost_pos
+        ghost_cells = []
+        if 0 <= ghost_x < GRID_WIDTH and 0 <= ghost_y < GRID_HEIGHT:
+            ghost_cells.append((ghost_x, ghost_y, self.current_puyo_1.color))
+
+        ox, oy = self.get_sub_puyo_offset(self.puyo_rot)
+        sub_x, sub_y = ghost_x + ox, ghost_y + oy
+        if 0 <= sub_x < GRID_WIDTH and 0 <= sub_y < GRID_HEIGHT:
+            ghost_cells.append((sub_x, sub_y, self.current_puyo_2.color))
+
+        return ghost_cells
+
+    def get_ghost_highlight_coords(self):
+        if self.state != "control" or self.current_puyo_1 is None or self.current_puyo_2 is None:
+            return set()
+
+        ghost_cells = self._build_ghost_cells()
+        if not ghost_cells:
+            return set()
+
+        ghost_color_cells = {}
+        for x, y, color in ghost_cells:
+            if not (0 <= y < VISIBLE_HEIGHT):
+                continue
+            if color not in (
+                PuyoColor.RED,
+                PuyoColor.BLUE,
+                PuyoColor.GREEN,
+                PuyoColor.YELLOW,
+                PuyoColor.PURPLE,
+            ):
+                continue
+            ghost_color_cells[(x, y)] = color
+
+        if not ghost_color_cells:
+            return set()
+
+        visited = set()
+        highlight = set()
+
+        for (sx, sy), s_color in ghost_color_cells.items():
+            if (sx, sy) in visited:
+                continue
+
+            stack = [(sx, sy)]
+            group = set()
+            has_ghost = False
+            has_field = False
+
+            while stack:
+                x, y = stack.pop()
+                if (x, y) in group:
+                    continue
+                if not (0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT):
+                    continue
+
+                cell_color = ghost_color_cells.get((x, y))
+                if cell_color is None:
+                    field_puyo = self.field.get_puyo(x, y)
+                    if field_puyo.is_empty() or field_puyo.color != s_color:
+                        continue
+                elif cell_color != s_color:
+                    continue
+
+                group.add((x, y))
+                if (x, y) in ghost_color_cells:
+                    has_ghost = True
+                elif not self.field.get_puyo(x, y).is_empty():
+                    has_field = True
+
+                for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                    stack.append((x + dx, y + dy))
+
+            visited.update(group)
+            if len(group) < 4 or (not has_ghost) or (not has_field):
+                continue
+
+            for x, y in group:
+                if (x, y) not in ghost_color_cells and not self.field.get_puyo(x, y).is_empty():
+                    highlight.add((x, y))
+
+        return highlight
 
     def _prepare_drop_tween(self, before_snapshot):
         motions = []
@@ -486,6 +679,7 @@ class GameState:
             self.vanish_coords = set()
             for group in vanish_groups:
                 self.vanish_coords.update(group)
+            self.chain_display_a, self.chain_display_b, self.chain_display_score = self._calculate_chain_score_components()
             self.animation_state = "vanish_flash"
             self.animation_timer = 0.0
             return
@@ -505,11 +699,16 @@ class GameState:
             if self.animation_timer < VANISH_FLASH_SECONDS:
                 return
 
-            self.score += self._calculate_chain_score()
+            if self.chain_display_score <= 0:
+                self.chain_display_a, self.chain_display_b, self.chain_display_score = self._calculate_chain_score_components()
+            self.score += self.chain_display_score
             self.field.remove_puyos(self.vanish_coords)
             self.chain_count += 1
             self.vanish_coords = set()
             self.vanish_groups = []
+            self.chain_display_a = None
+            self.chain_display_b = None
+            self.chain_display_score = 0
             self.animation_state = "resolve"
             self.animation_timer = 0.0
             return
