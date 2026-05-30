@@ -12,6 +12,9 @@
 ## 2. 実装時の Jira 更新
 
 - 作業開始時は、対象チケットのステータスを `進行中` へ遷移する。
+- Jira 操作では、まず `atlassian` MCP の `getAccessibleAtlassianResources` で接続確認する。
+- 本リポジトリの Jira site は `https://shhchan.atlassian.net`、cloudId は `46424ed5-7d42-4bff-bc2a-da4c296f8b5b`。
+- Rovo Search が 403 を返す場合でも、cloudId を指定した Jira issue API（取得・コメント・遷移・起票）を優先して試す。
 - Jira コメントは「1作業セッションにつき1件/チケット」を原則とする。
 - コメントには以下を含める。
   - 実施内容の要約

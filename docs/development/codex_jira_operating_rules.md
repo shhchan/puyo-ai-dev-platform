@@ -9,6 +9,23 @@
 - 非自明な実装依頼では、`AGENTS.md` に従って Codex が機能単位で起票する。
 - Jira / GitHub / Git の操作に失敗した場合は、理由を隠さずユーザーに報告する。
 
+## Jira 接続情報
+
+- Jira site: `https://shhchan.atlassian.net`
+- cloudId: `46424ed5-7d42-4bff-bc2a-da4c296f8b5b`
+- Codex CLI の MCP サーバー名: `atlassian`
+- MCP URL: `https://mcp.atlassian.com/v1/mcp/authv2`
+- 必要 scope: `read:jira-work`, `write:jira-work`
+
+## Jira 操作手順
+
+1. まず `getAccessibleAtlassianResources` で Jira site と scope を確認する。
+2. `PUYO-12` のようなチケットキーが分かっている場合は、Rovo Search に頼らず `getJiraIssue` を使う。
+3. コメントは `addCommentToJiraIssue` を使う。
+4. ステータス遷移は `getTransitionsForJiraIssue` で transition id を確認してから `transitionJiraIssue` を使う。
+5. Rovo Search が `403` / `The app is not installed on this instance` を返しても、cloudId 指定の Jira issue API が使える場合があるため直接 API を試す。
+6. 直接 API も認証エラーになる場合は、`codex mcp login atlassian` を案内する。
+
 ## 遷移ルール
 
 - チケット指定で作業開始指示があった場合、可能なら `進行中` / `In Progress` へ遷移する。
