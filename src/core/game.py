@@ -1,5 +1,4 @@
 import math
-import random
 from collections import deque
 
 from .constants import (
@@ -20,11 +19,13 @@ from .constants import (
 )
 from .puyo import Puyo
 from .field import Field
+from .tsumo import PuyoSequence
 
 
 class GameState:
-    def __init__(self):
+    def __init__(self, seed=None, puyo_sequence=None):
         self.field = Field()
+        self.puyo_sequence = puyo_sequence or PuyoSequence(seed=seed)
         self.score = 0
         self.chain_count = 0
         self.game_over = False
@@ -72,18 +73,7 @@ class GameState:
 
     def _fill_next_queue(self):
         while len(self.next_puyo_queue) < 2:
-            colors = [
-                PuyoColor.RED,
-                PuyoColor.BLUE,
-                PuyoColor.GREEN,
-                PuyoColor.YELLOW,
-                # ぷよの色は基本的に4色なので，いまはコメントアウトしておく
-                # TODO: ぷよの色数を変更可能にする
-                # PuyoColor.PURPLE,
-            ]
-            p1 = Puyo(random.choice(colors))
-            p2 = Puyo(random.choice(colors))
-            self.next_puyo_queue.append((p1, p2))
+            self.next_puyo_queue.append(self.puyo_sequence.next_pair())
 
     def _reset_control_counters(self):
         self.ground_contact_count = 0
@@ -167,6 +157,17 @@ class GameState:
 
     def can_move(self, dx, dy, rot):
         return self.can_place_pair(self.puyo_x + dx, self.puyo_y + dy, rot)
+
+    def find_landing_y(self, axis_x, rot, start_y=12):
+        if self.current_puyo_1 is None or self.current_puyo_2 is None:
+            return None
+        if not self.can_place_pair(axis_x, start_y, rot):
+            return None
+
+        landing_y = start_y
+        while self.can_place_pair(axis_x, landing_y - 1, rot):
+            landing_y -= 1
+        return landing_y
 
     def _can_place_pair_with_vertical_sweep(self, axis_x, axis_y, rot):
         if not self.can_place_pair(axis_x, axis_y, rot):
@@ -528,6 +529,75 @@ class GameState:
     def _calculate_chain_score(self):
         _, _, score = self._calculate_chain_score_components()
         return score
+
+    def resolve_chains_synchronously(self, spawn_next=False):
+        chain_results = []
+        self.state = "animate"
+        self.chain_count = 0
+        self._start_resolve_phase()
+
+        while True:
+            self.field.drop_puyo()
+            vanish_groups = self.field.get_vanish_groups()
+            if not vanish_groups:
+                break
+
+            self.vanish_groups = vanish_groups
+            self.vanish_coords = set()
+            for group in vanish_groups:
+                self.vanish_coords.update(group)
+
+            a, b, step_score = self._calculate_chain_score_components()
+            chain_results.append(
+                {
+                    "chain_index": self.chain_count + 1,
+                    "groups": [set(group) for group in vanish_groups],
+                    "vanished": set(self.vanish_coords),
+                    "vanished_count": len(self.vanish_coords),
+                    "base": a,
+                    "bonus": b,
+                    "score": step_score,
+                }
+            )
+            self.score += step_score
+            self.field.remove_puyos(self.vanish_coords)
+            self.chain_count += 1
+
+        self._reset_animation_data()
+        if spawn_next:
+            self.spawn_puyo()
+        else:
+            self.state = "ready"
+        return chain_results
+
+    def place_current_pair_and_resolve(self, axis_x, rot, spawn_next=True):
+        if self.state == "ready":
+            self.spawn_puyo()
+        if self.state != "control" or self.current_puyo_1 is None or self.current_puyo_2 is None:
+            return None
+
+        landing_y = self.find_landing_y(axis_x, rot)
+        if landing_y is None:
+            return None
+
+        score_before = self.score
+        self.puyo_x = axis_x
+        self.puyo_y = landing_y
+        self.puyo_rot = rot
+        self._reset_control_counters()
+        self._reset_drop_bonus_state()
+        self.lock_puyo()
+        chain_results = self.resolve_chains_synchronously(spawn_next=spawn_next)
+
+        return {
+            "axis_x": axis_x,
+            "axis_y": landing_y,
+            "rotation": rot,
+            "score_delta": self.score - score_before,
+            "chain_count": len(chain_results),
+            "chains": chain_results,
+            "game_over": self.game_over,
+        }
 
     def get_score_display_text(self):
         if (

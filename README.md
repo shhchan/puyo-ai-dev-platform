@@ -61,6 +61,22 @@ python3 main.py -d
 python3 -m unittest discover -s tests -q
 ```
 
+## ヘッドレスシミュレータ
+
+強化学習向けに，描画・入力・アニメーション待ちなしで1手を同期実行できます．
+
+```python
+from src.core.constants import Direction
+from src.core.headless import HeadlessPuyoSimulator
+
+sim = HeadlessPuyoSimulator(seed=123)
+result = sim.step((2, Direction.UP))
+print(result.score_delta, result.chain_count, result.game_over)
+```
+
+Phase 0 の実装メモ:  
+[docs/development/puyo-phase0-core-audit.md](docs/development/puyo-phase0-core-audit.md)
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

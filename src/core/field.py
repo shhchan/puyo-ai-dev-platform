@@ -19,6 +19,9 @@ class Field:
             return True
         return False
 
+    def to_color_grid(self):
+        return [[self.grid[y][x].color for x in range(self.width)] for y in range(self.height)]
+
     def drop_puyo(self):
         """
         Apply gravity. Puyo falls from Higher Y to Lower Y.
