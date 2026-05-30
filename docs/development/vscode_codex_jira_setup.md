@@ -19,7 +19,7 @@
 この環境では以下を実施済みです。
 
 ```bash
-codex mcp add atlassian --url https://mcp.atlassian.com/v1/mcp
+codex mcp add atlassian --url https://mcp.atlassian.com/v1/mcp/authv2
 codex mcp login atlassian --scopes read:jira-work,write:jira-work,read:me,read:account
 codex mcp list
 ```
@@ -27,8 +27,15 @@ codex mcp list
 確認結果（要点）:
 
 - MCP サーバー名: `atlassian`
-- URL: `https://mcp.atlassian.com/v1/mcp`
+- URL: `https://mcp.atlassian.com/v1/mcp/authv2`
 - 認証: `OAuth`
+- Jira site: `https://shhchan.atlassian.net`
+- cloudId: `46424ed5-7d42-4bff-bc2a-da4c296f8b5b`
+- scope: `read:jira-work`, `write:jira-work`
+
+Codex セッション開始後は、まず `getAccessibleAtlassianResources` で上記 site / cloudId / scope が返ることを確認する。
+チケットキーが分かっている場合は、Rovo Search ではなく cloudId を指定した Jira issue API（`getJiraIssue`, `addCommentToJiraIssue`, `getTransitionsForJiraIssue`, `transitionJiraIssue`）を使う。
+Rovo Search が `403` / `The app is not installed on this instance` を返しても、直接 Jira issue API は使える場合がある。
 
 ## 4. 再認証・トラブル時
 
