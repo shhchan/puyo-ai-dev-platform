@@ -62,6 +62,7 @@ class VersusPlayerState:
     sent_ojama_total: int = 0
     received_ojama_total: int = 0
     episode_return: float = 0.0
+    max_chain_count: int = 0
 
 
 class VersusPuyoEnv:
@@ -189,6 +190,7 @@ class VersusPuyoEnv:
             "pending_ojama": state.pending_ojama,
             "sent_ojama_total": state.sent_ojama_total,
             "received_ojama_total": state.received_ojama_total,
+            "max_chain_count": state.max_chain_count,
             "simulator": state.simulator,
         }
 
@@ -308,6 +310,7 @@ class VersusPuyoEnv:
             results[agent] = result
             components[agent]["score_delta"] = result.score_delta
             components[agent]["chain_count"] = result.chain_count
+            state.max_chain_count = max(state.max_chain_count, int(result.chain_count))
             if not result.valid:
                 state.simulator.game.game_over = True
                 state.simulator.game.state = "gameover"
@@ -373,6 +376,7 @@ class VersusPuyoEnv:
                     "win": 0.5 if winner is None else float(winner == agent),
                     "sent_ojama": self.player_states[agent].sent_ojama_total,
                     "received_ojama": self.player_states[agent].received_ojama_total,
+                    "max_chain": self.player_states[agent].max_chain_count,
                 }
 
         if episode_done:

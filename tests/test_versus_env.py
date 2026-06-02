@@ -52,6 +52,8 @@ class TestVersusPuyoEnv(unittest.TestCase):
 
         self.assertEqual(steps, 3)
         self.assertIn("episode", infos["player_0"])
+        self.assertIn("max_chain", infos["player_0"]["episode"])
+        self.assertIn("max_chain_count", infos["player_0"])
 
     def test_pending_ojama_is_dropped_before_action(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)

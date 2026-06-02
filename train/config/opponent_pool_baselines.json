@@ -1,0 +1,28 @@
+{
+  "elo_config": {
+    "default_rating": 1000.0,
+    "k_factor": 32.0
+  },
+  "snapshots": [
+    {
+      "checkpoint_path": null,
+      "games_played": 0,
+      "metadata": {
+        "role": "fixed_baseline"
+      },
+      "name": "random",
+      "policy_type": "random",
+      "rating": 1000.0
+    },
+    {
+      "checkpoint_path": null,
+      "games_played": 0,
+      "metadata": {
+        "role": "fixed_baseline"
+      },
+      "name": "greedy_score",
+      "policy_type": "greedy",
+      "rating": 1000.0
+    }
+  ]
+}

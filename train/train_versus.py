@@ -65,12 +65,20 @@ def main(argv=None):
     args = parse_args(argv)
     config = build_config(args)
     result = train_versus_ppo(config)
+    print(f"run_id: {result['run_id']}")
+    print(f"run_dir: {result['run_dir']}")
     print(f"checkpoint: {result['checkpoint_path']}")
+    if result["best_checkpoint_path"] is not None:
+        print(f"best_checkpoint: {result['best_checkpoint_path']}")
     print(f"metrics: {result['metrics_path']}")
+    print(f"config_dump: {result['config_path']}")
+    print(f"summary: {result['summary_path']}")
     if result["mean_episode_score"] is not None:
         print(f"mean_episode_score_last10: {result['mean_episode_score']:.2f}")
     if result["mean_win_rate"] is not None:
         print(f"mean_win_rate_last10: {result['mean_win_rate']:.3f}")
+    if result["mean_max_chain"] is not None:
+        print(f"mean_max_chain_last10: {result['mean_max_chain']:.2f}")
 
 
 if __name__ == "__main__":
