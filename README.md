@@ -1,8 +1,8 @@
 # ぷよぷよ AI 開発基盤作成プロジェクト
 
 ぷよぷよ AI 開発のためのローカル実験基盤です．  
-現時点では，**1Pゲームコア（操作・落下・連鎖・得点・描画・デバッグ表示）まで実装済み**で，  
-**対戦システム（おじゃま送受信・相殺など）は未実装**です．
+現時点では，**1Pゲームコア（操作・落下・連鎖・得点・描画・デバッグ表示）**に加えて，
+**ヘッドレス対戦RL環境・自己対戦PPO・arena評価**まで実装済みです．
 
 ## セットアップ
 
@@ -111,6 +111,66 @@ python3 -m train.train_flat --set total_timesteps=512 --set num_envs=2 --set num
 
 ログは `runs/flat_ppo/metrics.csv` と TensorBoard（利用可能な場合）に出力され，チェックポイントは
 `runs/flat_ppo/puyo_flat_ppo.pt` に保存されます．
+
+## Phase 2: 対戦RL環境 + 自己対戦
+
+PettingZoo ParallelEnv 互換の対戦環境は `puyo_env.versus_env.VersusPuyoEnv` です．
+1 joint step で両プレイヤーが1手ずつ設置し，同一 seed のツモ，action mask，相手盤面観測，予約おじゃま，相殺，おじゃま落下を UI なしで処理します．
+
+対戦環境の最小確認:
+
+```python
+from puyo_env.versus_env import VersusPuyoEnv
+from selfplay.policies import FirstLegalPolicy
+
+env = VersusPuyoEnv(seed=123, max_steps=10)
+obs, infos = env.reset(seed=123)
+policy = FirstLegalPolicy()
+while env.agents:
+    actions = {agent: policy.select_action(obs[agent], infos[agent]) for agent in env.agents}
+    obs, rewards, terminations, truncations, infos = env.step(actions)
+```
+
+arena で方策の挙動確認:
+
+```bash
+python3 -m eval.arena --policy-a greedy --policy-b random --games 20 --max-steps 200
+```
+
+対戦 PPO の短時間 smoke run:
+
+```bash
+python3 -m train.train_versus --set total_timesteps=512 --set num_envs=2 --set num_steps=64
+```
+
+通常学習:
+
+```bash
+python3 -m train.train_versus --config train/config/versus.yaml
+```
+
+ログは `runs/versus_ppo/metrics.csv` と TensorBoard（利用可能な場合）に出力され，チェックポイントは
+`runs/versus_ppo/puyo_versus_ppo.pt` に保存されます．
+チェックポイントの実力確認は次のように実行できます．
+
+```bash
+python3 -m eval.arena --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --games 50
+```
+
+学習の進行は CSV または TensorBoard で確認できます．
+
+```bash
+tail -f runs/versus_ppo/metrics.csv
+tensorboard --logdir runs/versus_ppo
+```
+
+1局のプレイ内容をテキストで観戦する場合:
+
+```bash
+python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --max-steps 30 --delay 0.2
+```
+
+盤面は左右に `player_0` / `player_1` を表示し，`.` は空，`R/B/G/Y/P` は色ぷよ，`O` はおじゃまぷよです．
 
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
