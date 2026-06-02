@@ -47,16 +47,16 @@ def main(debug_mode=False):
     renderer = Renderer(screen, debug_mode=debug_mode)
     input_handler = InputHandler()
 
-    last_gravity_time = time.time()
+    last_gravity_time = time.monotonic()
     gravity_interval = GRAVITY_INTERVAL_SECONDS
     
-    last_frame_time = time.time()
-    last_soft_drop_move_time = time.time()
+    last_frame_time = time.monotonic()
+    last_soft_drop_move_time = time.monotonic()
     soft_drop_was_held = False
 
     running = True
     while running:
-        current_time = time.time()
+        current_time = time.monotonic()
         delta_time = current_time - last_frame_time
         last_frame_time = current_time
         

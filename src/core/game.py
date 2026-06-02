@@ -406,45 +406,16 @@ class GameState:
         left_pressed = Action.LEFT in actions
         right_pressed = Action.RIGHT in actions
         down_pressed = Action.DOWN in actions
-        held_actions = held_actions or {}
-        left_held = bool(held_actions.get(Action.LEFT, left_pressed))
-        right_held = bool(held_actions.get(Action.RIGHT, right_pressed))
-
-        horizontal_requested = False
-        horizontal_moved = False
 
         if left_pressed and not right_pressed:
-            horizontal_requested = True
             if self.can_move_horizontal(-1):
                 self.puyo_x -= 1
-                horizontal_moved = True
         elif right_pressed and not left_pressed:
-            horizontal_requested = True
             if self.can_move_horizontal(1):
                 self.puyo_x += 1
-                horizontal_moved = True
 
         if down_pressed:
-            # Down is suppressed while a single horizontal direction is held
-            # and movement in that direction is still possible.
-            intended_horizontal_dir = 0
-            if left_held and not right_held:
-                intended_horizontal_dir = -1
-            elif right_held and not left_held:
-                intended_horizontal_dir = 1
-
-            horizontal_still_possible = (
-                intended_horizontal_dir != 0
-                and self.can_move_horizontal(intended_horizontal_dir)
-            )
-            can_apply_down = not horizontal_still_possible
-
-            # Backward compatibility: when no held info is passed, keep old
-            # pulse-based priority behavior.
-            if not held_actions:
-                can_apply_down = (not horizontal_requested) or (not horizontal_moved)
-
-            if can_apply_down and self.can_move(0, -1, self.puyo_rot):
+            if self.can_move(0, -1, self.puyo_rot):
                 self.puyo_y -= 1
                 if self.puyo_y <= VISIBLE_HEIGHT:
                     self._clear_floor_kick_horizontal_grace()
@@ -760,45 +731,59 @@ class GameState:
         if self.state != "animate":
             return
 
-        if self.animation_state == "resolve":
-            self._resolve_animation_step()
-            return
+        remaining_time = max(0.0, delta_time)
 
-        if self.animation_state == "vanish_flash":
-            self.animation_timer += delta_time
-            if self.animation_timer < VANISH_FLASH_SECONDS:
-                return
+        while self.state == "animate":
+            if self.animation_state == "resolve":
+                self._resolve_animation_step()
+                if self.animation_state == "resolve":
+                    return
+                continue
 
-            if self.chain_display_score <= 0:
-                self.chain_display_a, self.chain_display_b, self.chain_display_score = self._calculate_chain_score_components()
-            self.score += self.chain_display_score
-            self.field.remove_puyos(self.vanish_coords)
-            self.chain_count += 1
-            self.vanish_coords = set()
-            self.vanish_groups = []
-            self.chain_display_a = None
-            self.chain_display_b = None
-            self.chain_display_score = 0
-            self.animation_state = "resolve"
-            self.animation_timer = 0.0
-            return
+            if self.animation_state == "vanish_flash":
+                elapsed = self.animation_timer + remaining_time
+                if elapsed < VANISH_FLASH_SECONDS:
+                    self.animation_timer = elapsed
+                    return
 
-        if self.animation_state == "drop_tween":
-            self.animation_timer += delta_time
-            if CHAIN_DROP_TWEEN_SECONDS > 0:
-                self.drop_tween_progress = min(1.0, self.animation_timer / CHAIN_DROP_TWEEN_SECONDS)
-            else:
+                remaining_time = max(0.0, elapsed - VANISH_FLASH_SECONDS)
+                self.animation_timer = VANISH_FLASH_SECONDS
+                if self.chain_display_score <= 0:
+                    self.chain_display_a, self.chain_display_b, self.chain_display_score = self._calculate_chain_score_components()
+                self.score += self.chain_display_score
+                self.field.remove_puyos(self.vanish_coords)
+                self.chain_count += 1
+                self.vanish_coords = set()
+                self.vanish_groups = []
+                self.chain_display_a = None
+                self.chain_display_b = None
+                self.chain_display_score = 0
+                self.animation_state = "resolve"
+                self.animation_timer = 0.0
+                continue
+
+            if self.animation_state == "drop_tween":
+                elapsed = self.animation_timer + remaining_time
+                if CHAIN_DROP_TWEEN_SECONDS > 0:
+                    self.drop_tween_progress = min(1.0, elapsed / CHAIN_DROP_TWEEN_SECONDS)
+                else:
+                    self.drop_tween_progress = 1.0
+
+                if elapsed < CHAIN_DROP_TWEEN_SECONDS:
+                    self.animation_timer = elapsed
+                    return
+
+                remaining_time = max(0.0, elapsed - CHAIN_DROP_TWEEN_SECONDS)
+                self.animation_timer = CHAIN_DROP_TWEEN_SECONDS
                 self.drop_tween_progress = 1.0
+                self.drop_tween_grid_before = None
+                self.drop_tween_static_cells = []
+                self.drop_tween_motions = []
+                self.animation_state = "resolve"
+                self.animation_timer = 0.0
+                continue
 
-            if self.animation_timer < CHAIN_DROP_TWEEN_SECONDS:
-                return
-
-            self.drop_tween_progress = 1.0
-            self.drop_tween_grid_before = None
-            self.drop_tween_static_cells = []
-            self.drop_tween_motions = []
-            self.animation_state = "resolve"
-            self.animation_timer = 0.0
+            return
 
     def resolve_world(self):
         # Compatibility wrapper for older call sites.
