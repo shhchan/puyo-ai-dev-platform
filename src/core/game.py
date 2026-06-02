@@ -342,6 +342,19 @@ class GameState:
         else:
             return False
 
+        if self.puyo_rot == Direction.UP:
+            kick_target_y = self.puyo_y + 1
+            if self._can_place_pair_for_rotation(
+                self.puyo_x,
+                kick_target_y,
+                target_rot,
+                apply_interpolation_sweep=False,
+            ):
+                self.puyo_y = kick_target_y
+                self.puyo_rot = target_rot
+                self._register_interpolated_floor_kick_contact()
+                return True
+
         if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y, target_rot):
             self.puyo_rot = target_rot
             return True
