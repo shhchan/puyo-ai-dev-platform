@@ -1,3 +1,5 @@
+import random
+
 from .constants import GRID_WIDTH, GRID_HEIGHT, VISIBLE_HEIGHT, PuyoColor
 from .puyo import Puyo
 
@@ -131,3 +133,36 @@ class Field:
             self.grid[y][x] = Puyo(PuyoColor.EMPTY)
             
         return len(coords) > 0
+
+    def drop_ojama(self, count, rng=None, max_per_drop=30):
+        """
+        Drop ojama puyos into visible columns and return the number placed.
+
+        This is a headless board operation for versus environments. Reservation,
+        offset/cancel, and timing rules are handled by the environment layer.
+        """
+        if count <= 0:
+            return 0
+
+        chooser = rng or random
+        remaining = min(int(count), int(max_per_drop))
+        placed = 0
+        full_rows, remainder = divmod(remaining, self.width)
+        column_batches = [list(range(self.width)) for _ in range(full_rows)]
+        if remainder:
+            column_batches.append(chooser.sample(list(range(self.width)), remainder))
+
+        for columns in column_batches:
+            for x in columns:
+                target_y = self._first_visible_empty_row(x)
+                if target_y is None:
+                    continue
+                self.place_puyo(x, target_y, Puyo(PuyoColor.OJAMA))
+                placed += 1
+        return placed
+
+    def _first_visible_empty_row(self, x):
+        for y in range(VISIBLE_HEIGHT):
+            if self.grid[y][x].is_empty():
+                return y
+        return None
