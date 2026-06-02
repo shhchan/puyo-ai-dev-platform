@@ -299,20 +299,10 @@ class Renderer:
         if not (game_state.current_puyo_1 and game_state.current_puyo_2):
             return
 
-        ghost_pos = game_state.get_ghost_axis_position()
-        if ghost_pos is not None:
-            ghost_x, ghost_y = ghost_pos
-            ghost_color_1 = self.colors.get(game_state.current_puyo_1.color, (255, 255, 255))
+        for ghost_x, ghost_y, ghost_color in game_state.get_ghost_cells():
             if self._is_y_drawable(ghost_y):
                 ghost_sx, ghost_sy = self._grid_to_screen(ghost_x, ghost_y)
-                self._draw_ghost_rect(ghost_sx, ghost_sy, ghost_color_1)
-
-            ox, oy = game_state.get_sub_puyo_offset(game_state.puyo_rot)
-            ghost_sub_x, ghost_sub_y = ghost_x + ox, ghost_y + oy
-            if 0 <= ghost_sub_y < GRID_HEIGHT and self._is_y_drawable(ghost_sub_y):
-                ghost_color_2 = self.colors.get(game_state.current_puyo_2.color, (255, 255, 255))
-                ghost_sx2, ghost_sy2 = self._grid_to_screen(ghost_sub_x, ghost_sub_y)
-                self._draw_ghost_rect(ghost_sx2, ghost_sy2, ghost_color_2)
+                self._draw_ghost_rect(ghost_sx, ghost_sy, self.colors.get(ghost_color, (255, 255, 255)))
 
         axis_x, axis_y = game_state.puyo_x, game_state.puyo_y
         if 0 <= axis_y < GRID_HEIGHT and self._is_active_cell_visible(axis_y, fall_offset_px):

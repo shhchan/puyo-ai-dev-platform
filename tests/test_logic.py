@@ -115,6 +115,27 @@ class TestGhostHighlight(unittest.TestCase):
 
         self.assertEqual(highlight, set())
 
+    def test_ghost_cells_settle_after_pair_splits_on_uneven_stack(self):
+        game = self._create_control_game()
+        game.current_puyo_1 = Puyo(PuyoColor.RED)
+        game.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        game.puyo_x = 1
+        game.puyo_y = 8
+        game.puyo_rot = Direction.RIGHT
+
+        for y in range(3):
+            game.field.place_puyo(1, y, Puyo(PuyoColor.YELLOW))
+
+        ghost_cells = {(x, y, color) for x, y, color in game.get_ghost_cells()}
+
+        self.assertEqual(
+            ghost_cells,
+            {
+                (1, 3, PuyoColor.RED),
+                (2, 0, PuyoColor.BLUE),
+            },
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

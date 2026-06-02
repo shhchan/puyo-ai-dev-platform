@@ -45,7 +45,7 @@ class TestControlPriority(unittest.TestCase):
         game.spawn_puyo()
         return game
 
-    def test_horizontal_has_priority_over_down_when_move_succeeds(self):
+    def test_horizontal_and_down_apply_together_when_move_succeeds(self):
         game = self._create_control_game()
         start_x = game.puyo_x
         start_y = game.puyo_y
@@ -53,7 +53,7 @@ class TestControlPriority(unittest.TestCase):
         game.update([Action.LEFT, Action.DOWN])
 
         self.assertEqual(game.puyo_x, start_x - 1)
-        self.assertEqual(game.puyo_y, start_y)
+        self.assertEqual(game.puyo_y, start_y - 1)
 
     def test_down_executes_if_horizontal_is_blocked(self):
         game = self._create_control_game()
@@ -65,7 +65,7 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_x, 0)
         self.assertEqual(game.puyo_y, start_y - 1)
 
-    def test_down_is_suppressed_when_right_held_and_right_is_still_possible(self):
+    def test_down_applies_when_right_held_and_right_is_still_possible(self):
         game = self._create_control_game()
         start_x = game.puyo_x
         start_y = game.puyo_y
@@ -76,7 +76,7 @@ class TestControlPriority(unittest.TestCase):
         )
 
         self.assertEqual(game.puyo_x, start_x)
-        self.assertEqual(game.puyo_y, start_y)
+        self.assertEqual(game.puyo_y, start_y - 1)
 
     def test_down_applies_when_right_held_but_right_is_blocked(self):
         game = self._create_control_game()
@@ -421,6 +421,46 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.puyo_rot, Direction.UP)
         game.update([Action.ROTATE_LEFT])
         self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 6)
+
+    def test_up_to_down_180_lifts_over_twelve_high_side_wall(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 12
+        game.puyo_rot = Direction.UP
+        game.set_vertical_interpolation(0.5)
+        for y in range(12):
+            game.field.place_puyo(1, y, Puyo(PuyoColor.RED))
+            game.field.place_puyo(3, y, Puyo(PuyoColor.BLUE))
+
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.UP)
+        game.update([Action.ROTATE_RIGHT])
+
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 13)
+        game.update([Action.LEFT])
+        self.assertEqual(game.puyo_x, 1)
+
+    def test_down_to_up_180_lowers_back_after_lifted_180(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 5
+        game.puyo_rot = Direction.UP
+        game.field.place_puyo(1, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 6, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 6, Puyo(PuyoColor.RED))
+
+        game.update([Action.ROTATE_RIGHT])
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 6)
+
+        game.update([Action.ROTATE_RIGHT])
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.UP)
+        self.assertEqual(game.puyo_y, 5)
 
     def test_double_rotate_does_not_force_180_when_sides_not_blocked(self):
         game = self._create_control_game()
@@ -497,9 +537,9 @@ class TestControlPriority(unittest.TestCase):
         game.advance_animation(0.0)
         self.assertEqual(game.animation_state, "vanish_flash")
         game.advance_animation(VANISH_FLASH_SECONDS)
-        self.assertEqual(game.animation_state, "resolve")
+        self.assertEqual(game.state, "control")
 
-    def test_animate_drop_tween_transitions_to_resolve(self):
+    def test_animate_drop_tween_transitions_to_control_without_extra_resolve_frame(self):
         game = GameState()
         game.state = "animate"
         game.animation_state = "resolve"
@@ -509,13 +549,13 @@ class TestControlPriority(unittest.TestCase):
         self.assertEqual(game.animation_state, "drop_tween")
         self.assertGreater(len(game.drop_tween_motions), 0)
         game.advance_animation(CHAIN_DROP_TWEEN_SECONDS)
-        self.assertEqual(game.animation_state, "resolve")
+        self.assertEqual(game.state, "control")
 
 
 @unittest.skipUnless(INPUT_HANDLER_AVAILABLE, "pygame is not installed")
 class TestInputHandler(unittest.TestCase):
     def _run_frame(self, handler, now, active_keys, events):
-        with patch("src.input_handler.time.time", return_value=now), patch(
+        with patch("src.input_handler.time.monotonic", return_value=now), patch(
             "src.input_handler.pygame.event.get", return_value=events
         ), patch(
             "src.input_handler.pygame.key.get_pressed",

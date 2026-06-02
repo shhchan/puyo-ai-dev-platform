@@ -62,7 +62,7 @@ class InputHandler:
 
     def process_input(self):
         actions = []
-        now = time.time()
+        now = time.monotonic()
         just_pressed_keys = set()
 
         for event in pygame.event.get():
