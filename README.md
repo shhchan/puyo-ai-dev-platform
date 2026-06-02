@@ -157,6 +157,21 @@ python3 -m train.train_versus --config train/config/versus.yaml
 python3 -m eval.arena --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --games 50
 ```
 
+学習の進行は CSV または TensorBoard で確認できます．
+
+```bash
+tail -f runs/versus_ppo/metrics.csv
+tensorboard --logdir runs/versus_ppo
+```
+
+1局のプレイ内容をテキストで観戦する場合:
+
+```bash
+python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --max-steps 30 --delay 0.2
+```
+
+盤面は左右に `player_0` / `player_1` を表示し，`.` は空，`R/B/G/Y/P` は色ぷよ，`O` はおじゃまぷよです．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
