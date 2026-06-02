@@ -355,6 +355,13 @@ class GameState:
                 self._register_interpolated_floor_kick_contact()
                 return True
 
+        if self.puyo_rot == Direction.DOWN:
+            lower_target_y = self.puyo_y - 1
+            if self._can_place_pair_for_rotation(self.puyo_x, lower_target_y, target_rot):
+                self.puyo_y = lower_target_y
+                self.puyo_rot = target_rot
+                return True
+
         if self._can_place_pair_for_rotation(self.puyo_x, self.puyo_y, target_rot):
             self.puyo_rot = target_rot
             return True
@@ -593,7 +600,7 @@ class GameState:
             return f"{self.chain_display_a:>3}x{self.chain_display_b:>3}".rjust(8)
         return f"{self.score:08d}"
 
-    def _build_ghost_cells(self):
+    def get_ghost_cells(self):
         ghost_pos = self.get_ghost_axis_position()
         if ghost_pos is None:
             return []
@@ -608,13 +615,38 @@ class GameState:
         if 0 <= sub_x < GRID_WIDTH and 0 <= sub_y < GRID_HEIGHT:
             ghost_cells.append((sub_x, sub_y, self.current_puyo_2.color))
 
+        ghost_cells = self._settle_ghost_cells(ghost_cells)
         return ghost_cells
+
+    def _settle_ghost_cells(self, ghost_cells):
+        settled = list(ghost_cells)
+        while True:
+            moved = False
+            occupied = {(x, y) for x, y, _ in settled}
+            next_cells = []
+            for x, y, color in sorted(settled, key=lambda cell: cell[1]):
+                occupied.remove((x, y))
+                target_y = y - 1
+                can_drop = (
+                    target_y >= 0
+                    and self.field.get_puyo(x, target_y).is_empty()
+                    and (x, target_y) not in occupied
+                )
+                if can_drop:
+                    y = target_y
+                    moved = True
+                occupied.add((x, y))
+                next_cells.append((x, y, color))
+
+            settled = next_cells
+            if not moved:
+                return settled
 
     def get_ghost_highlight_coords(self):
         if self.state != "control" or self.current_puyo_1 is None or self.current_puyo_2 is None:
             return set()
 
-        ghost_cells = self._build_ghost_cells()
+        ghost_cells = self.get_ghost_cells()
         if not ghost_cells:
             return set()
 

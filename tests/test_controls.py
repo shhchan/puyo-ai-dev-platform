@@ -442,6 +442,26 @@ class TestControlPriority(unittest.TestCase):
         game.update([Action.LEFT])
         self.assertEqual(game.puyo_x, 1)
 
+    def test_down_to_up_180_lowers_back_after_lifted_180(self):
+        game = self._create_control_game()
+        game.puyo_x = 2
+        game.puyo_y = 5
+        game.puyo_rot = Direction.UP
+        game.field.place_puyo(1, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 6, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 5, Puyo(PuyoColor.RED))
+        game.field.place_puyo(3, 6, Puyo(PuyoColor.RED))
+
+        game.update([Action.ROTATE_RIGHT])
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.DOWN)
+        self.assertEqual(game.puyo_y, 6)
+
+        game.update([Action.ROTATE_RIGHT])
+        game.update([Action.ROTATE_RIGHT])
+        self.assertEqual(game.puyo_rot, Direction.UP)
+        self.assertEqual(game.puyo_y, 5)
+
     def test_double_rotate_does_not_force_180_when_sides_not_blocked(self):
         game = self._create_control_game()
         game.puyo_rot = Direction.UP
