@@ -10,6 +10,13 @@ class PuyoColor(Enum):
     WALL = auto()
     EMPTY = auto()
 
+NORMAL_PUYO_COLORS = (
+    PuyoColor.RED,
+    PuyoColor.BLUE,
+    PuyoColor.GREEN,
+    PuyoColor.YELLOW,
+)
+
 class Direction(Enum):
     UP = auto()
     RIGHT = auto()
