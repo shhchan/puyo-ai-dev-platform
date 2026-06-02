@@ -10,5 +10,8 @@ build/
 dist/
 *.egg-info/
 
+# Training outputs
+runs/
+
 # Local Codex skills
 .agents/skills/pr-to-english/

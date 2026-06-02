@@ -77,6 +77,41 @@ print(result.score_delta, result.chain_count, result.game_over)
 Phase 0 の実装メモ:  
 [docs/development/puyo-phase0-core-audit.md](docs/development/puyo-phase0-core-audit.md)
 
+## Phase 1: 1人用RL環境 + フラットPPO
+
+Gymnasium 準拠の1人用環境は `puyo_env.single_env.SinglePuyoEnv` です．
+1アクションは「軸ぷよ列 × 回転」の設置位置で，動的な `action_mask` により不正設置を除外します．
+
+ランダム方策の最小確認:
+
+```python
+import random
+from puyo_env.actions import choose_random_legal_action
+from puyo_env.single_env import SinglePuyoEnv
+
+env = SinglePuyoEnv(seed=123)
+obs, info = env.reset(seed=123)
+terminated = truncated = False
+while not (terminated or truncated):
+    action = choose_random_legal_action(info["action_mask"].tolist(), random.Random(0))
+    obs, reward, terminated, truncated, info = env.step(action)
+```
+
+フラット PPO 学習:
+
+```bash
+python3 -m train.train_flat --config train/config/flat.yaml
+```
+
+短時間の smoke run:
+
+```bash
+python3 -m train.train_flat --set total_timesteps=512 --set num_envs=2 --set num_steps=64
+```
+
+ログは `runs/flat_ppo/metrics.csv` と TensorBoard（利用可能な場合）に出力され，チェックポイントは
+`runs/flat_ppo/puyo_flat_ppo.pt` に保存されます．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
