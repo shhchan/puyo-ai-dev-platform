@@ -119,6 +119,54 @@ python3 -m eval.spectate --policy-a checkpoint --checkpoint-a "$CKPT" \
 
 比較時は baseline と quality の `summary.json`、`arena_*_summary.csv` を同じ表に並べます。採用条件は greedy/random/previous の arena 評価で win rate または Elo delta が改善し、mean score と max chain が極端に悪化しないことです。
 
+## 2026-06-03 local run results
+
+実行環境は CPU (`torch.cuda.is_available() == False`) です。`versus_long_medium.yaml` の 100k timesteps run は約 8 分で完走したため、`versus_long.yaml` の 1M timesteps は CPU では約 80 分規模の見込みです。このセッションでは 1M baseline は完走させず、長時間 run 前の 100k baseline/quality 比較までを実測しました。
+
+Smoke run:
+
+| run_id | config | global_step | train win rate | train score | train max chain |
+|---|---|---:|---:|---:|---:|
+| `versus_long_smoke-seed1-20260603T142831Z` | `versus_long_smoke.yaml` | 1024 | 0.600 | 512.00 | 1.50 |
+
+100k comparison:
+
+| run_id | config | global_step | episodes | train win rate | train score | train max chain | random win rate / Elo | greedy win rate / Elo | decision |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| `versus_long_medium-seed1-20260603T142947Z` | `versus_long_medium.yaml` | 99840 | 3734 | 0.650 | 445.00 | 1.50 | 0.520 / +19.89 | 0.460 / -14.87 | 100k baseline checkpoint |
+| `versus_long_quality_medium-seed1-20260603T144005Z` | `versus_long_quality.yaml` with 100k overrides | 99840 | 3750 | 0.500 | 499.00 | 1.50 | 0.300 / -91.51 | 0.160 / -188.59 | rejected for now |
+
+Quality run command:
+
+```bash
+python3 -m train.train_versus --config train/config/versus_long_quality.yaml \
+  --set total_timesteps=100000 \
+  --set num_envs=4 \
+  --set num_steps=128 \
+  --set minibatch_size=128 \
+  --set checkpoint_interval_updates=10 \
+  --set rolling_window_episodes=20 \
+  --set run_name=versus_long_quality_medium
+```
+
+Arena results use `games=50`, `seed=1001`, and `max_steps=500` for both random and greedy opponents. The quality settings increased training score slightly but collapsed arena win rate and Elo, so they should not replace the baseline before additional reward tuning.
+
+Representative seeds from baseline medium vs greedy:
+
+| purpose | seed | notes |
+|---|---:|---|
+| win / high attack | 1013 | player_0 score 6250, sent ojama 89, max chain 5 |
+| loss / high received ojama | 1003 | player_0 received ojama 16, opponent score 2370, opponent max chain 3 |
+| max chain | 1013 | player_0 max chain 5 |
+
+Phase 3 baseline candidate for the next full long run is:
+
+```bash
+runs/versus_long/versus_long_medium-seed1-20260603T142947Z/checkpoints/best.pt
+```
+
+The final Phase 3 baseline should still be selected from a completed `versus_long.yaml` 1M run when enough wall-clock time or GPU is available.
+
 ## Current branch status
 
-このブランチは長時間 run そのものではなく、長時間 run を安全に実施するための metrics、artifact、config、arena report を整備します。実時間が必要な baseline/quality run は上記コマンドで同じブランチから継続できます。
+このブランチは長時間 run を安全に実施するための metrics、artifact、config、arena report を整備し、CPU 環境で 100k baseline/quality 比較まで実測しました。1M baseline/quality run は上記コマンドで同じブランチから継続できます。
