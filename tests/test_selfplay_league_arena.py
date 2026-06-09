@@ -10,13 +10,16 @@ try:
     import gymnasium  # noqa: F401
     import numpy  # noqa: F401
 
-    from eval.arena import run_series
+    from eval.arena import summarize_result, run_series, write_matches_csv, write_summary_csv
     from selfplay.policies import FirstLegalPolicy, RandomPolicy
 
     ARENA_AVAILABLE = True
 except Exception:
     ARENA_AVAILABLE = False
     run_series = None
+    summarize_result = None
+    write_matches_csv = None
+    write_summary_csv = None
     FirstLegalPolicy = None
     RandomPolicy = None
 
@@ -60,6 +63,32 @@ class TestArena(unittest.TestCase):
 
         self.assertEqual(len(result.matches), 2)
         self.assertEqual(result.wins_player_0 + result.wins_player_1 + result.draws, 2)
+
+    def test_arena_writes_match_and_summary_metrics(self):
+        result = run_series(FirstLegalPolicy(), RandomPolicy(seed=1), games=1, seed=1, max_steps=3)
+        summary = summarize_result(
+            result,
+            label="test",
+            policy_a="first",
+            policy_b="random",
+            checkpoint_a=None,
+            checkpoint_b=None,
+            games=1,
+            seed=1,
+            max_steps=3,
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            match_path = Path(tmpdir) / "matches.csv"
+            summary_path = Path(tmpdir) / "summary.csv"
+            write_matches_csv(match_path, result.matches)
+            write_summary_csv(summary_path, summary)
+
+            match_text = match_path.read_text(encoding="utf-8")
+            summary_text = summary_path.read_text(encoding="utf-8")
+
+        self.assertIn("max_chain_player_0", match_text)
+        self.assertIn("elo_delta_player_0", summary_text)
 
 
 if __name__ == "__main__":

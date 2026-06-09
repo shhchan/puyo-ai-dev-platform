@@ -150,24 +150,46 @@ python3 -m train.train_versus --config train/config/versus.yaml
 ```
 
 ログは `runs/versus_ppo/metrics.csv` と TensorBoard（利用可能な場合）に出力され，チェックポイントは
-`runs/versus_ppo/puyo_versus_ppo.pt` に保存されます．
+`runs/versus_ppo/<run_id>/checkpoints/latest.pt` に保存されます．
+各 run directory には `config.yaml`，`metadata.json`，`summary.json` も保存されます．
 チェックポイントの実力確認は次のように実行できます．
 
 ```bash
-python3 -m eval.arena --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --games 50
+python3 -m eval.arena --policy-a checkpoint --checkpoint-a runs/versus_ppo/<run_id>/checkpoints/latest.pt --policy-b random --games 50
 ```
 
 学習の進行は CSV または TensorBoard で確認できます．
 
 ```bash
-tail -f runs/versus_ppo/metrics.csv
+tail -f runs/versus_ppo/<run_id>/metrics.csv
 tensorboard --logdir runs/versus_ppo
+```
+
+Phase 2.1 の長時間学習は段階的 config を使います．smoke で artifact 出力を確認してから medium / long へ進めます．
+
+```bash
+python3 -m train.train_versus --config train/config/versus_long_smoke.yaml
+python3 -m train.train_versus --config train/config/versus_long_medium.yaml
+python3 -m train.train_versus --config train/config/versus_long.yaml
+```
+
+評価レポートは arena の per-match CSV と summary CSV/Markdown に出力できます．
+
+```bash
+python3 -m eval.arena \
+  --policy-a checkpoint \
+  --checkpoint-a runs/versus_long/<run_id>/checkpoints/best.pt \
+  --policy-b greedy \
+  --games 50 \
+  --csv runs/versus_long/<run_id>/arena_greedy_matches.csv \
+  --summary-csv runs/versus_long/<run_id>/arena_greedy_summary.csv \
+  --markdown runs/versus_long/<run_id>/arena_greedy.md
 ```
 
 1局のプレイ内容をテキストで観戦する場合:
 
 ```bash
-python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/puyo_versus_ppo.pt --policy-b random --max-steps 30 --delay 0.2
+python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/<run_id>/checkpoints/latest.pt --policy-b random --max-steps 30 --delay 0.2
 ```
 
 盤面は左右に `player_0` / `player_1` を表示し，`.` は空，`R/B/G/Y/P` は色ぷよ，`O` はおじゃまぷよです．
