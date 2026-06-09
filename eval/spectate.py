@@ -114,13 +114,16 @@ def _policy_from_args(args, side: str) -> Policy:
         checkpoint_path=getattr(args, f"checkpoint_{side}"),
         device=args.device,
         deterministic=args.deterministic,
+        beam_depth=args.beam_depth,
+        beam_width=args.beam_width,
+        beam_scenarios=args.beam_scenarios,
     )
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Watch one headless Puyo versus match in text mode.")
-    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "checkpoint"], default="checkpoint")
-    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "checkpoint"], default="random")
+    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "beam", "checkpoint"], default="checkpoint")
+    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "beam", "checkpoint"], default="random")
     parser.add_argument("--checkpoint-a", default=None)
     parser.add_argument("--checkpoint-b", default=None)
     parser.add_argument("--seed", type=int, default=1)
@@ -128,6 +131,9 @@ def parse_args(argv=None):
     parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--deterministic", action="store_true", default=True)
+    parser.add_argument("--beam-depth", type=int, default=5)
+    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-scenarios", type=int, default=1)
     return parser.parse_args(argv)
 
 
