@@ -8,6 +8,7 @@ import pygame
 
 from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_WIDTH, PUYO_SIZE, VISIBLE_HEIGHT, PuyoColor
+from src.ui.keybindings import ACTION_LABELS, ACTION_ORDER
 
 
 SCREEN_WIDTH = 1120
@@ -16,6 +17,24 @@ PANEL_MARGIN = 24
 PANEL_GAP = 20
 PANEL_WIDTH = (SCREEN_WIDTH - PANEL_MARGIN * 2 - PANEL_GAP) // 2
 FIELD_TOP = 146
+OJAMA_DENOMINATIONS = (
+    ("comet", 1440),
+    ("crown", 720),
+    ("moon", 360),
+    ("star", 180),
+    ("rock", 30),
+    ("large", 6),
+    ("small", 1),
+)
+
+
+def decompose_ojama(count: int) -> list[str]:
+    remaining = max(0, int(count))
+    icons = []
+    for name, value in OJAMA_DENOMINATIONS:
+        icon_count, remaining = divmod(remaining, value)
+        icons.extend([name] * icon_count)
+    return icons
 
 
 class VersusRenderer:
@@ -27,6 +46,7 @@ class VersusRenderer:
         self.score_font = pygame.font.SysFont("Consolas", 28, bold=True)
         self.title_font = pygame.font.SysFont("Arial", 28, bold=True)
         self.banner_font = pygame.font.SysFont("Arial", 40, bold=True)
+        self.settings_font = pygame.font.SysFont("Consolas", 18)
         self.colors = {
             PuyoColor.RED: (235, 74, 74),
             PuyoColor.BLUE: (65, 135, 245),
@@ -131,16 +151,86 @@ class VersusRenderer:
         self._draw_puyo(x, rect.y + 27, self.colors[pair[1].color])
         self._draw_puyo(x, rect.y + 27 + size, self.colors[pair[0].color])
 
-    def _draw_ojama_meter(self, rect: pygame.Rect, pending: int) -> None:
-        pygame.draw.rect(self.screen, (28, 32, 42), rect)
-        pygame.draw.rect(self.screen, (120, 130, 150), rect, 1)
-        visible = min(30, max(0, pending))
-        for index in range(visible):
-            col = index % 6
-            row = index // 6
-            cx = rect.x + 10 + col * 17
-            cy = rect.y + 14 + row * 14
-            pygame.draw.circle(self.screen, (205, 205, 210), (cx, cy), 5)
+    def _draw_ojama_icon(self, name: str, center: tuple[int, int], size: int) -> None:
+        cx, cy = center
+        radius = max(4, size // 2 - 2)
+        outline = (32, 35, 43)
+        if name == "small":
+            pygame.draw.circle(self.screen, (210, 210, 215), center, max(4, radius - 3))
+            pygame.draw.circle(self.screen, (125, 130, 142), center, max(4, radius - 3), 1)
+        elif name in ("large", "rock"):
+            color = (205, 205, 210) if name == "large" else (220, 74, 66)
+            pygame.draw.circle(self.screen, color, center, radius)
+            pygame.draw.circle(self.screen, outline, center, radius, 1)
+            eye_y = cy - max(1, size // 8)
+            for eye_x in (cx - size // 5, cx + size // 5):
+                pygame.draw.circle(self.screen, (245, 245, 245), (eye_x, eye_y), max(2, size // 7))
+                pygame.draw.circle(self.screen, (55, 58, 68), (eye_x, eye_y), max(1, size // 14))
+        elif name == "star":
+            points = []
+            for index in range(10):
+                angle = -math.pi / 2 + index * math.pi / 5
+                point_radius = radius if index % 2 == 0 else radius * 0.45
+                points.append(
+                    (
+                        int(round(cx + math.cos(angle) * point_radius)),
+                        int(round(cy + math.sin(angle) * point_radius)),
+                    )
+                )
+            pygame.draw.polygon(self.screen, (250, 205, 55), points)
+            pygame.draw.polygon(self.screen, (218, 120, 35), points, 1)
+        elif name == "moon":
+            surface = pygame.Surface((size, size), pygame.SRCALPHA)
+            local_center = (size // 2, size // 2)
+            pygame.draw.circle(surface, (238, 143, 34), local_center, radius)
+            pygame.draw.circle(
+                surface,
+                (0, 0, 0, 0),
+                (local_center[0] - size // 5, local_center[1] - size // 8),
+                max(3, radius - 3),
+            )
+            self.screen.blit(surface, (cx - size // 2, cy - size // 2))
+        elif name == "crown":
+            left = cx - radius
+            right = cx + radius
+            top = cy - radius
+            bottom = cy + radius
+            points = [
+                (left, bottom),
+                (left, cy - 2),
+                (left + size // 4, top + size // 4),
+                (cx, cy - 1),
+                (right - size // 4, top + size // 4),
+                (right, cy - 2),
+                (right, bottom),
+            ]
+            pygame.draw.polygon(self.screen, (246, 178, 48), points)
+            pygame.draw.polygon(self.screen, (210, 95, 30), points, 1)
+        elif name == "comet":
+            head = (cx + size // 5, cy - size // 8)
+            tail = [
+                (cx - radius, cy + radius),
+                (cx - size // 5, cy - size // 8),
+                (cx + size // 4, cy + size // 5),
+            ]
+            pygame.draw.polygon(self.screen, (65, 160, 230), tail)
+            pygame.draw.circle(self.screen, (72, 176, 238), head, max(5, radius - 2))
+            pygame.draw.circle(self.screen, (35, 100, 175), head, max(5, radius - 2), 1)
+
+    def _draw_ojama_forecast(self, field: pygame.Rect, pending: int) -> None:
+        rect = pygame.Rect(field.x, field.y - 30, field.width, 25)
+        pygame.draw.rect(self.screen, (30, 36, 48), rect, border_radius=4)
+        pygame.draw.rect(self.screen, (112, 126, 154), rect, 1, border_radius=4)
+        icons = decompose_ojama(pending)
+        if not icons:
+            return
+        step = min(23.0, max(9.0, (rect.width - 10) / max(1, len(icons))))
+        size = max(10, min(22, int(step)))
+        total_width = step * (len(icons) - 1) + size
+        start_x = rect.centerx - total_width / 2 + size / 2
+        for index, name in enumerate(icons):
+            center = (int(round(start_x + index * step)), rect.centery)
+            self._draw_ojama_icon(name, center, size)
 
     def _draw_player(self, controller, agent: str, index: int) -> None:
         panel = self._panel_rect(index)
@@ -159,7 +249,6 @@ class VersusRenderer:
         pygame.draw.rect(self.screen, (92, 105, 132), panel, 2, border_radius=8)
         self._draw_text(f"PLAYER {index + 1}", self.title_font, (238, 240, 248), (panel.x + 22, 32))
         self._draw_text(policy_name.upper(), self.small_font, (148, 190, 255), (panel.x + 24, 70))
-        self._draw_text(f"SCORE {info['score']:08d}", self.score_font, (250, 250, 250), (panel.x + 22, 94))
         active_pair = None
         if game.current_puyo_1 is not None and game.current_puyo_2 is not None:
             active_pair = (game.current_puyo_1, game.current_puyo_2)
@@ -169,7 +258,15 @@ class VersusRenderer:
             "ACTIVE",
         )
 
+        self._draw_ojama_forecast(field, info["pending_ojama"])
         self._draw_board(field, game, event)
+        self._draw_text(
+            f"{info['score']:08d}",
+            self.score_font,
+            (250, 250, 250),
+            (field.centerx, field.bottom + 25),
+            center=True,
+        )
 
         selector_action = None
         selector_colors = None
@@ -198,9 +295,6 @@ class VersusRenderer:
             "NEXT2",
         )
 
-        self._draw_text("OJAMA", self.tiny_font, (210, 215, 230), (side_x, FIELD_TOP + 218))
-        meter = pygame.Rect(side_x, FIELD_TOP + 239, 112, 82)
-        self._draw_ojama_meter(meter, info["pending_ojama"])
         stats = (
             (f"pending {info['pending_ojama']}", (238, 238, 242)),
             (f"carry {player_state.score_carry}/70", (190, 198, 215)),
@@ -208,11 +302,11 @@ class VersusRenderer:
             (f"max chain {info['max_chain_count']}", (190, 198, 215)),
         )
         for offset, (text, color) in enumerate(stats):
-            self._draw_text(text, self.tiny_font, color, (side_x, meter.bottom + 5 + offset * 18))
+            self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 225 + offset * 20))
 
         if event is not None:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)
-            self._draw_text(event.label, self.font, color, (field.centerx, field.y - 18), center=True)
+            self._draw_text(event.label, self.font, color, (field.centerx, field.y + 18), center=True)
 
         if game.game_over:
             shade = pygame.Surface(field.size, pygame.SRCALPHA)
@@ -227,10 +321,57 @@ class VersusRenderer:
             f"step {controller.env.step_count}/{controller.config.max_steps}"
         )
         self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 654), center=True)
-        controls = "P pause  N step  [/] speed  R reset  Esc quit"
+        bindings = controller.keybindings
+        controls = (
+            f"{bindings.display_names('open_settings')} keys  "
+            f"{bindings.display_names('pause')} pause  "
+            f"{bindings.display_names('step')} step  "
+            f"{bindings.display_names('reset')} reset"
+        )
         if controller.human is not None:
-            controls += "   Human: A/D move  Q/E rotate  S/Enter drop"
+            controls += (
+                f"   Human: {bindings.display_names('human_left')}/"
+                f"{bindings.display_names('human_right')} move  "
+                f"{bindings.display_names('rotate_left')}/"
+                f"{bindings.display_names('rotate_right')} rotate  "
+                f"{bindings.display_names('drop')} drop"
+            )
         self._draw_text(controls, self.small_font, (170, 178, 198), (SCREEN_WIDTH // 2, 686), center=True)
+
+    def _draw_key_settings(self, controller) -> None:
+        shade = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        shade.fill((5, 8, 14, 215))
+        self.screen.blit(shade, (0, 0))
+        panel = pygame.Rect(280, 48, 560, 620)
+        pygame.draw.rect(self.screen, (27, 33, 45), panel, border_radius=10)
+        pygame.draw.rect(self.screen, (135, 155, 195), panel, 2, border_radius=10)
+        self._draw_text("KEY BINDINGS", self.title_font, (245, 246, 252), (panel.centerx, 78), center=True)
+        self._draw_text(
+            "Up/Down: select   Enter: change   Backspace: defaults   Esc: close",
+            self.tiny_font,
+            (175, 185, 208),
+            (panel.centerx, 112),
+            center=True,
+        )
+        row_y = 144
+        for index, action in enumerate(ACTION_ORDER):
+            row = pygame.Rect(panel.x + 28, row_y + index * 36, panel.width - 56, 30)
+            selected = index == controller.settings_index
+            if selected:
+                pygame.draw.rect(self.screen, (62, 80, 116), row, border_radius=5)
+            color = (255, 232, 145) if selected else (225, 229, 240)
+            self._draw_text(ACTION_LABELS[action], self.small_font, color, (row.x + 10, row.y + 6))
+            key_text = controller.keybindings.display_names(action)
+            key_surface = self.settings_font.render(key_text, True, color)
+            self.screen.blit(key_surface, (row.right - key_surface.get_width() - 10, row.y + 4))
+        message_color = (255, 220, 120) if controller.settings_capture else (180, 195, 220)
+        self._draw_text(
+            controller.settings_message,
+            self.small_font,
+            message_color,
+            (panel.centerx, panel.bottom - 34),
+            center=True,
+        )
 
     def draw(self, controller) -> None:
         self.screen.fill((17, 20, 27))
@@ -245,4 +386,6 @@ class VersusRenderer:
             rect = banner.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             self.screen.blit(banner, rect)
             self._draw_text(label, self.banner_font, (255, 235, 145), rect.center, center=True)
+        if controller.settings_open:
+            self._draw_key_settings(controller)
         pygame.display.flip()

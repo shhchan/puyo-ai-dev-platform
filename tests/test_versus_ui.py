@@ -1,7 +1,10 @@
 import os
+import json
+import tempfile
 import unittest
 from contextlib import redirect_stderr
 from io import StringIO
+from pathlib import Path
 from types import SimpleNamespace
 
 
@@ -21,6 +24,8 @@ try:
     )
     from puyo_env.versus_env import AGENTS, VersusPuyoEnv
     from selfplay.policies import legal_indices
+    from src.ui.keybindings import KeyBindings
+    from src.ui.versus_renderer import decompose_ojama
 
     ENV_AVAILABLE = True
 except (ImportError, OSError):
@@ -33,6 +38,8 @@ except (ImportError, OSError):
     AGENTS = ()
     VersusPuyoEnv = None
     legal_indices = None
+    KeyBindings = None
+    decompose_ojama = None
 
 try:
     import pygame  # noqa: F401
@@ -66,6 +73,11 @@ class TestVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.policy_b, "checkpoint")
         self.assertEqual(config.seed, 42)
 
+    def test_keybindings_path_can_be_overridden(self):
+        config = parse_config(["--keybindings", "/tmp/puyo-keys.json"])
+
+        self.assertEqual(config.keybindings_path, "/tmp/puyo-keys.json")
+
     def test_two_human_players_are_rejected(self):
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
             parse_config(["--policy-a", "human", "--policy-b", "human"])
@@ -73,6 +85,61 @@ class TestVersusUiConfig(unittest.TestCase):
 
 @unittest.skipUnless(ENV_AVAILABLE, "gymnasium/numpy are not installed")
 class TestVersusMatchController(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pygame.init()
+
+    @classmethod
+    def tearDownClass(cls):
+        pygame.quit()
+
+    def test_keybinding_changes_are_saved_and_reloaded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "keys.json")
+            bindings = KeyBindings(path)
+
+            bindings.rebind("pause", pygame.K_z)
+            reloaded = KeyBindings(path)
+
+            self.assertTrue(reloaded.matches("pause", pygame.K_z))
+            self.assertEqual(json.loads(Path(path).read_text(encoding="utf-8"))["pause"], ["z"])
+            reloaded.reset_defaults()
+            self.assertTrue(KeyBindings(path).matches("pause", pygame.K_p))
+
+    def test_key_settings_overlay_rebinds_controller_action(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "keys.json")
+            controller = VersusMatchController(
+                VersusUiConfig(
+                    policy_a="greedy",
+                    policy_b="random",
+                    start_paused=False,
+                    keybindings_path=path,
+                )
+            )
+
+            controller.handle_keydown(pygame.K_F1)
+            controller.settings_index = 1
+            controller.handle_keydown(pygame.K_RETURN)
+            controller.handle_keydown(pygame.K_z)
+            controller.handle_keydown(pygame.K_ESCAPE)
+            controller.handle_keydown(pygame.K_z)
+
+            self.assertFalse(controller.settings_open)
+            self.assertTrue(controller.paused)
+
+    def test_ojama_2000_uses_standard_forecast_order(self):
+        self.assertEqual(
+            decompose_ojama(2000),
+            ["comet", "moon", "star", "large", "large", "large", "small", "small"],
+        )
+
+    def test_each_ojama_forecast_symbol_has_its_denominator(self):
+        self.assertEqual(
+            decompose_ojama(2737),
+            ["comet", "crown", "moon", "star", "rock", "large", "small"],
+        )
+
     def test_same_seed_and_actions_match_headless_environment(self):
         config = VersusUiConfig(policy_a="random", policy_b="random", seed=17, max_steps=20)
         controller = VersusMatchController(config)

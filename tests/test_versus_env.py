@@ -8,6 +8,8 @@ try:
     from puyo_env.selfplay_env import VersusSelfPlayEnv
     from puyo_env.versus_env import VersusPuyoEnv
     from selfplay.policies import FirstLegalPolicy
+    from src.core.constants import PuyoColor, VISIBLE_HEIGHT
+    from src.core.puyo import Puyo
 
     VERSUS_ENV_AVAILABLE = True
 except Exception:
@@ -16,6 +18,9 @@ except Exception:
     VersusPuyoEnv = None
     VersusSelfPlayEnv = None
     FirstLegalPolicy = None
+    PuyoColor = None
+    VISIBLE_HEIGHT = None
+    Puyo = None
 
 
 @unittest.skipUnless(VERSUS_ENV_AVAILABLE, "gymnasium/numpy are not installed")
@@ -69,6 +74,36 @@ class TestVersusPuyoEnv(unittest.TestCase):
 
         self.assertEqual(infos["player_1"]["pending_ojama"], 0)
         self.assertEqual(infos["player_1"]["received_ojama_total"], 3)
+
+    def test_unplaced_ojama_stays_pending_without_false_game_over(self):
+        env = VersusPuyoEnv(seed=123, max_steps=5)
+        env.reset(seed=123)
+        state = env.player_states["player_0"]
+        for x in (0, 1, 3, 4, 5):
+            for y in range(VISIBLE_HEIGHT):
+                state.simulator.game.field.place_puyo(x, y, Puyo(PuyoColor.RED))
+        state.pending_ojama = 30
+
+        placed = env._apply_pending_ojama("player_0")
+
+        self.assertEqual(placed, 5)
+        self.assertEqual(state.pending_ojama, 25)
+        self.assertFalse(state.simulator.game.game_over)
+        self.assertTrue(
+            state.simulator.game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty()
+        )
+
+    def test_ojama_at_choke_point_causes_game_over(self):
+        env = VersusPuyoEnv(seed=123, max_steps=5)
+        env.reset(seed=123)
+        state = env.player_states["player_0"]
+        for y in range(VISIBLE_HEIGHT - 1):
+            state.simulator.game.field.place_puyo(2, y, Puyo(PuyoColor.BLUE))
+        state.pending_ojama = 6
+
+        env._apply_pending_ojama("player_0")
+
+        self.assertTrue(state.simulator.game.game_over)
 
     def test_selfplay_wrapper_returns_single_agent_step(self):
         env = VersusSelfPlayEnv(seed=123, max_steps=2, opponent_policy=FirstLegalPolicy())

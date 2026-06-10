@@ -24,8 +24,11 @@ from selfplay.policies import Policy, legal_indices, make_policy
 from src.core.constants import Direction
 
 if pygame is not None:
+    from src.ui.keybindings import ACTION_ORDER, KeyBindings
     from src.ui.versus_renderer import SCREEN_HEIGHT, SCREEN_WIDTH, VersusRenderer
 else:  # pragma: no cover - used only for dependency-light config imports
+    ACTION_ORDER = ()
+    KeyBindings = None
     SCREEN_WIDTH = 1120
     SCREEN_HEIGHT = 720
     VersusRenderer = None
@@ -51,6 +54,7 @@ class VersusUiConfig:
     beam_depth: int = 5
     beam_width: int = 32
     beam_scenarios: int = 1
+    keybindings_path: str | None = None
 
 
 @dataclass(frozen=True)
@@ -199,6 +203,14 @@ class VersusMatchController:
         self.event_elapsed = 0.0
         self.step_elapsed = 0.0
         self.last_actions: dict[str, int] = {}
+        if KeyBindings is None:
+            raise ImportError("versus UI requires pygame; install requirements.txt")
+        self.keybindings = KeyBindings(config.keybindings_path)
+        self.settings_open = False
+        self.settings_index = 0
+        self.settings_capture = False
+        self.settings_message = ""
+        self._settings_previous_paused = self.paused
         self.policies: dict[str, Policy | None] = {}
         self.human: HumanPlacement | None = None
         self.observations = {}
@@ -317,32 +329,82 @@ class VersusMatchController:
         index = SPEED_CHOICES.index(self.speed)
         self.speed = SPEED_CHOICES[max(0, min(len(SPEED_CHOICES) - 1, index + direction))]
 
+    def _open_settings(self) -> None:
+        self._settings_previous_paused = self.paused
+        self.paused = True
+        self.settings_open = True
+        self.settings_capture = False
+        self.settings_message = "Select an action and press Enter."
+
+    def _close_settings(self) -> None:
+        self.settings_open = False
+        self.settings_capture = False
+        self.paused = self._settings_previous_paused
+
+    def _handle_settings_keydown(self, key: int) -> None:
+        if self.settings_capture:
+            if key == pygame.K_ESCAPE:
+                self.settings_capture = False
+                self.settings_message = "Key change canceled."
+                return
+            action = ACTION_ORDER[self.settings_index]
+            try:
+                self.keybindings.rebind(action, key)
+            except OSError as exc:
+                self.settings_message = f"Could not save key settings: {exc}"
+            else:
+                self.settings_message = f"Saved {self.keybindings.display_names(action)}."
+            self.settings_capture = False
+            return
+
+        if key == pygame.K_ESCAPE:
+            self._close_settings()
+        elif key == pygame.K_UP:
+            self.settings_index = (self.settings_index - 1) % len(ACTION_ORDER)
+        elif key == pygame.K_DOWN:
+            self.settings_index = (self.settings_index + 1) % len(ACTION_ORDER)
+        elif key in (pygame.K_RETURN, pygame.K_SPACE):
+            self.settings_capture = True
+            self.settings_message = "Press the new key. Esc cancels."
+        elif key == pygame.K_BACKSPACE:
+            try:
+                self.keybindings.reset_defaults()
+            except OSError as exc:
+                self.settings_message = f"Could not save key settings: {exc}"
+            else:
+                self.settings_message = "Restored and saved default keys."
+
     def handle_keydown(self, key: int) -> bool:
         if pygame is None:
             return True
-        if key in (pygame.K_ESCAPE, pygame.K_x):
+        if self.settings_open:
+            self._handle_settings_keydown(key)
+            return True
+        if self.keybindings.matches("open_settings", key):
+            self._open_settings()
+        elif self.keybindings.matches("quit", key):
             return False
-        if key == pygame.K_p:
+        elif self.keybindings.matches("pause", key):
             self.paused = not self.paused
-        elif key == pygame.K_r:
+        elif self.keybindings.matches("reset", key):
             self.reset()
-        elif key in (pygame.K_RIGHTBRACKET, pygame.K_EQUALS, pygame.K_KP_PLUS):
+        elif self.keybindings.matches("speed_up", key):
             self.change_speed(1)
-        elif key in (pygame.K_LEFTBRACKET, pygame.K_MINUS, pygame.K_KP_MINUS):
+        elif self.keybindings.matches("speed_down", key):
             self.change_speed(-1)
-        elif key == pygame.K_n:
+        elif self.keybindings.matches("step", key):
             self.advance_one(include_human=True)
         elif self.human is not None and self.env.agents:
             info = self.infos[self.human.agent]
-            if key in (pygame.K_a, pygame.K_LEFT):
+            if self.keybindings.matches("human_left", key):
                 self.human.move(-1, info)
-            elif key in (pygame.K_d, pygame.K_RIGHT):
+            elif self.keybindings.matches("human_right", key):
                 self.human.move(1, info)
-            elif key in (pygame.K_q, pygame.K_UP):
+            elif self.keybindings.matches("rotate_left", key):
                 self.human.rotate(-1, info)
-            elif key in (pygame.K_e, pygame.K_DOWN):
+            elif self.keybindings.matches("rotate_right", key):
                 self.human.rotate(1, info)
-            elif key in (pygame.K_s, pygame.K_RETURN, pygame.K_SPACE):
+            elif self.keybindings.matches("drop", key):
                 self.advance_one(include_human=True)
         return True
 
@@ -362,6 +424,11 @@ def parse_config(argv=None) -> VersusUiConfig:
     parser.add_argument("--beam-depth", type=int, default=5)
     parser.add_argument("--beam-width", type=int, default=32)
     parser.add_argument("--beam-scenarios", type=int, default=1)
+    parser.add_argument(
+        "--keybindings",
+        dest="keybindings_path",
+        help="Override the persistent keybindings JSON path.",
+    )
     args = parser.parse_args(argv)
     config = VersusUiConfig(
         policy_a=args.policy_a,
@@ -377,6 +444,7 @@ def parse_config(argv=None) -> VersusUiConfig:
         beam_depth=args.beam_depth,
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
+        keybindings_path=args.keybindings_path,
     )
     try:
         validate_config(config)
