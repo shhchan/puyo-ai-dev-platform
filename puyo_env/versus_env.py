@@ -212,7 +212,7 @@ class VersusPuyoEnv:
         )
         state.pending_ojama -= placed
         state.received_ojama_total += placed
-        if placed < drop_count or not state.simulator.game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
+        if not state.simulator.game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
             state.simulator.game.game_over = True
             state.simulator.game.state = "gameover"
         return placed
@@ -361,6 +361,7 @@ class VersusPuyoEnv:
             infos[agent].update(
                 {
                     "reward_components": components[agent],
+                    "step_result": results.get(agent),
                     "winner": winner,
                     "step_count": self.step_count,
                 }

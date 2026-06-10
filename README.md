@@ -216,6 +216,57 @@ python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/<r
 
 盤面は左右に `player_0` / `player_1` を表示し，`.` は空，`R/B/G/Y/P` は色ぷよ，`O` はおじゃまぷよです．
 
+## グラフィカル対戦・観戦 UI
+
+`VersusPuyoEnv` の確定盤面を直接描画する Pygame UI で，AI 対 AI の観戦と人間対 AI の対戦ができます．
+左右の盤面，操作中の組ぷよ，NEXT/NEXT2，スコア，最大連鎖数，予告おじゃま，得点繰越，方策名，勝敗を表示します．
+スコアは各フィールド下部，予告おじゃまは各フィールド上部に表示されます．予告おじゃまは
+子ぷよ（1），大ぷよ（6），岩ぷよ（30），星ぷよ（180），月ぷよ（360），王冠ぷよ（720），彗星ぷよ（1440）へ分解して表示します．
+落下・消去・連鎖・おじゃまの演出情報はヘッドレス環境の1手結果から生成されるため，表示用にゲームを再計算しません．
+
+checkpoint AI 対 greedy の観戦:
+
+```bash
+python3 -m eval.versus_ui \
+  --policy-a checkpoint \
+  --checkpoint-a runs/versus_ppo/<run_id>/checkpoints/latest.pt \
+  --policy-b greedy \
+  --seed 123
+```
+
+人間対 checkpoint AI:
+
+```bash
+python3 -m eval.versus_ui \
+  --policy-a human \
+  --policy-b checkpoint \
+  --checkpoint-b runs/versus_ppo/<run_id>/checkpoints/latest.pt \
+  --seed 123
+```
+
+`--policy-a` / `--policy-b` には `checkpoint`，`beam`，`greedy`，`random`，`human` を指定できます．
+checkpoint を選んだ側には対応する `--checkpoint-a` / `--checkpoint-b` が必要です．
+
+| 入力 | 動作 |
+|---|---|
+| `F1` | キーバインド設定を開く |
+| `P` | 一時停止 / 再開 |
+| `N` | 1手ステップ |
+| `[` / `]`，`-` / `+` | 再生速度変更（0.25x～4x） |
+| `R` | 同じ seed でリセット |
+| `Esc` / `X` | 終了 |
+| `A` / `D` または `←` / `→` | 人間プレイヤーの設置列変更 |
+| `Q` / `E` または `↑` / `↓` | 人間プレイヤーの回転変更 |
+| `S` / `Enter` / `Space` | 人間プレイヤーの1手を確定 |
+
+キーバインド設定では `↑` / `↓` で操作を選択し，`Enter` を押してから新しいキーを入力します．
+`Backspace` で既定値へ戻し，`Esc` で設定画面を閉じます．変更は即時保存され，次回起動時にも引き継がれます．
+設定ファイルは通常 `~/.config/puyo_ai_dev_platform/versus_ui_keybindings.json` に保存されます．
+保存先を変更する場合は `--keybindings /path/to/keys.json` を指定してください．
+
+起動時の速度と一時停止は `--speed 2`，`--start-paused` のように指定できます．
+同じ `--seed` と action 列ではヘッドレス実行と同じスコア・連鎖・勝敗になります．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
