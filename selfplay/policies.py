@@ -14,7 +14,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 try:
     import torch
-except ImportError:  # pragma: no cover - dependency guard
+except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
 
 from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM

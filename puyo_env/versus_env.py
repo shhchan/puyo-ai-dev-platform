@@ -361,6 +361,7 @@ class VersusPuyoEnv:
             infos[agent].update(
                 {
                     "reward_components": components[agent],
+                    "step_result": results.get(agent),
                     "winner": winner,
                     "step_count": self.step_count,
                 }

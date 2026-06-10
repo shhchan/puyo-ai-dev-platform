@@ -6,7 +6,7 @@ try:
     import torch
     from torch import nn
     from torch.distributions.categorical import Categorical
-except ImportError:  # pragma: no cover - dependency guard
+except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
     nn = None
     Categorical = None
