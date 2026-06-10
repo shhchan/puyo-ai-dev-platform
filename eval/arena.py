@@ -320,13 +320,16 @@ def _policy_from_args(args, side: str) -> Policy:
         checkpoint_path=getattr(args, f"checkpoint_{side}"),
         device=args.device,
         deterministic=args.deterministic,
+        beam_depth=args.beam_depth,
+        beam_width=args.beam_width,
+        beam_scenarios=args.beam_scenarios,
     )
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two Puyo policies headlessly.")
-    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "checkpoint"], default="greedy")
-    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "checkpoint"], default="random")
+    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "beam", "checkpoint"], default="greedy")
+    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "beam", "checkpoint"], default="random")
     parser.add_argument("--checkpoint-a", default=None)
     parser.add_argument("--checkpoint-b", default=None)
     parser.add_argument("--games", type=int, default=20)
@@ -334,6 +337,9 @@ def parse_args(argv=None):
     parser.add_argument("--max-steps", type=int, default=500)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--deterministic", action="store_true", default=True)
+    parser.add_argument("--beam-depth", type=int, default=5)
+    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-scenarios", type=int, default=1)
     parser.add_argument("--csv", default=None, help="Optional path to write per-match results.")
     parser.add_argument("--summary-csv", default=None, help="Optional path to write one-row aggregate metrics.")
     parser.add_argument("--markdown", default=None, help="Optional path to write a Markdown arena report.")

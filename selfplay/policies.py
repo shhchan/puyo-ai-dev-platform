@@ -18,6 +18,7 @@ except ImportError:  # pragma: no cover - dependency guard
     torch = None
 
 from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
+from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.obs import BOARD_COLOR_CHANNELS, BOARD_ROWS, GRID_WIDTH
 
@@ -158,6 +159,9 @@ def make_policy(
     checkpoint_path: str | Path | None = None,
     device: str = "cpu",
     deterministic: bool = True,
+    beam_depth: int = 5,
+    beam_width: int = 32,
+    beam_scenarios: int = 1,
 ) -> Policy:
     if policy_type == "first":
         return FirstLegalPolicy()
@@ -165,6 +169,14 @@ def make_policy(
         return RandomPolicy(seed=seed)
     if policy_type == "greedy":
         return GreedyScorePolicy()
+    if policy_type == "beam":
+        return BeamSearchPolicy(
+            BeamSearchConfig(
+                depth=beam_depth,
+                width=beam_width,
+                scenarios=beam_scenarios,
+            )
+        )
     if policy_type == "checkpoint":
         if checkpoint_path is None:
             raise ValueError("checkpoint_path is required for checkpoint policy")

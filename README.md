@@ -137,6 +137,28 @@ arena で方策の挙動確認:
 python3 -m eval.arena --policy-a greedy --policy-b random --games 20 --max-steps 200
 ```
 
+Ama を参考にした連鎖構築用ビームサーチも利用できます．未知の将来ツモは代表シナリオで補い，
+探索深さ・幅・シナリオ数を変更できます．
+
+```bash
+python3 -m eval.chain_search \
+  --policies random greedy beam \
+  --games 3 \
+  --max-steps 40 \
+  --beam-depth 5 \
+  --beam-width 32 \
+  --beam-scenarios 1
+
+python3 -m eval.arena \
+  --policy-a beam \
+  --policy-b greedy \
+  --games 10 \
+  --beam-depth 5 \
+  --beam-width 32
+```
+
+設計と評価結果は [docs/development/puyo-beam-search.md](docs/development/puyo-beam-search.md) に記録しています．
+
 対戦 PPO の短時間 smoke run:
 
 ```bash
