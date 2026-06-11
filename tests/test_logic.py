@@ -136,6 +136,27 @@ class TestGhostHighlight(unittest.TestCase):
             },
         )
 
+    def test_placement_preview_cells_use_the_same_split_landing(self):
+        game = self._create_control_game()
+        for y in range(3):
+            game.field.place_puyo(1, y, Puyo(PuyoColor.YELLOW))
+
+        cells = set(
+            game.get_landing_cells(
+                1,
+                Direction.RIGHT,
+                (PuyoColor.RED, PuyoColor.BLUE),
+            )
+        )
+
+        self.assertEqual(
+            cells,
+            {
+                (1, 3, PuyoColor.RED),
+                (2, 0, PuyoColor.BLUE),
+            },
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

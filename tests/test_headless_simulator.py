@@ -54,6 +54,8 @@ class TestHeadlessSimulator(unittest.TestCase):
         self.assertEqual(result.chain_count, 1)
         self.assertEqual(result.chains[0].vanished_count, 4)
         self.assertEqual(result.chains[0].score, 40)
+        self.assertEqual(result.chains[0].board, ())
+        self.assertEqual(result.placement_board, ())
 
     def test_two_chain_golden_score_is_360(self):
         game = GameState(seed=0)
@@ -62,11 +64,20 @@ class TestHeadlessSimulator(unittest.TestCase):
         for coord in {(0, 1), (1, 2), (2, 1), (3, 1)}:
             game.field.place_puyo(*coord, Puyo(PuyoColor.BLUE))
 
-        chains = game.resolve_chains_synchronously()
+        chains = game.resolve_chains_synchronously(capture_visuals=True)
 
         self.assertEqual(game.score, 360)
         self.assertEqual(len(chains), 2)
         self.assertEqual([chain["score"] for chain in chains], [40, 320])
+        self.assertTrue(all(chain["board"] for chain in chains))
+        self.assertEqual(
+            {chains[0]["board"][y][x] for x, y in chains[0]["vanished"]},
+            {PuyoColor.RED},
+        )
+        self.assertEqual(
+            {chains[1]["board"][y][x] for x, y in chains[1]["vanished"]},
+            {PuyoColor.BLUE},
+        )
 
     def test_simultaneous_two_color_clear_golden_score_is_240(self):
         game = GameState(seed=0)

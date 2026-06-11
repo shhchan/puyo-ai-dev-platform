@@ -12,11 +12,11 @@ from src.ui.keybindings import ACTION_LABELS, ACTION_ORDER
 
 
 SCREEN_WIDTH = 1120
-SCREEN_HEIGHT = 720
+SCREEN_HEIGHT = 780
 PANEL_MARGIN = 24
 PANEL_GAP = 20
 PANEL_WIDTH = (SCREEN_WIDTH - PANEL_MARGIN * 2 - PANEL_GAP) // 2
-FIELD_TOP = 146
+FIELD_TOP = 186
 OJAMA_DENOMINATIONS = (
     ("comet", 1440),
     ("crown", 720),
@@ -35,6 +35,32 @@ def decompose_ojama(count: int) -> list[str]:
         icon_count, remaining = divmod(remaining, value)
         icons.extend([name] * icon_count)
     return icons
+
+
+def active_pair_cells(action: int) -> tuple[tuple[int, int], tuple[int, int]]:
+    placement = action_to_placement(action)
+    offsets = {
+        "UP": (0, 1),
+        "RIGHT": (1, 0),
+        "DOWN": (0, -1),
+        "LEFT": (-1, 0),
+    }
+    ox, oy = offsets[placement.rotation.name]
+    axis_y = VISIBLE_HEIGHT + 1 - min(0, oy)
+    return (
+        (placement.axis_x, axis_y),
+        (placement.axis_x + ox, axis_y + oy),
+    )
+
+
+def winner_banner_label(winner: str | None) -> str:
+    if winner is None:
+        return "DRAW"
+    try:
+        player_number = int(winner.rsplit("_", 1)[1]) + 1
+    except (IndexError, ValueError):
+        return f"{winner.replace('_', ' ').upper()} WINS"
+    return f"PLAYER {player_number} WINS"
 
 
 class VersusRenderer:
@@ -60,7 +86,7 @@ class VersusRenderer:
 
     def _panel_rect(self, index: int) -> pygame.Rect:
         x = PANEL_MARGIN + index * (PANEL_WIDTH + PANEL_GAP)
-        return pygame.Rect(x, 20, PANEL_WIDTH, 610)
+        return pygame.Rect(x, 20, PANEL_WIDTH, 660)
 
     def _field_rect(self, panel: pygame.Rect) -> pygame.Rect:
         return pygame.Rect(panel.x + 32, FIELD_TOP, GRID_WIDTH * PUYO_SIZE, VISIBLE_HEIGHT * PUYO_SIZE)
@@ -95,7 +121,7 @@ class VersusRenderer:
             pygame.draw.circle(surface, ring, (center, center), radius + 2, 3)
         self.screen.blit(surface, (int(round(x)), int(round(y))))
 
-    def _draw_board(self, field: pygame.Rect, game, event) -> None:
+    def _draw_board(self, field: pygame.Rect, event, board) -> None:
         pygame.draw.rect(self.screen, (18, 23, 32), field)
         for row in range(VISIBLE_HEIGHT + 1):
             y = field.y + row * PUYO_SIZE
@@ -108,11 +134,11 @@ class VersusRenderer:
         pulse = 0.75 + 0.25 * math.sin(pygame.time.get_ticks() / 80.0)
         for y in range(VISIBLE_HEIGHT):
             for x in range(GRID_WIDTH):
-                puyo = game.field.get_puyo(x, y)
-                if puyo.is_empty():
+                color_name = board[y][x]
+                if color_name == PuyoColor.EMPTY:
                     continue
                 sx, sy = self._grid_position(field, x, y)
-                color = self.colors.get(puyo.color, (255, 255, 255))
+                color = self.colors.get(color_name, (255, 255, 255))
                 ring = (255, 245, 170, 255) if (x, y) in highlighted else None
                 self._draw_puyo(sx, sy, self._scaled_color(color, pulse if ring else 1.0), ring=ring)
 
@@ -130,15 +156,24 @@ class VersusRenderer:
         landing_y = game.find_landing_y(placement.axis_x, placement.rotation) if axis_y is None else axis_y
         if landing_y is None or pair_colors is None:
             return
-        ox, oy = game.get_sub_puyo_offset(placement.rotation)
-        cells = (
-            (placement.axis_x, landing_y, pair_colors[0]),
-            (placement.axis_x + ox, landing_y + oy, pair_colors[1]),
+        cells = game.get_landing_cells(
+            placement.axis_x,
+            placement.rotation,
+            pair_colors,
+            axis_y=landing_y,
         )
         for x, y, color_name in cells:
             if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
                 sx, sy = self._grid_position(field, x, y)
                 self._draw_puyo(sx, sy, self.colors[color_name], alpha=alpha, ring=(245, 245, 245, 210))
+
+    def _draw_active_pair(self, field: pygame.Rect, pair, action: int) -> None:
+        if pair is None:
+            return
+        colors = (pair[0].color, pair[1].color)
+        for (x, y), color_name in zip(active_pair_cells(action), colors):
+            sx, sy = self._grid_position(field, x, y)
+            self._draw_puyo(sx, sy, self.colors[color_name])
 
     def _draw_next_pair(self, pair, rect: pygame.Rect, label: str) -> None:
         pygame.draw.rect(self.screen, (30, 36, 48), rect)
@@ -252,14 +287,9 @@ class VersusRenderer:
         active_pair = None
         if game.current_puyo_1 is not None and game.current_puyo_2 is not None:
             active_pair = (game.current_puyo_1, game.current_puyo_2)
-        self._draw_next_pair(
-            active_pair,
-            pygame.Rect(panel.right - 132, 38, 112, 88),
-            "ACTIVE",
-        )
-
+        self._draw_active_pair(field, active_pair, controller.active_action(agent))
         self._draw_ojama_forecast(field, info["pending_ojama"])
-        self._draw_board(field, game, event)
+        self._draw_board(field, event, controller.display_boards[agent])
         self._draw_text(
             f"{info['score']:08d}",
             self.score_font,
@@ -270,12 +300,14 @@ class VersusRenderer:
 
         selector_action = None
         selector_colors = None
-        if controller.human is not None and controller.human.agent == agent and controller.env.agents:
+        if (
+            event is None
+            and controller.human is not None
+            and controller.human.agent == agent
+            and controller.env.agents
+        ):
             selector_action = controller.human.action
             selector_colors = (game.current_puyo_1.color, game.current_puyo_2.color)
-        elif event is not None and event.kind == "placement":
-            selector_action = event.action
-            selector_colors = event.pair_colors
         if selector_action is not None:
             self._draw_pair_at_action(
                 field,
@@ -320,7 +352,7 @@ class VersusRenderer:
             f"{state}   speed {controller.speed:g}x   seed {controller.config.seed}   "
             f"step {controller.env.step_count}/{controller.config.max_steps}"
         )
-        self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 654), center=True)
+        self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 704), center=True)
         bindings = controller.keybindings
         controls = (
             f"{bindings.display_names('open_settings')} keys  "
@@ -336,7 +368,7 @@ class VersusRenderer:
                 f"{bindings.display_names('rotate_right')} rotate  "
                 f"{bindings.display_names('drop')} drop"
             )
-        self._draw_text(controls, self.small_font, (170, 178, 198), (SCREEN_WIDTH // 2, 686), center=True)
+        self._draw_text(controls, self.small_font, (170, 178, 198), (SCREEN_WIDTH // 2, 744), center=True)
 
     def _draw_key_settings(self, controller) -> None:
         shade = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -380,7 +412,7 @@ class VersusRenderer:
         self._draw_footer(controller)
         if not controller.env.agents:
             winner = controller.winner
-            label = "DRAW" if winner is None else f"{winner.replace('_', ' ').upper()} WINS"
+            label = winner_banner_label(winner)
             banner = pygame.Surface((520, 82), pygame.SRCALPHA)
             banner.fill((12, 15, 22, 225))
             rect = banner.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))

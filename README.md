@@ -222,6 +222,7 @@ python3 -m eval.spectate --policy-a checkpoint --checkpoint-a runs/versus_ppo/<r
 
 `VersusPuyoEnv` の確定盤面を直接描画する Pygame UI で，AI 対 AI の観戦と人間対 AI の対戦ができます．
 左右の盤面，操作中の組ぷよ，NEXT/NEXT2，スコア，最大連鎖数，予告おじゃま，得点繰越，方策名，勝敗を表示します．
+操作中の組ぷよはフィールド上部の予告おじゃま表示より上に、現在の列位置と回転状態を反映して描画されます．
 スコアは各フィールド下部，予告おじゃまは各フィールド上部に表示されます．予告おじゃまは
 子ぷよ（1），大ぷよ（6），岩ぷよ（30），星ぷよ（180），月ぷよ（360），王冠ぷよ（720），彗星ぷよ（1440）へ分解して表示します．
 落下・消去・連鎖・おじゃまの演出情報はヘッドレス環境の1手結果から生成されるため，表示用にゲームを再計算しません．
@@ -248,6 +249,21 @@ python3 -m eval.versus_ui \
 
 `--policy-a` / `--policy-b` には `checkpoint`，`beam`，`greedy`，`random`，`human` を指定できます．
 checkpoint を選んだ側には対応する `--checkpoint-a` / `--checkpoint-b` が必要です．
+方策の乱数seedは `--seed-a` / `--seed-b` で個別指定できます．未指定時は対戦環境の
+`--seed` を基準にプレイヤーごとの既定値を使用します．beam方策は
+`--beam-depth-a` / `--beam-depth-b`，`--beam-width-a` / `--beam-width-b`，
+`--beam-scenarios-a` / `--beam-scenarios-b`，`--beam-minimum-chain-a` /
+`--beam-minimum-chain-b` で探索設定を分離できます．個別指定がない項目は従来の共通オプションを使用します．
+checkpoint方策では `--device-a` / `--device-b` と `--deterministic-a` / `--stochastic-a`
+（B側も同様）を個別指定できます．
+
+```bash
+python3 -m eval.versus_ui \
+  --policy-a beam --policy-b beam \
+  --seed-a 101 --seed-b 202 \
+  --beam-depth-a 8 --beam-depth-b 10 \
+  --beam-width-a 32 --beam-width-b 48
+```
 
 | 入力 | 動作 |
 |---|---|
