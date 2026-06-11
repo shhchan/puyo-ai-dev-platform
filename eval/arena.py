@@ -323,6 +323,7 @@ def _policy_from_args(args, side: str) -> Policy:
         beam_depth=args.beam_depth,
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
+        beam_minimum_chain=args.beam_minimum_chain,
     )
 
 
@@ -337,9 +338,10 @@ def parse_args(argv=None):
     parser.add_argument("--max-steps", type=int, default=500)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--deterministic", action="store_true", default=True)
-    parser.add_argument("--beam-depth", type=int, default=5)
-    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-depth", type=int, default=10)
+    parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
+    parser.add_argument("--beam-minimum-chain", type=int, default=6)
     parser.add_argument("--csv", default=None, help="Optional path to write per-match results.")
     parser.add_argument("--summary-csv", default=None, help="Optional path to write one-row aggregate metrics.")
     parser.add_argument("--markdown", default=None, help="Optional path to write a Markdown arena report.")
