@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import copy
+import random
 import time
+from collections import deque
 from dataclasses import dataclass
 from typing import Any
 
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
+from src.core.field import Field
+from src.core.headless import HeadlessPuyoSimulator
 from src.core.puyo import Puyo
+from src.core.tsumo import PuyoSequence
 
 
 _SCENARIO_BAGS = (
@@ -24,13 +29,13 @@ _SCENARIO_BAGS = (
 
 @dataclass(frozen=True)
 class BeamSearchConfig:
-    depth: int = 5
-    width: int = 32
+    depth: int = 10
+    width: int = 48
     scenarios: int = 1
     chain_weight: float = 100_000.0
     score_weight: float = 1.0
     premature_chain_penalty: float = 350.0
-    minimum_chain_count: int = 3
+    minimum_chain_count: int = 6
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -57,6 +62,7 @@ class _Node:
     root_action: int
     evaluation: float
     best_chain_value: float
+    premature_penalty: float
 
 
 class _ScenarioSequence:
@@ -75,6 +81,12 @@ class _ScenarioSequence:
         colors = self.pairs[self.index % len(self.pairs)]
         self.index += 1
         return Puyo(colors[0]), Puyo(colors[1])
+
+    def clone(self) -> _ScenarioSequence:
+        cloned = _ScenarioSequence.__new__(_ScenarioSequence)
+        cloned.pairs = self.pairs
+        cloned.index = self.index
+        return cloned
 
 
 class BeamSearchPolicy:
@@ -95,7 +107,7 @@ class BeamSearchPolicy:
         totals: dict[int, float] = {}
         expanded_nodes = 0
         for scenario_id in range(self.config.scenarios):
-            scenario_simulator = copy.deepcopy(simulator)
+            scenario_simulator = clone_simulator(simulator)
             # The current pair and two visible next pairs stay intact. Only hidden
             # future pairs are replaced by representative scenarios.
             scenario_simulator.game.puyo_sequence = _ScenarioSequence(scenario_id)
@@ -122,15 +134,15 @@ class BeamSearchPolicy:
         expanded_nodes = 0
 
         for action in legal_action_indices(simulator):
-            child = copy.deepcopy(simulator)
+            child = clone_simulator(simulator)
             result = child.step(action_to_placement(action))
             expanded_nodes += 1
             if not result.valid or result.game_over:
                 continue
-            chain_value = self._chain_value(result.chain_count, result.score_delta)
+            chain_value, premature_penalty = self._chain_outcome(result.chain_count, result.score_delta)
             evaluation = evaluate_board(child.game)
-            beam.append(_Node(child, action, evaluation, chain_value))
-            best_by_action[action] = chain_value + evaluation
+            beam.append(_Node(child, action, evaluation, chain_value, premature_penalty))
+            best_by_action[action] = chain_value - premature_penalty + evaluation
 
         beam = self._prune(beam)
         for _ in range(1, self.config.depth):
@@ -138,24 +150,25 @@ class BeamSearchPolicy:
             seen: dict[tuple, _Node] = {}
             for node in beam:
                 for action in legal_action_indices(node.simulator):
-                    child = copy.deepcopy(node.simulator)
+                    child = clone_simulator(node.simulator)
                     result = child.step(action_to_placement(action))
                     expanded_nodes += 1
                     if not result.valid or result.game_over:
                         continue
 
-                    chain_value = max(
-                        node.best_chain_value,
-                        self._chain_value(result.chain_count, result.score_delta),
+                    chain_value, premature_penalty = self._advance_chain_outcome(
+                        node,
+                        result.chain_count,
+                        result.score_delta,
                     )
                     evaluation = evaluate_board(child.game)
-                    candidate = _Node(child, node.root_action, evaluation, chain_value)
+                    candidate = _Node(child, node.root_action, evaluation, chain_value, premature_penalty)
                     fingerprint = _field_fingerprint(child.game)
                     previous = seen.get(fingerprint)
                     if previous is None or _node_value(candidate) > _node_value(previous):
                         seen[fingerprint] = candidate
 
-                    value = chain_value + evaluation
+                    value = chain_value - premature_penalty + evaluation
                     if value > best_by_action.get(node.root_action, float("-inf")):
                         best_by_action[node.root_action] = value
 
@@ -170,10 +183,24 @@ class BeamSearchPolicy:
         nodes.sort(key=lambda node: (_node_value(node), -node.root_action), reverse=True)
         return nodes[: self.config.width]
 
-    def _chain_value(self, chain_count: int, score_delta: int) -> float:
+    def _chain_outcome(self, chain_count: int, score_delta: int) -> tuple[float, float]:
         if 0 < chain_count < self.config.minimum_chain_count:
-            return -self.config.premature_chain_penalty * float(score_delta)
-        return self.config.chain_weight * float(chain_count) + self.config.score_weight * float(score_delta)
+            return 0.0, self.config.premature_chain_penalty * float(score_delta)
+        if chain_count == 0:
+            return 0.0, 0.0
+        return (
+            self.config.chain_weight * float(chain_count) + self.config.score_weight * float(score_delta),
+            0.0,
+        )
+
+    def _advance_chain_outcome(
+        self,
+        node: _Node,
+        chain_count: int,
+        score_delta: int,
+    ) -> tuple[float, float]:
+        chain_value, penalty = self._chain_outcome(chain_count, score_delta)
+        return max(node.best_chain_value, chain_value), node.premature_penalty + penalty
 
 
 def evaluate_board(game) -> float:
@@ -198,17 +225,20 @@ def evaluate_board(game) -> float:
     link_2 = sum(1 for group in groups if len(group) == 2)
     link_3 = sum(1 for group in groups if len(group) == 3)
     isolated = sum(1 for group in groups if len(group) == 1)
+    reachable_ignitions = sum(_reachable_ignition_count(group, game, heights) for group in groups if len(group) == 3)
+    grid = game.field.grid
     nuisance = sum(
         1
         for y in range(GRID_HEIGHT)
         for x in range(GRID_WIDTH)
-        if game.field.get_puyo(x, y).color == PuyoColor.OJAMA
+        if grid[y][x].color == PuyoColor.OJAMA
     )
 
     danger = max(0, heights[2] - 8) * 1_200 + max(0, max(heights) - 10) * 900
     return (
         link_2 * 150.0
         + link_3 * 420.0
+        + reachable_ignitions * 900.0
         - isolated * 18.0
         - shape_error * 45.0
         - well_depth * 70.0
@@ -219,21 +249,27 @@ def evaluate_board(game) -> float:
 
 
 def _column_heights(game) -> tuple[int, ...]:
+    grid = game.field.grid
     heights = []
     for x in range(GRID_WIDTH):
-        occupied = [y for y in range(GRID_HEIGHT) if not game.field.get_puyo(x, y).is_empty()]
-        heights.append(max(occupied) + 1 if occupied else 0)
+        height = 0
+        for y in range(GRID_HEIGHT - 1, -1, -1):
+            if not grid[y][x].is_empty():
+                height = y + 1
+                break
+        heights.append(height)
     return tuple(heights)
 
 
 def _color_groups(game) -> tuple[frozenset[tuple[int, int]], ...]:
+    grid = game.field.grid
     visited: set[tuple[int, int]] = set()
     groups = []
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
             if (x, y) in visited:
                 continue
-            color = game.field.get_puyo(x, y).color
+            color = grid[y][x].color
             if color not in NORMAL_PUYO_COLORS:
                 continue
             stack = [(x, y)]
@@ -248,7 +284,7 @@ def _color_groups(game) -> tuple[frozenset[tuple[int, int]], ...]:
                     nx, ny = cx + dx, cy + dy
                     if not (0 <= nx < GRID_WIDTH and 0 <= ny < GRID_HEIGHT):
                         continue
-                    if game.field.get_puyo(nx, ny).color == color and (nx, ny) not in group:
+                    if grid[ny][nx].color == color and (nx, ny) not in group:
                         stack.append((nx, ny))
             visited.update(group)
             groups.append(frozenset(group))
@@ -256,15 +292,71 @@ def _color_groups(game) -> tuple[frozenset[tuple[int, int]], ...]:
 
 
 def _field_fingerprint(game) -> tuple:
+    grid = game.field.grid
     return tuple(
-        game.field.get_puyo(x, y).color.value
+        grid[y][x].color.value
         for y in range(GRID_HEIGHT)
         for x in range(GRID_WIDTH)
     )
 
 
+def _reachable_ignition_count(group, game, heights: tuple[int, ...]) -> int:
+    grid = game.field.grid
+    candidates = set()
+    for x, y in group:
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if not (0 <= nx < GRID_WIDTH and 0 <= ny < GRID_HEIGHT):
+                continue
+            if ny != heights[nx] or not grid[ny][nx].is_empty():
+                continue
+            candidates.add((nx, ny))
+    return len(candidates)
+
+
+def clone_simulator(simulator: HeadlessPuyoSimulator) -> HeadlessPuyoSimulator:
+    """Clone the mutable headless search state without copying UI-only data."""
+
+    cloned = HeadlessPuyoSimulator.__new__(HeadlessPuyoSimulator)
+    cloned.game = copy.copy(simulator.game)
+
+    field = Field.__new__(Field)
+    field.width = simulator.game.field.width
+    field.height = simulator.game.field.height
+    field.grid = [row.copy() for row in simulator.game.field.grid]
+    cloned.game.field = field
+
+    cloned.game.next_puyo_queue = deque(simulator.game.next_puyo_queue)
+    cloned.game.puyo_sequence = _clone_sequence(simulator.game.puyo_sequence)
+
+    # These containers are reset during synchronous resolution, but must not be
+    # shared if a caller clones a state between animation phases.
+    cloned.game.vanish_coords = set(simulator.game.vanish_coords)
+    cloned.game.vanish_groups = [set(group) for group in simulator.game.vanish_groups]
+    cloned.game.drop_tween_static_cells = list(simulator.game.drop_tween_static_cells)
+    cloned.game.drop_tween_motions = list(simulator.game.drop_tween_motions)
+    if simulator.game.drop_tween_grid_before is None:
+        cloned.game.drop_tween_grid_before = None
+    else:
+        cloned.game.drop_tween_grid_before = [row.copy() for row in simulator.game.drop_tween_grid_before]
+    return cloned
+
+
+def _clone_sequence(sequence):
+    if isinstance(sequence, _ScenarioSequence):
+        return sequence.clone()
+    if isinstance(sequence, PuyoSequence):
+        cloned = PuyoSequence.__new__(PuyoSequence)
+        cloned.seed = sequence.seed
+        cloned.colors = sequence.colors
+        cloned._rng = random.Random()
+        cloned._rng.setstate(sequence._rng.getstate())
+        return cloned
+    return copy.deepcopy(sequence)
+
+
 def _node_value(node: _Node) -> float:
-    return node.best_chain_value + node.evaluation
+    return node.best_chain_value - node.premature_penalty + node.evaluation
 
 
 def _legal_indices_from_info(info: dict[str, Any]) -> list[int]:

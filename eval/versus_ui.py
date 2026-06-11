@@ -51,9 +51,10 @@ class VersusUiConfig:
     start_paused: bool = False
     device: str = "cpu"
     deterministic: bool = True
-    beam_depth: int = 5
-    beam_width: int = 32
+    beam_depth: int = 10
+    beam_width: int = 48
     beam_scenarios: int = 1
+    beam_minimum_chain: int = 6
     keybindings_path: str | None = None
 
 
@@ -238,6 +239,7 @@ class VersusMatchController:
             beam_depth=self.config.beam_depth,
             beam_width=self.config.beam_width,
             beam_scenarios=self.config.beam_scenarios,
+            beam_minimum_chain=self.config.beam_minimum_chain,
         )
 
     def reset(self) -> None:
@@ -421,9 +423,10 @@ def parse_config(argv=None) -> VersusUiConfig:
     parser.add_argument("--start-paused", action="store_true")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--stochastic", action="store_true")
-    parser.add_argument("--beam-depth", type=int, default=5)
-    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-depth", type=int, default=10)
+    parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
+    parser.add_argument("--beam-minimum-chain", type=int, default=6)
     parser.add_argument(
         "--keybindings",
         dest="keybindings_path",
@@ -444,6 +447,7 @@ def parse_config(argv=None) -> VersusUiConfig:
         beam_depth=args.beam_depth,
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
+        beam_minimum_chain=args.beam_minimum_chain,
         keybindings_path=args.keybindings_path,
     )
     try:

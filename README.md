@@ -145,16 +145,18 @@ python3 -m eval.chain_search \
   --policies random greedy beam \
   --games 3 \
   --max-steps 40 \
-  --beam-depth 5 \
-  --beam-width 32 \
-  --beam-scenarios 1
+  --beam-depth 10 \
+  --beam-width 48 \
+  --beam-scenarios 1 \
+  --beam-minimum-chain 6
 
 python3 -m eval.arena \
   --policy-a beam \
   --policy-b greedy \
   --games 10 \
-  --beam-depth 5 \
-  --beam-width 32
+  --beam-depth 10 \
+  --beam-width 48 \
+  --beam-minimum-chain 6
 ```
 
 設計と評価結果は [docs/development/puyo-beam-search.md](docs/development/puyo-beam-search.md) に記録しています．

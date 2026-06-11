@@ -31,12 +31,15 @@ class ChainSearchResult:
     mean_fired_chain: float
     elapsed_seconds: float
     mean_decision_ms: float
+    expanded_nodes: int
+    mean_expanded_nodes: float
 
 
 def run_game(policy, *, policy_name: str, seed: int, max_steps: int) -> ChainSearchResult:
     simulator = HeadlessPuyoSimulator(seed=seed)
     chain_counts = []
     decision_seconds = []
+    expanded_nodes = []
 
     for step in range(max_steps):
         if simulator.game.game_over:
@@ -45,6 +48,9 @@ def run_game(policy, *, policy_name: str, seed: int, max_steps: int) -> ChainSea
         started = time.perf_counter()
         action = policy.select_action({}, info)
         decision_seconds.append(time.perf_counter() - started)
+        diagnostics = getattr(policy, "last_diagnostics", None)
+        if diagnostics is not None:
+            expanded_nodes.append(diagnostics.expanded_nodes)
         result = simulator.step(action_to_placement(action))
         if not result.valid:
             break
@@ -64,6 +70,8 @@ def run_game(policy, *, policy_name: str, seed: int, max_steps: int) -> ChainSea
         mean_fired_chain=mean(chain_counts) if chain_counts else 0.0,
         elapsed_seconds=sum(decision_seconds),
         mean_decision_ms=mean(decision_seconds) * 1000.0 if decision_seconds else 0.0,
+        expanded_nodes=sum(expanded_nodes),
+        mean_expanded_nodes=mean(expanded_nodes) if expanded_nodes else 0.0,
     )
 
 
@@ -76,6 +84,7 @@ def run_benchmark(
     beam_depth: int,
     beam_width: int,
     beam_scenarios: int,
+    beam_minimum_chain: int = 6,
 ) -> tuple[ChainSearchResult, ...]:
     results = []
     for policy_name in policy_names:
@@ -87,6 +96,7 @@ def run_benchmark(
                 beam_depth=beam_depth,
                 beam_width=beam_width,
                 beam_scenarios=beam_scenarios,
+                beam_minimum_chain=beam_minimum_chain,
             )
             results.append(run_game(policy, policy_name=policy_name, seed=game_seed, max_steps=max_steps))
     return tuple(results)
@@ -103,6 +113,7 @@ def summarize(results: tuple[ChainSearchResult, ...]) -> dict[str, dict[str, flo
             "best_chain": max(result.max_chain for result in selected),
             "mean_steps": mean(result.steps for result in selected),
             "mean_decision_ms": mean(result.mean_decision_ms for result in selected),
+            "mean_expanded_nodes": mean(result.mean_expanded_nodes for result in selected),
         }
     return summaries
 
@@ -122,9 +133,10 @@ def parse_args(argv=None):
     parser.add_argument("--games", type=int, default=3)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--max-steps", type=int, default=64)
-    parser.add_argument("--beam-depth", type=int, default=5)
-    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-depth", type=int, default=10)
+    parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
+    parser.add_argument("--beam-minimum-chain", type=int, default=6)
     parser.add_argument("--csv", default=None)
     parser.add_argument("--summary-json", default=None)
     return parser.parse_args(argv)
@@ -140,6 +152,7 @@ def main(argv=None):
         beam_depth=args.beam_depth,
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
+        beam_minimum_chain=args.beam_minimum_chain,
     )
     summary = summarize(results)
     if args.csv:
@@ -154,6 +167,7 @@ def main(argv=None):
             f"{policy_name}: mean_score={metrics['mean_score']:.1f} "
             f"mean_max_chain={metrics['mean_max_chain']:.2f} best_chain={metrics['best_chain']:.0f} "
             f"mean_steps={metrics['mean_steps']:.1f} mean_decision_ms={metrics['mean_decision_ms']:.1f}"
+            f" mean_expanded_nodes={metrics['mean_expanded_nodes']:.1f}"
         )
 
 

@@ -1,0 +1,52 @@
+{
+  "legacy_30_seed_parallel": {
+    "best_chain": 7,
+    "best_seeds": [13],
+    "config": {
+      "depth": 5,
+      "max_steps": 40,
+      "minimum_chain": 3,
+      "scenarios": 1,
+      "seeds": "1-30",
+      "width": 32
+    },
+    "games": 30,
+    "mean_decision_ms": 2152.7,
+    "mean_max_chain": 4.5,
+    "mean_score": 10895.7
+  },
+  "measurement_note": "The 30-seed datasets were generated in six parallel processes before the final behavior-preserving grid-access optimization. Use standard_single_process for the latency acceptance check.",
+  "quality_30_seed_parallel": {
+    "best_chain": 9,
+    "best_seeds": [21, 24, 25],
+    "config": {
+      "depth": 10,
+      "max_steps": 40,
+      "minimum_chain": 6,
+      "scenarios": 1,
+      "seeds": "1-30",
+      "width": 48
+    },
+    "games": 30,
+    "mean_decision_ms": 2845.8,
+    "mean_expanded_nodes": 8700.5,
+    "mean_max_chain": 6.27,
+    "mean_score": 20046.7
+  },
+  "standard_single_process": {
+    "best_chain": 8,
+    "config": {
+      "depth": 10,
+      "max_steps": 40,
+      "minimum_chain": 6,
+      "scenarios": 1,
+      "seeds": "1-3",
+      "width": 48
+    },
+    "games": 3,
+    "mean_decision_ms": 1578.4,
+    "mean_expanded_nodes": 8930.1,
+    "mean_max_chain": 7.33,
+    "mean_score": 25733.3
+  }
+}

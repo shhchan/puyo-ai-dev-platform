@@ -117,6 +117,7 @@ def _policy_from_args(args, side: str) -> Policy:
         beam_depth=args.beam_depth,
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
+        beam_minimum_chain=args.beam_minimum_chain,
     )
 
 
@@ -131,9 +132,10 @@ def parse_args(argv=None):
     parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--deterministic", action="store_true", default=True)
-    parser.add_argument("--beam-depth", type=int, default=5)
-    parser.add_argument("--beam-width", type=int, default=32)
+    parser.add_argument("--beam-depth", type=int, default=10)
+    parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
+    parser.add_argument("--beam-minimum-chain", type=int, default=6)
     return parser.parse_args(argv)
 
 

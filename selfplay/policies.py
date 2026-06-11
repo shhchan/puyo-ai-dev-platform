@@ -159,9 +159,10 @@ def make_policy(
     checkpoint_path: str | Path | None = None,
     device: str = "cpu",
     deterministic: bool = True,
-    beam_depth: int = 5,
-    beam_width: int = 32,
+    beam_depth: int = 10,
+    beam_width: int = 48,
     beam_scenarios: int = 1,
+    beam_minimum_chain: int = 6,
 ) -> Policy:
     if policy_type == "first":
         return FirstLegalPolicy()
@@ -175,6 +176,7 @@ def make_policy(
                 depth=beam_depth,
                 width=beam_width,
                 scenarios=beam_scenarios,
+                minimum_chain_count=beam_minimum_chain,
             )
         )
     if policy_type == "checkpoint":
