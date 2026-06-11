@@ -34,10 +34,12 @@ class TestBeamSearchPolicy(unittest.TestCase):
         self.assertGreater(policy.last_diagnostics.expanded_nodes, 0)
 
     def test_policy_factory_builds_beam_policy(self):
-        policy = make_policy("beam", beam_depth=2, beam_width=8, beam_scenarios=1)
+        policy = make_policy("beam", seed=17, beam_depth=2, beam_width=8, beam_scenarios=1)
 
         self.assertIsInstance(policy, BeamSearchPolicy)
         self.assertEqual(policy.config.depth, 2)
+        self.assertEqual(policy.config.width, 8)
+        self.assertEqual(policy.config.scenario_seed, 17)
 
     def test_policy_takes_available_chain(self):
         simulator = HeadlessPuyoSimulator(seed=3)

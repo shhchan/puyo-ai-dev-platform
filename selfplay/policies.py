@@ -177,6 +177,7 @@ def make_policy(
                 width=beam_width,
                 scenarios=beam_scenarios,
                 minimum_chain_count=beam_minimum_chain,
+                scenario_seed=seed,
             )
         )
     if policy_type == "checkpoint":

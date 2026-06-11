@@ -84,6 +84,7 @@ class VersusPuyoEnv:
         reward_config: VersusRewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
         max_ojama_drop: int = 30,
+        capture_visuals: bool = False,
     ):
         if gym is None or spaces is None or np is None:
             raise ImportError(
@@ -95,6 +96,7 @@ class VersusPuyoEnv:
         self.reward_config = reward_config or VersusRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
         self.max_ojama_drop = max_ojama_drop
+        self.capture_visuals = capture_visuals
 
         self._action_spaces = {agent: spaces.Discrete(NUM_ACTIONS) for agent in self.possible_agents}
         self._observation_spaces = {
@@ -306,7 +308,10 @@ class VersusPuyoEnv:
                 results[agent] = None
                 continue
 
-            result = state.simulator.step(action_to_placement(int(action)))
+            result = state.simulator.step(
+                action_to_placement(int(action)),
+                capture_visuals=self.capture_visuals,
+            )
             results[agent] = result
             components[agent]["score_delta"] = result.score_delta
             components[agent]["chain_count"] = result.chain_count

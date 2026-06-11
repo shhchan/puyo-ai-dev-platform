@@ -16,22 +16,27 @@ try:
     import numpy  # noqa: F401
 
     from eval.versus_ui import (
+        HumanPlacement,
         VersusMatchController,
         VersusUiConfig,
         build_visual_events,
         parse_config,
         run_ui,
     )
+    from puyo_env.actions import ACTION_TO_INDEX, NUM_ACTIONS, action_to_placement
     from puyo_env.versus_env import AGENTS, VersusPuyoEnv
     from selfplay.policies import legal_indices
+    from src.core.constants import Direction, PuyoColor
+    from src.core.headless import PlacementAction
     from src.ui.keybindings import KeyBindings
-    from src.ui.versus_renderer import decompose_ojama
+    from src.ui.versus_renderer import active_pair_cells, decompose_ojama, winner_banner_label
 
     ENV_AVAILABLE = True
 except (ImportError, OSError):
     ENV_AVAILABLE = False
     VersusMatchController = None
     VersusUiConfig = None
+    HumanPlacement = None
     build_visual_events = None
     parse_config = None
     run_ui = None
@@ -40,6 +45,8 @@ except (ImportError, OSError):
     legal_indices = None
     KeyBindings = None
     decompose_ojama = None
+    active_pair_cells = None
+    winner_banner_label = None
 
 try:
     import pygame  # noqa: F401
@@ -77,6 +84,35 @@ class TestVersusUiConfig(unittest.TestCase):
         config = parse_config(["--keybindings", "/tmp/puyo-keys.json"])
 
         self.assertEqual(config.keybindings_path, "/tmp/puyo-keys.json")
+
+    def test_policy_specific_search_options_are_parsed(self):
+        config = parse_config(
+            [
+                "--policy-a",
+                "beam",
+                "--policy-b",
+                "beam",
+                "--seed-a",
+                "11",
+                "--seed-b",
+                "22",
+                "--beam-depth-a",
+                "4",
+                "--beam-depth-b",
+                "7",
+                "--beam-width-a",
+                "16",
+                "--beam-width-b",
+                "32",
+                "--stochastic-b",
+            ]
+        )
+
+        self.assertEqual((config.seed_a, config.seed_b), (11, 22))
+        self.assertEqual((config.beam_depth_a, config.beam_depth_b), (4, 7))
+        self.assertEqual((config.beam_width_a, config.beam_width_b), (16, 32))
+        self.assertIsNone(config.deterministic_a)
+        self.assertFalse(config.deterministic_b)
 
     def test_two_human_players_are_rejected(self):
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
@@ -134,6 +170,55 @@ class TestVersusMatchController(unittest.TestCase):
             ["comet", "moon", "star", "large", "large", "large", "small", "small"],
         )
 
+    def test_human_starts_in_third_column_facing_up(self):
+        human = HumanPlacement("player_0")
+        human.reset({"action_mask": [True] * NUM_ACTIONS})
+
+        placement = action_to_placement(human.action)
+        self.assertEqual((placement.axis_x, placement.rotation), (2, Direction.UP))
+
+    def test_human_edge_rotation_uses_one_quarter_turn_with_wall_kick(self):
+        info = {"action_mask": [True] * NUM_ACTIONS}
+        human = HumanPlacement("player_0")
+
+        human.action = ACTION_TO_INDEX[PlacementAction(0, Direction.UP)]
+        human.rotate(-1, info)
+        self.assertEqual(action_to_placement(human.action), PlacementAction(1, Direction.LEFT))
+
+        human.action = ACTION_TO_INDEX[PlacementAction(5, Direction.UP)]
+        human.rotate(1, info)
+        self.assertEqual(action_to_placement(human.action), PlacementAction(4, Direction.RIGHT))
+
+    def test_policy_factory_receives_side_specific_parameters(self):
+        calls = []
+
+        class StubPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        def factory(policy_type, **kwargs):
+            calls.append((policy_type, kwargs))
+            return StubPolicy()
+
+        VersusMatchController(
+            VersusUiConfig(
+                policy_a="beam",
+                policy_b="beam",
+                seed=5,
+                seed_a=101,
+                seed_b=202,
+                beam_depth_a=3,
+                beam_depth_b=6,
+                beam_width_a=12,
+                beam_width_b=24,
+            ),
+            policy_factory=factory,
+        )
+
+        self.assertEqual([kwargs["seed"] for _, kwargs in calls], [101, 202])
+        self.assertEqual([kwargs["beam_depth"] for _, kwargs in calls], [3, 6])
+        self.assertEqual([kwargs["beam_width"] for _, kwargs in calls], [12, 24])
+
     def test_each_ojama_forecast_symbol_has_its_denominator(self):
         self.assertEqual(
             decompose_ojama(2737),
@@ -182,6 +267,7 @@ class TestVersusMatchController(unittest.TestCase):
 
         events = [controller.current_event, *controller.event_queue]
         self.assertEqual(sum(event.kind == "placement" for event in events if event), 2)
+        self.assertTrue(all(event.board for event in events if event and event.kind == "placement"))
         self.assertIsNotNone(controller.infos["player_0"]["step_result"])
 
     def test_paused_single_step_advances_one_joint_action(self):
@@ -201,8 +287,20 @@ class TestVersusMatchController(unittest.TestCase):
         self.assertEqual(controller.env.step_count, 2)
 
     def test_event_builder_uses_chain_and_garbage_results(self):
-        chain = SimpleNamespace(chain_index=2, score=360, vanished=frozenset({(1, 2), (1, 3)}))
-        result = SimpleNamespace(valid=True, axis_y=4, chains=(chain,))
+        placement_board = ((PuyoColor.RED,),)
+        chain_board = ((PuyoColor.BLUE,),)
+        chain = SimpleNamespace(
+            chain_index=2,
+            score=360,
+            vanished=frozenset({(1, 2), (1, 3)}),
+            board=chain_board,
+        )
+        result = SimpleNamespace(
+            valid=True,
+            axis_y=4,
+            chains=(chain,),
+            placement_board=placement_board,
+        )
         infos = {
             "player_0": {
                 "reward_components": {"garbage_received": 6},
@@ -223,6 +321,20 @@ class TestVersusMatchController(unittest.TestCase):
         self.assertEqual(events[0].kind, "garbage")
         self.assertEqual(sum(event.kind == "chain" for event in events), 2)
         self.assertEqual(next(event for event in events if event.kind == "chain").coords, chain.vanished)
+        self.assertEqual(next(event for event in events if event.kind == "placement").board, placement_board)
+        self.assertEqual(next(event for event in events if event.kind == "chain").board, chain_board)
+
+    def test_active_pair_uses_field_columns_above_ojama_forecast(self):
+        up = ACTION_TO_INDEX[PlacementAction(2, Direction.UP)]
+        down = ACTION_TO_INDEX[PlacementAction(2, Direction.DOWN)]
+
+        self.assertEqual(active_pair_cells(up), ((2, 13), (2, 14)))
+        self.assertEqual(active_pair_cells(down), ((2, 14), (2, 13)))
+
+    def test_winner_banner_uses_one_based_player_number(self):
+        self.assertEqual(winner_banner_label("player_0"), "PLAYER 1 WINS")
+        self.assertEqual(winner_banner_label("player_1"), "PLAYER 2 WINS")
+        self.assertEqual(winner_banner_label(None), "DRAW")
 
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")

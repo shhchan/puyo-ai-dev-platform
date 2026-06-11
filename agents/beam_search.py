@@ -36,6 +36,7 @@ class BeamSearchConfig:
     score_weight: float = 1.0
     premature_chain_penalty: float = 350.0
     minimum_chain_count: int = 6
+    scenario_seed: int | None = None
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -68,9 +69,9 @@ class _Node:
 class _ScenarioSequence:
     """Repeat one of Ama's six representative unknown-pair patterns."""
 
-    def __init__(self, scenario_id: int):
+    def __init__(self, scenario_id: int, colors=None):
         bag = _SCENARIO_BAGS[scenario_id]
-        colors = NORMAL_PUYO_COLORS
+        colors = tuple(colors or NORMAL_PUYO_COLORS)
         self.pairs = (
             (colors[bag[0]], colors[bag[1]]),
             (colors[bag[2]], colors[bag[3]]),
@@ -106,11 +107,22 @@ class BeamSearchPolicy:
         started = time.perf_counter()
         totals: dict[int, float] = {}
         expanded_nodes = 0
-        for scenario_id in range(self.config.scenarios):
+        scenario_ids = list(range(len(_SCENARIO_BAGS)))
+        scenario_colors = [NORMAL_PUYO_COLORS] * self.config.scenarios
+        if self.config.scenario_seed is not None:
+            scenario_rng = random.Random(self.config.scenario_seed)
+            scenario_rng.shuffle(scenario_ids)
+            scenario_colors = []
+            for _ in range(self.config.scenarios):
+                colors = list(NORMAL_PUYO_COLORS)
+                scenario_rng.shuffle(colors)
+                scenario_colors.append(tuple(colors))
+
+        for scenario_id, colors in zip(scenario_ids, scenario_colors):
             scenario_simulator = clone_simulator(simulator)
             # The current pair and two visible next pairs stay intact. Only hidden
             # future pairs are replaced by representative scenarios.
-            scenario_simulator.game.puyo_sequence = _ScenarioSequence(scenario_id)
+            scenario_simulator.game.puyo_sequence = _ScenarioSequence(scenario_id, colors)
             values, expanded = self._search_scenario(scenario_simulator)
             expanded_nodes += expanded
             for action, value in values.items():

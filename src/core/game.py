@@ -521,7 +521,7 @@ class GameState:
         _, _, score = self._calculate_chain_score_components()
         return score
 
-    def resolve_chains_synchronously(self, spawn_next=False):
+    def resolve_chains_synchronously(self, spawn_next=False, capture_visuals=False):
         chain_results = []
         self.state = "animate"
         self.chain_count = 0
@@ -548,6 +548,7 @@ class GameState:
                     "base": a,
                     "bonus": b,
                     "score": step_score,
+                    "board": self._snapshot_field_colors() if capture_visuals else None,
                 }
             )
             self.score += step_score
@@ -561,7 +562,7 @@ class GameState:
             self.state = "ready"
         return chain_results
 
-    def place_current_pair_and_resolve(self, axis_x, rot, spawn_next=True):
+    def place_current_pair_and_resolve(self, axis_x, rot, spawn_next=True, capture_visuals=False):
         if self.state == "ready":
             self.spawn_puyo()
         if self.state != "control" or self.current_puyo_1 is None or self.current_puyo_2 is None:
@@ -578,7 +579,12 @@ class GameState:
         self._reset_control_counters()
         self._reset_drop_bonus_state()
         self.lock_puyo()
-        chain_results = self.resolve_chains_synchronously(spawn_next=spawn_next)
+        self.field.drop_puyo()
+        placement_board = self._snapshot_field_colors() if capture_visuals else None
+        chain_results = self.resolve_chains_synchronously(
+            spawn_next=spawn_next,
+            capture_visuals=capture_visuals,
+        )
 
         return {
             "axis_x": axis_x,
@@ -587,6 +593,7 @@ class GameState:
             "score_delta": self.score - score_before,
             "chain_count": len(chain_results),
             "chains": chain_results,
+            "placement_board": placement_board,
             "game_over": self.game_over,
         }
 
@@ -606,17 +613,31 @@ class GameState:
             return []
 
         ghost_x, ghost_y = ghost_pos
-        ghost_cells = []
-        if 0 <= ghost_x < GRID_WIDTH and 0 <= ghost_y < GRID_HEIGHT:
-            ghost_cells.append((ghost_x, ghost_y, self.current_puyo_1.color))
+        return self.get_landing_cells(
+            ghost_x,
+            self.puyo_rot,
+            (self.current_puyo_1.color, self.current_puyo_2.color),
+            axis_y=ghost_y,
+        )
 
-        ox, oy = self.get_sub_puyo_offset(self.puyo_rot)
-        sub_x, sub_y = ghost_x + ox, ghost_y + oy
-        if 0 <= sub_x < GRID_WIDTH and 0 <= sub_y < GRID_HEIGHT:
-            ghost_cells.append((sub_x, sub_y, self.current_puyo_2.color))
+    def get_landing_cells(self, axis_x, rotation, pair_colors, axis_y=None):
+        """Return the independently settled cells for a placement preview."""
 
-        ghost_cells = self._settle_ghost_cells(ghost_cells)
-        return ghost_cells
+        landing_y = self.find_landing_y(axis_x, rotation) if axis_y is None else axis_y
+        if landing_y is None or pair_colors is None:
+            return []
+
+        ox, oy = self.get_sub_puyo_offset(rotation)
+        cells = [
+            (axis_x, landing_y, pair_colors[0]),
+            (axis_x + ox, landing_y + oy, pair_colors[1]),
+        ]
+        in_bounds = [
+            (x, y, color)
+            for x, y, color in cells
+            if 0 <= x < GRID_WIDTH and 0 <= y < GRID_HEIGHT
+        ]
+        return self._settle_ghost_cells(in_bounds)
 
     def _settle_ghost_cells(self, ghost_cells):
         settled = list(ghost_cells)

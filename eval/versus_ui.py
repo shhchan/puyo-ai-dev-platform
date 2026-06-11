@@ -18,10 +18,15 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
-from puyo_env.actions import PLACEMENT_ACTIONS, action_to_placement
+from puyo_env.actions import (
+    PLACEMENT_ACTIONS,
+    action_to_placement,
+    placement_to_action_index,
+)
 from puyo_env.versus_env import AGENTS, VersusPuyoEnv
 from selfplay.policies import Policy, legal_indices, make_policy
 from src.core.constants import Direction
+from src.core.headless import PlacementAction
 
 if pygame is not None:
     from src.ui.keybindings import ACTION_ORDER, KeyBindings
@@ -46,6 +51,8 @@ class VersusUiConfig:
     checkpoint_a: str | None = None
     checkpoint_b: str | None = None
     seed: int = 1
+    seed_a: int | None = None
+    seed_b: int | None = None
     max_steps: int = 100
     speed: float = 1.0
     start_paused: bool = False
@@ -55,6 +62,18 @@ class VersusUiConfig:
     beam_width: int = 48
     beam_scenarios: int = 1
     beam_minimum_chain: int = 6
+    beam_depth_a: int | None = None
+    beam_depth_b: int | None = None
+    beam_width_a: int | None = None
+    beam_width_b: int | None = None
+    beam_scenarios_a: int | None = None
+    beam_scenarios_b: int | None = None
+    beam_minimum_chain_a: int | None = None
+    beam_minimum_chain_b: int | None = None
+    device_a: str | None = None
+    device_b: str | None = None
+    deterministic_a: bool | None = None
+    deterministic_b: bool | None = None
     keybindings_path: str | None = None
 
 
@@ -69,6 +88,7 @@ class VisualEvent:
     pair_colors: tuple | None = None
     coords: frozenset = frozenset()
     chain_index: int = 0
+    board: tuple = ()
 
 
 def validate_config(config: VersusUiConfig) -> None:
@@ -85,6 +105,19 @@ def validate_config(config: VersusUiConfig) -> None:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
     if config.max_steps <= 0:
         raise ValueError("max_steps must be positive")
+    for side in ("a", "b"):
+        depth = getattr(config, f"beam_depth_{side}")
+        width = getattr(config, f"beam_width_{side}")
+        scenarios = getattr(config, f"beam_scenarios_{side}")
+        minimum_chain = getattr(config, f"beam_minimum_chain_{side}")
+        if depth is not None and depth < 1:
+            raise ValueError(f"beam depth {side} must be at least 1")
+        if width is not None and width < 1:
+            raise ValueError(f"beam width {side} must be at least 1")
+        if scenarios is not None and not 1 <= scenarios <= 6:
+            raise ValueError(f"beam scenarios {side} must be in [1, 6]")
+        if minimum_chain is not None and minimum_chain < 1:
+            raise ValueError(f"beam minimum chain {side} must be at least 1")
 
 
 def _player_pair(game) -> tuple | None:
@@ -120,6 +153,7 @@ def build_visual_events(
                 action=action,
                 axis_y=result.axis_y,
                 pair_colors=pair_colors.get(agent),
+                board=result.placement_board,
             )
         )
 
@@ -142,6 +176,7 @@ def build_visual_events(
                     coords=chain.vanished,
                     chain_index=chain.chain_index,
                     amount=chain.score,
+                    board=chain.board,
                 )
             )
     return events
@@ -154,7 +189,8 @@ class HumanPlacement:
 
     def reset(self, info: dict) -> None:
         choices = legal_indices(info)
-        self.action = choices[0] if choices else 0
+        preferred = placement_to_action_index(PlacementAction(2, Direction.UP))
+        self.action = preferred if preferred in choices else (choices[0] if choices else 0)
 
     def _legal(self, info: dict) -> list[int]:
         return legal_indices(info)
@@ -179,10 +215,10 @@ class HumanPlacement:
         directions = list(Direction)
         start = directions.index(current.rotation)
         legal = set(self._legal(info))
-        for offset in range(1, len(directions) + 1):
-            rotation = directions[(start + delta * offset) % len(directions)]
+        rotation = directions[(start + delta) % len(directions)]
+        for axis_x in (current.axis_x, current.axis_x + 1, current.axis_x - 1):
             for index, placement in enumerate(PLACEMENT_ACTIONS):
-                if index in legal and placement.axis_x == current.axis_x and placement.rotation == rotation:
+                if index in legal and placement.axis_x == axis_x and placement.rotation == rotation:
                     self.action = index
                     return
 
@@ -196,7 +232,11 @@ class VersusMatchController:
         validate_config(config)
         self.config = config
         self.policy_factory = policy_factory
-        self.env = VersusPuyoEnv(seed=config.seed, max_steps=config.max_steps)
+        self.env = VersusPuyoEnv(
+            seed=config.seed,
+            max_steps=config.max_steps,
+            capture_visuals=True,
+        )
         self.speed = config.speed
         self.paused = config.start_paused
         self.event_queue: deque[VisualEvent] = deque()
@@ -204,6 +244,7 @@ class VersusMatchController:
         self.event_elapsed = 0.0
         self.step_elapsed = 0.0
         self.last_actions: dict[str, int] = {}
+        self.display_boards: dict[str, tuple] = {}
         if KeyBindings is None:
             raise ImportError("versus UI requires pygame; install requirements.txt")
         self.keybindings = KeyBindings(config.keybindings_path)
@@ -230,17 +271,37 @@ class VersusMatchController:
         policy_type = self.config.policy_a if side == "a" else self.config.policy_b
         if policy_type == "human":
             return None
+        policy_seed = getattr(self.config, f"seed_{side}")
+        if policy_seed is None:
+            policy_seed = self.config.seed + (0 if side == "a" else 10_000)
+
+        def side_value(name: str):
+            value = getattr(self.config, f"{name}_{side}")
+            return getattr(self.config, name) if value is None else value
+
         return self.policy_factory(
             policy_type,
-            seed=self.config.seed + (0 if side == "a" else 10_000),
+            seed=policy_seed,
             checkpoint_path=self.config.checkpoint_a if side == "a" else self.config.checkpoint_b,
-            device=self.config.device,
-            deterministic=self.config.deterministic,
-            beam_depth=self.config.beam_depth,
-            beam_width=self.config.beam_width,
-            beam_scenarios=self.config.beam_scenarios,
-            beam_minimum_chain=self.config.beam_minimum_chain,
+            device=side_value("device"),
+            deterministic=side_value("deterministic"),
+            beam_depth=side_value("beam_depth"),
+            beam_width=side_value("beam_width"),
+            beam_scenarios=side_value("beam_scenarios"),
+            beam_minimum_chain=side_value("beam_minimum_chain"),
         )
+
+    def _current_board(self, agent: str) -> tuple:
+        grid = self.env.player_states[agent].simulator.game.field.to_color_grid()
+        return tuple(tuple(row) for row in grid)
+
+    def _sync_display_boards(self) -> None:
+        self.display_boards = {agent: self._current_board(agent) for agent in AGENTS}
+
+    def active_action(self, agent: str) -> int:
+        if self.human is not None and self.human.agent == agent:
+            return self.human.action
+        return placement_to_action_index(PlacementAction(2, Direction.UP))
 
     def reset(self) -> None:
         self.policies = {
@@ -257,6 +318,7 @@ class VersusMatchController:
         self.event_elapsed = 0.0
         self.step_elapsed = 0.0
         self.last_actions = {}
+        self._sync_display_boards()
 
     def _selected_actions(self, include_human: bool) -> dict[str, int] | None:
         if not self.env.agents:
@@ -275,14 +337,18 @@ class VersusMatchController:
     def step_with_actions(self, actions: dict[str, int]) -> bool:
         if not self.env.agents:
             return False
+        boards_before = {agent: self._current_board(agent) for agent in AGENTS}
         pair_colors = {
             agent: _player_pair(self.env.player_states[agent].simulator.game)
             for agent in AGENTS
         }
         self.observations, _, _, _, self.infos = self.env.step(actions)
         self.last_actions = dict(actions)
+        self.display_boards = boards_before
         self.event_queue.extend(build_visual_events(actions, self.infos, pair_colors))
         self._start_next_event()
+        if self.current_event is None:
+            self._sync_display_boards()
         if self.human and self.env.agents:
             self.human.reset(self.infos[self.human.agent])
         return True
@@ -294,6 +360,7 @@ class VersusMatchController:
             self.current_event = None
             self.event_queue.clear()
             self.event_elapsed = 0.0
+            self._sync_display_boards()
         actions = self._selected_actions(include_human=include_human)
         return False if actions is None else self.step_with_actions(actions)
 
@@ -301,6 +368,8 @@ class VersusMatchController:
         if self.current_event is None and self.event_queue:
             self.current_event = self.event_queue.popleft()
             self.event_elapsed = 0.0
+            if self.current_event.board:
+                self.display_boards[self.current_event.agent] = self.current_event.board
 
     def _event_duration(self) -> float:
         if self.current_event is None:
@@ -316,6 +385,8 @@ class VersusMatchController:
             if self.event_elapsed >= self._event_duration():
                 self.current_event = None
                 self._start_next_event()
+                if self.current_event is None and not self.event_queue:
+                    self._sync_display_boards()
             return
         if self.event_queue:
             self._start_next_event()
@@ -418,6 +489,8 @@ def parse_config(argv=None) -> VersusUiConfig:
     parser.add_argument("--checkpoint-a")
     parser.add_argument("--checkpoint-b")
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--seed-a", "--policy-seed-a", dest="seed_a", type=int)
+    parser.add_argument("--seed-b", "--policy-seed-b", dest="seed_b", type=int)
     parser.add_argument("--max-steps", type=int, default=100)
     parser.add_argument("--speed", type=float, choices=SPEED_CHOICES, default=1.0)
     parser.add_argument("--start-paused", action="store_true")
@@ -427,6 +500,24 @@ def parse_config(argv=None) -> VersusUiConfig:
     parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
     parser.add_argument("--beam-minimum-chain", type=int, default=6)
+    for side in ("a", "b"):
+        parser.add_argument(f"--beam-depth-{side}", type=int)
+        parser.add_argument(f"--beam-width-{side}", type=int)
+        parser.add_argument(f"--beam-scenarios-{side}", type=int)
+        parser.add_argument(f"--beam-minimum-chain-{side}", type=int)
+        parser.add_argument(f"--device-{side}")
+        deterministic_group = parser.add_mutually_exclusive_group()
+        deterministic_group.add_argument(
+            f"--deterministic-{side}",
+            dest=f"deterministic_{side}",
+            action="store_true",
+        )
+        deterministic_group.add_argument(
+            f"--stochastic-{side}",
+            dest=f"deterministic_{side}",
+            action="store_false",
+        )
+        parser.set_defaults(**{f"deterministic_{side}": None})
     parser.add_argument(
         "--keybindings",
         dest="keybindings_path",
@@ -439,6 +530,8 @@ def parse_config(argv=None) -> VersusUiConfig:
         checkpoint_a=args.checkpoint_a,
         checkpoint_b=args.checkpoint_b,
         seed=args.seed,
+        seed_a=args.seed_a,
+        seed_b=args.seed_b,
         max_steps=args.max_steps,
         speed=args.speed,
         start_paused=args.start_paused,
@@ -448,6 +541,18 @@ def parse_config(argv=None) -> VersusUiConfig:
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
         beam_minimum_chain=args.beam_minimum_chain,
+        beam_depth_a=args.beam_depth_a,
+        beam_depth_b=args.beam_depth_b,
+        beam_width_a=args.beam_width_a,
+        beam_width_b=args.beam_width_b,
+        beam_scenarios_a=args.beam_scenarios_a,
+        beam_scenarios_b=args.beam_scenarios_b,
+        beam_minimum_chain_a=args.beam_minimum_chain_a,
+        beam_minimum_chain_b=args.beam_minimum_chain_b,
+        device_a=args.device_a,
+        device_b=args.device_b,
+        deterministic_a=args.deterministic_a,
+        deterministic_b=args.deterministic_b,
         keybindings_path=args.keybindings_path,
     )
     try:
