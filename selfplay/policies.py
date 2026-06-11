@@ -19,6 +19,8 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
 
 from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
+from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
+from agents.strategy_workers import FixedProfilePolicy
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.obs import BOARD_COLOR_CHANNELS, BOARD_ROWS, GRID_WIDTH
 
@@ -180,6 +182,20 @@ def make_policy(
                 scenario_seed=seed,
             )
         )
+    if policy_type == "worker_large":
+        return FixedProfilePolicy(0)
+    if policy_type == "worker_quick":
+        return FixedProfilePolicy(1)
+    if policy_type == "worker_fire":
+        return FixedProfilePolicy(2)
+    if policy_type == "worker_survival":
+        return FixedProfilePolicy(3)
+    if policy_type == "manager_rule":
+        return RuleBasedManagerPolicy()
+    if policy_type == "manager":
+        if checkpoint_path is None:
+            raise ValueError("checkpoint_path is required for manager policy")
+        return StrategyManagerPolicy(checkpoint_path, device=device, deterministic=deterministic)
     if policy_type == "checkpoint":
         if checkpoint_path is None:
             raise ValueError("checkpoint_path is required for checkpoint policy")

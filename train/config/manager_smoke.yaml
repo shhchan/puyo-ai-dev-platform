@@ -1,0 +1,12 @@
+seed: 1
+total_timesteps: 8
+num_envs: 1
+num_steps: 4
+update_epochs: 1
+minibatch_size: 4
+max_episode_steps: 4
+opponent_policy: random
+use_smoke_profiles: true
+log_dir: runs/manager_ppo
+device: cpu
+run_name: manager_smoke

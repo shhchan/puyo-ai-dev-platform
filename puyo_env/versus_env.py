@@ -194,6 +194,13 @@ class VersusPuyoEnv:
             "received_ojama_total": state.received_ojama_total,
             "max_chain_count": state.max_chain_count,
             "simulator": state.simulator,
+            "opponent_pending_ojama": opponent_state.pending_ojama,
+            "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
+            "opponent_received_ojama_total": opponent_state.received_ojama_total,
+            "opponent_max_chain_count": opponent_state.max_chain_count,
+            "opponent_simulator": opponent_state.simulator,
+            "step_count": self.step_count,
+            "max_steps": self.max_steps,
         }
 
     def _observations_and_infos(self):
