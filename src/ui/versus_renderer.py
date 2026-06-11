@@ -273,7 +273,7 @@ class VersusRenderer:
         player_state = controller.env.player_states[agent]
         game = player_state.simulator.game
         info = controller.infos[agent]
-        policy_name = controller.policy_names[agent]
+        policy_name = controller.policy_display_name(agent)
         event = (
             controller.current_event
             if controller.current_event and controller.current_event.agent == agent

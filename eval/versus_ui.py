@@ -39,7 +39,10 @@ else:  # pragma: no cover - used only for dependency-light config imports
     VersusRenderer = None
 
 
-POLICY_CHOICES = ("human", "random", "greedy", "beam", "checkpoint")
+POLICY_CHOICES = (
+    "human", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "worker_large", "worker_quick", "worker_fire", "worker_survival",
+)
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
 BASE_STEP_SECONDS = 0.7
 
@@ -97,10 +100,10 @@ def validate_config(config: VersusUiConfig) -> None:
         raise ValueError(f"policy must be one of: {', '.join(POLICY_CHOICES)}")
     if policies.count("human") > 1:
         raise ValueError("only one human player is supported")
-    if config.policy_a == "checkpoint" and not config.checkpoint_a:
-        raise ValueError("--checkpoint-a is required when --policy-a=checkpoint")
-    if config.policy_b == "checkpoint" and not config.checkpoint_b:
-        raise ValueError("--checkpoint-b is required when --policy-b=checkpoint")
+    if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
+        raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
+    if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
+        raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
     if config.max_steps <= 0:
@@ -262,6 +265,12 @@ class VersusMatchController:
     @property
     def policy_names(self) -> dict[str, str]:
         return {"player_0": self.config.policy_a, "player_1": self.config.policy_b}
+
+    def policy_display_name(self, agent: str) -> str:
+        policy = self.policies.get(agent)
+        profile_name = getattr(policy, "current_profile_name", None)
+        base = self.policy_names[agent]
+        return f"{base}: {profile_name}" if profile_name else base
 
     @property
     def winner(self) -> str | None:
