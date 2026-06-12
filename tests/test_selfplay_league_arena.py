@@ -10,13 +10,14 @@ try:
     import gymnasium  # noqa: F401
     import numpy  # noqa: F401
 
-    from eval.arena import summarize_result, run_series, write_matches_csv, write_summary_csv
+    from eval.arena import run_paired_series, summarize_result, run_series, write_matches_csv, write_summary_csv
     from selfplay.policies import FirstLegalPolicy, RandomPolicy
 
     ARENA_AVAILABLE = True
 except Exception:
     ARENA_AVAILABLE = False
     run_series = None
+    run_paired_series = None
     summarize_result = None
     write_matches_csv = None
     write_summary_csv = None
@@ -89,6 +90,14 @@ class TestArena(unittest.TestCase):
 
         self.assertIn("max_chain_player_0", match_text)
         self.assertIn("elo_delta_player_0", summary_text)
+
+    def test_paired_series_swaps_sides_for_each_seed(self):
+        result = run_paired_series(FirstLegalPolicy(), RandomPolicy(seed=1), games=2, seed=4, max_steps=2)
+
+        self.assertEqual(len(result.matches), 4)
+        self.assertEqual([match.policy_a_side for match in result.matches], ["player_0", "player_1"] * 2)
+        self.assertGreaterEqual(result.win_rate_policy_a, 0.0)
+        self.assertLessEqual(result.win_rate_policy_a, 1.0)
 
 
 if __name__ == "__main__":

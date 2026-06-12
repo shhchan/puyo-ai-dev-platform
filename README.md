@@ -161,6 +161,35 @@ python3 -m eval.arena \
 
 設計と評価結果は [docs/development/puyo-beam-search.md](docs/development/puyo-beam-search.md) に記録しています．
 
+### 戦略 manager
+
+PUYO-28 の戦略 manager は，大連鎖・速攻・発火・生存の固定探索 worker から1つを選び，
+選択した worker だけを実行します．短時間の配線確認は次の config で実行できます．
+
+```bash
+python3 -m train.train_manager --config train/config/manager_smoke.yaml
+```
+
+通常学習では `train/config/manager.yaml` を使用します．checkpoint と profile 使用率・切替回数・
+判断時間を含むログは `runs/manager_ppo/<run_id>/` に保存されます．
+
+```bash
+python3 -m train.train_manager --config train/config/manager.yaml
+
+python3 -m eval.arena \
+  --policy-a manager \
+  --checkpoint-a runs/manager_ppo/<run_id>/checkpoints/best.pt \
+  --policy-b greedy \
+  --games 30 \
+  --paired-sides \
+  --csv runs/manager_ppo/<run_id>/arena_matches.csv \
+  --summary-csv runs/manager_ppo/<run_id>/arena_summary.csv
+```
+
+固定 worker baseline は `worker_large`，`worker_quick`，`worker_fire`，`worker_survival`，
+解釈可能な router baseline は `manager_rule` です．設計詳細は
+[docs/development/puyo-strategy-orchestration.md](docs/development/puyo-strategy-orchestration.md) を参照してください．
+
 対戦 PPO の短時間 smoke run:
 
 ```bash
@@ -247,8 +276,20 @@ python3 -m eval.versus_ui \
   --seed 123
 ```
 
-`--policy-a` / `--policy-b` には `checkpoint`，`beam`，`greedy`，`random`，`human` を指定できます．
-checkpoint を選んだ側には対応する `--checkpoint-a` / `--checkpoint-b` が必要です．
+manager checkpoint の実力と局面ごとの戦略切替は，同じ UI で確認できます．方策名の横に現在の
+worker profile が表示されます．
+
+```bash
+python3 -m eval.versus_ui \
+  --policy-a human \
+  --policy-b manager \
+  --checkpoint-b runs/manager_ppo/<run_id>/checkpoints/best.pt \
+  --seed 123
+```
+
+`--policy-a` / `--policy-b` には `checkpoint`，`manager`，`manager_rule`，固定 worker，`beam`，
+`greedy`，`random`，`human` を指定できます．checkpoint または manager を選んだ側には対応する
+`--checkpoint-a` / `--checkpoint-b` が必要です．
 方策の乱数seedは `--seed-a` / `--seed-b` で個別指定できます．未指定時は対戦環境の
 `--seed` を基準にプレイヤーごとの既定値を使用します．beam方策は
 `--beam-depth-a` / `--beam-depth-b`，`--beam-width-a` / `--beam-width-b`，

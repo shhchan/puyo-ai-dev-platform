@@ -123,8 +123,12 @@ def _policy_from_args(args, side: str) -> Policy:
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Watch one headless Puyo versus match in text mode.")
-    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "beam", "checkpoint"], default="checkpoint")
-    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "beam", "checkpoint"], default="random")
+    policy_choices = [
+        "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+        "worker_large", "worker_quick", "worker_fire", "worker_survival",
+    ]
+    parser.add_argument("--policy-a", choices=policy_choices, default="checkpoint")
+    parser.add_argument("--policy-b", choices=policy_choices, default="random")
     parser.add_argument("--checkpoint-a", default=None)
     parser.add_argument("--checkpoint-b", default=None)
     parser.add_argument("--seed", type=int, default=1)

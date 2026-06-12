@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,15 @@ class MatchResult:
     received_ojama_player_1: int
     max_chain_player_0: int
     max_chain_player_1: int
+    policy_a_side: str = "player_0"
+    mean_decision_ms_player_0: float = 0.0
+    mean_decision_ms_player_1: float = 0.0
+    mean_expanded_nodes_player_0: float = 0.0
+    mean_expanded_nodes_player_1: float = 0.0
+    strategy_switches_player_0: int = 0
+    strategy_switches_player_1: int = 0
+    profile_counts_player_0: str = "{}"
+    profile_counts_player_1: str = "{}"
 
     @property
     def score_for_player_0(self) -> float:
@@ -39,6 +49,71 @@ class MatchResult:
         if self.winner == "player_1":
             return 0.0
         return 0.5
+
+    @property
+    def score_for_policy_a(self) -> float:
+        score = self.score_for_player_0
+        return score if self.policy_a_side == "player_0" else 1.0 - score
+
+    @property
+    def decision_ms_for_policy_a(self) -> float:
+        return (
+            self.mean_decision_ms_player_0
+            if self.policy_a_side == "player_0"
+            else self.mean_decision_ms_player_1
+        )
+
+    @property
+    def expanded_nodes_for_policy_a(self) -> float:
+        return (
+            self.mean_expanded_nodes_player_0
+            if self.policy_a_side == "player_0"
+            else self.mean_expanded_nodes_player_1
+        )
+
+    @property
+    def switches_for_policy_a(self) -> int:
+        return (
+            self.strategy_switches_player_0
+            if self.policy_a_side == "player_0"
+            else self.strategy_switches_player_1
+        )
+
+
+@dataclass
+class _PolicyDiagnostics:
+    decisions: int = 0
+    elapsed_seconds: float = 0.0
+    expanded_nodes: int = 0
+    switches: int = 0
+    previous_profile: int | None = None
+    profile_counts: dict[str, int] = field(default_factory=dict)
+
+    def record(self, policy: Policy) -> None:
+        proposal = getattr(policy, "last_proposal", None)
+        if proposal is not None:
+            self.decisions += 1
+            self.elapsed_seconds += float(proposal.elapsed_seconds)
+            self.expanded_nodes += int(proposal.expanded_nodes)
+            name = str(proposal.profile_name)
+            self.profile_counts[name] = self.profile_counts.get(name, 0) + 1
+            if self.previous_profile is not None and proposal.profile_id != self.previous_profile:
+                self.switches += 1
+            self.previous_profile = int(proposal.profile_id)
+            return
+        diagnostics = getattr(policy, "last_diagnostics", None)
+        if diagnostics is not None:
+            self.decisions += 1
+            self.elapsed_seconds += float(diagnostics.elapsed_seconds)
+            self.expanded_nodes += int(diagnostics.expanded_nodes)
+
+    @property
+    def mean_decision_ms(self) -> float:
+        return 0.0 if self.decisions == 0 else self.elapsed_seconds * 1000.0 / self.decisions
+
+    @property
+    def mean_expanded_nodes(self) -> float:
+        return 0.0 if self.decisions == 0 else self.expanded_nodes / self.decisions
 
 
 @dataclass(frozen=True)
@@ -62,6 +137,20 @@ class ArenaResult:
         if not self.matches:
             return 0.0
         return self.wins_player_0 / len(self.matches)
+
+    @property
+    def wins_policy_a(self) -> int:
+        return sum(1 for match in self.matches if match.score_for_policy_a == 1.0)
+
+    @property
+    def wins_policy_b(self) -> int:
+        return sum(1 for match in self.matches if match.score_for_policy_a == 0.0)
+
+    @property
+    def win_rate_policy_a(self) -> float:
+        if not self.matches:
+            return 0.0
+        return self.wins_policy_a / len(self.matches)
 
     @property
     def mean_score_player_0(self) -> float:
@@ -127,16 +216,14 @@ def run_match(
 ) -> MatchResult:
     env = VersusPuyoEnv(seed=seed, max_steps=max_steps)
     observations, infos = env.reset(seed=seed)
+    diagnostics = {"player_0": _PolicyDiagnostics(), "player_1": _PolicyDiagnostics()}
 
     while env.agents:
-        actions = {
-            agent: (
-                policy_player_0.select_action(observations[agent], infos[agent])
-                if agent == "player_0"
-                else policy_player_1.select_action(observations[agent], infos[agent])
-            )
-            for agent in env.agents
-        }
+        actions = {}
+        for agent in env.agents:
+            policy = policy_player_0 if agent == "player_0" else policy_player_1
+            actions[agent] = policy.select_action(observations[agent], infos[agent])
+            diagnostics[agent].record(policy)
         observations, _, _, _, infos = env.step(actions)
 
     info_0 = infos["player_0"]
@@ -153,6 +240,14 @@ def run_match(
         received_ojama_player_1=int(info_1["received_ojama_total"]),
         max_chain_player_0=int(info_0["max_chain_count"]),
         max_chain_player_1=int(info_1["max_chain_count"]),
+        mean_decision_ms_player_0=diagnostics["player_0"].mean_decision_ms,
+        mean_decision_ms_player_1=diagnostics["player_1"].mean_decision_ms,
+        mean_expanded_nodes_player_0=diagnostics["player_0"].mean_expanded_nodes,
+        mean_expanded_nodes_player_1=diagnostics["player_1"].mean_expanded_nodes,
+        strategy_switches_player_0=diagnostics["player_0"].switches,
+        strategy_switches_player_1=diagnostics["player_1"].switches,
+        profile_counts_player_0=json.dumps(diagnostics["player_0"].profile_counts, sort_keys=True),
+        profile_counts_player_1=json.dumps(diagnostics["player_1"].profile_counts, sort_keys=True),
     )
 
 
@@ -176,29 +271,33 @@ def run_series(
     return ArenaResult(matches=matches)
 
 
+def run_paired_series(
+    policy_a: Policy,
+    policy_b: Policy,
+    *,
+    games: int = 20,
+    seed: int = 1,
+    max_steps: int = 500,
+) -> ArenaResult:
+    """Evaluate each seed with both policy-to-side assignments."""
+
+    matches = []
+    for game_index in range(games):
+        match_seed = seed + game_index
+        matches.append(run_match(policy_a, policy_b, seed=match_seed, max_steps=max_steps))
+        swapped = run_match(policy_b, policy_a, seed=match_seed, max_steps=max_steps)
+        matches.append(replace(swapped, policy_a_side="player_1"))
+    return ArenaResult(matches=tuple(matches))
+
+
 def write_matches_csv(path: str | Path, matches: tuple[MatchResult, ...]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(
-            handle,
-            fieldnames=[
-                "seed",
-                "winner",
-                "steps",
-                "score_player_0",
-                "score_player_1",
-                "sent_ojama_player_0",
-                "sent_ojama_player_1",
-                "received_ojama_player_0",
-                "received_ojama_player_1",
-                "max_chain_player_0",
-                "max_chain_player_1",
-            ],
-        )
+        writer = csv.DictWriter(handle, fieldnames=[item.name for item in fields(MatchResult)])
         writer.writeheader()
         for match in matches:
-            writer.writerow(match.__dict__)
+            writer.writerow(asdict(match))
 
 
 def elo_after_matches(
@@ -214,7 +313,7 @@ def elo_after_matches(
         rating_0, rating_1 = update_elo(
             rating_0,
             rating_1,
-            match.score_for_player_0,
+            match.score_for_policy_a,
             k_factor=k_factor,
         )
     return rating_0, rating_1
@@ -254,6 +353,9 @@ def summarize_result(
         "wins_player_1": result.wins_player_1,
         "draws": result.draws,
         "win_rate_player_0": result.win_rate_player_0,
+        "wins_policy_a": result.wins_policy_a,
+        "wins_policy_b": result.wins_policy_b,
+        "win_rate_policy_a": result.win_rate_policy_a,
         "mean_steps": result.mean_steps,
         "mean_score_player_0": result.mean_score_player_0,
         "mean_score_player_1": result.mean_score_player_1,
@@ -263,13 +365,36 @@ def summarize_result(
         "mean_sent_ojama_player_1": result.mean_sent_ojama_player_1,
         "mean_received_ojama_player_0": result.mean_received_ojama_player_0,
         "mean_received_ojama_player_1": result.mean_received_ojama_player_1,
+        "mean_decision_ms_player_0": _mean_match_metric(result, "mean_decision_ms_player_0"),
+        "mean_decision_ms_player_1": _mean_match_metric(result, "mean_decision_ms_player_1"),
+        "mean_expanded_nodes_player_0": _mean_match_metric(result, "mean_expanded_nodes_player_0"),
+        "mean_expanded_nodes_player_1": _mean_match_metric(result, "mean_expanded_nodes_player_1"),
+        "mean_strategy_switches_player_0": _mean_match_metric(result, "strategy_switches_player_0"),
+        "mean_strategy_switches_player_1": _mean_match_metric(result, "strategy_switches_player_1"),
+        "mean_decision_ms_policy_a": _mean_policy_a_metric(result, "decision_ms_for_policy_a"),
+        "mean_expanded_nodes_policy_a": _mean_policy_a_metric(result, "expanded_nodes_for_policy_a"),
+        "mean_strategy_switches_policy_a": _mean_policy_a_metric(result, "switches_for_policy_a"),
         "initial_rating_player_0": rating_a,
         "initial_rating_player_1": rating_b,
         "final_rating_player_0": final_rating_a,
         "final_rating_player_1": final_rating_b,
+        "final_rating_policy_a": final_rating_a,
+        "final_rating_policy_b": final_rating_b,
         "elo_delta_player_0": final_rating_a - rating_a,
         "k_factor": k_factor,
     }
+
+
+def _mean_match_metric(result: ArenaResult, name: str) -> float:
+    if not result.matches:
+        return 0.0
+    return sum(float(getattr(match, name)) for match in result.matches) / len(result.matches)
+
+
+def _mean_policy_a_metric(result: ArenaResult, name: str) -> float:
+    if not result.matches:
+        return 0.0
+    return sum(float(getattr(match, name)) for match in result.matches) / len(result.matches)
 
 
 def write_summary_csv(path: str | Path, summary: dict[str, Any]) -> None:
@@ -289,12 +414,15 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
         ("wins_player_0", summary["wins_player_0"]),
         ("wins_player_1", summary["wins_player_1"]),
         ("draws", summary["draws"]),
-        ("win_rate_player_0", f"{summary['win_rate_player_0']:.3f}"),
+        ("win_rate_policy_a", f"{summary['win_rate_policy_a']:.3f}"),
         ("mean_score_player_0", f"{summary['mean_score_player_0']:.2f}"),
         ("mean_score_player_1", f"{summary['mean_score_player_1']:.2f}"),
         ("mean_max_chain_player_0", f"{summary['mean_max_chain_player_0']:.2f}"),
         ("mean_max_chain_player_1", f"{summary['mean_max_chain_player_1']:.2f}"),
-        ("elo_delta_player_0", f"{summary['elo_delta_player_0']:.2f}"),
+        ("mean_decision_ms_policy_a", f"{summary['mean_decision_ms_policy_a']:.2f}"),
+        ("mean_expanded_nodes_policy_a", f"{summary['mean_expanded_nodes_policy_a']:.2f}"),
+        ("mean_strategy_switches_policy_a", f"{summary['mean_strategy_switches_policy_a']:.2f}"),
+        ("elo_delta_policy_a", f"{summary['elo_delta_player_0']:.2f}"),
     ]
     lines = [
         f"# Arena Report: {summary['label']}",
@@ -329,8 +457,12 @@ def _policy_from_args(args, side: str) -> Policy:
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two Puyo policies headlessly.")
-    parser.add_argument("--policy-a", choices=["first", "random", "greedy", "beam", "checkpoint"], default="greedy")
-    parser.add_argument("--policy-b", choices=["first", "random", "greedy", "beam", "checkpoint"], default="random")
+    policy_choices = [
+        "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+        "worker_large", "worker_quick", "worker_fire", "worker_survival",
+    ]
+    parser.add_argument("--policy-a", choices=policy_choices, default="greedy")
+    parser.add_argument("--policy-b", choices=policy_choices, default="random")
     parser.add_argument("--checkpoint-a", default=None)
     parser.add_argument("--checkpoint-b", default=None)
     parser.add_argument("--games", type=int, default=20)
@@ -349,12 +481,14 @@ def parse_args(argv=None):
     parser.add_argument("--rating-a", type=float, default=1000.0)
     parser.add_argument("--rating-b", type=float, default=1000.0)
     parser.add_argument("--k-factor", type=float, default=32.0)
+    parser.add_argument("--paired-sides", action="store_true", help="Run every seed with both side assignments.")
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv)
-    result = run_series(
+    runner = run_paired_series if args.paired_sides else run_series
+    result = runner(
         _policy_from_args(args, "a"),
         _policy_from_args(args, "b"),
         games=args.games,
@@ -371,7 +505,7 @@ def main(argv=None):
         policy_b=args.policy_b,
         checkpoint_a=args.checkpoint_a,
         checkpoint_b=args.checkpoint_b,
-        games=args.games,
+        games=len(result.matches),
         seed=args.seed,
         max_steps=args.max_steps,
         rating_a=args.rating_a,
@@ -389,12 +523,13 @@ def main(argv=None):
     print(f"player_1_wins: {result.wins_player_1}")
     print(f"draws: {result.draws}")
     print(f"player_0_win_rate: {result.win_rate_player_0:.3f}")
+    print(f"policy_a_win_rate: {result.win_rate_policy_a:.3f}")
     print(f"mean_score_player_0: {result.mean_score_player_0:.2f}")
     print(f"mean_score_player_1: {result.mean_score_player_1:.2f}")
     print(f"mean_max_chain_player_0: {result.mean_max_chain_player_0:.2f}")
     print(f"mean_max_chain_player_1: {result.mean_max_chain_player_1:.2f}")
-    print(f"final_rating_player_0: {summary['final_rating_player_0']:.2f}")
-    print(f"elo_delta_player_0: {summary['elo_delta_player_0']:.2f}")
+    print(f"final_rating_policy_a: {summary['final_rating_policy_a']:.2f}")
+    print(f"elo_delta_policy_a: {summary['elo_delta_player_0']:.2f}")
 
 
 if __name__ == "__main__":

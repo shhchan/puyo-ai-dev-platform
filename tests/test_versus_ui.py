@@ -80,6 +80,23 @@ class TestVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.policy_b, "checkpoint")
         self.assertEqual(config.seed, 42)
 
+    def test_manager_checkpoint_can_be_selected_on_either_side(self):
+        config = parse_config(
+            [
+                "--policy-a",
+                "manager",
+                "--checkpoint-a",
+                "manager-a.pt",
+                "--policy-b",
+                "manager",
+                "--checkpoint-b",
+                "manager-b.pt",
+            ]
+        )
+
+        self.assertEqual(config.policy_a, "manager")
+        self.assertEqual(config.checkpoint_b, "manager-b.pt")
+
     def test_keybindings_path_can_be_overridden(self):
         config = parse_config(["--keybindings", "/tmp/puyo-keys.json"])
 
@@ -218,6 +235,20 @@ class TestVersusMatchController(unittest.TestCase):
         self.assertEqual([kwargs["seed"] for _, kwargs in calls], [101, 202])
         self.assertEqual([kwargs["beam_depth"] for _, kwargs in calls], [3, 6])
         self.assertEqual([kwargs["beam_width"] for _, kwargs in calls], [12, 24])
+
+    def test_policy_display_name_includes_current_manager_profile(self):
+        class StubPolicy:
+            current_profile_name = "survival"
+
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        controller = VersusMatchController(
+            VersusUiConfig(policy_a="manager_rule", policy_b="random", seed=2),
+            policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+        )
+
+        self.assertEqual(controller.policy_display_name("player_0"), "manager_rule: survival")
 
     def test_each_ojama_forecast_symbol_has_its_denominator(self):
         self.assertEqual(
