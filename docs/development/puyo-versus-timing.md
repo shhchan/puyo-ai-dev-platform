@@ -1,0 +1,44 @@
+# PUYO-45: 対戦攻撃・相殺タイミング仕様
+
+## joint step の phase
+
+`VersusPuyoEnv` は各 joint step を次の順序で決定論的に処理する。
+
+1. 両プレイヤーの合法手を検証する。
+2. 両プレイヤーの設置と連鎖を独立に解決し、攻撃量を確定する。
+3. 各プレイヤーの攻撃を、自分に届く予定の `ScheduledAttack` と早い着弾順に相殺する。
+4. 両者に残った同時攻撃を小さい方の量だけ相殺する。
+5. 超過攻撃を相手の着弾 queue へ追加する。
+6. step を進め、着弾時刻に達した未相殺おじゃまを最大30個落下させる。
+7. 窒息、勝敗、報酬、次 observation/info を確定する。
+
+標準の `attack_delay_steps=1` では、step N で確定した攻撃は step N+1 の observation で予告される。防御側は step N+1 の行動と連鎖で相殺でき、その行動後に残量が落下する。
+
+## 同時攻撃と相殺
+
+攻撃計算は player 順に state を更新せず、両者の生成量を集めてから同時解決する。これにより player 0 / player 1 の処理順による差をなくす。
+
+* 全相殺: 生成攻撃が既存 incoming 以下なら outgoing は0。
+* 部分相殺: incoming の残量だけ queue に残る。
+* 相殺超過: incoming を0にし、超過分を outgoing とする。
+* 同時発火: 両者の既存 incoming 相殺後の生成量を相互に相殺し、差分だけ送る。
+* 複数 packet: `arrival_step` の早い packet から相殺・落下する。
+
+## info と集計
+
+各 player の `info` は次を公開する。
+
+* `pending_ojama` / `incoming_ojama`: 全 packet の合計。
+* `incoming_turns`: 最短着弾までの残り joint step。
+* `incoming_arrival_step`: 最短の絶対着弾 step。
+* `incoming_attack_packets`: amount、arrival、source、created step。
+* `generated_ojama_total`: 生成した総攻撃量。
+* `canceled_ojama_total`: incoming と同時攻撃を相殺した総量。
+* `sent_ojama_total`: 相殺後に相手へ予約した総量。
+* `received_ojama_total`: 実際に盤面へ落下した総量。
+
+## 既知の簡略化
+
+この環境は設置単位の headless 対戦であり、実ゲームのフレーム単位の連鎖アニメーション時間、マージンタイム、複数回に分かれる細かな予告更新は表現しない。連鎖の長さにかかわらず joint step 終了時に攻撃量が確定し、標準では1回の応答手を与える。
+
+学習上は「相手の発火を確認してから counter を選ぶ」判断を可能にする一方、連鎖時間差を利用する先打ち・後打ちの厳密な再現ではない。必要になった場合は `ScheduledAttack` に chain phase 時刻を追加し、現在の golden test を維持したまま細分化する。
