@@ -1,4 +1,4 @@
-"""Fixed search workers used by the strategy manager."""
+"""Fixed search workers and tactical forecasts used by the strategy manager."""
 
 from __future__ import annotations
 
@@ -8,10 +8,22 @@ from typing import Any, Protocol
 
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
 from puyo_env.actions import action_to_placement, legal_action_indices
-from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor
+from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
 
 
-STRATEGY_NAMES = ("large_chain", "quick_attack", "fire", "survival")
+STRATEGY_NAMES = (
+    "build_large",
+    "build_budget",
+    "punish",
+    "counter",
+    "fire_max",
+    "survival",
+    # PUYO-28 checkpoint compatibility.
+    "large_chain",
+    "quick_attack",
+    "fire",
+)
+BUILD_STRATEGIES = {"build_large", "build_budget", "large_chain", "quick_attack"}
 
 
 @dataclass(frozen=True)
@@ -28,12 +40,53 @@ class WorkerProfile:
     chain_weight: float = 100_000.0
     score_weight: float = 1.0
     premature_chain_penalty: float = 350.0
+    safety_margin: int = 2
+    danger_tolerance: float = 0.75
 
     def __post_init__(self) -> None:
         if self.strategy not in STRATEGY_NAMES:
             raise ValueError(f"unknown strategy: {self.strategy}")
         if self.profile_id < 0:
             raise ValueError("profile_id must be non-negative")
+
+
+@dataclass(frozen=True)
+class AttackForecast:
+    immediate_chain: int = 0
+    immediate_attack: int = 0
+    short_attack: int = 0
+    medium_attack: int = 0
+    turns_to_best: int = 0
+
+
+@dataclass(frozen=True)
+class TacticalObjective:
+    kind: str
+    target_attack: int = 0
+    deadline: int = 0
+    safety_margin: int = 0
+    max_danger: float = 1.0
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class TacticalContext:
+    own_forecast: AttackForecast
+    opponent_forecast: AttackForecast
+    own_danger: float
+    opponent_danger: float
+    opponent_capacity: int
+    lethal_target: int
+    lethal_margin: int
+    incoming_attack: int
+    incoming_deadline: int
+    counter_target: int
+    max_return_by_deadline: int
+    counter_deficit: int
+    build_potential: int
+    build_safety: float
+    recommended_strategy: str
+    switch_reason: str
 
 
 @dataclass(frozen=True)
@@ -51,12 +104,18 @@ class SearchProposal:
     elapsed_seconds: float
     expanded_nodes: int
     candidate_value: float
+    target_attack: int = 0
+    incoming_attack: int = 0
+    deadline: int = 0
+    max_return_attack: int = 0
+    reason: str = ""
 
 
 @dataclass(frozen=True)
 class SearchContext:
     observation: dict[str, Any]
     info: dict[str, Any]
+    tactical: TacticalContext
 
     @property
     def simulator(self):
@@ -64,7 +123,12 @@ class SearchContext:
 
 
 class SearchWorker(Protocol):
-    def propose(self, context: SearchContext, profile: WorkerProfile) -> SearchProposal:
+    def propose(
+        self,
+        context: SearchContext,
+        profile: WorkerProfile,
+        objective: TacticalObjective,
+    ) -> SearchProposal:
         """Return one legal placement and its diagnostics."""
 
 
@@ -72,27 +136,20 @@ def default_worker_profiles() -> tuple[WorkerProfile, ...]:
     """Budgets suitable for repeated versus decisions in Python."""
 
     return (
+        WorkerProfile(0, "build_large", "build_large", depth=6, width=32, minimum_chain_count=6),
         WorkerProfile(
-            profile_id=0,
-            name="large_chain",
-            strategy="large_chain",
-            depth=6,
-            width=32,
-            minimum_chain_count=6,
-        ),
-        WorkerProfile(
-            profile_id=1,
-            name="quick_attack",
-            strategy="quick_attack",
+            1,
+            "build_budget",
+            "build_budget",
             depth=3,
             width=16,
-            minimum_chain_count=2,
-            chain_weight=35_000.0,
-            score_weight=4.0,
-            premature_chain_penalty=25.0,
+            minimum_chain_count=4,
+            chain_weight=65_000.0,
         ),
-        WorkerProfile(profile_id=2, name="fire", strategy="fire"),
-        WorkerProfile(profile_id=3, name="survival", strategy="survival"),
+        WorkerProfile(2, "punish", "punish", depth=3, width=18, safety_margin=0),
+        WorkerProfile(3, "counter", "counter", depth=3, width=18, safety_margin=2),
+        WorkerProfile(4, "fire_max", "fire_max"),
+        WorkerProfile(5, "survival", "survival", danger_tolerance=0.55),
     )
 
 
@@ -100,131 +157,20 @@ def smoke_worker_profiles() -> tuple[WorkerProfile, ...]:
     """Small deterministic budgets for tests and pipeline smoke runs."""
 
     return (
-        WorkerProfile(0, "large_chain", "large_chain", depth=2, width=8, minimum_chain_count=3),
-        WorkerProfile(1, "quick_attack", "quick_attack", depth=2, width=8, minimum_chain_count=2),
-        WorkerProfile(2, "fire", "fire"),
-        WorkerProfile(3, "survival", "survival"),
+        WorkerProfile(0, "build_large", "build_large", depth=2, width=8, minimum_chain_count=3),
+        WorkerProfile(1, "build_budget", "build_budget", depth=2, width=8, minimum_chain_count=2),
+        WorkerProfile(2, "punish", "punish", depth=2, width=8, safety_margin=0),
+        WorkerProfile(3, "counter", "counter", depth=2, width=8, safety_margin=1),
+        WorkerProfile(4, "fire_max", "fire_max"),
+        WorkerProfile(5, "survival", "survival"),
     )
 
 
-class BeamStrategyWorker:
-    """Adapter that applies a profile to the shared beam search engine."""
-
-    def propose(self, context: SearchContext, profile: WorkerProfile) -> SearchProposal:
-        started = time.perf_counter()
-        policy = BeamSearchPolicy(
-            BeamSearchConfig(
-                depth=profile.depth,
-                width=profile.width,
-                scenarios=profile.scenarios,
-                minimum_chain_count=profile.minimum_chain_count,
-                chain_weight=profile.chain_weight,
-                score_weight=profile.score_weight,
-                premature_chain_penalty=profile.premature_chain_penalty,
-            )
-        )
-        action = policy.select_action(context.observation, context.info)
-        diagnostics = policy.last_diagnostics
-        result, danger = _preview_action(context.simulator, action)
-        values = dict(diagnostics.candidate_values) if diagnostics is not None else {}
-        return SearchProposal(
-            action=action,
-            profile_id=profile.profile_id,
-            profile_name=profile.name,
-            strategy=profile.strategy,
-            predicted_chain_count=result.chain_count if result is not None else 0,
-            predicted_score=result.score_delta if result is not None else 0,
-            predicted_attack=(result.score_delta // 70) if result is not None else 0,
-            danger=danger,
-            elapsed_seconds=(diagnostics.elapsed_seconds if diagnostics is not None else time.perf_counter() - started),
-            expanded_nodes=diagnostics.expanded_nodes if diagnostics is not None else 0,
-            candidate_value=float(values.get(action, 0.0)),
-        )
-
-
-class ImmediateStrategyWorker:
-    """One-ply worker for firing and survival decisions."""
-
-    def propose(self, context: SearchContext, profile: WorkerProfile) -> SearchProposal:
-        simulator = context.simulator
-        legal = legal_action_indices(simulator) if simulator is not None else _legal_from_info(context.info)
-        if not legal:
-            return SearchProposal(0, profile.profile_id, profile.name, profile.strategy, 0, 0, 0, 1.0, 0.0, 0, 0.0)
-
-        started = time.perf_counter()
-        best_action = legal[0]
-        best_result = None
-        best_danger = 1.0
-        best_value = float("-inf")
-        expanded = 0
-        for action in legal:
-            result, danger = _preview_action(simulator, action)
-            expanded += 1
-            if result is None:
-                continue
-            if profile.strategy == "fire":
-                value = result.score_delta * 10.0 + result.chain_count * 1_000.0 - danger * 250.0
-            else:
-                board_value = evaluate_board(_resulting_game(simulator, action))
-                value = board_value - danger * 20_000.0 + result.score_delta * 0.25
-            if result.game_over:
-                value -= 1_000_000.0
-            if value > best_value:
-                best_action = action
-                best_result = result
-                best_danger = danger
-                best_value = value
-
-        return SearchProposal(
-            action=best_action,
-            profile_id=profile.profile_id,
-            profile_name=profile.name,
-            strategy=profile.strategy,
-            predicted_chain_count=best_result.chain_count if best_result is not None else 0,
-            predicted_score=best_result.score_delta if best_result is not None else 0,
-            predicted_attack=(best_result.score_delta // 70) if best_result is not None else 0,
-            danger=best_danger,
-            elapsed_seconds=time.perf_counter() - started,
-            expanded_nodes=expanded,
-            candidate_value=best_value,
-        )
-
-
-class StrategyOrchestrator:
-    """Execute exactly one worker selected by a manager action."""
-
-    def __init__(self, profiles: tuple[WorkerProfile, ...] | None = None):
-        self.profiles = profiles or default_worker_profiles()
-        expected = tuple(range(len(self.profiles)))
-        actual = tuple(profile.profile_id for profile in self.profiles)
-        if actual != expected:
-            raise ValueError(f"profile ids must be contiguous from zero: {actual}")
-        self._beam_worker = BeamStrategyWorker()
-        self._immediate_worker = ImmediateStrategyWorker()
-        self.last_proposal: SearchProposal | None = None
-
-    def propose(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> SearchProposal:
-        profile = self.profiles[int(profile_id)]
-        context = SearchContext(observation=observation, info=info)
-        worker = self._beam_worker if profile.strategy in {"large_chain", "quick_attack"} else self._immediate_worker
-        self.last_proposal = worker.propose(context, profile)
-        return self.last_proposal
-
-    def select_action(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> int:
-        return self.propose(profile_id, observation, info).action
-
-
-class FixedProfilePolicy:
-    """Policy adapter used for worker baselines and smoke evaluation."""
-
-    def __init__(self, profile_id: int, profiles: tuple[WorkerProfile, ...] | None = None):
-        self.profile_id = int(profile_id)
-        self.orchestrator = StrategyOrchestrator(profiles)
-        self.last_proposal: SearchProposal | None = None
-
-    def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
-        self.last_proposal = self.orchestrator.propose(self.profile_id, observation, info)
-        return self.last_proposal.action
+def profile_id_by_name(profiles: tuple[WorkerProfile, ...], *names: str) -> int:
+    for profile in profiles:
+        if profile.name in names or profile.strategy in names:
+            return profile.profile_id
+    raise KeyError(f"worker profile not found: {names}")
 
 
 def board_danger(game) -> float:
@@ -247,21 +193,406 @@ def board_danger(game) -> float:
     return min(1.0, center * 0.55 + peak * 0.35 + nuisance * 0.10)
 
 
-def estimate_immediate_threat(simulator) -> tuple[int, int]:
-    """Return the best one-ply chain and attack without mutating the state."""
+def estimate_attack_forecast(
+    simulator,
+    *,
+    max_depth: int = 3,
+    width: int = 6,
+) -> AttackForecast:
+    """Bounded cloned rollout used for manager features, not full worker search."""
 
     if simulator is None:
-        return 0, 0
+        return AttackForecast()
+    frontier = [(clone_simulator(simulator), 0, 0)]
     best_chain = 0
+    best_by_depth = {1: 0, 2: 0, 3: 0}
     best_attack = 0
+    best_turn = 0
+    for depth in range(1, max(1, min(int(max_depth), 3)) + 1):
+        candidates = []
+        for parent, cumulative_attack, cumulative_chain in frontier:
+            for action in legal_action_indices(parent):
+                child = clone_simulator(parent)
+                result = child.step(action_to_placement(action))
+                if not result.valid or result.game_over:
+                    continue
+                attack = cumulative_attack + max(0, int(result.score_delta // 70))
+                chain = max(cumulative_chain, int(result.chain_count))
+                best_chain = max(best_chain, chain)
+                best_by_depth[depth] = max(best_by_depth[depth], attack)
+                if attack > best_attack:
+                    best_attack = attack
+                    best_turn = depth
+                heuristic = attack * 100_000.0 + chain * 10_000.0 + evaluate_board(child.game)
+                candidates.append((heuristic, child, attack, chain))
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        frontier = [(item[1], item[2], item[3]) for item in candidates[: max(1, width)]]
+        if not frontier:
+            break
+    return AttackForecast(
+        immediate_chain=best_chain if max_depth == 1 else _estimate_immediate_chain(simulator),
+        immediate_attack=best_by_depth[1],
+        short_attack=max(best_by_depth[1], best_by_depth[2]),
+        medium_attack=max(best_by_depth.values()),
+        turns_to_best=best_turn,
+    )
+
+
+def estimate_immediate_threat(simulator) -> tuple[int, int]:
+    forecast = estimate_attack_forecast(simulator, max_depth=1, width=22)
+    return forecast.immediate_chain, forecast.immediate_attack
+
+
+def _estimate_immediate_chain(simulator) -> int:
+    best_chain = 0
     for action in legal_action_indices(simulator):
         child = clone_simulator(simulator)
         result = child.step(action_to_placement(action))
-        if not result.valid:
-            continue
-        best_chain = max(best_chain, int(result.chain_count))
-        best_attack = max(best_attack, int(result.score_delta // 70))
-    return best_chain, best_attack
+        if result.valid:
+            best_chain = max(best_chain, int(result.chain_count))
+    return best_chain
+
+
+def _opponent_capacity(simulator, pending: int) -> int:
+    if simulator is None:
+        return 0
+    center_height = 0
+    for y in range(VISIBLE_HEIGHT - 1, -1, -1):
+        if not simulator.game.field.get_puyo(2, y).is_empty():
+            center_height = y + 1
+            break
+    rows_to_choke = max(0, VISIBLE_HEIGHT - center_height)
+    return max(0, rows_to_choke * GRID_WIDTH - max(0, int(pending)))
+
+
+def build_tactical_context(info: dict[str, Any]) -> TacticalContext:
+    cached = info.get("tactical_context")
+    if isinstance(cached, TacticalContext):
+        return cached
+    own_simulator = info.get("simulator")
+    opponent_simulator = info.get("opponent_simulator")
+    own_forecast = estimate_attack_forecast(own_simulator)
+    opponent_forecast = estimate_attack_forecast(opponent_simulator)
+    own_danger = board_danger(own_simulator.game) if own_simulator is not None else 1.0
+    opponent_danger = board_danger(opponent_simulator.game) if opponent_simulator is not None else 1.0
+    incoming = max(0, int(info.get("incoming_ojama", info.get("pending_ojama", 0))))
+    deadline = max(0, int(info.get("incoming_turns", 0)))
+    opponent_pending = max(0, int(info.get("opponent_pending_ojama", 0)))
+    capacity = _opponent_capacity(opponent_simulator, opponent_pending)
+    lethal_target = max(1, min(30, capacity + 1))
+    lethal_margin = own_forecast.immediate_attack - lethal_target
+    counter_target = incoming + (2 if incoming > 0 else 0)
+    if deadline <= 1:
+        max_return = own_forecast.immediate_attack
+    elif deadline == 2:
+        max_return = own_forecast.short_attack
+    else:
+        max_return = own_forecast.medium_attack
+    counter_deficit = counter_target - max_return
+    build_potential = own_forecast.medium_attack
+    build_safety = max(0.0, 1.0 - own_danger)
+
+    incoming_dangerous = incoming > 0 and (incoming >= max(6, capacity // 2) or own_danger >= 0.6)
+    if incoming_dangerous and counter_deficit <= 0:
+        recommended = "counter"
+        reason = "incoming attack is dangerous and can be canceled before arrival"
+    elif incoming_dangerous and counter_deficit > 0:
+        recommended = "survival"
+        reason = "incoming attack exceeds the estimated return before deadline"
+    elif lethal_margin >= 0:
+        recommended = "punish"
+        reason = "an immediate attack reaches the estimated lethal target"
+    elif own_danger >= 0.82:
+        recommended = "survival"
+        reason = "board danger is above the survival threshold"
+    elif own_forecast.immediate_attack >= 12 and build_safety < 0.35:
+        recommended = "fire_max"
+        reason = "banked immediate attack should be fired before board safety collapses"
+    else:
+        recommended = "build_large"
+        reason = "no urgent lethal, counter, or survival condition is active"
+    return TacticalContext(
+        own_forecast=own_forecast,
+        opponent_forecast=opponent_forecast,
+        own_danger=own_danger,
+        opponent_danger=opponent_danger,
+        opponent_capacity=capacity,
+        lethal_target=lethal_target,
+        lethal_margin=lethal_margin,
+        incoming_attack=incoming,
+        incoming_deadline=deadline,
+        counter_target=counter_target,
+        max_return_by_deadline=max_return,
+        counter_deficit=counter_deficit,
+        build_potential=build_potential,
+        build_safety=build_safety,
+        recommended_strategy=recommended,
+        switch_reason=reason,
+    )
+
+
+def objective_for_profile(tactical: TacticalContext, profile: WorkerProfile) -> TacticalObjective:
+    strategy = profile.strategy
+    if strategy == "punish":
+        return TacticalObjective(
+            kind="punish",
+            target_attack=tactical.lethal_target,
+            deadline=max(1, min(profile.depth, 3)),
+            max_danger=profile.danger_tolerance,
+            reason=tactical.switch_reason,
+        )
+    if strategy == "counter":
+        deadline = max(1, min(profile.depth, tactical.incoming_deadline or 1))
+        return TacticalObjective(
+            kind="counter",
+            target_attack=tactical.counter_target,
+            deadline=deadline,
+            safety_margin=profile.safety_margin,
+            max_danger=profile.danger_tolerance,
+            reason=tactical.switch_reason,
+        )
+    if strategy in {"fire", "fire_max"}:
+        return TacticalObjective(kind="fire_max", deadline=1, reason=tactical.switch_reason)
+    if strategy == "survival":
+        return TacticalObjective(
+            kind="survival",
+            deadline=1,
+            max_danger=profile.danger_tolerance,
+            reason=tactical.switch_reason,
+        )
+    return TacticalObjective(
+        kind="build",
+        deadline=max(1, profile.depth),
+        max_danger=profile.danger_tolerance,
+        reason=tactical.switch_reason,
+    )
+
+
+class BeamStrategyWorker:
+    """Adapter that applies a build profile to the shared beam search engine."""
+
+    def propose(
+        self,
+        context: SearchContext,
+        profile: WorkerProfile,
+        objective: TacticalObjective,
+    ) -> SearchProposal:
+        started = time.perf_counter()
+        policy = BeamSearchPolicy(
+            BeamSearchConfig(
+                depth=profile.depth,
+                width=profile.width,
+                scenarios=profile.scenarios,
+                minimum_chain_count=profile.minimum_chain_count,
+                chain_weight=profile.chain_weight,
+                score_weight=profile.score_weight,
+                premature_chain_penalty=profile.premature_chain_penalty,
+            )
+        )
+        action = policy.select_action(context.observation, context.info)
+        diagnostics = policy.last_diagnostics
+        result, danger = _preview_action(context.simulator, action)
+        values = dict(diagnostics.candidate_values) if diagnostics is not None else {}
+        return _proposal(
+            profile,
+            objective,
+            context.tactical,
+            action=action,
+            chain=result.chain_count if result is not None else 0,
+            score=result.score_delta if result is not None else 0,
+            attack=(result.score_delta // 70) if result is not None else 0,
+            danger=danger,
+            elapsed=(diagnostics.elapsed_seconds if diagnostics is not None else time.perf_counter() - started),
+            expanded=diagnostics.expanded_nodes if diagnostics is not None else 0,
+            value=float(values.get(action, 0.0)),
+        )
+
+
+@dataclass
+class _TacticalCandidate:
+    simulator: Any
+    first_action: int
+    attack: int
+    score: int
+    chain: int
+    danger: float
+    depth: int
+    value: float
+
+
+class TacticalStrategyWorker:
+    """Bounded objective search for punish, counter, fire, and survival."""
+
+    def propose(
+        self,
+        context: SearchContext,
+        profile: WorkerProfile,
+        objective: TacticalObjective,
+    ) -> SearchProposal:
+        simulator = context.simulator
+        legal = legal_action_indices(simulator) if simulator is not None else _legal_from_info(context.info)
+        if not legal:
+            return _proposal(profile, objective, context.tactical, action=0, danger=1.0)
+
+        started = time.perf_counter()
+        max_depth = 1 if objective.kind in {"fire_max", "survival"} else max(1, objective.deadline)
+        frontier: list[_TacticalCandidate] = []
+        all_candidates: list[_TacticalCandidate] = []
+        expanded = 0
+        for depth in range(1, max_depth + 1):
+            parents = frontier if depth > 1 else [None]
+            next_frontier: list[_TacticalCandidate] = []
+            for parent in parents:
+                parent_simulator = simulator if parent is None else parent.simulator
+                for action in legal_action_indices(parent_simulator):
+                    child = clone_simulator(parent_simulator)
+                    result = child.step(action_to_placement(action))
+                    expanded += 1
+                    if not result.valid:
+                        continue
+                    first_action = action if parent is None else parent.first_action
+                    attack = (0 if parent is None else parent.attack) + max(0, int(result.score_delta // 70))
+                    score = (0 if parent is None else parent.score) + max(0, int(result.score_delta))
+                    chain = max(0 if parent is None else parent.chain, int(result.chain_count))
+                    danger = board_danger(child.game)
+                    value = _tactical_value(objective, attack, score, chain, danger, depth, child.game)
+                    if result.game_over:
+                        value -= 1_000_000.0
+                    candidate = _TacticalCandidate(
+                        child,
+                        first_action,
+                        attack,
+                        score,
+                        chain,
+                        danger,
+                        depth,
+                        value,
+                    )
+                    next_frontier.append(candidate)
+                    all_candidates.append(candidate)
+            next_frontier.sort(key=lambda item: item.value, reverse=True)
+            frontier = next_frontier[: max(1, profile.width)]
+            if not frontier:
+                break
+        if not all_candidates:
+            return _proposal(profile, objective, context.tactical, action=legal[0], danger=1.0)
+        best = max(all_candidates, key=lambda item: item.value)
+        return _proposal(
+            profile,
+            objective,
+            context.tactical,
+            action=best.first_action,
+            chain=best.chain,
+            score=best.score,
+            attack=best.attack,
+            danger=best.danger,
+            elapsed=time.perf_counter() - started,
+            expanded=expanded,
+            value=best.value,
+        )
+
+
+def _tactical_value(
+    objective: TacticalObjective,
+    attack: int,
+    score: int,
+    chain: int,
+    danger: float,
+    depth: int,
+    game,
+) -> float:
+    if objective.kind in {"punish", "counter"}:
+        deficit = max(0, objective.target_attack - attack)
+        excess = max(0, attack - objective.target_attack)
+        reached = 1.0 if deficit == 0 else 0.0
+        return (
+            reached * 1_000_000.0
+            + attack * 30_000.0
+            - deficit * 50_000.0
+            - excess * 1_500.0
+            - depth * 8_000.0
+            - danger * 25_000.0
+        )
+    if objective.kind == "fire_max":
+        return attack * 100_000.0 + chain * 10_000.0 + score - danger * 20_000.0
+    if objective.kind == "survival":
+        return evaluate_board(game) - danger * 100_000.0 + attack * 500.0
+    return evaluate_board(game) + chain * 10_000.0 - danger * 20_000.0
+
+
+def _proposal(
+    profile: WorkerProfile,
+    objective: TacticalObjective,
+    tactical: TacticalContext,
+    *,
+    action: int,
+    chain: int = 0,
+    score: int = 0,
+    attack: int = 0,
+    danger: float = 1.0,
+    elapsed: float = 0.0,
+    expanded: int = 0,
+    value: float = 0.0,
+) -> SearchProposal:
+    return SearchProposal(
+        action=action,
+        profile_id=profile.profile_id,
+        profile_name=profile.name,
+        strategy=profile.strategy,
+        predicted_chain_count=int(chain),
+        predicted_score=int(score),
+        predicted_attack=int(attack),
+        danger=float(danger),
+        elapsed_seconds=float(elapsed),
+        expanded_nodes=int(expanded),
+        candidate_value=float(value),
+        target_attack=objective.target_attack,
+        incoming_attack=tactical.incoming_attack,
+        deadline=objective.deadline,
+        max_return_attack=tactical.max_return_by_deadline,
+        reason=objective.reason,
+    )
+
+
+class StrategyOrchestrator:
+    """Execute exactly one worker selected by a manager action."""
+
+    def __init__(self, profiles: tuple[WorkerProfile, ...] | None = None):
+        self.profiles = profiles or default_worker_profiles()
+        expected = tuple(range(len(self.profiles)))
+        actual = tuple(profile.profile_id for profile in self.profiles)
+        if actual != expected:
+            raise ValueError(f"profile ids must be contiguous from zero: {actual}")
+        self._beam_worker = BeamStrategyWorker()
+        self._tactical_worker = TacticalStrategyWorker()
+        self.last_proposal: SearchProposal | None = None
+        self.last_tactical_context: TacticalContext | None = None
+
+    def propose(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> SearchProposal:
+        profile = self.profiles[int(profile_id)]
+        tactical = build_tactical_context(info)
+        self.last_tactical_context = tactical
+        context = SearchContext(observation=observation, info=info, tactical=tactical)
+        objective = objective_for_profile(tactical, profile)
+        worker = self._beam_worker if profile.strategy in BUILD_STRATEGIES else self._tactical_worker
+        self.last_proposal = worker.propose(context, profile, objective)
+        return self.last_proposal
+
+    def select_action(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> int:
+        return self.propose(profile_id, observation, info).action
+
+
+class FixedProfilePolicy:
+    """Policy adapter used for worker baselines and smoke evaluation."""
+
+    def __init__(self, profile_id: int, profiles: tuple[WorkerProfile, ...] | None = None):
+        self.profile_id = int(profile_id)
+        self.orchestrator = StrategyOrchestrator(profiles)
+        self.last_proposal: SearchProposal | None = None
+
+    def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
+        self.last_proposal = self.orchestrator.propose(self.profile_id, observation, info)
+        return self.last_proposal.action
 
 
 def _preview_action(simulator, action: int):
@@ -272,12 +603,6 @@ def _preview_action(simulator, action: int):
     if not result.valid:
         return None, 1.0
     return result, board_danger(child.game)
-
-
-def _resulting_game(simulator, action: int):
-    child = clone_simulator(simulator)
-    child.step(action_to_placement(action))
-    return child.game
 
 
 def _legal_from_info(info: dict[str, Any]) -> list[int]:

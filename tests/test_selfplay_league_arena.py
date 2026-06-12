@@ -55,6 +55,23 @@ class TestSelfPlayRatingAndPool(unittest.TestCase):
 
         self.assertIsNotNone(pool.get("random"))
         self.assertIsNotNone(pool.get("greedy_score"))
+        self.assertIsNotNone(pool.get("manager_rule"))
+
+    def test_balanced_sampling_prefers_less_used_opponent(self):
+        class StubRandom:
+            def choices(self, population, weights, k):
+                return [population[weights.index(max(weights))]]
+
+        pool = OpponentPool(
+            snapshots=[
+                OpponentSnapshot(name="overused", games_played=100),
+                OpponentSnapshot(name="fresh", games_played=0),
+            ]
+        )
+
+        selected = pool.sample(StubRandom(), strategy="balanced")
+
+        self.assertEqual(selected.name, "fresh")
 
 
 @unittest.skipUnless(ARENA_AVAILABLE, "gymnasium/numpy are not installed")
@@ -90,6 +107,8 @@ class TestArena(unittest.TestCase):
 
         self.assertIn("max_chain_player_0", match_text)
         self.assertIn("elo_delta_player_0", summary_text)
+        self.assertIn("score_rate_policy_a_ci95_low", summary_text)
+        self.assertIn("canceled_ojama_player_0", match_text)
 
     def test_paired_series_swaps_sides_for_each_seed(self):
         result = run_paired_series(FirstLegalPolicy(), RandomPolicy(seed=1), games=2, seed=4, max_steps=2)

@@ -20,7 +20,7 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
 from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
 from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
-from agents.strategy_workers import FixedProfilePolicy
+from agents.strategy_workers import FixedProfilePolicy, default_worker_profiles, profile_id_by_name
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.obs import BOARD_COLOR_CHANNELS, BOARD_ROWS, GRID_WIDTH
 
@@ -183,13 +183,23 @@ def make_policy(
             )
         )
     if policy_type == "worker_large":
-        return FixedProfilePolicy(0)
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "build_large", "large_chain"), profiles)
     if policy_type == "worker_quick":
-        return FixedProfilePolicy(1)
-    if policy_type == "worker_fire":
-        return FixedProfilePolicy(2)
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "build_budget", "quick_attack"), profiles)
+    if policy_type == "worker_punish":
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "punish"), profiles)
+    if policy_type == "worker_counter":
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "counter"), profiles)
+    if policy_type in {"worker_fire", "worker_fire_max"}:
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "fire_max", "fire"), profiles)
     if policy_type == "worker_survival":
-        return FixedProfilePolicy(3)
+        profiles = default_worker_profiles()
+        return FixedProfilePolicy(profile_id_by_name(profiles, "survival"), profiles)
     if policy_type == "manager_rule":
         return RuleBasedManagerPolicy()
     if policy_type == "manager":

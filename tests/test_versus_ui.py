@@ -250,6 +250,26 @@ class TestVersusMatchController(unittest.TestCase):
 
         self.assertEqual(controller.policy_display_name("player_0"), "manager_rule: survival")
 
+    def test_controller_exposes_manager_tactical_diagnostics(self):
+        class StubPolicy:
+            current_profile_name = "counter"
+            tactical_diagnostics = {
+                "incoming_attack": 8,
+                "target_attack": 10,
+                "deadline": 2,
+                "reason": "counter before arrival",
+            }
+
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        controller = VersusMatchController(
+            VersusUiConfig(policy_a="manager_rule", policy_b="random", seed=2),
+            policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+        )
+
+        self.assertEqual(controller.tactical_diagnostics("player_0")["target_attack"], 10)
+
     def test_each_ojama_forecast_symbol_has_its_denominator(self):
         self.assertEqual(
             decompose_ojama(2737),
@@ -349,7 +369,7 @@ class TestVersusMatchController(unittest.TestCase):
             {"player_0": (None, None), "player_1": (None, None)},
         )
 
-        self.assertEqual(events[0].kind, "garbage")
+        self.assertEqual(events[-1].kind, "garbage")
         self.assertEqual(sum(event.kind == "chain" for event in events), 2)
         self.assertEqual(next(event for event in events if event.kind == "chain").coords, chain.vanished)
         self.assertEqual(next(event for event in events if event.kind == "placement").board, placement_board)

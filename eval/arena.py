@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import sys
 from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
@@ -30,6 +31,10 @@ class MatchResult:
     sent_ojama_player_1: int
     received_ojama_player_0: int
     received_ojama_player_1: int
+    generated_ojama_player_0: int
+    generated_ojama_player_1: int
+    canceled_ojama_player_0: int
+    canceled_ojama_player_1: int
     max_chain_player_0: int
     max_chain_player_1: int
     policy_a_side: str = "player_0"
@@ -41,6 +46,16 @@ class MatchResult:
     strategy_switches_player_1: int = 0
     profile_counts_player_0: str = "{}"
     profile_counts_player_1: str = "{}"
+    switch_reasons_player_0: str = "{}"
+    switch_reasons_player_1: str = "{}"
+    mean_target_attack_player_0: float = 0.0
+    mean_target_attack_player_1: float = 0.0
+    mean_incoming_attack_player_0: float = 0.0
+    mean_incoming_attack_player_1: float = 0.0
+    missed_lethal_player_0: int = 0
+    missed_lethal_player_1: int = 0
+    failed_counter_player_0: int = 0
+    failed_counter_player_1: int = 0
 
     @property
     def score_for_player_0(self) -> float:
@@ -88,6 +103,11 @@ class _PolicyDiagnostics:
     switches: int = 0
     previous_profile: int | None = None
     profile_counts: dict[str, int] = field(default_factory=dict)
+    switch_reasons: dict[str, int] = field(default_factory=dict)
+    target_attack_total: int = 0
+    incoming_attack_total: int = 0
+    missed_lethal: int = 0
+    failed_counter: int = 0
 
     def record(self, policy: Policy) -> None:
         proposal = getattr(policy, "last_proposal", None)
@@ -97,6 +117,14 @@ class _PolicyDiagnostics:
             self.expanded_nodes += int(proposal.expanded_nodes)
             name = str(proposal.profile_name)
             self.profile_counts[name] = self.profile_counts.get(name, 0) + 1
+            reason = str(proposal.reason or "unspecified")
+            self.switch_reasons[reason] = self.switch_reasons.get(reason, 0) + 1
+            self.target_attack_total += int(proposal.target_attack)
+            self.incoming_attack_total += int(proposal.incoming_attack)
+            if proposal.strategy == "punish" and proposal.predicted_attack < proposal.target_attack:
+                self.missed_lethal += 1
+            if proposal.strategy == "counter" and proposal.predicted_attack < proposal.target_attack:
+                self.failed_counter += 1
             if self.previous_profile is not None and proposal.profile_id != self.previous_profile:
                 self.switches += 1
             self.previous_profile = int(proposal.profile_id)
@@ -114,6 +142,14 @@ class _PolicyDiagnostics:
     @property
     def mean_expanded_nodes(self) -> float:
         return 0.0 if self.decisions == 0 else self.expanded_nodes / self.decisions
+
+    @property
+    def mean_target_attack(self) -> float:
+        return 0.0 if self.decisions == 0 else self.target_attack_total / self.decisions
+
+    @property
+    def mean_incoming_attack(self) -> float:
+        return 0.0 if self.decisions == 0 else self.incoming_attack_total / self.decisions
 
 
 @dataclass(frozen=True)
@@ -238,6 +274,10 @@ def run_match(
         sent_ojama_player_1=int(info_1["sent_ojama_total"]),
         received_ojama_player_0=int(info_0["received_ojama_total"]),
         received_ojama_player_1=int(info_1["received_ojama_total"]),
+        generated_ojama_player_0=int(info_0["generated_ojama_total"]),
+        generated_ojama_player_1=int(info_1["generated_ojama_total"]),
+        canceled_ojama_player_0=int(info_0["canceled_ojama_total"]),
+        canceled_ojama_player_1=int(info_1["canceled_ojama_total"]),
         max_chain_player_0=int(info_0["max_chain_count"]),
         max_chain_player_1=int(info_1["max_chain_count"]),
         mean_decision_ms_player_0=diagnostics["player_0"].mean_decision_ms,
@@ -248,6 +288,16 @@ def run_match(
         strategy_switches_player_1=diagnostics["player_1"].switches,
         profile_counts_player_0=json.dumps(diagnostics["player_0"].profile_counts, sort_keys=True),
         profile_counts_player_1=json.dumps(diagnostics["player_1"].profile_counts, sort_keys=True),
+        switch_reasons_player_0=json.dumps(diagnostics["player_0"].switch_reasons, sort_keys=True),
+        switch_reasons_player_1=json.dumps(diagnostics["player_1"].switch_reasons, sort_keys=True),
+        mean_target_attack_player_0=diagnostics["player_0"].mean_target_attack,
+        mean_target_attack_player_1=diagnostics["player_1"].mean_target_attack,
+        mean_incoming_attack_player_0=diagnostics["player_0"].mean_incoming_attack,
+        mean_incoming_attack_player_1=diagnostics["player_1"].mean_incoming_attack,
+        missed_lethal_player_0=diagnostics["player_0"].missed_lethal,
+        missed_lethal_player_1=diagnostics["player_1"].missed_lethal,
+        failed_counter_player_0=diagnostics["player_0"].failed_counter,
+        failed_counter_player_1=diagnostics["player_1"].failed_counter,
     )
 
 
@@ -340,6 +390,7 @@ def summarize_result(
         rating_player_1=rating_b,
         k_factor=k_factor,
     )
+    score_mean, score_low, score_high = _policy_a_confidence_interval(result)
     return {
         "label": label,
         "policy_a": policy_a,
@@ -356,6 +407,9 @@ def summarize_result(
         "wins_policy_a": result.wins_policy_a,
         "wins_policy_b": result.wins_policy_b,
         "win_rate_policy_a": result.win_rate_policy_a,
+        "score_rate_policy_a": score_mean,
+        "score_rate_policy_a_ci95_low": score_low,
+        "score_rate_policy_a_ci95_high": score_high,
         "mean_steps": result.mean_steps,
         "mean_score_player_0": result.mean_score_player_0,
         "mean_score_player_1": result.mean_score_player_1,
@@ -365,6 +419,10 @@ def summarize_result(
         "mean_sent_ojama_player_1": result.mean_sent_ojama_player_1,
         "mean_received_ojama_player_0": result.mean_received_ojama_player_0,
         "mean_received_ojama_player_1": result.mean_received_ojama_player_1,
+        "mean_generated_ojama_player_0": _mean_match_metric(result, "generated_ojama_player_0"),
+        "mean_generated_ojama_player_1": _mean_match_metric(result, "generated_ojama_player_1"),
+        "mean_canceled_ojama_player_0": _mean_match_metric(result, "canceled_ojama_player_0"),
+        "mean_canceled_ojama_player_1": _mean_match_metric(result, "canceled_ojama_player_1"),
         "mean_decision_ms_player_0": _mean_match_metric(result, "mean_decision_ms_player_0"),
         "mean_decision_ms_player_1": _mean_match_metric(result, "mean_decision_ms_player_1"),
         "mean_expanded_nodes_player_0": _mean_match_metric(result, "mean_expanded_nodes_player_0"),
@@ -374,6 +432,10 @@ def summarize_result(
         "mean_decision_ms_policy_a": _mean_policy_a_metric(result, "decision_ms_for_policy_a"),
         "mean_expanded_nodes_policy_a": _mean_policy_a_metric(result, "expanded_nodes_for_policy_a"),
         "mean_strategy_switches_policy_a": _mean_policy_a_metric(result, "switches_for_policy_a"),
+        "mean_target_attack_policy_a": _mean_policy_side_metric(result, "mean_target_attack"),
+        "mean_incoming_attack_policy_a": _mean_policy_side_metric(result, "mean_incoming_attack"),
+        "mean_missed_lethal_policy_a": _mean_policy_side_metric(result, "missed_lethal"),
+        "mean_failed_counter_policy_a": _mean_policy_side_metric(result, "failed_counter"),
         "initial_rating_player_0": rating_a,
         "initial_rating_player_1": rating_b,
         "final_rating_player_0": final_rating_a,
@@ -397,6 +459,28 @@ def _mean_policy_a_metric(result: ArenaResult, name: str) -> float:
     return sum(float(getattr(match, name)) for match in result.matches) / len(result.matches)
 
 
+def _mean_policy_side_metric(result: ArenaResult, stem: str) -> float:
+    if not result.matches:
+        return 0.0
+    values = []
+    for match in result.matches:
+        suffix = "player_0" if match.policy_a_side == "player_0" else "player_1"
+        values.append(float(getattr(match, f"{stem}_{suffix}")))
+    return sum(values) / len(values)
+
+
+def _policy_a_confidence_interval(result: ArenaResult) -> tuple[float, float, float]:
+    scores = [match.score_for_policy_a for match in result.matches]
+    if not scores:
+        return 0.0, 0.0, 0.0
+    mean = sum(scores) / len(scores)
+    if len(scores) == 1:
+        return mean, mean, mean
+    variance = sum((score - mean) ** 2 for score in scores) / (len(scores) - 1)
+    margin = 1.96 * math.sqrt(variance / len(scores))
+    return mean, max(0.0, mean - margin), min(1.0, mean + margin)
+
+
 def write_summary_csv(path: str | Path, summary: dict[str, Any]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -415,6 +499,11 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
         ("wins_player_1", summary["wins_player_1"]),
         ("draws", summary["draws"]),
         ("win_rate_policy_a", f"{summary['win_rate_policy_a']:.3f}"),
+        (
+            "score_rate_policy_a_ci95",
+            f"{summary['score_rate_policy_a']:.3f} "
+            f"[{summary['score_rate_policy_a_ci95_low']:.3f}, {summary['score_rate_policy_a_ci95_high']:.3f}]",
+        ),
         ("mean_score_player_0", f"{summary['mean_score_player_0']:.2f}"),
         ("mean_score_player_1", f"{summary['mean_score_player_1']:.2f}"),
         ("mean_max_chain_player_0", f"{summary['mean_max_chain_player_0']:.2f}"),
@@ -422,6 +511,8 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
         ("mean_decision_ms_policy_a", f"{summary['mean_decision_ms_policy_a']:.2f}"),
         ("mean_expanded_nodes_policy_a", f"{summary['mean_expanded_nodes_policy_a']:.2f}"),
         ("mean_strategy_switches_policy_a", f"{summary['mean_strategy_switches_policy_a']:.2f}"),
+        ("mean_missed_lethal_policy_a", f"{summary['mean_missed_lethal_policy_a']:.2f}"),
+        ("mean_failed_counter_policy_a", f"{summary['mean_failed_counter_policy_a']:.2f}"),
         ("elo_delta_policy_a", f"{summary['elo_delta_player_0']:.2f}"),
     ]
     lines = [
@@ -459,7 +550,8 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two Puyo policies headlessly.")
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-        "worker_large", "worker_quick", "worker_fire", "worker_survival",
+        "worker_large", "worker_quick", "worker_punish", "worker_counter",
+        "worker_fire", "worker_fire_max", "worker_survival",
     ]
     parser.add_argument("--policy-a", choices=policy_choices, default="greedy")
     parser.add_argument("--policy-b", choices=policy_choices, default="random")

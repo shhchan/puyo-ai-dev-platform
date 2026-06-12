@@ -14,8 +14,20 @@ except ImportError:  # pragma: no cover - dependency guard
     torch = None
 
 from agents.networks import PuyoActorCritic
-from agents.strategy_workers import StrategyOrchestrator, WorkerProfile, default_worker_profiles, estimate_immediate_threat
-from puyo_env.manager_env import MANAGER_FEATURE_DIM, MANAGER_VECTOR_DIM, ManagerState, build_manager_observation, manager_vector_features
+from agents.strategy_workers import (
+    StrategyOrchestrator,
+    WorkerProfile,
+    build_tactical_context,
+    default_worker_profiles,
+    profile_id_by_name,
+)
+from puyo_env.manager_env import (
+    ManagerState,
+    build_manager_observation,
+    manager_feature_dim,
+    manager_vector_dim,
+    manager_vector_features,
+)
 
 
 class StrategyManagerPolicy:
@@ -32,7 +44,10 @@ class StrategyManagerPolicy:
         self.profiles = tuple(WorkerProfile(**item) for item in checkpoint["worker_profiles"])
         self.orchestrator = StrategyOrchestrator(self.profiles)
         board_shape = tuple(checkpoint["board_shape"])
-        vector_dim = int(checkpoint.get("vector_dim", MANAGER_VECTOR_DIM))
+        vector_dim = int(checkpoint.get("vector_dim", manager_vector_dim(len(self.profiles))))
+        self.manager_feature_dim = int(
+            checkpoint.get("manager_feature_dim", manager_feature_dim(len(self.profiles)))
+        )
         self.agent = PuyoActorCritic(
             board_shape=board_shape,
             vector_dim=vector_dim,
@@ -55,7 +70,13 @@ class StrategyManagerPolicy:
         step_count = int(info.get("step_count", 0))
         if step_count <= self._last_step_count:
             self.reset()
-        manager_observation = build_manager_observation(observation, info, self.manager_state)
+        manager_observation = build_manager_observation(
+            observation,
+            info,
+            self.manager_state,
+            len(self.profiles),
+            self.manager_feature_dim,
+        )
         board = torch.as_tensor(manager_observation["board"][None, ...], dtype=torch.float32, device=self.device)
         vector = torch.as_tensor(manager_vector_features(manager_observation)[None, ...], dtype=torch.float32, device=self.device)
         mask = torch.ones((1, len(self.profiles)), dtype=torch.bool, device=self.device)
@@ -91,6 +112,18 @@ class StrategyManagerPolicy:
             return None
         return self.profiles[self.last_profile_id].name
 
+    @property
+    def tactical_diagnostics(self) -> dict[str, Any]:
+        proposal = self.last_proposal
+        if proposal is None:
+            return {}
+        return {
+            "incoming_attack": proposal.incoming_attack,
+            "target_attack": proposal.target_attack,
+            "deadline": proposal.deadline,
+            "reason": proposal.reason,
+        }
+
 
 class RuleBasedManagerPolicy:
     """Interpretable baseline router using the same worker profiles."""
@@ -100,18 +133,23 @@ class RuleBasedManagerPolicy:
         self.orchestrator = StrategyOrchestrator(self.profiles)
         self.last_proposal = None
         self.last_profile_id = -1
+        self.last_tactical_context = None
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
-        own_chain, own_attack = estimate_immediate_threat(info.get("simulator"))
-        opponent_chain, opponent_attack = estimate_immediate_threat(info.get("opponent_simulator"))
-        pending = int(info.get("pending_ojama", 0))
-        if pending >= 12:
-            profile_id = 3
-        elif own_attack >= 6 or own_chain >= 3:
-            profile_id = 2
-        elif opponent_attack >= 6 or opponent_chain >= 3:
-            profile_id = 1
-        else:
+        tactical = build_tactical_context(info)
+        self.last_tactical_context = tactical
+        strategy = tactical.recommended_strategy
+        aliases = {
+            "build_large": ("build_large", "large_chain"),
+            "build_budget": ("build_budget", "quick_attack"),
+            "punish": ("punish", "fire_max", "fire"),
+            "counter": ("counter", "fire_max", "fire"),
+            "fire_max": ("fire_max", "fire"),
+            "survival": ("survival",),
+        }
+        try:
+            profile_id = profile_id_by_name(self.profiles, *aliases[strategy])
+        except KeyError:
             profile_id = 0
         self.last_profile_id = profile_id
         self.last_proposal = self.orchestrator.propose(profile_id, observation, info)
@@ -121,12 +159,24 @@ class RuleBasedManagerPolicy:
     def current_profile_name(self) -> str | None:
         return None if self.last_profile_id < 0 else self.profiles[self.last_profile_id].name
 
+    @property
+    def tactical_diagnostics(self) -> dict[str, Any]:
+        proposal = self.last_proposal
+        if proposal is None:
+            return {}
+        return {
+            "incoming_attack": proposal.incoming_attack,
+            "target_attack": proposal.target_attack,
+            "deadline": proposal.deadline,
+            "reason": proposal.reason,
+        }
+
 
 def manager_checkpoint_metadata(profiles: tuple[WorkerProfile, ...] | None = None) -> dict[str, Any]:
     selected = profiles or default_worker_profiles()
     return {
         "policy_type": "strategy_manager",
         "worker_profiles": [asdict(profile) for profile in selected],
-        "vector_dim": MANAGER_VECTOR_DIM,
-        "manager_feature_dim": MANAGER_FEATURE_DIM,
+        "vector_dim": manager_vector_dim(len(selected)),
+        "manager_feature_dim": manager_feature_dim(len(selected)),
     }
