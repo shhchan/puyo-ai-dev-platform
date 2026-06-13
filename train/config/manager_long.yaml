@@ -21,6 +21,8 @@ curriculum_enabled: true
 curriculum_boundaries: "0.15,0.35,0.60"
 behavior_cloning_epochs: 0
 generate_teacher_dataset: true
+best_window_episodes: 50
+best_min_episodes: 50
 selfplay_snapshot_interval: 10000
 training_depth_scale: 0.33
 training_width_scale: 0.33

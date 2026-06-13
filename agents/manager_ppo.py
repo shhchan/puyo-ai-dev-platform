@@ -70,6 +70,8 @@ class ManagerPPOConfig:
     behavior_cloning_epochs: int = 2
     teacher_dataset_path: str = ""
     generate_teacher_dataset: bool = True
+    best_window_episodes: int = 50
+    best_min_episodes: int = 20
     selfplay_snapshot_interval: int = 0
     training_depth_scale: float = 1.0
     training_width_scale: float = 1.0
@@ -471,7 +473,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     global_step = 0
     next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
     episodes: list[dict[str, Any]] = []
-    best_win_rate = float("-inf")
+    best_selection_key = (float("-inf"), float("-inf"), float("-inf"), -1)
     best_written = bool(teacher_examples)
     best_tactical_accuracy = behavior_cloning_accuracy
     next_snapshot_step = (
@@ -623,14 +625,21 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             writer.writerow({"global_step": global_step, "metric": "auxiliary_reward_scale", "value": auxiliary_scale})
             writer.writerow({"global_step": global_step, "metric": "SPS", "value": global_step / max(time.time() - started, 1e-9)})
             handle.flush()
-            recent = episodes[-10:]
+            recent = episodes[-cfg.best_window_episodes :]
             win_rate = float(np.mean([episode["win"] for episode in recent])) if recent else None
+            mean_score = float(np.mean([episode["score"] for episode in recent])) if recent else None
+            selection_key = (
+                win_rate if win_rate is not None else float("-inf"),
+                mean_score if mean_score is not None else float("-inf"),
+                tactical_accuracy if tactical_accuracy is not None else float("-inf"),
+                global_step,
+            )
             if (
-                win_rate is not None
+                len(episodes) >= cfg.best_min_episodes
                 and (tactical_accuracy is None or tactical_accuracy >= 0.8)
-                and win_rate > best_win_rate
+                and selection_key > best_selection_key
             ):
-                best_win_rate = win_rate
+                best_selection_key = selection_key
                 best_tactical_accuracy = tactical_accuracy
                 torch.save(
                     _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "best"),

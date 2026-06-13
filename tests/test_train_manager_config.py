@@ -40,6 +40,8 @@ class TestManagerTrainingConfig(unittest.TestCase):
         self.assertEqual(long_run.num_envs, 8)
         self.assertTrue(long_run.parallel_envs)
         self.assertEqual(long_run.behavior_cloning_epochs, 0)
+        self.assertEqual(long_run.best_window_episodes, 50)
+        self.assertEqual(long_run.best_min_episodes, 50)
 
     def test_initial_checkpoint_override(self):
         config = build_config(
