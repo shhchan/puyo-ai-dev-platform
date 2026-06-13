@@ -166,6 +166,26 @@ def smoke_worker_profiles() -> tuple[WorkerProfile, ...]:
     )
 
 
+def scaled_worker_profiles(
+    profiles: tuple[WorkerProfile, ...],
+    *,
+    depth_scale: float = 1.0,
+    width_scale: float = 1.0,
+) -> tuple[WorkerProfile, ...]:
+    """Return execution-only budgets while preserving profile ids and semantics."""
+
+    return tuple(
+        WorkerProfile(
+            **{
+                **profile.__dict__,
+                "depth": max(1, int(round(profile.depth * depth_scale))),
+                "width": max(4, int(round(profile.width * width_scale))),
+            }
+        )
+        for profile in profiles
+    )
+
+
 def profile_id_by_name(profiles: tuple[WorkerProfile, ...], *names: str) -> int:
     for profile in profiles:
         if profile.name in names or profile.strategy in names:
@@ -196,8 +216,8 @@ def board_danger(game) -> float:
 def estimate_attack_forecast(
     simulator,
     *,
-    max_depth: int = 3,
-    width: int = 6,
+    max_depth: int = 2,
+    width: int = 3,
 ) -> AttackForecast:
     """Bounded cloned rollout used for manager features, not full worker search."""
 

@@ -9,6 +9,7 @@ try:
         estimate_immediate_threat,
         build_tactical_context,
         smoke_worker_profiles,
+        scaled_worker_profiles,
     )
     from puyo_env.obs import encode_observation
     from puyo_env.actions import legal_action_mask
@@ -74,6 +75,16 @@ class TestStrategyWorkers(unittest.TestCase):
         self.assertEqual(tactical.incoming_attack, 8)
         self.assertEqual(tactical.incoming_deadline, 2)
         self.assertEqual(tactical.counter_deficit, tactical.counter_target - tactical.max_return_by_deadline)
+
+    def test_training_profile_scaling_preserves_ids_and_names(self):
+        profiles = default_worker_profiles()
+
+        scaled = scaled_worker_profiles(profiles, depth_scale=0.5, width_scale=0.25)
+
+        self.assertEqual([profile.profile_id for profile in scaled], list(range(6)))
+        self.assertEqual([profile.name for profile in scaled], [profile.name for profile in profiles])
+        self.assertLess(scaled[0].depth, profiles[0].depth)
+        self.assertLess(scaled[0].width, profiles[0].width)
 
     def test_threat_and_danger_are_bounded(self):
         simulator, _, _ = self._state(seed=9)

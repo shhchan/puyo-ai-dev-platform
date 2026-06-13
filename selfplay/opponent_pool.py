@@ -54,11 +54,19 @@ class OpponentPool:
         if strategy == "uniform":
             return chooser.choice(self.snapshots)
         if strategy == "balanced":
-            weights = [1.0 / (1.0 + snapshot.games_played) for snapshot in self.snapshots]
+            weights = [
+                float(snapshot.metadata.get("sampling_weight", 1.0))
+                / (1.0 + snapshot.games_played)
+                for snapshot in self.snapshots
+            ]
             return chooser.choices(self.snapshots, weights=weights, k=1)[0]
         if strategy == "elo":
             center = self.elo_config.default_rating if target_rating is None else float(target_rating)
-            weights = [math.exp(-abs(snapshot.rating - center) / 200.0) for snapshot in self.snapshots]
+            weights = [
+                float(snapshot.metadata.get("sampling_weight", 1.0))
+                * math.exp(-abs(snapshot.rating - center) / 200.0)
+                for snapshot in self.snapshots
+            ]
             return chooser.choices(self.snapshots, weights=weights, k=1)[0]
         raise ValueError(f"unknown opponent sampling strategy: {strategy}")
 
@@ -115,7 +123,10 @@ def default_opponent_pool() -> OpponentPool:
             OpponentSnapshot(name="greedy_score", policy_type="greedy"),
             OpponentSnapshot(name="worker_large", policy_type="worker_large"),
             OpponentSnapshot(name="worker_quick", policy_type="worker_quick"),
+            OpponentSnapshot(name="worker_punish", policy_type="worker_punish"),
+            OpponentSnapshot(name="worker_counter", policy_type="worker_counter"),
             OpponentSnapshot(name="worker_fire", policy_type="worker_fire"),
+            OpponentSnapshot(name="worker_survival", policy_type="worker_survival"),
             OpponentSnapshot(name="puyo29_beam", policy_type="beam", rating=1150.0),
             OpponentSnapshot(name="manager_rule", policy_type="manager_rule"),
         ]
