@@ -399,6 +399,41 @@ def write_matches_csv(path: str | Path, matches: tuple[MatchResult, ...]) -> Non
             writer.writerow(asdict(match))
 
 
+def read_matches_csv(path: str | Path) -> tuple[MatchResult, ...]:
+    integer_fields = {
+        "seed", "steps", "score_player_0", "score_player_1",
+        "sent_ojama_player_0", "sent_ojama_player_1",
+        "received_ojama_player_0", "received_ojama_player_1",
+        "generated_ojama_player_0", "generated_ojama_player_1",
+        "canceled_ojama_player_0", "canceled_ojama_player_1",
+        "max_chain_player_0", "max_chain_player_1",
+        "strategy_switches_player_0", "strategy_switches_player_1",
+        "missed_lethal_player_0", "missed_lethal_player_1",
+        "failed_counter_player_0", "failed_counter_player_1",
+    }
+    float_fields = {
+        "mean_decision_ms_player_0", "mean_decision_ms_player_1",
+        "mean_expanded_nodes_player_0", "mean_expanded_nodes_player_1",
+        "mean_target_attack_player_0", "mean_target_attack_player_1",
+        "mean_incoming_attack_player_0", "mean_incoming_attack_player_1",
+    }
+    matches = []
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            values: dict[str, Any] = {}
+            for name, value in row.items():
+                if name in integer_fields:
+                    values[name] = int(value)
+                elif name in float_fields:
+                    values[name] = float(value)
+                elif name == "winner":
+                    values[name] = value or None
+                else:
+                    values[name] = value
+            matches.append(MatchResult(**values))
+    return tuple(matches)
+
+
 def elo_after_matches(
     matches: tuple[MatchResult, ...],
     *,
@@ -485,6 +520,11 @@ def summarize_result(
         "mean_incoming_attack_policy_a": _mean_policy_side_metric(result, "mean_incoming_attack"),
         "mean_missed_lethal_policy_a": _mean_policy_side_metric(result, "missed_lethal"),
         "mean_failed_counter_policy_a": _mean_policy_side_metric(result, "failed_counter"),
+        "mean_max_chain_policy_a": _mean_policy_side_metric(result, "max_chain"),
+        "mean_sent_ojama_policy_a": _mean_policy_side_metric(result, "sent_ojama"),
+        "mean_received_ojama_policy_a": _mean_policy_side_metric(result, "received_ojama"),
+        "mean_generated_ojama_policy_a": _mean_policy_side_metric(result, "generated_ojama"),
+        "mean_canceled_ojama_policy_a": _mean_policy_side_metric(result, "canceled_ojama"),
         "profile_counts_policy_a": _aggregate_policy_side_json(result, "profile_counts"),
         "switch_reasons_policy_a": _aggregate_policy_side_json(result, "switch_reasons"),
         "initial_rating_player_0": rating_a,
@@ -574,6 +614,9 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
         ("mean_strategy_switches_policy_a", f"{summary['mean_strategy_switches_policy_a']:.2f}"),
         ("mean_missed_lethal_policy_a", f"{summary['mean_missed_lethal_policy_a']:.2f}"),
         ("mean_failed_counter_policy_a", f"{summary['mean_failed_counter_policy_a']:.2f}"),
+        ("mean_max_chain_policy_a", f"{summary['mean_max_chain_policy_a']:.2f}"),
+        ("mean_sent_ojama_policy_a", f"{summary['mean_sent_ojama_policy_a']:.2f}"),
+        ("mean_canceled_ojama_policy_a", f"{summary['mean_canceled_ojama_policy_a']:.2f}"),
         ("profile_counts_policy_a", summary["profile_counts_policy_a"]),
         ("elo_delta_policy_a", f"{summary['elo_delta_player_0']:.2f}"),
     ]

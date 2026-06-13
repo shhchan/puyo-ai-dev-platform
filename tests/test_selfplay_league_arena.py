@@ -11,6 +11,7 @@ try:
     import numpy  # noqa: F401
 
     from eval.arena import (
+        read_matches_csv,
         run_paired_series,
         run_parallel_paired_series,
         summarize_result,
@@ -118,6 +119,7 @@ class TestArena(unittest.TestCase):
             summary_path = Path(tmpdir) / "summary.csv"
             write_matches_csv(match_path, result.matches)
             write_summary_csv(summary_path, summary)
+            loaded_matches = read_matches_csv(match_path)
 
             match_text = match_path.read_text(encoding="utf-8")
             summary_text = summary_path.read_text(encoding="utf-8")
@@ -127,6 +129,8 @@ class TestArena(unittest.TestCase):
         self.assertIn("score_rate_policy_a_ci95_low", summary_text)
         self.assertIn("profile_counts_policy_a", summary_text)
         self.assertIn("canceled_ojama_player_0", match_text)
+        self.assertEqual(loaded_matches, result.matches)
+        self.assertIn("mean_canceled_ojama_policy_a", summary)
 
     def test_paired_series_swaps_sides_for_each_seed(self):
         result = run_paired_series(FirstLegalPolicy(), RandomPolicy(seed=1), games=2, seed=4, max_steps=2)
