@@ -34,12 +34,12 @@ class TestManagerEnvironment(unittest.TestCase):
         )
         observation, info = env.reset(seed=3)
 
-        next_observation, _, _, _, next_info = env.step(2)
+        next_observation, _, _, _, next_info = env.step(4)
 
         self.assertEqual(observation["manager_features"].shape, (MANAGER_FEATURE_DIM,))
         self.assertEqual(next_observation["manager_features"].shape, (MANAGER_FEATURE_DIM,))
-        self.assertEqual(next_info["manager_profile_id"], 2)
-        self.assertEqual(next_info["search_proposal"].strategy, "fire")
+        self.assertEqual(next_info["manager_profile_id"], 4)
+        self.assertEqual(next_info["search_proposal"].strategy, "fire_max")
         self.assertEqual(sum(next_info["manager_profile_counts"]), 1)
         env.close()
 
@@ -49,7 +49,19 @@ class TestManagerEnvironment(unittest.TestCase):
 
         self.assertIn("opponent_simulator", info)
         self.assertIn("opponent_pending_ojama", info)
-        self.assertEqual(len(info["action_mask"]), 4)
+        self.assertEqual(len(info["action_mask"]), 6)
+        env.close()
+
+    def test_curriculum_stage_expands_available_profiles(self):
+        env = ManagerSelfPlayEnv(seed=5, max_steps=1, profiles=smoke_worker_profiles())
+        env.set_curriculum_stage("safe_build")
+        _, info = env.reset(seed=5)
+
+        self.assertTrue(info["action_mask"][0])
+        self.assertFalse(info["action_mask"][2])
+        self.assertFalse(info["action_mask"][3])
+        env.set_curriculum_stage("counter")
+        self.assertTrue(env._manager_action_mask().all())
         env.close()
 
     @unittest.skipUnless(TORCH_AVAILABLE, "torch is not installed")
@@ -58,7 +70,11 @@ class TestManagerEnvironment(unittest.TestCase):
         env = ManagerSelfPlayEnv(seed=7, max_steps=2, profiles=profiles)
         raw_observations, raw_infos = env.versus_env.reset(seed=7)
         board_shape = raw_observations["player_0"]["board"].shape
-        model = PuyoActorCritic(board_shape=board_shape, vector_dim=MANAGER_VECTOR_DIM, action_dim=4)
+        model = PuyoActorCritic(
+            board_shape=board_shape,
+            vector_dim=MANAGER_VECTOR_DIM,
+            action_dim=len(profiles),
+        )
         payload = {
             **manager_checkpoint_metadata(profiles),
             "model_state_dict": model.state_dict(),

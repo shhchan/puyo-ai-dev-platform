@@ -6,6 +6,10 @@ update_epochs: 1
 minibatch_size: 4
 max_episode_steps: 4
 opponent_policy: random
+auxiliary_reward_scale: 0.1
+curriculum_enabled: true
+behavior_cloning_epochs: 500
+generate_teacher_dataset: true
 use_smoke_profiles: true
 log_dir: runs/manager_ppo
 device: cpu

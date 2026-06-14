@@ -138,12 +138,6 @@ def build_visual_events(
 
     events = []
     for agent in AGENTS:
-        components = infos[agent].get("reward_components", {})
-        received = int(components.get("garbage_received", 0))
-        if received:
-            events.append(VisualEvent("garbage", agent, f"OJAMA +{received}", amount=received))
-
-    for agent in AGENTS:
         result = infos[agent].get("step_result")
         action = actions.get(agent)
         if result is None or action is None or not result.valid:
@@ -182,6 +176,11 @@ def build_visual_events(
                     board=chain.board,
                 )
             )
+    for agent in AGENTS:
+        components = infos[agent].get("reward_components", {})
+        received = int(components.get("garbage_received", 0))
+        if received:
+            events.append(VisualEvent("garbage", agent, f"OJAMA +{received}", amount=received))
     return events
 
 
@@ -271,6 +270,21 @@ class VersusMatchController:
         profile_name = getattr(policy, "current_profile_name", None)
         base = self.policy_names[agent]
         return f"{base}: {profile_name}" if profile_name else base
+
+    def tactical_diagnostics(self, agent: str) -> dict:
+        policy = self.policies.get(agent)
+        diagnostics = getattr(policy, "tactical_diagnostics", None)
+        if isinstance(diagnostics, dict):
+            return diagnostics
+        proposal = getattr(policy, "last_proposal", None)
+        if proposal is None:
+            return {}
+        return {
+            "incoming_attack": proposal.incoming_attack,
+            "target_attack": proposal.target_attack,
+            "deadline": proposal.deadline,
+            "reason": proposal.reason,
+        }
 
     @property
     def winner(self) -> str | None:

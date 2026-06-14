@@ -45,8 +45,8 @@ class TestBeamSearchPolicy(unittest.TestCase):
         worker = make_policy("worker_fire")
         manager = make_policy("manager_rule")
 
-        self.assertEqual(worker.profile_id, 2)
-        self.assertEqual(manager.profiles[0].strategy, "large_chain")
+        self.assertEqual(worker.profile_id, 4)
+        self.assertEqual(manager.profiles[0].strategy, "build_large")
 
     def test_policy_takes_available_chain(self):
         simulator = HeadlessPuyoSimulator(seed=3)

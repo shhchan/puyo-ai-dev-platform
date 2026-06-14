@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import random
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -40,11 +41,26 @@ class OpponentPool:
                 return snapshot
         return None
 
-    def sample(self, rng: random.Random | None = None) -> OpponentSnapshot:
+    def sample(
+        self,
+        rng: random.Random | None = None,
+        *,
+        strategy: str = "uniform",
+        target_rating: float | None = None,
+    ) -> OpponentSnapshot:
         if not self.snapshots:
             raise ValueError("cannot sample from an empty opponent pool")
         chooser = rng or random
-        return chooser.choice(self.snapshots)
+        if strategy == "uniform":
+            return chooser.choice(self.snapshots)
+        if strategy == "balanced":
+            weights = [1.0 / (1.0 + snapshot.games_played) for snapshot in self.snapshots]
+            return chooser.choices(self.snapshots, weights=weights, k=1)[0]
+        if strategy == "elo":
+            center = self.elo_config.default_rating if target_rating is None else float(target_rating)
+            weights = [math.exp(-abs(snapshot.rating - center) / 200.0) for snapshot in self.snapshots]
+            return chooser.choices(self.snapshots, weights=weights, k=1)[0]
+        raise ValueError(f"unknown opponent sampling strategy: {strategy}")
 
     def update_rating(self, name: str, rating: float) -> None:
         snapshot = self.get(name)
@@ -97,5 +113,10 @@ def default_opponent_pool() -> OpponentPool:
         snapshots=[
             OpponentSnapshot(name="random", policy_type="random"),
             OpponentSnapshot(name="greedy_score", policy_type="greedy"),
+            OpponentSnapshot(name="worker_large", policy_type="worker_large"),
+            OpponentSnapshot(name="worker_quick", policy_type="worker_quick"),
+            OpponentSnapshot(name="worker_fire", policy_type="worker_fire"),
+            OpponentSnapshot(name="puyo29_beam", policy_type="beam", rating=1150.0),
+            OpponentSnapshot(name="manager_rule", policy_type="manager_rule"),
         ]
     )

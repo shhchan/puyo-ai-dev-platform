@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 try:
@@ -54,15 +54,46 @@ class VersusRewardConfig:
     draw_penalty: float = 1.0
 
 
+@dataclass(frozen=True)
+class ScheduledAttack:
+    """One deterministic incoming ojama packet."""
+
+    amount: int
+    arrival_step: int
+    source_agent: str
+    created_step: int
+
+
 @dataclass
 class VersusPlayerState:
     simulator: HeadlessPuyoSimulator
-    pending_ojama: int = 0
+    incoming_attacks: list[ScheduledAttack] = field(default_factory=list)
     score_carry: int = 0
     sent_ojama_total: int = 0
+    generated_ojama_total: int = 0
+    canceled_ojama_total: int = 0
     received_ojama_total: int = 0
     episode_return: float = 0.0
     max_chain_count: int = 0
+
+    @property
+    def pending_ojama(self) -> int:
+        """Compatibility aggregate for callers that predate scheduled attacks."""
+
+        return sum(packet.amount for packet in self.incoming_attacks)
+
+    @pending_ojama.setter
+    def pending_ojama(self, amount: int) -> None:
+        self.incoming_attacks.clear()
+        if amount > 0:
+            self.incoming_attacks.append(
+                ScheduledAttack(
+                    amount=int(amount),
+                    arrival_step=0,
+                    source_agent="legacy",
+                    created_step=-1,
+                )
+            )
 
 
 class VersusPuyoEnv:
@@ -84,6 +115,7 @@ class VersusPuyoEnv:
         reward_config: VersusRewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
         max_ojama_drop: int = 30,
+        attack_delay_steps: int = 1,
         capture_visuals: bool = False,
     ):
         if gym is None or spaces is None or np is None:
@@ -96,6 +128,7 @@ class VersusPuyoEnv:
         self.reward_config = reward_config or VersusRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
         self.max_ojama_drop = max_ojama_drop
+        self.attack_delay_steps = max(0, int(attack_delay_steps))
         self.capture_visuals = capture_visuals
 
         self._action_spaces = {agent: spaces.Discrete(NUM_ACTIONS) for agent in self.possible_agents}
@@ -190,11 +223,26 @@ class VersusPuyoEnv:
             "score": state.simulator.game.score,
             "opponent_score": opponent_state.simulator.game.score,
             "pending_ojama": state.pending_ojama,
+            "incoming_ojama": state.pending_ojama,
+            "incoming_turns": self._incoming_turns(agent),
+            "incoming_arrival_step": self._next_arrival_step(agent),
+            "incoming_attack_packets": tuple(
+                {
+                    "amount": packet.amount,
+                    "arrival_step": packet.arrival_step,
+                    "source_agent": packet.source_agent,
+                    "created_step": packet.created_step,
+                }
+                for packet in sorted(state.incoming_attacks, key=lambda item: item.arrival_step)
+            ),
             "sent_ojama_total": state.sent_ojama_total,
+            "generated_ojama_total": state.generated_ojama_total,
+            "canceled_ojama_total": state.canceled_ojama_total,
             "received_ojama_total": state.received_ojama_total,
             "max_chain_count": state.max_chain_count,
             "simulator": state.simulator,
             "opponent_pending_ojama": opponent_state.pending_ojama,
+            "opponent_incoming_turns": self._incoming_turns(self._opponent(agent)),
             "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
             "opponent_received_ojama_total": opponent_state.received_ojama_total,
             "opponent_max_chain_count": opponent_state.max_chain_count,
@@ -208,18 +256,83 @@ class VersusPuyoEnv:
         infos = {agent: self._info(agent) for agent in self.possible_agents}
         return observations, infos
 
-    def _apply_pending_ojama(self, agent: str) -> int:
+    def _next_arrival_step(self, agent: str) -> int | None:
+        attacks = self.player_states[agent].incoming_attacks
+        if not attacks:
+            return None
+        return min(packet.arrival_step for packet in attacks)
+
+    def _incoming_turns(self, agent: str) -> int:
+        arrival_step = self._next_arrival_step(agent)
+        if arrival_step is None:
+            return 0
+        return max(0, int(arrival_step) - self.step_count)
+
+    def _consume_incoming(
+        self,
+        agent: str,
+        amount: int,
+        *,
+        max_arrival_step: int | None = None,
+    ) -> int:
+        state = self.player_states[agent]
+        remaining = max(0, int(amount))
+        consumed = 0
+        retained: list[ScheduledAttack] = []
+        for packet in sorted(state.incoming_attacks, key=lambda item: (item.arrival_step, item.created_step)):
+            if remaining <= 0 or (
+                max_arrival_step is not None and packet.arrival_step > max_arrival_step
+            ):
+                retained.append(packet)
+                continue
+            used = min(packet.amount, remaining)
+            consumed += used
+            remaining -= used
+            if packet.amount > used:
+                retained.append(
+                    ScheduledAttack(
+                        amount=packet.amount - used,
+                        arrival_step=packet.arrival_step,
+                        source_agent=packet.source_agent,
+                        created_step=packet.created_step,
+                    )
+                )
+        state.incoming_attacks = retained
+        return consumed
+
+    def _schedule_attack(self, attacker: str, units: int) -> None:
+        if units <= 0:
+            return
+        defender = self._opponent(attacker)
+        self.player_states[defender].incoming_attacks.append(
+            ScheduledAttack(
+                amount=int(units),
+                arrival_step=self.step_count + self.attack_delay_steps + 1,
+                source_agent=attacker,
+                created_step=self.step_count,
+            )
+        )
+
+    def _apply_pending_ojama(self, agent: str, *, due_only: bool = False) -> int:
         state = self.player_states[agent]
         if state.pending_ojama <= 0 or state.simulator.game.game_over:
             return 0
 
-        drop_count = min(state.pending_ojama, self.max_ojama_drop)
+        due_step = self.step_count if due_only else None
+        eligible = sum(
+            packet.amount
+            for packet in state.incoming_attacks
+            if due_step is None or packet.arrival_step <= due_step
+        )
+        drop_count = min(eligible, self.max_ojama_drop)
+        if drop_count <= 0:
+            return 0
         placed = state.simulator.game.field.drop_ojama(
             drop_count,
             rng=self._ojama_rngs[agent],
             max_per_drop=self.max_ojama_drop,
         )
-        state.pending_ojama -= placed
+        self._consume_incoming(agent, placed, max_arrival_step=due_step)
         state.received_ojama_total += placed
         if not state.simulator.game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
             state.simulator.game.game_over = True
@@ -233,18 +346,32 @@ class VersusPuyoEnv:
         state.score_carry = total % self.reward_config.target_score_per_ojama
         return int(units)
 
-    def _queue_attack(self, attacker: str, units: int) -> dict[str, int]:
-        if units <= 0:
-            return {"generated": 0, "canceled": 0, "outgoing": 0}
-        attacker_state = self.player_states[attacker]
-        defender_state = self.player_states[self._opponent(attacker)]
+    def _resolve_attacks(self, generated: dict[str, int]) -> dict[str, dict[str, int]]:
+        """Resolve both attacks without player-order bias, then schedule excess."""
 
-        canceled = min(units, attacker_state.pending_ojama)
-        outgoing = units - canceled
-        attacker_state.pending_ojama -= canceled
-        defender_state.pending_ojama += outgoing
-        attacker_state.sent_ojama_total += outgoing
-        return {"generated": units, "canceled": canceled, "outgoing": outgoing}
+        remaining: dict[str, int] = {}
+        diagnostics: dict[str, dict[str, int]] = {}
+        for agent in self.possible_agents:
+            units = max(0, int(generated.get(agent, 0)))
+            canceled_incoming = self._consume_incoming(agent, units)
+            remaining[agent] = units - canceled_incoming
+            diagnostics[agent] = {
+                "generated": units,
+                "canceled": canceled_incoming,
+                "outgoing": 0,
+            }
+
+        simultaneous_cancel = min(remaining["player_0"], remaining["player_1"])
+        for agent in self.possible_agents:
+            remaining[agent] -= simultaneous_cancel
+            diagnostics[agent]["canceled"] += simultaneous_cancel
+            diagnostics[agent]["outgoing"] = remaining[agent]
+            state = self.player_states[agent]
+            state.generated_ojama_total += diagnostics[agent]["generated"]
+            state.canceled_ojama_total += diagnostics[agent]["canceled"]
+            state.sent_ojama_total += diagnostics[agent]["outgoing"]
+            self._schedule_attack(agent, diagnostics[agent]["outgoing"])
+        return diagnostics
 
     def _winner_from_scores(self) -> str | None:
         score_0 = self.player_states["player_0"].simulator.game.score
@@ -291,11 +418,6 @@ class VersusPuyoEnv:
             for agent in self.possible_agents
         }
 
-        for agent in list(self.agents):
-            placed = self._apply_pending_ojama(agent)
-            components[agent]["garbage_received"] = placed
-            rewards[agent] -= self.reward_config.garbage_penalty * float(placed)
-
         results = {}
         for agent in list(self.agents):
             state = self.player_states[agent]
@@ -329,11 +451,17 @@ class VersusPuyoEnv:
                 components[agent]["invalid_action"] = True
                 rewards[agent] -= self.reward_config.invalid_action_penalty
 
+        generated_attacks = {agent: 0 for agent in self.possible_agents}
         for agent, result in results.items():
             if result is None or not result.valid:
                 continue
-            attack_units = self._attack_units_from_score(agent, result.score_delta)
-            attack = self._queue_attack(agent, attack_units)
+            generated_attacks[agent] = self._attack_units_from_score(agent, result.score_delta)
+
+        attacks = self._resolve_attacks(generated_attacks)
+        for agent, result in results.items():
+            if result is None or not result.valid:
+                continue
+            attack = attacks[agent]
             components[agent].update(
                 {
                     "attack_generated": attack["generated"],
@@ -351,6 +479,11 @@ class VersusPuyoEnv:
                 rewards[agent] += self.reward_config.survival_bonus
 
         self.step_count += 1
+        for agent in list(self.agents):
+            placed = self._apply_pending_ojama(agent, due_only=True)
+            components[agent]["garbage_received"] = placed
+            rewards[agent] -= self.reward_config.garbage_penalty * float(placed)
+
         terminal = any(self.player_states[agent].simulator.game.game_over for agent in self.possible_agents)
         truncated = self.step_count >= self.max_steps and not terminal
         winner = self._winner_from_game_over() if terminal else None
@@ -388,6 +521,8 @@ class VersusPuyoEnv:
                     "winner": winner,
                     "win": 0.5 if winner is None else float(winner == agent),
                     "sent_ojama": self.player_states[agent].sent_ojama_total,
+                    "generated_ojama": self.player_states[agent].generated_ojama_total,
+                    "canceled_ojama": self.player_states[agent].canceled_ojama_total,
                     "received_ojama": self.player_states[agent].received_ojama_total,
                     "max_chain": self.player_states[agent].max_chain_count,
                 }

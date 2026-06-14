@@ -60,11 +60,21 @@ class TestVersusPuyoEnv(unittest.TestCase):
         self.assertIn("max_chain", infos["player_0"]["episode"])
         self.assertIn("max_chain_count", infos["player_0"])
 
-    def test_pending_ojama_is_dropped_before_action(self):
+    def test_scheduled_ojama_allows_one_response_action_before_drop(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)
         observations, infos = env.reset(seed=123)
-        env.player_states["player_1"].pending_ojama = 3
+        env._schedule_attack("player_0", 3)
         policy = FirstLegalPolicy()
+
+        actions = {
+            agent: policy.select_action(observations[agent], infos[agent])
+            for agent in env.agents
+        }
+        observations, _, _, _, infos = env.step(actions)
+
+        self.assertEqual(infos["player_1"]["pending_ojama"], 3)
+        self.assertEqual(infos["player_1"]["incoming_turns"], 1)
+        self.assertEqual(infos["player_1"]["received_ojama_total"], 0)
 
         actions = {
             agent: policy.select_action(observations[agent], infos[agent])
@@ -74,6 +84,33 @@ class TestVersusPuyoEnv(unittest.TestCase):
 
         self.assertEqual(infos["player_1"]["pending_ojama"], 0)
         self.assertEqual(infos["player_1"]["received_ojama_total"], 3)
+
+    def test_attack_resolution_handles_full_partial_and_excess_cancel(self):
+        env = VersusPuyoEnv(seed=123, max_steps=5)
+        env.reset(seed=123)
+        env.player_states["player_0"].pending_ojama = 10
+
+        partial = env._resolve_attacks({"player_0": 6, "player_1": 0})
+
+        self.assertEqual(partial["player_0"], {"generated": 6, "canceled": 6, "outgoing": 0})
+        self.assertEqual(env.player_states["player_0"].pending_ojama, 4)
+
+        excess = env._resolve_attacks({"player_0": 7, "player_1": 0})
+
+        self.assertEqual(excess["player_0"], {"generated": 7, "canceled": 4, "outgoing": 3})
+        self.assertEqual(env.player_states["player_0"].pending_ojama, 0)
+        self.assertEqual(env.player_states["player_1"].pending_ojama, 3)
+
+    def test_simultaneous_attacks_cancel_without_player_order_bias(self):
+        env = VersusPuyoEnv(seed=123, max_steps=5)
+        env.reset(seed=123)
+
+        attacks = env._resolve_attacks({"player_0": 8, "player_1": 3})
+
+        self.assertEqual(attacks["player_0"], {"generated": 8, "canceled": 3, "outgoing": 5})
+        self.assertEqual(attacks["player_1"], {"generated": 3, "canceled": 3, "outgoing": 0})
+        self.assertEqual(env.player_states["player_0"].pending_ojama, 0)
+        self.assertEqual(env.player_states["player_1"].pending_ojama, 5)
 
     def test_unplaced_ojama_stays_pending_without_false_game_over(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)

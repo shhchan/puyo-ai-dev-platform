@@ -327,11 +327,23 @@ class VersusRenderer:
             "NEXT2",
         )
 
+        tactical = controller.tactical_diagnostics(agent)
         stats = (
-            (f"pending {info['pending_ojama']}", (238, 238, 242)),
+            (
+                f"pending {info['pending_ojama']} t-{info.get('incoming_turns', 0)}",
+                (238, 238, 242),
+            ),
             (f"carry {player_state.score_carry}/70", (190, 198, 215)),
             (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
             (f"max chain {info['max_chain_count']}", (190, 198, 215)),
+            (
+                f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
+                (160, 210, 255),
+            ),
+            (
+                str(tactical.get("reason", ""))[:18],
+                (180, 188, 205),
+            ),
         )
         for offset, (text, color) in enumerate(stats):
             self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 225 + offset * 20))
