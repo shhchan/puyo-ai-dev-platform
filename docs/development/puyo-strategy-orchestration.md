@@ -57,9 +57,12 @@ python3 -m train.train_manager --config train/config/manager_smoke.yaml
 # 通常学習
 python3 -m train.train_manager --config train/config/manager.yaml
 
-# 100k / 1M step
-python3 -m train.train_manager --config train/config/manager_medium.yaml
-python3 -m train.train_manager --config train/config/manager_long.yaml
+# CPU medium / long run。long は medium の best と optimizer を引き継ぐ
+python3 -m train.train_manager --config train/config/manager_medium.yaml \
+  --set run_id=<medium-run-id>
+python3 -m train.train_manager --config train/config/manager_long.yaml \
+  --set run_id=<long-run-id> \
+  --set initial_checkpoint_path=runs/manager_ppo/<medium-run-id>/checkpoints/best.pt
 
 # teacher dataset のみ生成
 python3 -m train.generate_tactical_teacher \
@@ -86,6 +89,17 @@ python3 -m eval.arena \
 
 比較対象には `manager_rule`、6固定 worker、PUYO-29 の `beam`、`greedy`、既存 `checkpoint` を指定できる。per-match CSV は生成・送信・相殺・受信おじゃま、target/incoming、missed lethal、failed counter、profile と切替理由を保存する。paired summary は policy A score の95%信頼区間を出力する。
 
+PUYO-51 の比較行列は専用 CLI で同じ50 seedを先後入れ替え、合計100局ずつ実行する。`previous_manager`、rule manager、固定6 worker、greedy、PUYO-29標準 beam（depth 10 / width 48）の結果を個別CSVと集約JSON/CSVへ保存する。
+
+```bash
+python3 -m eval.manager_benchmark \
+  --checkpoint runs/manager_ppo/<long-run-id>/checkpoints/best.pt \
+  --previous-checkpoint runs/manager_ppo/puyo28-validation/checkpoints/best.pt \
+  --output-dir runs/manager_ppo/<long-run-id>/arena \
+  --games 50 \
+  --workers 8
+```
+
 ## UI での確認
 
 学習・定量評価の正本は headless 経路だが、完成した manager の実力と戦略切替は `eval.versus_ui` で確認する。
@@ -111,6 +125,27 @@ python3 -m eval.versus_ui \
 * rule manager: 10 seed・先後入れ替え20局で11勝9敗、score rate 0.55、95% CI `[0.326, 0.774]`。
 
 これは8 step の配線・回帰確認であり、強さの最終判定には使わない。50 seed・100局、medium/long 学習、PUYO-29 標準 beam 比較、未達時の ablation は PUYO-51 で実行する。
+
+### PUYO-51 medium/long 実測
+
+2026-06-13 に CPU 8 worker で medium `9,984` step と、medium best を引き継いだ long `99,328` step を実行した。long は `2,378` episode、実行時間3時間42分。checkpoint 選定の早期固定を避ける修正後、今回は snapshot screening を経て `PUYO-51-long-seed1/checkpoints/latest.pt` を採用した。
+
+50 seedを先後入れ替えた100局、最大100手の結果は次のとおり。CI は policy A score rate の95%信頼区間。
+
+| opponent | score rate | 95% CI | max chain | sent | canceled | decision ms |
+|---|---:|---:|---:|---:|---:|---:|
+| PUYO-28 checkpoint | 0.94 | [0.893, 0.987] | 4.98 | 158.3 | 1.5 | 1287.9 |
+| rule manager | 0.50 | [0.402, 0.598] | 2.73 | 28.5 | 9.8 | 686.4 |
+| worker large | 0.81 | [0.733, 0.887] | 2.90 | 33.8 | 2.2 | 710.0 |
+| worker quick | 0.34 | [0.247, 0.433] | 2.06 | 18.1 | 5.8 | 779.1 |
+| worker punish | 0.61 | [0.514, 0.706] | 3.41 | 90.6 | 4.3 | 903.9 |
+| worker counter | 0.95 | [0.907, 0.993] | 4.98 | 150.6 | 1.4 | 1040.0 |
+| worker fire | 0.94 | [0.893, 0.987] | 4.98 | 156.9 | 1.4 | 1050.7 |
+| worker survival | 0.84 | [0.768, 0.912] | 4.80 | 157.4 | 2.7 | 985.6 |
+| greedy | 0.88 | [0.816, 0.944] | 2.94 | 45.9 | 3.1 | 746.0 |
+| PUYO-29 beam | 0.81 | [0.733, 0.887] | 2.87 | 37.2 | 1.6 | 751.6 |
+
+PUYO-29 beam に対する55%基準を上回ったため、追加学習 ablation は発動しない。beam 戦では `build_large=1,259`、`punish=854`、`survival=244` で単一 profile 固定ではない。一方、`worker_quick` には34%であり、速攻対応と平均0.75秒以上の判断時間は次の改善対象とする。詳細値は `docs/benchmarks/puyo-51-arena-summary.csv` と `puyo-51-summary.json` に保存した。
 
 ### PUYO-28 baseline smoke
 

@@ -44,6 +44,22 @@
       "checkpoint_path": null,
       "games_played": 0,
       "metadata": {"role": "fixed_worker"},
+      "name": "worker_punish",
+      "policy_type": "worker_punish",
+      "rating": 1000.0
+    },
+    {
+      "checkpoint_path": null,
+      "games_played": 0,
+      "metadata": {"role": "fixed_worker"},
+      "name": "worker_counter",
+      "policy_type": "worker_counter",
+      "rating": 1025.0
+    },
+    {
+      "checkpoint_path": null,
+      "games_played": 0,
+      "metadata": {"role": "fixed_worker"},
       "name": "worker_fire",
       "policy_type": "worker_fire",
       "rating": 1025.0
@@ -51,7 +67,20 @@
     {
       "checkpoint_path": null,
       "games_played": 0,
-      "metadata": {"role": "puyo29_standard_beam", "depth": 10, "width": 48},
+      "metadata": {"role": "fixed_worker"},
+      "name": "worker_survival",
+      "policy_type": "worker_survival",
+      "rating": 1000.0
+    },
+    {
+      "checkpoint_path": null,
+      "games_played": 0,
+      "metadata": {
+        "role": "puyo29_standard_beam",
+        "depth": 10,
+        "width": 48,
+        "sampling_weight": 0.05
+      },
       "name": "puyo29_beam",
       "policy_type": "beam",
       "rating": 1150.0

@@ -36,7 +36,29 @@ class TestManagerTrainingConfig(unittest.TestCase):
         self.assertEqual(medium.opponent_sampling, "balanced")
         self.assertGreater(medium.selfplay_snapshot_interval, 0)
         self.assertEqual(long_run.opponent_sampling, "elo")
-        self.assertEqual(long_run.total_timesteps, 1_000_000)
+        self.assertEqual(long_run.total_timesteps, 100_000)
+        self.assertEqual(long_run.num_envs, 8)
+        self.assertTrue(long_run.parallel_envs)
+        self.assertEqual(long_run.behavior_cloning_epochs, 0)
+        self.assertEqual(long_run.best_window_episodes, 50)
+        self.assertEqual(long_run.best_min_episodes, 50)
+
+    def test_initial_checkpoint_override(self):
+        config = build_config(
+            parse_args(
+                [
+                    "--config",
+                    "train/config/manager_long.yaml",
+                    "--set",
+                    "initial_checkpoint_path=runs/medium/best.pt",
+                    "--set",
+                    "load_optimizer_state=false",
+                ]
+            )
+        )
+
+        self.assertEqual(config.initial_checkpoint_path, "runs/medium/best.pt")
+        self.assertFalse(config.load_optimizer_state)
 
 
 if __name__ == "__main__":

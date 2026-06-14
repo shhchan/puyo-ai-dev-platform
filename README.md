@@ -176,6 +176,13 @@ python3 -m train.train_manager --config train/config/manager_smoke.yaml
 ```bash
 python3 -m train.train_manager --config train/config/manager.yaml
 
+python3 -m train.train_manager --config train/config/manager_medium.yaml \
+  --set run_id=<medium-run-id>
+
+python3 -m train.train_manager --config train/config/manager_long.yaml \
+  --set run_id=<long-run-id> \
+  --set initial_checkpoint_path=runs/manager_ppo/<medium-run-id>/checkpoints/best.pt
+
 python3 -m eval.arena \
   --policy-a manager \
   --checkpoint-a runs/manager_ppo/<run_id>/checkpoints/best.pt \
@@ -186,7 +193,8 @@ python3 -m eval.arena \
   --summary-csv runs/manager_ppo/<run_id>/arena_summary.csv
 ```
 
-固定 worker baseline は `worker_large`，`worker_quick`，`worker_fire`，`worker_survival`，
+固定 worker baseline は `worker_large`，`worker_quick`，`worker_punish`，`worker_counter`，
+`worker_fire`，`worker_survival`，
 解釈可能な router baseline は `manager_rule` です．設計詳細は
 [docs/development/puyo-strategy-orchestration.md](docs/development/puyo-strategy-orchestration.md) を参照してください．
 

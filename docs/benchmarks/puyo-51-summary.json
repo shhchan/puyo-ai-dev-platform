@@ -1,0 +1,49 @@
+{
+  "arena": {
+    "games_per_opponent": 100,
+    "max_steps": 100,
+    "paired_seeds": "1-50",
+    "puyo29_beam": {
+      "ci95": [0.733, 0.887],
+      "losses": 19,
+      "score_rate": 0.81,
+      "wins": 81
+    },
+    "threshold": 0.55
+  },
+  "checkpoint": "runs/manager_ppo/PUYO-51-long-seed1/checkpoints/latest.pt",
+  "date": "2026-06-13",
+  "long_training": {
+    "episodes": 2378,
+    "initial_checkpoint_step": 1024,
+    "run_id": "PUYO-51-long-seed1",
+    "steps": 99328,
+    "wall_seconds": 13333.71
+  },
+  "medium_training": {
+    "episodes": 237,
+    "run_id": "PUYO-51-medium-seed1",
+    "steps": 9984,
+    "wall_seconds": 2105.05
+  },
+  "profile_usage": {
+    "beam_arena": {
+      "build_large": 1259,
+      "punish": 854,
+      "survival": 244
+    },
+    "long_training": {
+      "build_budget": 521,
+      "build_large": 34295,
+      "counter": 2747,
+      "fire_max": 379,
+      "punish": 26825,
+      "survival": 34368
+    }
+  },
+  "result": {
+    "ablation_required": false,
+    "beam_threshold_met": true,
+    "known_weakness": "worker_quick: score_rate 0.34"
+  }
+}

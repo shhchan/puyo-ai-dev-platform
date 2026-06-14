@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import csv
 import json
+import multiprocessing as mp
 import random
 import subprocess
 import time
+import traceback
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,7 +32,11 @@ from agents.tactical_scenarios import (
     load_teacher_dataset,
     write_teacher_dataset,
 )
-from agents.strategy_workers import default_worker_profiles, smoke_worker_profiles
+from agents.strategy_workers import (
+    default_worker_profiles,
+    scaled_worker_profiles,
+    smoke_worker_profiles,
+)
 from puyo_env.manager_env import ManagerSelfPlayEnv, manager_vector_dim, manager_vector_features
 from selfplay.opponent_pool import OpponentPool, OpponentSnapshot
 from selfplay.policies import make_policy
@@ -64,10 +70,17 @@ class ManagerPPOConfig:
     behavior_cloning_epochs: int = 2
     teacher_dataset_path: str = ""
     generate_teacher_dataset: bool = True
+    best_window_episodes: int = 50
+    best_min_episodes: int = 20
     selfplay_snapshot_interval: int = 0
+    training_depth_scale: float = 1.0
+    training_width_scale: float = 1.0
+    parallel_envs: bool = True
     use_smoke_profiles: bool = False
     log_dir: str = "runs/manager_ppo"
     checkpoint_path: str = ""
+    initial_checkpoint_path: str = ""
+    load_optimizer_state: bool = True
     device: str = "cpu"
     run_name: str = "manager_ppo"
     run_id: str = ""
@@ -188,6 +201,103 @@ def _teacher_accuracy(agent, examples, *, device) -> float | None:
     return float((torch.argmax(logits, dim=1) == labels).float().mean().item())
 
 
+def _training_info(info: dict[str, Any]) -> dict[str, Any]:
+    selected = {"action_mask": info["action_mask"]}
+    if "manager_episode" in info:
+        selected["manager_episode"] = info["manager_episode"]
+    return selected
+
+
+def _remote_env_worker(connection, env_kwargs, opponent_spec) -> None:
+    try:
+        opponent = make_policy(**opponent_spec)
+        env = ManagerSelfPlayEnv(opponent_policy=opponent, **env_kwargs)
+        while True:
+            command, payload = connection.recv()
+            if command == "reset":
+                observation, info = env.reset(seed=payload)
+                connection.send((observation, _training_info(info)))
+            elif command == "step":
+                observation, reward, terminated, truncated, info = env.step(payload)
+                connection.send(
+                    (observation, reward, terminated, truncated, _training_info(info))
+                )
+            elif command == "curriculum":
+                env.set_curriculum_stage(payload[0], payload[1])
+                connection.send(env._manager_action_mask())
+            elif command == "opponent":
+                env.opponent_policy = make_policy(**payload)
+                connection.send(True)
+            elif command == "close":
+                env.close()
+                connection.send(True)
+                break
+            else:
+                raise ValueError(f"unknown remote env command: {command}")
+    except BaseException:
+        connection.send({"remote_error": traceback.format_exc()})
+    finally:
+        connection.close()
+
+
+class RemoteManagerEnv:
+    """Persistent process wrapper so Python search workers run concurrently."""
+
+    def __init__(self, env_kwargs: dict[str, Any], opponent_spec: dict[str, Any]):
+        context = mp.get_context("spawn")
+        parent, child = context.Pipe()
+        self._connection = parent
+        self._process = context.Process(
+            target=_remote_env_worker,
+            args=(child, env_kwargs, opponent_spec),
+            daemon=True,
+        )
+        self._process.start()
+        child.close()
+        self.opponent_name = ""
+
+    def _receive(self):
+        result = self._connection.recv()
+        if isinstance(result, dict) and "remote_error" in result:
+            raise RuntimeError(result["remote_error"])
+        return result
+
+    def start_reset(self, seed: int | None = None) -> None:
+        self._connection.send(("reset", seed))
+
+    def finish_reset(self):
+        return self._receive()
+
+    def reset(self, *, seed: int | None = None):
+        self.start_reset(seed)
+        return self.finish_reset()
+
+    def start_step(self, action: int) -> None:
+        self._connection.send(("step", int(action)))
+
+    def finish_step(self):
+        return self._receive()
+
+    def step(self, action: int):
+        self.start_step(action)
+        return self.finish_step()
+
+    def set_curriculum_stage(self, stage: str, auxiliary_reward_scale: float):
+        self._connection.send(("curriculum", (stage, auxiliary_reward_scale)))
+        return self._receive()
+
+    def set_opponent(self, opponent_spec: dict[str, Any]) -> None:
+        self._connection.send(("opponent", opponent_spec))
+        self._receive()
+
+    def close(self) -> None:
+        if self._process.is_alive():
+            self._connection.send(("close", None))
+            self._receive()
+            self._process.join(timeout=10)
+        self._connection.close()
+
+
 def _stack(observations: list[dict[str, Any]], infos: list[dict[str, Any]], device):
     boards = np.stack([observation["board"] for observation in observations])
     vectors = np.stack([manager_vector_features(observation) for observation in observations])
@@ -241,6 +351,11 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     torch.manual_seed(cfg.seed)
     device = torch.device(cfg.device)
     profiles = smoke_worker_profiles() if cfg.use_smoke_profiles else default_worker_profiles()
+    training_profiles = scaled_worker_profiles(
+        profiles,
+        depth_scale=cfg.training_depth_scale,
+        width_scale=cfg.training_width_scale,
+    )
     vector_dim = manager_vector_dim(len(profiles))
     opponent_pool = OpponentPool.load(cfg.opponent_pool_path) if cfg.opponent_pool_path else None
     opponent_rng = random.Random(cfg.seed + 91_337)
@@ -250,13 +365,13 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         if opponent_pool is None:
             return (
                 cfg.opponent_policy,
-                make_policy(
-                    cfg.opponent_policy,
-                    seed=cfg.seed + 50_000 + env_index,
-                    checkpoint_path=cfg.opponent_checkpoint_path or None,
-                    device=cfg.device,
-                    deterministic=True,
-                ),
+                {
+                    "policy_type": cfg.opponent_policy,
+                    "seed": cfg.seed + 50_000 + env_index,
+                    "checkpoint_path": cfg.opponent_checkpoint_path or None,
+                    "device": cfg.device,
+                    "deterministic": True,
+                },
             )
         snapshot = opponent_pool.sample(
             opponent_rng,
@@ -267,33 +382,47 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         snapshot.games_played += 1
         return (
             snapshot.name,
-            opponent_pool.make_policy(
-                snapshot,
-                seed=cfg.seed + 50_000 + env_index + sum(opponent_counts.values()),
-                device=cfg.device,
-                deterministic=True,
-            ),
+            {
+                "policy_type": snapshot.policy_type,
+                "seed": cfg.seed + 50_000 + env_index + sum(opponent_counts.values()),
+                "checkpoint_path": snapshot.checkpoint_path,
+                "device": cfg.device,
+                "deterministic": True,
+            },
         )
 
     envs = []
     for env_index in range(cfg.num_envs):
-        opponent_name, opponent = make_training_opponent(env_index)
-        env = ManagerSelfPlayEnv(
-            seed=cfg.seed + env_index * 10_000,
-            max_steps=cfg.max_episode_steps,
-            opponent_policy=opponent,
-            profiles=profiles,
-            switch_penalty=cfg.switch_penalty,
-            decision_time_penalty=cfg.decision_time_penalty,
-            auxiliary_reward_scale=cfg.auxiliary_reward_scale,
-        )
+        opponent_name, opponent_spec = make_training_opponent(env_index)
+        env_kwargs = {
+            "seed": cfg.seed + env_index * 10_000,
+            "max_steps": cfg.max_episode_steps,
+            "profiles": training_profiles,
+            "switch_penalty": cfg.switch_penalty,
+            "decision_time_penalty": cfg.decision_time_penalty,
+            "auxiliary_reward_scale": cfg.auxiliary_reward_scale,
+        }
+        if cfg.parallel_envs and cfg.num_envs > 1:
+            env = RemoteManagerEnv(env_kwargs, opponent_spec)
+        else:
+            opponent = make_policy(**opponent_spec)
+            env = ManagerSelfPlayEnv(
+                opponent_policy=opponent,
+                **env_kwargs,
+            )
         env.opponent_name = opponent_name
         envs.append(env)
 
     observations = []
     infos = []
     for env_index, env in enumerate(envs):
-        observation, info = env.reset(seed=cfg.seed + env_index)
+        if isinstance(env, RemoteManagerEnv):
+            env.start_reset(cfg.seed + env_index)
+    for env_index, env in enumerate(envs):
+        if isinstance(env, RemoteManagerEnv):
+            observation, info = env.finish_reset()
+        else:
+            observation, info = env.reset(seed=cfg.seed + env_index)
         observations.append(observation)
         infos.append(info)
     board_shape = tuple(int(value) for value in observations[0]["board"].shape)
@@ -303,6 +432,19 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         action_dim=len(profiles),
     ).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=cfg.learning_rate, eps=1e-5)
+    initial_checkpoint_step = 0
+    if cfg.initial_checkpoint_path:
+        initial_checkpoint = torch.load(
+            cfg.initial_checkpoint_path,
+            map_location=device,
+            weights_only=False,
+        )
+        agent.load_state_dict(initial_checkpoint["model_state_dict"])
+        if cfg.load_optimizer_state and initial_checkpoint.get("optimizer_state_dict"):
+            optimizer.load_state_dict(initial_checkpoint["optimizer_state_dict"])
+            for group in optimizer.param_groups:
+                group["lr"] = cfg.learning_rate
+        initial_checkpoint_step = int(initial_checkpoint.get("global_step", 0))
 
     teacher_path = Path(cfg.teacher_dataset_path) if cfg.teacher_dataset_path else paths["teacher_dataset_path"]
     teacher_examples = []
@@ -331,9 +473,12 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     global_step = 0
     next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
     episodes: list[dict[str, Any]] = []
-    best_win_rate = float("-inf")
+    best_selection_key = (float("-inf"), float("-inf"), float("-inf"), -1)
     best_written = bool(teacher_examples)
     best_tactical_accuracy = behavior_cloning_accuracy
+    next_snapshot_step = (
+        cfg.selfplay_snapshot_interval if cfg.selfplay_snapshot_interval > 0 else None
+    )
     started = time.time()
 
     with paths["metrics_path"].open("w", newline="", encoding="utf-8") as handle:
@@ -343,8 +488,10 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             progress = min(1.0, global_step / max(1, cfg.total_timesteps))
             stage, auxiliary_scale = _curriculum_stage(cfg, progress)
             for env_index, env in enumerate(envs):
-                env.set_curriculum_stage(stage, auxiliary_scale)
-                infos[env_index]["action_mask"] = env._manager_action_mask()
+                action_mask = env.set_curriculum_stage(stage, auxiliary_scale)
+                if action_mask is None:
+                    action_mask = env._manager_action_mask()
+                infos[env_index]["action_mask"] = action_mask
             boards = torch.zeros((cfg.num_steps, cfg.num_envs, *board_shape), device=device)
             vectors = torch.zeros((cfg.num_steps, cfg.num_envs, vector_dim), device=device)
             masks = torch.zeros((cfg.num_steps, cfg.num_envs, len(profiles)), dtype=torch.bool, device=device)
@@ -374,7 +521,15 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                 new_infos = []
                 done_values = []
                 for env_index, env in enumerate(envs):
-                    observation, reward, terminated, truncated, info = env.step(int(action[env_index].item()))
+                    if isinstance(env, RemoteManagerEnv):
+                        env.start_step(int(action[env_index].item()))
+                for env_index, env in enumerate(envs):
+                    if isinstance(env, RemoteManagerEnv):
+                        observation, reward, terminated, truncated, info = env.finish_step()
+                    else:
+                        observation, reward, terminated, truncated, info = env.step(
+                            int(action[env_index].item())
+                        )
                     rewards[step, env_index] = float(reward)
                     done = terminated or truncated
                     if "manager_episode" in info:
@@ -397,9 +552,12 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                             writer.writerow({"global_step": global_step, "metric": f"profile_{profile_id}_count", "value": count})
                     if done:
                         if opponent_pool is not None:
-                            opponent_name, opponent = make_training_opponent(env_index)
+                            opponent_name, opponent_spec = make_training_opponent(env_index)
                             env.opponent_name = opponent_name
-                            env.opponent_policy = opponent
+                            if isinstance(env, RemoteManagerEnv):
+                                env.set_opponent(opponent_spec)
+                            else:
+                                env.opponent_policy = make_policy(**opponent_spec)
                         observation, info = env.reset()
                     new_observations.append(observation)
                     new_infos.append(info)
@@ -467,14 +625,21 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             writer.writerow({"global_step": global_step, "metric": "auxiliary_reward_scale", "value": auxiliary_scale})
             writer.writerow({"global_step": global_step, "metric": "SPS", "value": global_step / max(time.time() - started, 1e-9)})
             handle.flush()
-            recent = episodes[-10:]
+            recent = episodes[-cfg.best_window_episodes :]
             win_rate = float(np.mean([episode["win"] for episode in recent])) if recent else None
+            mean_score = float(np.mean([episode["score"] for episode in recent])) if recent else None
+            selection_key = (
+                win_rate if win_rate is not None else float("-inf"),
+                mean_score if mean_score is not None else float("-inf"),
+                tactical_accuracy if tactical_accuracy is not None else float("-inf"),
+                global_step,
+            )
             if (
-                win_rate is not None
+                len(episodes) >= cfg.best_min_episodes
                 and (tactical_accuracy is None or tactical_accuracy >= 0.8)
-                and win_rate > best_win_rate
+                and selection_key > best_selection_key
             ):
-                best_win_rate = win_rate
+                best_selection_key = selection_key
                 best_tactical_accuracy = tactical_accuracy
                 torch.save(
                     _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "best"),
@@ -482,10 +647,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                 )
                 best_written = True
 
-            if (
-                cfg.selfplay_snapshot_interval > 0
-                and global_step % cfg.selfplay_snapshot_interval == 0
-            ):
+            if next_snapshot_step is not None and global_step >= next_snapshot_step:
                 snapshot_path = paths["snapshot_dir"] / f"manager-step-{global_step}.pt"
                 torch.save(
                     _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "opponent"),
@@ -504,6 +666,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         )
                     )
                 opponent_pool.save(paths["opponent_pool_path"])
+                while next_snapshot_step <= global_step:
+                    next_snapshot_step += cfg.selfplay_snapshot_interval
 
     torch.save(
         _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "latest"),
@@ -526,12 +690,15 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         ),
         "behavior_cloning_loss": behavior_cloning_loss,
         "behavior_cloning_accuracy": behavior_cloning_accuracy,
+        "initial_checkpoint_path": cfg.initial_checkpoint_path or None,
+        "initial_checkpoint_step": initial_checkpoint_step,
         "final_tactical_accuracy": _teacher_accuracy(agent, teacher_examples, device=device),
         "best_tactical_accuracy": best_tactical_accuracy,
         "behavior_checkpoint_path": str(behavior_checkpoint_path) if teacher_examples else None,
         "teacher_examples": len(teacher_examples),
         "teacher_dataset_path": str(teacher_path) if teacher_examples else None,
         "worker_profiles": [asdict(profile) for profile in profiles],
+        "training_worker_profiles": [asdict(profile) for profile in training_profiles],
         "opponent_counts": opponent_counts,
         "opponent_pool_path": str(paths["opponent_pool_path"]) if opponent_pool is not None else None,
         "checkpoint_path": str(checkpoint_path),

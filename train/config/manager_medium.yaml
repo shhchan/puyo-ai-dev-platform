@@ -1,6 +1,6 @@
 seed: 1
-total_timesteps: 100000
-num_envs: 2
+total_timesteps: 10000
+num_envs: 4
 num_steps: 64
 learning_rate: 0.00025
 gamma: 0.995
@@ -11,7 +11,7 @@ clip_coef: 0.2
 ent_coef: 0.02
 vf_coef: 0.5
 max_grad_norm: 0.5
-max_episode_steps: 300
+max_episode_steps: 200
 opponent_pool_path: train/config/opponent_pool_baselines.json
 opponent_sampling: balanced
 switch_penalty: 0.01
@@ -21,7 +21,12 @@ curriculum_enabled: true
 curriculum_boundaries: "0.20,0.45,0.70"
 behavior_cloning_epochs: 750
 generate_teacher_dataset: true
-selfplay_snapshot_interval: 25000
+best_window_episodes: 30
+best_min_episodes: 20
+selfplay_snapshot_interval: 2500
+training_depth_scale: 0.33
+training_width_scale: 0.25
+parallel_envs: true
 use_smoke_profiles: false
 log_dir: runs/manager_ppo
 device: cpu

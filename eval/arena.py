@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import csv
 import json
 import math
+import multiprocessing as mp
 import sys
 from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
@@ -18,6 +20,10 @@ if str(ROOT) not in sys.path:
 from puyo_env.versus_env import VersusPuyoEnv
 from selfplay.rating import update_elo
 from selfplay.policies import Policy, make_policy
+
+
+_PARALLEL_POLICIES: tuple[Policy, Policy] | None = None
+_PARALLEL_MAX_STEPS = 500
 
 
 @dataclass(frozen=True)
@@ -340,6 +346,49 @@ def run_paired_series(
     return ArenaResult(matches=tuple(matches))
 
 
+def _parallel_initializer(policy_a_spec, policy_b_spec, max_steps: int) -> None:
+    global _PARALLEL_POLICIES, _PARALLEL_MAX_STEPS
+    _PARALLEL_POLICIES = (make_policy(**policy_a_spec), make_policy(**policy_b_spec))
+    _PARALLEL_MAX_STEPS = int(max_steps)
+
+
+def _parallel_match(job: tuple[int, bool]) -> MatchResult:
+    if _PARALLEL_POLICIES is None:
+        raise RuntimeError("parallel arena policies are not initialized")
+    seed, swapped = job
+    policy_a, policy_b = _PARALLEL_POLICIES
+    if not swapped:
+        return run_match(policy_a, policy_b, seed=seed, max_steps=_PARALLEL_MAX_STEPS)
+    match = run_match(policy_b, policy_a, seed=seed, max_steps=_PARALLEL_MAX_STEPS)
+    return replace(match, policy_a_side="player_1")
+
+
+def run_parallel_paired_series(
+    policy_a_spec: dict[str, Any],
+    policy_b_spec: dict[str, Any],
+    *,
+    games: int,
+    seed: int,
+    max_steps: int,
+    workers: int,
+) -> ArenaResult:
+    """Run paired seeds in persistent worker processes."""
+
+    jobs = [
+        (seed + game_index, swapped)
+        for game_index in range(games)
+        for swapped in (False, True)
+    ]
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=workers,
+        mp_context=mp.get_context("spawn"),
+        initializer=_parallel_initializer,
+        initargs=(policy_a_spec, policy_b_spec, max_steps),
+    ) as executor:
+        matches = tuple(executor.map(_parallel_match, jobs))
+    return ArenaResult(matches=matches)
+
+
 def write_matches_csv(path: str | Path, matches: tuple[MatchResult, ...]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -348,6 +397,41 @@ def write_matches_csv(path: str | Path, matches: tuple[MatchResult, ...]) -> Non
         writer.writeheader()
         for match in matches:
             writer.writerow(asdict(match))
+
+
+def read_matches_csv(path: str | Path) -> tuple[MatchResult, ...]:
+    integer_fields = {
+        "seed", "steps", "score_player_0", "score_player_1",
+        "sent_ojama_player_0", "sent_ojama_player_1",
+        "received_ojama_player_0", "received_ojama_player_1",
+        "generated_ojama_player_0", "generated_ojama_player_1",
+        "canceled_ojama_player_0", "canceled_ojama_player_1",
+        "max_chain_player_0", "max_chain_player_1",
+        "strategy_switches_player_0", "strategy_switches_player_1",
+        "missed_lethal_player_0", "missed_lethal_player_1",
+        "failed_counter_player_0", "failed_counter_player_1",
+    }
+    float_fields = {
+        "mean_decision_ms_player_0", "mean_decision_ms_player_1",
+        "mean_expanded_nodes_player_0", "mean_expanded_nodes_player_1",
+        "mean_target_attack_player_0", "mean_target_attack_player_1",
+        "mean_incoming_attack_player_0", "mean_incoming_attack_player_1",
+    }
+    matches = []
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            values: dict[str, Any] = {}
+            for name, value in row.items():
+                if name in integer_fields:
+                    values[name] = int(value)
+                elif name in float_fields:
+                    values[name] = float(value)
+                elif name == "winner":
+                    values[name] = value or None
+                else:
+                    values[name] = value
+            matches.append(MatchResult(**values))
+    return tuple(matches)
 
 
 def elo_after_matches(
@@ -436,6 +520,13 @@ def summarize_result(
         "mean_incoming_attack_policy_a": _mean_policy_side_metric(result, "mean_incoming_attack"),
         "mean_missed_lethal_policy_a": _mean_policy_side_metric(result, "missed_lethal"),
         "mean_failed_counter_policy_a": _mean_policy_side_metric(result, "failed_counter"),
+        "mean_max_chain_policy_a": _mean_policy_side_metric(result, "max_chain"),
+        "mean_sent_ojama_policy_a": _mean_policy_side_metric(result, "sent_ojama"),
+        "mean_received_ojama_policy_a": _mean_policy_side_metric(result, "received_ojama"),
+        "mean_generated_ojama_policy_a": _mean_policy_side_metric(result, "generated_ojama"),
+        "mean_canceled_ojama_policy_a": _mean_policy_side_metric(result, "canceled_ojama"),
+        "profile_counts_policy_a": _aggregate_policy_side_json(result, "profile_counts"),
+        "switch_reasons_policy_a": _aggregate_policy_side_json(result, "switch_reasons"),
         "initial_rating_player_0": rating_a,
         "initial_rating_player_1": rating_b,
         "final_rating_player_0": final_rating_a,
@@ -467,6 +558,16 @@ def _mean_policy_side_metric(result: ArenaResult, stem: str) -> float:
         suffix = "player_0" if match.policy_a_side == "player_0" else "player_1"
         values.append(float(getattr(match, f"{stem}_{suffix}")))
     return sum(values) / len(values)
+
+
+def _aggregate_policy_side_json(result: ArenaResult, stem: str) -> str:
+    totals: dict[str, int] = {}
+    for match in result.matches:
+        suffix = "player_0" if match.policy_a_side == "player_0" else "player_1"
+        values = json.loads(getattr(match, f"{stem}_{suffix}"))
+        for name, count in values.items():
+            totals[name] = totals.get(name, 0) + int(count)
+    return json.dumps(totals, sort_keys=True)
 
 
 def _policy_a_confidence_interval(result: ArenaResult) -> tuple[float, float, float]:
@@ -513,6 +614,10 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
         ("mean_strategy_switches_policy_a", f"{summary['mean_strategy_switches_policy_a']:.2f}"),
         ("mean_missed_lethal_policy_a", f"{summary['mean_missed_lethal_policy_a']:.2f}"),
         ("mean_failed_counter_policy_a", f"{summary['mean_failed_counter_policy_a']:.2f}"),
+        ("mean_max_chain_policy_a", f"{summary['mean_max_chain_policy_a']:.2f}"),
+        ("mean_sent_ojama_policy_a", f"{summary['mean_sent_ojama_policy_a']:.2f}"),
+        ("mean_canceled_ojama_policy_a", f"{summary['mean_canceled_ojama_policy_a']:.2f}"),
+        ("profile_counts_policy_a", summary["profile_counts_policy_a"]),
         ("elo_delta_policy_a", f"{summary['elo_delta_player_0']:.2f}"),
     ]
     lines = [
@@ -533,8 +638,12 @@ def write_markdown_report(path: str | Path, summary: dict[str, Any]) -> None:
 
 
 def _policy_from_args(args, side: str) -> Policy:
-    return make_policy(
-        getattr(args, f"policy_{side}"),
+    return make_policy(**_policy_spec_from_args(args, side))
+
+
+def _policy_spec_from_args(args, side: str) -> dict[str, Any]:
+    return dict(
+        policy_type=getattr(args, f"policy_{side}"),
         seed=args.seed + (0 if side == "a" else 10_000),
         checkpoint_path=getattr(args, f"checkpoint_{side}"),
         device=args.device,
@@ -574,19 +683,37 @@ def parse_args(argv=None):
     parser.add_argument("--rating-b", type=float, default=1000.0)
     parser.add_argument("--k-factor", type=float, default=32.0)
     parser.add_argument("--paired-sides", action="store_true", help="Run every seed with both side assignments.")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Persistent processes for paired matches. Values above 1 require --paired-sides.",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv=None):
     args = parse_args(argv)
-    runner = run_paired_series if args.paired_sides else run_series
-    result = runner(
-        _policy_from_args(args, "a"),
-        _policy_from_args(args, "b"),
-        games=args.games,
-        seed=args.seed,
-        max_steps=args.max_steps,
-    )
+    if args.workers > 1:
+        if not args.paired_sides:
+            raise ValueError("--workers above 1 requires --paired-sides")
+        result = run_parallel_paired_series(
+            _policy_spec_from_args(args, "a"),
+            _policy_spec_from_args(args, "b"),
+            games=args.games,
+            seed=args.seed,
+            max_steps=args.max_steps,
+            workers=args.workers,
+        )
+    else:
+        runner = run_paired_series if args.paired_sides else run_series
+        result = runner(
+            _policy_from_args(args, "a"),
+            _policy_from_args(args, "b"),
+            games=args.games,
+            seed=args.seed,
+            max_steps=args.max_steps,
+        )
     if args.csv:
         write_matches_csv(args.csv, result.matches)
     label = args.label or f"{args.policy_a}_vs_{args.policy_b}"
