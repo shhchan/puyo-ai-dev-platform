@@ -6,12 +6,14 @@ from .rewards import RewardConfig
 __all__ = [
     "NUM_ACTIONS",
     "RewardConfig",
+    "RealtimeVersusMatch",
     "SinglePuyoEnv",
     "VersusPuyoEnv",
     "VersusRewardConfig",
     "VersusSelfPlayEnv",
     "action_to_placement",
     "legal_action_mask",
+    "plan_placement_action",
 ]
 
 
@@ -28,4 +30,12 @@ def __getattr__(name: str):
         from .selfplay_env import VersusSelfPlayEnv
 
         return VersusSelfPlayEnv
+    if name == "RealtimeVersusMatch":
+        from .realtime_versus import RealtimeVersusMatch
+
+        return RealtimeVersusMatch
+    if name == "plan_placement_action":
+        from .action_planner import plan_placement_action
+
+        return plan_placement_action
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

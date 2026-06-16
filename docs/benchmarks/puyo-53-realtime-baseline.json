@@ -1,0 +1,8 @@
+{
+  "final_hash": "311a2264e20eed091d9745ad20d01d52bfed1005487ab8865d325e4ec3dd1e66",
+  "planner_latency_ms_mean": 417.88766277271736,
+  "planner_latency_ms_p95": 440.67380100000264,
+  "planner_samples": 22,
+  "tick_throughput_per_second": 40195.16278945821,
+  "ticks": 2000
+}

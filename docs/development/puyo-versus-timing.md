@@ -42,3 +42,16 @@
 この環境は設置単位の headless 対戦であり、実ゲームのフレーム単位の連鎖アニメーション時間、マージンタイム、複数回に分かれる細かな予告更新は表現しない。連鎖の長さにかかわらず joint step 終了時に攻撃量が確定し、標準では1回の応答手を与える。
 
 学習上は「相手の発火を確認してから counter を選ぶ」判断を可能にする一方、連鎖時間差を利用する先打ち・後打ちの厳密な再現ではない。必要になった場合は `ScheduledAttack` に chain phase 時刻を追加し、現在の golden test を維持したまま細分化する。
+
+## v1.1.0 realtime core との境界
+
+この文書の `VersusPuyoEnv` は v1.0.0 互換の turn-synchronous API として維持する。v1.1.0 の fixed tick 進行は [puyo-realtime-timing.md](puyo-realtime-timing.md) を正本とし、次の責務分離にする。
+
+| API | 時間単位 | 用途 |
+|---|---|---|
+| `HeadlessPuyoSimulator` | 1 placement | 既存 RL、golden score、action mask |
+| `VersusPuyoEnv` | 1 joint placement step | 既存 self-play / arena |
+| `RealtimeHeadlessSimulator` | 1 fixed tick | 入力列、落下、lock、連鎖演出、replay |
+| `RealtimeVersusMatch` | 1 match tick | 独立進行、tick 単位攻撃 queue、着弾診断 |
+
+`attack_delay_steps` は turn API 専用に残す。realtime では `REALTIME_ATTACK_DELAY_TICKS` と `RealtimeVersusMatch.attack_delay_ticks` を使い、同一 tick 内の攻撃生成・相殺・着弾順序は realtime 仕様に従う。
