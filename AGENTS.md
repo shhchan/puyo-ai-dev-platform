@@ -47,6 +47,16 @@
 ## References
 ```
 
+### PUYO-53〜PUYO-58 の統合ブランチ運用
+
+- PUYO-53〜PUYO-58 は `master` へ直接 merge しない。
+- 統合検証用ブランチは `integration/puyo-53-58` とする。
+- PUYO-53〜PUYO-58 の各作業 PR は、base branch を `integration/puyo-53-58` にする。
+- PUYO-53 の既存 PR #17 は、必要に応じて `integration/puyo-53-58` へ取り込んで検証する。
+- PUYO-54〜PUYO-58 の作業開始時は、原則として `integration/puyo-53-58` を起点に `PUYO-54/...` 形式の作業ブランチを切る。
+- `master` への PR は、PUYO-53〜PUYO-58 を統合ブランチ上で目視確認・QA してから `integration/puyo-53-58` から作成する。
+- 統合ブランチ上での QA では、ユニットテストだけでなく、画面または実行ログで目に見える動作確認を行う。
+
 ## 4. 例外と優先順位
 
 - 軽微な質問・相談・説明依頼のみの場合は Jira を自動起票しない。
