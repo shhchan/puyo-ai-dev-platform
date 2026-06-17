@@ -122,6 +122,7 @@ class RealtimeControllerDiagnostics:
     inference_latency_ticks: int = 0
     planned_input_ticks: int = 0
     last_event: str = "idle"
+    last_emitted_input: dict[str, list[str]] | None = None
     last_decision: RealtimeDecisionRecord | None = None
 
     @property
@@ -152,6 +153,19 @@ class _PendingDecision:
     plan: PlannedPlacement | None
 
 
+@dataclass(frozen=True)
+class RealtimeControllerStatus:
+    active_action_index: int | None
+    active_plan_ticks: int
+    active_plan_remaining_ticks: int
+    input_cursor: int
+    active_plan_actions: tuple[str, ...]
+    pending_ready_tick: int | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 class RealtimePolicyController:
     """Adapt placement-level policies to tick-level realtime inputs."""
 
@@ -177,6 +191,24 @@ class RealtimePolicyController:
         if self._active_plan is None:
             return 0
         return max(0, len(self._active_plan.inputs) - self._input_cursor)
+
+    @property
+    def active_action_index(self) -> int | None:
+        return self._active_action_index
+
+    def status(self) -> RealtimeControllerStatus:
+        return RealtimeControllerStatus(
+            active_action_index=self._active_action_index,
+            active_plan_ticks=0 if self._active_plan is None else len(self._active_plan.inputs),
+            active_plan_remaining_ticks=self.active_plan_remaining_ticks,
+            input_cursor=self._input_cursor,
+            active_plan_actions=(
+                ()
+                if self._active_plan is None
+                else tuple(action.name for action in self._active_plan.high_level_actions)
+            ),
+            pending_ready_tick=None if self._pending_decision is None else self._pending_decision.ready_tick,
+        )
 
     def reset(self) -> None:
         reset = getattr(self.policy, "reset", None)
@@ -390,6 +422,7 @@ class RealtimePolicyController:
         tick_input = self._active_plan.inputs[self._input_cursor]
         self._input_cursor += 1
         self.diagnostics.emitted_input_ticks += 1
+        self.diagnostics.last_emitted_input = tick_input.to_json()
         self.diagnostics.last_event = "executing_plan"
         return tick_input
 
@@ -421,6 +454,14 @@ class RealtimePuyoEnv:
         self._episode_returns = {agent: 0.0 for agent in self.possible_agents}
         self._max_chain_counts = {agent: 0 for agent in self.possible_agents}
         self._last_infos: dict[str, dict[str, Any]] = {}
+
+    @property
+    def player_states(self):
+        return self.match.player_states
+
+    @property
+    def step_count(self) -> int:
+        return self.match.tick
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         _ = options

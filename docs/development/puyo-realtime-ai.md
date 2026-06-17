@@ -84,3 +84,46 @@ python eval/realtime_arena.py \
 
 `eval.realtime_arena.replay_realtime_match` replays the saved tick inputs and
 checks every recorded snapshot hash plus the final match hash.
+
+## Realtime Versus UI
+
+Launch an AI v.s. AI realtime viewer:
+
+```bash
+python eval/realtime_versus_ui.py \
+  --policy-a first \
+  --policy-b random \
+  --seed 54 \
+  --max-ticks 600 \
+  --inference-latency-ticks 1 \
+  --timeout-ticks 4
+```
+
+The viewer drives `RealtimePuyoEnv` at the fixed realtime tick rate and renders
+the active pair from `game.puyo_x`, `game.puyo_y`, and `game.puyo_rot`. The side
+panel shows the current `TickInput`, active plan cursor, controller event, and
+incoming attack deadline.
+
+Run a dummy video smoke test and write a QA artifact:
+
+```bash
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python eval/realtime_versus_ui.py \
+  --policy-a first \
+  --policy-b random \
+  --seed 54 \
+  --max-ticks 180 \
+  --speed 4.0 \
+  --max-frames 8 \
+  --result-json docs/benchmarks/puyo-54-realtime-ui-smoke.json
+```
+
+Manual QA checklist:
+
+- The active pair moves by horizontal, rotation, and down inputs rather than an
+  immediate placement jump.
+- Target ghost, active plan cursor, and current input update while the match
+  clock advances.
+- Lock, chain, and ojama labels appear without pausing the realtime tick loop.
+- First/random and one search policy, for example `beam`, start from the same
+  UI command path.
+- Pause, reset, step, and speed controls work in the realtime viewer.
