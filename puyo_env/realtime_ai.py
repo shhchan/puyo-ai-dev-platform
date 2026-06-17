@@ -570,6 +570,8 @@ class RealtimePuyoEnv:
             )
             for agent in self.possible_agents
         }
+        for agent in self.possible_agents:
+            infos[agent]["max_chain_count"] = self._max_chain_counts[agent]
         return observations, infos
 
     def close(self):

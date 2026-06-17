@@ -111,6 +111,23 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestRealtimeVersusUiSmoke(unittest.TestCase):
+    def test_initial_paused_frame_renders_before_first_tick(self):
+        result = run_ui(
+            RealtimeVersusUiConfig(
+                policy_a="manager_rule",
+                policy_b="beam",
+                seed=54,
+                max_ticks=80,
+                beam_depth=2,
+                beam_width=8,
+                start_paused=True,
+            ),
+            max_frames=1,
+        )
+
+        self.assertEqual(result["ticks"], 0)
+        self.assertEqual(result["decisions_player_0"], 0)
+
     def test_dummy_video_driver_smoke_advances_match_ticks(self):
         result = run_ui(
             RealtimeVersusUiConfig(

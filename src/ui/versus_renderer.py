@@ -367,7 +367,7 @@ class VersusRenderer:
             ),
             (f"carry {player_state.score_carry}/70", (190, 198, 215)),
             (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
-            (f"max chain {info['max_chain_count']}", (190, 198, 215)),
+            (f"max chain {info.get('max_chain_count', 0)}", (190, 198, 215)),
             (
                 f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
                 (160, 210, 255),
