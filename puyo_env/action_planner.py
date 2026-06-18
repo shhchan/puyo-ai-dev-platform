@@ -176,7 +176,9 @@ def _transition_piece_state(
     state: tuple[int, int, Direction, int],
     action: Action,
 ) -> tuple[int, int, Direction, int] | None:
-    probe = copy.deepcopy(base_game)
+    # Movement probes only mutate piece/control counters and read the board.
+    # Sharing the field avoids thousands of deep board copies per BFS.
+    probe = copy.copy(base_game)
     probe.puyo_x, probe.puyo_y, probe.puyo_rot, probe.blocked_rotate_input_count = state
     probe.vertical_interpolation_progress = 0.0
     probe.floor_kick_horizontal_grace = False

@@ -53,6 +53,16 @@ def active_pair_cells(action: int) -> tuple[tuple[int, int], tuple[int, int]]:
     )
 
 
+def live_active_pair_cells(game) -> tuple[tuple[int, int, object], ...]:
+    if game.current_puyo_1 is None or game.current_puyo_2 is None:
+        return ()
+    ox, oy = game.get_sub_puyo_offset(game.puyo_rot)
+    return (
+        (game.puyo_x, game.puyo_y, game.current_puyo_1.color),
+        (game.puyo_x + ox, game.puyo_y + oy, game.current_puyo_2.color),
+    )
+
+
 def winner_banner_label(winner: str | None) -> str:
     if winner is None:
         return "DRAW"
@@ -175,6 +185,13 @@ class VersusRenderer:
             sx, sy = self._grid_position(field, x, y)
             self._draw_puyo(sx, sy, self.colors[color_name])
 
+    def _draw_live_active_pair(self, field: pygame.Rect, game) -> None:
+        for x, y, color_name in live_active_pair_cells(game):
+            if not 0 <= x < GRID_WIDTH or not -2 <= y < VISIBLE_HEIGHT + 2:
+                continue
+            sx, sy = self._grid_position(field, x, y)
+            self._draw_puyo(sx, sy, self.colors[color_name], ring=(245, 245, 245, 210))
+
     def _draw_next_pair(self, pair, rect: pygame.Rect, label: str) -> None:
         pygame.draw.rect(self.screen, (30, 36, 48), rect)
         pygame.draw.rect(self.screen, (125, 136, 160), rect, 2)
@@ -287,7 +304,6 @@ class VersusRenderer:
         active_pair = None
         if game.current_puyo_1 is not None and game.current_puyo_2 is not None:
             active_pair = (game.current_puyo_1, game.current_puyo_2)
-        self._draw_active_pair(field, active_pair, controller.active_action(agent))
         self._draw_ojama_forecast(field, info["pending_ojama"])
         self._draw_board(field, event, controller.display_boards[agent])
         self._draw_text(
@@ -300,6 +316,10 @@ class VersusRenderer:
 
         selector_action = None
         selector_colors = None
+        target_action = None
+        target_action_for = getattr(controller, "target_action", None)
+        if callable(target_action_for):
+            target_action = target_action_for(agent)
         if (
             event is None
             and controller.human is not None
@@ -308,6 +328,14 @@ class VersusRenderer:
         ):
             selector_action = controller.human.action
             selector_colors = (game.current_puyo_1.color, game.current_puyo_2.color)
+        if target_action is not None and active_pair is not None:
+            self._draw_pair_at_action(
+                field,
+                game,
+                target_action,
+                (active_pair[0].color, active_pair[1].color),
+                alpha=85,
+            )
         if selector_action is not None:
             self._draw_pair_at_action(
                 field,
@@ -317,6 +345,10 @@ class VersusRenderer:
                 axis_y=event.axis_y if event is not None else None,
                 alpha=180 if event is not None else 125,
             )
+        if callable(getattr(controller, "uses_live_active_pair", None)) and controller.uses_live_active_pair():
+            self._draw_live_active_pair(field, game)
+        else:
+            self._draw_active_pair(field, active_pair, controller.active_action(agent))
 
         side_x = field.right + 18
         queue = list(game.next_puyo_queue)
@@ -335,7 +367,7 @@ class VersusRenderer:
             ),
             (f"carry {player_state.score_carry}/70", (190, 198, 215)),
             (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
-            (f"max chain {info['max_chain_count']}", (190, 198, 215)),
+            (f"max chain {info.get('max_chain_count', 0)}", (190, 198, 215)),
             (
                 f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
                 (160, 210, 255),
@@ -347,6 +379,23 @@ class VersusRenderer:
         )
         for offset, (text, color) in enumerate(stats):
             self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 225 + offset * 20))
+
+        realtime_diagnostics = getattr(controller, "realtime_diagnostics", None)
+        if callable(realtime_diagnostics):
+            diagnostics = realtime_diagnostics(agent)
+            input_label = str(diagnostics.get("input", "idle"))[:18]
+            plan_label = str(diagnostics.get("plan", "plan 0/0"))[:18]
+            event_label = str(diagnostics.get("event", ""))[:18]
+            deadline_label = str(diagnostics.get("deadline", "deadline -"))[:18]
+            for offset, (text, color) in enumerate(
+                (
+                    (f"input {input_label}", (255, 220, 145)),
+                    (plan_label, (180, 220, 255)),
+                    (event_label, (190, 198, 215)),
+                    (deadline_label, (190, 198, 215)),
+                )
+            ):
+                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 350 + offset * 18))
 
         if event is not None:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)
@@ -360,9 +409,14 @@ class VersusRenderer:
 
     def _draw_footer(self, controller) -> None:
         state = "PAUSED" if controller.paused else "PLAYING"
+        progress_unit = getattr(controller, "progress_unit", "step")
+        progress_value = getattr(controller, "progress_value", controller.env.step_count)
+        progress_limit = getattr(controller.config, "max_ticks", None)
+        if progress_limit is None:
+            progress_limit = controller.config.max_steps
         status = (
             f"{state}   speed {controller.speed:g}x   seed {controller.config.seed}   "
-            f"step {controller.env.step_count}/{controller.config.max_steps}"
+            f"{progress_unit} {progress_value}/{progress_limit}"
         )
         self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 704), center=True)
         bindings = controller.keybindings
