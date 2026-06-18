@@ -34,6 +34,8 @@ from agents.tactical_scenarios import (
     write_teacher_dataset,
 )
 from agents.strategy_workers import (
+    baseline_search_controls,
+    default_search_controls,
     default_worker_profiles,
     scaled_worker_profiles,
     smoke_worker_profiles,
@@ -73,6 +75,9 @@ class ManagerPPOConfig:
     opponent_sampling: str = "balanced"
     switch_penalty: float = 0.02
     decision_time_penalty: float = 0.001
+    search_control_mode: str = "hybrid"
+    search_cost_reward_scale: float = 1.0
+    max_search_latency_ms: float = 80.0
     auxiliary_reward_scale: float = 0.25
     curriculum_enabled: bool = True
     curriculum_boundaries: str = "0.20,0.45,0.70"
@@ -174,11 +179,7 @@ def _behavior_clone(
         dtype=torch.float32,
         device=device,
     )
-    labels = torch.as_tensor(
-        [item.selected_profile_id for item in examples],
-        dtype=torch.long,
-        device=device,
-    )
+    labels = torch.as_tensor([_teacher_action_id(item) for item in examples], dtype=torch.long, device=device)
     loss_value = None
     for _ in range(epochs):
         logits, _ = agent.forward(boards, vectors)
@@ -202,11 +203,7 @@ def _teacher_accuracy(agent, examples, *, device) -> float | None:
         dtype=torch.float32,
         device=device,
     )
-    labels = torch.as_tensor(
-        [item.selected_profile_id for item in examples],
-        dtype=torch.long,
-        device=device,
-    )
+    labels = torch.as_tensor([_teacher_action_id(item) for item in examples], dtype=torch.long, device=device)
     with torch.no_grad():
         logits, _ = agent.forward(boards, vectors)
     return float((torch.argmax(logits, dim=1) == labels).float().mean().item())
@@ -217,6 +214,18 @@ def _training_info(info: dict[str, Any]) -> dict[str, Any]:
     if "manager_episode" in info:
         selected["manager_episode"] = info["manager_episode"]
     return selected
+
+
+def _search_controls_for_config(cfg: ManagerPPOConfig):
+    if cfg.search_control_mode == "profile":
+        return baseline_search_controls()
+    if cfg.search_control_mode == "hybrid":
+        return default_search_controls()
+    raise ValueError("search_control_mode must be 'profile' or 'hybrid'")
+
+
+def _teacher_action_id(item) -> int:
+    return int(getattr(item, "selected_action_id", item.selected_profile_id))
 
 
 def _remote_env_worker(connection, env_kwargs, opponent_spec) -> None:
@@ -364,6 +373,7 @@ def _checkpoint_payload(
     agent,
     optimizer,
     profiles,
+    search_controls,
     global_step,
     episodes,
     kind,
@@ -374,7 +384,7 @@ def _checkpoint_payload(
 ):
     config = asdict(cfg)
     payload = {
-        **manager_checkpoint_metadata(profiles),
+        **manager_checkpoint_metadata(profiles, search_controls),
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "config": config,
@@ -433,12 +443,13 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     torch.manual_seed(cfg.seed)
     device = torch.device(cfg.device)
     profiles = smoke_worker_profiles() if cfg.use_smoke_profiles else default_worker_profiles()
+    search_controls = _search_controls_for_config(cfg)
     training_profiles = scaled_worker_profiles(
         profiles,
         depth_scale=cfg.training_depth_scale,
         width_scale=cfg.training_width_scale,
     )
-    vector_dim = manager_vector_dim(len(profiles))
+    vector_dim = manager_vector_dim(len(profiles), len(search_controls))
     opponent_pool = OpponentPool.load(cfg.opponent_pool_path) if cfg.opponent_pool_path else None
     opponent_rng = random.Random(cfg.seed + 91_337)
     opponent_counts: dict[str, int] = {}
@@ -480,8 +491,11 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             "seed": cfg.seed + env_index * 10_000,
             "max_steps": cfg.max_episode_steps,
             "profiles": training_profiles,
+            "search_controls": search_controls,
             "switch_penalty": cfg.switch_penalty,
             "decision_time_penalty": cfg.decision_time_penalty,
+            "search_cost_reward_scale": cfg.search_cost_reward_scale,
+            "max_search_latency_ms": cfg.max_search_latency_ms,
             "auxiliary_reward_scale": cfg.auxiliary_reward_scale,
         }
         if cfg.parallel_envs and cfg.num_envs > 1:
@@ -511,7 +525,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     agent = PuyoActorCritic(
         board_shape=board_shape,
         vector_dim=vector_dim,
-        action_dim=len(profiles),
+        action_dim=len(profiles) * len(search_controls),
     ).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=cfg.learning_rate, eps=1e-5)
     initial_checkpoint_step = 0
@@ -575,7 +589,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         if cfg.teacher_dataset_path:
             teacher_examples = load_teacher_dataset(teacher_path)
         elif cfg.generate_teacher_dataset:
-            teacher_examples = generate_teacher_examples(profiles=profiles)
+            teacher_examples = generate_teacher_examples(profiles=profiles, search_controls=search_controls)
             write_teacher_dataset(teacher_path, teacher_examples)
         behavior_cloning_loss = _behavior_clone(
             agent,
@@ -591,6 +605,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             agent,
             optimizer,
             profiles,
+            search_controls,
             0,
             [],
             "behavior_cloned",
@@ -655,7 +670,11 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                 infos[env_index]["action_mask"] = action_mask
             boards = torch.zeros((cfg.num_steps, cfg.num_envs, *board_shape), device=device)
             vectors = torch.zeros((cfg.num_steps, cfg.num_envs, vector_dim), device=device)
-            masks = torch.zeros((cfg.num_steps, cfg.num_envs, len(profiles)), dtype=torch.bool, device=device)
+            masks = torch.zeros(
+                (cfg.num_steps, cfg.num_envs, len(profiles) * len(search_controls)),
+                dtype=torch.bool,
+                device=device,
+            )
             actions = torch.zeros((cfg.num_steps, cfg.num_envs), dtype=torch.long, device=device)
             logprobs = torch.zeros((cfg.num_steps, cfg.num_envs), device=device)
             rewards = torch.zeros((cfg.num_steps, cfg.num_envs), device=device)
@@ -711,6 +730,21 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                             writer.writerow({"global_step": global_step, "metric": f"episodic_{metric}", "value": episode[metric]})
                         for profile_id, count in enumerate(episode["profile_counts"]):
                             writer.writerow({"global_step": global_step, "metric": f"profile_{profile_id}_count", "value": count})
+                        for control_id, count in enumerate(episode.get("search_control_counts", ())):
+                            writer.writerow(
+                                {
+                                    "global_step": global_step,
+                                    "metric": f"search_control_{control_id}_count",
+                                    "value": count,
+                                }
+                            )
+                        writer.writerow(
+                            {
+                                "global_step": global_step,
+                                "metric": "latency_overruns",
+                                "value": episode.get("latency_overruns", 0),
+                            }
+                        )
                     if done:
                         if opponent_pool is not None:
                             opponent_name, opponent_spec = make_training_opponent(env_index)
@@ -748,7 +782,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
 
             flat_boards = boards.reshape((-1, *board_shape))
             flat_vectors = vectors.reshape((-1, vector_dim))
-            flat_masks = masks.reshape((-1, len(profiles)))
+            flat_masks = masks.reshape((-1, len(profiles) * len(search_controls)))
             flat_actions = actions.reshape(-1)
             flat_logprobs = logprobs.reshape(-1)
             flat_advantages = advantages.reshape(-1)
@@ -808,6 +842,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         agent,
                         optimizer,
                         profiles,
+                        search_controls,
                         global_step,
                         episodes,
                         "best",
@@ -827,6 +862,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         agent,
                         optimizer,
                         profiles,
+                        search_controls,
                         global_step,
                         episodes,
                         "opponent",
@@ -858,6 +894,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             agent,
             optimizer,
             profiles,
+            search_controls,
             global_step,
             episodes,
             "latest",
@@ -893,6 +930,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "teacher_dataset_path": str(teacher_path) if teacher_examples else None,
         "worker_profiles": [asdict(profile) for profile in profiles],
         "training_worker_profiles": [asdict(profile) for profile in training_profiles],
+        "search_controls": [asdict(control) for control in search_controls],
         "opponent_counts": opponent_counts,
         "opponent_pool_path": str(paths["opponent_pool_path"]) if opponent_pool is not None else None,
         "checkpoint_path": str(checkpoint_path),
@@ -934,6 +972,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             "best_min_episodes": cfg.best_min_episodes,
             "best_window_episodes": cfg.best_window_episodes,
             "opponent_sampling": cfg.opponent_sampling,
+            "search_control_mode": cfg.search_control_mode,
+            "max_search_latency_ms": cfg.max_search_latency_ms,
         },
     )
     for env in envs:

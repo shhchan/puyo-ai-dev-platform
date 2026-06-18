@@ -9,10 +9,12 @@ from typing import Any
 
 from agents.strategy_workers import (
     AttackForecast,
+    SearchControl,
     SearchProposal,
     StrategyOrchestrator,
     TacticalContext,
     WorkerProfile,
+    baseline_search_controls,
     smoke_worker_profiles,
 )
 from puyo_env.manager_env import ManagerState, build_manager_observation
@@ -45,6 +47,9 @@ class TeacherExample:
     next_pairs: list[Any]
     manager_features: list[float]
     counterfactuals: list[dict[str, Any]]
+    selected_search_control_id: int = 0
+    selected_search_control_name: str = "baseline"
+    selected_action_id: int = 0
 
 
 def _context(
@@ -244,9 +249,11 @@ def generate_teacher_examples(
     *,
     scenarios: tuple[TacticalScenario, ...] | None = None,
     profiles: tuple[WorkerProfile, ...] | None = None,
+    search_controls: tuple[SearchControl, ...] | None = None,
 ) -> list[TeacherExample]:
     selected_scenarios = scenarios or default_tactical_scenarios()
     selected_profiles = profiles or smoke_worker_profiles()
+    selected_controls = search_controls or baseline_search_controls()
     examples: list[TeacherExample] = []
     for scenario in selected_scenarios:
         env = VersusPuyoEnv(seed=scenario.seed, max_steps=40)
@@ -255,15 +262,27 @@ def generate_teacher_examples(
         manager_observation = build_manager_observation(
             observations["player_0"],
             info,
-            ManagerState(profile_counts=[0] * len(selected_profiles)),
+            ManagerState(
+                profile_counts=[0] * len(selected_profiles),
+                search_control_counts=[0] * len(selected_controls),
+            ),
             len(selected_profiles),
+            len(selected_controls),
         )
         orchestrator = StrategyOrchestrator(selected_profiles)
         results = []
         for profile in selected_profiles:
-            proposal = orchestrator.propose(profile.profile_id, observations["player_0"], info)
-            results.append((_teacher_value(scenario, profile, proposal), profile, proposal))
-        _, best_profile, _ = max(results, key=lambda item: item[0])
+            for control in selected_controls:
+                proposal = orchestrator.propose(
+                    profile.profile_id,
+                    observations["player_0"],
+                    info,
+                    control,
+                )
+                value = _teacher_value(scenario, profile, proposal) - control.cost_penalty * 10_000.0
+                results.append((value, profile, control, proposal))
+        _, best_profile, best_control, _ = max(results, key=lambda item: item[0])
+        selected_action_id = best_profile.profile_id * len(selected_controls) + best_control.control_id
         examples.append(
             TeacherExample(
                 scenario=scenario.name,
@@ -272,6 +291,9 @@ def generate_teacher_examples(
                 expected_strategy=scenario.expected_strategy,
                 selected_profile_id=best_profile.profile_id,
                 selected_profile_name=best_profile.name,
+                selected_search_control_id=best_control.control_id,
+                selected_search_control_name=best_control.name,
+                selected_action_id=selected_action_id,
                 reason=scenario.context.switch_reason,
                 board=manager_observation["board"].tolist(),
                 next_pairs=manager_observation["next_pairs"].tolist(),
@@ -280,6 +302,9 @@ def generate_teacher_examples(
                     {
                         "profile_id": profile.profile_id,
                         "profile_name": profile.name,
+                        "search_control_id": control.control_id,
+                        "search_control_name": control.name,
+                        "action_id": profile.profile_id * len(selected_controls) + control.control_id,
                         "teacher_value": value,
                         "predicted_attack": proposal.predicted_attack,
                         "target_attack": proposal.target_attack,
@@ -287,7 +312,7 @@ def generate_teacher_examples(
                         "elapsed_seconds": proposal.elapsed_seconds,
                         "expanded_nodes": proposal.expanded_nodes,
                     }
-                    for value, profile, proposal in results
+                    for value, profile, control, proposal in results
                 ],
             )
         )
@@ -306,7 +331,12 @@ def write_teacher_dataset(path: str | Path, examples: list[TeacherExample]) -> N
 
 def load_teacher_dataset(path: str | Path) -> list[TeacherExample]:
     values = json.loads(Path(path).read_text(encoding="utf-8"))
-    return [TeacherExample(**value) for value in values]
+    examples = []
+    for value in values:
+        if "selected_action_id" not in value:
+            value["selected_action_id"] = int(value["selected_profile_id"])
+        examples.append(TeacherExample(**value))
+    return examples
 
 
 def scenario_selection_accuracy(policy, scenarios: tuple[TacticalScenario, ...] | None = None) -> float:

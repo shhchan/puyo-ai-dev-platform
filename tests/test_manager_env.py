@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 
 try:
-    from agents.strategy_workers import smoke_worker_profiles
+    from agents.strategy_workers import baseline_search_controls, default_search_controls, smoke_worker_profiles
     from puyo_env.manager_env import MANAGER_FEATURE_DIM, ManagerSelfPlayEnv
     from selfplay.policies import RandomPolicy
 
@@ -34,15 +34,19 @@ class TestManagerEnvironment(unittest.TestCase):
         )
         observation, info = env.reset(seed=3)
 
-        next_observation, _, _, _, next_info = env.step(4)
+        action = 4 * env.search_control_count
+        next_observation, _, _, _, next_info = env.step(action)
 
         self.assertEqual(observation["manager_features"].shape, (MANAGER_FEATURE_DIM,))
         self.assertEqual(next_observation["manager_features"].shape, (MANAGER_FEATURE_DIM,))
         self.assertEqual(next_info["manager_profile_id"], 4)
+        self.assertEqual(next_info["manager_search_control_id"], 0)
         self.assertEqual(next_info["search_proposal"].strategy, "fire_max")
         self.assertEqual(next_info["search_objective"]["schema_version"], "search-objective-v1")
         self.assertIn("achieved", next_info["search_objective_result"])
+        self.assertEqual(next_info["search_control"]["schema_version"], "search-control-v1")
         self.assertEqual(sum(next_info["manager_profile_counts"]), 1)
+        self.assertEqual(sum(next_info["manager_search_control_counts"]), 1)
         env.close()
 
     def test_manager_observation_contains_opponent_state(self):
@@ -51,7 +55,7 @@ class TestManagerEnvironment(unittest.TestCase):
 
         self.assertIn("opponent_simulator", info)
         self.assertIn("opponent_pending_ojama", info)
-        self.assertEqual(len(info["action_mask"]), 6)
+        self.assertEqual(len(info["action_mask"]), 6 * len(default_search_controls()))
         env.close()
 
     def test_curriculum_stage_expands_available_profiles(self):
@@ -60,10 +64,39 @@ class TestManagerEnvironment(unittest.TestCase):
         _, info = env.reset(seed=5)
 
         self.assertTrue(info["action_mask"][0])
-        self.assertFalse(info["action_mask"][2])
-        self.assertFalse(info["action_mask"][3])
+        punish_action = 2 * env.search_control_count
+        counter_action = 3 * env.search_control_count
+        self.assertFalse(info["action_mask"][punish_action])
+        self.assertFalse(info["action_mask"][counter_action])
         env.set_curriculum_stage("counter")
         self.assertTrue(env._manager_action_mask().all())
+        env.close()
+
+    def test_latency_budget_masks_expensive_search_controls(self):
+        env = ManagerSelfPlayEnv(
+            seed=5,
+            max_steps=1,
+            profiles=smoke_worker_profiles(),
+            max_search_latency_ms=30.0,
+        )
+        _, info = env.reset(seed=5)
+
+        broad_value_action = 2
+
+        self.assertFalse(info["action_mask"][broad_value_action])
+        env.close()
+
+    def test_baseline_search_controls_keep_fixed_worker_action_space(self):
+        env = ManagerSelfPlayEnv(
+            seed=5,
+            max_steps=1,
+            profiles=smoke_worker_profiles(),
+            search_controls=baseline_search_controls(),
+        )
+        _, info = env.reset(seed=5)
+
+        self.assertEqual(env.action_space.n, 6)
+        self.assertEqual(len(info["action_mask"]), 6)
         env.close()
 
     @unittest.skipUnless(TORCH_AVAILABLE, "torch is not installed")
@@ -75,10 +108,10 @@ class TestManagerEnvironment(unittest.TestCase):
         model = PuyoActorCritic(
             board_shape=board_shape,
             vector_dim=MANAGER_VECTOR_DIM,
-            action_dim=len(profiles),
+            action_dim=len(profiles) * len(default_search_controls()),
         )
         payload = {
-            **manager_checkpoint_metadata(profiles),
+            **manager_checkpoint_metadata(profiles, default_search_controls()),
             "model_state_dict": model.state_dict(),
             "board_shape": board_shape,
         }

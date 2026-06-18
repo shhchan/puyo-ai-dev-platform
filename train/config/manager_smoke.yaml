@@ -6,6 +6,9 @@ update_epochs: 1
 minibatch_size: 4
 max_episode_steps: 4
 opponent_policy: random
+search_control_mode: hybrid
+search_cost_reward_scale: 1.0
+max_search_latency_ms: 80.0
 auxiliary_reward_scale: 0.1
 curriculum_enabled: true
 behavior_cloning_epochs: 500
