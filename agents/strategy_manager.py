@@ -122,6 +122,8 @@ class StrategyManagerPolicy:
             "target_attack": proposal.target_attack,
             "deadline": proposal.deadline,
             "reason": proposal.reason,
+            "objective": proposal.objective_dict,
+            "objective_result": proposal.objective_result_dict,
         }
 
 
@@ -169,6 +171,8 @@ class RuleBasedManagerPolicy:
             "target_attack": proposal.target_attack,
             "deadline": proposal.deadline,
             "reason": proposal.reason,
+            "objective": proposal.objective_dict,
+            "objective_result": proposal.objective_result_dict,
         }
 
 

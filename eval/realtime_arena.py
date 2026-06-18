@@ -23,6 +23,24 @@ from selfplay.policies import Policy, make_policy
 from src.core.realtime import TickInput
 
 
+def _policy_search_objective_diagnostics(policy: Policy) -> dict[str, Any]:
+    diagnostics = getattr(policy, "tactical_diagnostics", None)
+    if isinstance(diagnostics, dict) and (
+        diagnostics.get("objective") or diagnostics.get("objective_result")
+    ):
+        return {
+            "search_objective": diagnostics.get("objective", {}),
+            "search_objective_result": diagnostics.get("objective_result", {}),
+        }
+    proposal = getattr(policy, "last_proposal", None)
+    if proposal is None:
+        return {"search_objective": {}, "search_objective_result": {}}
+    return {
+        "search_objective": getattr(proposal, "objective_dict", {}),
+        "search_objective_result": getattr(proposal, "objective_result_dict", {}),
+    }
+
+
 @dataclass(frozen=True)
 class RealtimeArenaMatchResult:
     seed: int
@@ -145,6 +163,10 @@ def run_realtime_match(
                     "inputs": {
                         agent: tick_input.to_json()
                         for agent, tick_input in sorted(inputs.items())
+                    },
+                    "policy_diagnostics": {
+                        "player_0": _policy_search_objective_diagnostics(policy_player_0),
+                        "player_1": _policy_search_objective_diagnostics(policy_player_1),
                     },
                     "snapshot_hash": match_result.snapshot_hash,
                 }

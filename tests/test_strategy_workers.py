@@ -8,6 +8,8 @@ try:
         default_worker_profiles,
         estimate_immediate_threat,
         build_tactical_context,
+        objective_for_profile,
+        objective_from_v1_profile,
         smoke_worker_profiles,
         scaled_worker_profiles,
     )
@@ -48,6 +50,8 @@ class TestStrategyWorkers(unittest.TestCase):
             self.assertEqual(proposal.profile_id, profile.profile_id)
             self.assertGreaterEqual(proposal.expanded_nodes, 1)
             self.assertGreaterEqual(proposal.elapsed_seconds, 0.0)
+            self.assertEqual(proposal.objective_dict["schema_version"], "search-objective-v1")
+            self.assertIn("achieved", proposal.objective_result_dict)
             self.assertIs(simulator, info["simulator"])
 
     def test_fixed_profile_policy_exposes_last_proposal(self):
@@ -66,6 +70,7 @@ class TestStrategyWorkers(unittest.TestCase):
                 "opponent_simulator": simulator,
                 "incoming_ojama": 8,
                 "incoming_turns": 2,
+                "incoming_ticks": 34,
                 "opponent_pending_ojama": 0,
             }
         )
@@ -74,7 +79,43 @@ class TestStrategyWorkers(unittest.TestCase):
 
         self.assertEqual(tactical.incoming_attack, 8)
         self.assertEqual(tactical.incoming_deadline, 2)
+        self.assertEqual(tactical.incoming_deadline_ticks, 34)
         self.assertEqual(tactical.counter_deficit, tactical.counter_target - tactical.max_return_by_deadline)
+
+    def test_objective_schema_covers_profiles_and_v1_compatibility(self):
+        _, _, info = self._state(seed=13)
+        tactical = build_tactical_context(info)
+        profiles = smoke_worker_profiles()
+
+        build = objective_for_profile(tactical, profiles[0])
+        punish = objective_for_profile(tactical, profiles[2])
+        counter = objective_for_profile(tactical, profiles[3])
+        compat = objective_from_v1_profile(profiles[3], tactical)
+
+        self.assertEqual(build.kind, "build")
+        self.assertGreaterEqual(build.target_chain, profiles[0].minimum_chain_count)
+        self.assertEqual(punish.kind, "punish")
+        self.assertGreater(punish.target_attack, 0)
+        self.assertEqual(counter.kind, "counter")
+        self.assertEqual(counter.fallback_strategy, "survival")
+        self.assertEqual(compat.to_dict(), counter.to_dict())
+
+    def test_impossible_deadline_is_reported_in_objective_result(self):
+        simulator, observation, info = self._state(seed=17)
+        info.update(
+            {
+                "opponent_simulator": simulator,
+                "incoming_ojama": 99,
+                "incoming_turns": 1,
+                "opponent_pending_ojama": 0,
+            }
+        )
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+
+        proposal = orchestrator.propose(3, observation, info)
+
+        self.assertFalse(proposal.objective_result.possible_by_deadline)
+        self.assertIn("impossible_by_deadline", proposal.objective_result.miss_reasons)
 
     def test_training_profile_scaling_preserves_ids_and_names(self):
         profiles = default_worker_profiles()
