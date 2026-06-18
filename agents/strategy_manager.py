@@ -90,6 +90,7 @@ class StrategyManagerPolicy:
             search_control_counts=[0] * len(self.search_controls),
         )
         self.last_proposal = None
+        self.last_plan = None
         self.last_profile_id = -1
         self._last_step_count = -1
 
@@ -99,6 +100,7 @@ class StrategyManagerPolicy:
             search_control_counts=[0] * len(self.search_controls),
         )
         self.last_proposal = None
+        self.last_plan = None
         self.last_profile_id = -1
         self._last_step_count = -1
 
@@ -131,6 +133,7 @@ class StrategyManagerPolicy:
             info,
             self.search_controls[control_id],
         )
+        self.last_plan = self.orchestrator.last_plan
         self.manager_state.last_proposal = self.last_proposal
         self.manager_state.total_decision_seconds += self.last_proposal.elapsed_seconds
         self.manager_state.total_expanded_nodes += self.last_proposal.expanded_nodes
@@ -183,7 +186,14 @@ class StrategyManagerPolicy:
             "objective": proposal.objective_dict,
             "objective_result": proposal.objective_result_dict,
             "search_control": proposal.search_control_dict,
+            "plan": self.plan_diagnostics,
+            "plan_id": "" if self.last_plan is None else self.last_plan.plan_id,
+            "plan_update_reason": "" if self.last_plan is None else self.last_plan.update_reason,
         }
+
+    @property
+    def plan_diagnostics(self) -> dict[str, Any]:
+        return {} if self.last_plan is None else self.last_plan.to_dict()
 
 
 class RuleBasedManagerPolicy:
@@ -193,6 +203,7 @@ class RuleBasedManagerPolicy:
         self.profiles = profiles or default_worker_profiles()
         self.orchestrator = StrategyOrchestrator(self.profiles)
         self.last_proposal = None
+        self.last_plan = None
         self.last_profile_id = -1
         self.last_tactical_context = None
 
@@ -214,6 +225,7 @@ class RuleBasedManagerPolicy:
             profile_id = 0
         self.last_profile_id = profile_id
         self.last_proposal = self.orchestrator.propose(profile_id, observation, info)
+        self.last_plan = self.orchestrator.last_plan
         return self.last_proposal.action
 
     @property
@@ -232,7 +244,14 @@ class RuleBasedManagerPolicy:
             "reason": proposal.reason,
             "objective": proposal.objective_dict,
             "objective_result": proposal.objective_result_dict,
+            "plan": self.plan_diagnostics,
+            "plan_id": "" if self.last_plan is None else self.last_plan.plan_id,
+            "plan_update_reason": "" if self.last_plan is None else self.last_plan.update_reason,
         }
+
+    @property
+    def plan_diagnostics(self) -> dict[str, Any]:
+        return {} if self.last_plan is None else self.last_plan.to_dict()
 
 
 def _search_control_from_metadata(item: dict[str, Any]) -> SearchControl:

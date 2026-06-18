@@ -45,6 +45,8 @@ class TestManagerEnvironment(unittest.TestCase):
         self.assertEqual(next_info["search_objective"]["schema_version"], "search-objective-v1")
         self.assertIn("achieved", next_info["search_objective_result"])
         self.assertEqual(next_info["search_control"]["schema_version"], "search-control-v1")
+        self.assertEqual(next_info["search_plan"]["schema_version"], "n-turn-plan-v1")
+        self.assertTrue(next_info["search_plan_id"])
         self.assertEqual(sum(next_info["manager_profile_counts"]), 1)
         self.assertEqual(sum(next_info["manager_search_control_counts"]), 1)
         env.close()
