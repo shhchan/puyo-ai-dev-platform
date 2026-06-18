@@ -11,6 +11,11 @@ from typing import Any, Iterable
 from train.artifacts import ARTIFACT_MANIFEST_SCHEMA_VERSION, json_digest
 from train.experiment_suite import SUITE_SCHEMA_VERSION
 
+try:
+    import yaml
+except ImportError:  # pragma: no cover - dependency guard
+    yaml = None
+
 REGISTRY_SCHEMA_VERSION = "puyo.lineage_registry.v1"
 
 
@@ -70,11 +75,32 @@ def _read_json(path: Path) -> dict[str, Any]:
     return data
 
 
+def _read_yaml_mapping(path: Path) -> dict[str, Any]:
+    if yaml is None or not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return data if isinstance(data, dict) else {}
+
+
 def _resolve_record_path(manifest_path: Path, record_path: str) -> Path:
     path = Path(record_path)
     if path.is_absolute():
         return path
     return manifest_path.parent / path
+
+
+def _resolve_legacy_path(run_dir: Path, record_path: str | Path | None) -> Path | None:
+    if not record_path:
+        return None
+    path = Path(record_path)
+    if path.is_absolute():
+        return path
+    if path.exists():
+        return path
+    repo_relative = Path.cwd() / path
+    if repo_relative.exists():
+        return path
+    return run_dir / path
 
 
 def _path_id(prefix: str, path: str | Path) -> str:
@@ -92,6 +118,15 @@ def _numeric_metrics(summary: dict[str, Any]) -> dict[str, float]:
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             selected[key] = float(value)
     return selected
+
+
+def _checkpoint_step(path: Path) -> int | None:
+    if not path.stem.startswith("step_"):
+        return None
+    try:
+        return int(path.stem.removeprefix("step_"))
+    except ValueError:
+        return None
 
 
 def _summary_metrics(manifest_path: Path, manifest: dict[str, Any]) -> dict[str, float]:
@@ -220,6 +255,236 @@ def _add_opponent_pool(registry: LineageRegistry, run_node_id: str, path: Path) 
         registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type="uses_opponent"))
 
 
+def _add_legacy_run(registry: LineageRegistry, run_dir: Path, path_index: dict[str, str]) -> None:
+    summary_path = run_dir / "summary.json"
+    metadata_path = run_dir / "metadata.json"
+    config_path = run_dir / "config.yaml"
+    checkpoints_dir = run_dir / "checkpoints"
+    checkpoint_files = sorted(checkpoints_dir.glob("*.pt")) if checkpoints_dir.exists() else []
+    standalone_checkpoints = sorted(run_dir.glob("*.pt"))
+    if not summary_path.exists() and not metadata_path.exists() and not config_path.exists() and not checkpoint_files and not standalone_checkpoints:
+        return
+
+    summary = _safe_read_json(summary_path)
+    metadata = _safe_read_json(metadata_path)
+    config_dump = _read_yaml_mapping(config_path)
+    config = config_dump.get("config") if isinstance(config_dump.get("config"), dict) else config_dump
+    resolved = config_dump.get("resolved") if isinstance(config_dump.get("resolved"), dict) else {}
+    if not isinstance(config, dict):
+        config = {}
+
+    run_id = str(summary.get("run_id") or metadata.get("run_id") or resolved.get("run_id") or run_dir.name)
+    run_node_id = f"run:{run_id}"
+    registry.add_node(
+        LineageNode(
+            id=run_node_id,
+            node_type="run",
+            label=run_id,
+            path=str(run_dir),
+            metadata={
+                "legacy": True,
+                "summary_path": str(summary_path) if summary_path.exists() else None,
+                "metadata_path": str(metadata_path) if metadata_path.exists() else None,
+                "config_path": str(config_path) if config_path.exists() else None,
+                "trainer_name": metadata.get("trainer_name") or _infer_legacy_trainer_name(run_dir, config),
+                "seed": summary.get("seed", metadata.get("seed", config.get("seed"))),
+                "git_commit": metadata.get("git_commit"),
+                "created_at_utc": metadata.get("created_at_utc"),
+                "opponent_policy": metadata.get("opponent_policy") or config.get("opponent_policy"),
+                "metrics": _numeric_metrics(summary),
+            },
+        )
+    )
+
+    checkpoint_nodes: list[tuple[str, Path, str, int | None]] = []
+    for role, checkpoint_path in _legacy_checkpoint_records(
+        run_dir,
+        summary,
+        metadata,
+        resolved,
+        checkpoint_files,
+        standalone_checkpoints,
+    ):
+        if checkpoint_path is None:
+            continue
+        node_id = _path_id("checkpoint", checkpoint_path)
+        path_index[str(checkpoint_path.resolve())] = node_id
+        step = _checkpoint_step(checkpoint_path)
+        checkpoint_nodes.append((node_id, checkpoint_path, role, step))
+        registry.add_node(
+            LineageNode(
+                id=node_id,
+                node_type="checkpoint",
+                label=f"{run_id}:{role}",
+                path=str(checkpoint_path),
+                metadata={
+                    "legacy": True,
+                    "run_id": run_id,
+                    "role": role,
+                    "step": step,
+                    "artifact_type": "torch_checkpoint",
+                },
+            )
+        )
+        registry.add_edge(
+            LineageEdge(
+                source=run_node_id,
+                target=node_id,
+                edge_type="produces",
+                metadata={"role": role, "legacy": True},
+            )
+        )
+
+    _add_checkpoint_progress_edges(registry, checkpoint_nodes)
+    _add_legacy_parent_edges(registry, run_node_id, run_dir, config, metadata, path_index)
+    _add_legacy_arena_results(registry, run_node_id, run_dir)
+    opponent_pool_path = metadata.get("opponent_pool_path") or config.get("opponent_pool_path")
+    resolved_pool_path = _resolve_legacy_path(run_dir, opponent_pool_path)
+    if resolved_pool_path is not None and resolved_pool_path.exists():
+        _add_opponent_pool(registry, run_node_id, resolved_pool_path)
+
+
+def _safe_read_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return _read_json(path)
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+
+
+def _infer_legacy_trainer_name(run_dir: Path, config: dict[str, Any]) -> str:
+    run_name = str(config.get("run_name", ""))
+    text = f"{run_dir} {run_name}"
+    if "manager" in text:
+        return "manager_ppo"
+    if "versus" in text:
+        return "versus_ppo"
+    if "flat" in text:
+        return "flat_ppo"
+    return "legacy"
+
+
+def _legacy_checkpoint_records(
+    run_dir: Path,
+    summary: dict[str, Any],
+    metadata: dict[str, Any],
+    resolved: dict[str, Any],
+    checkpoint_files: list[Path],
+    standalone_checkpoints: list[Path],
+) -> list[tuple[str, Path | None]]:
+    records: list[tuple[str, Path | None]] = []
+    known: set[str] = set()
+
+    def add(role: str, value: str | Path | None) -> None:
+        path = _resolve_legacy_path(run_dir, value)
+        if path is None or not path.exists():
+            return
+        key = str(path)
+        if key in known:
+            return
+        known.add(key)
+        records.append((role, path))
+
+    add("latest", summary.get("checkpoint_path") or metadata.get("checkpoint_path") or resolved.get("checkpoint_path"))
+    add("best", summary.get("best_checkpoint_path") or resolved.get("best_checkpoint_path"))
+    for index, value in enumerate(summary.get("periodic_checkpoints", [])):
+        add(f"periodic_{index + 1}", value)
+    for path in checkpoint_files:
+        step = _checkpoint_step(path)
+        if path.name == "latest.pt":
+            add("latest", path)
+        elif path.name == "best.pt":
+            add("best", path)
+        elif step is not None:
+            add(f"step_{step}", path)
+        else:
+            add(path.stem, path)
+    for path in standalone_checkpoints:
+        add(path.stem, path)
+    return records
+
+
+def _add_checkpoint_progress_edges(
+    registry: LineageRegistry,
+    checkpoint_nodes: list[tuple[str, Path, str, int | None]],
+) -> None:
+    stepped = sorted(
+        (item for item in checkpoint_nodes if item[3] is not None),
+        key=lambda item: (int(item[3]), item[2], str(item[1])),
+    )
+    for previous, current in zip(stepped, stepped[1:]):
+        registry.add_edge(
+            LineageEdge(
+                source=previous[0],
+                target=current[0],
+                edge_type="advances_to",
+                metadata={"scope": "legacy_run", "from_step": previous[3], "to_step": current[3]},
+            )
+        )
+    if stepped:
+        for node_id, _, role, _ in checkpoint_nodes:
+            if role == "latest":
+                registry.add_edge(
+                    LineageEdge(
+                        source=stepped[-1][0],
+                        target=node_id,
+                        edge_type="advances_to",
+                        metadata={"scope": "legacy_run", "to_role": "latest"},
+                    )
+                )
+
+
+def _add_legacy_parent_edges(
+    registry: LineageRegistry,
+    run_node_id: str,
+    run_dir: Path,
+    config: dict[str, Any],
+    metadata: dict[str, Any],
+    path_index: dict[str, str],
+) -> None:
+    for key in ("resume_checkpoint_path", "initial_checkpoint_path", "opponent_checkpoint_path"):
+        parent_path = _resolve_legacy_path(run_dir, config.get(key) or metadata.get(key))
+        if parent_path is None:
+            continue
+        parent_id = path_index.get(str(parent_path.resolve()), _path_id("external_checkpoint", parent_path))
+        registry.add_node(
+            LineageNode(
+                id=parent_id,
+                node_type="external_checkpoint",
+                label=parent_path.name,
+                path=str(parent_path),
+                metadata={"declared_by": str(run_dir), "source_field": key},
+            )
+        )
+        edge_type = "resume" if key in {"resume_checkpoint_path", "initial_checkpoint_path"} else "uses_opponent"
+        registry.add_edge(
+            LineageEdge(
+                source=parent_id,
+                target=run_node_id,
+                edge_type=edge_type,
+                metadata={"source_field": key},
+            )
+        )
+
+
+def _add_legacy_arena_results(registry: LineageRegistry, run_node_id: str, run_dir: Path) -> None:
+    for path in sorted(run_dir.glob("arena_*")):
+        if not path.is_file() or path.suffix not in {".csv", ".md", ".json"}:
+            continue
+        node_id = _path_id("arena_result", path)
+        registry.add_node(
+            LineageNode(
+                id=node_id,
+                node_type="arena_result",
+                label=path.name,
+                path=str(path),
+                metadata={"legacy": True, "artifact_type": path.suffix.lstrip(".")},
+            )
+        )
+        registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type="evaluates", metadata={"legacy": True}))
+
+
 def _add_suite_manifest(registry: LineageRegistry, manifest_path: Path) -> None:
     manifest = _read_json(manifest_path)
     if manifest.get("schema_version") != SUITE_SCHEMA_VERSION:
@@ -266,12 +531,24 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
     path_index: dict[str, str] = {}
     manifest_paths = []
     suite_paths = []
+    legacy_run_dirs: set[Path] = set()
     for root in roots:
         base = Path(root)
         if base.is_file():
             candidates = [base]
         else:
             candidates = list(base.rglob("*.json")) if base.exists() else []
+            if base.exists():
+                for path in base.rglob("summary.json"):
+                    legacy_run_dirs.add(path.parent)
+                for path in base.rglob("metadata.json"):
+                    legacy_run_dirs.add(path.parent)
+                for path in base.rglob("checkpoints"):
+                    if path.is_dir():
+                        legacy_run_dirs.add(path.parent)
+                for path in base.rglob("*.pt"):
+                    if path.parent.name != "checkpoints":
+                        legacy_run_dirs.add(path.parent)
         for path in candidates:
             if path.name == "artifact_manifest.json":
                 manifest_paths.append(path)
@@ -279,6 +556,10 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
                 suite_paths.append(path)
     for path in sorted(manifest_paths):
         _add_artifact_manifest(registry, path, path_index)
+    manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
+    for path in sorted(legacy_run_dirs):
+        if path.resolve() not in manifest_run_dirs:
+            _add_legacy_run(registry, path, path_index)
     for path in sorted(suite_paths):
         _add_suite_manifest(registry, path)
     return registry

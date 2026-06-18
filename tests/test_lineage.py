@@ -75,6 +75,51 @@ class TestLineageRegistry(unittest.TestCase):
             self.assertEqual(saved["schema_version"], "puyo.lineage_registry.v1")
             self.assertIn("Model Lineage Report", report.read_text(encoding="utf-8"))
 
+    def test_registry_recovers_legacy_run_without_manifest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run_dir = root / "legacy-run"
+            checkpoint_dir = run_dir / "checkpoints"
+            checkpoint_dir.mkdir(parents=True)
+            step_1 = checkpoint_dir / "step_128.pt"
+            step_2 = checkpoint_dir / "step_256.pt"
+            latest = checkpoint_dir / "latest.pt"
+            best = checkpoint_dir / "best.pt"
+            for path in (step_1, step_2, latest, best):
+                path.write_bytes(path.name.encode("utf-8"))
+            (run_dir / "summary.json").write_text(
+                json.dumps(
+                    {
+                        "run_id": "legacy-run",
+                        "global_step": 256,
+                        "episodes": 4,
+                        "mean_win_rate": 0.75,
+                        "checkpoint_path": str(latest),
+                        "best_checkpoint_path": str(best),
+                        "periodic_checkpoints": [str(step_1), str(step_2)],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (run_dir / "metadata.json").write_text(
+                json.dumps({"run_id": "legacy-run", "git_commit": "legacy123"}),
+                encoding="utf-8",
+            )
+
+            registry = build_registry([root])
+            run = registry.nodes["run:legacy-run"]
+            checkpoints = [
+                node for node in registry.nodes.values()
+                if node.node_type == "checkpoint" and node.metadata.get("run_id") == "legacy-run"
+            ]
+            progress_edges = [edge for edge in registry.edges if edge.edge_type == "advances_to"]
+
+            self.assertTrue(run.metadata["legacy"])
+            self.assertEqual(run.metadata["metrics"]["mean_win_rate"], 0.75)
+            self.assertEqual(len(checkpoints), 4)
+            self.assertGreaterEqual(len(progress_edges), 2)
+            self.assertEqual(validate_registry(registry), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -15,6 +15,8 @@ python3 -m train.lineage \
 
 `--root` は directory または manifest file を複数指定できる。directory の場合は配下の
 `artifact_manifest.json` と `suite_manifest.json` を再帰的に探す。
+manifest がない v1.3.0 以前の run についても、`summary.json`、`metadata.json`、
+`config.yaml`、`checkpoints/*.pt` から legacy run / checkpoint node を復元する。
 
 ## Nodes
 
@@ -36,6 +38,7 @@ python3 -m train.lineage \
 | `resume` | parent checkpoint -> derived run |
 | `uses_opponent` | run -> opponent snapshot |
 | `evaluates` | run -> arena result |
+| `advances_to` | legacy run 内の periodic checkpoint -> 後続 checkpoint |
 
 `train.lineage.ancestors(registry, node_id)` と `descendants(registry, node_id)` で、任意 node の祖先・子孫を取得できる。
 
