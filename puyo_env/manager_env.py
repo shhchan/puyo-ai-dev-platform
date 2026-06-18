@@ -16,6 +16,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from agents.strategy_workers import (
     SearchControl,
+    NTurnPlan,
     SearchProposal,
     StrategyOrchestrator,
     TacticalContext,
@@ -65,6 +66,7 @@ class ManagerState:
     profile_duration: int = 0
     switch_count: int = 0
     last_proposal: SearchProposal | None = None
+    last_plan: NTurnPlan | None = None
     profile_counts: list[int] = field(default_factory=lambda: [0] * DEFAULT_MANAGER_PROFILE_COUNT)
     search_control_counts: list[int] = field(
         default_factory=lambda: [0] * DEFAULT_MANAGER_SEARCH_CONTROL_COUNT
@@ -335,6 +337,10 @@ class ManagerSelfPlayEnv(_BaseEnv):
         enriched["manager_profile_counts"] = tuple(self.manager_state.profile_counts)
         enriched["manager_search_control_counts"] = tuple(self.manager_state.search_control_counts)
         enriched["search_proposal"] = self.manager_state.last_proposal
+        enriched["search_plan"] = (
+            {} if self.manager_state.last_plan is None else self.manager_state.last_plan.to_dict()
+        )
+        enriched["search_plan_id"] = "" if self.manager_state.last_plan is None else self.manager_state.last_plan.plan_id
         if self.manager_state.last_proposal is not None:
             enriched["search_objective"] = self.manager_state.last_proposal.objective_dict
             enriched["search_objective_result"] = self.manager_state.last_proposal.objective_result_dict
@@ -482,6 +488,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
             search_control,
         )
         self.manager_state.last_proposal = proposal
+        self.manager_state.last_plan = self.orchestrator.last_plan
         self.manager_state.total_decision_seconds += proposal.elapsed_seconds
         self.manager_state.total_expanded_nodes += proposal.expanded_nodes
         search_cost_penalty = self.search_cost_reward_scale * search_control.cost_penalty

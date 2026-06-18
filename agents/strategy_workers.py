@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import hashlib
 from dataclasses import dataclass, replace
 from typing import Any, Protocol
 
@@ -189,6 +190,96 @@ class ObjectiveResult:
             "deadline_missed": bool(self.deadline_missed),
             "danger_excess": float(self.danger_excess),
             "time_overrun_ticks": int(self.time_overrun_ticks),
+        }
+
+
+@dataclass(frozen=True)
+class PlanStep:
+    """One placement in an externally visible multi-turn plan."""
+
+    step_index: int
+    action: int
+    axis_x: int
+    rotation: str
+    known_tsumo: bool
+    predicted_chain_count: int
+    predicted_score: int
+    predicted_attack: int
+    cumulative_score: int
+    cumulative_attack: int
+    danger: float
+    objective_result: ObjectiveResult
+    predicted_board: tuple[tuple[str, ...], ...]
+    valid: bool = True
+    scenario: str = "visible"
+    reason: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "step_index": int(self.step_index),
+            "action": int(self.action),
+            "axis_x": int(self.axis_x),
+            "rotation": self.rotation,
+            "known_tsumo": bool(self.known_tsumo),
+            "scenario": self.scenario,
+            "valid": bool(self.valid),
+            "predicted_chain_count": int(self.predicted_chain_count),
+            "predicted_score": int(self.predicted_score),
+            "predicted_attack": int(self.predicted_attack),
+            "cumulative_score": int(self.cumulative_score),
+            "cumulative_attack": int(self.cumulative_attack),
+            "danger": float(self.danger),
+            "objective_result": self.objective_result.to_dict(),
+            "predicted_board": [list(row) for row in self.predicted_board],
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class ReplanCondition:
+    """Stable reasons consumers can use to discard stale plans."""
+
+    reason: str
+    detail: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"reason": self.reason, "detail": self.detail}
+
+
+@dataclass(frozen=True)
+class NTurnPlan:
+    """Stable DTO for visible-tsumo plan display and replay diagnostics."""
+
+    plan_id: str
+    profile_id: int
+    profile_name: str
+    strategy: str
+    max_steps: int
+    visible_steps: int
+    steps: tuple[PlanStep, ...]
+    objective: TacticalObjective | None
+    search_control: SearchControlDiagnostics | None = None
+    update_reason: str = "policy_decision"
+    replan_conditions: tuple[ReplanCondition, ...] = ()
+
+    @property
+    def first_action(self) -> int | None:
+        return None if not self.steps else self.steps[0].action
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "n-turn-plan-v1",
+            "plan_id": self.plan_id,
+            "profile_id": int(self.profile_id),
+            "profile_name": self.profile_name,
+            "strategy": self.strategy,
+            "max_steps": int(self.max_steps),
+            "visible_steps": int(self.visible_steps),
+            "update_reason": self.update_reason,
+            "objective": {} if self.objective is None else self.objective.to_dict(),
+            "search_control": {} if self.search_control is None else self.search_control.to_dict(),
+            "replan_conditions": [condition.to_dict() for condition in self.replan_conditions],
+            "steps": [step.to_dict() for step in self.steps],
         }
 
 
@@ -950,6 +1041,195 @@ def _proposal(
     )
 
 
+def build_n_turn_plan(
+    proposal: SearchProposal,
+    simulator,
+    tactical: TacticalContext,
+    *,
+    max_steps: int = 3,
+) -> NTurnPlan:
+    """Adapt a worker proposal into a simulator-verified visible-tsumo plan."""
+
+    visible_steps = _visible_pair_count(simulator)
+    steps: list[PlanStep] = []
+    cumulative_score = 0
+    cumulative_attack = 0
+    cursor = clone_simulator(simulator) if simulator is not None else None
+    objective = proposal.objective
+    for step_index in range(max(0, int(max_steps))):
+        if cursor is None or objective is None:
+            break
+        action = proposal.action if step_index == 0 else _choose_plan_continuation(cursor, objective)
+        if action is None:
+            break
+        placement = action_to_placement(action)
+        result = cursor.step(placement)
+        if not result.valid:
+            steps.append(
+                PlanStep(
+                    step_index=step_index,
+                    action=action,
+                    axis_x=placement.axis_x,
+                    rotation=placement.rotation.name,
+                    known_tsumo=step_index < visible_steps,
+                    scenario=_plan_scenario(step_index, visible_steps),
+                    predicted_chain_count=0,
+                    predicted_score=0,
+                    predicted_attack=0,
+                    cumulative_score=cumulative_score,
+                    cumulative_attack=cumulative_attack,
+                    danger=1.0,
+                    objective_result=_evaluate_objective(
+                        objective,
+                        tactical,
+                        attack=cumulative_attack,
+                        score=cumulative_score,
+                        chain=0,
+                        danger=1.0,
+                        depth=step_index + 1,
+                    ),
+                    predicted_board=_board_snapshot(cursor.game),
+                    valid=False,
+                    reason="invalid_action",
+                )
+            )
+            break
+        score = max(0, int(result.score_delta))
+        attack = max(0, int(result.score_delta // 70))
+        cumulative_score += score
+        cumulative_attack += attack
+        danger = board_danger(cursor.game)
+        objective_result = _evaluate_objective(
+            objective,
+            tactical,
+            attack=cumulative_attack,
+            score=cumulative_score,
+            chain=int(result.chain_count),
+            danger=danger,
+            depth=step_index + 1,
+        )
+        steps.append(
+            PlanStep(
+                step_index=step_index,
+                action=action,
+                axis_x=placement.axis_x,
+                rotation=placement.rotation.name,
+                known_tsumo=step_index < visible_steps,
+                scenario=_plan_scenario(step_index, visible_steps),
+                predicted_chain_count=int(result.chain_count),
+                predicted_score=score,
+                predicted_attack=attack,
+                cumulative_score=cumulative_score,
+                cumulative_attack=cumulative_attack,
+                danger=danger,
+                objective_result=objective_result,
+                predicted_board=_board_snapshot(cursor.game),
+            )
+        )
+        if result.game_over:
+            break
+    plan_id = _plan_id(proposal, steps, visible_steps)
+    return NTurnPlan(
+        plan_id=plan_id,
+        profile_id=proposal.profile_id,
+        profile_name=proposal.profile_name,
+        strategy=proposal.strategy,
+        max_steps=int(max_steps),
+        visible_steps=visible_steps,
+        steps=tuple(steps),
+        objective=proposal.objective,
+        search_control=proposal.search_control,
+        update_reason="policy_decision",
+        replan_conditions=default_replan_conditions(),
+    )
+
+
+def default_replan_conditions() -> tuple[ReplanCondition, ...]:
+    return (
+        ReplanCondition("opponent_event", "opponent score, chain, or incoming attack changed"),
+        ReplanCondition("incoming_attack_landed", "reserved ojama landed before the plan was consumed"),
+        ReplanCondition("input_failure", "the planned placement is no longer reachable"),
+        ReplanCondition("search_result_changed", "a fresh search produced a different first action or plan id"),
+    )
+
+
+def should_replan(
+    plan: NTurnPlan | None,
+    *,
+    current_plan: NTurnPlan | None = None,
+    input_failed: bool = False,
+    opponent_event: bool = False,
+    incoming_attack_landed: bool = False,
+) -> ReplanCondition | None:
+    """Return the first condition that invalidates an old plan."""
+
+    if plan is None:
+        return ReplanCondition("missing_plan", "no active plan is available")
+    if input_failed:
+        return ReplanCondition("input_failure", "the planned placement is no longer reachable")
+    if incoming_attack_landed:
+        return ReplanCondition("incoming_attack_landed", "reserved ojama landed before the plan was consumed")
+    if opponent_event:
+        return ReplanCondition("opponent_event", "opponent state changed while the plan was active")
+    if current_plan is not None and current_plan.plan_id != plan.plan_id:
+        return ReplanCondition("search_result_changed", "fresh search produced a different plan id")
+    return None
+
+
+def _choose_plan_continuation(simulator, objective: TacticalObjective) -> int | None:
+    legal = legal_action_indices(simulator)
+    if not legal:
+        return None
+    best_action = None
+    best_value = float("-inf")
+    for action in legal:
+        child = clone_simulator(simulator)
+        result = child.step(action_to_placement(action))
+        if not result.valid:
+            continue
+        attack = max(0, int(result.score_delta // 70))
+        score = max(0, int(result.score_delta))
+        chain = int(result.chain_count)
+        danger = board_danger(child.game)
+        value = _tactical_value(objective, attack, score, chain, danger, 1, child.game)
+        if value > best_value:
+            best_action = action
+            best_value = value
+    return best_action
+
+
+def _visible_pair_count(simulator) -> int:
+    if simulator is None:
+        return 0
+    count = len(simulator.game.next_puyo_queue)
+    if simulator.game.current_puyo_1 is not None and simulator.game.current_puyo_2 is not None:
+        count += 1
+    return max(0, min(3, count))
+
+
+def _plan_scenario(step_index: int, visible_steps: int) -> str:
+    return "visible" if step_index < visible_steps else "unknown_scenario"
+
+
+def _board_snapshot(game) -> tuple[tuple[str, ...], ...]:
+    return tuple(
+        tuple(game.field.grid[y][x].color.name for x in range(GRID_WIDTH))
+        for y in range(GRID_HEIGHT)
+    )
+
+
+def _plan_id(proposal: SearchProposal, steps: list[PlanStep], visible_steps: int) -> str:
+    digest = hashlib.sha1()
+    digest.update(str(proposal.profile_id).encode("ascii"))
+    digest.update(proposal.strategy.encode("ascii"))
+    digest.update(str(visible_steps).encode("ascii"))
+    for step in steps:
+        digest.update(f"{step.action}:{step.predicted_score}:{step.predicted_attack}:".encode("ascii"))
+        for row in step.predicted_board:
+            digest.update(",".join(row).encode("ascii"))
+    return digest.hexdigest()[:16]
+
+
 def _evaluate_objective(
     objective: TacticalObjective,
     tactical: TacticalContext,
@@ -1007,6 +1287,7 @@ class StrategyOrchestrator:
         self._beam_worker = BeamStrategyWorker()
         self._tactical_worker = TacticalStrategyWorker()
         self.last_proposal: SearchProposal | None = None
+        self.last_plan: NTurnPlan | None = None
         self.last_tactical_context: TacticalContext | None = None
 
     def propose(
@@ -1024,6 +1305,7 @@ class StrategyOrchestrator:
         objective = objective_for_profile(tactical, profile)
         worker = self._beam_worker if profile.strategy in BUILD_STRATEGIES else self._tactical_worker
         self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
+        self.last_plan = build_n_turn_plan(self.last_proposal, context.simulator, tactical)
         return self.last_proposal
 
     def select_action(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> int:
@@ -1037,10 +1319,16 @@ class FixedProfilePolicy:
         self.profile_id = int(profile_id)
         self.orchestrator = StrategyOrchestrator(profiles)
         self.last_proposal: SearchProposal | None = None
+        self.last_plan: NTurnPlan | None = None
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
         self.last_proposal = self.orchestrator.propose(self.profile_id, observation, info)
+        self.last_plan = self.orchestrator.last_plan
         return self.last_proposal.action
+
+    @property
+    def plan_diagnostics(self) -> dict[str, Any]:
+        return {} if self.last_plan is None else self.last_plan.to_dict()
 
 
 def _preview_action(simulator, action: int):

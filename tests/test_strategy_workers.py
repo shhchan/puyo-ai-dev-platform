@@ -12,11 +12,14 @@ try:
         build_tactical_context,
         objective_for_profile,
         objective_from_v1_profile,
+        should_replan,
         smoke_worker_profiles,
         scaled_worker_profiles,
     )
+    from puyo_env.actions import action_to_placement
     from puyo_env.obs import encode_observation
     from puyo_env.actions import legal_action_mask
+    from agents.beam_search import clone_simulator
     from src.core.headless import HeadlessPuyoSimulator
 
     AVAILABLE = True
@@ -151,6 +154,39 @@ class TestStrategyWorkers(unittest.TestCase):
             proposal.search_control_dict["effective"]["width"],
             proposal.search_control_dict["requested"]["width"],
         )
+
+    def test_orchestrator_exposes_visible_n_turn_plan(self):
+        simulator, observation, info = self._state(seed=23)
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+
+        proposal = orchestrator.propose(0, observation, info)
+        plan = orchestrator.last_plan
+
+        self.assertIsNotNone(plan)
+        payload = plan.to_dict()
+        self.assertEqual(payload["schema_version"], "n-turn-plan-v1")
+        self.assertEqual(plan.first_action, proposal.action)
+        self.assertLessEqual(len(plan.steps), 3)
+        self.assertEqual(plan.visible_steps, 3)
+        self.assertTrue(plan.plan_id)
+        self.assertTrue(plan.replan_conditions)
+
+        verifier = clone_simulator(simulator)
+        for step in plan.steps:
+            result = verifier.step(action_to_placement(step.action))
+            self.assertTrue(result.valid)
+            self.assertEqual(result.chain_count, step.predicted_chain_count)
+            self.assertEqual(result.score_delta, step.predicted_score)
+            self.assertEqual(verifier.game.field.to_color_grid()[0][0].name, step.predicted_board[0][0])
+
+    def test_replan_condition_reports_stale_plan_reasons(self):
+        _, observation, info = self._state(seed=29)
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+        orchestrator.propose(4, observation, info)
+
+        condition = should_replan(orchestrator.last_plan, input_failed=True)
+
+        self.assertEqual(condition.reason, "input_failure")
 
     def test_threat_and_danger_are_bounded(self):
         simulator, _, _ = self._state(seed=9)

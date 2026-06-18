@@ -42,6 +42,8 @@ class TestRealtimeArena(unittest.TestCase):
 
         self.assertTrue(any(item["search_objective"] for item in diagnostics))
         self.assertTrue(any(item["search_objective_result"] for item in diagnostics))
+        self.assertTrue(any(item["plan_id"] for item in diagnostics))
+        self.assertTrue(any(item["plan"].get("schema_version") == "n-turn-plan-v1" for item in diagnostics))
 
     def test_realtime_paired_series_swaps_policy_a_side(self):
         result = run_realtime_paired_series(
