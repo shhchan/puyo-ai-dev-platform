@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Protocol
 
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
@@ -42,12 +42,78 @@ class WorkerProfile:
     premature_chain_penalty: float = 350.0
     safety_margin: int = 2
     danger_tolerance: float = 0.75
+    fire_threshold: float = 1.0
 
     def __post_init__(self) -> None:
         if self.strategy not in STRATEGY_NAMES:
             raise ValueError(f"unknown strategy: {self.strategy}")
         if self.profile_id < 0:
             raise ValueError("profile_id must be non-negative")
+
+
+@dataclass(frozen=True)
+class SearchControl:
+    """Learnable search-parameter override applied on top of a profile."""
+
+    control_id: int
+    name: str
+    mode: str
+    depth_scale: float = 1.0
+    width_scale: float = 1.0
+    scenarios: int = 1
+    chain_weight_scale: float = 1.0
+    score_weight_scale: float = 1.0
+    premature_chain_penalty_scale: float = 1.0
+    fire_threshold: float = 1.0
+    danger_tolerance_delta: float = 0.0
+    latency_budget_ms: float = 40.0
+    cost_penalty: float = 0.0
+    parameter_vector: tuple[float, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.control_id < 0:
+            raise ValueError("control_id must be non-negative")
+        if self.mode not in {"discrete_profile", "continuous_parameter", "hybrid"}:
+            raise ValueError(f"unknown search-control mode: {self.mode}")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "search-control-v1",
+            "control_id": int(self.control_id),
+            "name": self.name,
+            "mode": self.mode,
+            "depth_scale": float(self.depth_scale),
+            "width_scale": float(self.width_scale),
+            "scenarios": int(self.scenarios),
+            "chain_weight_scale": float(self.chain_weight_scale),
+            "score_weight_scale": float(self.score_weight_scale),
+            "premature_chain_penalty_scale": float(self.premature_chain_penalty_scale),
+            "fire_threshold": float(self.fire_threshold),
+            "danger_tolerance_delta": float(self.danger_tolerance_delta),
+            "latency_budget_ms": float(self.latency_budget_ms),
+            "cost_penalty": float(self.cost_penalty),
+            "parameter_vector": [float(value) for value in self.parameter_vector],
+        }
+
+
+@dataclass(frozen=True)
+class SearchControlDiagnostics:
+    """Effective constrained parameters after mask / clamp."""
+
+    control: SearchControl
+    requested_profile: WorkerProfile
+    effective_profile: WorkerProfile
+    clamped_fields: tuple[str, ...] = ()
+    latency_overrun: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            **self.control.to_dict(),
+            "requested": _profile_budget_dict(self.requested_profile),
+            "effective": _profile_budget_dict(self.effective_profile),
+            "clamped_fields": list(self.clamped_fields),
+            "latency_overrun": bool(self.latency_overrun),
+        }
 
 
 @dataclass(frozen=True)
@@ -169,6 +235,7 @@ class SearchProposal:
     reason: str = ""
     objective: TacticalObjective | None = None
     objective_result: ObjectiveResult | None = None
+    search_control: SearchControlDiagnostics | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -177,6 +244,10 @@ class SearchProposal:
     @property
     def objective_result_dict(self) -> dict[str, Any]:
         return {} if self.objective_result is None else self.objective_result.to_dict()
+
+    @property
+    def search_control_dict(self) -> dict[str, Any]:
+        return {} if self.search_control is None else self.search_control.to_dict()
 
 
 @dataclass(frozen=True)
@@ -196,6 +267,7 @@ class SearchWorker(Protocol):
         context: SearchContext,
         profile: WorkerProfile,
         objective: TacticalObjective,
+        search_control: SearchControlDiagnostics | None = None,
     ) -> SearchProposal:
         """Return one legal placement and its diagnostics."""
 
@@ -234,6 +306,80 @@ def smoke_worker_profiles() -> tuple[WorkerProfile, ...]:
     )
 
 
+def default_search_controls() -> tuple[SearchControl, ...]:
+    """Hybrid search-control candidates used by the learned manager."""
+
+    return (
+        SearchControl(
+            0,
+            "baseline",
+            "discrete_profile",
+            latency_budget_ms=40.0,
+            parameter_vector=(0.5, 0.5, 0.5),
+        ),
+        SearchControl(
+            1,
+            "latency_saver",
+            "continuous_parameter",
+            depth_scale=0.65,
+            width_scale=0.55,
+            scenarios=1,
+            chain_weight_scale=0.9,
+            fire_threshold=0.85,
+            latency_budget_ms=18.0,
+            cost_penalty=0.02,
+            parameter_vector=(0.2, 0.25, 0.35),
+        ),
+        SearchControl(
+            2,
+            "broad_value",
+            "continuous_parameter",
+            depth_scale=1.25,
+            width_scale=1.35,
+            scenarios=2,
+            chain_weight_scale=1.15,
+            score_weight_scale=1.1,
+            fire_threshold=1.15,
+            latency_budget_ms=70.0,
+            cost_penalty=0.08,
+            parameter_vector=(0.8, 0.75, 0.65),
+        ),
+        SearchControl(
+            3,
+            "urgent_fire",
+            "hybrid",
+            depth_scale=0.75,
+            width_scale=0.75,
+            scenarios=1,
+            chain_weight_scale=0.8,
+            fire_threshold=0.65,
+            latency_budget_ms=22.0,
+            cost_penalty=0.03,
+            parameter_vector=(0.35, 0.3, 0.85),
+        ),
+        SearchControl(
+            4,
+            "safe_counter",
+            "hybrid",
+            depth_scale=1.0,
+            width_scale=0.85,
+            scenarios=1,
+            chain_weight_scale=1.0,
+            premature_chain_penalty_scale=1.2,
+            danger_tolerance_delta=-0.15,
+            latency_budget_ms=35.0,
+            cost_penalty=0.04,
+            parameter_vector=(0.45, 0.4, 0.25),
+        ),
+    )
+
+
+def baseline_search_controls() -> tuple[SearchControl, ...]:
+    """Single-control set for fixed-worker baselines and legacy comparisons."""
+
+    return default_search_controls()[:1]
+
+
 def scaled_worker_profiles(
     profiles: tuple[WorkerProfile, ...],
     *,
@@ -252,6 +398,88 @@ def scaled_worker_profiles(
         )
         for profile in profiles
     )
+
+
+def _clamp_int(value: float, lower: int, upper: int) -> tuple[int, bool]:
+    rounded = int(round(value))
+    clamped = min(max(rounded, lower), upper)
+    return clamped, clamped != rounded
+
+
+def _clamp_float(value: float, lower: float, upper: float) -> tuple[float, bool]:
+    clamped = min(max(float(value), lower), upper)
+    return clamped, clamped != float(value)
+
+
+def _profile_budget_dict(profile: WorkerProfile) -> dict[str, Any]:
+    return {
+        "depth": int(profile.depth),
+        "width": int(profile.width),
+        "scenarios": int(profile.scenarios),
+        "minimum_chain_count": int(profile.minimum_chain_count),
+        "chain_weight": float(profile.chain_weight),
+        "score_weight": float(profile.score_weight),
+        "premature_chain_penalty": float(profile.premature_chain_penalty),
+        "danger_tolerance": float(profile.danger_tolerance),
+        "fire_threshold": float(profile.fire_threshold),
+    }
+
+
+def apply_search_control(
+    profile: WorkerProfile,
+    control: SearchControl | None,
+) -> tuple[WorkerProfile, SearchControlDiagnostics | None]:
+    """Apply bounded learned parameters while preserving profile identity."""
+
+    if control is None:
+        return profile, None
+    clamped_fields: list[str] = []
+    depth, clamped = _clamp_int(profile.depth * control.depth_scale, 1, 8)
+    if clamped:
+        clamped_fields.append("depth")
+    width, clamped = _clamp_int(profile.width * control.width_scale, 4, 64)
+    if clamped:
+        clamped_fields.append("width")
+    scenarios, clamped = _clamp_int(control.scenarios, 1, 4)
+    if clamped:
+        clamped_fields.append("scenarios")
+    chain_weight, clamped = _clamp_float(profile.chain_weight * control.chain_weight_scale, 1_000.0, 250_000.0)
+    if clamped:
+        clamped_fields.append("chain_weight")
+    score_weight, clamped = _clamp_float(profile.score_weight * control.score_weight_scale, 0.05, 10.0)
+    if clamped:
+        clamped_fields.append("score_weight")
+    premature_penalty, clamped = _clamp_float(
+        profile.premature_chain_penalty * control.premature_chain_penalty_scale,
+        0.0,
+        5_000.0,
+    )
+    if clamped:
+        clamped_fields.append("premature_chain_penalty")
+    danger_tolerance, clamped = _clamp_float(profile.danger_tolerance + control.danger_tolerance_delta, 0.05, 1.0)
+    if clamped:
+        clamped_fields.append("danger_tolerance")
+    fire_threshold, clamped = _clamp_float(profile.fire_threshold * control.fire_threshold, 0.25, 2.0)
+    if clamped:
+        clamped_fields.append("fire_threshold")
+    effective = replace(
+        profile,
+        depth=depth,
+        width=width,
+        scenarios=scenarios,
+        chain_weight=chain_weight,
+        score_weight=score_weight,
+        premature_chain_penalty=premature_penalty,
+        danger_tolerance=danger_tolerance,
+        fire_threshold=fire_threshold,
+    )
+    diagnostics = SearchControlDiagnostics(
+        control=control,
+        requested_profile=profile,
+        effective_profile=effective,
+        clamped_fields=tuple(clamped_fields),
+    )
+    return effective, diagnostics
 
 
 def profile_id_by_name(profiles: tuple[WorkerProfile, ...], *names: str) -> int:
@@ -454,10 +682,11 @@ def objective_for_profile(tactical: TacticalContext, profile: WorkerProfile) -> 
             reason=tactical.switch_reason,
         )
     if strategy in {"fire", "fire_max"}:
+        target_attack = max(1, int(round(tactical.own_forecast.immediate_attack * profile.fire_threshold)))
         return TacticalObjective(
             kind="fire_max",
-            target_attack=max(1, tactical.own_forecast.immediate_attack),
-            target_score=max(70, tactical.own_forecast.immediate_attack * 70),
+            target_attack=target_attack,
+            target_score=max(70, target_attack * 70),
             target_chain=max(1, tactical.own_forecast.immediate_chain),
             deadline=1,
             deadline_ticks=tactical.incoming_deadline_ticks,
@@ -504,6 +733,7 @@ class BeamStrategyWorker:
         context: SearchContext,
         profile: WorkerProfile,
         objective: TacticalObjective,
+        search_control: SearchControlDiagnostics | None = None,
     ) -> SearchProposal:
         started = time.perf_counter()
         policy = BeamSearchPolicy(
@@ -533,6 +763,7 @@ class BeamStrategyWorker:
             elapsed=(diagnostics.elapsed_seconds if diagnostics is not None else time.perf_counter() - started),
             expanded=diagnostics.expanded_nodes if diagnostics is not None else 0,
             value=float(values.get(action, 0.0)),
+            search_control=search_control,
         )
 
 
@@ -556,11 +787,19 @@ class TacticalStrategyWorker:
         context: SearchContext,
         profile: WorkerProfile,
         objective: TacticalObjective,
+        search_control: SearchControlDiagnostics | None = None,
     ) -> SearchProposal:
         simulator = context.simulator
         legal = legal_action_indices(simulator) if simulator is not None else _legal_from_info(context.info)
         if not legal:
-            return _proposal(profile, objective, context.tactical, action=0, danger=1.0)
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=0,
+                danger=1.0,
+                search_control=search_control,
+            )
 
         started = time.perf_counter()
         max_depth = 1 if objective.kind in {"fire_max", "survival"} else max(1, objective.deadline)
@@ -603,7 +842,14 @@ class TacticalStrategyWorker:
             if not frontier:
                 break
         if not all_candidates:
-            return _proposal(profile, objective, context.tactical, action=legal[0], danger=1.0)
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=legal[0],
+                danger=1.0,
+                search_control=search_control,
+            )
         best = max(all_candidates, key=lambda item: item.value)
         return _proposal(
             profile,
@@ -618,6 +864,7 @@ class TacticalStrategyWorker:
             expanded=expanded,
             value=best.value,
             depth=best.depth,
+            search_control=search_control,
         )
 
 
@@ -663,7 +910,14 @@ def _proposal(
     expanded: int = 0,
     value: float = 0.0,
     depth: int = 1,
+    search_control: SearchControlDiagnostics | None = None,
 ) -> SearchProposal:
+    elapsed_seconds = float(elapsed)
+    if search_control is not None:
+        search_control = replace(
+            search_control,
+            latency_overrun=elapsed_seconds * 1000.0 > search_control.control.latency_budget_ms,
+        )
     result = _evaluate_objective(
         objective,
         tactical,
@@ -682,7 +936,7 @@ def _proposal(
         predicted_score=int(score),
         predicted_attack=int(attack),
         danger=float(danger),
-        elapsed_seconds=float(elapsed),
+        elapsed_seconds=elapsed_seconds,
         expanded_nodes=int(expanded),
         candidate_value=float(value),
         target_attack=objective.target_attack,
@@ -692,6 +946,7 @@ def _proposal(
         reason=objective.reason,
         objective=objective,
         objective_result=result,
+        search_control=search_control,
     )
 
 
@@ -754,14 +1009,21 @@ class StrategyOrchestrator:
         self.last_proposal: SearchProposal | None = None
         self.last_tactical_context: TacticalContext | None = None
 
-    def propose(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> SearchProposal:
+    def propose(
+        self,
+        profile_id: int,
+        observation: dict[str, Any],
+        info: dict[str, Any],
+        search_control: SearchControl | None = None,
+    ) -> SearchProposal:
         profile = self.profiles[int(profile_id)]
+        profile, control_diagnostics = apply_search_control(profile, search_control)
         tactical = build_tactical_context(info)
         self.last_tactical_context = tactical
         context = SearchContext(observation=observation, info=info, tactical=tactical)
         objective = objective_for_profile(tactical, profile)
         worker = self._beam_worker if profile.strategy in BUILD_STRATEGIES else self._tactical_worker
-        self.last_proposal = worker.propose(context, profile, objective)
+        self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
         return self.last_proposal
 
     def select_action(self, profile_id: int, observation: dict[str, Any], info: dict[str, Any]) -> int:

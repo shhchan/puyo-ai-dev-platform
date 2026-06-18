@@ -15,12 +15,14 @@ except ImportError:  # pragma: no cover - dependency guard
     spaces = None
 
 from agents.strategy_workers import (
+    SearchControl,
     SearchProposal,
     StrategyOrchestrator,
     TacticalContext,
     WorkerProfile,
     board_danger,
     build_tactical_context,
+    default_search_controls,
     default_worker_profiles,
     estimate_immediate_threat,
 )
@@ -33,32 +35,47 @@ if TYPE_CHECKING:
 
 MANAGER_BASE_FEATURE_DIM = 30
 DEFAULT_MANAGER_PROFILE_COUNT = len(default_worker_profiles())
+DEFAULT_MANAGER_SEARCH_CONTROL_COUNT = len(default_search_controls())
 
 
-def manager_feature_dim(profile_count: int) -> int:
-    return MANAGER_BASE_FEATURE_DIM + int(profile_count)
+def manager_feature_dim(
+    profile_count: int,
+    search_control_count: int = DEFAULT_MANAGER_SEARCH_CONTROL_COUNT,
+) -> int:
+    return MANAGER_BASE_FEATURE_DIM + int(profile_count) + int(search_control_count)
 
 
-def manager_vector_dim(profile_count: int) -> int:
+def manager_vector_dim(
+    profile_count: int,
+    search_control_count: int = DEFAULT_MANAGER_SEARCH_CONTROL_COUNT,
+) -> int:
     pair_features = VISIBLE_PAIR_COUNT * 2 * len(NORMAL_COLOR_CHANNELS)
-    return pair_features + manager_feature_dim(profile_count)
+    return pair_features + manager_feature_dim(profile_count, search_control_count)
 
 
-MANAGER_FEATURE_DIM = manager_feature_dim(DEFAULT_MANAGER_PROFILE_COUNT)
-MANAGER_VECTOR_DIM = manager_vector_dim(DEFAULT_MANAGER_PROFILE_COUNT)
+MANAGER_FEATURE_DIM = manager_feature_dim(DEFAULT_MANAGER_PROFILE_COUNT, DEFAULT_MANAGER_SEARCH_CONTROL_COUNT)
+MANAGER_VECTOR_DIM = manager_vector_dim(DEFAULT_MANAGER_PROFILE_COUNT, DEFAULT_MANAGER_SEARCH_CONTROL_COUNT)
 _BaseEnv = gym.Env if gym is not None else object
 
 
 @dataclass
 class ManagerState:
     last_profile_id: int = -1
+    last_search_control_id: int = -1
     profile_duration: int = 0
     switch_count: int = 0
     last_proposal: SearchProposal | None = None
     profile_counts: list[int] = field(default_factory=lambda: [0] * DEFAULT_MANAGER_PROFILE_COUNT)
+    search_control_counts: list[int] = field(
+        default_factory=lambda: [0] * DEFAULT_MANAGER_SEARCH_CONTROL_COUNT
+    )
     total_decision_seconds: float = 0.0
     total_expanded_nodes: int = 0
+    search_cost_penalty_total: float = 0.0
+    latency_overruns: int = 0
     tactic_counts: dict[str, int] = field(default_factory=dict)
+    search_control_mode_counts: dict[str, int] = field(default_factory=dict)
+    search_control_by_tactic: dict[str, int] = field(default_factory=dict)
     objective_counts: dict[str, int] = field(default_factory=dict)
     objective_miss_reasons: dict[str, int] = field(default_factory=dict)
     objective_successes: int = 0
@@ -79,6 +96,7 @@ def encode_manager_features(
     info: dict[str, Any],
     state: ManagerState,
     profile_count: int = DEFAULT_MANAGER_PROFILE_COUNT,
+    search_control_count: int = DEFAULT_MANAGER_SEARCH_CONTROL_COUNT,
     feature_dim: int | None = None,
 ):
     """Encode tactical forecasts and strategy history without running every worker."""
@@ -94,6 +112,9 @@ def encode_manager_features(
     one_hot = [0.0] * profile_count
     if 0 <= state.last_profile_id < profile_count:
         one_hot[state.last_profile_id] = 1.0
+    control_one_hot = [0.0] * search_control_count
+    if 0 <= state.last_search_control_id < search_control_count:
+        control_one_hot[state.last_search_control_id] = 1.0
     proposal = state.last_proposal
     features = [
         _bounded(tactical.incoming_attack, 30.0),
@@ -119,6 +140,7 @@ def encode_manager_features(
         _bounded(tactical.build_potential, 30.0),
         tactical.build_safety,
         *one_hot,
+        *control_one_hot,
         _bounded(state.profile_duration, 20.0),
         _bounded(state.switch_count, 50.0),
         _bounded(info.get("step_count", 0), max(1.0, float(info.get("max_steps", 1)))),
@@ -128,7 +150,14 @@ def encode_manager_features(
         _bounded(proposal.elapsed_seconds if proposal else 0.0, 2.0),
         _bounded(proposal.expanded_nodes if proposal else 0, 10_000.0),
     ]
-    expected = manager_feature_dim(profile_count)
+    expected = int(feature_dim) if feature_dim is not None else manager_feature_dim(
+        profile_count,
+        search_control_count,
+    )
+    if len(features) < expected:
+        features.extend([0.0] * (expected - len(features)))
+    elif len(features) > expected and feature_dim is not None:
+        features = features[:expected]
     if len(features) != expected:
         raise RuntimeError(f"manager feature size changed: {len(features)} != {expected}")
     return np.asarray(features, dtype=np.float32)
@@ -180,6 +209,7 @@ def build_manager_observation(
     info: dict[str, Any],
     state: ManagerState,
     profile_count: int = DEFAULT_MANAGER_PROFILE_COUNT,
+    search_control_count: int = DEFAULT_MANAGER_SEARCH_CONTROL_COUNT,
     feature_dim: int | None = None,
 ):
     return {
@@ -189,6 +219,7 @@ def build_manager_observation(
             info,
             state,
             profile_count,
+            search_control_count,
             feature_dim,
         ),
     }
@@ -220,8 +251,11 @@ class ManagerSelfPlayEnv(_BaseEnv):
         opponent_policy: Policy | None = None,
         reward_config: VersusRewardConfig | None = None,
         profiles: tuple[WorkerProfile, ...] | None = None,
+        search_controls: tuple[SearchControl, ...] | None = None,
         switch_penalty: float = 0.02,
         decision_time_penalty: float = 0.001,
+        search_cost_reward_scale: float = 1.0,
+        max_search_latency_ms: float = 80.0,
         auxiliary_reward_scale: float = 0.25,
         curriculum_stage: str = "full",
     ):
@@ -233,15 +267,19 @@ class ManagerSelfPlayEnv(_BaseEnv):
         self.versus_env = VersusPuyoEnv(seed=seed, max_steps=max_steps, reward_config=reward_config)
         self.opponent_policy = opponent_policy or RandomPolicy(seed=seed)
         self.orchestrator = StrategyOrchestrator(profiles or default_worker_profiles())
+        self.search_controls = search_controls or default_search_controls()
         self.switch_penalty = float(switch_penalty)
         self.decision_time_penalty = float(decision_time_penalty)
+        self.search_cost_reward_scale = float(search_cost_reward_scale)
+        self.max_search_latency_ms = float(max_search_latency_ms)
         self.auxiliary_reward_scale = float(auxiliary_reward_scale)
         self.curriculum_stage = str(curriculum_stage)
         self.profile_count = len(self.orchestrator.profiles)
-        self.manager_feature_dim = manager_feature_dim(self.profile_count)
-        self.manager_vector_dim = manager_vector_dim(self.profile_count)
+        self.search_control_count = len(self.search_controls)
+        self.manager_feature_dim = manager_feature_dim(self.profile_count, self.search_control_count)
+        self.manager_vector_dim = manager_vector_dim(self.profile_count, self.search_control_count)
         base_space = self.versus_env.observation_space("player_0")
-        self.action_space = spaces.Discrete(self.profile_count)
+        self.action_space = spaces.Discrete(self.profile_count * self.search_control_count)
         self.observation_space = spaces.Dict(
             {
                 "board": base_space["board"],
@@ -254,7 +292,10 @@ class ManagerSelfPlayEnv(_BaseEnv):
                 ),
             }
         )
-        self.manager_state = ManagerState(profile_counts=[0] * self.profile_count)
+        self.manager_state = ManagerState(
+            profile_counts=[0] * self.profile_count,
+            search_control_counts=[0] * self.search_control_count,
+        )
         self._episode_return = 0.0
         self._last_observations = None
         self._last_infos = None
@@ -267,7 +308,10 @@ class ManagerSelfPlayEnv(_BaseEnv):
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         super().reset(seed=seed)
         observations, infos = self.versus_env.reset(seed=seed, options=options)
-        self.manager_state = ManagerState(profile_counts=[0] * self.profile_count)
+        self.manager_state = ManagerState(
+            profile_counts=[0] * self.profile_count,
+            search_control_counts=[0] * self.search_control_count,
+        )
         self._episode_return = 0.0
         self._last_observations = observations
         self._last_infos = infos
@@ -277,6 +321,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
             info,
             self.manager_state,
             self.profile_count,
+            self.search_control_count,
         )
         return observation, info
 
@@ -285,15 +330,19 @@ class ManagerSelfPlayEnv(_BaseEnv):
         enriched["tactical_context"] = build_tactical_context(enriched)
         enriched["action_mask"] = self._manager_action_mask()
         enriched["manager_profile_id"] = self.manager_state.last_profile_id
+        enriched["manager_search_control_id"] = self.manager_state.last_search_control_id
         enriched["manager_switch_count"] = self.manager_state.switch_count
         enriched["manager_profile_counts"] = tuple(self.manager_state.profile_counts)
+        enriched["manager_search_control_counts"] = tuple(self.manager_state.search_control_counts)
         enriched["search_proposal"] = self.manager_state.last_proposal
         if self.manager_state.last_proposal is not None:
             enriched["search_objective"] = self.manager_state.last_proposal.objective_dict
             enriched["search_objective_result"] = self.manager_state.last_proposal.objective_result_dict
+            enriched["search_control"] = self.manager_state.last_proposal.search_control_dict
         else:
             enriched["search_objective"] = {}
             enriched["search_objective_result"] = {}
+            enriched["search_control"] = {}
         enriched["curriculum_stage"] = self.curriculum_stage
         return enriched
 
@@ -311,10 +360,27 @@ class ManagerSelfPlayEnv(_BaseEnv):
                 "fire_max",
                 "survival",
             }
-        return np.asarray(
-            [_canonical_strategy(profile.strategy) in allowed for profile in self.orchestrator.profiles],
-            dtype=np.bool_,
-        )
+        profile_allowed = [
+            _canonical_strategy(profile.strategy) in allowed for profile in self.orchestrator.profiles
+        ]
+        mean_decision_ms = 0.0
+        decisions = max(1, sum(self.manager_state.profile_counts))
+        if decisions > 0:
+            mean_decision_ms = self.manager_state.total_decision_seconds * 1000.0 / decisions
+        mask = []
+        for profile_is_allowed in profile_allowed:
+            for control in self.search_controls:
+                control_allowed = control.latency_budget_ms <= self.max_search_latency_ms
+                if mean_decision_ms > self.max_search_latency_ms and control.cost_penalty > 0.04:
+                    control_allowed = False
+                mask.append(profile_is_allowed and control_allowed)
+        return np.asarray(mask, dtype=np.bool_)
+
+    def _decode_manager_action(self, action: int) -> tuple[int, int, SearchControl]:
+        action_id = int(action)
+        profile_id = action_id // self.search_control_count
+        control_id = action_id % self.search_control_count
+        return profile_id, control_id, self.search_controls[control_id]
 
     def _tactical_reward(
         self,
@@ -366,38 +432,62 @@ class ManagerSelfPlayEnv(_BaseEnv):
     def step(self, action: int):
         if self._last_observations is None or self._last_infos is None:
             raise RuntimeError("reset() must be called before step()")
-        profile_id = int(action)
-        if not self.action_space.contains(profile_id):
-            raise ValueError(f"invalid manager action: {profile_id}")
-        if not bool(self._manager_action_mask()[profile_id]):
+        action_id = int(action)
+        if not self.action_space.contains(action_id):
+            raise ValueError(f"invalid manager action: {action_id}")
+        profile_id, control_id, search_control = self._decode_manager_action(action_id)
+        if not bool(self._manager_action_mask()[action_id]):
             raise ValueError(
-                f"profile {profile_id} is unavailable in curriculum stage {self.curriculum_stage}"
+                f"manager action {action_id} is unavailable in curriculum stage {self.curriculum_stage}"
             )
 
         before = build_tactical_context(self._last_infos["player_0"])
         self._last_infos["player_0"]["tactical_context"] = before
-        switched = self.manager_state.last_profile_id >= 0 and profile_id != self.manager_state.last_profile_id
+        switched = (
+            self.manager_state.last_profile_id >= 0
+            and (
+                profile_id != self.manager_state.last_profile_id
+                or control_id != self.manager_state.last_search_control_id
+            )
+        )
         if switched:
             self.manager_state.switch_count += 1
             self.manager_state.profile_duration = 1
-        elif profile_id == self.manager_state.last_profile_id:
+        elif (
+            profile_id == self.manager_state.last_profile_id
+            and control_id == self.manager_state.last_search_control_id
+        ):
             self.manager_state.profile_duration += 1
         else:
             self.manager_state.profile_duration = 1
         self.manager_state.last_profile_id = profile_id
+        self.manager_state.last_search_control_id = control_id
         self.manager_state.profile_counts[profile_id] += 1
+        self.manager_state.search_control_counts[control_id] += 1
         self.manager_state.tactic_counts[before.recommended_strategy] = (
             self.manager_state.tactic_counts.get(before.recommended_strategy, 0) + 1
+        )
+        self.manager_state.search_control_mode_counts[search_control.mode] = (
+            self.manager_state.search_control_mode_counts.get(search_control.mode, 0) + 1
+        )
+        tactic_key = f"{before.recommended_strategy}:{search_control.name}"
+        self.manager_state.search_control_by_tactic[tactic_key] = (
+            self.manager_state.search_control_by_tactic.get(tactic_key, 0) + 1
         )
 
         proposal = self.orchestrator.propose(
             profile_id,
             self._last_observations["player_0"],
             self._last_infos["player_0"],
+            search_control,
         )
         self.manager_state.last_proposal = proposal
         self.manager_state.total_decision_seconds += proposal.elapsed_seconds
         self.manager_state.total_expanded_nodes += proposal.expanded_nodes
+        search_cost_penalty = self.search_cost_reward_scale * search_control.cost_penalty
+        self.manager_state.search_cost_penalty_total += search_cost_penalty
+        if proposal.search_control is not None and proposal.search_control.latency_overrun:
+            self.manager_state.latency_overruns += 1
         if proposal.objective is not None:
             kind = proposal.objective.kind
             self.manager_state.objective_counts[kind] = self.manager_state.objective_counts.get(kind, 0) + 1
@@ -420,6 +510,9 @@ class ManagerSelfPlayEnv(_BaseEnv):
         if switched:
             reward -= self.switch_penalty
         reward -= self.decision_time_penalty * proposal.elapsed_seconds
+        reward -= search_cost_penalty
+        if proposal.search_control is not None and proposal.search_control.latency_overrun:
+            reward -= self.search_cost_reward_scale * 0.05
         after = build_tactical_context(infos["player_0"])
         tactical_reward, tactical_success = self._tactical_reward(
             before,
@@ -436,6 +529,10 @@ class ManagerSelfPlayEnv(_BaseEnv):
                 "worker_action": proposal.action,
                 "opponent_action": int(opponent_action),
                 "strategy_switched": switched,
+                "manager_action": action_id,
+                "search_control_id": control_id,
+                "search_control_name": search_control.name,
+                "search_cost_penalty": search_cost_penalty,
                 "tactical_reward": tactical_reward,
                 "tactical_success": tactical_success,
                 "recommended_strategy": before.recommended_strategy,
@@ -450,6 +547,11 @@ class ManagerSelfPlayEnv(_BaseEnv):
                     "r": self._episode_return,
                     "switches": self.manager_state.switch_count,
                     "profile_counts": tuple(self.manager_state.profile_counts),
+                    "search_control_counts": tuple(self.manager_state.search_control_counts),
+                    "search_control_mode_counts": dict(self.manager_state.search_control_mode_counts),
+                    "search_control_by_tactic": dict(self.manager_state.search_control_by_tactic),
+                    "search_cost_penalty_total": self.manager_state.search_cost_penalty_total,
+                    "latency_overruns": self.manager_state.latency_overruns,
                     "tactic_counts": dict(self.manager_state.tactic_counts),
                     "objective_counts": dict(self.manager_state.objective_counts),
                     "objective_miss_reasons": dict(self.manager_state.objective_miss_reasons),
@@ -467,6 +569,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
             info,
             self.manager_state,
             self.profile_count,
+            self.search_control_count,
         )
         return manager_observation, reward, terminations["player_0"], truncations["player_0"], info
 

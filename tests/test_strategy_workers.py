@@ -4,7 +4,9 @@ try:
     from agents.strategy_workers import (
         FixedProfilePolicy,
         StrategyOrchestrator,
+        apply_search_control,
         board_danger,
+        default_search_controls,
         default_worker_profiles,
         estimate_immediate_threat,
         build_tactical_context,
@@ -126,6 +128,29 @@ class TestStrategyWorkers(unittest.TestCase):
         self.assertEqual([profile.name for profile in scaled], [profile.name for profile in profiles])
         self.assertLess(scaled[0].depth, profiles[0].depth)
         self.assertLess(scaled[0].width, profiles[0].width)
+
+    def test_search_control_clamps_and_records_effective_budget(self):
+        profile = default_worker_profiles()[0]
+        control = default_search_controls()[2]
+
+        effective, diagnostics = apply_search_control(profile, control)
+
+        self.assertGreaterEqual(effective.depth, profile.depth)
+        self.assertGreaterEqual(effective.width, profile.width)
+        self.assertEqual(diagnostics.to_dict()["schema_version"], "search-control-v1")
+        self.assertIn("effective", diagnostics.to_dict())
+
+    def test_orchestrator_accepts_learned_search_control(self):
+        _, observation, info = self._state(seed=21)
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+
+        proposal = orchestrator.propose(0, observation, info, default_search_controls()[1])
+
+        self.assertEqual(proposal.search_control_dict["name"], "latency_saver")
+        self.assertLessEqual(
+            proposal.search_control_dict["effective"]["width"],
+            proposal.search_control_dict["requested"]["width"],
+        )
 
     def test_threat_and_danger_are_bounded(self):
         simulator, _, _ = self._state(seed=9)
