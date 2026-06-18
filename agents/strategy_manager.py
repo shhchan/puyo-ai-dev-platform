@@ -38,7 +38,7 @@ class StrategyManagerPolicy:
             raise ImportError("StrategyManagerPolicy requires torch and numpy")
         self.device = torch.device(device)
         self.deterministic = deterministic
-        checkpoint = torch.load(Path(checkpoint_path), map_location=self.device)
+        checkpoint = torch.load(Path(checkpoint_path), map_location=self.device, weights_only=False)
         if checkpoint.get("policy_type") != "strategy_manager":
             raise ValueError("checkpoint is not a strategy manager checkpoint")
         self.profiles = tuple(WorkerProfile(**item) for item in checkpoint["worker_profiles"])

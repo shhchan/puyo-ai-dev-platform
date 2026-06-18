@@ -107,7 +107,7 @@ class CheckpointPolicy:
             raise ImportError("CheckpointPolicy requires torch and numpy. Install requirements.txt.")
         self.device = torch.device(device)
         self.deterministic = deterministic
-        checkpoint = torch.load(Path(checkpoint_path), map_location=self.device)
+        checkpoint = torch.load(Path(checkpoint_path), map_location=self.device, weights_only=False)
         state_dict = checkpoint.get("model_state_dict", checkpoint)
         board_channels = self._infer_board_channels(state_dict)
         self.board_key = board_key or ("own_board" if board_channels == len(BOARD_COLOR_CHANNELS) else "board")
