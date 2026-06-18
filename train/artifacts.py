@@ -105,6 +105,7 @@ def build_checkpoint_schema(
     parent_checkpoint_path: str | None = None,
     has_optimizer_state: bool = True,
     has_rng_state: bool = False,
+    has_trainer_state: bool = False,
     environment_progress: Mapping[str, Any] | None = None,
     created_at_utc: str | None = None,
 ) -> dict[str, Any]:
@@ -122,8 +123,11 @@ def build_checkpoint_schema(
         "resume_contract": {
             "model_state_key": "model_state_dict",
             "optimizer_state_key": "optimizer_state_dict" if has_optimizer_state else None,
+            "rng_state_key": "rng_state" if has_rng_state else None,
+            "trainer_state_key": "trainer_state" if has_trainer_state else None,
             "has_optimizer_state": bool(has_optimizer_state),
             "has_rng_state": bool(has_rng_state),
+            "has_trainer_state": bool(has_trainer_state),
             "environment_progress": dict(environment_progress or {}),
         },
     }
@@ -155,6 +159,7 @@ def attach_checkpoint_schema(
         parent_checkpoint_path=parent_checkpoint_path,
         has_optimizer_state=result.get("optimizer_state_dict") is not None,
         has_rng_state=result.get("rng_state") is not None,
+        has_trainer_state=result.get("trainer_state") is not None,
         environment_progress=environment_progress,
     )
     return result
@@ -185,6 +190,12 @@ def validate_checkpoint_payload(payload: Mapping[str, Any]) -> list[str]:
     if isinstance(resume_contract, Mapping) and resume_contract.get("has_optimizer_state"):
         if "optimizer_state_dict" not in payload:
             errors.append("optimizer_state_dict is required by resume_contract")
+    if isinstance(resume_contract, Mapping) and resume_contract.get("has_rng_state"):
+        if "rng_state" not in payload:
+            errors.append("rng_state is required by resume_contract")
+    if isinstance(resume_contract, Mapping) and resume_contract.get("has_trainer_state"):
+        if "trainer_state" not in payload:
+            errors.append("trainer_state is required by resume_contract")
     return errors
 
 
