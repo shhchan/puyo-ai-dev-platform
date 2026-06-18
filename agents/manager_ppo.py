@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import csv
 import json
 import multiprocessing as mp
@@ -40,6 +41,14 @@ from agents.strategy_workers import (
 from puyo_env.manager_env import ManagerSelfPlayEnv, manager_vector_dim, manager_vector_features
 from selfplay.opponent_pool import OpponentPool, OpponentSnapshot
 from selfplay.policies import make_policy
+from train.artifacts import attach_checkpoint_schema, write_artifact_manifest
+from train.restore import (
+    assert_resume_config_compatible,
+    capture_rng_state,
+    checkpoint_state_hash,
+    load_training_checkpoint,
+    restore_rng_state,
+)
 
 
 @dataclass
@@ -80,6 +89,7 @@ class ManagerPPOConfig:
     log_dir: str = "runs/manager_ppo"
     checkpoint_path: str = ""
     initial_checkpoint_path: str = ""
+    resume_checkpoint_path: str = ""
     load_optimizer_state: bool = True
     device: str = "cpu"
     run_name: str = "manager_ppo"
@@ -111,6 +121,7 @@ def _run_paths(cfg: ManagerPPOConfig) -> dict[str, Path | str]:
         "metrics_path": run_dir / "metrics.csv",
         "config_path": run_dir / "config.yaml",
         "summary_path": run_dir / "summary.json",
+        "manifest_path": run_dir / "artifact_manifest.json",
         "teacher_dataset_path": run_dir / "teacher_dataset.json",
         "opponent_pool_path": run_dir / "opponent_pool.json",
         "snapshot_dir": run_dir / "opponents",
@@ -309,18 +320,89 @@ def _stack(observations: list[dict[str, Any]], infos: list[dict[str, Any]], devi
     )
 
 
-def _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, kind):
+def _manager_trainer_state(
+    *,
+    envs,
+    observations: list[dict[str, Any]],
+    infos: list[dict[str, Any]],
+    next_done,
+    episodes: list[dict[str, Any]],
+    best_selection_key,
+    best_written: bool,
+    best_tactical_accuracy: float | None,
+    next_snapshot_step: int | None,
+    opponent_pool: OpponentPool | None,
+    opponent_rng: random.Random,
+    opponent_counts: dict[str, int],
+    teacher_examples,
+    behavior_cloning_loss: float | None,
+    behavior_cloning_accuracy: float | None,
+) -> dict[str, Any] | None:
+    if any(isinstance(env, RemoteManagerEnv) for env in envs):
+        return None
     return {
+        "envs": copy.deepcopy(envs),
+        "observations": copy.deepcopy(observations),
+        "infos": copy.deepcopy(infos),
+        "next_done": next_done.detach().cpu(),
+        "episodes": copy.deepcopy(episodes),
+        "best_selection_key": tuple(best_selection_key),
+        "best_written": bool(best_written),
+        "best_tactical_accuracy": best_tactical_accuracy,
+        "next_snapshot_step": next_snapshot_step,
+        "opponent_pool": copy.deepcopy(opponent_pool),
+        "opponent_rng_state": opponent_rng.getstate(),
+        "opponent_counts": dict(opponent_counts),
+        "teacher_examples": copy.deepcopy(teacher_examples),
+        "behavior_cloning_loss": behavior_cloning_loss,
+        "behavior_cloning_accuracy": behavior_cloning_accuracy,
+    }
+
+
+def _checkpoint_payload(
+    cfg,
+    agent,
+    optimizer,
+    profiles,
+    global_step,
+    episodes,
+    kind,
+    *,
+    run_id: str,
+    rng_state: dict[str, Any] | None = None,
+    trainer_state: dict[str, Any] | None = None,
+):
+    config = asdict(cfg)
+    payload = {
         **manager_checkpoint_metadata(profiles),
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "config": asdict(cfg),
+        "config": config,
         "git_commit": _git_commit(),
+        "run_id": run_id,
         "board_shape": agent.board_shape,
         "global_step": global_step,
         "episodes": episodes,
         "checkpoint_kind": kind,
     }
+    if rng_state is not None:
+        payload["rng_state"] = rng_state
+    if trainer_state is not None:
+        payload["trainer_state"] = trainer_state
+    payload = attach_checkpoint_schema(
+        payload,
+        trainer_name="manager_ppo",
+        run_id=run_id,
+        checkpoint_kind=kind,
+        global_step=global_step,
+        config=config,
+        git_commit=payload["git_commit"],
+        seed=cfg.seed,
+        parent_checkpoint_path=cfg.resume_checkpoint_path or cfg.initial_checkpoint_path or None,
+        environment_progress={"episodes": len(episodes)},
+    )
+    payload["state_hash"] = checkpoint_state_hash(payload)
+    return payload
 
 
 def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
@@ -433,7 +515,43 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     ).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=cfg.learning_rate, eps=1e-5)
     initial_checkpoint_step = 0
-    if cfg.initial_checkpoint_path:
+    resume_checkpoint = None
+    resume_trainer_state = None
+    if cfg.resume_checkpoint_path and cfg.initial_checkpoint_path:
+        raise ValueError("resume_checkpoint_path cannot be combined with initial_checkpoint_path")
+    if cfg.resume_checkpoint_path:
+        resume_checkpoint = load_training_checkpoint(
+            cfg.resume_checkpoint_path,
+            map_location=device,
+            expected_trainer_name="manager_ppo",
+            require_exact=True,
+        )
+        assert_resume_config_compatible(
+            resume_checkpoint,
+            asdict(cfg),
+            allowed_differences={
+                "total_timesteps",
+                "log_dir",
+                "checkpoint_path",
+                "resume_checkpoint_path",
+                "run_name",
+                "run_id",
+            },
+        )
+        for env in envs:
+            env.close()
+        agent.load_state_dict(resume_checkpoint["model_state_dict"])
+        optimizer.load_state_dict(resume_checkpoint["optimizer_state_dict"])
+        resume_trainer_state = resume_checkpoint["trainer_state"]
+        envs = resume_trainer_state["envs"]
+        observations = resume_trainer_state["observations"]
+        infos = resume_trainer_state["infos"]
+        opponent_pool = copy.deepcopy(resume_trainer_state["opponent_pool"])
+        opponent_rng.setstate(resume_trainer_state["opponent_rng_state"])
+        opponent_counts = dict(resume_trainer_state["opponent_counts"])
+        initial_checkpoint_step = int(resume_checkpoint.get("global_step", 0))
+        restore_rng_state(resume_checkpoint["rng_state"])
+    elif cfg.initial_checkpoint_path:
         initial_checkpoint = torch.load(
             cfg.initial_checkpoint_path,
             map_location=device,
@@ -447,44 +565,87 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         initial_checkpoint_step = int(initial_checkpoint.get("global_step", 0))
 
     teacher_path = Path(cfg.teacher_dataset_path) if cfg.teacher_dataset_path else paths["teacher_dataset_path"]
-    teacher_examples = []
-    if cfg.teacher_dataset_path:
-        teacher_examples = load_teacher_dataset(teacher_path)
-    elif cfg.generate_teacher_dataset:
-        teacher_examples = generate_teacher_examples(profiles=profiles)
-        write_teacher_dataset(teacher_path, teacher_examples)
-    behavior_cloning_loss = _behavior_clone(
-        agent,
-        optimizer,
-        teacher_examples,
-        device=device,
-        epochs=cfg.behavior_cloning_epochs,
-    )
-    behavior_cloning_accuracy = _teacher_accuracy(agent, teacher_examples, device=device)
     behavior_checkpoint_path = paths["checkpoint_dir"] / "behavior_cloned.pt"
-    if teacher_examples:
-        payload = _checkpoint_payload(cfg, agent, optimizer, profiles, 0, [], "behavior_cloned")
+    if resume_trainer_state is not None:
+        teacher_examples = list(resume_trainer_state["teacher_examples"])
+        behavior_cloning_loss = resume_trainer_state["behavior_cloning_loss"]
+        behavior_cloning_accuracy = resume_trainer_state["behavior_cloning_accuracy"]
+    else:
+        teacher_examples = []
+        if cfg.teacher_dataset_path:
+            teacher_examples = load_teacher_dataset(teacher_path)
+        elif cfg.generate_teacher_dataset:
+            teacher_examples = generate_teacher_examples(profiles=profiles)
+            write_teacher_dataset(teacher_path, teacher_examples)
+        behavior_cloning_loss = _behavior_clone(
+            agent,
+            optimizer,
+            teacher_examples,
+            device=device,
+            epochs=cfg.behavior_cloning_epochs,
+        )
+        behavior_cloning_accuracy = _teacher_accuracy(agent, teacher_examples, device=device)
+    if teacher_examples and resume_trainer_state is None:
+        payload = _checkpoint_payload(
+            cfg,
+            agent,
+            optimizer,
+            profiles,
+            0,
+            [],
+            "behavior_cloned",
+            run_id=paths["run_id"],
+        )
         torch.save(payload, behavior_checkpoint_path)
         torch.save(payload, paths["best_checkpoint_path"])
 
     batch_size = cfg.num_envs * cfg.num_steps
     minibatch_size = min(batch_size, cfg.minibatch_size)
     num_updates = max(1, cfg.total_timesteps // batch_size)
-    global_step = 0
-    next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
-    episodes: list[dict[str, Any]] = []
-    best_selection_key = (float("-inf"), float("-inf"), float("-inf"), -1)
-    best_written = bool(teacher_examples)
-    best_tactical_accuracy = behavior_cloning_accuracy
-    next_snapshot_step = (
-        cfg.selfplay_snapshot_interval if cfg.selfplay_snapshot_interval > 0 else None
-    )
+    if resume_trainer_state is None:
+        global_step = 0
+        next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
+        episodes: list[dict[str, Any]] = []
+        best_selection_key = (float("-inf"), float("-inf"), float("-inf"), -1)
+        best_written = bool(teacher_examples)
+        best_tactical_accuracy = behavior_cloning_accuracy
+        next_snapshot_step = (
+            cfg.selfplay_snapshot_interval if cfg.selfplay_snapshot_interval > 0 else None
+        )
+    else:
+        global_step = int(resume_checkpoint["global_step"])
+        next_done = resume_trainer_state["next_done"].to(device)
+        episodes = list(resume_trainer_state["episodes"])
+        best_selection_key = tuple(resume_trainer_state["best_selection_key"])
+        best_written = bool(resume_trainer_state["best_written"])
+        best_tactical_accuracy = resume_trainer_state["best_tactical_accuracy"]
+        next_snapshot_step = resume_trainer_state["next_snapshot_step"]
     started = time.time()
+
+    def current_trainer_state(*, best_written_value: bool | None = None):
+        return _manager_trainer_state(
+            envs=envs,
+            observations=observations,
+            infos=infos,
+            next_done=next_done,
+            episodes=episodes,
+            best_selection_key=best_selection_key,
+            best_written=best_written if best_written_value is None else best_written_value,
+            best_tactical_accuracy=best_tactical_accuracy,
+            next_snapshot_step=next_snapshot_step,
+            opponent_pool=opponent_pool,
+            opponent_rng=opponent_rng,
+            opponent_counts=opponent_counts,
+            teacher_examples=teacher_examples,
+            behavior_cloning_loss=behavior_cloning_loss,
+            behavior_cloning_accuracy=behavior_cloning_accuracy,
+        )
 
     with paths["metrics_path"].open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=["global_step", "metric", "value"])
         writer.writeheader()
-        for _update in range(num_updates):
+        start_update = global_step // batch_size
+        for _update in range(start_update, num_updates):
             progress = min(1.0, global_step / max(1, cfg.total_timesteps))
             stage, auxiliary_scale = _curriculum_stage(cfg, progress)
             for env_index, env in enumerate(envs):
@@ -642,7 +803,18 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                 best_selection_key = selection_key
                 best_tactical_accuracy = tactical_accuracy
                 torch.save(
-                    _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "best"),
+                    _checkpoint_payload(
+                        cfg,
+                        agent,
+                        optimizer,
+                        profiles,
+                        global_step,
+                        episodes,
+                        "best",
+                        run_id=paths["run_id"],
+                        rng_state=capture_rng_state(),
+                        trainer_state=current_trainer_state(best_written_value=True),
+                    ),
                     paths["best_checkpoint_path"],
                 )
                 best_written = True
@@ -650,7 +822,18 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             if next_snapshot_step is not None and global_step >= next_snapshot_step:
                 snapshot_path = paths["snapshot_dir"] / f"manager-step-{global_step}.pt"
                 torch.save(
-                    _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "opponent"),
+                    _checkpoint_payload(
+                        cfg,
+                        agent,
+                        optimizer,
+                        profiles,
+                        global_step,
+                        episodes,
+                        "opponent",
+                        run_id=paths["run_id"],
+                        rng_state=capture_rng_state(),
+                        trainer_state=current_trainer_state(),
+                    ),
                     snapshot_path,
                 )
                 if opponent_pool is None:
@@ -670,7 +853,18 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                     next_snapshot_step += cfg.selfplay_snapshot_interval
 
     torch.save(
-        _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "latest"),
+        _checkpoint_payload(
+            cfg,
+            agent,
+            optimizer,
+            profiles,
+            global_step,
+            episodes,
+            "latest",
+            run_id=paths["run_id"],
+            rng_state=capture_rng_state(),
+            trainer_state=current_trainer_state(),
+        ),
         checkpoint_path,
     )
     if opponent_pool is not None:
@@ -704,8 +898,44 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "checkpoint_path": str(checkpoint_path),
         "best_checkpoint_path": str(paths["best_checkpoint_path"]) if best_written else None,
         "metrics_path": str(paths["metrics_path"]),
+        "manifest_path": str(paths["manifest_path"]),
     }
     paths["summary_path"].write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    checkpoint_artifacts: dict[str, str | Path | None] = {
+        "latest": checkpoint_path,
+        "best": paths["best_checkpoint_path"] if best_written else None,
+        "behavior_cloned": behavior_checkpoint_path if teacher_examples else None,
+    }
+    checkpoint_artifacts.update(
+        {
+            f"opponent_snapshot_{index + 1}": path
+            for index, path in enumerate(sorted(paths["snapshot_dir"].glob("*.pt")))
+        }
+    )
+    artifact_paths: dict[str, str | Path | None] = {
+        "config": paths["config_path"],
+        "metrics": paths["metrics_path"],
+        "summary": paths["summary_path"],
+        "teacher_dataset": teacher_path if teacher_examples else None,
+        "opponent_pool": paths["opponent_pool_path"] if opponent_pool is not None else None,
+    }
+    write_artifact_manifest(
+        run_dir=run_dir,
+        run_id=paths["run_id"],
+        trainer_name="manager_ppo",
+        config=asdict(cfg),
+        git_commit=_git_commit(),
+        seed=cfg.seed,
+        artifacts=artifact_paths,
+        checkpoints=checkpoint_artifacts,
+        manifest_path=paths["manifest_path"],
+        parent_checkpoint_path=cfg.resume_checkpoint_path or cfg.initial_checkpoint_path or None,
+        extra={
+            "best_min_episodes": cfg.best_min_episodes,
+            "best_window_episodes": cfg.best_window_episodes,
+            "opponent_sampling": cfg.opponent_sampling,
+        },
+    )
     for env in envs:
         env.close()
     return {
@@ -713,4 +943,5 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "run_dir": str(run_dir),
         "config_path": str(paths["config_path"]),
         "summary_path": str(paths["summary_path"]),
+        "manifest_path": str(paths["manifest_path"]),
     }

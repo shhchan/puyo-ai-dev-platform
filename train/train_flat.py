@@ -67,6 +67,7 @@ def main(argv=None):
     result = train_flat_ppo(config)
     print(f"checkpoint: {result['checkpoint_path']}")
     print(f"metrics: {result['metrics_path']}")
+    print(f"manifest: {result['manifest_path']}")
     if result["mean_episode_score"] is not None:
         print(f"mean_episode_score_last10: {result['mean_episode_score']:.2f}")
 

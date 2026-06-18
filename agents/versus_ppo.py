@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import csv
 import json
 import random
@@ -32,6 +33,14 @@ from puyo_env.selfplay_env import VersusSelfPlayEnv
 from puyo_env.versus_env import VersusRewardConfig
 from selfplay.opponent_pool import OpponentPool
 from selfplay.policies import make_policy
+from train.artifacts import attach_checkpoint_schema, write_artifact_manifest
+from train.restore import (
+    assert_resume_config_compatible,
+    capture_rng_state,
+    checkpoint_state_hash,
+    load_training_checkpoint,
+    restore_rng_state,
+)
 
 from .networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 
@@ -57,6 +66,7 @@ class VersusPPOConfig:
     opponent_pool_path: str = ""
     log_dir: str = "runs/versus_ppo"
     checkpoint_path: str = ""
+    resume_checkpoint_path: str = ""
     device: str = "cpu"
     run_name: str = "versus_ppo"
     run_id: str = ""
@@ -84,6 +94,7 @@ class VersusArtifactPaths:
     config_path: Path
     metadata_path: Path
     summary_path: Path
+    manifest_path: Path
     checkpoint_dir: Path
     checkpoint_path: Path
     best_checkpoint_path: Path
@@ -115,6 +126,7 @@ def _resolve_artifact_paths(cfg: VersusPPOConfig) -> VersusArtifactPaths:
         config_path=run_dir / "config.yaml",
         metadata_path=run_dir / "metadata.json",
         summary_path=run_dir / "summary.json",
+        manifest_path=run_dir / "artifact_manifest.json",
         checkpoint_dir=checkpoint_dir,
         checkpoint_path=checkpoint_path,
         best_checkpoint_path=checkpoint_dir / "best.pt",
@@ -141,6 +153,7 @@ def _write_artifact_metadata(cfg: VersusPPOConfig, paths: VersusArtifactPaths) -
         "run_id": paths.run_id,
         "run_dir": str(paths.run_dir),
         "metrics_path": str(paths.metrics_path),
+        "manifest_path": str(paths.manifest_path),
         "checkpoint_path": str(paths.checkpoint_path),
         "best_checkpoint_path": str(paths.best_checkpoint_path),
     }
@@ -246,6 +259,41 @@ def _current_metric_value(
     return metric_values[metric_name]
 
 
+def _trainer_state(
+    *,
+    envs,
+    observations: list[dict[str, Any]],
+    infos: list[dict[str, Any]],
+    next_done,
+    episode_scores: list[float],
+    episode_returns: list[float],
+    episode_wins: list[float],
+    episode_lengths: list[float],
+    episode_max_chains: list[float],
+    episode_sent_ojama: list[float],
+    episode_received_ojama: list[float],
+    periodic_checkpoints: list[str],
+    best_metric_value: float | None,
+    best_checkpoint_written: bool,
+) -> dict[str, Any]:
+    return {
+        "envs": copy.deepcopy(envs),
+        "observations": copy.deepcopy(observations),
+        "infos": copy.deepcopy(infos),
+        "next_done": next_done.detach().cpu(),
+        "episode_scores": list(episode_scores),
+        "episode_returns": list(episode_returns),
+        "episode_wins": list(episode_wins),
+        "episode_lengths": list(episode_lengths),
+        "episode_max_chains": list(episode_max_chains),
+        "episode_sent_ojama": list(episode_sent_ojama),
+        "episode_received_ojama": list(episode_received_ojama),
+        "periodic_checkpoints": list(periodic_checkpoints),
+        "best_metric_value": best_metric_value,
+        "best_checkpoint_written": bool(best_checkpoint_written),
+    }
+
+
 def _checkpoint_payload(
     *,
     cfg: VersusPPOConfig,
@@ -262,11 +310,14 @@ def _checkpoint_payload(
     episode_received_ojama: list[float],
     checkpoint_kind: str,
     best_metric_value: float | None,
+    rng_state: dict[str, Any],
+    trainer_state: dict[str, Any],
 ) -> dict[str, Any]:
-    return {
+    config = asdict(cfg)
+    payload = {
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "config": asdict(cfg),
+        "config": config,
         "run_id": paths.run_id,
         "global_step": global_step,
         "board_shape": agent.board_shape,
@@ -280,7 +331,26 @@ def _checkpoint_payload(
         "checkpoint_kind": checkpoint_kind,
         "best_checkpoint_metric": cfg.best_checkpoint_metric,
         "best_metric_value": best_metric_value,
+        "rng_state": rng_state,
+        "trainer_state": trainer_state,
     }
+    payload = attach_checkpoint_schema(
+        payload,
+        trainer_name="versus_ppo",
+        run_id=paths.run_id,
+        checkpoint_kind=checkpoint_kind,
+        global_step=global_step,
+        config=config,
+        git_commit=_git_commit(),
+        seed=cfg.seed,
+        parent_checkpoint_path=cfg.resume_checkpoint_path or None,
+        environment_progress={
+            "episodes": len(episode_scores),
+            "rolling_window_episodes": cfg.rolling_window_episodes,
+        },
+    )
+    payload["state_hash"] = checkpoint_state_hash(payload)
+    return payload
 
 
 def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
@@ -352,6 +422,48 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
     periodic_checkpoints: list[str] = []
     best_metric_value: float | None = None
     best_checkpoint_written = False
+    next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
+    resume_checkpoint = None
+    if cfg.resume_checkpoint_path:
+        resume_checkpoint = load_training_checkpoint(
+            cfg.resume_checkpoint_path,
+            map_location=device,
+            expected_trainer_name="versus_ppo",
+            require_exact=True,
+        )
+        assert_resume_config_compatible(
+            resume_checkpoint,
+            asdict(cfg),
+            allowed_differences={
+                "total_timesteps",
+                "log_dir",
+                "checkpoint_path",
+                "resume_checkpoint_path",
+                "run_name",
+                "run_id",
+            },
+        )
+        for env in envs:
+            env.close()
+        agent.load_state_dict(resume_checkpoint["model_state_dict"])
+        optimizer.load_state_dict(resume_checkpoint["optimizer_state_dict"])
+        trainer_state = resume_checkpoint["trainer_state"]
+        envs = trainer_state["envs"]
+        observations = trainer_state["observations"]
+        infos = trainer_state["infos"]
+        next_done = trainer_state["next_done"].to(device)
+        global_step = int(resume_checkpoint["global_step"])
+        episode_scores = list(trainer_state["episode_scores"])
+        episode_returns = list(trainer_state["episode_returns"])
+        episode_wins = list(trainer_state["episode_wins"])
+        episode_lengths = list(trainer_state["episode_lengths"])
+        episode_max_chains = list(trainer_state["episode_max_chains"])
+        episode_sent_ojama = list(trainer_state["episode_sent_ojama"])
+        episode_received_ojama = list(trainer_state["episode_received_ojama"])
+        periodic_checkpoints = list(trainer_state["periodic_checkpoints"])
+        best_metric_value = trainer_state["best_metric_value"]
+        best_checkpoint_written = bool(trainer_state["best_checkpoint_written"])
+        restore_rng_state(resume_checkpoint["rng_state"])
 
     with paths.metrics_path.open("w", newline="", encoding="utf-8") as metrics_file:
         csv_writer = csv.DictWriter(
@@ -361,9 +473,9 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
         csv_writer.writeheader()
 
         num_updates = max(1, cfg.total_timesteps // batch_size)
-        next_done = torch.zeros(cfg.num_envs, dtype=torch.float32, device=device)
+        start_update = global_step // batch_size
 
-        for update in range(1, num_updates + 1):
+        for update in range(start_update + 1, num_updates + 1):
             boards = torch.zeros((cfg.num_steps, cfg.num_envs, *agent.board_shape), dtype=torch.float32, device=device)
             vectors = torch.zeros((cfg.num_steps, cfg.num_envs, VECTOR_FEATURE_DIM), dtype=torch.float32, device=device)
             masks = torch.zeros((cfg.num_steps, cfg.num_envs, agent.action_dim), dtype=torch.bool, device=device)
@@ -557,6 +669,23 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
                         episode_received_ojama=episode_received_ojama,
                         checkpoint_kind="best",
                         best_metric_value=best_metric_value,
+                        rng_state=capture_rng_state(),
+                        trainer_state=_trainer_state(
+                            envs=envs,
+                            observations=observations,
+                            infos=infos,
+                            next_done=next_done,
+                            episode_scores=episode_scores,
+                            episode_returns=episode_returns,
+                            episode_wins=episode_wins,
+                            episode_lengths=episode_lengths,
+                            episode_max_chains=episode_max_chains,
+                            episode_sent_ojama=episode_sent_ojama,
+                            episode_received_ojama=episode_received_ojama,
+                            periodic_checkpoints=periodic_checkpoints,
+                            best_metric_value=best_metric_value,
+                            best_checkpoint_written=True,
+                        ),
                     ),
                     paths.best_checkpoint_path,
                 )
@@ -580,6 +709,23 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
                         episode_received_ojama=episode_received_ojama,
                         checkpoint_kind="periodic",
                         best_metric_value=best_metric_value,
+                        rng_state=capture_rng_state(),
+                        trainer_state=_trainer_state(
+                            envs=envs,
+                            observations=observations,
+                            infos=infos,
+                            next_done=next_done,
+                            episode_scores=episode_scores,
+                            episode_returns=episode_returns,
+                            episode_wins=episode_wins,
+                            episode_lengths=episode_lengths,
+                            episode_max_chains=episode_max_chains,
+                            episode_sent_ojama=episode_sent_ojama,
+                            episode_received_ojama=episode_received_ojama,
+                            periodic_checkpoints=[*periodic_checkpoints, str(periodic_path)],
+                            best_metric_value=best_metric_value,
+                            best_checkpoint_written=best_checkpoint_written,
+                        ),
                     ),
                     periodic_path,
                 )
@@ -601,6 +747,23 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
                 episode_received_ojama=episode_received_ojama,
                 checkpoint_kind="latest",
                 best_metric_value=best_metric_value,
+                rng_state=capture_rng_state(),
+                trainer_state=_trainer_state(
+                    envs=envs,
+                    observations=observations,
+                    infos=infos,
+                    next_done=next_done,
+                    episode_scores=episode_scores,
+                    episode_returns=episode_returns,
+                    episode_wins=episode_wins,
+                    episode_lengths=episode_lengths,
+                    episode_max_chains=episode_max_chains,
+                    episode_sent_ojama=episode_sent_ojama,
+                    episode_received_ojama=episode_received_ojama,
+                    periodic_checkpoints=periodic_checkpoints,
+                    best_metric_value=best_metric_value,
+                    best_checkpoint_written=best_checkpoint_written,
+                ),
             ),
             paths.checkpoint_path,
         )
@@ -625,8 +788,38 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
             "metrics_path": str(paths.metrics_path),
             "config_path": str(paths.config_path),
             "metadata_path": str(paths.metadata_path),
+            "manifest_path": str(paths.manifest_path),
+            "resume_checkpoint_path": cfg.resume_checkpoint_path or None,
         }
         paths.summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+        checkpoint_artifacts: dict[str, str | Path | None] = {
+            "latest": paths.checkpoint_path,
+            "best": paths.best_checkpoint_path if best_checkpoint_written else None,
+        }
+        checkpoint_artifacts.update(
+            {f"periodic_{index + 1}": path for index, path in enumerate(periodic_checkpoints)}
+        )
+        write_artifact_manifest(
+            run_dir=paths.run_dir,
+            run_id=paths.run_id,
+            trainer_name="versus_ppo",
+            config=asdict(cfg),
+            git_commit=_git_commit(),
+            seed=cfg.seed,
+            artifacts={
+                "config": paths.config_path,
+                "metadata": paths.metadata_path,
+                "metrics": paths.metrics_path,
+                "summary": paths.summary_path,
+            },
+            checkpoints=checkpoint_artifacts,
+            manifest_path=paths.manifest_path,
+            parent_checkpoint_path=cfg.resume_checkpoint_path or None,
+            extra={
+                "best_checkpoint_metric": cfg.best_checkpoint_metric,
+                "rolling_window_episodes": cfg.rolling_window_episodes,
+            },
+        )
         if writer is not None:
             writer.close()
 
@@ -642,6 +835,7 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
         "metrics_path": str(paths.metrics_path),
         "config_path": str(paths.config_path),
         "metadata_path": str(paths.metadata_path),
+        "manifest_path": str(paths.manifest_path),
         "summary_path": str(paths.summary_path),
         "mean_episode_score": _mean_last(episode_scores, cfg.rolling_window_episodes),
         "mean_win_rate": _mean_last(episode_wins, cfg.rolling_window_episodes),
