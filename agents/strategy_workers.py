@@ -61,12 +61,69 @@ class AttackForecast:
 
 @dataclass(frozen=True)
 class TacticalObjective:
+    """Serializable contract that tells a worker what outcome to search for."""
+
     kind: str
     target_attack: int = 0
+    target_score: int = 0
+    target_chain: int = 0
     deadline: int = 0
+    deadline_ticks: int = 0
     safety_margin: int = 0
     max_danger: float = 1.0
+    fallback_strategy: str = "survival"
+    source_profile_id: int = -1
+    source_profile_name: str = ""
     reason: str = ""
+
+    @property
+    def allowed_danger(self) -> float:
+        return self.max_danger
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "search-objective-v1",
+            "kind": self.kind,
+            "target_attack": int(self.target_attack),
+            "target_score": int(self.target_score),
+            "target_chain": int(self.target_chain),
+            "deadline": int(self.deadline),
+            "deadline_ticks": int(self.deadline_ticks),
+            "safety_margin": int(self.safety_margin),
+            "allowed_danger": float(self.max_danger),
+            "fallback_strategy": self.fallback_strategy,
+            "source_profile_id": int(self.source_profile_id),
+            "source_profile_name": self.source_profile_name,
+            "reason": self.reason,
+        }
+
+
+@dataclass(frozen=True)
+class ObjectiveResult:
+    """Outcome diagnostics for one objective-conditioned proposal."""
+
+    achieved: bool
+    possible_by_deadline: bool
+    miss_reasons: tuple[str, ...] = ()
+    surplus_attack: int = 0
+    score_delta: int = 0
+    chain_delta: int = 0
+    deadline_missed: bool = False
+    danger_excess: float = 0.0
+    time_overrun_ticks: int = 0
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "achieved": bool(self.achieved),
+            "possible_by_deadline": bool(self.possible_by_deadline),
+            "miss_reasons": list(self.miss_reasons),
+            "surplus_attack": int(self.surplus_attack),
+            "score_delta": int(self.score_delta),
+            "chain_delta": int(self.chain_delta),
+            "deadline_missed": bool(self.deadline_missed),
+            "danger_excess": float(self.danger_excess),
+            "time_overrun_ticks": int(self.time_overrun_ticks),
+        }
 
 
 @dataclass(frozen=True)
@@ -87,6 +144,7 @@ class TacticalContext:
     build_safety: float
     recommended_strategy: str
     switch_reason: str
+    incoming_deadline_ticks: int = 0
 
 
 @dataclass(frozen=True)
@@ -109,6 +167,16 @@ class SearchProposal:
     deadline: int = 0
     max_return_attack: int = 0
     reason: str = ""
+    objective: TacticalObjective | None = None
+    objective_result: ObjectiveResult | None = None
+
+    @property
+    def objective_dict(self) -> dict[str, Any]:
+        return {} if self.objective is None else self.objective.to_dict()
+
+    @property
+    def objective_result_dict(self) -> dict[str, Any]:
+        return {} if self.objective_result is None else self.objective_result.to_dict()
 
 
 @dataclass(frozen=True)
@@ -297,6 +365,7 @@ def build_tactical_context(info: dict[str, Any]) -> TacticalContext:
     opponent_danger = board_danger(opponent_simulator.game) if opponent_simulator is not None else 1.0
     incoming = max(0, int(info.get("incoming_ojama", info.get("pending_ojama", 0))))
     deadline = max(0, int(info.get("incoming_turns", 0)))
+    deadline_ticks = max(0, int(info.get("incoming_ticks", info.get("incoming_arrival_tick", 0)) or 0))
     opponent_pending = max(0, int(info.get("opponent_pending_ojama", 0)))
     capacity = _opponent_capacity(opponent_simulator, opponent_pending)
     lethal_target = max(1, min(30, capacity + 1))
@@ -348,6 +417,7 @@ def build_tactical_context(info: dict[str, Any]) -> TacticalContext:
         build_safety=build_safety,
         recommended_strategy=recommended,
         switch_reason=reason,
+        incoming_deadline_ticks=deadline_ticks,
     )
 
 
@@ -357,8 +427,14 @@ def objective_for_profile(tactical: TacticalContext, profile: WorkerProfile) -> 
         return TacticalObjective(
             kind="punish",
             target_attack=tactical.lethal_target,
+            target_score=tactical.lethal_target * 70,
+            target_chain=1,
             deadline=max(1, min(profile.depth, 3)),
+            deadline_ticks=tactical.incoming_deadline_ticks,
             max_danger=profile.danger_tolerance,
+            fallback_strategy="fire_max",
+            source_profile_id=profile.profile_id,
+            source_profile_name=profile.name,
             reason=tactical.switch_reason,
         )
     if strategy == "counter":
@@ -366,26 +442,58 @@ def objective_for_profile(tactical: TacticalContext, profile: WorkerProfile) -> 
         return TacticalObjective(
             kind="counter",
             target_attack=tactical.counter_target,
+            target_score=tactical.counter_target * 70,
+            target_chain=1,
             deadline=deadline,
+            deadline_ticks=tactical.incoming_deadline_ticks,
             safety_margin=profile.safety_margin,
             max_danger=profile.danger_tolerance,
+            fallback_strategy="survival",
+            source_profile_id=profile.profile_id,
+            source_profile_name=profile.name,
             reason=tactical.switch_reason,
         )
     if strategy in {"fire", "fire_max"}:
-        return TacticalObjective(kind="fire_max", deadline=1, reason=tactical.switch_reason)
+        return TacticalObjective(
+            kind="fire_max",
+            target_attack=max(1, tactical.own_forecast.immediate_attack),
+            target_score=max(70, tactical.own_forecast.immediate_attack * 70),
+            target_chain=max(1, tactical.own_forecast.immediate_chain),
+            deadline=1,
+            deadline_ticks=tactical.incoming_deadline_ticks,
+            fallback_strategy="survival",
+            source_profile_id=profile.profile_id,
+            source_profile_name=profile.name,
+            reason=tactical.switch_reason,
+        )
     if strategy == "survival":
         return TacticalObjective(
             kind="survival",
             deadline=1,
+            deadline_ticks=tactical.incoming_deadline_ticks,
             max_danger=profile.danger_tolerance,
+            fallback_strategy="survival",
+            source_profile_id=profile.profile_id,
+            source_profile_name=profile.name,
             reason=tactical.switch_reason,
         )
     return TacticalObjective(
         kind="build",
+        target_attack=0,
+        target_chain=profile.minimum_chain_count,
         deadline=max(1, profile.depth),
         max_danger=profile.danger_tolerance,
+        fallback_strategy="survival",
+        source_profile_id=profile.profile_id,
+        source_profile_name=profile.name,
         reason=tactical.switch_reason,
     )
+
+
+def objective_from_v1_profile(profile: WorkerProfile, tactical: TacticalContext) -> TacticalObjective:
+    """Compatibility shim for the v1.0 fixed-profile manager contract."""
+
+    return objective_for_profile(tactical, profile)
 
 
 class BeamStrategyWorker:
@@ -509,6 +617,7 @@ class TacticalStrategyWorker:
             elapsed=time.perf_counter() - started,
             expanded=expanded,
             value=best.value,
+            depth=best.depth,
         )
 
 
@@ -553,7 +662,17 @@ def _proposal(
     elapsed: float = 0.0,
     expanded: int = 0,
     value: float = 0.0,
+    depth: int = 1,
 ) -> SearchProposal:
+    result = _evaluate_objective(
+        objective,
+        tactical,
+        attack=int(attack),
+        score=int(score),
+        chain=int(chain),
+        danger=float(danger),
+        depth=int(depth),
+    )
     return SearchProposal(
         action=action,
         profile_id=profile.profile_id,
@@ -571,6 +690,53 @@ def _proposal(
         deadline=objective.deadline,
         max_return_attack=tactical.max_return_by_deadline,
         reason=objective.reason,
+        objective=objective,
+        objective_result=result,
+    )
+
+
+def _evaluate_objective(
+    objective: TacticalObjective,
+    tactical: TacticalContext,
+    *,
+    attack: int,
+    score: int,
+    chain: int,
+    danger: float,
+    depth: int,
+) -> ObjectiveResult:
+    miss_reasons: list[str] = []
+    deadline_missed = objective.deadline > 0 and depth > objective.deadline
+    if objective.target_attack > 0 and attack < objective.target_attack:
+        miss_reasons.append("target_attack")
+    if objective.target_score > 0 and score < objective.target_score:
+        miss_reasons.append("target_score")
+    if objective.target_chain > 0 and chain < objective.target_chain:
+        miss_reasons.append("target_chain")
+    danger_excess = max(0.0, float(danger) - float(objective.max_danger))
+    if danger_excess > 0.0:
+        miss_reasons.append("allowed_danger")
+    if deadline_missed:
+        miss_reasons.append("deadline")
+
+    possible_by_deadline = True
+    if objective.deadline > 0 and objective.target_attack > 0:
+        if objective.deadline <= max(1, tactical.incoming_deadline or objective.deadline):
+            possible_by_deadline = objective.target_attack <= tactical.max_return_by_deadline
+        else:
+            possible_by_deadline = objective.target_attack <= tactical.build_potential
+        if not possible_by_deadline:
+            miss_reasons.append("impossible_by_deadline")
+
+    return ObjectiveResult(
+        achieved=not miss_reasons,
+        possible_by_deadline=possible_by_deadline,
+        miss_reasons=tuple(dict.fromkeys(miss_reasons)),
+        surplus_attack=max(0, int(attack) - int(objective.target_attack)),
+        score_delta=int(score) - int(objective.target_score),
+        chain_delta=int(chain) - int(objective.target_chain),
+        deadline_missed=deadline_missed,
+        danger_excess=danger_excess,
     )
 
 

@@ -81,6 +81,30 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertTrue(controller.diagnostics.last_decision.fallback)
         self.assertNotEqual(tick_input, type(tick_input)())
 
+    def test_deadline_fallback_prefers_short_reachable_plan(self):
+        match = RealtimeVersusMatch(seed=123)
+        controller = RealtimePolicyController(
+            FirstLegalPolicy(),
+            config=RealtimeDecisionConfig(
+                action_deadline_ticks=48,
+                use_reachable_action_mask=True,
+            ),
+        )
+
+        controller.next_input(
+            match,
+            "player_0",
+            build_realtime_observation(match, "player_0", include_action_mask=True),
+            build_realtime_info(match, "player_0", use_reachable_action_mask=True),
+        )
+
+        decision = controller.diagnostics.last_decision
+        self.assertTrue(decision.deadline_miss)
+        self.assertTrue(decision.fallback)
+        self.assertEqual(decision.reason, "deadline_fallback")
+        self.assertEqual(decision.action_index, 7)
+        self.assertLess(decision.plan_ticks, 62)
+
     def test_realtime_env_returns_reward_components_and_episode_info(self):
         env = RealtimePuyoEnv(seed=123, max_ticks=2)
         observations, infos = env.reset(seed=123)

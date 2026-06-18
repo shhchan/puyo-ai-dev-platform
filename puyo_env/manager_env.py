@@ -59,6 +59,9 @@ class ManagerState:
     total_decision_seconds: float = 0.0
     total_expanded_nodes: int = 0
     tactic_counts: dict[str, int] = field(default_factory=dict)
+    objective_counts: dict[str, int] = field(default_factory=dict)
+    objective_miss_reasons: dict[str, int] = field(default_factory=dict)
+    objective_successes: int = 0
     missed_lethal: int = 0
     failed_counter: int = 0
     tactical_successes: int = 0
@@ -285,6 +288,12 @@ class ManagerSelfPlayEnv(_BaseEnv):
         enriched["manager_switch_count"] = self.manager_state.switch_count
         enriched["manager_profile_counts"] = tuple(self.manager_state.profile_counts)
         enriched["search_proposal"] = self.manager_state.last_proposal
+        if self.manager_state.last_proposal is not None:
+            enriched["search_objective"] = self.manager_state.last_proposal.objective_dict
+            enriched["search_objective_result"] = self.manager_state.last_proposal.objective_result_dict
+        else:
+            enriched["search_objective"] = {}
+            enriched["search_objective_result"] = {}
         enriched["curriculum_stage"] = self.curriculum_stage
         return enriched
 
@@ -389,6 +398,16 @@ class ManagerSelfPlayEnv(_BaseEnv):
         self.manager_state.last_proposal = proposal
         self.manager_state.total_decision_seconds += proposal.elapsed_seconds
         self.manager_state.total_expanded_nodes += proposal.expanded_nodes
+        if proposal.objective is not None:
+            kind = proposal.objective.kind
+            self.manager_state.objective_counts[kind] = self.manager_state.objective_counts.get(kind, 0) + 1
+        if proposal.objective_result is not None:
+            if proposal.objective_result.achieved:
+                self.manager_state.objective_successes += 1
+            for reason in proposal.objective_result.miss_reasons:
+                self.manager_state.objective_miss_reasons[reason] = (
+                    self.manager_state.objective_miss_reasons.get(reason, 0) + 1
+                )
         opponent_action = self.opponent_policy.select_action(
             self._last_observations["player_1"], self._last_infos["player_1"]
         )
@@ -432,6 +451,9 @@ class ManagerSelfPlayEnv(_BaseEnv):
                     "switches": self.manager_state.switch_count,
                     "profile_counts": tuple(self.manager_state.profile_counts),
                     "tactic_counts": dict(self.manager_state.tactic_counts),
+                    "objective_counts": dict(self.manager_state.objective_counts),
+                    "objective_miss_reasons": dict(self.manager_state.objective_miss_reasons),
+                    "objective_success_rate": self.manager_state.objective_successes / decisions,
                     "missed_lethal": self.manager_state.missed_lethal,
                     "failed_counter": self.manager_state.failed_counter,
                     "tactical_success_rate": self.manager_state.tactical_successes / decisions,

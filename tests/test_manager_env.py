@@ -40,6 +40,8 @@ class TestManagerEnvironment(unittest.TestCase):
         self.assertEqual(next_observation["manager_features"].shape, (MANAGER_FEATURE_DIM,))
         self.assertEqual(next_info["manager_profile_id"], 4)
         self.assertEqual(next_info["search_proposal"].strategy, "fire_max")
+        self.assertEqual(next_info["search_objective"]["schema_version"], "search-objective-v1")
+        self.assertIn("achieved", next_info["search_objective_result"])
         self.assertEqual(sum(next_info["manager_profile_counts"]), 1)
         env.close()
 
