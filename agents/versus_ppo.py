@@ -32,6 +32,7 @@ from puyo_env.selfplay_env import VersusSelfPlayEnv
 from puyo_env.versus_env import VersusRewardConfig
 from selfplay.opponent_pool import OpponentPool
 from selfplay.policies import make_policy
+from train.artifacts import attach_checkpoint_schema, write_artifact_manifest
 
 from .networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 
@@ -84,6 +85,7 @@ class VersusArtifactPaths:
     config_path: Path
     metadata_path: Path
     summary_path: Path
+    manifest_path: Path
     checkpoint_dir: Path
     checkpoint_path: Path
     best_checkpoint_path: Path
@@ -115,6 +117,7 @@ def _resolve_artifact_paths(cfg: VersusPPOConfig) -> VersusArtifactPaths:
         config_path=run_dir / "config.yaml",
         metadata_path=run_dir / "metadata.json",
         summary_path=run_dir / "summary.json",
+        manifest_path=run_dir / "artifact_manifest.json",
         checkpoint_dir=checkpoint_dir,
         checkpoint_path=checkpoint_path,
         best_checkpoint_path=checkpoint_dir / "best.pt",
@@ -141,6 +144,7 @@ def _write_artifact_metadata(cfg: VersusPPOConfig, paths: VersusArtifactPaths) -
         "run_id": paths.run_id,
         "run_dir": str(paths.run_dir),
         "metrics_path": str(paths.metrics_path),
+        "manifest_path": str(paths.manifest_path),
         "checkpoint_path": str(paths.checkpoint_path),
         "best_checkpoint_path": str(paths.best_checkpoint_path),
     }
@@ -263,10 +267,11 @@ def _checkpoint_payload(
     checkpoint_kind: str,
     best_metric_value: float | None,
 ) -> dict[str, Any]:
-    return {
+    config = asdict(cfg)
+    payload = {
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "config": asdict(cfg),
+        "config": config,
         "run_id": paths.run_id,
         "global_step": global_step,
         "board_shape": agent.board_shape,
@@ -281,6 +286,20 @@ def _checkpoint_payload(
         "best_checkpoint_metric": cfg.best_checkpoint_metric,
         "best_metric_value": best_metric_value,
     }
+    return attach_checkpoint_schema(
+        payload,
+        trainer_name="versus_ppo",
+        run_id=paths.run_id,
+        checkpoint_kind=checkpoint_kind,
+        global_step=global_step,
+        config=config,
+        git_commit=_git_commit(),
+        seed=cfg.seed,
+        environment_progress={
+            "episodes": len(episode_scores),
+            "rolling_window_episodes": cfg.rolling_window_episodes,
+        },
+    )
 
 
 def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
@@ -625,8 +644,36 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
             "metrics_path": str(paths.metrics_path),
             "config_path": str(paths.config_path),
             "metadata_path": str(paths.metadata_path),
+            "manifest_path": str(paths.manifest_path),
         }
         paths.summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+        checkpoint_artifacts: dict[str, str | Path | None] = {
+            "latest": paths.checkpoint_path,
+            "best": paths.best_checkpoint_path if best_checkpoint_written else None,
+        }
+        checkpoint_artifacts.update(
+            {f"periodic_{index + 1}": path for index, path in enumerate(periodic_checkpoints)}
+        )
+        write_artifact_manifest(
+            run_dir=paths.run_dir,
+            run_id=paths.run_id,
+            trainer_name="versus_ppo",
+            config=asdict(cfg),
+            git_commit=_git_commit(),
+            seed=cfg.seed,
+            artifacts={
+                "config": paths.config_path,
+                "metadata": paths.metadata_path,
+                "metrics": paths.metrics_path,
+                "summary": paths.summary_path,
+            },
+            checkpoints=checkpoint_artifacts,
+            manifest_path=paths.manifest_path,
+            extra={
+                "best_checkpoint_metric": cfg.best_checkpoint_metric,
+                "rolling_window_episodes": cfg.rolling_window_episodes,
+            },
+        )
         if writer is not None:
             writer.close()
 
@@ -642,6 +689,7 @@ def train_versus_ppo(config: VersusPPOConfig | None = None) -> dict[str, Any]:
         "metrics_path": str(paths.metrics_path),
         "config_path": str(paths.config_path),
         "metadata_path": str(paths.metadata_path),
+        "manifest_path": str(paths.manifest_path),
         "summary_path": str(paths.summary_path),
         "mean_episode_score": _mean_last(episode_scores, cfg.rolling_window_episodes),
         "mean_win_rate": _mean_last(episode_wins, cfg.rolling_window_episodes),

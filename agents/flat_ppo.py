@@ -24,6 +24,7 @@ except Exception:  # pragma: no cover - optional logger
     SummaryWriter = None
 
 from puyo_env.single_env import SinglePuyoEnv
+from train.artifacts import attach_checkpoint_schema, git_commit, write_artifact_manifest
 
 from .networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 
@@ -268,15 +269,40 @@ def train_flat_ppo(config: FlatPPOConfig | None = None) -> dict[str, Any]:
                 writer.add_scalar("losses/explained_variance", explained_var, global_step)
                 writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
 
+        config = asdict(cfg)
+        run_id = run_dir.name
         torch.save(
-            {
-                "model_state_dict": agent.state_dict(),
-                "config": asdict(cfg),
-                "global_step": global_step,
-                "episode_scores": episode_scores,
-                "episode_returns": episode_returns,
-            },
+            attach_checkpoint_schema(
+                {
+                    "model_state_dict": agent.state_dict(),
+                    "config": config,
+                    "global_step": global_step,
+                    "episode_scores": episode_scores,
+                    "episode_returns": episode_returns,
+                },
+                trainer_name="flat_ppo",
+                run_id=run_id,
+                checkpoint_kind="latest",
+                global_step=global_step,
+                config=config,
+                git_commit=git_commit(),
+                seed=cfg.seed,
+                environment_progress={"episodes": len(episode_scores)},
+            ),
             checkpoint_path,
+        )
+        manifest_path = run_dir / "artifact_manifest.json"
+        write_artifact_manifest(
+            run_dir=run_dir,
+            run_id=run_id,
+            trainer_name="flat_ppo",
+            config=config,
+            git_commit=git_commit(),
+            seed=cfg.seed,
+            artifacts={"metrics": metrics_path},
+            checkpoints={"latest": checkpoint_path},
+            manifest_path=manifest_path,
+            extra={"legacy_single_checkpoint": True},
         )
         if writer is not None:
             writer.close()
@@ -288,6 +314,7 @@ def train_flat_ppo(config: FlatPPOConfig | None = None) -> dict[str, Any]:
         "global_step": global_step,
         "checkpoint_path": str(checkpoint_path),
         "metrics_path": str(metrics_path),
+        "manifest_path": str(manifest_path),
         "mean_episode_score": float(np.mean(episode_scores[-10:])) if episode_scores else None,
         "episodes": len(episode_scores),
     }

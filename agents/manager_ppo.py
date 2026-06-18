@@ -40,6 +40,7 @@ from agents.strategy_workers import (
 from puyo_env.manager_env import ManagerSelfPlayEnv, manager_vector_dim, manager_vector_features
 from selfplay.opponent_pool import OpponentPool, OpponentSnapshot
 from selfplay.policies import make_policy
+from train.artifacts import attach_checkpoint_schema, write_artifact_manifest
 
 
 @dataclass
@@ -111,6 +112,7 @@ def _run_paths(cfg: ManagerPPOConfig) -> dict[str, Path | str]:
         "metrics_path": run_dir / "metrics.csv",
         "config_path": run_dir / "config.yaml",
         "summary_path": run_dir / "summary.json",
+        "manifest_path": run_dir / "artifact_manifest.json",
         "teacher_dataset_path": run_dir / "teacher_dataset.json",
         "opponent_pool_path": run_dir / "opponent_pool.json",
         "snapshot_dir": run_dir / "opponents",
@@ -309,18 +311,32 @@ def _stack(observations: list[dict[str, Any]], infos: list[dict[str, Any]], devi
     )
 
 
-def _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, kind):
-    return {
+def _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, kind, *, run_id: str):
+    config = asdict(cfg)
+    payload = {
         **manager_checkpoint_metadata(profiles),
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "config": asdict(cfg),
+        "config": config,
         "git_commit": _git_commit(),
+        "run_id": run_id,
         "board_shape": agent.board_shape,
         "global_step": global_step,
         "episodes": episodes,
         "checkpoint_kind": kind,
     }
+    return attach_checkpoint_schema(
+        payload,
+        trainer_name="manager_ppo",
+        run_id=run_id,
+        checkpoint_kind=kind,
+        global_step=global_step,
+        config=config,
+        git_commit=payload["git_commit"],
+        seed=cfg.seed,
+        parent_checkpoint_path=cfg.initial_checkpoint_path or None,
+        environment_progress={"episodes": len(episodes)},
+    )
 
 
 def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
@@ -463,7 +479,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     behavior_cloning_accuracy = _teacher_accuracy(agent, teacher_examples, device=device)
     behavior_checkpoint_path = paths["checkpoint_dir"] / "behavior_cloned.pt"
     if teacher_examples:
-        payload = _checkpoint_payload(cfg, agent, optimizer, profiles, 0, [], "behavior_cloned")
+        payload = _checkpoint_payload(
+            cfg,
+            agent,
+            optimizer,
+            profiles,
+            0,
+            [],
+            "behavior_cloned",
+            run_id=paths["run_id"],
+        )
         torch.save(payload, behavior_checkpoint_path)
         torch.save(payload, paths["best_checkpoint_path"])
 
@@ -642,7 +667,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                 best_selection_key = selection_key
                 best_tactical_accuracy = tactical_accuracy
                 torch.save(
-                    _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "best"),
+                    _checkpoint_payload(
+                        cfg,
+                        agent,
+                        optimizer,
+                        profiles,
+                        global_step,
+                        episodes,
+                        "best",
+                        run_id=paths["run_id"],
+                    ),
                     paths["best_checkpoint_path"],
                 )
                 best_written = True
@@ -650,7 +684,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             if next_snapshot_step is not None and global_step >= next_snapshot_step:
                 snapshot_path = paths["snapshot_dir"] / f"manager-step-{global_step}.pt"
                 torch.save(
-                    _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "opponent"),
+                    _checkpoint_payload(
+                        cfg,
+                        agent,
+                        optimizer,
+                        profiles,
+                        global_step,
+                        episodes,
+                        "opponent",
+                        run_id=paths["run_id"],
+                    ),
                     snapshot_path,
                 )
                 if opponent_pool is None:
@@ -670,7 +713,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                     next_snapshot_step += cfg.selfplay_snapshot_interval
 
     torch.save(
-        _checkpoint_payload(cfg, agent, optimizer, profiles, global_step, episodes, "latest"),
+        _checkpoint_payload(
+            cfg,
+            agent,
+            optimizer,
+            profiles,
+            global_step,
+            episodes,
+            "latest",
+            run_id=paths["run_id"],
+        ),
         checkpoint_path,
     )
     if opponent_pool is not None:
@@ -704,8 +756,44 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "checkpoint_path": str(checkpoint_path),
         "best_checkpoint_path": str(paths["best_checkpoint_path"]) if best_written else None,
         "metrics_path": str(paths["metrics_path"]),
+        "manifest_path": str(paths["manifest_path"]),
     }
     paths["summary_path"].write_text(json.dumps(summary, indent=2, sort_keys=True), encoding="utf-8")
+    checkpoint_artifacts: dict[str, str | Path | None] = {
+        "latest": checkpoint_path,
+        "best": paths["best_checkpoint_path"] if best_written else None,
+        "behavior_cloned": behavior_checkpoint_path if teacher_examples else None,
+    }
+    checkpoint_artifacts.update(
+        {
+            f"opponent_snapshot_{index + 1}": path
+            for index, path in enumerate(sorted(paths["snapshot_dir"].glob("*.pt")))
+        }
+    )
+    artifact_paths: dict[str, str | Path | None] = {
+        "config": paths["config_path"],
+        "metrics": paths["metrics_path"],
+        "summary": paths["summary_path"],
+        "teacher_dataset": teacher_path if teacher_examples else None,
+        "opponent_pool": paths["opponent_pool_path"] if opponent_pool is not None else None,
+    }
+    write_artifact_manifest(
+        run_dir=run_dir,
+        run_id=paths["run_id"],
+        trainer_name="manager_ppo",
+        config=asdict(cfg),
+        git_commit=_git_commit(),
+        seed=cfg.seed,
+        artifacts=artifact_paths,
+        checkpoints=checkpoint_artifacts,
+        manifest_path=paths["manifest_path"],
+        parent_checkpoint_path=cfg.initial_checkpoint_path or None,
+        extra={
+            "best_min_episodes": cfg.best_min_episodes,
+            "best_window_episodes": cfg.best_window_episodes,
+            "opponent_sampling": cfg.opponent_sampling,
+        },
+    )
     for env in envs:
         env.close()
     return {
@@ -713,4 +801,5 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "run_dir": str(run_dir),
         "config_path": str(paths["config_path"]),
         "summary_path": str(paths["summary_path"]),
+        "manifest_path": str(paths["manifest_path"]),
     }

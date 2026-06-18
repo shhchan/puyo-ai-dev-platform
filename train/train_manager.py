@@ -56,6 +56,7 @@ def main(argv=None):
     print(f"checkpoint: {result['checkpoint_path']}")
     print(f"metrics: {result['metrics_path']}")
     print(f"summary: {result['summary_path']}")
+    print(f"manifest: {result['manifest_path']}")
 
 
 if __name__ == "__main__":
