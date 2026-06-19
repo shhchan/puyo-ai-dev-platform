@@ -198,6 +198,27 @@ python3 -m eval.arena \
 解釈可能な router baseline は `manager_rule` です．設計詳細は
 [docs/development/puyo-strategy-orchestration.md](docs/development/puyo-strategy-orchestration.md) を参照してください．
 
+固定 6 profile に限定されない option manager は `strategy_space: option` で学習できます．
+各 action は `steady_build`，`lethal_probe`，`early_release` などの parameterized option を選び，
+checkpoint には option schema・latent vector・終了条件が保存されます．短時間 smoke run と固定
+profile baseline の同 seed 比較は次のように実行できます．
+
+```bash
+python3 -m train.train_manager --config train/config/manager_option_smoke.yaml
+
+python3 -m train.train_manager --config train/config/manager_smoke.yaml \
+  --set run_id=manager_profile_smoke_seed1
+
+python3 -m eval.arena \
+  --policy-a manager \
+  --checkpoint-a runs/manager_ppo/<option-run-id>/checkpoints/latest.pt \
+  --policy-b manager_rule \
+  --games 2 \
+  --max-steps 40 \
+  --csv runs/manager_ppo/<option-run-id>/option_arena_matches.csv \
+  --summary-csv runs/manager_ppo/<option-run-id>/option_arena_summary.csv
+```
+
 対戦 PPO の短時間 smoke run:
 
 ```bash

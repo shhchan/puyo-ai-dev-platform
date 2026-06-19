@@ -118,6 +118,67 @@ class SearchControlDiagnostics:
 
 
 @dataclass(frozen=True)
+class TacticalOption:
+    """Learnable non-fixed tactical intent mapped onto a worker at execution time."""
+
+    option_id: int
+    name: str
+    base_profile_name: str
+    strategy: str
+    target_attack_delta: int = 0
+    target_chain_delta: int = 0
+    deadline_delta: int = 0
+    danger_tolerance_delta: float = 0.0
+    fire_threshold_scale: float = 1.0
+    termination: str = "objective_or_timeout"
+    latent_vector: tuple[float, ...] = ()
+    fallback_profile_name: str = "survival"
+
+    def __post_init__(self) -> None:
+        if self.option_id < 0:
+            raise ValueError("option_id must be non-negative")
+        if self.strategy not in STRATEGY_NAMES:
+            raise ValueError(f"unknown option strategy: {self.strategy}")
+        if self.termination not in {"objective", "timeout", "danger", "objective_or_timeout"}:
+            raise ValueError(f"unknown option termination: {self.termination}")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": "tactical-option-v1",
+            "option_id": int(self.option_id),
+            "name": self.name,
+            "base_profile_name": self.base_profile_name,
+            "strategy": self.strategy,
+            "target_attack_delta": int(self.target_attack_delta),
+            "target_chain_delta": int(self.target_chain_delta),
+            "deadline_delta": int(self.deadline_delta),
+            "danger_tolerance_delta": float(self.danger_tolerance_delta),
+            "fire_threshold_scale": float(self.fire_threshold_scale),
+            "termination": self.termination,
+            "latent_vector": [float(value) for value in self.latent_vector],
+            "fallback_profile_name": self.fallback_profile_name,
+        }
+
+
+@dataclass(frozen=True)
+class TacticalOptionDiagnostics:
+    """Resolved option details used by training, replay, and collapse analysis."""
+
+    option: TacticalOption
+    base_profile: WorkerProfile
+    effective_profile: WorkerProfile
+    termination_reason: str = "active"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            **self.option.to_dict(),
+            "base_profile": _profile_budget_dict(self.base_profile),
+            "effective_profile": _profile_budget_dict(self.effective_profile),
+            "termination_reason": self.termination_reason,
+        }
+
+
+@dataclass(frozen=True)
 class AttackForecast:
     immediate_chain: int = 0
     immediate_attack: int = 0
@@ -327,6 +388,7 @@ class SearchProposal:
     objective: TacticalObjective | None = None
     objective_result: ObjectiveResult | None = None
     search_control: SearchControlDiagnostics | None = None
+    tactical_option: TacticalOptionDiagnostics | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -339,6 +401,10 @@ class SearchProposal:
     @property
     def search_control_dict(self) -> dict[str, Any]:
         return {} if self.search_control is None else self.search_control.to_dict()
+
+    @property
+    def tactical_option_dict(self) -> dict[str, Any]:
+        return {} if self.tactical_option is None else self.tactical_option.to_dict()
 
 
 @dataclass(frozen=True)
@@ -471,6 +537,77 @@ def baseline_search_controls() -> tuple[SearchControl, ...]:
     return default_search_controls()[:1]
 
 
+def default_tactical_options() -> tuple[TacticalOption, ...]:
+    """Non-fixed tactical options layered on top of the six baseline workers."""
+
+    return (
+        TacticalOption(
+            0,
+            "steady_build",
+            "build_large",
+            "build_large",
+            target_chain_delta=1,
+            deadline_delta=1,
+            danger_tolerance_delta=-0.05,
+            termination="objective_or_timeout",
+            latent_vector=(0.25, 0.75, 0.20),
+        ),
+        TacticalOption(
+            1,
+            "budget_probe",
+            "build_budget",
+            "build_budget",
+            target_chain_delta=-1,
+            deadline_delta=-1,
+            danger_tolerance_delta=0.05,
+            termination="timeout",
+            latent_vector=(0.15, 0.45, 0.35),
+        ),
+        TacticalOption(
+            2,
+            "lethal_probe",
+            "punish",
+            "punish",
+            target_attack_delta=2,
+            deadline_delta=1,
+            fire_threshold_scale=0.9,
+            termination="objective",
+            fallback_profile_name="fire_max",
+            latent_vector=(0.85, 0.25, 0.80),
+        ),
+        TacticalOption(
+            3,
+            "safe_counter_window",
+            "counter",
+            "counter",
+            target_attack_delta=1,
+            danger_tolerance_delta=-0.15,
+            termination="danger",
+            latent_vector=(0.65, 0.35, 0.25),
+        ),
+        TacticalOption(
+            4,
+            "early_release",
+            "fire_max",
+            "fire_max",
+            target_attack_delta=-1,
+            fire_threshold_scale=0.75,
+            termination="objective",
+            latent_vector=(0.70, 0.20, 0.95),
+        ),
+        TacticalOption(
+            5,
+            "survival_stall",
+            "survival",
+            "survival",
+            danger_tolerance_delta=-0.2,
+            deadline_delta=1,
+            termination="danger",
+            latent_vector=(0.10, 0.15, 0.10),
+        ),
+    )
+
+
 def scaled_worker_profiles(
     profiles: tuple[WorkerProfile, ...],
     *,
@@ -578,6 +715,76 @@ def profile_id_by_name(profiles: tuple[WorkerProfile, ...], *names: str) -> int:
         if profile.name in names or profile.strategy in names:
             return profile.profile_id
     raise KeyError(f"worker profile not found: {names}")
+
+
+class TacticalOptionController:
+    """Resolve a learned option into executable profile and objective parameters."""
+
+    def __init__(self, profiles: tuple[WorkerProfile, ...], options: tuple[TacticalOption, ...] | None = None):
+        self.profiles = profiles
+        self.options = options or default_tactical_options()
+        expected = tuple(range(len(self.options)))
+        actual = tuple(option.option_id for option in self.options)
+        if actual != expected:
+            raise ValueError(f"option ids must be contiguous from zero: {actual}")
+
+    def resolve(
+        self,
+        option_id: int,
+        tactical: TacticalContext,
+    ) -> tuple[WorkerProfile, TacticalObjective, TacticalOptionDiagnostics]:
+        option = self.options[int(option_id)]
+        base = self.profiles[profile_id_by_name(self.profiles, option.base_profile_name, option.strategy)]
+        effective = replace(
+            base,
+            name=option.name,
+            strategy=option.strategy,
+            minimum_chain_count=max(1, base.minimum_chain_count + option.target_chain_delta),
+            danger_tolerance=min(max(base.danger_tolerance + option.danger_tolerance_delta, 0.05), 1.0),
+            fire_threshold=min(max(base.fire_threshold * option.fire_threshold_scale, 0.25), 2.0),
+        )
+        objective = _objective_for_option(tactical, effective, option)
+        diagnostics = TacticalOptionDiagnostics(
+            option=option,
+            base_profile=base,
+            effective_profile=effective,
+            termination_reason=_option_termination_reason(option, objective, tactical),
+        )
+        return effective, objective, diagnostics
+
+
+def _objective_for_option(
+    tactical: TacticalContext,
+    profile: WorkerProfile,
+    option: TacticalOption,
+) -> TacticalObjective:
+    objective = objective_for_profile(tactical, profile)
+    return replace(
+        objective,
+        target_attack=max(0, objective.target_attack + option.target_attack_delta),
+        target_score=max(0, objective.target_score + option.target_attack_delta * 70),
+        target_chain=max(0, objective.target_chain + option.target_chain_delta),
+        deadline=max(1, objective.deadline + option.deadline_delta) if objective.deadline else 0,
+        max_danger=min(max(objective.max_danger + option.danger_tolerance_delta, 0.05), 1.0),
+        fallback_strategy=option.fallback_profile_name,
+        source_profile_id=profile.profile_id,
+        source_profile_name=option.name,
+        reason=f"{objective.reason}; option={option.name}; termination={option.termination}",
+    )
+
+
+def _option_termination_reason(
+    option: TacticalOption,
+    objective: TacticalObjective,
+    tactical: TacticalContext,
+) -> str:
+    if option.termination == "danger" and tactical.own_danger > objective.max_danger:
+        return "danger_threshold"
+    if option.termination == "objective" and objective.target_attack <= tactical.own_forecast.immediate_attack:
+        return "objective_reached"
+    if option.termination == "timeout" and objective.deadline <= 1:
+        return "timeout_window"
+    return "active"
 
 
 def board_danger(game) -> float:
@@ -1002,6 +1209,7 @@ def _proposal(
     value: float = 0.0,
     depth: int = 1,
     search_control: SearchControlDiagnostics | None = None,
+    tactical_option: TacticalOptionDiagnostics | None = None,
 ) -> SearchProposal:
     elapsed_seconds = float(elapsed)
     if search_control is not None:
@@ -1038,6 +1246,7 @@ def _proposal(
         objective=objective,
         objective_result=result,
         search_control=search_control,
+        tactical_option=tactical_option,
     )
 
 
@@ -1278,12 +1487,17 @@ def _evaluate_objective(
 class StrategyOrchestrator:
     """Execute exactly one worker selected by a manager action."""
 
-    def __init__(self, profiles: tuple[WorkerProfile, ...] | None = None):
+    def __init__(
+        self,
+        profiles: tuple[WorkerProfile, ...] | None = None,
+        tactical_options: tuple[TacticalOption, ...] | None = None,
+    ):
         self.profiles = profiles or default_worker_profiles()
         expected = tuple(range(len(self.profiles)))
         actual = tuple(profile.profile_id for profile in self.profiles)
         if actual != expected:
             raise ValueError(f"profile ids must be contiguous from zero: {actual}")
+        self.option_controller = TacticalOptionController(self.profiles, tactical_options)
         self._beam_worker = BeamStrategyWorker()
         self._tactical_worker = TacticalStrategyWorker()
         self.last_proposal: SearchProposal | None = None
@@ -1296,15 +1510,31 @@ class StrategyOrchestrator:
         observation: dict[str, Any],
         info: dict[str, Any],
         search_control: SearchControl | None = None,
+        tactical_option_id: int | None = None,
     ) -> SearchProposal:
-        profile = self.profiles[int(profile_id)]
-        profile, control_diagnostics = apply_search_control(profile, search_control)
         tactical = build_tactical_context(info)
         self.last_tactical_context = tactical
+        option_diagnostics = None
+        if tactical_option_id is None:
+            profile = self.profiles[int(profile_id)]
+            objective = objective_for_profile(tactical, profile)
+        else:
+            profile, objective, option_diagnostics = self.option_controller.resolve(
+                int(tactical_option_id),
+                tactical,
+            )
+        profile, control_diagnostics = apply_search_control(profile, search_control)
+        if tactical_option_id is not None:
+            objective = replace(
+                objective,
+                source_profile_name=profile.name,
+                max_danger=profile.danger_tolerance,
+            )
         context = SearchContext(observation=observation, info=info, tactical=tactical)
-        objective = objective_for_profile(tactical, profile)
         worker = self._beam_worker if profile.strategy in BUILD_STRATEGIES else self._tactical_worker
         self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
+        if option_diagnostics is not None:
+            self.last_proposal = replace(self.last_proposal, tactical_option=option_diagnostics)
         self.last_plan = build_n_turn_plan(self.last_proposal, context.simulator, tactical)
         return self.last_proposal
 
