@@ -200,6 +200,8 @@ class RealtimeVersusMatchController:
                 "target_attack": proposal.target_attack,
                 "deadline": proposal.deadline,
                 "reason": proposal.reason,
+                "objective": getattr(proposal, "objective_dict", {}),
+                "objective_result": getattr(proposal, "objective_result_dict", {}),
             }
         decision = self.controllers[agent].diagnostics.last_decision
         if decision is None:

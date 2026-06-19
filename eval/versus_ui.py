@@ -277,6 +277,7 @@ class VersusMatchController:
         if isinstance(diagnostics, dict):
             return diagnostics
         proposal = getattr(policy, "last_proposal", None)
+        plan = getattr(policy, "last_plan", None)
         if proposal is None:
             return {}
         return {
@@ -284,6 +285,11 @@ class VersusMatchController:
             "target_attack": proposal.target_attack,
             "deadline": proposal.deadline,
             "reason": proposal.reason,
+            "objective": getattr(proposal, "objective_dict", {}),
+            "objective_result": getattr(proposal, "objective_result_dict", {}),
+            "plan": {} if plan is None else plan.to_dict(),
+            "plan_id": "" if plan is None else plan.plan_id,
+            "plan_update_reason": "" if plan is None else plan.update_reason,
         }
 
     @property

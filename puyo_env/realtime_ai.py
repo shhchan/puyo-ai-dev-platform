@@ -304,24 +304,24 @@ class RealtimePolicyController:
         fallback = False
         if timeout:
             self.diagnostics.timeouts += 1
-            action_index = self._fallback_action(mask)
+            action_index = self._fallback_action(mask, match=match, agent=agent)
             reason = "timeout_fallback"
             fallback = True
 
         if action_index is None or not 0 <= int(action_index) < NUM_ACTIONS:
-            action_index = self._fallback_action(mask)
+            action_index = self._fallback_action(mask, match=match, agent=agent)
             reason = "invalid_action_fallback"
             fallback = True
         elif not mask[int(action_index)]:
             self.diagnostics.masked_actions += 1
-            action_index = self._fallback_action(mask)
+            action_index = self._fallback_action(mask, match=match, agent=agent)
             reason = "masked_action_fallback"
             fallback = True
 
         plan = self._plan_action(match, agent, action_index)
         if plan is not None and not plan.reachable:
             self.diagnostics.unreachable_plans += 1
-            action_index = self._fallback_action(mask, exclude=action_index)
+            action_index = self._fallback_action(mask, exclude=action_index, match=match, agent=agent)
             plan = self._plan_action(match, agent, action_index)
             reason = "unreachable_action_fallback"
             fallback = True
@@ -335,7 +335,7 @@ class RealtimePolicyController:
         ):
             deadline_miss = True
             self.diagnostics.deadline_misses += 1
-            action_index = self._fallback_action(mask, exclude=action_index)
+            action_index = self._fallback_action(mask, exclude=action_index, match=match, agent=agent)
             plan = self._plan_action(match, agent, action_index)
             reason = "deadline_fallback"
             fallback = True
@@ -381,10 +381,20 @@ class RealtimePolicyController:
             max_expanded_states=self.config.max_plan_expanded_states,
         )
 
-    def _fallback_action(self, mask: Sequence[bool], *, exclude: int | None = None) -> int | None:
+    def _fallback_action(
+        self,
+        mask: Sequence[bool],
+        *,
+        exclude: int | None = None,
+        match: RealtimeVersusMatch | None = None,
+        agent: str | None = None,
+    ) -> int | None:
         configured = self.config.fallback_action_index
         if configured is not None and configured != exclude and mask[configured]:
             return configured
+        planned = self._fallback_action_by_plan(mask, exclude=exclude, match=match, agent=agent)
+        if planned is not None:
+            return planned
         for index, allowed in enumerate(mask):
             if allowed and index != exclude:
                 return index
@@ -392,6 +402,42 @@ class RealtimePolicyController:
             if allowed:
                 return index
         return None
+
+    def _fallback_action_by_plan(
+        self,
+        mask: Sequence[bool],
+        *,
+        exclude: int | None,
+        match: RealtimeVersusMatch | None,
+        agent: str | None,
+    ) -> int | None:
+        if match is None or agent is None:
+            return None
+        candidates = []
+        center = (GRID_WIDTH - 1) / 2.0
+        for index, allowed in enumerate(mask):
+            if not allowed or index == exclude:
+                continue
+            plan = self._plan_action(match, agent, index)
+            if plan is None or not plan.reachable:
+                continue
+            placement = action_to_placement(index)
+            candidates.append(
+                (
+                    plan.tick_count,
+                    abs(float(placement.axis_x) - center),
+                    int(index),
+                )
+            )
+        if not candidates:
+            return None
+        deadline = self.config.action_deadline_ticks
+        if deadline is not None:
+            within_deadline = [item for item in candidates if item[0] <= deadline]
+            if within_deadline:
+                candidates = within_deadline
+        _, _, index = min(candidates)
+        return index
 
     def _should_abort_active_plan(self, simulator) -> bool:
         if not self.config.abort_unreachable_active_plan:

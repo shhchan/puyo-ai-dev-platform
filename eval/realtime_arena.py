@@ -23,6 +23,37 @@ from selfplay.policies import Policy, make_policy
 from src.core.realtime import TickInput
 
 
+def _policy_search_objective_diagnostics(policy: Policy) -> dict[str, Any]:
+    diagnostics = getattr(policy, "tactical_diagnostics", None)
+    if isinstance(diagnostics, dict) and (
+        diagnostics.get("objective") or diagnostics.get("objective_result") or diagnostics.get("plan")
+    ):
+        return {
+            "search_objective": diagnostics.get("objective", {}),
+            "search_objective_result": diagnostics.get("objective_result", {}),
+            "plan": diagnostics.get("plan", {}),
+            "plan_id": diagnostics.get("plan_id", ""),
+            "plan_update_reason": diagnostics.get("plan_update_reason", ""),
+        }
+    proposal = getattr(policy, "last_proposal", None)
+    plan = getattr(policy, "last_plan", None)
+    if proposal is None and plan is None:
+        return {
+            "search_objective": {},
+            "search_objective_result": {},
+            "plan": {},
+            "plan_id": "",
+            "plan_update_reason": "",
+        }
+    return {
+        "search_objective": {} if proposal is None else getattr(proposal, "objective_dict", {}),
+        "search_objective_result": {} if proposal is None else getattr(proposal, "objective_result_dict", {}),
+        "plan": {} if plan is None else plan.to_dict(),
+        "plan_id": "" if plan is None else plan.plan_id,
+        "plan_update_reason": "" if plan is None else plan.update_reason,
+    }
+
+
 @dataclass(frozen=True)
 class RealtimeArenaMatchResult:
     seed: int
@@ -145,6 +176,10 @@ def run_realtime_match(
                     "inputs": {
                         agent: tick_input.to_json()
                         for agent, tick_input in sorted(inputs.items())
+                    },
+                    "policy_diagnostics": {
+                        "player_0": _policy_search_objective_diagnostics(policy_player_0),
+                        "player_1": _policy_search_objective_diagnostics(policy_player_1),
                     },
                     "snapshot_hash": match_result.snapshot_hash,
                 }

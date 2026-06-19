@@ -120,6 +120,104 @@ class TestLineageRegistry(unittest.TestCase):
             self.assertGreaterEqual(len(progress_edges), 2)
             self.assertEqual(validate_registry(registry), [])
 
+    def test_registry_tracks_selfplay_snapshots_and_evaluations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run_dir = root / "manager-run"
+            checkpoint = run_dir / "checkpoints" / "latest.pt"
+            best = run_dir / "checkpoints" / "best.pt"
+            opponent = run_dir / "opponents" / "manager-step-64.pt"
+            summary = run_dir / "summary.json"
+            pool = run_dir / "opponent_pool.json"
+            evaluations = run_dir / "selfplay_evaluations.json"
+            opponent.parent.mkdir(parents=True)
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            for path in (checkpoint, best, opponent):
+                path.write_bytes(path.name.encode("utf-8"))
+            summary.write_text(
+                json.dumps(
+                    {
+                        "run_id": "manager-run",
+                        "global_step": 64,
+                        "episodes": 2,
+                        "mean_win_rate": 0.5,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            pool.write_text(
+                json.dumps(
+                    {
+                        "snapshots": [
+                            {
+                                "name": "manager_step_64",
+                                "policy_type": "manager",
+                                "checkpoint_path": str(opponent),
+                                "rating": 1012.0,
+                                "games_played": 2,
+                                "metadata": {
+                                    "role": "selfplay_snapshot",
+                                    "global_step": 64,
+                                    "parent_checkpoint_path": str(best),
+                                },
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            evaluations.write_text(
+                json.dumps(
+                    [
+                        {
+                            "global_step": 64,
+                            "latest_name": "manager_step_64",
+                            "opponent_name": "greedy_score",
+                            "latest_rating": 1012.0,
+                            "opponent_rating": 988.0,
+                            "games": 2,
+                            "win_rate": 0.5,
+                            "mean_score": 1200.0,
+                        }
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            write_artifact_manifest(
+                run_dir=run_dir,
+                run_id="manager-run",
+                trainer_name="manager_ppo",
+                config={"seed": 1},
+                git_commit="abc123",
+                seed=1,
+                artifacts={
+                    "summary": summary,
+                    "opponent_pool": pool,
+                    "selfplay_evaluations": evaluations,
+                },
+                checkpoints={"latest": checkpoint, "best": best, "opponent_snapshot_1": opponent},
+            )
+
+            registry = build_registry([root])
+            snapshot_nodes = [
+                node for node in registry.nodes.values()
+                if node.node_type == "opponent_snapshot"
+            ]
+            evaluation_nodes = [
+                node for node in registry.nodes.values()
+                if node.node_type == "selfplay_evaluation"
+            ]
+
+            self.assertEqual(len(snapshot_nodes), 1)
+            self.assertEqual(len(evaluation_nodes), 1)
+            self.assertTrue(
+                any(edge.edge_type == "produces" and edge.target == snapshot_nodes[0].id for edge in registry.edges)
+            )
+            self.assertTrue(
+                any(edge.edge_type == "evaluates" and edge.target == evaluation_nodes[0].id for edge in registry.edges)
+            )
+            self.assertEqual(validate_registry(registry), [])
+
 
 if __name__ == "__main__":
     unittest.main()
