@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -20,10 +21,12 @@ from agents.strategy_workers import (
     SearchProposal,
     StrategyOrchestrator,
     TacticalContext,
+    TacticalOption,
     WorkerProfile,
     board_danger,
     build_tactical_context,
     default_search_controls,
+    default_tactical_options,
     default_worker_profiles,
     estimate_immediate_threat,
 )
@@ -37,6 +40,7 @@ if TYPE_CHECKING:
 MANAGER_BASE_FEATURE_DIM = 30
 DEFAULT_MANAGER_PROFILE_COUNT = len(default_worker_profiles())
 DEFAULT_MANAGER_SEARCH_CONTROL_COUNT = len(default_search_controls())
+DEFAULT_MANAGER_OPTION_COUNT = len(default_tactical_options())
 
 
 def manager_feature_dim(
@@ -68,6 +72,7 @@ class ManagerState:
     last_proposal: SearchProposal | None = None
     last_plan: NTurnPlan | None = None
     profile_counts: list[int] = field(default_factory=lambda: [0] * DEFAULT_MANAGER_PROFILE_COUNT)
+    option_counts: list[int] = field(default_factory=lambda: [0] * DEFAULT_MANAGER_OPTION_COUNT)
     search_control_counts: list[int] = field(
         default_factory=lambda: [0] * DEFAULT_MANAGER_SEARCH_CONTROL_COUNT
     )
@@ -92,6 +97,24 @@ def _bounded(value: float, scale: float) -> float:
 
 def _centered(value: float, scale: float) -> float:
     return min(max(0.5 + float(value) / max(scale, 1e-9), 0.0), 1.0)
+
+
+def _usage_entropy(counts: list[int]) -> float:
+    total = sum(counts)
+    if total <= 0:
+        return 0.0
+    entropy = 0.0
+    for count in counts:
+        if count <= 0:
+            continue
+        probability = count / total
+        entropy -= probability * math.log(probability)
+    return entropy
+
+
+def _dominant_usage_ratio(counts: list[int]) -> float:
+    total = sum(counts)
+    return 0.0 if total <= 0 else max(counts) / total
 
 
 def encode_manager_features(
@@ -254,6 +277,8 @@ class ManagerSelfPlayEnv(_BaseEnv):
         reward_config: VersusRewardConfig | None = None,
         profiles: tuple[WorkerProfile, ...] | None = None,
         search_controls: tuple[SearchControl, ...] | None = None,
+        tactical_options: tuple[TacticalOption, ...] | None = None,
+        strategy_space: str = "profile",
         switch_penalty: float = 0.02,
         decision_time_penalty: float = 0.001,
         search_cost_reward_scale: float = 1.0,
@@ -266,9 +291,13 @@ class ManagerSelfPlayEnv(_BaseEnv):
         super().__init__()
         from selfplay.policies import RandomPolicy
 
+        if strategy_space not in {"profile", "option"}:
+            raise ValueError("strategy_space must be 'profile' or 'option'")
         self.versus_env = VersusPuyoEnv(seed=seed, max_steps=max_steps, reward_config=reward_config)
         self.opponent_policy = opponent_policy or RandomPolicy(seed=seed)
-        self.orchestrator = StrategyOrchestrator(profiles or default_worker_profiles())
+        self.strategy_space = strategy_space
+        self.tactical_options = tactical_options or default_tactical_options()
+        self.orchestrator = StrategyOrchestrator(profiles or default_worker_profiles(), self.tactical_options)
         self.search_controls = search_controls or default_search_controls()
         self.switch_penalty = float(switch_penalty)
         self.decision_time_penalty = float(decision_time_penalty)
@@ -277,11 +306,13 @@ class ManagerSelfPlayEnv(_BaseEnv):
         self.auxiliary_reward_scale = float(auxiliary_reward_scale)
         self.curriculum_stage = str(curriculum_stage)
         self.profile_count = len(self.orchestrator.profiles)
+        self.option_count = len(self.tactical_options)
+        self.decision_count = self.option_count if self.strategy_space == "option" else self.profile_count
         self.search_control_count = len(self.search_controls)
-        self.manager_feature_dim = manager_feature_dim(self.profile_count, self.search_control_count)
-        self.manager_vector_dim = manager_vector_dim(self.profile_count, self.search_control_count)
+        self.manager_feature_dim = manager_feature_dim(self.decision_count, self.search_control_count)
+        self.manager_vector_dim = manager_vector_dim(self.decision_count, self.search_control_count)
         base_space = self.versus_env.observation_space("player_0")
-        self.action_space = spaces.Discrete(self.profile_count * self.search_control_count)
+        self.action_space = spaces.Discrete(self.decision_count * self.search_control_count)
         self.observation_space = spaces.Dict(
             {
                 "board": base_space["board"],
@@ -295,7 +326,8 @@ class ManagerSelfPlayEnv(_BaseEnv):
             }
         )
         self.manager_state = ManagerState(
-            profile_counts=[0] * self.profile_count,
+            profile_counts=[0] * self.decision_count,
+            option_counts=[0] * self.option_count,
             search_control_counts=[0] * self.search_control_count,
         )
         self._episode_return = 0.0
@@ -311,7 +343,8 @@ class ManagerSelfPlayEnv(_BaseEnv):
         super().reset(seed=seed)
         observations, infos = self.versus_env.reset(seed=seed, options=options)
         self.manager_state = ManagerState(
-            profile_counts=[0] * self.profile_count,
+            profile_counts=[0] * self.decision_count,
+            option_counts=[0] * self.option_count,
             search_control_counts=[0] * self.search_control_count,
         )
         self._episode_return = 0.0
@@ -322,7 +355,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
             observations["player_0"],
             info,
             self.manager_state,
-            self.profile_count,
+            self.decision_count,
             self.search_control_count,
         )
         return observation, info
@@ -332,9 +365,14 @@ class ManagerSelfPlayEnv(_BaseEnv):
         enriched["tactical_context"] = build_tactical_context(enriched)
         enriched["action_mask"] = self._manager_action_mask()
         enriched["manager_profile_id"] = self.manager_state.last_profile_id
+        enriched["manager_strategy_space"] = self.strategy_space
+        enriched["manager_option_id"] = (
+            self.manager_state.last_profile_id if self.strategy_space == "option" else -1
+        )
         enriched["manager_search_control_id"] = self.manager_state.last_search_control_id
         enriched["manager_switch_count"] = self.manager_state.switch_count
         enriched["manager_profile_counts"] = tuple(self.manager_state.profile_counts)
+        enriched["manager_option_counts"] = tuple(self.manager_state.option_counts)
         enriched["manager_search_control_counts"] = tuple(self.manager_state.search_control_counts)
         enriched["search_proposal"] = self.manager_state.last_proposal
         enriched["search_plan"] = (
@@ -345,10 +383,12 @@ class ManagerSelfPlayEnv(_BaseEnv):
             enriched["search_objective"] = self.manager_state.last_proposal.objective_dict
             enriched["search_objective_result"] = self.manager_state.last_proposal.objective_result_dict
             enriched["search_control"] = self.manager_state.last_proposal.search_control_dict
+            enriched["tactical_option"] = self.manager_state.last_proposal.tactical_option_dict
         else:
             enriched["search_objective"] = {}
             enriched["search_objective_result"] = {}
             enriched["search_control"] = {}
+            enriched["tactical_option"] = {}
         enriched["curriculum_stage"] = self.curriculum_stage
         return enriched
 
@@ -366,9 +406,14 @@ class ManagerSelfPlayEnv(_BaseEnv):
                 "fire_max",
                 "survival",
             }
-        profile_allowed = [
-            _canonical_strategy(profile.strategy) in allowed for profile in self.orchestrator.profiles
-        ]
+        if self.strategy_space == "option":
+            profile_allowed = [
+                _canonical_strategy(option.strategy) in allowed for option in self.tactical_options
+            ]
+        else:
+            profile_allowed = [
+                _canonical_strategy(profile.strategy) in allowed for profile in self.orchestrator.profiles
+            ]
         mean_decision_ms = 0.0
         decisions = max(1, sum(self.manager_state.profile_counts))
         if decisions > 0:
@@ -441,7 +486,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
         action_id = int(action)
         if not self.action_space.contains(action_id):
             raise ValueError(f"invalid manager action: {action_id}")
-        profile_id, control_id, search_control = self._decode_manager_action(action_id)
+        decision_id, control_id, search_control = self._decode_manager_action(action_id)
         if not bool(self._manager_action_mask()[action_id]):
             raise ValueError(
                 f"manager action {action_id} is unavailable in curriculum stage {self.curriculum_stage}"
@@ -452,7 +497,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
         switched = (
             self.manager_state.last_profile_id >= 0
             and (
-                profile_id != self.manager_state.last_profile_id
+                decision_id != self.manager_state.last_profile_id
                 or control_id != self.manager_state.last_search_control_id
             )
         )
@@ -460,15 +505,17 @@ class ManagerSelfPlayEnv(_BaseEnv):
             self.manager_state.switch_count += 1
             self.manager_state.profile_duration = 1
         elif (
-            profile_id == self.manager_state.last_profile_id
+            decision_id == self.manager_state.last_profile_id
             and control_id == self.manager_state.last_search_control_id
         ):
             self.manager_state.profile_duration += 1
         else:
             self.manager_state.profile_duration = 1
-        self.manager_state.last_profile_id = profile_id
+        self.manager_state.last_profile_id = decision_id
         self.manager_state.last_search_control_id = control_id
-        self.manager_state.profile_counts[profile_id] += 1
+        self.manager_state.profile_counts[decision_id] += 1
+        if self.strategy_space == "option":
+            self.manager_state.option_counts[decision_id] += 1
         self.manager_state.search_control_counts[control_id] += 1
         self.manager_state.tactic_counts[before.recommended_strategy] = (
             self.manager_state.tactic_counts.get(before.recommended_strategy, 0) + 1
@@ -482,10 +529,11 @@ class ManagerSelfPlayEnv(_BaseEnv):
         )
 
         proposal = self.orchestrator.propose(
-            profile_id,
+            decision_id if self.strategy_space == "profile" else 0,
             self._last_observations["player_0"],
             self._last_infos["player_0"],
             search_control,
+            tactical_option_id=decision_id if self.strategy_space == "option" else None,
         )
         self.manager_state.last_proposal = proposal
         self.manager_state.last_plan = self.orchestrator.last_plan
@@ -554,6 +602,20 @@ class ManagerSelfPlayEnv(_BaseEnv):
                     "r": self._episode_return,
                     "switches": self.manager_state.switch_count,
                     "profile_counts": tuple(self.manager_state.profile_counts),
+                    "option_counts": tuple(self.manager_state.option_counts),
+                    "option_usage_entropy": _usage_entropy(self.manager_state.option_counts),
+                    "option_dominant_usage_ratio": _dominant_usage_ratio(self.manager_state.option_counts),
+                    "option_collapse_detected": (
+                        self.strategy_space == "option"
+                        and decisions >= 3
+                        and _dominant_usage_ratio(self.manager_state.option_counts) >= 0.85
+                    ),
+                    "excessive_switching_detected": decisions >= 3 and self.manager_state.switch_count / decisions >= 0.75,
+                    "uninterpretable_option_count": sum(
+                        1
+                        for option in self.tactical_options
+                        if self.strategy_space == "option" and not option.latent_vector
+                    ),
                     "search_control_counts": tuple(self.manager_state.search_control_counts),
                     "search_control_mode_counts": dict(self.manager_state.search_control_mode_counts),
                     "search_control_by_tactic": dict(self.manager_state.search_control_by_tactic),
@@ -575,7 +637,7 @@ class ManagerSelfPlayEnv(_BaseEnv):
             observations["player_0"],
             info,
             self.manager_state,
-            self.profile_count,
+            self.decision_count,
             self.search_control_count,
         )
         return manager_observation, reward, terminations["player_0"], truncations["player_0"], info

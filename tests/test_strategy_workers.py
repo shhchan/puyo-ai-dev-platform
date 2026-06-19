@@ -4,9 +4,11 @@ try:
     from agents.strategy_workers import (
         FixedProfilePolicy,
         StrategyOrchestrator,
+        TacticalOptionController,
         apply_search_control,
         board_danger,
         default_search_controls,
+        default_tactical_options,
         default_worker_profiles,
         estimate_immediate_threat,
         build_tactical_context,
@@ -154,6 +156,30 @@ class TestStrategyWorkers(unittest.TestCase):
             proposal.search_control_dict["effective"]["width"],
             proposal.search_control_dict["requested"]["width"],
         )
+
+    def test_tactical_option_resolves_to_parameterized_objective(self):
+        _, _, info = self._state(seed=22)
+        profiles = smoke_worker_profiles()
+        controller = TacticalOptionController(profiles, default_tactical_options())
+        tactical = build_tactical_context(info)
+
+        profile, objective, diagnostics = controller.resolve(2, tactical)
+
+        self.assertEqual(profile.name, "lethal_probe")
+        self.assertEqual(objective.source_profile_name, "lethal_probe")
+        self.assertEqual(diagnostics.to_dict()["schema_version"], "tactical-option-v1")
+        self.assertGreaterEqual(objective.target_attack, tactical.lethal_target)
+
+    def test_orchestrator_accepts_non_fixed_tactical_option(self):
+        _, observation, info = self._state(seed=24)
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles(), default_tactical_options())
+
+        proposal = orchestrator.propose(0, observation, info, tactical_option_id=4)
+
+        self.assertEqual(proposal.profile_name, "early_release")
+        self.assertEqual(proposal.tactical_option_dict["name"], "early_release")
+        self.assertEqual(proposal.objective_dict["source_profile_name"], "early_release")
+        self.assertTrue(info["action_mask"][proposal.action])
 
     def test_orchestrator_exposes_visible_n_turn_plan(self):
         simulator, observation, info = self._state(seed=23)

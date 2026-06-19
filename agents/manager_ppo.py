@@ -36,6 +36,7 @@ from agents.tactical_scenarios import (
 from agents.strategy_workers import (
     baseline_search_controls,
     default_search_controls,
+    default_tactical_options,
     default_worker_profiles,
     scaled_worker_profiles,
     smoke_worker_profiles,
@@ -76,6 +77,7 @@ class ManagerPPOConfig:
     switch_penalty: float = 0.02
     decision_time_penalty: float = 0.001
     search_control_mode: str = "hybrid"
+    strategy_space: str = "profile"
     search_cost_reward_scale: float = 1.0
     max_search_latency_ms: float = 80.0
     auxiliary_reward_scale: float = 0.25
@@ -374,6 +376,8 @@ def _checkpoint_payload(
     optimizer,
     profiles,
     search_controls,
+    tactical_options,
+    decision_count,
     global_step,
     episodes,
     kind,
@@ -384,7 +388,13 @@ def _checkpoint_payload(
 ):
     config = asdict(cfg)
     payload = {
-        **manager_checkpoint_metadata(profiles, search_controls),
+        **manager_checkpoint_metadata(
+            profiles,
+            search_controls,
+            tactical_options=tactical_options,
+            strategy_space=cfg.strategy_space,
+            decision_count=decision_count,
+        ),
         "model_state_dict": agent.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "config": config,
@@ -444,12 +454,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     device = torch.device(cfg.device)
     profiles = smoke_worker_profiles() if cfg.use_smoke_profiles else default_worker_profiles()
     search_controls = _search_controls_for_config(cfg)
+    tactical_options = default_tactical_options()
+    if cfg.strategy_space not in {"profile", "option"}:
+        raise ValueError("strategy_space must be 'profile' or 'option'")
+    decision_count = len(tactical_options) if cfg.strategy_space == "option" else len(profiles)
     training_profiles = scaled_worker_profiles(
         profiles,
         depth_scale=cfg.training_depth_scale,
         width_scale=cfg.training_width_scale,
     )
-    vector_dim = manager_vector_dim(len(profiles), len(search_controls))
+    vector_dim = manager_vector_dim(decision_count, len(search_controls))
     opponent_pool = OpponentPool.load(cfg.opponent_pool_path) if cfg.opponent_pool_path else None
     opponent_rng = random.Random(cfg.seed + 91_337)
     opponent_counts: dict[str, int] = {}
@@ -492,6 +506,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             "max_steps": cfg.max_episode_steps,
             "profiles": training_profiles,
             "search_controls": search_controls,
+            "tactical_options": tactical_options,
+            "strategy_space": cfg.strategy_space,
             "switch_penalty": cfg.switch_penalty,
             "decision_time_penalty": cfg.decision_time_penalty,
             "search_cost_reward_scale": cfg.search_cost_reward_scale,
@@ -525,7 +541,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     agent = PuyoActorCritic(
         board_shape=board_shape,
         vector_dim=vector_dim,
-        action_dim=len(profiles) * len(search_controls),
+        action_dim=decision_count * len(search_controls),
     ).to(device)
     optimizer = optim.Adam(agent.parameters(), lr=cfg.learning_rate, eps=1e-5)
     initial_checkpoint_step = 0
@@ -606,6 +622,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             optimizer,
             profiles,
             search_controls,
+            tactical_options,
+            decision_count,
             0,
             [],
             "behavior_cloned",
@@ -671,7 +689,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             boards = torch.zeros((cfg.num_steps, cfg.num_envs, *board_shape), device=device)
             vectors = torch.zeros((cfg.num_steps, cfg.num_envs, vector_dim), device=device)
             masks = torch.zeros(
-                (cfg.num_steps, cfg.num_envs, len(profiles) * len(search_controls)),
+                (cfg.num_steps, cfg.num_envs, decision_count * len(search_controls)),
                 dtype=torch.bool,
                 device=device,
             )
@@ -726,8 +744,14 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                             "missed_lethal",
                             "failed_counter",
                             "tactical_success_rate",
+                            "option_usage_entropy",
+                            "option_dominant_usage_ratio",
+                            "option_collapse_detected",
+                            "excessive_switching_detected",
+                            "uninterpretable_option_count",
                         ):
-                            writer.writerow({"global_step": global_step, "metric": f"episodic_{metric}", "value": episode[metric]})
+                            if metric in episode:
+                                writer.writerow({"global_step": global_step, "metric": f"episodic_{metric}", "value": episode[metric]})
                         for profile_id, count in enumerate(episode["profile_counts"]):
                             writer.writerow({"global_step": global_step, "metric": f"profile_{profile_id}_count", "value": count})
                         for control_id, count in enumerate(episode.get("search_control_counts", ())):
@@ -735,6 +759,14 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                                 {
                                     "global_step": global_step,
                                     "metric": f"search_control_{control_id}_count",
+                                    "value": count,
+                                }
+                            )
+                        for option_id, count in enumerate(episode.get("option_counts", ())):
+                            writer.writerow(
+                                {
+                                    "global_step": global_step,
+                                    "metric": f"option_{option_id}_count",
                                     "value": count,
                                 }
                             )
@@ -782,7 +814,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
 
             flat_boards = boards.reshape((-1, *board_shape))
             flat_vectors = vectors.reshape((-1, vector_dim))
-            flat_masks = masks.reshape((-1, len(profiles) * len(search_controls)))
+            flat_masks = masks.reshape((-1, decision_count * len(search_controls)))
             flat_actions = actions.reshape(-1)
             flat_logprobs = logprobs.reshape(-1)
             flat_advantages = advantages.reshape(-1)
@@ -843,6 +875,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         optimizer,
                         profiles,
                         search_controls,
+                        tactical_options,
+                        decision_count,
                         global_step,
                         episodes,
                         "best",
@@ -863,6 +897,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         optimizer,
                         profiles,
                         search_controls,
+                        tactical_options,
+                        decision_count,
                         global_step,
                         episodes,
                         "opponent",
@@ -895,6 +931,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             optimizer,
             profiles,
             search_controls,
+            tactical_options,
+            decision_count,
             global_step,
             episodes,
             "latest",
@@ -931,6 +969,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "worker_profiles": [asdict(profile) for profile in profiles],
         "training_worker_profiles": [asdict(profile) for profile in training_profiles],
         "search_controls": [asdict(control) for control in search_controls],
+        "strategy_space": cfg.strategy_space,
+        "tactical_options": [asdict(option) for option in tactical_options],
         "opponent_counts": opponent_counts,
         "opponent_pool_path": str(paths["opponent_pool_path"]) if opponent_pool is not None else None,
         "checkpoint_path": str(checkpoint_path),
