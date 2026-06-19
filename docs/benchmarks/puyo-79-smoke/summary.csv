@@ -1,0 +1,17 @@
+suite,variant,metric,unit,count,mean,stdev,ci95_low,ci95_high
+chain_search,beam,attack_proxy,,1,0.0,0.0,0.0,0.0
+chain_search,beam,decision_ms,ms,1,33.16027562323143,0.0,33.16027562323143,33.16027562323143
+chain_search,beam,max_chain,,1,0.0,0.0,0.0,0.0
+chain_search,beam,nodes,,1,286.0,0.0,286.0,286.0
+chain_search,beam,score,,1,0.0,0.0,0.0,0.0
+chain_search,greedy,attack_proxy,,1,0.0,0.0,0.0,0.0
+chain_search,greedy,decision_ms,ms,1,8.290778499940643,0.0,8.290778499940643,8.290778499940643
+chain_search,greedy,max_chain,,1,1.0,0.0,1.0,1.0
+chain_search,greedy,nodes,,1,0.0,0.0,0.0,0.0
+chain_search,greedy,score,,1,40.0,0.0,40.0,40.0
+realtime_paired_arena,manager_rule,deadline_miss,,2,0.0,0.0,0.0,0.0
+realtime_paired_arena,manager_rule,decision_time,ms,2,443.6724055012746,20.032970087543546,415.9081254687044,471.43668553384487
+realtime_paired_arena,manager_rule,max_chain,,2,0.0,0.0,0.0,0.0
+realtime_paired_arena,manager_rule,policy_elapsed_ms,ms,2,443.6724055012746,20.032970087543546,415.9081254687044,471.43668553384487
+realtime_paired_arena,manager_rule,score_rate,,2,0.0,0.0,0.0,0.0
+tactical_scenarios,manager_rule,accuracy,,6,1.0,0.0,1.0,1.0

@@ -1,0 +1,257 @@
+{
+  "ablations": [
+    "objective_conditioning_off",
+    "parameter_learning_off",
+    "tactical_options_off",
+    "teacher_policy_off",
+    "latency_penalty_off"
+  ],
+  "args": {
+    "beam_depth": 3,
+    "beam_width": 6,
+    "games": 1,
+    "latency_budget_ms": 80.0,
+    "max_steps": 8,
+    "max_ticks": 80,
+    "seed": 1
+  },
+  "artifacts": [
+    {
+      "artifact_type": "csv",
+      "path": "docs/benchmarks/puyo-79-smoke/chain_search_records.csv",
+      "role": "chain_search_records"
+    },
+    {
+      "artifact_type": "json",
+      "path": "docs/benchmarks/puyo-79-smoke/tactical_scenarios.json",
+      "role": "tactical_scenarios"
+    },
+    {
+      "artifact_type": "csv",
+      "path": "docs/benchmarks/puyo-79-smoke/metric_records.csv",
+      "role": "metric_records"
+    },
+    {
+      "artifact_type": "csv",
+      "path": "docs/benchmarks/puyo-79-smoke/summary.csv",
+      "role": "summary"
+    }
+  ],
+  "baselines": [
+    "manager_rule",
+    "worker_large",
+    "worker_quick",
+    "worker_punish",
+    "worker_counter",
+    "worker_fire",
+    "worker_survival",
+    "greedy",
+    "beam"
+  ],
+  "created_at_utc": "2026-06-19T02:45:41Z",
+  "digest": "ccb19d2a0ba657ade8a0ad778280d7f98459162675d2327f2d5d6a325fc01c77",
+  "dry_run": false,
+  "name": "puyo79-benchmark-ablation",
+  "output_dir": "docs/benchmarks/puyo-79-smoke",
+  "puyo56_completion": {
+    "curriculum_teacher_selfplay": "covered by PUYO-78 and tracked by artifact/lineage outputs",
+    "learned_search_control_comparison": "covered by PUYO-75 and comparable through benchmark summaries",
+    "n_turn_plan_api": "covered by PUYO-77 and validated through realtime replay diagnostics",
+    "objective_conditioned_search": "covered by PUYO-74 and validated through tactical/realtime objective diagnostics",
+    "tradeoff_report": "covered by this PUYO-79 benchmark suite and markdown report"
+  },
+  "readiness": {
+    "PUYO-57": "ready to start UI integration; gate release selection on latency feasibility",
+    "PUYO-58": "not implementation-ready until PUYO-57 UI exists; lineage-compatible benchmark artifacts are available here"
+  },
+  "recommended_model": {
+    "arena_score_rate": 0.0,
+    "chain": 0.0,
+    "feasible": false,
+    "has_ui_evidence": true,
+    "latency_ms": 443.6724055012746,
+    "reason": "no candidate met latency budget; selected highest combined score",
+    "score": -2.545905068765933,
+    "tactical_accuracy": 1.0,
+    "variant": "manager_rule"
+  },
+  "schema_version": "puyo.benchmark_suite.v1",
+  "summaries": [
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 1,
+      "mean": 0.0,
+      "metric": "attack_proxy",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "beam"
+    },
+    {
+      "ci95_high": 33.16027562323143,
+      "ci95_low": 33.16027562323143,
+      "count": 1,
+      "mean": 33.16027562323143,
+      "metric": "decision_ms",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "ms",
+      "variant": "beam"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 1,
+      "mean": 0.0,
+      "metric": "max_chain",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "beam"
+    },
+    {
+      "ci95_high": 286.0,
+      "ci95_low": 286.0,
+      "count": 1,
+      "mean": 286.0,
+      "metric": "nodes",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "beam"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 1,
+      "mean": 0.0,
+      "metric": "score",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "beam"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 1,
+      "mean": 0.0,
+      "metric": "attack_proxy",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "greedy"
+    },
+    {
+      "ci95_high": 8.290778499940643,
+      "ci95_low": 8.290778499940643,
+      "count": 1,
+      "mean": 8.290778499940643,
+      "metric": "decision_ms",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "ms",
+      "variant": "greedy"
+    },
+    {
+      "ci95_high": 1.0,
+      "ci95_low": 1.0,
+      "count": 1,
+      "mean": 1.0,
+      "metric": "max_chain",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "greedy"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 1,
+      "mean": 0.0,
+      "metric": "nodes",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "greedy"
+    },
+    {
+      "ci95_high": 40.0,
+      "ci95_low": 40.0,
+      "count": 1,
+      "mean": 40.0,
+      "metric": "score",
+      "stdev": 0.0,
+      "suite": "chain_search",
+      "unit": "",
+      "variant": "greedy"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 2,
+      "mean": 0.0,
+      "metric": "deadline_miss",
+      "stdev": 0.0,
+      "suite": "realtime_paired_arena",
+      "unit": "",
+      "variant": "manager_rule"
+    },
+    {
+      "ci95_high": 471.43668553384487,
+      "ci95_low": 415.9081254687044,
+      "count": 2,
+      "mean": 443.6724055012746,
+      "metric": "decision_time",
+      "stdev": 20.032970087543546,
+      "suite": "realtime_paired_arena",
+      "unit": "ms",
+      "variant": "manager_rule"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 2,
+      "mean": 0.0,
+      "metric": "max_chain",
+      "stdev": 0.0,
+      "suite": "realtime_paired_arena",
+      "unit": "",
+      "variant": "manager_rule"
+    },
+    {
+      "ci95_high": 471.43668553384487,
+      "ci95_low": 415.9081254687044,
+      "count": 2,
+      "mean": 443.6724055012746,
+      "metric": "policy_elapsed_ms",
+      "stdev": 20.032970087543546,
+      "suite": "realtime_paired_arena",
+      "unit": "ms",
+      "variant": "manager_rule"
+    },
+    {
+      "ci95_high": 0.0,
+      "ci95_low": 0.0,
+      "count": 2,
+      "mean": 0.0,
+      "metric": "score_rate",
+      "stdev": 0.0,
+      "suite": "realtime_paired_arena",
+      "unit": "",
+      "variant": "manager_rule"
+    },
+    {
+      "ci95_high": 1.0,
+      "ci95_low": 1.0,
+      "count": 6,
+      "mean": 1.0,
+      "metric": "accuracy",
+      "stdev": 0.0,
+      "suite": "tactical_scenarios",
+      "unit": "",
+      "variant": "manager_rule"
+    }
+  ]
+}

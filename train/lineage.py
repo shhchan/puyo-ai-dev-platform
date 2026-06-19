@@ -12,6 +12,11 @@ from train.artifacts import ARTIFACT_MANIFEST_SCHEMA_VERSION, json_digest
 from train.experiment_suite import SUITE_SCHEMA_VERSION
 
 try:
+    from eval.benchmark_suite import BENCHMARK_SCHEMA_VERSION
+except ImportError:  # pragma: no cover - optional evaluation module guard
+    BENCHMARK_SCHEMA_VERSION = "puyo.benchmark_suite.v1"
+
+try:
     import yaml
 except ImportError:  # pragma: no cover - dependency guard
     yaml = None
@@ -575,11 +580,52 @@ def _add_suite_manifest(registry: LineageRegistry, manifest_path: Path) -> None:
         registry.add_edge(LineageEdge(source=suite_id, target=run_node_id, edge_type="includes"))
 
 
+def _add_benchmark_manifest(registry: LineageRegistry, manifest_path: Path) -> None:
+    manifest = _read_json(manifest_path)
+    if manifest.get("schema_version") != BENCHMARK_SCHEMA_VERSION:
+        return
+    name = str(manifest.get("name") or manifest_path.parent.name)
+    benchmark_id = f"benchmark_suite:{name}:{str(manifest.get('digest', ''))[:12]}"
+    registry.add_node(
+        LineageNode(
+            id=benchmark_id,
+            node_type="benchmark_suite",
+            label=name,
+            path=str(manifest_path.parent),
+            metadata={
+                "manifest_path": str(manifest_path),
+                "digest": manifest.get("digest"),
+                "recommended_model": manifest.get("recommended_model", {}),
+                "dry_run": manifest.get("dry_run"),
+            },
+        )
+    )
+    for artifact in manifest.get("artifacts", []):
+        if not isinstance(artifact, dict) or not artifact.get("path"):
+            continue
+        artifact_path = Path(str(artifact["path"]))
+        node_id = _path_id("benchmark_artifact", artifact_path)
+        registry.add_node(
+            LineageNode(
+                id=node_id,
+                node_type="benchmark_artifact",
+                label=artifact_path.name,
+                path=str(artifact_path),
+                metadata={
+                    "role": artifact.get("role"),
+                    "artifact_type": artifact.get("artifact_type"),
+                },
+            )
+        )
+        registry.add_edge(LineageEdge(source=benchmark_id, target=node_id, edge_type="evaluates"))
+
+
 def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
     registry = LineageRegistry()
     path_index: dict[str, str] = {}
     manifest_paths = []
     suite_paths = []
+    benchmark_paths = []
     legacy_run_dirs: set[Path] = set()
     for root in roots:
         base = Path(root)
@@ -603,6 +649,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
                 manifest_paths.append(path)
             elif path.name == "suite_manifest.json":
                 suite_paths.append(path)
+            elif path.name == "benchmark_manifest.json":
+                benchmark_paths.append(path)
     for path in sorted(manifest_paths):
         _add_artifact_manifest(registry, path, path_index)
     manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
@@ -611,6 +659,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
             _add_legacy_run(registry, path, path_index)
     for path in sorted(suite_paths):
         _add_suite_manifest(registry, path)
+    for path in sorted(benchmark_paths):
+        _add_benchmark_manifest(registry, path)
     return registry
 
 
