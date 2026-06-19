@@ -15,6 +15,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from eval.realtime_versus_ui import RealtimeVersusUiConfig
 from eval.versus_ui import VersusUiConfig
+from src.ui.launcher_settings import LauncherPresetStore, LauncherSettingsManager
 
 
 SCREEN_WIDTH = 980
@@ -65,10 +66,15 @@ class LauncherService:
         python_executable: str | None = None,
         repo_root: str | Path | None = None,
         popen_factory: Callable[..., subprocess.Popen] = subprocess.Popen,
+        preset_store_path: str | Path | None = None,
     ):
         self.python_executable = python_executable or sys.executable
         self.repo_root = Path(repo_root or Path.cwd())
         self.popen_factory = popen_factory
+        self.settings = LauncherSettingsManager(
+            repo_root=self.repo_root,
+            store=LauncherPresetStore(preset_store_path),
+        )
         self.actions = self._build_actions()
         self.current_job: LauncherJob | None = None
         self.message = "Ready."
@@ -119,15 +125,65 @@ class LauncherService:
         return self.actions.get(screen)
 
     def play_config(self) -> VersusUiConfig:
-        return VersusUiConfig(policy_a="human", policy_b="greedy", seed=57, start_paused=True)
+        settings = self.settings.for_action("play")
+        return VersusUiConfig(
+            policy_a=settings.policy_a,
+            policy_b=settings.policy_b,
+            checkpoint_a=settings.checkpoint_a,
+            checkpoint_b=settings.checkpoint_b,
+            seed=settings.seed,
+            seed_a=settings.seed_a,
+            seed_b=settings.seed_b,
+            max_steps=settings.max_steps,
+            speed=settings.speed,
+            start_paused=settings.start_paused,
+            device=settings.device,
+            deterministic=settings.deterministic,
+            beam_depth=settings.beam_depth,
+            beam_width=settings.beam_width,
+            beam_scenarios=settings.beam_scenarios,
+            beam_minimum_chain=settings.beam_minimum_chain,
+            beam_depth_a=settings.beam_depth_a,
+            beam_depth_b=settings.beam_depth_b,
+            beam_width_a=settings.beam_width_a,
+            beam_width_b=settings.beam_width_b,
+            beam_scenarios_a=settings.beam_scenarios_a,
+            beam_scenarios_b=settings.beam_scenarios_b,
+            beam_minimum_chain_a=settings.beam_minimum_chain_a,
+            beam_minimum_chain_b=settings.beam_minimum_chain_b,
+            deterministic_a=settings.deterministic_a,
+            deterministic_b=settings.deterministic_b,
+        )
 
     def spectate_config(self) -> RealtimeVersusUiConfig:
+        settings = self.settings.for_action("spectate")
         return RealtimeVersusUiConfig(
-            policy_a="first",
-            policy_b="random",
-            seed=57,
-            max_ticks=600,
-            start_paused=True,
+            policy_a=settings.policy_a,
+            policy_b=settings.policy_b,
+            checkpoint_a=settings.checkpoint_a,
+            checkpoint_b=settings.checkpoint_b,
+            seed=settings.seed,
+            seed_a=settings.seed_a,
+            seed_b=settings.seed_b,
+            max_ticks=settings.max_ticks,
+            speed=settings.speed,
+            start_paused=settings.start_paused,
+            device=settings.device,
+            deterministic=settings.deterministic,
+            beam_depth=settings.beam_depth,
+            beam_width=settings.beam_width,
+            beam_scenarios=settings.beam_scenarios,
+            beam_minimum_chain=settings.beam_minimum_chain,
+            beam_depth_a=settings.beam_depth_a,
+            beam_depth_b=settings.beam_depth_b,
+            beam_width_a=settings.beam_width_a,
+            beam_width_b=settings.beam_width_b,
+            beam_scenarios_a=settings.beam_scenarios_a,
+            beam_scenarios_b=settings.beam_scenarios_b,
+            beam_minimum_chain_a=settings.beam_minimum_chain_a,
+            beam_minimum_chain_b=settings.beam_minimum_chain_b,
+            deterministic_a=settings.deterministic_a,
+            deterministic_b=settings.deterministic_b,
         )
 
     def command_for(self, action_key: str) -> tuple[str, ...]:
@@ -146,31 +202,46 @@ class LauncherService:
                 *realtime_config_to_argv(self.spectate_config()),
             )
         if action_key == "arena":
+            settings = self.settings.for_action("arena")
             return (
                 self.python_executable,
                 "-m",
                 "eval.realtime_arena",
                 "--policy-a",
-                "first",
+                settings.policy_a,
                 "--policy-b",
-                "random",
+                settings.policy_b,
                 "--games",
-                "1",
+                str(settings.games),
                 "--seed",
-                "57",
+                str(settings.seed),
                 "--max-ticks",
-                "180",
+                str(settings.max_ticks),
+                "--device",
+                settings.device,
+                "--beam-depth",
+                str(settings.beam_depth),
+                "--beam-width",
+                str(settings.beam_width),
+                "--beam-scenarios",
+                str(settings.beam_scenarios),
+                "--beam-minimum-chain",
+                str(settings.beam_minimum_chain),
                 "--paired-sides",
+                *checkpoint_argv(settings),
             )
         if action_key == "training":
+            settings = self.settings.for_action("training")
             return (
                 self.python_executable,
                 "-m",
                 "train.train_realtime",
                 "--config",
-                "train/config/realtime_smoke.yaml",
+                settings.config_path,
                 "--set",
                 "run_id=launcher-smoke",
+                "--set",
+                f"seed={settings.seed}",
             )
         if action_key == "models":
             return (
@@ -191,10 +262,44 @@ class LauncherService:
     def command_label(self, action_key: str) -> str:
         return " ".join(self.command_for(action_key))
 
+    def update_setting(self, action_key: str, field: str, value) -> None:
+        self.settings.update(action_key, field, value)
+        self.message = f"Updated {field}."
+
+    def cycle_setting(self, action_key: str, field: str, delta: int = 1) -> None:
+        self.settings.cycle(action_key, field, delta)
+        self.message = f"Updated {field}."
+
+    def setting_rows(self, action_key: str) -> tuple[str, ...]:
+        return tuple(
+            self.settings.field_label(action_key, field)
+            for field in self.settings.editable_fields(action_key)
+        )
+
+    def save_preset(self, action_key: str) -> str:
+        name = self.settings.save_preset(action_key)
+        self.message = f"Saved preset {name}."
+        return name
+
+    def load_next_preset(self, action_key: str) -> str | None:
+        name = self.settings.load_next_preset(action_key)
+        if name is None:
+            self.message = "No presets saved for this workflow."
+            return None
+        self.message = f"Loaded preset {name}."
+        return name
+
+    def validate_action(self, action_key: str) -> list[str]:
+        return self.settings.validate(action_key)
+
     def start(self, action_key: str) -> bool:
         action = self.actions[action_key]
         if self.current_job and self.current_job.is_running:
             self.message = f"Stop {self.current_job.action.label} before starting {action.label}."
+            return False
+        errors = self.validate_action(action_key)
+        if errors:
+            self.message = f"Cannot start {action.label}: {errors[0]}"
             return False
         command = self.command_for(action_key)
         try:
@@ -203,6 +308,7 @@ class LauncherService:
             self.message = f"Could not start {action.label}: {exc}. Check dependencies and paths."
             return False
         self.current_job = LauncherJob(action=action, command=command, process=process)
+        self.settings.save_recent(action_key)
         self.message = f"Started {action.label}."
         return True
 
@@ -230,11 +336,16 @@ class LauncherController:
         self.service = service or LauncherService()
         self.screen = "home"
         self.selection = 0
+        self.settings_mode = False
 
     @property
     def current_options(self) -> tuple[str, ...]:
         if self.screen == "home":
             return tuple(action.screen for action in self.service.navigation_actions())
+        if self.settings_mode:
+            return (*self.service.settings.editable_fields(self.screen), "back")
+        if self.service.settings.editable_fields(self.screen):
+            return ("settings", "run", "preset", "save", "stop", "back")
         return ("run", "stop", "back")
 
     def _move(self, delta: int) -> None:
@@ -246,8 +357,21 @@ class LauncherController:
         if self.screen == "home":
             self.screen = selected
             self.selection = 0
+        elif self.settings_mode:
+            if selected == "back":
+                self.settings_mode = False
+                self.selection = 0
+            else:
+                self.service.cycle_setting(self.screen, selected, 1)
         elif selected == "run":
             self.service.start(self.screen)
+        elif selected == "settings":
+            self.settings_mode = True
+            self.selection = 0
+        elif selected == "preset":
+            self.service.load_next_preset(self.screen)
+        elif selected == "save":
+            self.service.save_preset(self.screen)
         elif selected == "stop":
             self.service.stop()
         elif selected == "back":
@@ -258,10 +382,22 @@ class LauncherController:
         if pygame is None:
             return True
         if key in (pygame.K_ESCAPE, pygame.K_q):
-            if self.screen == "home":
+            if self.settings_mode:
+                self.settings_mode = False
+                self.selection = 0
+                return True
+            elif self.screen == "home":
                 return False
             self.screen = "home"
             self.selection = 0
+        elif key == pygame.K_LEFT and self.settings_mode:
+            selected = self.current_options[self.selection]
+            if selected != "back":
+                self.service.cycle_setting(self.screen, selected, -1)
+        elif key == pygame.K_RIGHT and self.settings_mode:
+            selected = self.current_options[self.selection]
+            if selected != "back":
+                self.service.cycle_setting(self.screen, selected, 1)
         elif key in (pygame.K_UP, pygame.K_LEFT):
             self._move(-1)
         elif key in (pygame.K_DOWN, pygame.K_RIGHT, pygame.K_TAB):
@@ -280,13 +416,26 @@ class LauncherRenderer:
         self.small_font = pygame.font.SysFont("Consolas", 15)
 
     def _draw_text(self, text: str, font, color, rect: pygame.Rect, *, center=False) -> None:
-        surface = font.render(text, True, color)
+        surface = font.render(self._fit_text(text, font, rect.width), True, color)
         target = surface.get_rect()
         if center:
             target.center = rect.center
         else:
             target.topleft = rect.topleft
         self.screen.blit(surface, target)
+
+    def _fit_text(self, text: str, font, width: int) -> str:
+        if font.size(text)[0] <= width:
+            return text
+        ellipsis = "..."
+        available = max(0, width - font.size(ellipsis)[0])
+        trimmed = ""
+        for character in text:
+            candidate = trimmed + character
+            if font.size(candidate)[0] > available:
+                break
+            trimmed = candidate
+        return trimmed.rstrip() + ellipsis
 
     def _wrapped_lines(self, text: str, font, width: int) -> list[str]:
         lines = []
@@ -353,6 +502,9 @@ class LauncherRenderer:
         action = controller.service.action_for_screen(controller.screen)
         if action is None:
             return
+        if controller.settings_mode:
+            self._draw_settings(controller, action)
+            return
         content = pygame.Rect(52, 118, SCREEN_WIDTH - 104, 360)
         pygame.draw.rect(self.screen, PANEL, content, border_radius=6)
         pygame.draw.rect(self.screen, (82, 92, 112), content, 2)
@@ -374,12 +526,53 @@ class LauncherRenderer:
         self._draw_wrapped(recovery, self.font, ERROR, content.x + 18, y, content.width - 36)
 
         options = controller.current_options
+        gap = 12
+        width = min(146, (SCREEN_WIDTH - 104 - gap * (len(options) - 1)) // len(options))
         for index, option in enumerate(options):
-            rect = pygame.Rect(52 + index * 168, 506, 146, 48)
+            rect = pygame.Rect(52 + index * (width + gap), 506, width, 48)
             selected = index == controller.selection
             pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else PANEL, rect, border_radius=6)
             pygame.draw.rect(self.screen, ACCENT if selected else (82, 92, 112), rect, 2)
             self._draw_text(option.upper(), self.font, TEXT, rect, center=True)
+
+    def _draw_settings(self, controller: LauncherController, action: LauncherAction) -> None:
+        content = pygame.Rect(52, 118, SCREEN_WIDTH - 104, 392)
+        pygame.draw.rect(self.screen, PANEL, content, border_radius=6)
+        pygame.draw.rect(self.screen, (82, 92, 112), content, 2)
+        self._draw_text(
+            f"{action.label} settings",
+            self.heading_font,
+            TEXT,
+            pygame.Rect(content.x + 18, content.y + 18, 360, 30),
+        )
+        errors = controller.service.validate_action(action.key)
+        status = errors[0] if errors else "Settings are valid."
+        self._draw_wrapped(
+            status,
+            self.font,
+            ERROR if errors else ACCENT,
+            content.x + 18,
+            content.y + 56,
+            content.width - 36,
+        )
+
+        options = controller.current_options
+        rows_per_column = 8
+        column_width = (content.width - 54) // 2
+        for index, option in enumerate(options):
+            column = index // rows_per_column
+            row = index % rows_per_column
+            rect = pygame.Rect(
+                content.x + 18 + column * (column_width + 18),
+                content.y + 96 + row * 39,
+                column_width,
+                31,
+            )
+            selected = index == controller.selection
+            pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else BACKGROUND, rect, border_radius=5)
+            pygame.draw.rect(self.screen, ACCENT if selected else (82, 92, 112), rect, 1)
+            label = "back" if option == "back" else controller.service.settings.field_label(action.key, option)
+            self._draw_text(label, self.small_font, TEXT, pygame.Rect(rect.x + 8, rect.y + 7, rect.width - 16, 18))
 
 
 def versus_config_to_argv(config: VersusUiConfig) -> tuple[str, ...]:
@@ -469,6 +662,15 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     args.extend(_side_specific_argv(config, ("device", "deterministic", "beam_depth", "beam_width", "beam_scenarios", "beam_minimum_chain")))
     if config.keybindings_path:
         args.extend(["--keybindings", config.keybindings_path])
+    return tuple(args)
+
+
+def checkpoint_argv(settings) -> tuple[str, ...]:
+    args: list[str] = []
+    if settings.checkpoint_a:
+        args.extend(["--checkpoint-a", settings.checkpoint_a])
+    if settings.checkpoint_b:
+        args.extend(["--checkpoint-b", settings.checkpoint_b])
     return tuple(args)
 
 

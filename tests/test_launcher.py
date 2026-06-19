@@ -1,5 +1,7 @@
 import os
+import tempfile
 import unittest
+from pathlib import Path
 
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
@@ -43,8 +45,20 @@ class FakeProcess:
 
 @unittest.skipUnless(ENV_AVAILABLE, "gymnasium/numpy are not installed")
 class TestLauncherService(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.preset_store_path = Path(self.temp_dir.name) / "presets.json"
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    def make_service(self, **kwargs):
+        kwargs.setdefault("python_executable", "python3")
+        kwargs.setdefault("preset_store_path", self.preset_store_path)
+        return LauncherService(**kwargs)
+
     def test_play_command_round_trips_through_existing_versus_parser(self):
-        service = LauncherService(python_executable="python3")
+        service = self.make_service()
         config = parse_versus_config(service.command_for("play")[3:])
 
         self.assertEqual(config.policy_a, "human")
@@ -53,13 +67,86 @@ class TestLauncherService(unittest.TestCase):
         self.assertTrue(config.start_paused)
 
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
-        service = LauncherService(python_executable="python3")
+        service = self.make_service()
         config = parse_realtime_config(service.command_for("spectate")[3:])
 
         self.assertEqual(config.policy_a, "first")
         self.assertEqual(config.policy_b, "random")
         self.assertEqual(config.max_ticks, 600)
         self.assertTrue(config.start_paused)
+
+    def test_gui_policy_seed_and_beam_settings_round_trip_to_play_command(self):
+        service = self.make_service()
+        service.update_setting("play", "policy_b", "beam")
+        service.update_setting("play", "seed", 57)
+        service.update_setting("play", "seed_a", 101)
+        service.update_setting("play", "seed_b", 202)
+        service.update_setting("play", "beam_depth_a", 8)
+        service.update_setting("play", "beam_depth_b", 10)
+        service.update_setting("play", "speed", 2.0)
+
+        config = parse_versus_config(service.command_for("play")[3:])
+
+        self.assertEqual(config.policy_a, "human")
+        self.assertEqual(config.policy_b, "beam")
+        self.assertEqual(config.seed, 57)
+        self.assertEqual((config.seed_a, config.seed_b), (101, 202))
+        self.assertEqual((config.beam_depth_a, config.beam_depth_b), (8, 10))
+        self.assertEqual(config.speed, 2.0)
+
+    def test_checkpoint_policy_is_rejected_before_process_start_without_path(self):
+        started = []
+
+        def fake_popen(command, cwd=None):
+            started.append(command)
+            return FakeProcess()
+
+        service = self.make_service(popen_factory=fake_popen)
+        service.update_setting("play", "policy_b", "checkpoint")
+
+        self.assertFalse(service.start("play"))
+        self.assertFalse(started)
+        self.assertIn("checkpoint_b is required", service.message)
+
+    def test_incompatible_manager_checkpoint_is_rejected_for_checkpoint_policy(self):
+        import torch
+
+        checkpoint_path = Path(self.temp_dir.name) / "manager.pt"
+        torch.save(
+            {
+                "policy_type": "strategy_manager",
+                "model_state_dict": {"actor.weight": torch.zeros((1, 1))},
+            },
+            checkpoint_path,
+        )
+        service = self.make_service()
+        service.update_setting("play", "policy_b", "checkpoint")
+        service.update_setting("play", "checkpoint_b", str(checkpoint_path))
+
+        errors = service.validate_action("play")
+
+        self.assertTrue(any("use policy_b=manager" in error for error in errors))
+
+    def test_training_config_path_is_validated(self):
+        service = self.make_service()
+        service.update_setting("training", "config_path", "missing.yaml")
+
+        self.assertIn("config_path does not exist", service.validate_action("training")[0])
+
+    def test_named_preset_persists_and_loads_for_workflow(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store_path = Path(directory) / "presets.json"
+            service = LauncherService(python_executable="python3", preset_store_path=store_path)
+            service.update_setting("spectate", "policy_a", "beam")
+            service.update_setting("spectate", "beam_width_a", 16)
+            service.save_preset("spectate")
+
+            loaded = LauncherService(python_executable="python3", preset_store_path=store_path)
+            self.assertEqual(loaded.load_next_preset("spectate"), "last-spectate")
+            config = parse_realtime_config(loaded.command_for("spectate")[3:])
+
+            self.assertEqual(config.policy_a, "beam")
+            self.assertEqual(config.beam_width_a, 16)
 
     def test_job_start_stop_and_busy_message(self):
         processes = []
@@ -71,7 +158,7 @@ class TestLauncherService(unittest.TestCase):
             processes.append(process)
             return process
 
-        service = LauncherService(python_executable="python3", popen_factory=fake_popen)
+        service = self.make_service(popen_factory=fake_popen)
 
         self.assertTrue(service.start("arena"))
         self.assertFalse(service.start("models"))
@@ -82,8 +169,18 @@ class TestLauncherService(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestLauncherController(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.preset_store_path = Path(self.temp_dir.name) / "presets.json"
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    def make_service(self):
+        return LauncherService(python_executable="python3", preset_store_path=self.preset_store_path)
+
     def test_home_navigation_reaches_workflow_screen(self):
-        service = LauncherService(python_executable="python3")
+        service = self.make_service()
         controller = LauncherController(service)
 
         controller.handle_keydown(pygame.K_DOWN)
@@ -93,8 +190,25 @@ class TestLauncherController(unittest.TestCase):
         controller.handle_keydown(pygame.K_ESCAPE)
         self.assertEqual(controller.screen, "home")
 
+    def test_settings_screen_cycles_selected_field_without_leaving_workflow(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.selection = 0
+
+        controller.handle_keydown(pygame.K_RETURN)
+        self.assertTrue(controller.settings_mode)
+        self.assertEqual(controller.current_options[0], "policy_a")
+
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertNotEqual(service.settings.for_action("play").policy_a, "human")
+        controller.handle_keydown(pygame.K_ESCAPE)
+
+        self.assertEqual(controller.screen, "play")
+        self.assertFalse(controller.settings_mode)
+
     def test_dummy_video_driver_smoke_renders_home(self):
-        result = run_launcher(service=LauncherService(python_executable="python3"), max_frames=1)
+        result = run_launcher(service=self.make_service(), max_frames=1)
 
         self.assertEqual(result["screen"], "home")
         self.assertIn("No job", result["job"])
