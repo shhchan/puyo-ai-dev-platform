@@ -57,16 +57,16 @@ PUYO-58 は Jira key 順では PUYO-85 が先ですが、dataset writer と trai
 ## チケット別起動例
 
 ```bash
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-80 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-81 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-82 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-83 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-84 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-86 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-85 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-87 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-88 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
-codex -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-89 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-80 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-81 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-82 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-83 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="medium" "PUYO-84 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-86 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-85 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-87 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-88 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
+codex --dangerously-bypass-approvals-and-sandbox -C /home/sion2000114/workspaces/dev/puyo_ai_dev_platform -c model_reasoning_effort="high" "PUYO-89 を 1 チケットだけ実施してください。AGENTS.md と docs/development/puyo-57-58-execution-plan.md に従ってください。"
 ```
 
 ## 次回セッションの開始手順
