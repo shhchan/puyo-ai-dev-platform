@@ -7,6 +7,7 @@ import csv
 import json
 import multiprocessing as mp
 import random
+import shutil
 import subprocess
 import time
 import traceback
@@ -42,6 +43,7 @@ from agents.strategy_workers import (
     smoke_worker_profiles,
 )
 from puyo_env.manager_env import ManagerSelfPlayEnv, manager_vector_dim, manager_vector_features
+from selfplay.league import LeagueConfig, SelfPlayLeague
 from selfplay.opponent_pool import OpponentPool, OpponentSnapshot
 from selfplay.policies import make_policy
 from train.artifacts import attach_checkpoint_schema, write_artifact_manifest
@@ -82,13 +84,23 @@ class ManagerPPOConfig:
     max_search_latency_ms: float = 80.0
     auxiliary_reward_scale: float = 0.25
     curriculum_enabled: bool = True
-    curriculum_boundaries: str = "0.20,0.45,0.70"
+    curriculum_stages: str = "chain_construction,deadline_counter,punish,survival,full_match"
+    curriculum_boundaries: str = "0.20,0.40,0.60,0.80"
     behavior_cloning_epochs: int = 2
     teacher_dataset_path: str = ""
     generate_teacher_dataset: bool = True
     best_window_episodes: int = 50
     best_min_episodes: int = 20
     selfplay_snapshot_interval: int = 0
+    selfplay_eval_games: int = 0
+    selfplay_eval_opponents: int = 2
+    rollback_min_episodes: int = 0
+    rollback_window_episodes: int = 20
+    rollback_min_win_rate: float = 0.0
+    rollback_min_tactical_success_rate: float = 0.0
+    rollback_max_mean_decision_ms: float = 0.0
+    rollback_max_profile_dominant_usage_ratio: float = 0.0
+    rollback_max_chain_stagnation_episodes: int = 0
     training_depth_scale: float = 1.0
     training_width_scale: float = 1.0
     parallel_envs: bool = True
@@ -131,6 +143,8 @@ def _run_paths(cfg: ManagerPPOConfig) -> dict[str, Path | str]:
         "manifest_path": run_dir / "artifact_manifest.json",
         "teacher_dataset_path": run_dir / "teacher_dataset.json",
         "opponent_pool_path": run_dir / "opponent_pool.json",
+        "selfplay_evaluations_path": run_dir / "selfplay_evaluations.json",
+        "rollback_report_path": run_dir / "rollback_report.json",
         "snapshot_dir": run_dir / "opponents",
     }
 
@@ -147,20 +161,125 @@ def _git_commit() -> str:
         return "unknown"
 
 
+def _curriculum_names(cfg: ManagerPPOConfig) -> list[str]:
+    names = [value.strip() for value in cfg.curriculum_stages.split(",") if value.strip()]
+    if not names:
+        names = ["chain_construction", "deadline_counter", "punish", "survival", "full_match"]
+    return names
+
+
+def _curriculum_boundaries(cfg: ManagerPPOConfig, names: list[str]) -> list[float]:
+    values = [float(value.strip()) for value in cfg.curriculum_boundaries.split(",") if value.strip()]
+    if len(values) != len(names) - 1:
+        raise ValueError("curriculum_boundaries must contain one fewer value than curriculum_stages")
+    if values != sorted(values) or any(value <= 0.0 or value >= 1.0 for value in values):
+        raise ValueError("curriculum_boundaries must be sorted fractions between 0 and 1")
+    return values
+
+
 def _curriculum_stage(cfg: ManagerPPOConfig, progress: float) -> tuple[str, float]:
     if not cfg.curriculum_enabled:
-        return "full", 0.0
-    values = [float(value.strip()) for value in cfg.curriculum_boundaries.split(",") if value.strip()]
-    if len(values) != 3:
-        raise ValueError("curriculum_boundaries must contain three comma-separated fractions")
-    if progress < values[0]:
-        return "safe_build", cfg.auxiliary_reward_scale
-    if progress < values[1]:
-        return "punish", cfg.auxiliary_reward_scale
-    if progress < values[2]:
-        return "counter", cfg.auxiliary_reward_scale
-    decay = max(0.0, 1.0 - (progress - values[2]) / max(1e-9, 1.0 - values[2]))
-    return "full", cfg.auxiliary_reward_scale * decay
+        return "full_match", 0.0
+    names = _curriculum_names(cfg)
+    values = _curriculum_boundaries(cfg, names)
+    stage_index = 0
+    for boundary in values:
+        if progress < boundary:
+            break
+        stage_index += 1
+    stage = names[min(stage_index, len(names) - 1)]
+    if stage_index == len(names) - 1 and values:
+        decay = max(0.0, 1.0 - (progress - values[-1]) / max(1e-9, 1.0 - values[-1]))
+        return stage, cfg.auxiliary_reward_scale * decay
+    return stage, cfg.auxiliary_reward_scale
+
+
+def _mean_metric(episodes: list[dict[str, Any]], key: str) -> float | None:
+    values = [
+        float(episode[key])
+        for episode in episodes
+        if isinstance(episode.get(key), (int, float)) and not isinstance(episode.get(key), bool)
+    ]
+    return float(np.mean(values)) if values else None
+
+
+def _dominant_ratio_from_episode(episode: dict[str, Any], key: str) -> float | None:
+    counts = episode.get(key)
+    if not counts:
+        return None
+    total = sum(int(value) for value in counts)
+    return None if total <= 0 else max(int(value) for value in counts) / total
+
+
+def _curriculum_stage_metrics(episodes: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for episode in episodes:
+        grouped.setdefault(str(episode.get("curriculum_stage", "unknown")), []).append(episode)
+    metrics = {}
+    for stage, stage_episodes in sorted(grouped.items()):
+        profile_ratios = [
+            ratio
+            for ratio in (_dominant_ratio_from_episode(episode, "profile_counts") for episode in stage_episodes)
+            if ratio is not None
+        ]
+        metrics[stage] = {
+            "episodes": len(stage_episodes),
+            "mean_win_rate": _mean_metric(stage_episodes, "win"),
+            "mean_score": _mean_metric(stage_episodes, "score"),
+            "mean_max_chain": _mean_metric(stage_episodes, "max_chain"),
+            "mean_tactical_success_rate": _mean_metric(stage_episodes, "tactical_success_rate"),
+            "mean_decision_ms": _mean_metric(stage_episodes, "mean_decision_ms"),
+            "mean_profile_dominant_usage_ratio": (
+                float(np.mean(profile_ratios)) if profile_ratios else None
+            ),
+        }
+    return metrics
+
+
+def _rollback_violations(cfg: ManagerPPOConfig, episodes: list[dict[str, Any]]) -> list[str]:
+    if cfg.rollback_min_episodes <= 0 or len(episodes) < cfg.rollback_min_episodes:
+        return []
+    recent = episodes[-max(1, cfg.rollback_window_episodes) :]
+    violations = []
+    win_rate = _mean_metric(recent, "win")
+    if cfg.rollback_min_win_rate > 0.0 and win_rate is not None and win_rate < cfg.rollback_min_win_rate:
+        violations.append(f"win_rate {win_rate:.3f} < {cfg.rollback_min_win_rate:.3f}")
+    tactical_success = _mean_metric(recent, "tactical_success_rate")
+    if (
+        cfg.rollback_min_tactical_success_rate > 0.0
+        and tactical_success is not None
+        and tactical_success < cfg.rollback_min_tactical_success_rate
+    ):
+        violations.append(
+            f"tactical_success_rate {tactical_success:.3f} < {cfg.rollback_min_tactical_success_rate:.3f}"
+        )
+    decision_ms = _mean_metric(recent, "mean_decision_ms")
+    if (
+        cfg.rollback_max_mean_decision_ms > 0.0
+        and decision_ms is not None
+        and decision_ms > cfg.rollback_max_mean_decision_ms
+    ):
+        violations.append(f"mean_decision_ms {decision_ms:.3f} > {cfg.rollback_max_mean_decision_ms:.3f}")
+    profile_ratios = [
+        ratio
+        for ratio in (_dominant_ratio_from_episode(episode, "profile_counts") for episode in recent)
+        if ratio is not None
+    ]
+    if cfg.rollback_max_profile_dominant_usage_ratio > 0.0 and profile_ratios:
+        dominant = float(np.mean(profile_ratios))
+        if dominant > cfg.rollback_max_profile_dominant_usage_ratio:
+            violations.append(
+                f"profile_dominant_usage_ratio {dominant:.3f} > {cfg.rollback_max_profile_dominant_usage_ratio:.3f}"
+            )
+    if cfg.rollback_max_chain_stagnation_episodes > 0:
+        stagnant = recent[-cfg.rollback_max_chain_stagnation_episodes :]
+        if len(stagnant) == cfg.rollback_max_chain_stagnation_episodes and all(
+            float(episode.get("max_chain", 0)) <= 1.0 for episode in stagnant
+        ):
+            violations.append(
+                f"max_chain <= 1 for {cfg.rollback_max_chain_stagnation_episodes} consecutive episodes"
+            )
+    return violations
 
 
 def _behavior_clone(
@@ -348,6 +467,8 @@ def _manager_trainer_state(
     teacher_examples,
     behavior_cloning_loss: float | None,
     behavior_cloning_accuracy: float | None,
+    selfplay_evaluations: list[dict[str, Any]],
+    rollback_event: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
     if any(isinstance(env, RemoteManagerEnv) for env in envs):
         return None
@@ -367,7 +488,51 @@ def _manager_trainer_state(
         "teacher_examples": copy.deepcopy(teacher_examples),
         "behavior_cloning_loss": behavior_cloning_loss,
         "behavior_cloning_accuracy": behavior_cloning_accuracy,
+        "selfplay_evaluations": copy.deepcopy(selfplay_evaluations),
+        "rollback_event": copy.deepcopy(rollback_event),
     }
+
+
+def _selfplay_evaluate_snapshot(
+    *,
+    cfg: ManagerPPOConfig,
+    opponent_pool: OpponentPool,
+    latest: OpponentSnapshot,
+    global_step: int,
+) -> list[dict[str, Any]]:
+    if cfg.selfplay_eval_games <= 0:
+        return []
+    league = SelfPlayLeague(
+        opponent_pool,
+        LeagueConfig(
+            games_per_pair=cfg.selfplay_eval_games,
+            max_steps=cfg.max_episode_steps,
+            seed=cfg.seed + global_step,
+            device=cfg.device,
+        ),
+    )
+    records = []
+    for evaluation in league.evaluate_latest(
+        latest,
+        opponent_count=max(1, cfg.selfplay_eval_opponents),
+    ):
+        policy_a_scores = [
+            match.score_player_0 if match.policy_a_side == "player_0" else match.score_player_1
+            for match in evaluation.arena_result.matches
+        ]
+        records.append(
+            {
+                "global_step": global_step,
+                "latest_name": evaluation.latest_name,
+                "opponent_name": evaluation.opponent_name,
+                "latest_rating": evaluation.latest_rating,
+                "opponent_rating": evaluation.opponent_rating,
+                "games": len(evaluation.arena_result.matches),
+                "win_rate": evaluation.arena_result.win_rate_policy_a,
+                "mean_score": float(np.mean(policy_a_scores)) if policy_a_scores else 0.0,
+            }
+        )
+    return records
 
 
 def _checkpoint_payload(
@@ -579,6 +744,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         opponent_pool = copy.deepcopy(resume_trainer_state["opponent_pool"])
         opponent_rng.setstate(resume_trainer_state["opponent_rng_state"])
         opponent_counts = dict(resume_trainer_state["opponent_counts"])
+        selfplay_evaluations = list(resume_trainer_state.get("selfplay_evaluations", []))
+        rollback_event = resume_trainer_state.get("rollback_event")
         initial_checkpoint_step = int(resume_checkpoint.get("global_step", 0))
         restore_rng_state(resume_checkpoint["rng_state"])
     elif cfg.initial_checkpoint_path:
@@ -593,6 +760,11 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             for group in optimizer.param_groups:
                 group["lr"] = cfg.learning_rate
         initial_checkpoint_step = int(initial_checkpoint.get("global_step", 0))
+        selfplay_evaluations = []
+        rollback_event = None
+    else:
+        selfplay_evaluations = []
+        rollback_event = None
 
     teacher_path = Path(cfg.teacher_dataset_path) if cfg.teacher_dataset_path else paths["teacher_dataset_path"]
     behavior_checkpoint_path = paths["checkpoint_dir"] / "behavior_cloned.pt"
@@ -672,6 +844,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             teacher_examples=teacher_examples,
             behavior_cloning_loss=behavior_cloning_loss,
             behavior_cloning_accuracy=behavior_cloning_accuracy,
+            selfplay_evaluations=selfplay_evaluations,
+            rollback_event=rollback_event,
         )
 
     with paths["metrics_path"].open("w", newline="", encoding="utf-8") as handle:
@@ -732,6 +906,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                     done = terminated or truncated
                     if "manager_episode" in info:
                         episode = dict(info["manager_episode"])
+                        episode["curriculum_stage"] = stage
                         episodes.append(episode)
                         for metric in (
                             "r",
@@ -744,6 +919,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                             "missed_lethal",
                             "failed_counter",
                             "tactical_success_rate",
+                            "profile_usage_entropy",
+                            "profile_dominant_usage_ratio",
                             "option_usage_entropy",
                             "option_dominant_usage_ratio",
                             "option_collapse_detected",
@@ -752,6 +929,13 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                         ):
                             if metric in episode:
                                 writer.writerow({"global_step": global_step, "metric": f"episodic_{metric}", "value": episode[metric]})
+                                writer.writerow(
+                                    {
+                                        "global_step": global_step,
+                                        "metric": f"curriculum_{stage}_{metric}",
+                                        "value": episode[metric],
+                                    }
+                                )
                         for profile_id, count in enumerate(episode["profile_counts"]):
                             writer.writerow({"global_step": global_step, "metric": f"profile_{profile_id}_count", "value": count})
                         for control_id, count in enumerate(episode.get("search_control_counts", ())):
@@ -912,17 +1096,51 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
                     opponent_pool = OpponentPool()
                 name = f"manager_step_{global_step}"
                 if opponent_pool.get(name) is None:
-                    opponent_pool.add(
-                        OpponentSnapshot(
-                            name=name,
-                            policy_type="manager",
-                            checkpoint_path=str(snapshot_path),
-                            metadata={"global_step": global_step, "role": "selfplay_snapshot"},
+                    latest_snapshot = OpponentSnapshot(
+                        name=name,
+                        policy_type="manager",
+                        checkpoint_path=str(snapshot_path),
+                        metadata={
+                            "global_step": global_step,
+                            "role": "selfplay_snapshot",
+                            "parent_checkpoint_path": (
+                                str(paths["best_checkpoint_path"]) if best_written else None
+                            ),
+                        },
+                    )
+                    opponent_pool.add(latest_snapshot)
+                    selfplay_evaluations.extend(
+                        _selfplay_evaluate_snapshot(
+                            cfg=cfg,
+                            opponent_pool=opponent_pool,
+                            latest=latest_snapshot,
+                            global_step=global_step,
                         )
+                    )
+                    paths["selfplay_evaluations_path"].write_text(
+                        json.dumps(selfplay_evaluations, indent=2, sort_keys=True) + "\n",
+                        encoding="utf-8",
                     )
                 opponent_pool.save(paths["opponent_pool_path"])
                 while next_snapshot_step <= global_step:
                     next_snapshot_step += cfg.selfplay_snapshot_interval
+
+            violations = _rollback_violations(cfg, episodes)
+            if violations and best_written:
+                rollback_checkpoint_path = paths["checkpoint_dir"] / "rollback.pt"
+                shutil.copy2(paths["best_checkpoint_path"], rollback_checkpoint_path)
+                rollback_event = {
+                    "global_step": global_step,
+                    "violations": violations,
+                    "rollback_checkpoint_path": str(rollback_checkpoint_path),
+                    "source_best_checkpoint_path": str(paths["best_checkpoint_path"]),
+                    "window_episodes": max(1, cfg.rollback_window_episodes),
+                }
+                paths["rollback_report_path"].write_text(
+                    json.dumps(rollback_event, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                break
 
     torch.save(
         _checkpoint_payload(
@@ -944,6 +1162,16 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
     )
     if opponent_pool is not None:
         opponent_pool.save(paths["opponent_pool_path"])
+    if selfplay_evaluations:
+        paths["selfplay_evaluations_path"].write_text(
+            json.dumps(selfplay_evaluations, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    if rollback_event is not None and not paths["rollback_report_path"].exists():
+        paths["rollback_report_path"].write_text(
+            json.dumps(rollback_event, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
     recent = episodes[-10:]
     summary = {
         "run_id": paths["run_id"],
@@ -966,6 +1194,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "behavior_checkpoint_path": str(behavior_checkpoint_path) if teacher_examples else None,
         "teacher_examples": len(teacher_examples),
         "teacher_dataset_path": str(teacher_path) if teacher_examples else None,
+        "curriculum_stages": _curriculum_names(cfg) if cfg.curriculum_enabled else ["full_match"],
+        "curriculum_stage_metrics": _curriculum_stage_metrics(episodes),
         "worker_profiles": [asdict(profile) for profile in profiles],
         "training_worker_profiles": [asdict(profile) for profile in training_profiles],
         "search_controls": [asdict(control) for control in search_controls],
@@ -973,6 +1203,13 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "tactical_options": [asdict(option) for option in tactical_options],
         "opponent_counts": opponent_counts,
         "opponent_pool_path": str(paths["opponent_pool_path"]) if opponent_pool is not None else None,
+        "selfplay_evaluations_path": (
+            str(paths["selfplay_evaluations_path"]) if selfplay_evaluations else None
+        ),
+        "selfplay_evaluations": len(selfplay_evaluations),
+        "rollback_triggered": rollback_event is not None,
+        "rollback_event": rollback_event,
+        "rollback_report_path": str(paths["rollback_report_path"]) if rollback_event is not None else None,
         "checkpoint_path": str(checkpoint_path),
         "best_checkpoint_path": str(paths["best_checkpoint_path"]) if best_written else None,
         "metrics_path": str(paths["metrics_path"]),
@@ -983,6 +1220,7 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "latest": checkpoint_path,
         "best": paths["best_checkpoint_path"] if best_written else None,
         "behavior_cloned": behavior_checkpoint_path if teacher_examples else None,
+        "rollback": (paths["checkpoint_dir"] / "rollback.pt") if rollback_event is not None else None,
     }
     checkpoint_artifacts.update(
         {
@@ -996,6 +1234,8 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
         "summary": paths["summary_path"],
         "teacher_dataset": teacher_path if teacher_examples else None,
         "opponent_pool": paths["opponent_pool_path"] if opponent_pool is not None else None,
+        "selfplay_evaluations": paths["selfplay_evaluations_path"] if selfplay_evaluations else None,
+        "rollback_report": paths["rollback_report_path"] if rollback_event is not None else None,
     }
     write_artifact_manifest(
         run_dir=run_dir,
@@ -1012,7 +1252,18 @@ def train_manager_ppo(config: ManagerPPOConfig | None = None) -> dict[str, Any]:
             "best_min_episodes": cfg.best_min_episodes,
             "best_window_episodes": cfg.best_window_episodes,
             "opponent_sampling": cfg.opponent_sampling,
+            "selfplay_eval_games": cfg.selfplay_eval_games,
             "search_control_mode": cfg.search_control_mode,
+            "curriculum_stages": _curriculum_names(cfg) if cfg.curriculum_enabled else ["full_match"],
+            "rollback_thresholds": {
+                "rollback_min_episodes": cfg.rollback_min_episodes,
+                "rollback_window_episodes": cfg.rollback_window_episodes,
+                "rollback_min_win_rate": cfg.rollback_min_win_rate,
+                "rollback_min_tactical_success_rate": cfg.rollback_min_tactical_success_rate,
+                "rollback_max_mean_decision_ms": cfg.rollback_max_mean_decision_ms,
+                "rollback_max_profile_dominant_usage_ratio": cfg.rollback_max_profile_dominant_usage_ratio,
+                "rollback_max_chain_stagnation_episodes": cfg.rollback_max_chain_stagnation_episodes,
+            },
             "max_search_latency_ms": cfg.max_search_latency_ms,
         },
     )

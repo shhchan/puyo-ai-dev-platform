@@ -214,6 +214,8 @@ def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_
         artifact_path = _resolve_record_path(manifest_path, record["path"])
         if role == "opponent_pool" and artifact_path.exists():
             _add_opponent_pool(registry, run_node_id, artifact_path)
+        if role == "selfplay_evaluations" and artifact_path.exists():
+            _add_selfplay_evaluations(registry, run_node_id, artifact_path)
         if "arena" in role or "arena" in artifact_path.name:
             node_id = _path_id("arena_result", artifact_path)
             registry.add_node(
@@ -252,7 +254,54 @@ def _add_opponent_pool(registry: LineageRegistry, run_node_id: str, path: Path) 
                 },
             )
         )
-        registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type="uses_opponent"))
+        edge_type = "produces" if snapshot.get("metadata", {}).get("role") == "selfplay_snapshot" else "uses_opponent"
+        registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type=edge_type))
+        parent_checkpoint_path = snapshot.get("metadata", {}).get("parent_checkpoint_path")
+        if parent_checkpoint_path:
+            parent_id = _path_id("external_checkpoint", parent_checkpoint_path)
+            registry.add_node(
+                LineageNode(
+                    id=parent_id,
+                    node_type="external_checkpoint",
+                    label=Path(str(parent_checkpoint_path)).name,
+                    path=str(parent_checkpoint_path),
+                    metadata={"declared_by": str(path), "source_field": "parent_checkpoint_path"},
+                )
+            )
+            registry.add_edge(LineageEdge(source=parent_id, target=node_id, edge_type="promotes_to_selfplay"))
+
+
+def _add_selfplay_evaluations(registry: LineageRegistry, run_node_id: str, path: Path) -> None:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return
+    if not isinstance(data, list):
+        return
+    for index, record in enumerate(data):
+        if not isinstance(record, dict):
+            continue
+        node_id = f"selfplay_eval:{json_digest(record)[:16]}"
+        registry.add_node(
+            LineageNode(
+                id=node_id,
+                node_type="selfplay_evaluation",
+                label=f"{record.get('latest_name', 'latest')} vs {record.get('opponent_name', 'opponent')}",
+                path=str(path),
+                metadata={
+                    "index": index,
+                    "global_step": record.get("global_step"),
+                    "latest_name": record.get("latest_name"),
+                    "opponent_name": record.get("opponent_name"),
+                    "latest_rating": record.get("latest_rating"),
+                    "opponent_rating": record.get("opponent_rating"),
+                    "games": record.get("games"),
+                    "win_rate": record.get("win_rate"),
+                    "mean_score": record.get("mean_score"),
+                },
+            )
+        )
+        registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type="evaluates"))
 
 
 def _add_legacy_run(registry: LineageRegistry, run_dir: Path, path_index: dict[str, str]) -> None:

@@ -393,10 +393,14 @@ class ManagerSelfPlayEnv(_BaseEnv):
         return enriched
 
     def _manager_action_mask(self):
-        if self.curriculum_stage == "safe_build":
+        if self.curriculum_stage in {"safe_build", "chain_construction"}:
             allowed = {"build_large", "build_budget", "survival"}
+        elif self.curriculum_stage in {"deadline_counter", "counter"}:
+            allowed = {"build_large", "build_budget", "counter", "survival"}
         elif self.curriculum_stage == "punish":
             allowed = {"build_large", "build_budget", "punish", "fire_max", "survival"}
+        elif self.curriculum_stage == "survival":
+            allowed = {"build_budget", "counter", "survival"}
         else:
             allowed = {
                 "build_large",
@@ -602,6 +606,8 @@ class ManagerSelfPlayEnv(_BaseEnv):
                     "r": self._episode_return,
                     "switches": self.manager_state.switch_count,
                     "profile_counts": tuple(self.manager_state.profile_counts),
+                    "profile_usage_entropy": _usage_entropy(self.manager_state.profile_counts),
+                    "profile_dominant_usage_ratio": _dominant_usage_ratio(self.manager_state.profile_counts),
                     "option_counts": tuple(self.manager_state.option_counts),
                     "option_usage_entropy": _usage_entropy(self.manager_state.option_counts),
                     "option_dominant_usage_ratio": _dominant_usage_ratio(self.manager_state.option_counts),

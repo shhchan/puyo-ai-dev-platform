@@ -11,8 +11,13 @@ search_cost_reward_scale: 1.0
 max_search_latency_ms: 80.0
 auxiliary_reward_scale: 0.1
 curriculum_enabled: true
+curriculum_stages: chain_construction,deadline_counter,punish,survival,full_match
+curriculum_boundaries: "0.20,0.40,0.60,0.80"
 behavior_cloning_epochs: 500
 generate_teacher_dataset: true
+selfplay_snapshot_interval: 0
+selfplay_eval_games: 0
+rollback_min_episodes: 0
 use_smoke_profiles: true
 log_dir: runs/manager_ppo
 device: cpu

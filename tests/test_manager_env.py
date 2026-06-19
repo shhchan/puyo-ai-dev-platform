@@ -67,7 +67,7 @@ class TestManagerEnvironment(unittest.TestCase):
 
     def test_curriculum_stage_expands_available_profiles(self):
         env = ManagerSelfPlayEnv(seed=5, max_steps=1, profiles=smoke_worker_profiles())
-        env.set_curriculum_stage("safe_build")
+        env.set_curriculum_stage("chain_construction")
         _, info = env.reset(seed=5)
 
         self.assertTrue(info["action_mask"][0])
@@ -75,7 +75,10 @@ class TestManagerEnvironment(unittest.TestCase):
         counter_action = 3 * env.search_control_count
         self.assertFalse(info["action_mask"][punish_action])
         self.assertFalse(info["action_mask"][counter_action])
-        env.set_curriculum_stage("counter")
+        env.set_curriculum_stage("deadline_counter")
+        self.assertFalse(env._manager_action_mask()[punish_action])
+        self.assertTrue(env._manager_action_mask()[counter_action])
+        env.set_curriculum_stage("full_match")
         self.assertTrue(env._manager_action_mask().all())
         env.close()
 
