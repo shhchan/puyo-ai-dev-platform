@@ -35,6 +35,14 @@ class RegistryEntry:
 
 
 @dataclass(frozen=True)
+class LauncherFieldSpec:
+    name: str
+    label: str
+    cli_option: str
+    description: str
+
+
+@dataclass(frozen=True)
 class LauncherSettings:
     policy_a: str = "first"
     policy_b: str = "random"
@@ -46,6 +54,8 @@ class LauncherSettings:
     speed: float = 1.0
     start_paused: bool = True
     device: str = "cpu"
+    device_a: str | None = None
+    device_b: str | None = None
     deterministic: bool = True
     deterministic_a: bool | None = None
     deterministic_b: bool | None = None
@@ -64,7 +74,17 @@ class LauncherSettings:
     max_steps: int = 100
     max_ticks: int = 600
     games: int = 1
+    inference_latency_ticks: int = 0
+    timeout_ticks: int | None = None
+    action_deadline_ticks: int | None = None
+    use_reachable_action_mask: bool = False
+    keybindings_path: str | None = None
+    result_json: str | None = None
+    max_frames: int | None = None
+    paired_sides: bool = True
+    replay_path: str | None = None
     config_path: str = "train/config/realtime_smoke.yaml"
+    run_id: str = "launcher-smoke"
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -86,8 +106,53 @@ def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "arena":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=180, games=1)
     if action_key == "training":
-        return LauncherSettings(seed=57, config_path="train/config/realtime_smoke.yaml")
+        return LauncherSettings(seed=57, config_path="train/config/realtime_smoke.yaml", run_id="launcher-smoke")
     return LauncherSettings()
+
+
+FIELD_SPECS: dict[str, LauncherFieldSpec] = {
+    "policy_a": LauncherFieldSpec("policy_a", "1P 方策", "--policy-a", "1P 側で使う policy を選びます。human、beam、manager_rule などは CLI 名のまま表示します。"),
+    "policy_b": LauncherFieldSpec("policy_b", "2P 方策", "--policy-b", "2P 側で使う policy を選びます。checkpoint / manager を選ぶ場合は対応する checkpoint が必要です。"),
+    "checkpoint_a": LauncherFieldSpec("checkpoint_a", "1P checkpoint", "--checkpoint-a", "1P 側 policy が checkpoint または manager のときに読み込むモデル path です。"),
+    "checkpoint_b": LauncherFieldSpec("checkpoint_b", "2P checkpoint", "--checkpoint-b", "2P 側 policy が checkpoint または manager のときに読み込むモデル path です。"),
+    "seed": LauncherFieldSpec("seed", "対戦 seed", "--seed", "環境・つも系列を再現するための共通 seed です。"),
+    "seed_a": LauncherFieldSpec("seed_a", "1P policy seed", "--seed-a", "1P 側 policy 専用の乱数 seed です。auto の場合は共通 seed から決まります。"),
+    "seed_b": LauncherFieldSpec("seed_b", "2P policy seed", "--seed-b", "2P 側 policy 専用の乱数 seed です。auto の場合は共通 seed から決まります。"),
+    "max_steps": LauncherFieldSpec("max_steps", "最大 step", "--max-steps", "ターン制 versus UI の最大 step 数です。"),
+    "max_ticks": LauncherFieldSpec("max_ticks", "最大 tick", "--max-ticks", "realtime UI / arena を何 tick まで進めるかを指定します。"),
+    "speed": LauncherFieldSpec("speed", "再生速度", "--speed", "画面上の進行速度倍率です。0.25 から 4.0 まで選べます。"),
+    "start_paused": LauncherFieldSpec("start_paused", "一時停止開始", "--start-paused", "ON の場合、画面を開いた直後に pause した状態で開始します。"),
+    "device": LauncherFieldSpec("device", "共通 device", "--device", "checkpoint / manager 推論で使う device です。通常は cpu を使います。"),
+    "device_a": LauncherFieldSpec("device_a", "1P device", "--device-a", "1P 側だけ device を上書きします。auto の場合は共通 device を使います。"),
+    "device_b": LauncherFieldSpec("device_b", "2P device", "--device-b", "2P 側だけ device を上書きします。auto の場合は共通 device を使います。"),
+    "deterministic": LauncherFieldSpec("deterministic", "決定的推論", "--stochastic", "ON の場合は決定的に行動します。OFF の場合は stochastic sampling を使います。"),
+    "deterministic_a": LauncherFieldSpec("deterministic_a", "1P 決定的推論", "--deterministic-a / --stochastic-a", "1P 側だけ決定的推論を上書きします。auto の場合は共通設定を使います。"),
+    "deterministic_b": LauncherFieldSpec("deterministic_b", "2P 決定的推論", "--deterministic-b / --stochastic-b", "2P 側だけ決定的推論を上書きします。auto の場合は共通設定を使います。"),
+    "beam_depth": LauncherFieldSpec("beam_depth", "beam 深さ", "--beam-depth", "beam policy の共通探索深さです。"),
+    "beam_width": LauncherFieldSpec("beam_width", "beam 幅", "--beam-width", "beam policy の共通探索候補数です。"),
+    "beam_scenarios": LauncherFieldSpec("beam_scenarios", "beam scenarios", "--beam-scenarios", "beam policy が見る未来 scenario 数です。"),
+    "beam_minimum_chain": LauncherFieldSpec("beam_minimum_chain", "beam 最小連鎖", "--beam-minimum-chain", "beam policy が優先する最小 chain 数です。"),
+    "beam_depth_a": LauncherFieldSpec("beam_depth_a", "1P beam 深さ", "--beam-depth-a", "1P 側だけ beam 探索深さを上書きします。auto の場合は共通値を使います。"),
+    "beam_depth_b": LauncherFieldSpec("beam_depth_b", "2P beam 深さ", "--beam-depth-b", "2P 側だけ beam 探索深さを上書きします。auto の場合は共通値を使います。"),
+    "beam_width_a": LauncherFieldSpec("beam_width_a", "1P beam 幅", "--beam-width-a", "1P 側だけ beam 探索候補数を上書きします。auto の場合は共通値を使います。"),
+    "beam_width_b": LauncherFieldSpec("beam_width_b", "2P beam 幅", "--beam-width-b", "2P 側だけ beam 探索候補数を上書きします。auto の場合は共通値を使います。"),
+    "beam_scenarios_a": LauncherFieldSpec("beam_scenarios_a", "1P scenarios", "--beam-scenarios-a", "1P 側だけ beam scenario 数を上書きします。auto の場合は共通値を使います。"),
+    "beam_scenarios_b": LauncherFieldSpec("beam_scenarios_b", "2P scenarios", "--beam-scenarios-b", "2P 側だけ beam scenario 数を上書きします。auto の場合は共通値を使います。"),
+    "beam_minimum_chain_a": LauncherFieldSpec("beam_minimum_chain_a", "1P 最小連鎖", "--beam-minimum-chain-a", "1P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
+    "beam_minimum_chain_b": LauncherFieldSpec("beam_minimum_chain_b", "2P 最小連鎖", "--beam-minimum-chain-b", "2P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
+    "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
+    "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),
+    "action_deadline_ticks": LauncherFieldSpec("action_deadline_ticks", "deadline tick", "--action-deadline-ticks", "AI action を deadline miss と扱う tick 数です。auto の場合は無効です。"),
+    "use_reachable_action_mask": LauncherFieldSpec("use_reachable_action_mask", "到達可能 mask", "--use-reachable-action-mask", "ON の場合、realtime 環境で到達可能な action だけを policy に渡します。"),
+    "keybindings_path": LauncherFieldSpec("keybindings_path", "キー設定 path", "--keybindings", "keybindings JSON の path です。auto の場合は既定 path を使います。"),
+    "result_json": LauncherFieldSpec("result_json", "結果 JSON", "--result-json", "realtime UI smoke 結果を書き出す JSON path です。auto の場合は書き出しません。"),
+    "max_frames": LauncherFieldSpec("max_frames", "最大 frame", "--max-frames", "UI smoke 用に描画 frame 数で停止する設定です。auto の場合は停止しません。"),
+    "games": LauncherFieldSpec("games", "試合数", "--games", "arena で実行する game 数です。"),
+    "paired_sides": LauncherFieldSpec("paired_sides", "左右入替評価", "--paired-sides", "ON の場合、arena で 1P/2P を入れ替えた paired evaluation を行います。"),
+    "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena の replay 出力 path です。auto の場合は書き出しません。"),
+    "config_path": LauncherFieldSpec("config_path", "学習 config", "--config", "train.train_realtime に渡す YAML/JSON config path です。"),
+    "run_id": LauncherFieldSpec("run_id", "run_id", "--set run_id=...", "training smoke の run_id です。"),
+}
 
 
 class ArtifactRegistryClient:
@@ -255,8 +320,8 @@ class LauncherSettingsManager:
 
     def editable_fields(self, action_key: str) -> tuple[str, ...]:
         if action_key == "training":
-            return ("config_path", "seed")
-        if action_key in {"play", "spectate", "arena"}:
+            return ("config_path", "run_id", "seed")
+        if action_key == "play":
             return (
                 "policy_a",
                 "policy_b",
@@ -265,19 +330,102 @@ class LauncherSettingsManager:
                 "seed",
                 "seed_a",
                 "seed_b",
+                "max_steps",
                 "speed",
+                "start_paused",
+                "device",
+                "device_a",
+                "device_b",
+                "deterministic",
+                "deterministic_a",
+                "deterministic_b",
+                "beam_depth",
+                "beam_width",
+                "beam_scenarios",
+                "beam_minimum_chain",
                 "beam_depth_a",
                 "beam_depth_b",
                 "beam_width_a",
                 "beam_width_b",
+                "beam_scenarios_a",
+                "beam_scenarios_b",
+                "beam_minimum_chain_a",
+                "beam_minimum_chain_b",
+                "keybindings_path",
+            )
+        if action_key == "spectate":
+            return (
+                "policy_a",
+                "policy_b",
+                "checkpoint_a",
+                "checkpoint_b",
+                "seed",
+                "seed_a",
+                "seed_b",
+                "max_ticks",
+                "speed",
+                "start_paused",
+                "device",
+                "device_a",
+                "device_b",
+                "deterministic",
                 "deterministic_a",
                 "deterministic_b",
+                "beam_depth",
+                "beam_width",
+                "beam_scenarios",
+                "beam_minimum_chain",
+                "beam_depth_a",
+                "beam_depth_b",
+                "beam_width_a",
+                "beam_width_b",
+                "beam_scenarios_a",
+                "beam_scenarios_b",
+                "beam_minimum_chain_a",
+                "beam_minimum_chain_b",
+                "inference_latency_ticks",
+                "timeout_ticks",
+                "action_deadline_ticks",
+                "use_reachable_action_mask",
+                "keybindings_path",
+                "result_json",
+                "max_frames",
+            )
+        if action_key == "arena":
+            return (
+                "policy_a",
+                "policy_b",
+                "checkpoint_a",
+                "checkpoint_b",
+                "games",
+                "seed",
+                "max_ticks",
+                "device",
+                "beam_depth",
+                "beam_width",
+                "beam_scenarios",
+                "beam_minimum_chain",
+                "inference_latency_ticks",
+                "timeout_ticks",
+                "action_deadline_ticks",
+                "paired_sides",
+                "replay_path",
             )
         return ()
 
     def field_label(self, action_key: str, field: str) -> str:
+        _ = action_key
+        spec = FIELD_SPECS.get(field)
         value = getattr(self.for_action(action_key), field)
-        return f"{field}: {_display_value(value)}"
+        label = spec.label if spec is not None else field
+        return f"{label}: {_display_value(value)}"
+
+    def field_help(self, action_key: str, field: str) -> str:
+        _ = action_key
+        spec = FIELD_SPECS.get(field)
+        if spec is None:
+            return field
+        return f"{spec.cli_option} / {spec.description}"
 
     def cycle(self, action_key: str, field: str, delta: int = 1) -> LauncherSettings:
         settings = self.for_action(action_key)
@@ -290,16 +438,46 @@ class LauncherSettingsManager:
         if field == "config_path":
             choices = tuple(entry.path for entry in self.registry.config_entries())
             return self.update(action_key, field, _cycle_value(value, choices or (value,), delta))
+        if field == "run_id":
+            return self.update(action_key, field, _cycle_value(value, ("launcher-smoke", "launcher-check", "manual-gui"), delta))
+        if field in {"device", "device_a", "device_b"}:
+            choices = ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
+            return self.update(action_key, field, _cycle_value(value, choices, delta))
+        if field in {"keybindings_path", "result_json", "replay_path"}:
+            choices_by_field = {
+                "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
+                "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
+                "replay_path": (None, "/tmp/puyo-arena-replay.json"),
+            }
+            return self.update(action_key, field, _cycle_value(value, choices_by_field[field], delta))
         if field == "speed":
             return self.update(action_key, field, _cycle_value(value, SPEED_CHOICES, delta))
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides"}:
+            return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
             return self.update(action_key, field, _cycle_value(value, (None, True, False), delta))
-        if field in {"seed", "seed_a", "seed_b"}:
+        if field in {"seed", "seed_a", "seed_b", "max_steps", "max_ticks", "games", "inference_latency_ticks"}:
             current = int(value) if value is not None else self.for_action(action_key).seed
-            return self.update(action_key, field, current + delta)
-        if field.startswith("beam_depth") or field.startswith("beam_width"):
-            current = int(value) if value is not None else getattr(settings, field.rsplit("_", 1)[0], 1)
-            return self.update(action_key, field, max(1, current + delta))
+            step = 10 if field in {"max_steps", "max_ticks"} else 1
+            return self.update(action_key, field, max(1, current + delta * step))
+        if field in {"timeout_ticks", "action_deadline_ticks", "max_frames"}:
+            if value is None:
+                return self.update(action_key, field, 1 if delta > 0 else None)
+            updated = int(value) + delta
+            return self.update(action_key, field, updated if updated > 0 else None)
+        if field.startswith("beam_"):
+            if field.endswith("_a") or field.endswith("_b"):
+                base_name = field.rsplit("_", 1)[0]
+                fallback = getattr(settings, base_name, 1)
+            else:
+                fallback = 1
+            current = int(value) if value is not None else int(fallback)
+            updated = current + delta
+            if "scenarios" in field:
+                updated = min(6, max(1, updated))
+            else:
+                updated = max(1, updated)
+            return self.update(action_key, field, updated)
         return settings
 
     def policy_choices(self, action_key: str) -> tuple[str, ...]:
@@ -340,6 +518,20 @@ class LauncherSettingsManager:
                     errors.extend(self._validate_checkpoint(side, policy, checkpoint))
             if settings.speed not in SPEED_CHOICES and action_key != "arena":
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
+            if settings.max_steps <= 0:
+                errors.append("max_steps must be positive")
+            if settings.max_ticks <= 0:
+                errors.append("max_ticks must be positive")
+            if settings.games <= 0:
+                errors.append("games must be positive")
+            if settings.inference_latency_ticks < 0:
+                errors.append("inference_latency_ticks must be non-negative")
+            if settings.timeout_ticks is not None and settings.timeout_ticks < 0:
+                errors.append("timeout_ticks must be non-negative")
+            if settings.action_deadline_ticks is not None and settings.action_deadline_ticks < 0:
+                errors.append("action_deadline_ticks must be non-negative")
+            if settings.max_frames is not None and settings.max_frames <= 0:
+                errors.append("max_frames must be positive")
         if action_key == "training":
             errors.extend(self._validate_config_path(settings.config_path))
         return errors
@@ -401,6 +593,8 @@ def _display_repo_path(path: Path, repo_root: Path) -> str:
 def _display_value(value: Any) -> str:
     if value is None:
         return "auto"
+    if isinstance(value, bool):
+        return "ON" if value else "OFF"
     return str(value)
 
 

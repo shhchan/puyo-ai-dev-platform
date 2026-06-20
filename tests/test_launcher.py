@@ -75,6 +75,44 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.max_ticks, 600)
         self.assertTrue(config.start_paused)
 
+    def test_spectate_exposes_and_round_trips_realtime_arguments(self):
+        service = self.make_service()
+        service.update_setting("spectate", "max_ticks", 720)
+        service.update_setting("spectate", "inference_latency_ticks", 2)
+        service.update_setting("spectate", "timeout_ticks", 5)
+        service.update_setting("spectate", "action_deadline_ticks", 4)
+        service.update_setting("spectate", "use_reachable_action_mask", True)
+        service.update_setting("spectate", "max_frames", 9)
+        service.update_setting("spectate", "result_json", "/tmp/result.json")
+
+        fields = service.settings.editable_fields("spectate")
+        for field in (
+            "max_ticks",
+            "inference_latency_ticks",
+            "timeout_ticks",
+            "action_deadline_ticks",
+            "use_reachable_action_mask",
+            "result_json",
+            "max_frames",
+        ):
+            self.assertIn(field, fields)
+
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+
+        self.assertEqual(config.max_ticks, 720)
+        self.assertEqual(config.inference_latency_ticks, 2)
+        self.assertEqual(config.timeout_ticks, 5)
+        self.assertEqual(config.action_deadline_ticks, 4)
+        self.assertTrue(config.use_reachable_action_mask)
+        self.assertEqual(config.max_frames, 9)
+        self.assertEqual(config.result_json, "/tmp/result.json")
+
+    def test_setting_help_describes_cli_argument(self):
+        service = self.make_service()
+
+        self.assertIn("--max-ticks", service.settings.field_help("spectate", "max_ticks"))
+        self.assertIn("realtime", service.settings.field_help("spectate", "max_ticks"))
+
     def test_gui_policy_seed_and_beam_settings_round_trip_to_play_command(self):
         service = self.make_service()
         service.update_setting("play", "policy_b", "beam")
@@ -162,7 +200,7 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertTrue(service.start("arena"))
         self.assertFalse(service.start("models"))
-        self.assertIn("Stop Arena", service.message)
+        self.assertIn("評価 を停止", service.message)
         self.assertTrue(service.stop())
         self.assertTrue(processes[0].terminated)
 
@@ -207,11 +245,39 @@ class TestLauncherController(unittest.TestCase):
         self.assertEqual(controller.screen, "play")
         self.assertFalse(controller.settings_mode)
 
+    def test_settings_screen_pages_to_later_realtime_arguments(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "spectate"
+        controller.settings_mode = True
+
+        self.assertNotIn("inference_latency_ticks", controller.current_options)
+        controller.selection = controller.current_options.index("next_page")
+        controller.handle_keydown(pygame.K_RETURN)
+        controller.selection = controller.current_options.index("next_page")
+        controller.handle_keydown(pygame.K_RETURN)
+
+        self.assertIn("inference_latency_ticks", controller.current_options)
+
+    def test_mouse_click_opens_workflow_and_changes_setting(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+
+        controller.handle_mouse_down((70, 118), 1)
+        self.assertEqual(controller.screen, "play")
+
+        controller.handle_mouse_down((60, 506), 1)
+        self.assertTrue(controller.settings_mode)
+
+        before = service.settings.for_action("play").policy_a
+        controller.handle_mouse_down((80, 220), 1)
+        self.assertNotEqual(service.settings.for_action("play").policy_a, before)
+
     def test_dummy_video_driver_smoke_renders_home(self):
         result = run_launcher(service=self.make_service(), max_frames=1)
 
         self.assertEqual(result["screen"], "home")
-        self.assertIn("No job", result["job"])
+        self.assertIn("job なし", result["job"])
 
 
 if __name__ == "__main__":
