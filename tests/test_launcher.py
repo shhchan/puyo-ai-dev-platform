@@ -13,7 +13,7 @@ try:
 
     from eval.realtime_versus_ui import parse_config as parse_realtime_config
     from eval.versus_ui import parse_config as parse_versus_config
-    from src.ui.launcher import LauncherController, LauncherService, run_launcher
+    from src.ui.launcher import LauncherController, LauncherService, UI_ASSET_FONT, _font, run_launcher
 
     ENV_AVAILABLE = True
 except (ImportError, OSError):
@@ -22,6 +22,8 @@ except (ImportError, OSError):
     parse_versus_config = None
     LauncherController = None
     LauncherService = None
+    UI_ASSET_FONT = None
+    _font = None
     run_launcher = None
 
 try:
@@ -272,6 +274,12 @@ class TestLauncherController(unittest.TestCase):
         before = service.settings.for_action("play").policy_a
         controller.handle_mouse_down((80, 220), 1)
         self.assertNotEqual(service.settings.for_action("play").policy_a, before)
+
+    def test_bundled_font_supports_japanese_glyphs(self):
+        self.assertTrue(UI_ASSET_FONT.exists())
+        font = _font(24)
+
+        self.assertTrue(all(metric is not None for metric in font.metrics("ぷよ設定")))
 
     def test_dummy_video_driver_smoke_renders_home(self):
         result = run_launcher(service=self.make_service(), max_frames=1)

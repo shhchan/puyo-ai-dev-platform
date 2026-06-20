@@ -21,6 +21,7 @@ from src.ui.launcher_settings import LauncherPresetStore, LauncherSettingsManage
 SCREEN_WIDTH = 980
 SCREEN_HEIGHT = 640
 FPS = 60
+UI_ASSET_FONT = Path(__file__).resolve().parents[2] / "assets" / "fonts" / "MPLUS1-Regular.ttf"
 BACKGROUND = (20, 24, 32)
 PANEL = (33, 39, 52)
 PANEL_ACTIVE = (48, 57, 74)
@@ -784,6 +785,12 @@ def _side_specific_argv(config, names: Iterable[str]) -> list[str]:
 
 
 def _font(size: int, *, bold: bool = False, monospace: bool = False):
+    if not pygame.font.get_init():
+        pygame.font.init()
+    if UI_ASSET_FONT.exists():
+        font = pygame.font.Font(str(UI_ASSET_FONT), size)
+        font.set_bold(bold)
+        return font
     candidates = (
         ["Noto Sans Mono CJK JP", "Noto Sans Mono", "DejaVu Sans Mono"]
         if monospace
