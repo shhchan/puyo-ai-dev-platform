@@ -42,6 +42,8 @@ class ReplayTimelineEntry:
     snapshot_hash: str = ""
     inputs: dict[str, Any] = field(default_factory=dict)
     policy_diagnostics: dict[str, Any] = field(default_factory=dict)
+    controller_diagnostics: dict[str, Any] = field(default_factory=dict)
+    controller_status: dict[str, Any] = field(default_factory=dict)
 
     @property
     def plan_ids(self) -> tuple[str, ...]:
@@ -74,6 +76,16 @@ class LineageSummary:
                 return node
         return None
 
+    def node_by_path(self, path: str | Path | None) -> dict[str, Any] | None:
+        if path is None:
+            return None
+        target = _path_key(path)
+        for node in self.nodes:
+            node_path = node.get("path")
+            if node_path is not None and _path_key(node_path) == target:
+                return node
+        return None
+
     def incoming_edges(self, node_id: str | None) -> tuple[dict[str, Any], ...]:
         if node_id is None:
             return ()
@@ -103,6 +115,7 @@ class ModelViewerData:
     replay_format: str
     seed: int | None
     expected_final_hash: str
+    policy_metadata: dict[str, Any]
     timeline: tuple[ReplayTimelineEntry, ...]
     lineage: LineageSummary
 
@@ -114,6 +127,7 @@ class ModelViewerData:
                 "format": self.replay_format,
                 "seed": self.seed,
                 "expected_final_hash": self.expected_final_hash,
+                "policies": self.policy_metadata,
                 "ticks": len(self.timeline),
                 "selected_tick": selected_tick,
                 "bookmarks": list(bookmarks),
@@ -139,6 +153,7 @@ class ModelViewerController:
         self.lineage_index = 0
         self.bookmarks: set[int] = set()
         self.message = "ready" if data.timeline else "lineage only"
+        self.focus_replay_checkpoint()
 
     @property
     def selected_entry(self) -> ReplayTimelineEntry | None:
@@ -207,6 +222,18 @@ class ModelViewerController:
         node = self.selected_lineage_node
         self.message = "lineage selected" if node is None else f"lineage {node.get('label', node.get('id', '-'))}"
 
+    def focus_replay_checkpoint(self) -> bool:
+        for policy in self.data.policy_metadata.values():
+            if not isinstance(policy, Mapping):
+                continue
+            checkpoint_node = self.data.lineage.node_by_path(policy.get("checkpoint_path"))
+            if checkpoint_node is None or checkpoint_node.get("id") not in self.lineage_order:
+                continue
+            self.lineage_index = self.lineage_order.index(str(checkpoint_node["id"]))
+            self.message = f"lineage {checkpoint_node.get('label', checkpoint_node.get('id', '-'))}"
+            return True
+        return False
+
     def report(self) -> dict[str, Any]:
         entry = self.selected_entry
         report = self.data.to_report(
@@ -216,6 +243,11 @@ class ModelViewerController:
         selected = self.selected_lineage_node
         report["replay"]["playback_stride"] = self.playback_stride
         report["replay"]["mode"] = "timeline" if self.data.timeline else "lineage_only"
+        report["replay"]["selected_entry"] = {} if entry is None else summarize_replay_entry(
+            entry,
+            self.data.policy_metadata,
+            self.data.lineage,
+        )
         report["lineage"]["selected_node"] = {} if selected is None else {
             "id": selected.get("id"),
             "label": selected.get("label"),
@@ -227,14 +259,17 @@ class ModelViewerController:
         return report
 
 
-def load_replay_timeline(path: str | Path | None) -> tuple[str | None, str, int | None, str, tuple[ReplayTimelineEntry, ...]]:
+def load_replay_timeline(
+    path: str | Path | None,
+) -> tuple[str | None, str, int | None, str, dict[str, Any], tuple[ReplayTimelineEntry, ...]]:
     if path is None:
-        return None, "none", None, "", ()
+        return None, "none", None, "", {}, ()
     replay_path = Path(path)
     payload = json.loads(replay_path.read_text(encoding="utf-8"))
     replay_format = str(payload.get("format", "puyo-realtime-fixture-v1"))
     seed = payload.get("seed")
     expected_final_hash = str(payload.get("expected_final_hash", ""))
+    policy_metadata = dict(payload.get("policies", {}))
     if replay_format == "puyo-realtime-match-v1" and isinstance(payload.get("ticks"), list):
         entries = tuple(
             ReplayTimelineEntry(
@@ -242,11 +277,20 @@ def load_replay_timeline(path: str | Path | None) -> tuple[str | None, str, int 
                 snapshot_hash=str(item.get("snapshot_hash", "")),
                 inputs=dict(item.get("inputs", {})),
                 policy_diagnostics=dict(item.get("policy_diagnostics", {})),
+                controller_diagnostics=dict(item.get("controller_diagnostics", {})),
+                controller_status=dict(item.get("controller_status", {})),
             )
             for index, item in enumerate(payload["ticks"])
             if isinstance(item, dict)
         )
-        return str(replay_path), replay_format, int(seed) if seed is not None else None, expected_final_hash, entries
+        return (
+            str(replay_path),
+            replay_format,
+            int(seed) if seed is not None else None,
+            expected_final_hash,
+            policy_metadata,
+            entries,
+        )
     capture_every = int(payload.get("capture_every", 1))
     hashes = payload.get("expected_hashes", [])
     entries = tuple(
@@ -255,7 +299,14 @@ def load_replay_timeline(path: str | Path | None) -> tuple[str | None, str, int 
     )
     if not entries and "ticks" in payload:
         entries = tuple(ReplayTimelineEntry(tick=int(payload["ticks"]), snapshot_hash=expected_final_hash))
-    return str(replay_path), replay_format, int(seed) if seed is not None else None, expected_final_hash, entries
+    return (
+        str(replay_path),
+        replay_format,
+        int(seed) if seed is not None else None,
+        expected_final_hash,
+        policy_metadata,
+        entries,
+    )
 
 
 def build_lineage_summary(roots: tuple[str, ...]) -> LineageSummary:
@@ -273,12 +324,13 @@ def build_model_viewer_data(
     replay_path: str | Path | None = None,
     lineage_roots: tuple[str, ...] = (),
 ) -> ModelViewerData:
-    replay_path_str, replay_format, seed, expected_final_hash, timeline = load_replay_timeline(replay_path)
+    replay_path_str, replay_format, seed, expected_final_hash, policy_metadata, timeline = load_replay_timeline(replay_path)
     return ModelViewerData(
         replay_path=replay_path_str,
         replay_format=replay_format,
         seed=seed,
         expected_final_hash=expected_final_hash,
+        policy_metadata=policy_metadata,
         timeline=timeline,
         lineage=build_lineage_summary(lineage_roots),
     )
@@ -294,6 +346,7 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
         target.parent.mkdir(parents=True, exist_ok=True)
         replay = report.get("replay", {})
         lineage = report.get("lineage", {})
+        selected_entry = replay.get("selected_entry", {})
         lines = [
             "# Puyo Model Viewer Report",
             "",
@@ -306,17 +359,163 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
             f"- ticks: `{replay.get('ticks')}`",
             f"- selected_tick: `{replay.get('selected_tick')}`",
             f"- bookmarks: `{replay.get('bookmarks')}`",
-            "",
-            "## Lineage",
-            "",
-            f"- runs: `{lineage.get('runs')}`",
-            f"- checkpoints: `{lineage.get('checkpoints')}`",
-            f"- nodes: `{lineage.get('nodes')}`",
-            f"- edges: `{lineage.get('edges')}`",
-            f"- issues: `{len(lineage.get('issues', []))}`",
-            f"- selected_node: `{(lineage.get('selected_node') or {}).get('id', '-')}`",
         ]
+        agents = selected_entry.get("agents", {}) if isinstance(selected_entry, Mapping) else {}
+        if agents:
+            lines.extend(["", "### Selected Tick Decisions", ""])
+            for agent, payload in agents.items():
+                decision = payload.get("decision", {})
+                diagnostics = payload.get("diagnostics", {})
+                plan = payload.get("plan", {})
+                lines.extend(
+                    [
+                        f"- {agent}: `{payload.get('policy_type')}` input `{payload.get('input')}`",
+                        f"  - action: `{decision.get('action_index')}` x`{decision.get('axis_x')}` `{decision.get('rotation')}` reason `{decision.get('reason')}`",
+                        f"  - profile: `{diagnostics.get('profile_name') or '-'}` expanded `{diagnostics.get('expanded_nodes') or '-'}`",
+                        f"  - plan: `{plan.get('plan_id') or '-'}`",
+                    ]
+                )
+                lineage_node_id = payload.get("lineage_node_id")
+                checkpoint_path = payload.get("checkpoint_path")
+                if lineage_node_id or checkpoint_path:
+                    lines.append(
+                        f"  - checkpoint: `{lineage_node_id or checkpoint_path}` ancestors `{payload.get('lineage_ancestors', [])}`"
+                    )
+        lines.extend(
+            [
+                "",
+                "## Lineage",
+                "",
+                f"- runs: `{lineage.get('runs')}`",
+                f"- checkpoints: `{lineage.get('checkpoints')}`",
+                f"- nodes: `{lineage.get('nodes')}`",
+                f"- edges: `{lineage.get('edges')}`",
+                f"- issues: `{len(lineage.get('issues', []))}`",
+                f"- selected_node: `{(lineage.get('selected_node') or {}).get('id', '-')}`",
+            ]
+        )
         target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def summarize_replay_entry(
+    entry: ReplayTimelineEntry,
+    policy_metadata: Mapping[str, Any],
+    lineage: LineageSummary | None = None,
+) -> dict[str, Any]:
+    agents = {}
+    for agent in sorted(set(entry.inputs) | set(entry.policy_diagnostics) | set(entry.controller_diagnostics)):
+        policy = policy_metadata.get(agent, {}) if isinstance(policy_metadata.get(agent, {}), Mapping) else {}
+        checkpoint_node = lineage.node_by_path(policy.get("checkpoint_path")) if lineage is not None else None
+        diagnostics = entry.policy_diagnostics.get(agent, {})
+        controller = entry.controller_diagnostics.get(agent, {})
+        decision = controller.get("last_decision", {}) if isinstance(controller, Mapping) else {}
+        plan = diagnostics.get("plan", {}) if isinstance(diagnostics, Mapping) else {}
+        objective = diagnostics.get("search_objective", {}) if isinstance(diagnostics, Mapping) else {}
+        if not objective and isinstance(plan, Mapping):
+            objective = plan.get("objective", {})
+        first_step = _first_plan_step(plan)
+        search_diagnostics = diagnostics.get("search_diagnostics", {}) if isinstance(diagnostics, Mapping) else {}
+        agents[agent] = {
+            "policy_type": policy.get("policy_type", agent),
+            "checkpoint_path": policy.get("checkpoint_path"),
+            "lineage_node_id": None if checkpoint_node is None else checkpoint_node.get("id"),
+            "lineage_ancestors": (
+                [] if checkpoint_node is None or lineage is None
+                else _lineage_ancestor_ids(lineage, str(checkpoint_node["id"]))
+            ),
+            "input": _input_label(entry.inputs.get(agent, {})),
+            "decision": {
+                "action_index": decision.get("action_index"),
+                "axis_x": decision.get("axis_x"),
+                "rotation": decision.get("rotation"),
+                "reason": decision.get("reason"),
+                "reachable": decision.get("reachable"),
+                "plan_ticks": decision.get("plan_ticks"),
+                "policy_elapsed_ms": _seconds_to_ms(decision.get("policy_elapsed_seconds")),
+            },
+            "diagnostics": {
+                "profile_name": (
+                    diagnostics.get("profile_name")
+                    or plan.get("profile_name")
+                    or objective.get("source_profile_name")
+                    if isinstance(diagnostics, Mapping) and isinstance(plan, Mapping) and isinstance(objective, Mapping)
+                    else ""
+                ),
+                "strategy": diagnostics.get("strategy", "") if isinstance(diagnostics, Mapping) else "",
+                "reason": diagnostics.get("reason", "") if isinstance(diagnostics, Mapping) else "",
+                "target_attack": diagnostics.get("target_attack", 0) if isinstance(diagnostics, Mapping) else 0,
+                "deadline": diagnostics.get("deadline", 0) if isinstance(diagnostics, Mapping) else 0,
+                "expanded_nodes": (
+                    diagnostics.get("expanded_nodes")
+                    if isinstance(diagnostics, Mapping) and diagnostics.get("expanded_nodes")
+                    else search_diagnostics.get("expanded_nodes")
+                    if isinstance(search_diagnostics, Mapping)
+                    else None
+                ),
+                "elapsed_ms": _seconds_to_ms(
+                    diagnostics.get("elapsed_seconds")
+                    if isinstance(diagnostics, Mapping)
+                    else None
+                ),
+            },
+            "objective": objective if isinstance(objective, Mapping) else {},
+            "plan": {
+                "plan_id": diagnostics.get("plan_id", "") if isinstance(diagnostics, Mapping) else "",
+                "update_reason": diagnostics.get("plan_update_reason", "") if isinstance(diagnostics, Mapping) else "",
+                "first_step": first_step,
+            },
+        }
+    return {
+        "tick": entry.tick,
+        "snapshot_hash": entry.snapshot_hash,
+        "agents": agents,
+    }
+
+
+def replay_entry_display_lines(
+    entry: ReplayTimelineEntry,
+    policy_metadata: Mapping[str, Any],
+    lineage: LineageSummary | None = None,
+) -> tuple[str, ...]:
+    summary = summarize_replay_entry(entry, policy_metadata, lineage)
+    lines = []
+    for agent, payload in summary["agents"].items():
+        decision = payload["decision"]
+        diagnostics = payload["diagnostics"]
+        objective = payload["objective"]
+        plan = payload["plan"]
+        first_step = plan.get("first_step") or {}
+        elapsed = decision.get("policy_elapsed_ms")
+        elapsed_text = "-" if elapsed is None else f"{elapsed:.1f}ms"
+        lines.extend(
+            [
+                f"{agent} {payload['policy_type']} input {payload['input']}",
+                (
+                    f"  decision action {decision.get('action_index')} "
+                    f"x{decision.get('axis_x')} {decision.get('rotation')} "
+                    f"{decision.get('reason')} {elapsed_text}"
+                ),
+            ]
+        )
+        profile = diagnostics.get("profile_name") or "-"
+        objective_kind = objective.get("kind", "-") if isinstance(objective, Mapping) else "-"
+        target_chain = objective.get("target_chain", "-") if isinstance(objective, Mapping) else "-"
+        expanded = diagnostics.get("expanded_nodes")
+        lines.append(
+            f"  profile {profile} objective {objective_kind} chain {target_chain} expanded {expanded or '-'}"
+        )
+        if plan.get("plan_id"):
+            lines.append(
+                f"  plan {str(plan['plan_id'])[:10]} step1 action {first_step.get('action')} "
+                f"x{first_step.get('axis_x')} {first_step.get('rotation')}"
+            )
+        if payload.get("lineage_node_id"):
+            lines.append(f"  checkpoint {str(payload['lineage_node_id'])[:54]}")
+        elif payload.get("checkpoint_path"):
+            lines.append(f"  checkpoint {str(payload['checkpoint_path'])[:54]}")
+        if diagnostics.get("reason"):
+            lines.append(f"  why {str(diagnostics['reason'])[:54]}")
+    return tuple(lines)
 
 
 class ModelViewerRenderer:
@@ -345,6 +544,8 @@ class ModelViewerRenderer:
                 f"speed {controller.playback_stride}x  tick {entry.tick}  {controller.message}"
             )
         self._draw_text(status, self.font, ACCENT, (34, 64))
+        controls = "keys: Left/Right seek  Space play/pause  +/- speed  b bookmark  PgUp/PgDn lineage  c checkpoint"
+        self._draw_text(controls, self.small_font, MUTED, (34, 86))
 
     def _draw_replay_panel(self, controller: ModelViewerController) -> None:
         rect = pygame.Rect(32, 104, 500, 548)
@@ -361,20 +562,26 @@ class ModelViewerRenderer:
             f"seed: {controller.data.seed}",
             f"tick: {entry.tick}",
             f"hash: {entry.snapshot_hash[:24] or '-'}",
-            f"inputs: {', '.join(entry.inputs.keys()) or '-'}",
             f"plans: {', '.join(entry.plan_ids) or '-'}",
         ]
         y = rect.y + 58
         for line in details:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y), width=rect.width - 36)
             y += 24
-        y += 12
-        for offset, item in enumerate(controller.data.timeline[max(0, controller.index - 5) : controller.index + 8]):
+        y += 6
+        for line in replay_entry_display_lines(entry, controller.data.policy_metadata, controller.data.lineage)[:12]:
+            color = WARNING if not line.startswith("  ") else TEXT
+            self._draw_text(line, self.small_font, color, (rect.x + 18, y), width=rect.width - 36)
+            y += 20
+        timeline_y = max(y + 10, rect.bottom - 154)
+        for offset, item in enumerate(controller.data.timeline[max(0, controller.index - 3) : controller.index + 5]):
             selected = item.tick == entry.tick
-            row = pygame.Rect(rect.x + 18, y + offset * 28, rect.width - 36, 24)
+            row = pygame.Rect(rect.x + 18, timeline_y + offset * 24, rect.width - 36, 20)
+            if row.bottom > rect.bottom - 14:
+                break
             pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else BACKGROUND, row, border_radius=4)
             label = f"{item.tick:>5}  {item.snapshot_hash[:18] or '-'}"
-            self._draw_text(label, self.small_font, WARNING if selected else MUTED, (row.x + 8, row.y + 4))
+            self._draw_text(label, self.small_font, WARNING if selected else MUTED, (row.x + 8, row.y + 2))
 
     def _draw_lineage_panel(self, controller: ModelViewerController) -> None:
         rect = pygame.Rect(568, 104, 500, 548)
@@ -516,6 +723,9 @@ def run_model_viewer(
                     controller.change_speed(-1)
                 elif event.key == pygame.K_b:
                     controller.toggle_bookmark()
+                elif event.key == pygame.K_c:
+                    if not controller.focus_replay_checkpoint():
+                        controller.message = "no replay checkpoint in lineage"
         controller.advance_playback()
         renderer.draw(controller)
         frames += 1
@@ -542,6 +752,56 @@ def _lineage_order(summary: LineageSummary) -> tuple[str, ...]:
         ),
     )
     return tuple(str(node["id"]) for node in nodes if node.get("id"))
+
+
+def _lineage_ancestor_ids(summary: LineageSummary, node_id: str) -> list[str]:
+    ancestors = []
+    seen = set()
+    stack = [str(node["id"]) for node in summary.parent_nodes(node_id) if node.get("id")]
+    while stack:
+        current = stack.pop(0)
+        if current in seen:
+            continue
+        seen.add(current)
+        ancestors.append(current)
+        stack.extend(str(node["id"]) for node in summary.parent_nodes(current) if node.get("id"))
+    return ancestors
+
+
+def _path_key(path: str | Path) -> str:
+    target = Path(path).expanduser()
+    if not target.is_absolute():
+        target = Path.cwd() / target
+    return str(target.resolve())
+
+
+def _first_plan_step(plan: Any) -> dict[str, Any]:
+    if not isinstance(plan, Mapping):
+        return {}
+    steps = plan.get("steps", ())
+    if not isinstance(steps, list) or not steps:
+        return {}
+    first = steps[0]
+    return dict(first) if isinstance(first, Mapping) else {}
+
+
+def _input_label(payload: Any) -> str:
+    if not isinstance(payload, Mapping):
+        return "-"
+    labels = []
+    press = payload.get("press", ())
+    release = payload.get("release", ())
+    if press:
+        labels.extend(f"+{item}" for item in press)
+    if release:
+        labels.extend(f"-{item}" for item in release)
+    return " ".join(labels) if labels else "idle"
+
+
+def _seconds_to_ms(value: Any) -> float | None:
+    if not isinstance(value, (int, float)):
+        return None
+    return float(value) * 1000.0
 
 
 def _vertical_positions(x: int, top: int, bottom: int, count: int) -> tuple[tuple[int, int], ...]:
