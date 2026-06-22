@@ -87,6 +87,7 @@ class RealtimeVersusUiConfig:
     keybindings_path: str | None = None
     result_json: str | None = None
     max_frames: int | None = None
+    plan_overlay: bool = True
 
     @property
     def max_steps(self) -> int:
@@ -160,6 +161,10 @@ class RealtimeVersusMatchController:
         self.settings_capture = False
         self.settings_message = ""
         self._settings_previous_paused = self.paused
+        self.plan_overlay_enabled = {
+            "player_0": config.plan_overlay,
+            "player_1": config.plan_overlay,
+        }
         self.policies: dict[str, Policy] = {}
         self.controllers: dict[str, RealtimePolicyController] = {}
         self.human = None
@@ -194,6 +199,7 @@ class RealtimeVersusMatchController:
         if isinstance(diagnostics, dict):
             return diagnostics
         proposal = getattr(policy, "last_proposal", None)
+        plan = getattr(policy, "last_plan", None)
         if proposal is not None:
             return {
                 "incoming_attack": proposal.incoming_attack,
@@ -202,6 +208,9 @@ class RealtimeVersusMatchController:
                 "reason": proposal.reason,
                 "objective": getattr(proposal, "objective_dict", {}),
                 "objective_result": getattr(proposal, "objective_result_dict", {}),
+                "plan": {} if plan is None else plan.to_dict(),
+                "plan_id": "" if plan is None else plan.plan_id,
+                "plan_update_reason": "" if plan is None else plan.update_reason,
             }
         decision = self.controllers[agent].diagnostics.last_decision
         if decision is None:
@@ -212,6 +221,13 @@ class RealtimeVersusMatchController:
             "deadline": self.config.action_deadline_ticks or 0,
             "reason": decision.reason,
         }
+
+    def plan_overlay(self, agent: str) -> dict:
+        if not self.plan_overlay_enabled.get(agent, False):
+            return {}
+        diagnostics = self.tactical_diagnostics(agent)
+        plan = diagnostics.get("plan", {})
+        return plan if isinstance(plan, dict) else {}
 
     def realtime_diagnostics(self, agent: str) -> dict[str, str]:
         controller = self.controllers[agent]
@@ -459,6 +475,9 @@ class RealtimeVersusMatchController:
             self.change_speed(-1)
         elif self.keybindings.matches("step", key):
             self.advance_tick()
+        elif key == pygame.K_o:
+            enabled = not all(self.plan_overlay_enabled.values())
+            self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
         return True
 
     def _format_input_label(self, tick_input: TickInput, held_actions) -> str:
@@ -514,6 +533,8 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--use-reachable-action-mask", action="store_true")
     parser.add_argument("--result-json", help="Write the final UI smoke result as JSON.")
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
+    parser.add_argument("--no-plan-overlay", dest="plan_overlay", action="store_false")
+    parser.set_defaults(plan_overlay=True)
     parser.add_argument(
         "--keybindings",
         dest="keybindings_path",
@@ -556,6 +577,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         keybindings_path=args.keybindings_path,
         result_json=args.result_json,
         max_frames=args.max_frames,
+        plan_overlay=args.plan_overlay,
     )
     try:
         validate_config(config)
@@ -594,6 +616,8 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
         "decisions_player_1": controller.controllers["player_1"].diagnostics.decisions_started,
         "emitted_input_ticks_player_0": controller.controllers["player_0"].diagnostics.emitted_input_ticks,
         "emitted_input_ticks_player_1": controller.controllers["player_1"].diagnostics.emitted_input_ticks,
+        "plan_overlay_player_0": controller.plan_overlay_enabled["player_0"],
+        "plan_overlay_player_1": controller.plan_overlay_enabled["player_1"],
     }
     pygame.quit()
     return result
