@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -26,6 +26,14 @@ MUTED = (158, 169, 188)
 ACCENT = (79, 199, 163)
 WARNING = (238, 188, 94)
 ERROR = (238, 112, 112)
+NODE_COLORS = {
+    "run": (79, 199, 163),
+    "checkpoint": (238, 188, 94),
+    "arena_result": (126, 178, 255),
+    "benchmark": (190, 143, 255),
+    "benchmark_artifact": (170, 180, 198),
+    "external_checkpoint": (238, 112, 112),
+}
 
 
 @dataclass(frozen=True)
@@ -57,6 +65,36 @@ class LineageSummary:
     @property
     def runs(self) -> tuple[dict[str, Any], ...]:
         return tuple(node for node in self.nodes if node.get("node_type") == "run")
+
+    def node_by_id(self, node_id: str | None) -> dict[str, Any] | None:
+        if node_id is None:
+            return None
+        for node in self.nodes:
+            if node.get("id") == node_id:
+                return node
+        return None
+
+    def incoming_edges(self, node_id: str | None) -> tuple[dict[str, Any], ...]:
+        if node_id is None:
+            return ()
+        return tuple(edge for edge in self.edges if edge.get("target") == node_id)
+
+    def outgoing_edges(self, node_id: str | None) -> tuple[dict[str, Any], ...]:
+        if node_id is None:
+            return ()
+        return tuple(edge for edge in self.edges if edge.get("source") == node_id)
+
+    def parent_nodes(self, node_id: str | None) -> tuple[dict[str, Any], ...]:
+        return tuple(
+            node for edge in self.incoming_edges(node_id)
+            if (node := self.node_by_id(str(edge.get("source")))) is not None
+        )
+
+    def child_nodes(self, node_id: str | None) -> tuple[dict[str, Any], ...]:
+        return tuple(
+            node for edge in self.outgoing_edges(node_id)
+            if (node := self.node_by_id(str(edge.get("target")))) is not None
+        )
 
 
 @dataclass(frozen=True)
@@ -97,8 +135,10 @@ class ModelViewerController:
         self.index = 0
         self.paused = True
         self.playback_stride = 1
+        self.lineage_order = _lineage_order(data.lineage)
+        self.lineage_index = 0
         self.bookmarks: set[int] = set()
-        self.message = "ready"
+        self.message = "ready" if data.timeline else "lineage only"
 
     @property
     def selected_entry(self) -> ReplayTimelineEntry | None:
@@ -114,6 +154,10 @@ class ModelViewerController:
         self.message = "ready" if entry is None else f"tick {entry.tick}"
 
     def toggle_pause(self) -> None:
+        if not self.data.timeline:
+            self.paused = True
+            self.message = "lineage only"
+            return
         self.paused = not self.paused
         self.message = "paused" if self.paused else "playing"
 
@@ -135,8 +179,33 @@ class ModelViewerController:
             self.message = f"bookmarked tick {entry.tick}"
 
     def advance_playback(self) -> None:
-        if not self.paused:
+        if self.data.timeline and not self.paused:
             self.seek(self.playback_stride)
+
+    @property
+    def selected_lineage_id(self) -> str | None:
+        if not self.lineage_order:
+            return None
+        return self.lineage_order[self.lineage_index]
+
+    @property
+    def selected_lineage_node(self) -> dict[str, Any] | None:
+        return self.data.lineage.node_by_id(self.selected_lineage_id)
+
+    @property
+    def selected_lineage_parents(self) -> tuple[dict[str, Any], ...]:
+        return self.data.lineage.parent_nodes(self.selected_lineage_id)
+
+    @property
+    def selected_lineage_children(self) -> tuple[dict[str, Any], ...]:
+        return self.data.lineage.child_nodes(self.selected_lineage_id)
+
+    def seek_lineage(self, delta: int) -> None:
+        if not self.lineage_order:
+            return
+        self.lineage_index = max(0, min(len(self.lineage_order) - 1, self.lineage_index + delta))
+        node = self.selected_lineage_node
+        self.message = "lineage selected" if node is None else f"lineage {node.get('label', node.get('id', '-'))}"
 
     def report(self) -> dict[str, Any]:
         entry = self.selected_entry
@@ -144,7 +213,17 @@ class ModelViewerController:
             selected_tick=None if entry is None else entry.tick,
             bookmarks=tuple(sorted(self.bookmarks)),
         )
+        selected = self.selected_lineage_node
         report["replay"]["playback_stride"] = self.playback_stride
+        report["replay"]["mode"] = "timeline" if self.data.timeline else "lineage_only"
+        report["lineage"]["selected_node"] = {} if selected is None else {
+            "id": selected.get("id"),
+            "label": selected.get("label"),
+            "node_type": selected.get("node_type"),
+            "path": selected.get("path"),
+            "parents": [node.get("id") for node in self.selected_lineage_parents],
+            "children": [node.get("id") for node in self.selected_lineage_children],
+        }
         return report
 
 
@@ -223,6 +302,7 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
             f"- path: `{replay.get('path') or '-'}`",
             f"- format: `{replay.get('format') or '-'}`",
             f"- seed: `{replay.get('seed')}`",
+            f"- mode: `{replay.get('mode')}`",
             f"- ticks: `{replay.get('ticks')}`",
             f"- selected_tick: `{replay.get('selected_tick')}`",
             f"- bookmarks: `{replay.get('bookmarks')}`",
@@ -234,6 +314,7 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
             f"- nodes: `{lineage.get('nodes')}`",
             f"- edges: `{lineage.get('edges')}`",
             f"- issues: `{len(lineage.get('issues', []))}`",
+            f"- selected_node: `{(lineage.get('selected_node') or {}).get('id', '-')}`",
         ]
         target.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -256,11 +337,13 @@ class ModelViewerRenderer:
     def _draw_header(self, controller: ModelViewerController) -> None:
         self._draw_text("Model / Replay / Lineage Viewer", self.title_font, TEXT, (32, 24))
         entry = controller.selected_entry
-        tick = "-" if entry is None else str(entry.tick)
-        status = (
-            f"{'PAUSED' if controller.paused else 'PLAYING'}  "
-            f"speed {controller.playback_stride}x  tick {tick}  {controller.message}"
-        )
+        if entry is None:
+            status = f"LINEAGE ONLY  {controller.message}"
+        else:
+            status = (
+                f"{'PAUSED' if controller.paused else 'PLAYING'}  "
+                f"speed {controller.playback_stride}x  tick {entry.tick}  {controller.message}"
+            )
         self._draw_text(status, self.font, ACCENT, (34, 64))
 
     def _draw_replay_panel(self, controller: ModelViewerController) -> None:
@@ -310,13 +393,77 @@ class ModelViewerRenderer:
         for line in stats:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y))
             y += 24
-        y += 12
-        self._draw_text("Recent checkpoints", self.font, WARNING, (rect.x + 18, y))
-        y += 30
-        for node in summary.checkpoints[:12]:
-            label = f"{node.get('label', '-')}  {node.get('path', '-')}"
-            self._draw_text(label, self.small_font, MUTED, (rect.x + 18, y), width=rect.width - 36)
-            y += 24
+        graph_rect = pygame.Rect(rect.x + 18, y + 8, rect.width - 36, 190)
+        self._draw_lineage_graph(controller, graph_rect)
+        detail_rect = pygame.Rect(rect.x + 18, graph_rect.bottom + 14, rect.width - 36, rect.bottom - graph_rect.bottom - 28)
+        self._draw_lineage_detail(controller, detail_rect)
+
+    def _draw_lineage_graph(self, controller: ModelViewerController, rect: pygame.Rect) -> None:
+        pygame.draw.rect(self.screen, BACKGROUND, rect, border_radius=5)
+        pygame.draw.rect(self.screen, (82, 92, 112), rect, 1, border_radius=5)
+        selected = controller.selected_lineage_node
+        if selected is None:
+            self._draw_text("No lineage nodes", self.font, MUTED, (rect.x + 14, rect.y + 14))
+            return
+
+        parents = controller.selected_lineage_parents[:4]
+        children = controller.selected_lineage_children[:4]
+        center = (rect.centerx, rect.centery)
+        parent_positions = _vertical_positions(rect.x + 84, rect.y + 44, rect.bottom - 44, len(parents))
+        child_positions = _vertical_positions(rect.right - 84, rect.y + 44, rect.bottom - 44, len(children))
+
+        for node, pos in zip(parents, parent_positions):
+            pygame.draw.line(self.screen, (105, 120, 148), pos, center, 2)
+            self._draw_lineage_node(node, pos, selected=False)
+        for node, pos in zip(children, child_positions):
+            pygame.draw.line(self.screen, (105, 120, 148), center, pos, 2)
+            self._draw_lineage_node(node, pos, selected=False)
+        self._draw_lineage_node(selected, center, selected=True)
+
+        if not parents and not children:
+            around = [
+                controller.data.lineage.node_by_id(node_id)
+                for node_id in controller.lineage_order[controller.lineage_index + 1 : controller.lineage_index + 5]
+            ]
+            for node, pos in zip((item for item in around if item is not None), child_positions or _vertical_positions(rect.right - 84, rect.y + 44, rect.bottom - 44, 4)):
+                pygame.draw.line(self.screen, (80, 90, 112), center, pos, 1)
+                self._draw_lineage_node(node, pos, selected=False)
+
+    def _draw_lineage_node(self, node: dict[str, Any], center: tuple[int, int], *, selected: bool) -> None:
+        node_type = str(node.get("node_type", "node"))
+        color = NODE_COLORS.get(node_type, MUTED)
+        width = 132 if selected else 112
+        height = 42 if selected else 34
+        rect = pygame.Rect(0, 0, width, height)
+        rect.center = center
+        pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else PANEL, rect, border_radius=5)
+        pygame.draw.rect(self.screen, color, rect, 2 if selected else 1, border_radius=5)
+        label = str(node.get("label") or node.get("id") or "-")
+        self._draw_text(label, self.small_font, TEXT, (rect.x + 8, rect.y + 6), width=rect.width - 16)
+        self._draw_text(node_type, self.small_font, color, (rect.x + 8, rect.y + 22), width=rect.width - 16)
+
+    def _draw_lineage_detail(self, controller: ModelViewerController, rect: pygame.Rect) -> None:
+        selected = controller.selected_lineage_node
+        if selected is None:
+            return
+        pygame.draw.rect(self.screen, BACKGROUND, rect, border_radius=5)
+        pygame.draw.rect(self.screen, (82, 92, 112), rect, 1, border_radius=5)
+        parents = ", ".join(str(node.get("label", "-")) for node in controller.selected_lineage_parents) or "-"
+        children = ", ".join(str(node.get("label", "-")) for node in controller.selected_lineage_children) or "-"
+        metadata = selected.get("metadata", {}) if isinstance(selected.get("metadata"), dict) else {}
+        detail_lines = [
+            f"selected: {selected.get('label', '-')}",
+            f"type: {selected.get('node_type', '-')}",
+            f"path: {selected.get('path') or '-'}",
+            f"parents: {parents}",
+            f"children: {children}",
+            f"role: {metadata.get('role', '-')}",
+            f"run: {metadata.get('run_id', '-')}",
+        ]
+        y = rect.y + 12
+        for line in detail_lines:
+            self._draw_text(line, self.small_font, TEXT, (rect.x + 10, y), width=rect.width - 20)
+            y += 20
 
     def _draw_text(self, text: str, font, color, pos: tuple[int, int], *, width: int | None = None) -> None:
         text = str(text)
@@ -357,6 +504,10 @@ def run_model_viewer(
                     controller.seek(1)
                 elif event.key in (pygame.K_LEFT, pygame.K_UP):
                     controller.seek(-1)
+                elif event.key in (pygame.K_PAGEDOWN, pygame.K_TAB):
+                    controller.seek_lineage(1)
+                elif event.key == pygame.K_PAGEUP:
+                    controller.seek_lineage(-1)
                 elif event.key == pygame.K_SPACE:
                     controller.toggle_pause()
                 elif event.key in (pygame.K_EQUALS, pygame.K_PLUS):
@@ -372,6 +523,34 @@ def run_model_viewer(
     write_viewer_report(report, json_path=report_json, markdown_path=report_markdown)
     pygame.quit()
     return report
+
+
+def _lineage_order(summary: LineageSummary) -> tuple[str, ...]:
+    priority = {
+        "checkpoint": 0,
+        "run": 1,
+        "external_checkpoint": 2,
+        "arena_result": 3,
+        "benchmark": 4,
+        "benchmark_artifact": 5,
+    }
+    nodes = sorted(
+        summary.nodes,
+        key=lambda node: (
+            priority.get(str(node.get("node_type")), 99),
+            str(node.get("label") or node.get("id") or ""),
+        ),
+    )
+    return tuple(str(node["id"]) for node in nodes if node.get("id"))
+
+
+def _vertical_positions(x: int, top: int, bottom: int, count: int) -> tuple[tuple[int, int], ...]:
+    if count <= 0:
+        return ()
+    if count == 1:
+        return ((x, (top + bottom) // 2),)
+    step = (bottom - top) / float(count - 1)
+    return tuple((x, int(round(top + index * step))) for index in range(count))
 
 
 def _font(size: int, *, bold: bool = False, monospace: bool = False):

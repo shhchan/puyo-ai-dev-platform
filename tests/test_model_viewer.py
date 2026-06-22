@@ -99,8 +99,39 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(report["replay"]["plan_ids"], ["plan-1"])
             self.assertEqual(report["replay"]["bookmarks"], [1])
             self.assertEqual(report["replay"]["playback_stride"], 2)
+            self.assertEqual(report["replay"]["mode"], "timeline")
             self.assertEqual(report["lineage"]["runs"], 1)
             self.assertEqual(report["lineage"]["checkpoints"], 1)
+            self.assertEqual(report["lineage"]["selected_node"]["node_type"], "checkpoint")
+            self.assertEqual(report["lineage"]["selected_node"]["parents"], ["run:viewer-run"])
+
+    def test_lineage_only_mode_does_not_report_playing_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_run(root)
+
+            data = build_model_viewer_data(lineage_roots=(str(root),))
+            controller = ModelViewerController(data)
+            controller.toggle_pause()
+            report = controller.report()
+
+            self.assertEqual(controller.message, "lineage only")
+            self.assertEqual(report["replay"]["mode"], "lineage_only")
+            self.assertIsNone(report["replay"]["selected_tick"])
+            self.assertEqual(report["lineage"]["selected_node"]["node_type"], "checkpoint")
+
+    def test_lineage_selection_moves_between_registry_nodes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_run(root)
+            data = build_model_viewer_data(lineage_roots=(str(root),))
+            controller = ModelViewerController(data)
+            first = controller.selected_lineage_id
+
+            controller.seek_lineage(1)
+
+            self.assertNotEqual(controller.selected_lineage_id, first)
+            self.assertIsNotNone(controller.selected_lineage_node)
 
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
