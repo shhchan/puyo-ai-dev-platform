@@ -17,6 +17,12 @@ PANEL_MARGIN = 24
 PANEL_GAP = 20
 PANEL_WIDTH = (SCREEN_WIDTH - PANEL_MARGIN * 2 - PANEL_GAP) // 2
 FIELD_TOP = 186
+PLAN_STEP_COLORS = (
+    (255, 211, 92),
+    (96, 205, 255),
+    (255, 126, 177),
+    (141, 231, 137),
+)
 OJAMA_DENOMINATIONS = (
     ("comet", 1440),
     ("crown", 720),
@@ -61,6 +67,46 @@ def live_active_pair_cells(game) -> tuple[tuple[int, int, object], ...]:
         (game.puyo_x, game.puyo_y, game.current_puyo_1.color),
         (game.puyo_x + ox, game.puyo_y + oy, game.current_puyo_2.color),
     )
+
+
+def _color_key(value):
+    if isinstance(value, PuyoColor):
+        return value
+    if isinstance(value, str):
+        try:
+            return PuyoColor[value]
+        except KeyError:
+            return value
+    return value
+
+
+def _board_color_name(value) -> str:
+    if isinstance(value, PuyoColor):
+        return value.name
+    return str(value)
+
+
+def plan_step_delta_cells(
+    base_board,
+    step: dict,
+) -> tuple[tuple[int, int, str], ...]:
+    """Return newly occupied predicted cells that are not already on the displayed board."""
+
+    predicted = step.get("predicted_board")
+    if not isinstance(predicted, list):
+        return ()
+    cells = []
+    for y, row in enumerate(predicted[:VISIBLE_HEIGHT]):
+        if not isinstance(row, list):
+            continue
+        for x, color_name in enumerate(row[:GRID_WIDTH]):
+            if color_name in ("EMPTY", PuyoColor.EMPTY, None):
+                continue
+            if y < len(base_board) and x < len(base_board[y]):
+                if _board_color_name(base_board[y][x]) == str(color_name):
+                    continue
+            cells.append((x, y, str(color_name)))
+    return tuple(cells)
 
 
 def winner_banner_label(winner: str | None) -> str:
@@ -131,6 +177,32 @@ class VersusRenderer:
             pygame.draw.circle(surface, ring, (center, center), radius + 2, 3)
         self.screen.blit(surface, (int(round(x)), int(round(y))))
 
+    def _draw_plan_cell(
+        self,
+        field: pygame.Rect,
+        x: int,
+        y: int,
+        color_name: str,
+        *,
+        step_number: int,
+        alpha: int,
+        ring,
+        uncertain: bool,
+    ) -> None:
+        if not 0 <= x < GRID_WIDTH or not 0 <= y < VISIBLE_HEIGHT:
+            return
+        sx, sy = self._grid_position(field, x, y)
+        color = self.colors.get(_color_key(color_name), (245, 245, 245))
+        self._draw_puyo(sx, sy, color, alpha=alpha, ring=ring)
+        label = "?" if uncertain else str(step_number)
+        self._draw_text(
+            label,
+            self.tiny_font,
+            (18, 22, 30),
+            (sx + PUYO_SIZE / 2, sy + PUYO_SIZE / 2 - 8),
+            center=True,
+        )
+
     def _draw_board(self, field: pygame.Rect, event, board) -> None:
         pygame.draw.rect(self.screen, (18, 23, 32), field)
         for row in range(VISIBLE_HEIGHT + 1):
@@ -176,6 +248,52 @@ class VersusRenderer:
             if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
                 sx, sy = self._grid_position(field, x, y)
                 self._draw_puyo(sx, sy, self.colors[color_name], alpha=alpha, ring=(245, 245, 245, 210))
+
+    def _draw_plan_overlay(self, field: pygame.Rect, base_board, plan: dict) -> None:
+        if plan.get("schema_version") != "n-turn-plan-v1":
+            return
+        steps = plan.get("steps", ())
+        if not isinstance(steps, list) or not steps:
+            return
+        step_counts = []
+        for index, step in enumerate(steps[:4]):
+            if not isinstance(step, dict):
+                continue
+            cells = plan_step_delta_cells(base_board, step)
+            if not cells:
+                continue
+            step_number = int(step.get("step_index", index)) + 1
+            ring = (*PLAN_STEP_COLORS[index % len(PLAN_STEP_COLORS)], 230)
+            alpha = max(70, 155 - index * 25)
+            uncertain = not bool(step.get("known_tsumo", True)) or step.get("scenario") != "visible"
+            for x, y, color_name in cells:
+                self._draw_plan_cell(
+                    field,
+                    x,
+                    y,
+                    color_name,
+                    step_number=step_number,
+                    alpha=alpha,
+                    ring=ring,
+                    uncertain=uncertain,
+                )
+            step_counts.append((step_number, len(cells), uncertain))
+        if step_counts:
+            plan_label = str(plan.get("plan_id", ""))[:10] or "plan"
+            reason = str(plan.get("update_reason", ""))[:16]
+            self._draw_text(
+                f"PLAN {plan_label}",
+                self.tiny_font,
+                (255, 232, 145),
+                (field.x + 8, field.y + 8),
+            )
+            if reason:
+                self._draw_text(
+                    reason,
+                    self.tiny_font,
+                    (190, 205, 230),
+                    (field.x + 8, field.y + 26),
+                )
 
     def _draw_active_pair(self, field: pygame.Rect, pair, action: int) -> None:
         if pair is None:
@@ -336,6 +454,9 @@ class VersusRenderer:
                 (active_pair[0].color, active_pair[1].color),
                 alpha=85,
             )
+        plan_overlay = getattr(controller, "plan_overlay", None)
+        if callable(plan_overlay):
+            self._draw_plan_overlay(field, controller.display_boards[agent], plan_overlay(agent))
         if selector_action is not None:
             self._draw_pair_at_action(
                 field,
@@ -360,6 +481,8 @@ class VersusRenderer:
         )
 
         tactical = controller.tactical_diagnostics(agent)
+        plan = tactical.get("plan", {}) if isinstance(tactical, dict) else {}
+        objective = plan.get("objective", {}) if isinstance(plan, dict) else {}
         stats = (
             (
                 f"pending {info['pending_ojama']} t-{info.get('incoming_turns', 0)}",
@@ -375,6 +498,14 @@ class VersusRenderer:
             (
                 str(tactical.get("reason", ""))[:18],
                 (180, 188, 205),
+            ),
+            (
+                f"plan {str(tactical.get('plan_id', ''))[:8] or '-'}",
+                (255, 232, 145),
+            ),
+            (
+                f"obj {str(objective.get('reason', ''))[:14] or '-'}",
+                (190, 198, 215),
             ),
         )
         for offset, (text, color) in enumerate(stats):
@@ -395,7 +526,7 @@ class VersusRenderer:
                     (deadline_label, (190, 198, 215)),
                 )
             ):
-                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 350 + offset * 18))
+                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 392 + offset * 18))
 
         if event is not None:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)
@@ -424,7 +555,8 @@ class VersusRenderer:
             f"{bindings.display_names('open_settings')} keys  "
             f"{bindings.display_names('pause')} pause  "
             f"{bindings.display_names('step')} step  "
-            f"{bindings.display_names('reset')} reset"
+            f"{bindings.display_names('reset')} reset  "
+            "O overlay"
         )
         if controller.human is not None:
             controls += (
