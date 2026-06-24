@@ -115,8 +115,8 @@ class LauncherService:
                 "models",
                 "モデル",
                 "models",
-                "Lineage registry",
-                "モデルと benchmark の lineage artifact を生成します。",
+                "Model viewer",
+                "replay diagnostics と lineage を確認する viewer を起動します。",
             ),
         }
 
@@ -271,15 +271,15 @@ class LauncherService:
             return (
                 self.python_executable,
                 "-m",
-                "train.lineage",
-                "--root",
+                "eval.model_viewer",
+                "--lineage-root",
                 "runs",
-                "--root",
+                "--lineage-root",
                 "docs/benchmarks",
-                "--output",
-                "/tmp/puyo-launcher-lineage.json",
-                "--markdown",
-                "/tmp/puyo-launcher-lineage.md",
+                "--report-json",
+                "/tmp/puyo-model-viewer-report.json",
+                "--report-markdown",
+                "/tmp/puyo-model-viewer-report.md",
             )
         raise KeyError(f"unknown launcher action: {action_key}")
 

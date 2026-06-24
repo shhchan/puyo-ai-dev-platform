@@ -173,6 +173,14 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertIn("config_path does not exist", service.validate_action("training")[0])
 
+    def test_models_command_launches_model_viewer(self):
+        service = self.make_service()
+        command = service.command_for("models")
+
+        self.assertEqual(command[:3], ("python3", "-m", "eval.model_viewer"))
+        self.assertIn("--lineage-root", command)
+        self.assertIn("--report-json", command)
+
     def test_named_preset_persists_and_loads_for_workflow(self):
         with tempfile.TemporaryDirectory() as directory:
             store_path = Path(directory) / "presets.json"

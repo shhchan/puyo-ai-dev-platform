@@ -144,6 +144,17 @@ def _summary_metrics(manifest_path: Path, manifest: dict[str, Any]) -> dict[str,
     return {}
 
 
+def _preindex_artifact_manifest_checkpoints(manifest_path: Path, path_index: dict[str, str]) -> None:
+    manifest = _read_json(manifest_path)
+    if manifest.get("schema_version") != ARTIFACT_MANIFEST_SCHEMA_VERSION:
+        return
+    for record in manifest.get("checkpoints", []):
+        if not isinstance(record, dict) or not isinstance(record.get("path"), str):
+            continue
+        checkpoint_path = _resolve_record_path(manifest_path, record["path"])
+        path_index.setdefault(str(checkpoint_path.resolve()), _checkpoint_id(record, checkpoint_path))
+
+
 def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_index: dict[str, str]) -> None:
     manifest = _read_json(manifest_path)
     if manifest.get("schema_version") != ARTIFACT_MANIFEST_SCHEMA_VERSION:
@@ -170,16 +181,18 @@ def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_
     parent_checkpoint_path = run.get("parent_checkpoint_path")
     if parent_checkpoint_path:
         parent_path = _resolve_record_path(manifest_path, str(parent_checkpoint_path))
-        parent_id = path_index.get(str(parent_path.resolve()), _path_id("external_checkpoint", parent_path))
-        registry.add_node(
-            LineageNode(
-                id=parent_id,
-                node_type="external_checkpoint",
-                label=Path(parent_checkpoint_path).name,
-                path=str(parent_path),
-                metadata={"declared_by": str(manifest_path)},
+        parent_id = path_index.get(str(parent_path.resolve()))
+        if parent_id is None:
+            parent_id = _path_id("external_checkpoint", parent_path)
+            registry.add_node(
+                LineageNode(
+                    id=parent_id,
+                    node_type="external_checkpoint",
+                    label=Path(parent_checkpoint_path).name,
+                    path=str(parent_path),
+                    metadata={"declared_by": str(manifest_path)},
+                )
             )
-        )
         registry.add_edge(LineageEdge(source=parent_id, target=run_node_id, edge_type="resume"))
 
     for record in manifest.get("checkpoints", []):
@@ -398,6 +411,34 @@ def _add_legacy_run(registry: LineageRegistry, run_dir: Path, path_index: dict[s
         _add_opponent_pool(registry, run_node_id, resolved_pool_path)
 
 
+def _preindex_legacy_run_checkpoints(run_dir: Path, path_index: dict[str, str]) -> None:
+    summary_path = run_dir / "summary.json"
+    metadata_path = run_dir / "metadata.json"
+    config_path = run_dir / "config.yaml"
+    checkpoints_dir = run_dir / "checkpoints"
+    checkpoint_files = sorted(checkpoints_dir.glob("*.pt")) if checkpoints_dir.exists() else []
+    standalone_checkpoints = sorted(run_dir.glob("*.pt"))
+    summary = _safe_read_json(summary_path)
+    metadata = _safe_read_json(metadata_path)
+    config_dump = _read_yaml_mapping(config_path)
+    config = config_dump.get("config") if isinstance(config_dump.get("config"), dict) else config_dump
+    resolved = config_dump.get("resolved") if isinstance(config_dump.get("resolved"), dict) else {}
+    if not isinstance(config, dict):
+        config = {}
+
+    for _, checkpoint_path in _legacy_checkpoint_records(
+        run_dir,
+        summary,
+        metadata,
+        resolved,
+        checkpoint_files,
+        standalone_checkpoints,
+    ):
+        if checkpoint_path is None:
+            continue
+        path_index.setdefault(str(checkpoint_path.resolve()), _path_id("checkpoint", checkpoint_path))
+
+
 def _safe_read_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
@@ -501,16 +542,18 @@ def _add_legacy_parent_edges(
         parent_path = _resolve_legacy_path(run_dir, config.get(key) or metadata.get(key))
         if parent_path is None:
             continue
-        parent_id = path_index.get(str(parent_path.resolve()), _path_id("external_checkpoint", parent_path))
-        registry.add_node(
-            LineageNode(
-                id=parent_id,
-                node_type="external_checkpoint",
-                label=parent_path.name,
-                path=str(parent_path),
-                metadata={"declared_by": str(run_dir), "source_field": key},
+        parent_id = path_index.get(str(parent_path.resolve()))
+        if parent_id is None:
+            parent_id = _path_id("external_checkpoint", parent_path)
+            registry.add_node(
+                LineageNode(
+                    id=parent_id,
+                    node_type="external_checkpoint",
+                    label=parent_path.name,
+                    path=str(parent_path),
+                    metadata={"declared_by": str(run_dir), "source_field": key},
+                )
             )
-        )
         edge_type = "resume" if key in {"resume_checkpoint_path", "initial_checkpoint_path"} else "uses_opponent"
         registry.add_edge(
             LineageEdge(
@@ -651,9 +694,14 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
                 suite_paths.append(path)
             elif path.name == "benchmark_manifest.json":
                 benchmark_paths.append(path)
+    manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
+    for path in sorted(manifest_paths):
+        _preindex_artifact_manifest_checkpoints(path, path_index)
+    for path in sorted(legacy_run_dirs):
+        if path.resolve() not in manifest_run_dirs:
+            _preindex_legacy_run_checkpoints(path, path_index)
     for path in sorted(manifest_paths):
         _add_artifact_manifest(registry, path, path_index)
-    manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
     for path in sorted(legacy_run_dirs):
         if path.resolve() not in manifest_run_dirs:
             _add_legacy_run(registry, path, path_index)
