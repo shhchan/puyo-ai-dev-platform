@@ -4,18 +4,21 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import TYPE_CHECKING, Callable, Iterable
 
 try:
     import pygame
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
-from eval.realtime_versus_ui import RealtimeVersusUiConfig
-from eval.versus_ui import VersusUiConfig
 from src.ui.launcher_settings import LauncherPresetStore, LauncherSettingsManager
+
+if TYPE_CHECKING:
+    from eval.realtime_versus_ui import RealtimeVersusUiConfig
+    from eval.versus_ui import VersusUiConfig
 
 
 SCREEN_WIDTH = 980
@@ -31,6 +34,9 @@ ACCENT = (74, 196, 158)
 WARNING = (238, 181, 94)
 ERROR = (238, 111, 111)
 SETTINGS_ROWS_PER_PAGE = 12
+KEY_REPEAT_DELAY_MS = 500
+KEY_REPEAT_INTERVAL_MS = 60
+JOB_STOP_TIMEOUT_SECONDS = 1.0
 
 
 @dataclass(frozen=True)
@@ -88,7 +94,7 @@ class LauncherService:
                 "対戦",
                 "play",
                 "Human vs greedy",
-                "人間と AI の対戦を開始します。現状は既存 versus UI 経路です。",
+                "人間と AI が独立 tick で進行する realtime 対戦を開始します。",
             ),
             "spectate": LauncherAction(
                 "spectate",
@@ -127,6 +133,8 @@ class LauncherService:
         return self.actions.get(screen)
 
     def play_config(self) -> VersusUiConfig:
+        from eval.versus_ui import VersusUiConfig
+
         settings = self.settings.for_action("play")
         return VersusUiConfig(
             policy_a=settings.policy_a,
@@ -161,6 +169,8 @@ class LauncherService:
         )
 
     def spectate_config(self) -> RealtimeVersusUiConfig:
+        from eval.realtime_versus_ui import RealtimeVersusUiConfig
+
         settings = self.settings.for_action("spectate")
         return RealtimeVersusUiConfig(
             policy_a=settings.policy_a,
@@ -200,13 +210,49 @@ class LauncherService:
             max_frames=settings.max_frames,
         )
 
+    def realtime_play_config(self) -> RealtimeVersusUiConfig:
+        from eval.realtime_versus_ui import RealtimeVersusUiConfig
+
+        settings = self.settings.for_action("play")
+        return RealtimeVersusUiConfig(
+            policy_a=settings.policy_a,
+            policy_b=settings.policy_b,
+            checkpoint_a=settings.checkpoint_a,
+            checkpoint_b=settings.checkpoint_b,
+            seed=settings.seed,
+            seed_a=settings.seed_a,
+            seed_b=settings.seed_b,
+            max_ticks=settings.max_steps,
+            speed=settings.speed,
+            start_paused=settings.start_paused,
+            device=settings.device,
+            deterministic=settings.deterministic,
+            beam_depth=settings.beam_depth,
+            beam_width=settings.beam_width,
+            beam_scenarios=settings.beam_scenarios,
+            beam_minimum_chain=settings.beam_minimum_chain,
+            beam_depth_a=settings.beam_depth_a,
+            beam_depth_b=settings.beam_depth_b,
+            beam_width_a=settings.beam_width_a,
+            beam_width_b=settings.beam_width_b,
+            beam_scenarios_a=settings.beam_scenarios_a,
+            beam_scenarios_b=settings.beam_scenarios_b,
+            beam_minimum_chain_a=settings.beam_minimum_chain_a,
+            beam_minimum_chain_b=settings.beam_minimum_chain_b,
+            device_a=settings.device_a,
+            device_b=settings.device_b,
+            deterministic_a=settings.deterministic_a,
+            deterministic_b=settings.deterministic_b,
+            keybindings_path=settings.keybindings_path,
+        )
+
     def command_for(self, action_key: str) -> tuple[str, ...]:
         if action_key == "play":
             return (
                 self.python_executable,
                 "-m",
-                "eval.versus_ui",
-                *versus_config_to_argv(self.play_config()),
+                "eval.realtime_versus_ui",
+                *realtime_config_to_argv(self.realtime_play_config()),
             )
         if action_key == "spectate":
             return (
@@ -344,6 +390,21 @@ class LauncherService:
         self.message = f"{self.current_job.action.label} を停止しています。"
         return True
 
+    def shutdown(self, timeout: float = JOB_STOP_TIMEOUT_SECONDS) -> None:
+        if self.current_job is None or not self.current_job.is_running:
+            return
+        process = self.current_job.process
+        process.terminate()
+        wait = getattr(process, "wait", None)
+        if not callable(wait):
+            return
+        try:
+            wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            kill = getattr(process, "kill", None)
+            if callable(kill):
+                kill()
+
     def refresh_status(self) -> str:
         if self.current_job is None:
             return "job なし"
@@ -362,6 +423,8 @@ class LauncherController:
         self.selection = 0
         self.settings_mode = False
         self.settings_page = 0
+        self.editing_field: str | None = None
+        self.search_query = ""
 
     @property
     def current_options(self) -> tuple[str, ...]:
@@ -392,6 +455,25 @@ class LauncherController:
         options = self.current_options
         self.selection = (self.selection + delta) % len(options)
 
+    def _move_grid(self, dx: int, dy: int) -> None:
+        field_count = len(self.visible_setting_fields())
+        if self.selection >= field_count:
+            self._move(dx or dy)
+            return
+        row = self.selection % 6
+        column = self.selection // 6
+        target = (column + dx) * 6 + row + dy
+        if 0 <= target < field_count:
+            self.selection = target
+
+    def _begin_edit(self, field: str) -> None:
+        self.editing_field = field
+        self.search_query = ""
+
+    def _end_edit(self) -> None:
+        self.editing_field = None
+        self.search_query = ""
+
     def _activate(self) -> None:
         selected = self.current_options[self.selection]
         if self.screen == "home":
@@ -407,7 +489,7 @@ class LauncherController:
             elif selected == "next_page":
                 self._set_settings_page(self.settings_page + 1)
             else:
-                self.service.cycle_setting(self.screen, selected, 1)
+                self._begin_edit(selected)
         elif selected == "run":
             self.service.start(self.screen)
         elif selected == "settings":
@@ -428,6 +510,16 @@ class LauncherController:
     def handle_keydown(self, key: int) -> bool:
         if pygame is None:
             return True
+        if self.editing_field is not None:
+            if key in (pygame.K_ESCAPE, pygame.K_RETURN):
+                self._end_edit()
+            elif key == pygame.K_BACKSPACE:
+                self.search_query = self.search_query[:-1]
+            elif key in (pygame.K_LEFT, pygame.K_DOWN):
+                self.service.cycle_setting(self.screen, self.editing_field, -1)
+            elif key in (pygame.K_RIGHT, pygame.K_UP):
+                self.service.cycle_setting(self.screen, self.editing_field, 1)
+            return True
         if key in (pygame.K_ESCAPE, pygame.K_q):
             if self.settings_mode:
                 self.settings_mode = False
@@ -437,14 +529,14 @@ class LauncherController:
                 return False
             self.screen = "home"
             self.selection = 0
-        elif key == pygame.K_LEFT and self.settings_mode:
-            selected = self.current_options[self.selection]
-            if selected != "back":
-                self.service.cycle_setting(self.screen, selected, -1)
-        elif key == pygame.K_RIGHT and self.settings_mode:
-            selected = self.current_options[self.selection]
-            if selected != "back":
-                self.service.cycle_setting(self.screen, selected, 1)
+        elif self.settings_mode and key == pygame.K_LEFT:
+            self._move_grid(-1, 0)
+        elif self.settings_mode and key == pygame.K_RIGHT:
+            self._move_grid(1, 0)
+        elif self.settings_mode and key == pygame.K_UP:
+            self._move_grid(0, -1)
+        elif self.settings_mode and key == pygame.K_DOWN:
+            self._move_grid(0, 1)
         elif key in (pygame.K_UP, pygame.K_LEFT):
             self._move(-1)
         elif key in (pygame.K_DOWN, pygame.K_RIGHT, pygame.K_TAB):
@@ -452,6 +544,30 @@ class LauncherController:
         elif key in (pygame.K_RETURN, pygame.K_SPACE):
             self._activate()
         return True
+
+    def handle_text_input(self, text: str) -> None:
+        if self.editing_field is None:
+            return
+        if self.service.settings.field_kind(self.screen, self.editing_field) != "string":
+            return
+        self.search_query += text
+        choices = self.filtered_choices()
+        if choices:
+            self.service.update_setting(self.screen, self.editing_field, choices[0])
+
+    def filtered_choices(self) -> tuple:
+        if self.editing_field is None:
+            return ()
+        choices = self.service.settings.field_choices(self.screen, self.editing_field)
+        query = self.search_query.casefold()
+        return tuple(value for value in choices if query in str(value if value is not None else "auto").casefold())
+
+    def handle_mouse_motion(self, pos: tuple[int, int]) -> None:
+        options = self.current_options
+        for index in range(len(options)):
+            if self._option_rect(index, len(options)).collidepoint(pos):
+                self.selection = index
+                return
 
     def handle_mouse_down(self, pos: tuple[int, int], button: int) -> bool:
         if button in (4, 5):
@@ -650,8 +766,9 @@ class LauncherRenderer:
         for index, option in enumerate(options):
             rect = controller._option_rect(index, len(options))
             selected = index == controller.selection
+            editing = option == controller.editing_field
             pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else BACKGROUND, rect, border_radius=5)
-            pygame.draw.rect(self.screen, ACCENT if selected else (82, 92, 112), rect, 1)
+            pygame.draw.rect(self.screen, WARNING if editing else (ACCENT if selected else (82, 92, 112)), rect, 2 if editing else 1)
             if option in {"back", "prev_page", "next_page"}:
                 label = _option_label(option)
             else:
@@ -664,6 +781,21 @@ class LauncherRenderer:
         else:
             help_text = controller.service.settings.field_help(action.key, selected_option)
         self._draw_wrapped(help_text, self.small_font, MUTED, help_rect.x, help_rect.y, help_rect.width)
+        if controller.editing_field is not None:
+            kind = controller.service.settings.field_kind(action.key, controller.editing_field)
+            editor = pygame.Rect(510, 368, 410, 96)
+            pygame.draw.rect(self.screen, BACKGROUND, editor, border_radius=6)
+            pygame.draw.rect(self.screen, WARNING, editor, 2, border_radius=6)
+            if kind == "number":
+                value = getattr(controller.service.settings.for_action(action.key), controller.editing_field)
+                label = f"◀   {value if value is not None else 'auto'}   ▶"
+                detail = f"長押し: {KEY_REPEAT_DELAY_MS / 1000:.1f}秒後に高速変更"
+            else:
+                label = f"検索: {controller.search_query or '入力して絞り込み'}"
+                candidates = controller.filtered_choices()[:3]
+                detail = " / ".join(str(value if value is not None else "auto") for value in candidates)
+            self._draw_text(label, self.font, TEXT, pygame.Rect(editor.x + 12, editor.y + 12, editor.width - 24, 24))
+            self._draw_text(detail, self.small_font, MUTED, pygame.Rect(editor.x + 12, editor.y + 48, editor.width - 24, 34))
 
 
 def versus_config_to_argv(config: VersusUiConfig) -> tuple[str, ...]:
@@ -819,6 +951,7 @@ def run_launcher(*, service: LauncherService | None = None, max_frames: int | No
     if pygame is None:
         raise ImportError("launcher requires pygame; install requirements.txt")
     pygame.init()
+    pygame.key.set_repeat(KEY_REPEAT_DELAY_MS, KEY_REPEAT_INTERVAL_MS)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo AI Dev Platform")
     clock = pygame.time.Clock()
@@ -826,21 +959,31 @@ def run_launcher(*, service: LauncherService | None = None, max_frames: int | No
     renderer = LauncherRenderer(screen)
     running = True
     frames = 0
-    while running and (max_frames is None or frames < max_frames):
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                running = controller.handle_keydown(event.key)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                running = controller.handle_mouse_down(event.pos, event.button)
-        renderer.draw(controller)
-        frames += 1
-    result = {
-        "screen": controller.screen,
-        "job": controller.service.refresh_status(),
-        "message": controller.service.message,
-    }
-    pygame.quit()
+    try:
+        while running and (max_frames is None or frames < max_frames):
+            clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    running = controller.handle_keydown(event.key)
+                elif event.type == pygame.TEXTINPUT:
+                    controller.handle_text_input(event.text)
+                elif event.type == pygame.MOUSEMOTION:
+                    controller.handle_mouse_motion(event.pos)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    running = controller.handle_mouse_down(event.pos, event.button)
+            renderer.draw(controller)
+            frames += 1
+    except KeyboardInterrupt:
+        controller.service.message = "Ctrl-C により終了しました。"
+    finally:
+        result = {
+            "screen": controller.screen,
+            "job": controller.service.refresh_status(),
+            "message": controller.service.message,
+        }
+        controller.service.shutdown()
+        pygame.key.set_repeat()
+        pygame.quit()
     return result
