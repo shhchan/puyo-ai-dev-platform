@@ -355,6 +355,14 @@ python3 -m eval.versus_ui \
 起動時の速度と一時停止は `--speed 2`，`--start-paused` のように指定できます．
 同じ `--seed` と action 列ではヘッドレス実行と同じスコア・連鎖・勝敗になります．
 
+統合 UI の回帰確認は dummy SDL で JSON artifact を生成できます．手動確認手順は
+[docs/development/puyo-84-ui-regression-qa.md](docs/development/puyo-84-ui-regression-qa.md) を参照してください．
+
+```bash
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m eval.ui_regression_smoke \
+  --result-json /tmp/puyo-84-ui-regression-smoke.json
+```
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

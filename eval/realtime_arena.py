@@ -6,7 +6,7 @@ import argparse
 import json
 import math
 import sys
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -29,25 +29,50 @@ def _policy_search_objective_diagnostics(policy: Policy) -> dict[str, Any]:
         diagnostics.get("objective") or diagnostics.get("objective_result") or diagnostics.get("plan")
     ):
         return {
+            "reason": diagnostics.get("reason", ""),
+            "target_attack": diagnostics.get("target_attack", 0),
+            "incoming_attack": diagnostics.get("incoming_attack", 0),
+            "deadline": diagnostics.get("deadline", 0),
             "search_objective": diagnostics.get("objective", {}),
             "search_objective_result": diagnostics.get("objective_result", {}),
+            "search_control": diagnostics.get("search_control", {}),
+            "tactical_option": diagnostics.get("tactical_option", {}),
             "plan": diagnostics.get("plan", {}),
             "plan_id": diagnostics.get("plan_id", ""),
             "plan_update_reason": diagnostics.get("plan_update_reason", ""),
         }
     proposal = getattr(policy, "last_proposal", None)
     plan = getattr(policy, "last_plan", None)
-    if proposal is None and plan is None:
+    search_diagnostics = getattr(policy, "last_diagnostics", None)
+    if proposal is None and plan is None and search_diagnostics is None:
         return {
+            "reason": "",
+            "target_attack": 0,
+            "incoming_attack": 0,
+            "deadline": 0,
             "search_objective": {},
             "search_objective_result": {},
+            "search_control": {},
+            "tactical_option": {},
+            "search_diagnostics": {},
             "plan": {},
             "plan_id": "",
             "plan_update_reason": "",
         }
     return {
+        "reason": "" if proposal is None else proposal.reason,
+        "profile_name": "" if proposal is None else proposal.profile_name,
+        "strategy": "" if proposal is None else proposal.strategy,
+        "target_attack": 0 if proposal is None else proposal.target_attack,
+        "incoming_attack": 0 if proposal is None else proposal.incoming_attack,
+        "deadline": 0 if proposal is None else proposal.deadline,
+        "elapsed_seconds": 0.0 if proposal is None else proposal.elapsed_seconds,
+        "expanded_nodes": 0 if proposal is None else proposal.expanded_nodes,
         "search_objective": {} if proposal is None else getattr(proposal, "objective_dict", {}),
         "search_objective_result": {} if proposal is None else getattr(proposal, "objective_result_dict", {}),
+        "search_control": {} if proposal is None else getattr(proposal, "search_control_dict", {}),
+        "tactical_option": {} if proposal is None else getattr(proposal, "tactical_option_dict", {}),
+        "search_diagnostics": {} if search_diagnostics is None else asdict(search_diagnostics),
         "plan": {} if plan is None else plan.to_dict(),
         "plan_id": "" if plan is None else plan.plan_id,
         "plan_update_reason": "" if plan is None else plan.update_reason,
@@ -180,6 +205,14 @@ def run_realtime_match(
                     "policy_diagnostics": {
                         "player_0": _policy_search_objective_diagnostics(policy_player_0),
                         "player_1": _policy_search_objective_diagnostics(policy_player_1),
+                    },
+                    "controller_diagnostics": {
+                        agent: controllers[agent].diagnostics.to_dict()
+                        for agent in sorted(controllers)
+                    },
+                    "controller_status": {
+                        agent: controllers[agent].status().to_dict()
+                        for agent in sorted(controllers)
                     },
                     "snapshot_hash": match_result.snapshot_hash,
                 }
@@ -432,6 +465,13 @@ def _policy_spec_from_args(args, side: str) -> dict[str, Any]:
     )
 
 
+def _replay_policy_metadata_from_args(args) -> dict[str, Any]:
+    return {
+        "player_0": _policy_spec_from_args(args, "a"),
+        "player_1": _policy_spec_from_args(args, "b"),
+    }
+
+
 def main(argv=None):
     args = parse_args(argv)
     decision_config = RealtimeDecisionConfig(
@@ -450,7 +490,9 @@ def main(argv=None):
             decision_config=decision_config,
             record_replay=True,
         )
-        write_realtime_replay(args.replay, match.replay or {})
+        replay = dict(match.replay or {})
+        replay["policies"] = _replay_policy_metadata_from_args(args)
+        write_realtime_replay(args.replay, replay)
         result = RealtimeArenaResult(matches=(match,))
     else:
         runner = run_realtime_paired_series if args.paired_sides else run_realtime_series
