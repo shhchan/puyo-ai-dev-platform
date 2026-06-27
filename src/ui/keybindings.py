@@ -21,7 +21,7 @@ BINDING_DEFINITIONS = (
     ("human_right", "Human: move right", ("d", "right")),
     ("rotate_left", "Human: rotate left", ("q", "up")),
     ("rotate_right", "Human: rotate right", ("e", "down")),
-    ("drop", "Human: place pair", ("s", "return", "space")),
+    ("drop", "Human: soft drop", ("w", "s", "return", "space")),
 )
 
 ACTION_ORDER = tuple(action for action, _, _ in BINDING_DEFINITIONS)
@@ -70,6 +70,8 @@ class KeyBindings:
                 except ValueError:
                     continue
                 valid_names.append(name)
+            if action == "drop" and "w" not in valid_names:
+                valid_names.insert(0, "w")
             if valid_names:
                 self.bindings[action] = valid_names
 

@@ -1,16 +1,4 @@
 import argparse
-import pygame
-import time
-from src.core.game import GameState
-from src.core.constants import (
-    PUYO_SIZE,
-    Action,
-    SOFT_DROP_REPEAT_INTERVAL,
-    GRAVITY_INTERVAL_SECONDS,
-)
-from src.ui.renderer import Renderer
-from src.ui.launcher import run_launcher
-from src.input_handler import InputHandler
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 700
@@ -48,6 +36,13 @@ def parse_cli_args(argv=None):
 
 
 def run_classic_game(debug_mode=False):
+    import pygame
+    import time
+    from src.core.game import GameState
+    from src.core.constants import PUYO_SIZE, Action, SOFT_DROP_REPEAT_INTERVAL, GRAVITY_INTERVAL_SECONDS
+    from src.input_handler import InputHandler
+    from src.ui.renderer import Renderer
+
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo Base")
@@ -154,6 +149,8 @@ def main(argv=None):
     if args.classic or args.debug:
         run_classic_game(debug_mode=args.debug)
         return
+    from src.ui.launcher import run_launcher
+
     run_launcher(max_frames=args.max_frames)
 
 if __name__ == "__main__":

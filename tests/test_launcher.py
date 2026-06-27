@@ -59,13 +59,14 @@ class TestLauncherService(unittest.TestCase):
         kwargs.setdefault("preset_store_path", self.preset_store_path)
         return LauncherService(**kwargs)
 
-    def test_play_command_round_trips_through_existing_versus_parser(self):
+    def test_play_command_round_trips_through_realtime_parser(self):
         service = self.make_service()
-        config = parse_versus_config(service.command_for("play")[3:])
+        config = parse_realtime_config(service.command_for("play")[3:])
 
         self.assertEqual(config.policy_a, "human")
         self.assertEqual(config.policy_b, "greedy")
         self.assertEqual(config.seed, 57)
+        self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
@@ -74,7 +75,7 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertEqual(config.policy_a, "first")
         self.assertEqual(config.policy_b, "random")
-        self.assertEqual(config.max_ticks, 600)
+        self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 
     def test_spectate_exposes_and_round_trips_realtime_arguments(self):
@@ -125,7 +126,7 @@ class TestLauncherService(unittest.TestCase):
         service.update_setting("play", "beam_depth_b", 10)
         service.update_setting("play", "speed", 2.0)
 
-        config = parse_versus_config(service.command_for("play")[3:])
+        config = parse_realtime_config(service.command_for("play")[3:])
 
         self.assertEqual(config.policy_a, "human")
         self.assertEqual(config.policy_b, "beam")
@@ -238,7 +239,7 @@ class TestLauncherController(unittest.TestCase):
         controller.handle_keydown(pygame.K_ESCAPE)
         self.assertEqual(controller.screen, "home")
 
-    def test_settings_screen_cycles_selected_field_without_leaving_workflow(self):
+    def test_settings_screen_enters_edit_mode_before_changing_field(self):
         service = self.make_service()
         controller = LauncherController(service)
         controller.screen = "play"
@@ -249,7 +250,14 @@ class TestLauncherController(unittest.TestCase):
         self.assertEqual(controller.current_options[0], "policy_a")
 
         controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(service.settings.for_action("play").policy_a, "human")
+        self.assertEqual(controller.current_options[controller.selection], "seed_b")
+        controller.handle_keydown(pygame.K_LEFT)
+        controller.handle_keydown(pygame.K_RETURN)
+        self.assertEqual(controller.editing_field, "policy_a")
+        controller.handle_keydown(pygame.K_RIGHT)
         self.assertNotEqual(service.settings.for_action("play").policy_a, "human")
+        controller.handle_keydown(pygame.K_RETURN)
         controller.handle_keydown(pygame.K_ESCAPE)
 
         self.assertEqual(controller.screen, "play")
@@ -269,7 +277,7 @@ class TestLauncherController(unittest.TestCase):
 
         self.assertIn("inference_latency_ticks", controller.current_options)
 
-    def test_mouse_click_opens_workflow_and_changes_setting(self):
+    def test_mouse_hover_focuses_and_click_selects_setting(self):
         service = self.make_service()
         controller = LauncherController(service)
 
@@ -280,8 +288,75 @@ class TestLauncherController(unittest.TestCase):
         self.assertTrue(controller.settings_mode)
 
         before = service.settings.for_action("play").policy_a
+        controller.handle_mouse_motion((80, 220))
         controller.handle_mouse_down((80, 220), 1)
+        self.assertEqual(controller.editing_field, "policy_a")
+        self.assertEqual(service.settings.for_action("play").policy_a, before)
+        controller.handle_keydown(pygame.K_RIGHT)
         self.assertNotEqual(service.settings.for_action("play").policy_a, before)
+
+    def test_string_editor_filters_candidates_and_numeric_editor_uses_repeatable_arrows(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.settings_mode = True
+        controller.selection = controller.current_options.index("checkpoint_a")
+        controller.handle_keydown(pygame.K_RETURN)
+        controller.handle_text_input("tmp")
+        self.assertEqual(controller.search_query, "tmp")
+
+        controller.handle_keydown(pygame.K_ESCAPE)
+        controller.selection = controller.current_options.index("seed")
+        controller.handle_keydown(pygame.K_RETURN)
+        before = service.settings.for_action("play").seed
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(service.settings.for_action("play").seed, before + 1)
+
+    def test_choice_editor_accepts_text_and_lists_every_policy(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.settings_mode = True
+        controller.selection = controller.current_options.index("policy_a")
+        controller.handle_keydown(pygame.K_RETURN)
+
+        all_choices = controller.filtered_choices()
+        self.assertEqual(len(controller._candidate_rects()), len(all_choices))
+        self.assertIn("worker_survival", all_choices)
+
+        controller.handle_text_input("manager")
+        self.assertEqual(controller.search_query, "manager")
+        self.assertEqual(controller.filtered_choices(), ("manager", "manager_rule"))
+        self.assertEqual(service.settings.for_action("play").policy_a, "manager")
+
+    def test_numeric_editor_buttons_are_clickable_and_do_not_hit_setting_rows(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.settings_mode = True
+        controller.selection = controller.current_options.index("speed")
+        controller.handle_keydown(pygame.K_RETURN)
+        before = service.settings.for_action("play").speed
+        button = controller._numeric_button_rect(1)
+
+        self.assertFalse(any(button.colliderect(controller._option_rect(i, len(controller.current_options))) for i in range(len(controller.visible_setting_fields()))))
+        controller.handle_mouse_down(button.center, 1)
+        self.assertGreater(service.settings.for_action("play").speed, before)
+
+    def test_keyboard_navigation_reaches_all_settings_footer_actions(self):
+        controller = LauncherController(self.make_service())
+        controller.screen = "play"
+        controller.settings_mode = True
+        field_count = len(controller.visible_setting_fields())
+        controller.selection = 5
+
+        controller.handle_keydown(pygame.K_DOWN)
+        self.assertEqual(controller.current_options[controller.selection], "prev_page")
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(controller.current_options[controller.selection], "next_page")
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(controller.current_options[controller.selection], "back")
+        self.assertEqual(controller.selection, field_count + 2)
 
     def test_bundled_font_supports_japanese_glyphs(self):
         self.assertTrue(UI_ASSET_FONT.exists())

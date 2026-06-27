@@ -271,6 +271,7 @@ class PlanStep:
     danger: float
     objective_result: ObjectiveResult
     predicted_board: tuple[tuple[str, ...], ...]
+    placement_cells: tuple[tuple[int, int, str], ...] = ()
     valid: bool = True
     scenario: str = "visible"
     reason: str = ""
@@ -292,6 +293,10 @@ class PlanStep:
             "danger": float(self.danger),
             "objective_result": self.objective_result.to_dict(),
             "predicted_board": [list(row) for row in self.predicted_board],
+            "placement_cells": [
+                {"x": int(x), "y": int(y), "color": color}
+                for x, y, color in self.placement_cells
+            ],
             "reason": self.reason,
         }
 
@@ -1272,6 +1277,20 @@ def build_n_turn_plan(
         if action is None:
             break
         placement = action_to_placement(action)
+        pair_colors = (
+            cursor.game.current_puyo_1.color,
+            cursor.game.current_puyo_2.color,
+        )
+        landing_y = cursor.game.find_landing_y(placement.axis_x, placement.rotation)
+        placement_cells = tuple(
+            (int(x), int(y), color.name)
+            for x, y, color in cursor.game.get_landing_cells(
+                placement.axis_x,
+                placement.rotation,
+                pair_colors,
+                axis_y=landing_y,
+            )
+        )
         result = cursor.step(placement)
         if not result.valid:
             steps.append(
@@ -1298,6 +1317,7 @@ def build_n_turn_plan(
                         depth=step_index + 1,
                     ),
                     predicted_board=_board_snapshot(cursor.game),
+                    placement_cells=placement_cells,
                     valid=False,
                     reason="invalid_action",
                 )
@@ -1333,6 +1353,7 @@ def build_n_turn_plan(
                 danger=danger,
                 objective_result=objective_result,
                 predicted_board=_board_snapshot(cursor.game),
+                placement_cells=placement_cells,
             )
         )
         if result.game_over:
@@ -1434,6 +1455,8 @@ def _plan_id(proposal: SearchProposal, steps: list[PlanStep], visible_steps: int
     digest.update(str(visible_steps).encode("ascii"))
     for step in steps:
         digest.update(f"{step.action}:{step.predicted_score}:{step.predicted_attack}:".encode("ascii"))
+        for x, y, color in step.placement_cells:
+            digest.update(f"{x}:{y}:{color}:".encode("ascii"))
         for row in step.predicted_board:
             digest.update(",".join(row).encode("ascii"))
     return digest.hexdigest()[:16]

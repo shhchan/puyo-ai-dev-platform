@@ -7,14 +7,7 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Mapping
 
-from eval.realtime_versus_ui import REALTIME_POLICY_CHOICES
-from eval.versus_ui import POLICY_CHOICES, SPEED_CHOICES
 from train.artifacts import CHECKPOINT_SCHEMA_VERSION, validate_checkpoint_payload
-
-try:
-    import torch
-except (ImportError, OSError):  # pragma: no cover - optional checkpoint inspection
-    torch = None
 
 try:
     import yaml
@@ -24,6 +17,13 @@ except ImportError:  # pragma: no cover - optional config validation
 
 SETTINGS_SCHEMA_VERSION = "puyo.launcher_settings.v1"
 PRESET_SCHEMA_VERSION = "puyo.launcher_presets.v1"
+POLICY_CHOICES = (
+    "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "worker_large", "worker_quick", "worker_punish", "worker_counter", "worker_fire",
+    "worker_fire_max", "worker_survival",
+)
+REALTIME_POLICY_CHOICES = POLICY_CHOICES
+SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
 
 
 @dataclass(frozen=True)
@@ -72,7 +72,7 @@ class LauncherSettings:
     beam_minimum_chain_a: int | None = None
     beam_minimum_chain_b: int | None = None
     max_steps: int = 100
-    max_ticks: int = 600
+    max_ticks: int | None = None
     games: int = 1
     inference_latency_ticks: int = 0
     timeout_ticks: int | None = None
@@ -100,9 +100,9 @@ class LauncherSettings:
 
 def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "play":
-        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, start_paused=True)
+        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=None, start_paused=True)
     if action_key == "spectate":
-        return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=600, start_paused=True)
+        return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=None, start_paused=True)
     if action_key == "arena":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=180, games=1)
     if action_key == "training":
@@ -305,6 +305,12 @@ class LauncherSettingsManager:
             action: self.store.recent(action) or default_settings(action)
             for action in ("play", "spectate", "arena", "training", "models")
         }
+        play = self._settings["play"]
+        if play.max_steps == 100 and play.max_ticks in {600, 10_000}:
+            self._settings["play"] = replace(play, max_ticks=None)
+        spectate = self._settings["spectate"]
+        if spectate.max_ticks == 600:
+            self._settings["spectate"] = replace(spectate, max_ticks=None)
         self._preset_indices: dict[str, int] = {}
 
     def for_action(self, action_key: str) -> LauncherSettings:
@@ -330,7 +336,7 @@ class LauncherSettingsManager:
                 "seed",
                 "seed_a",
                 "seed_b",
-                "max_steps",
+                "max_ticks",
                 "speed",
                 "start_paused",
                 "device",
@@ -418,7 +424,8 @@ class LauncherSettingsManager:
         spec = FIELD_SPECS.get(field)
         value = getattr(self.for_action(action_key), field)
         label = spec.label if spec is not None else field
-        return f"{label}: {_display_value(value)}"
+        display = "無制限" if field == "max_ticks" and value is None else _display_value(value)
+        return f"{label}: {display}"
 
     def field_help(self, action_key: str, field: str) -> str:
         _ = action_key
@@ -456,7 +463,12 @@ class LauncherSettingsManager:
             return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
             return self.update(action_key, field, _cycle_value(value, (None, True, False), delta))
-        if field in {"seed", "seed_a", "seed_b", "max_steps", "max_ticks", "games", "inference_latency_ticks"}:
+        if field == "max_ticks":
+            if value is None:
+                return self.update(action_key, field, 1_000 if delta > 0 else None)
+            updated = int(value) + delta * 1_000
+            return self.update(action_key, field, updated if updated > 0 else None)
+        if field in {"seed", "seed_a", "seed_b", "max_steps", "games", "inference_latency_ticks"}:
             current = int(value) if value is not None else self.for_action(action_key).seed
             step = 10 if field in {"max_steps", "max_ticks"} else 1
             return self.update(action_key, field, max(1, current + delta * step))
@@ -479,6 +491,42 @@ class LauncherSettingsManager:
                 updated = max(1, updated)
             return self.update(action_key, field, updated)
         return settings
+
+    def field_kind(self, action_key: str, field: str) -> str:
+        value = getattr(self.for_action(action_key), field)
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path"}:
+            return "string"
+        if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
+            return "choice"
+        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames"}:
+            return "number"
+        return "choice"
+
+    def field_choices(self, action_key: str, field: str) -> tuple[Any, ...]:
+        settings = self.for_action(action_key)
+        if field in {"policy_a", "policy_b"}:
+            return self.policy_choices(action_key)
+        if field in {"checkpoint_a", "checkpoint_b"}:
+            return (None,) + tuple(entry.path for entry in self.registry.checkpoint_entries())
+        if field == "config_path":
+            return tuple(entry.path for entry in self.registry.config_entries())
+        if field == "run_id":
+            return ("launcher-smoke", "launcher-check", "manual-gui")
+        if field in {"device", "device_a", "device_b"}:
+            return ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
+        if field in {"keybindings_path", "result_json", "replay_path"}:
+            return {
+                "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
+                "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
+                "replay_path": (None, "/tmp/puyo-arena-replay.json"),
+            }[field]
+        if field == "speed":
+            return SPEED_CHOICES
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides"}:
+            return (False, True)
+        if field in {"deterministic_a", "deterministic_b"}:
+            return (None, True, False)
+        return (getattr(settings, field),)
 
     def policy_choices(self, action_key: str) -> tuple[str, ...]:
         if action_key == "play":
@@ -520,8 +568,10 @@ class LauncherSettingsManager:
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
             if settings.max_steps <= 0:
                 errors.append("max_steps must be positive")
-            if settings.max_ticks <= 0:
+            if settings.max_ticks is not None and settings.max_ticks <= 0:
                 errors.append("max_ticks must be positive")
+            if action_key == "arena" and settings.max_ticks is None:
+                errors.append("max_ticks is required for arena evaluation")
             if settings.games <= 0:
                 errors.append("games must be positive")
             if settings.inference_latency_ticks < 0:
@@ -542,7 +592,11 @@ class LauncherSettingsManager:
         path = resolve_repo_path(checkpoint, self.repo_root)
         if not path.exists():
             return [f"checkpoint_{side} does not exist: {checkpoint}"]
-        if path.suffix != ".pt" or torch is None:
+        if path.suffix != ".pt":
+            return []
+        try:
+            import torch
+        except (ImportError, OSError):  # pragma: no cover - optional checkpoint inspection
             return []
         try:
             payload = torch.load(path, map_location="cpu", weights_only=False)

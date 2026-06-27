@@ -17,12 +17,6 @@ PANEL_MARGIN = 24
 PANEL_GAP = 20
 PANEL_WIDTH = (SCREEN_WIDTH - PANEL_MARGIN * 2 - PANEL_GAP) // 2
 FIELD_TOP = 186
-PLAN_STEP_COLORS = (
-    (255, 211, 92),
-    (96, 205, 255),
-    (255, 126, 177),
-    (141, 231, 137),
-)
 OJAMA_DENOMINATIONS = (
     ("comet", 1440),
     ("crown", 720),
@@ -32,6 +26,22 @@ OJAMA_DENOMINATIONS = (
     ("large", 6),
     ("small", 1),
 )
+SETTLE_BOUNCE_SECONDS = 0.20
+OJAMA_FALL_SECONDS = 0.35
+ACTIVE_GHOST_SCALE = 0.5
+
+
+def animation_progress(elapsed: float, duration: float) -> float:
+    if duration <= 0:
+        return 1.0
+    return max(0.0, min(1.0, elapsed / duration))
+
+
+def settle_scale(progress: float) -> tuple[float, float]:
+    """Return an elapsed-time squash/bounce scale independent of frame delta."""
+    progress = max(0.0, min(1.0, progress))
+    bounce = math.sin(progress * math.pi) * (1.0 - progress)
+    return (1.0 + bounce * 0.18, 1.0 - bounce * 0.22)
 
 
 def decompose_ojama(count: int) -> list[str]:
@@ -109,6 +119,27 @@ def plan_step_delta_cells(
     return tuple(cells)
 
 
+def plan_step_placement_cells(base_board, step: dict) -> tuple[tuple[int, int, str], ...]:
+    """Return the two explicitly planned cells, with a legacy board-delta fallback."""
+    explicit = step.get("placement_cells")
+    if isinstance(explicit, list):
+        cells = []
+        for cell in explicit:
+            if not isinstance(cell, dict):
+                continue
+            try:
+                x = int(cell["x"])
+                y = int(cell["y"])
+                color = str(cell["color"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
+                cells.append((x, y, color))
+        if cells:
+            return tuple(cells)
+    return plan_step_delta_cells(base_board, step)
+
+
 def winner_banner_label(winner: str | None) -> str:
     if winner is None:
         return "DRAW"
@@ -163,18 +194,34 @@ class VersusRenderer:
     def _scaled_color(self, color, factor: float):
         return tuple(max(0, min(255, int(channel * factor))) for channel in color)
 
-    def _draw_puyo(self, x: float, y: float, color, *, alpha: int = 255, ring=None) -> None:
+    def _draw_puyo(self, x: float, y: float, color, *, alpha: int = 255, ring=None, scale: float = 1.0) -> None:
         size = PUYO_SIZE
         surface = pygame.Surface((size, size), pygame.SRCALPHA)
         center = size // 2
-        radius = int(size * 0.38)
+        radius = max(3, int(size * 0.38 * scale))
         draw_color = (*color, alpha)
         pygame.draw.circle(surface, draw_color, (center, center), radius)
         pygame.draw.circle(surface, (15, 18, 24, alpha), (center, center), radius, 1)
         shine = (*self._scaled_color(color, 1.22), alpha)
-        pygame.draw.circle(surface, shine, (center - 6, center - 6), 4)
+        pygame.draw.circle(surface, shine, (center - max(2, int(6 * scale)), center - max(2, int(6 * scale))), max(2, int(4 * scale)))
         if ring is not None:
             pygame.draw.circle(surface, ring, (center, center), radius + 2, 3)
+        self.screen.blit(surface, (int(round(x)), int(round(y))))
+
+    def _draw_squashed_puyo(self, x: float, y: float, color, progress: float) -> None:
+        scale_x, scale_y = settle_scale(progress)
+        width = max(4, int(PUYO_SIZE * 0.76 * scale_x))
+        height = max(4, int(PUYO_SIZE * 0.76 * scale_y))
+        rect = pygame.Rect(0, 0, width, height)
+        rect.center = (int(round(x + PUYO_SIZE / 2)), int(round(y + PUYO_SIZE / 2)))
+        pygame.draw.ellipse(self.screen, color, rect)
+        pygame.draw.ellipse(self.screen, (15, 18, 24), rect, 1)
+
+    def _draw_outline_puyo(self, x: float, y: float, color, *, alpha: int = 220) -> None:
+        surface = pygame.Surface((PUYO_SIZE, PUYO_SIZE), pygame.SRCALPHA)
+        center = PUYO_SIZE // 2
+        radius = int(PUYO_SIZE * 0.38)
+        pygame.draw.circle(surface, (*color, alpha), (center, center), radius, 3)
         self.screen.blit(surface, (int(round(x)), int(round(y))))
 
     def _draw_plan_cell(
@@ -184,26 +231,15 @@ class VersusRenderer:
         y: int,
         color_name: str,
         *,
-        step_number: int,
         alpha: int,
-        ring,
-        uncertain: bool,
     ) -> None:
         if not 0 <= x < GRID_WIDTH or not 0 <= y < VISIBLE_HEIGHT:
             return
         sx, sy = self._grid_position(field, x, y)
         color = self.colors.get(_color_key(color_name), (245, 245, 245))
-        self._draw_puyo(sx, sy, color, alpha=alpha, ring=ring)
-        label = "?" if uncertain else str(step_number)
-        self._draw_text(
-            label,
-            self.tiny_font,
-            (18, 22, 30),
-            (sx + PUYO_SIZE / 2, sy + PUYO_SIZE / 2 - 8),
-            center=True,
-        )
+        self._draw_outline_puyo(sx, sy, color, alpha=alpha)
 
-    def _draw_board(self, field: pygame.Rect, event, board) -> None:
+    def _draw_board(self, field: pygame.Rect, event, board, game=None, event_elapsed: float = 0.0) -> None:
         pygame.draw.rect(self.screen, (18, 23, 32), field)
         for row in range(VISIBLE_HEIGHT + 1):
             y = field.y + row * PUYO_SIZE
@@ -212,17 +248,39 @@ class VersusRenderer:
             x = field.x + column * PUYO_SIZE
             pygame.draw.line(self.screen, (38, 44, 56), (x, field.y), (x, field.bottom), 1)
 
-        highlighted = event.coords if event is not None and event.kind == "chain" else frozenset()
+        highlighted = set(event.coords) if event is not None and event.kind == "chain" else set()
+        if game is not None and game.animation_state == "vanish_flash":
+            highlighted.update(game.vanish_coords)
+        draw_board = board
+        if game is not None and game.animation_state == "drop_tween" and game.drop_tween_static_cells:
+            draw_board = [[PuyoColor.EMPTY for _ in range(GRID_WIDTH)] for _ in range(VISIBLE_HEIGHT)]
+            for x, y, color in game.drop_tween_static_cells:
+                if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
+                    draw_board[y][x] = color
         pulse = 0.75 + 0.25 * math.sin(pygame.time.get_ticks() / 80.0)
+        settle_cells = set()
+        settle_progress_value = 1.0
+        if event is not None and event.kind == "placement" and event.action is not None and event.axis_y is not None:
+            placement = action_to_placement(event.action)
+            offsets = {"UP": (0, 1), "RIGHT": (1, 0), "DOWN": (0, -1), "LEFT": (-1, 0)}
+            ox, oy = offsets[placement.rotation.name]
+            settle_cells = {(placement.axis_x, event.axis_y), (placement.axis_x + ox, event.axis_y + oy)}
+            settle_progress_value = animation_progress(
+                event_elapsed,
+                SETTLE_BOUNCE_SECONDS,
+            )
         for y in range(VISIBLE_HEIGHT):
             for x in range(GRID_WIDTH):
-                color_name = board[y][x]
+                color_name = draw_board[y][x]
                 if color_name == PuyoColor.EMPTY:
                     continue
                 sx, sy = self._grid_position(field, x, y)
                 color = self.colors.get(color_name, (255, 255, 255))
                 ring = (255, 245, 170, 255) if (x, y) in highlighted else None
-                self._draw_puyo(sx, sy, self._scaled_color(color, pulse if ring else 1.0), ring=ring)
+                if (x, y) in settle_cells:
+                    self._draw_squashed_puyo(sx, sy, color, settle_progress_value)
+                else:
+                    self._draw_puyo(sx, sy, self._scaled_color(color, pulse if ring else 1.0), ring=ring)
 
         if event is not None and event.kind == "chain":
             for x, y in event.coords:
@@ -231,9 +289,25 @@ class VersusRenderer:
                 sx, sy = self._grid_position(field, x, y)
                 self._draw_puyo(sx, sy, (255, 245, 170), alpha=95, ring=(255, 245, 170, 220))
 
+        if game is not None and game.animation_state == "drop_tween":
+            eased = 1.0 - (1.0 - game.drop_tween_progress) ** 2
+            for x, from_y, to_y, color in game.drop_tween_motions:
+                y = from_y + (to_y - from_y) * eased
+                if 0 <= x < GRID_WIDTH and -1 <= y < VISIBLE_HEIGHT:
+                    sx, sy = self._grid_position(field, x, y)
+                    self._draw_puyo(sx, sy, self.colors[color])
+
+        if event is not None and event.kind == "garbage":
+            progress = animation_progress(event_elapsed, OJAMA_FALL_SECONDS)
+            count = min(GRID_WIDTH, max(1, event.amount))
+            for x in range(count):
+                y = (VISIBLE_HEIGHT + 1) * (1.0 - progress) + (VISIBLE_HEIGHT - 1) * progress
+                sx, sy = self._grid_position(field, x, y)
+                self._draw_puyo(sx, sy, self.colors[PuyoColor.OJAMA], scale=0.9)
+
         pygame.draw.rect(self.screen, (188, 195, 212), field, 4)
 
-    def _draw_pair_at_action(self, field: pygame.Rect, game, action: int, pair_colors, axis_y=None, alpha=150):
+    def _draw_pair_at_action(self, field: pygame.Rect, game, action: int, pair_colors, axis_y=None, alpha=150, scale=1.0):
         placement = action_to_placement(action)
         landing_y = game.find_landing_y(placement.axis_x, placement.rotation) if axis_y is None else axis_y
         if landing_y is None or pair_colors is None:
@@ -247,7 +321,7 @@ class VersusRenderer:
         for x, y, color_name in cells:
             if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
                 sx, sy = self._grid_position(field, x, y)
-                self._draw_puyo(sx, sy, self.colors[color_name], alpha=alpha, ring=(245, 245, 245, 210))
+                self._draw_puyo(sx, sy, self.colors[color_name], alpha=alpha, ring=(245, 245, 245, 210), scale=scale)
 
     def _draw_plan_overlay(self, field: pygame.Rect, base_board, plan: dict) -> None:
         if plan.get("schema_version") != "n-turn-plan-v1":
@@ -256,28 +330,30 @@ class VersusRenderer:
         if not isinstance(steps, list) or not steps:
             return
         step_counts = []
+        previous_board = base_board
         for index, step in enumerate(steps[:4]):
             if not isinstance(step, dict):
                 continue
-            cells = plan_step_delta_cells(base_board, step)
+            cells = plan_step_placement_cells(previous_board, step)
             if not cells:
+                predicted = step.get("predicted_board")
+                if isinstance(predicted, list):
+                    previous_board = predicted
                 continue
             step_number = int(step.get("step_index", index)) + 1
-            ring = (*PLAN_STEP_COLORS[index % len(PLAN_STEP_COLORS)], 230)
-            alpha = max(70, 155 - index * 25)
-            uncertain = not bool(step.get("known_tsumo", True)) or step.get("scenario") != "visible"
+            alpha = max(120, 230 - index * 25)
             for x, y, color_name in cells:
                 self._draw_plan_cell(
                     field,
                     x,
                     y,
                     color_name,
-                    step_number=step_number,
                     alpha=alpha,
-                    ring=ring,
-                    uncertain=uncertain,
                 )
-            step_counts.append((step_number, len(cells), uncertain))
+            step_counts.append((step_number, len(cells)))
+            predicted = step.get("predicted_board")
+            if isinstance(predicted, list):
+                previous_board = predicted
         if step_counts:
             plan_label = str(plan.get("plan_id", ""))[:10] or "plan"
             reason = str(plan.get("update_reason", ""))[:16]
@@ -309,6 +385,21 @@ class VersusRenderer:
                 continue
             sx, sy = self._grid_position(field, x, y)
             self._draw_puyo(sx, sy, self.colors[color_name], ring=(245, 245, 245, 210))
+
+    def _draw_live_landing_ghost(self, field: pygame.Rect, game) -> None:
+        if game.current_puyo_1 is None or game.current_puyo_2 is None or game.state != "control":
+            return
+        cells = game.get_ghost_cells()
+        for x, y, color_name in cells:
+            if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
+                sx, sy = self._grid_position(field, x, y)
+                self._draw_puyo(
+                    sx,
+                    sy,
+                    self.colors[color_name],
+                    alpha=150,
+                    scale=ACTIVE_GHOST_SCALE,
+                )
 
     def _draw_next_pair(self, pair, rect: pygame.Rect, label: str) -> None:
         pygame.draw.rect(self.screen, (30, 36, 48), rect)
@@ -409,11 +500,13 @@ class VersusRenderer:
         game = player_state.simulator.game
         info = controller.infos[agent]
         policy_name = controller.policy_display_name(agent)
-        event = (
-            controller.current_event
-            if controller.current_event and controller.current_event.agent == agent
-            else None
-        )
+        visual_event = getattr(controller, "visual_event", None)
+        if callable(visual_event):
+            event = visual_event(agent)
+        else:
+            event = controller.current_event if controller.current_event and controller.current_event.agent == agent else None
+        visual_elapsed = getattr(controller, "visual_event_elapsed", None)
+        event_elapsed = visual_elapsed(agent) if callable(visual_elapsed) else controller.event_elapsed
 
         pygame.draw.rect(self.screen, (28, 33, 43), panel, border_radius=8)
         pygame.draw.rect(self.screen, (92, 105, 132), panel, 2, border_radius=8)
@@ -423,7 +516,7 @@ class VersusRenderer:
         if game.current_puyo_1 is not None and game.current_puyo_2 is not None:
             active_pair = (game.current_puyo_1, game.current_puyo_2)
         self._draw_ojama_forecast(field, info["pending_ojama"])
-        self._draw_board(field, event, controller.display_boards[agent])
+        self._draw_board(field, event, controller.display_boards[agent], game, event_elapsed)
         self._draw_text(
             f"{info['score']:08d}",
             self.score_font,
@@ -441,22 +534,26 @@ class VersusRenderer:
         if (
             event is None
             and controller.human is not None
+            and hasattr(controller.human, "action")
             and controller.human.agent == agent
             and controller.env.agents
         ):
             selector_action = controller.human.action
             selector_colors = (game.current_puyo_1.color, game.current_puyo_2.color)
-        if target_action is not None and active_pair is not None:
+        uses_live_pair = callable(getattr(controller, "uses_live_active_pair", None)) and controller.uses_live_active_pair()
+        if target_action is not None and active_pair is not None and not uses_live_pair:
             self._draw_pair_at_action(
                 field,
                 game,
                 target_action,
                 (active_pair[0].color, active_pair[1].color),
                 alpha=85,
+                scale=ACTIVE_GHOST_SCALE,
             )
         plan_overlay = getattr(controller, "plan_overlay", None)
         if callable(plan_overlay):
             self._draw_plan_overlay(field, controller.display_boards[agent], plan_overlay(agent))
+        self._draw_live_landing_ghost(field, game)
         if selector_action is not None:
             self._draw_pair_at_action(
                 field,
@@ -466,7 +563,7 @@ class VersusRenderer:
                 axis_y=event.axis_y if event is not None else None,
                 alpha=180 if event is not None else 125,
             )
-        if callable(getattr(controller, "uses_live_active_pair", None)) and controller.uses_live_active_pair():
+        if uses_live_pair:
             self._draw_live_active_pair(field, game)
         else:
             self._draw_active_pair(field, active_pair, controller.active_action(agent))
@@ -543,11 +640,10 @@ class VersusRenderer:
         progress_unit = getattr(controller, "progress_unit", "step")
         progress_value = getattr(controller, "progress_value", controller.env.step_count)
         progress_limit = getattr(controller.config, "max_ticks", None)
-        if progress_limit is None:
-            progress_limit = controller.config.max_steps
+        progress_label = "∞" if progress_limit is None else str(progress_limit)
         status = (
             f"{state}   speed {controller.speed:g}x   seed {controller.config.seed}   "
-            f"{progress_unit} {progress_value}/{progress_limit}"
+            f"{progress_unit} {progress_value}/{progress_label}"
         )
         self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 704), center=True)
         bindings = controller.keybindings
