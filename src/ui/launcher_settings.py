@@ -100,7 +100,7 @@ class LauncherSettings:
 
 def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "play":
-        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, start_paused=True)
+        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=10_000, start_paused=True)
     if action_key == "spectate":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=600, start_paused=True)
     if action_key == "arena":
@@ -305,6 +305,9 @@ class LauncherSettingsManager:
             action: self.store.recent(action) or default_settings(action)
             for action in ("play", "spectate", "arena", "training", "models")
         }
+        play = self._settings["play"]
+        if play.max_steps == 100 and play.max_ticks == 600:
+            self._settings["play"] = replace(play, max_ticks=10_000)
         self._preset_indices: dict[str, int] = {}
 
     def for_action(self, action_key: str) -> LauncherSettings:
@@ -330,7 +333,7 @@ class LauncherSettingsManager:
                 "seed",
                 "seed_a",
                 "seed_b",
-                "max_steps",
+                "max_ticks",
                 "speed",
                 "start_paused",
                 "device",
@@ -510,6 +513,10 @@ class LauncherSettingsManager:
             }[field]
         if field == "speed":
             return SPEED_CHOICES
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides"}:
+            return (False, True)
+        if field in {"deterministic_a", "deterministic_b"}:
+            return (None, True, False)
         return (getattr(settings, field),)
 
     def policy_choices(self, action_key: str) -> tuple[str, ...]:

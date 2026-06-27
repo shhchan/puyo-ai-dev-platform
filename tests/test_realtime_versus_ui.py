@@ -23,6 +23,7 @@ try:
     from src.core.constants import Action, PuyoColor
     from src.ui.versus_renderer import (
         ACTIVE_GHOST_SCALE,
+        VersusRenderer,
         animation_progress,
         live_active_pair_cells,
         plan_step_delta_cells,
@@ -40,6 +41,7 @@ except (ImportError, OSError):
     PuyoColor = None
     Action = None
     ACTIVE_GHOST_SCALE = None
+    VersusRenderer = None
     animation_progress = None
     live_active_pair_cells = None
     plan_step_delta_cells = None
@@ -248,10 +250,42 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertIn(Action.DOWN, controller.last_inputs["player_0"].press)
         self.assertGreater(controller.controllers["player_1"].diagnostics.decisions_started, 0)
 
+        controller.advance_tick()
+        controller.advance_tick()
+        self.assertIn(Action.DOWN, controller.last_inputs["player_0"].press)
+        self.assertIn(Action.DOWN, controller.last_inputs["player_0"].release)
+
         controller.handle_keyup(pygame.K_w)
         controller.advance_tick()
         self.assertIn(Action.DOWN, controller.last_inputs["player_0"].release)
         controller.shutdown()
+
+    def test_plan_ghost_is_full_size_color_outline_without_center_label(self):
+        surface = pygame.Surface((160, 160))
+        surface.fill((1, 2, 3))
+        renderer = VersusRenderer(surface)
+        field = pygame.Rect(32, 32, 6 * 32, 12 * 32)
+        renderer._draw_plan_cell(field, 0, 11, "RED", alpha=255)
+        sx, sy = renderer._grid_position(field, 0, 11)
+        center = (int(sx + 16), int(sy + 16))
+        radius = int(32 * 0.38)
+        outline_colors = {
+            surface.get_at((int(sx + 16 + offset), int(sy + 16)))[:3]
+            for offset in range(radius - 2, radius + 2)
+        }
+
+        self.assertEqual(surface.get_at(center)[:3], (1, 2, 3))
+        self.assertIn(renderer.colors[PuyoColor.RED], outline_colors)
+
+    def test_active_ghost_has_no_white_outline(self):
+        surface = pygame.Surface((64, 64))
+        surface.fill((1, 2, 3))
+        renderer = VersusRenderer(surface)
+        renderer._draw_puyo(16, 16, renderer.colors[PuyoColor.BLUE], alpha=150, scale=ACTIVE_GHOST_SCALE)
+        radius = int(32 * 0.38 * ACTIVE_GHOST_SCALE)
+        outside = surface.get_at((32 + radius + 2, 32))[:3]
+
+        self.assertEqual(outside, (1, 2, 3))
 
     def test_visual_timeline_is_elapsed_time_based_and_active_ghost_is_half_size(self):
         self.assertEqual(animation_progress(0.2, 0.4), animation_progress(0.1 + 0.1, 0.4))

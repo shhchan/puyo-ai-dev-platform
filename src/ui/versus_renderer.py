@@ -17,12 +17,6 @@ PANEL_MARGIN = 24
 PANEL_GAP = 20
 PANEL_WIDTH = (SCREEN_WIDTH - PANEL_MARGIN * 2 - PANEL_GAP) // 2
 FIELD_TOP = 186
-PLAN_STEP_COLORS = (
-    (255, 211, 92),
-    (96, 205, 255),
-    (255, 126, 177),
-    (141, 231, 137),
-)
 OJAMA_DENOMINATIONS = (
     ("comet", 1440),
     ("crown", 720),
@@ -202,6 +196,13 @@ class VersusRenderer:
         pygame.draw.ellipse(self.screen, color, rect)
         pygame.draw.ellipse(self.screen, (15, 18, 24), rect, 1)
 
+    def _draw_outline_puyo(self, x: float, y: float, color, *, alpha: int = 220) -> None:
+        surface = pygame.Surface((PUYO_SIZE, PUYO_SIZE), pygame.SRCALPHA)
+        center = PUYO_SIZE // 2
+        radius = int(PUYO_SIZE * 0.38)
+        pygame.draw.circle(surface, (*color, alpha), (center, center), radius, 3)
+        self.screen.blit(surface, (int(round(x)), int(round(y))))
+
     def _draw_plan_cell(
         self,
         field: pygame.Rect,
@@ -209,24 +210,13 @@ class VersusRenderer:
         y: int,
         color_name: str,
         *,
-        step_number: int,
         alpha: int,
-        ring,
-        uncertain: bool,
     ) -> None:
         if not 0 <= x < GRID_WIDTH or not 0 <= y < VISIBLE_HEIGHT:
             return
         sx, sy = self._grid_position(field, x, y)
         color = self.colors.get(_color_key(color_name), (245, 245, 245))
-        self._draw_puyo(sx, sy, color, alpha=alpha, ring=ring)
-        label = "?" if uncertain else str(step_number)
-        self._draw_text(
-            label,
-            self.tiny_font,
-            (18, 22, 30),
-            (sx + PUYO_SIZE / 2, sy + PUYO_SIZE / 2 - 8),
-            center=True,
-        )
+        self._draw_outline_puyo(sx, sy, color, alpha=alpha)
 
     def _draw_board(self, field: pygame.Rect, event, board, game=None, event_elapsed: float = 0.0) -> None:
         pygame.draw.rect(self.screen, (18, 23, 32), field)
@@ -326,21 +316,16 @@ class VersusRenderer:
             if not cells:
                 continue
             step_number = int(step.get("step_index", index)) + 1
-            ring = (*PLAN_STEP_COLORS[index % len(PLAN_STEP_COLORS)], 230)
-            alpha = max(70, 155 - index * 25)
-            uncertain = not bool(step.get("known_tsumo", True)) or step.get("scenario") != "visible"
+            alpha = max(120, 230 - index * 25)
             for x, y, color_name in cells:
                 self._draw_plan_cell(
                     field,
                     x,
                     y,
                     color_name,
-                    step_number=step_number,
                     alpha=alpha,
-                    ring=ring,
-                    uncertain=uncertain,
                 )
-            step_counts.append((step_number, len(cells), uncertain))
+            step_counts.append((step_number, len(cells)))
         if step_counts:
             plan_label = str(plan.get("plan_id", ""))[:10] or "plan"
             reason = str(plan.get("update_reason", ""))[:16]
@@ -385,7 +370,6 @@ class VersusRenderer:
                     sy,
                     self.colors[color_name],
                     alpha=150,
-                    ring=(245, 245, 245, 190),
                     scale=ACTIVE_GHOST_SCALE,
                 )
 
@@ -528,7 +512,8 @@ class VersusRenderer:
         ):
             selector_action = controller.human.action
             selector_colors = (game.current_puyo_1.color, game.current_puyo_2.color)
-        if target_action is not None and active_pair is not None:
+        uses_live_pair = callable(getattr(controller, "uses_live_active_pair", None)) and controller.uses_live_active_pair()
+        if target_action is not None and active_pair is not None and not uses_live_pair:
             self._draw_pair_at_action(
                 field,
                 game,
@@ -550,7 +535,7 @@ class VersusRenderer:
                 axis_y=event.axis_y if event is not None else None,
                 alpha=180 if event is not None else 125,
             )
-        if callable(getattr(controller, "uses_live_active_pair", None)) and controller.uses_live_active_pair():
+        if uses_live_pair:
             self._draw_live_active_pair(field, game)
         else:
             self._draw_active_pair(field, active_pair, controller.active_action(agent))

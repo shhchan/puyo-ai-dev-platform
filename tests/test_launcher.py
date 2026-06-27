@@ -66,7 +66,7 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.policy_a, "human")
         self.assertEqual(config.policy_b, "greedy")
         self.assertEqual(config.seed, 57)
-        self.assertEqual(config.max_ticks, 100)
+        self.assertEqual(config.max_ticks, 10_000)
         self.assertTrue(config.start_paused)
 
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
@@ -311,6 +311,52 @@ class TestLauncherController(unittest.TestCase):
         before = service.settings.for_action("play").seed
         controller.handle_keydown(pygame.K_RIGHT)
         self.assertEqual(service.settings.for_action("play").seed, before + 1)
+
+    def test_choice_editor_accepts_text_and_lists_every_policy(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.settings_mode = True
+        controller.selection = controller.current_options.index("policy_a")
+        controller.handle_keydown(pygame.K_RETURN)
+
+        all_choices = controller.filtered_choices()
+        self.assertEqual(len(controller._candidate_rects()), len(all_choices))
+        self.assertIn("worker_survival", all_choices)
+
+        controller.handle_text_input("manager")
+        self.assertEqual(controller.search_query, "manager")
+        self.assertEqual(controller.filtered_choices(), ("manager", "manager_rule"))
+        self.assertEqual(service.settings.for_action("play").policy_a, "manager")
+
+    def test_numeric_editor_buttons_are_clickable_and_do_not_hit_setting_rows(self):
+        service = self.make_service()
+        controller = LauncherController(service)
+        controller.screen = "play"
+        controller.settings_mode = True
+        controller.selection = controller.current_options.index("speed")
+        controller.handle_keydown(pygame.K_RETURN)
+        before = service.settings.for_action("play").speed
+        button = controller._numeric_button_rect(1)
+
+        self.assertFalse(any(button.colliderect(controller._option_rect(i, len(controller.current_options))) for i in range(len(controller.visible_setting_fields()))))
+        controller.handle_mouse_down(button.center, 1)
+        self.assertGreater(service.settings.for_action("play").speed, before)
+
+    def test_keyboard_navigation_reaches_all_settings_footer_actions(self):
+        controller = LauncherController(self.make_service())
+        controller.screen = "play"
+        controller.settings_mode = True
+        field_count = len(controller.visible_setting_fields())
+        controller.selection = 5
+
+        controller.handle_keydown(pygame.K_DOWN)
+        self.assertEqual(controller.current_options[controller.selection], "prev_page")
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(controller.current_options[controller.selection], "next_page")
+        controller.handle_keydown(pygame.K_RIGHT)
+        self.assertEqual(controller.current_options[controller.selection], "back")
+        self.assertEqual(controller.selection, field_count + 2)
 
     def test_bundled_font_supports_japanese_glyphs(self):
         self.assertTrue(UI_ASSET_FONT.exists())

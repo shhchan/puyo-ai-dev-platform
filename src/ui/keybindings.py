@@ -70,6 +70,8 @@ class KeyBindings:
                 except ValueError:
                     continue
                 valid_names.append(name)
+            if action == "drop" and "w" not in valid_names:
+                valid_names.insert(0, "w")
             if valid_names:
                 self.bindings[action] = valid_names
 

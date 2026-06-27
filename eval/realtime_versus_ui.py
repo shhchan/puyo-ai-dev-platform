@@ -53,6 +53,7 @@ REALTIME_POLICY_CHOICES = (
     "worker_fire", "worker_fire_max", "worker_survival",
 )
 ASYNC_POLICY_TYPES = frozenset({"beam", "checkpoint", "manager", "manager_rule"})
+HUMAN_SOFT_DROP_REPEAT_TICKS = 2
 
 
 class DaemonDecisionExecutor:
@@ -97,6 +98,7 @@ class RealtimeHumanController:
         self._press: list[Action] = []
         self._release: list[Action] = []
         self._held: set[Action] = set()
+        self._last_soft_drop_pulse_tick: int | None = None
 
     def status(self) -> RealtimeControllerStatus:
         return RealtimeControllerStatus(None, 0, 0, 0, (), None)
@@ -105,6 +107,7 @@ class RealtimeHumanController:
         self._press.clear()
         self._release.clear()
         self._held.clear()
+        self._last_soft_drop_pulse_tick = None
         self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
 
     def key_down(self, action: Action) -> None:
@@ -117,8 +120,22 @@ class RealtimeHumanController:
             self._held.remove(action)
             self._release.append(action)
 
-    def next_input(self, *_args, **_kwargs) -> TickInput:
-        tick_input = TickInput(press=tuple(self._press), release=tuple(self._release))
+    def next_input(self, match, *_args, **_kwargs) -> TickInput:
+        press = list(self._press)
+        release = list(self._release)
+        if Action.DOWN in press:
+            self._last_soft_drop_pulse_tick = match.tick
+        elif Action.DOWN in self._held and (
+            self._last_soft_drop_pulse_tick is None
+            or match.tick - self._last_soft_drop_pulse_tick >= HUMAN_SOFT_DROP_REPEAT_TICKS
+        ):
+            # Re-arm the held input at the same cadence as placement planner pulses.
+            release.append(Action.DOWN)
+            press.append(Action.DOWN)
+            self._last_soft_drop_pulse_tick = match.tick
+        if Action.DOWN in release and Action.DOWN not in self._held:
+            self._last_soft_drop_pulse_tick = None
+        tick_input = TickInput(press=tuple(press), release=tuple(release))
         self._press.clear()
         self._release.clear()
         self.diagnostics.emitted_input_ticks += bool(tick_input.press or tick_input.release)
