@@ -1,4 +1,6 @@
 import os
+import threading
+import time
 import unittest
 from contextlib import redirect_stderr
 from io import StringIO
@@ -18,8 +20,14 @@ try:
         run_ui,
     )
     from selfplay.policies import legal_indices
-    from src.core.constants import PuyoColor
-    from src.ui.versus_renderer import live_active_pair_cells, plan_step_delta_cells
+    from src.core.constants import Action, PuyoColor
+    from src.ui.versus_renderer import (
+        ACTIVE_GHOST_SCALE,
+        animation_progress,
+        live_active_pair_cells,
+        plan_step_delta_cells,
+        settle_scale,
+    )
 
     ENV_AVAILABLE = True
 except (ImportError, OSError):
@@ -30,6 +38,9 @@ except (ImportError, OSError):
     run_ui = None
     legal_indices = None
     PuyoColor = None
+    Action = None
+    ACTIVE_GHOST_SCALE = None
+    animation_progress = None
     live_active_pair_cells = None
     plan_step_delta_cells = None
 
@@ -161,6 +172,91 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
             plan_step_delta_cells(base_board, step),
             ((1, 0, "BLUE"), (2, 1, "GREEN")),
         )
+
+    def test_slow_policy_does_not_block_other_player_or_render_tick(self):
+        release = threading.Event()
+
+        class StubPolicy:
+            def __init__(self, slow=False):
+                self.slow = slow
+
+            def select_action(self, observation, info):
+                if self.slow:
+                    release.wait(1.0)
+                return legal_indices(info)[0]
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="manager_rule", policy_b="first", max_ticks=80),
+            policy_factory=lambda policy_type, **kwargs: StubPolicy(policy_type == "manager_rule"),
+        )
+        started = time.perf_counter()
+        controller.advance_tick()
+        elapsed = time.perf_counter() - started
+
+        self.assertLess(elapsed, 0.2)
+        self.assertEqual(controller.env.match.tick, 1)
+        self.assertEqual(controller.controllers["player_0"].diagnostics.last_event, "thinking")
+        self.assertGreater(controller.controllers["player_1"].diagnostics.emitted_input_ticks, 0)
+
+        release.set()
+        for _ in range(30):
+            controller.advance_tick()
+            if controller.controllers["player_0"].diagnostics.decisions_activated:
+                break
+            time.sleep(0.005)
+        self.assertGreater(controller.controllers["player_0"].diagnostics.decisions_activated, 0)
+        controller.shutdown()
+
+    def test_stale_async_decision_is_rejected_after_active_pair_changes(self):
+        release = threading.Event()
+
+        class SlowPolicy:
+            def select_action(self, observation, info):
+                release.wait(1.0)
+                return legal_indices(info)[0]
+
+        class FastPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="beam", policy_b="first", max_ticks=80),
+            policy_factory=lambda policy_type, **kwargs: SlowPolicy() if policy_type == "beam" else FastPolicy(),
+        )
+        controller.advance_tick()
+        controller.env.player_states["player_0"].simulator.game.spawn_puyo()
+        release.set()
+        for _ in range(20):
+            controller.advance_tick()
+            if controller.controllers["player_0"].diagnostics.stale_decisions:
+                break
+            time.sleep(0.005)
+        self.assertEqual(controller.controllers["player_0"].diagnostics.stale_decisions, 1)
+        controller.shutdown()
+
+    def test_human_soft_drop_edges_do_not_pause_ai(self):
+        class StubPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="human", policy_b="first", max_ticks=80),
+            policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+        )
+        controller.handle_keydown(pygame.K_w)
+        controller.advance_tick()
+        self.assertIn(Action.DOWN, controller.last_inputs["player_0"].press)
+        self.assertGreater(controller.controllers["player_1"].diagnostics.decisions_started, 0)
+
+        controller.handle_keyup(pygame.K_w)
+        controller.advance_tick()
+        self.assertIn(Action.DOWN, controller.last_inputs["player_0"].release)
+        controller.shutdown()
+
+    def test_visual_timeline_is_elapsed_time_based_and_active_ghost_is_half_size(self):
+        self.assertEqual(animation_progress(0.2, 0.4), animation_progress(0.1 + 0.1, 0.4))
+        self.assertEqual(settle_scale(1.0), (1.0, 1.0))
+        self.assertEqual(ACTIVE_GHOST_SCALE, 0.5)
 
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")

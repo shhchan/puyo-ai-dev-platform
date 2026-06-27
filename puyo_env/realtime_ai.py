@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import math
 import time
+from concurrent.futures import Executor, Future
 from dataclasses import asdict, dataclass
 from typing import Any, Mapping, Sequence
 
@@ -118,6 +119,7 @@ class RealtimeControllerDiagnostics:
     replans: int = 0
     emitted_input_ticks: int = 0
     idle_ticks: int = 0
+    stale_decisions: int = 0
     policy_elapsed_seconds: float = 0.0
     inference_latency_ticks: int = 0
     planned_input_ticks: int = 0
@@ -153,6 +155,14 @@ class _PendingDecision:
     plan: PlannedPlacement | None
 
 
+@dataclass
+class _AsyncDecision:
+    future: Future
+    requested_tick: int
+    state_token: tuple[int, int]
+    info: dict[str, Any]
+
+
 @dataclass(frozen=True)
 class RealtimeControllerStatus:
     active_action_index: int | None
@@ -175,12 +185,15 @@ class RealtimePolicyController:
         *,
         config: RealtimeDecisionConfig | None = None,
         timing: RealtimeTimingConfig | None = None,
+        decision_executor: Executor | None = None,
     ):
         self.policy = policy
         self.config = config or RealtimeDecisionConfig()
         self.timing = timing or DEFAULT_REALTIME_TIMING
+        self.decision_executor = decision_executor
         self.diagnostics = RealtimeControllerDiagnostics()
         self._pending_decision: _PendingDecision | None = None
+        self._async_decision: _AsyncDecision | None = None
         self._active_plan: PlannedPlacement | None = None
         self._active_action_index: int | None = None
         self._input_cursor = 0
@@ -216,6 +229,9 @@ class RealtimePolicyController:
             reset()
         self.diagnostics = RealtimeControllerDiagnostics()
         self._pending_decision = None
+        if self._async_decision is not None:
+            self._async_decision.future.cancel()
+        self._async_decision = None
         self._active_plan = None
         self._active_action_index = None
         self._input_cursor = 0
@@ -247,7 +263,7 @@ class RealtimePolicyController:
             self.diagnostics.last_event = f"waiting_for_{simulator.game.state}"
             return TickInput()
 
-        if self._pending_decision is None:
+        if self._pending_decision is None and self._async_decision is None:
             observation = observation or build_realtime_observation(match, agent)
             if info is None or (
                 self.config.use_reachable_action_mask
@@ -258,7 +274,34 @@ class RealtimePolicyController:
                     agent,
                     use_reachable_action_mask=self.config.use_reachable_action_mask,
                 )
-            self._pending_decision = self._start_decision(match, agent, observation, info)
+            if self.decision_executor is None:
+                self._pending_decision = self._start_decision(match, agent, observation, info)
+            else:
+                self._async_decision = self._submit_decision(match, agent, observation, info)
+
+        if self._async_decision is not None:
+            if not self._async_decision.future.done():
+                self.diagnostics.idle_ticks += 1
+                self.diagnostics.last_event = "thinking"
+                return TickInput()
+            pending_async = self._async_decision
+            self._async_decision = None
+            try:
+                selected_action, elapsed = pending_async.future.result()
+            except Exception:
+                selected_action, elapsed = None, 0.0
+            if pending_async.state_token != self._decision_state_token(match, agent):
+                self.diagnostics.stale_decisions += 1
+                self.diagnostics.last_event = "stale_decision_rejected"
+                return TickInput()
+            self._pending_decision = self._complete_decision(
+                match,
+                agent,
+                selected_action,
+                pending_async.info,
+                elapsed,
+                requested_tick=pending_async.requested_tick,
+            )
 
         if match.tick < self._pending_decision.ready_tick:
             self.diagnostics.idle_ticks += 1
@@ -290,6 +333,39 @@ class RealtimePolicyController:
         started = time.perf_counter()
         selected_action = int(self.policy.select_action(observation, info))
         elapsed = time.perf_counter() - started
+        return self._complete_decision(match, agent, selected_action, info, elapsed)
+
+    def _submit_decision(self, match, agent, observation, info) -> _AsyncDecision:
+        self.diagnostics.decision_requests += 1
+        self.diagnostics.decisions_started += 1
+
+        def select():
+            started = time.perf_counter()
+            selected = int(self.policy.select_action(observation, info))
+            return selected, time.perf_counter() - started
+
+        return _AsyncDecision(
+            future=self.decision_executor.submit(select),
+            requested_tick=match.tick,
+            state_token=self._decision_state_token(match, agent),
+            info=dict(info),
+        )
+
+    @staticmethod
+    def _decision_state_token(match, agent) -> tuple[int, int]:
+        game = match.player_states[agent].simulator.game
+        return (id(game.current_puyo_1), id(game.current_puyo_2))
+
+    def _complete_decision(
+        self,
+        match,
+        agent,
+        selected_action,
+        info,
+        elapsed: float,
+        *,
+        requested_tick: int | None = None,
+    ) -> _PendingDecision:
         self.diagnostics.policy_elapsed_seconds += elapsed
 
         mask = _bool_mask(info.get("action_mask"))
@@ -299,7 +375,7 @@ class RealtimePolicyController:
         effective_latency = min(configured_latency, timeout_limit) if timeout else configured_latency
         self.diagnostics.inference_latency_ticks += int(effective_latency or 0)
 
-        action_index = selected_action
+        action_index = None if selected_action is None else int(selected_action)
         reason = "policy"
         fallback = False
         if timeout:
@@ -347,7 +423,7 @@ class RealtimePolicyController:
 
         placement = action_to_placement(action_index) if action_index is not None else None
         record = RealtimeDecisionRecord(
-            tick=match.tick,
+            tick=match.tick if requested_tick is None else requested_tick,
             action_index=action_index,
             axis_x=None if placement is None else placement.axis_x,
             rotation=None if placement is None else placement.rotation.name,

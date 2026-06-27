@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import threading
 from collections import deque
+from concurrent.futures import Future
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -22,13 +24,15 @@ except ImportError:  # pragma: no cover - dependency guard
 from eval.versus_ui import SPEED_CHOICES, VisualEvent
 from puyo_env.actions import placement_to_action_index
 from puyo_env.realtime_ai import (
+    RealtimeControllerDiagnostics,
+    RealtimeControllerStatus,
     RealtimeDecisionConfig,
     RealtimePolicyController,
     RealtimePuyoEnv,
 )
 from puyo_env.realtime_versus import REALTIME_AGENTS
 from selfplay.policies import Policy, make_policy
-from src.core.constants import Direction
+from src.core.constants import Action, Direction
 from src.core.headless import PlacementAction
 from src.core.realtime import TickInput
 
@@ -44,10 +48,82 @@ else:  # pragma: no cover - used only for dependency-light config imports
 
 
 REALTIME_POLICY_CHOICES = (
-    "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
+ASYNC_POLICY_TYPES = frozenset({"beam", "checkpoint", "manager", "manager_rule"})
+
+
+class DaemonDecisionExecutor:
+    """Small daemon-backed executor so closing the UI never waits for inference."""
+
+    def __init__(self):
+        self._futures: set[Future] = set()
+        self._closed = False
+
+    def submit(self, function, *args, **kwargs) -> Future:
+        if self._closed:
+            raise RuntimeError("decision executor is closed")
+        future = Future()
+        self._futures.add(future)
+
+        def run():
+            if not future.set_running_or_notify_cancel():
+                return
+            try:
+                future.set_result(function(*args, **kwargs))
+            except BaseException as exc:  # pragma: no cover - surfaced through Future.result
+                future.set_exception(exc)
+            finally:
+                self._futures.discard(future)
+
+        threading.Thread(target=run, name="puyo-policy", daemon=True).start()
+        return future
+
+    def shutdown(self, wait: bool = False, cancel_futures: bool = True) -> None:
+        self._closed = True
+        if cancel_futures:
+            for future in tuple(self._futures):
+                future.cancel()
+
+
+class RealtimeHumanController:
+    """Translate held UI keys into deterministic realtime input edges."""
+
+    def __init__(self, agent: str):
+        self.agent = agent
+        self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
+        self._press: list[Action] = []
+        self._release: list[Action] = []
+        self._held: set[Action] = set()
+
+    def status(self) -> RealtimeControllerStatus:
+        return RealtimeControllerStatus(None, 0, 0, 0, (), None)
+
+    def reset(self) -> None:
+        self._press.clear()
+        self._release.clear()
+        self._held.clear()
+        self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
+
+    def key_down(self, action: Action) -> None:
+        if action not in self._held:
+            self._held.add(action)
+            self._press.append(action)
+
+    def key_up(self, action: Action) -> None:
+        if action in self._held:
+            self._held.remove(action)
+            self._release.append(action)
+
+    def next_input(self, *_args, **_kwargs) -> TickInput:
+        tick_input = TickInput(press=tuple(self._press), release=tuple(self._release))
+        self._press.clear()
+        self._release.clear()
+        self.diagnostics.emitted_input_ticks += bool(tick_input.press or tick_input.release)
+        self.diagnostics.last_event = "human_input" if tick_input.press or tick_input.release else "human_held"
+        return tick_input
 
 
 @dataclass(frozen=True)
@@ -98,6 +174,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
     policies = (config.policy_a, config.policy_b)
     if any(policy not in REALTIME_POLICY_CHOICES for policy in policies):
         raise ValueError(f"policy must be one of: {', '.join(REALTIME_POLICY_CHOICES)}")
+    if policies.count("human") > 1:
+        raise ValueError("only one human player is supported")
     if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
         raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
     if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
@@ -140,6 +218,7 @@ class RealtimeVersusMatchController:
         validate_config(config)
         self.config = config
         self.policy_factory = policy_factory
+        self._decision_executor = DaemonDecisionExecutor()
         self.env = RealtimePuyoEnv(
             seed=config.seed,
             max_ticks=config.max_ticks,
@@ -150,6 +229,9 @@ class RealtimeVersusMatchController:
         self.event_queue: deque[VisualEvent] = deque()
         self.current_event: VisualEvent | None = None
         self.event_elapsed = 0.0
+        self.event_queues = {agent: deque() for agent in REALTIME_AGENTS}
+        self.current_events: dict[str, VisualEvent | None] = {agent: None for agent in REALTIME_AGENTS}
+        self.event_elapsed_by_agent = {agent: 0.0 for agent in REALTIME_AGENTS}
         self.tick_elapsed = 0.0
         self.last_inputs: dict[str, TickInput] = {}
         self.display_boards: dict[str, tuple] = {}
@@ -165,9 +247,10 @@ class RealtimeVersusMatchController:
             "player_0": config.plan_overlay,
             "player_1": config.plan_overlay,
         }
-        self.policies: dict[str, Policy] = {}
-        self.controllers: dict[str, RealtimePolicyController] = {}
-        self.human = None
+        self.policies: dict[str, Policy | None] = {}
+        self.controllers: dict[str, RealtimePolicyController | RealtimeHumanController] = {}
+        self.human: RealtimeHumanController | None = None
+        self.human_agent: str | None = None
         self.observations = {}
         self.infos = {}
         self.reset()
@@ -268,8 +351,8 @@ class RealtimeVersusMatchController:
 
     def reset(self) -> None:
         self.policies = {
-            "player_0": self._make_policy("a"),
-            "player_1": self._make_policy("b"),
+            "player_0": None if self.config.policy_a == "human" else self._make_policy("a"),
+            "player_1": None if self.config.policy_b == "human" else self._make_policy("b"),
         }
         decision_config = RealtimeDecisionConfig(
             inference_latency_ticks=self.config.inference_latency_ticks,
@@ -277,14 +360,30 @@ class RealtimeVersusMatchController:
             action_deadline_ticks=self.config.action_deadline_ticks,
             use_reachable_action_mask=self.config.use_reachable_action_mask,
         )
-        self.controllers = {
-            agent: RealtimePolicyController(policy, config=decision_config)
-            for agent, policy in self.policies.items()
-        }
+        self.controllers = {}
+        self.human = None
+        self.human_agent = None
+        for agent, policy in self.policies.items():
+            if policy is None:
+                self.human = RealtimeHumanController(agent)
+                self.human_agent = agent
+                self.controllers[agent] = self.human
+                continue
+            policy_name = self.policy_names[agent]
+            executor = self._decision_executor if policy_name in ASYNC_POLICY_TYPES else None
+            self.controllers[agent] = RealtimePolicyController(
+                policy,
+                config=decision_config,
+                decision_executor=executor,
+            )
         self.observations, self.infos = self.env.reset(seed=self.config.seed)
         self.event_queue.clear()
         self.current_event = None
         self.event_elapsed = 0.0
+        for agent in REALTIME_AGENTS:
+            self.event_queues[agent].clear()
+            self.current_events[agent] = None
+            self.event_elapsed_by_agent[agent] = 0.0
         self.tick_elapsed = 0.0
         self.last_inputs = {}
         self._sync_display_boards()
@@ -309,8 +408,10 @@ class RealtimeVersusMatchController:
         self._sync_display_boards()
         match_result = self.infos["player_0"].get("match_result")
         if match_result is not None:
-            self.event_queue.extend(self._visual_events_from_tick(match_result))
-            self._start_next_event()
+            for event in self._visual_events_from_tick(match_result):
+                self.event_queues[event.agent].append(event)
+            for agent in REALTIME_AGENTS:
+                self._start_next_event(agent)
         return True
 
     def update(self, delta_time: float) -> None:
@@ -364,11 +465,16 @@ class RealtimeVersusMatchController:
         for agent in REALTIME_AGENTS:
             for event in match_result.player_results[agent].events:
                 if event.type == "lock":
+                    placement = PlacementAction(
+                        int(event.data.get("axis_x", 2)),
+                        Direction[str(event.data.get("rotation", "UP"))],
+                    )
                     events.append(
                         VisualEvent(
                             "placement",
                             agent,
                             "LOCK",
+                            action=placement_to_action_index(placement),
                             axis_y=int(event.data.get("axis_y", 0)),
                         )
                     )
@@ -390,25 +496,33 @@ class RealtimeVersusMatchController:
                 events.append(VisualEvent("garbage", agent, f"OJAMA +{amount}", amount=int(amount)))
         return events
 
-    def _start_next_event(self) -> None:
-        if self.current_event is None and self.event_queue:
-            self.current_event = self.event_queue.popleft()
-            self.event_elapsed = 0.0
+    def _start_next_event(self, agent: str) -> None:
+        if self.current_events[agent] is None and self.event_queues[agent]:
+            self.current_events[agent] = self.event_queues[agent].popleft()
+            self.event_elapsed_by_agent[agent] = 0.0
 
     def _advance_visual_events(self, delta_time: float) -> None:
-        if self.current_event is None:
-            self._start_next_event()
-            return
-        self.event_elapsed += delta_time
-        if self.event_elapsed >= self._event_duration():
-            self.current_event = None
-            self._start_next_event()
+        for agent in REALTIME_AGENTS:
+            event = self.current_events[agent]
+            if event is None:
+                self._start_next_event(agent)
+                continue
+            self.event_elapsed_by_agent[agent] += delta_time
+            if self.event_elapsed_by_agent[agent] >= self._event_duration(event):
+                self.current_events[agent] = None
+                self._start_next_event(agent)
 
-    def _event_duration(self) -> float:
-        if self.current_event is None:
+    def _event_duration(self, event: VisualEvent | None) -> float:
+        if event is None:
             return 0.0
-        durations = {"garbage": 0.35, "placement": 0.2, "chain": 0.55}
-        return durations.get(self.current_event.kind, 0.25) / self.speed
+        durations = {"garbage": 0.35, "placement": 0.20, "chain": 0.55}
+        return durations.get(event.kind, 0.25) / self.speed
+
+    def visual_event(self, agent: str) -> VisualEvent | None:
+        return self.current_events[agent]
+
+    def visual_event_elapsed(self, agent: str) -> float:
+        return self.event_elapsed_by_agent[agent]
 
     def _open_settings(self) -> None:
         self._settings_previous_paused = self.paused
@@ -478,7 +592,34 @@ class RealtimeVersusMatchController:
         elif key == pygame.K_o:
             enabled = not all(self.plan_overlay_enabled.values())
             self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
+        elif self.human is not None:
+            action = self._human_action_for_key(key)
+            if action is not None:
+                self.human.key_down(action)
         return True
+
+    def handle_keyup(self, key: int) -> None:
+        if self.human is None:
+            return
+        action = self._human_action_for_key(key)
+        if action is not None:
+            self.human.key_up(action)
+
+    def _human_action_for_key(self, key: int) -> Action | None:
+        bindings = (
+            ("human_left", Action.LEFT),
+            ("human_right", Action.RIGHT),
+            ("rotate_left", Action.ROTATE_LEFT),
+            ("rotate_right", Action.ROTATE_RIGHT),
+            ("drop", Action.DOWN),
+        )
+        for binding, action in bindings:
+            if self.keybindings.matches(binding, key):
+                return action
+        return None
+
+    def shutdown(self) -> None:
+        self._decision_executor.shutdown(wait=False, cancel_futures=True)
 
     def _format_input_label(self, tick_input: TickInput, held_actions) -> str:
         edges = [f"+{action.name}" for action in tick_input.press]
@@ -597,29 +738,36 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
     renderer = VersusRenderer(screen)
     running = True
     frames = 0
-    while running and (max_frames is None or frames < max_frames):
-        delta_time = clock.tick(60) / 1000.0
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                running = controller.handle_keydown(event.key)
-        controller.update(delta_time)
-        renderer.draw(controller)
-        frames += 1
-    result = {
-        "winner": controller.winner,
-        "score_player_0": controller.infos["player_0"]["score"],
-        "score_player_1": controller.infos["player_1"]["score"],
-        "ticks": controller.env.match.tick,
-        "decisions_player_0": controller.controllers["player_0"].diagnostics.decisions_started,
-        "decisions_player_1": controller.controllers["player_1"].diagnostics.decisions_started,
-        "emitted_input_ticks_player_0": controller.controllers["player_0"].diagnostics.emitted_input_ticks,
-        "emitted_input_ticks_player_1": controller.controllers["player_1"].diagnostics.emitted_input_ticks,
-        "plan_overlay_player_0": controller.plan_overlay_enabled["player_0"],
-        "plan_overlay_player_1": controller.plan_overlay_enabled["player_1"],
-    }
-    pygame.quit()
+    try:
+        while running and (max_frames is None or frames < max_frames):
+            delta_time = clock.tick(60) / 1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    running = controller.handle_keydown(event.key)
+                elif event.type == pygame.KEYUP:
+                    controller.handle_keyup(event.key)
+            controller.update(delta_time)
+            renderer.draw(controller)
+            frames += 1
+    except KeyboardInterrupt:
+        pass
+    finally:
+        result = {
+            "winner": controller.winner,
+            "score_player_0": controller.infos["player_0"]["score"],
+            "score_player_1": controller.infos["player_1"]["score"],
+            "ticks": controller.env.match.tick,
+            "decisions_player_0": controller.controllers["player_0"].diagnostics.decisions_started,
+            "decisions_player_1": controller.controllers["player_1"].diagnostics.decisions_started,
+            "emitted_input_ticks_player_0": controller.controllers["player_0"].diagnostics.emitted_input_ticks,
+            "emitted_input_ticks_player_1": controller.controllers["player_1"].diagnostics.emitted_input_ticks,
+            "plan_overlay_player_0": controller.plan_overlay_enabled["player_0"],
+            "plan_overlay_player_1": controller.plan_overlay_enabled["player_1"],
+        }
+        controller.shutdown()
+        pygame.quit()
     return result
 
 
