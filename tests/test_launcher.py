@@ -66,7 +66,7 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.policy_a, "human")
         self.assertEqual(config.policy_b, "greedy")
         self.assertEqual(config.seed, 57)
-        self.assertEqual(config.max_ticks, 10_000)
+        self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
@@ -75,7 +75,7 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertEqual(config.policy_a, "first")
         self.assertEqual(config.policy_b, "random")
-        self.assertEqual(config.max_ticks, 600)
+        self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 
     def test_spectate_exposes_and_round_trips_realtime_arguments(self):

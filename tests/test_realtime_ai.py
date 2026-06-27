@@ -120,6 +120,16 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertIn("episode", infos["player_0"])
         self.assertIn("player_0", rewards)
 
+    def test_realtime_env_does_not_truncate_when_tick_limit_is_disabled(self):
+        env = RealtimePuyoEnv(seed=123, max_ticks=None)
+        _, infos = env.reset(seed=123)
+
+        self.assertIsNone(infos["player_0"]["max_ticks"])
+        for _ in range(3):
+            _, _, _, truncations, _ = env.step()
+            self.assertFalse(truncations["player_0"])
+        self.assertTrue(env.agents)
+
     def test_checkpoint_metadata_accepts_native_and_turn_based_adapter(self):
         native = {"realtime_policy": realtime_checkpoint_metadata(native_realtime=True)}
         turn_based = {"model_state_dict": {"cnn.0.weight": object()}}

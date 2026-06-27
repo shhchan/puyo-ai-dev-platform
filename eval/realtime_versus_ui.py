@@ -152,7 +152,7 @@ class RealtimeVersusUiConfig:
     seed: int = 1
     seed_a: int | None = None
     seed_b: int | None = None
-    max_ticks: int = 10_000
+    max_ticks: int | None = None
     speed: float = 1.0
     start_paused: bool = False
     device: str = "cpu"
@@ -183,7 +183,7 @@ class RealtimeVersusUiConfig:
     plan_overlay: bool = True
 
     @property
-    def max_steps(self) -> int:
+    def max_steps(self) -> int | None:
         return self.max_ticks
 
 
@@ -199,7 +199,7 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
-    if config.max_ticks <= 0:
+    if config.max_ticks is not None and config.max_ticks <= 0:
         raise ValueError("max_ticks must be positive")
     if config.inference_latency_ticks < 0:
         raise ValueError("inference_latency_ticks must be non-negative")
@@ -658,7 +658,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--seed-a", "--policy-seed-a", dest="seed_a", type=int)
     parser.add_argument("--seed-b", "--policy-seed-b", dest="seed_b", type=int)
-    parser.add_argument("--max-ticks", type=int, default=10_000)
+    parser.add_argument("--max-ticks", type=int)
     parser.add_argument("--speed", type=float, choices=SPEED_CHOICES, default=1.0)
     parser.add_argument("--start-paused", action="store_true")
     parser.add_argument("--device", default="cpu")

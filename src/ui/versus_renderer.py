@@ -119,6 +119,27 @@ def plan_step_delta_cells(
     return tuple(cells)
 
 
+def plan_step_placement_cells(base_board, step: dict) -> tuple[tuple[int, int, str], ...]:
+    """Return the two explicitly planned cells, with a legacy board-delta fallback."""
+    explicit = step.get("placement_cells")
+    if isinstance(explicit, list):
+        cells = []
+        for cell in explicit:
+            if not isinstance(cell, dict):
+                continue
+            try:
+                x = int(cell["x"])
+                y = int(cell["y"])
+                color = str(cell["color"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if 0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT:
+                cells.append((x, y, color))
+        if cells:
+            return tuple(cells)
+    return plan_step_delta_cells(base_board, step)
+
+
 def winner_banner_label(winner: str | None) -> str:
     if winner is None:
         return "DRAW"
@@ -309,11 +330,15 @@ class VersusRenderer:
         if not isinstance(steps, list) or not steps:
             return
         step_counts = []
+        previous_board = base_board
         for index, step in enumerate(steps[:4]):
             if not isinstance(step, dict):
                 continue
-            cells = plan_step_delta_cells(base_board, step)
+            cells = plan_step_placement_cells(previous_board, step)
             if not cells:
+                predicted = step.get("predicted_board")
+                if isinstance(predicted, list):
+                    previous_board = predicted
                 continue
             step_number = int(step.get("step_index", index)) + 1
             alpha = max(120, 230 - index * 25)
@@ -326,6 +351,9 @@ class VersusRenderer:
                     alpha=alpha,
                 )
             step_counts.append((step_number, len(cells)))
+            predicted = step.get("predicted_board")
+            if isinstance(predicted, list):
+                previous_board = predicted
         if step_counts:
             plan_label = str(plan.get("plan_id", ""))[:10] or "plan"
             reason = str(plan.get("update_reason", ""))[:16]
@@ -612,11 +640,10 @@ class VersusRenderer:
         progress_unit = getattr(controller, "progress_unit", "step")
         progress_value = getattr(controller, "progress_value", controller.env.step_count)
         progress_limit = getattr(controller.config, "max_ticks", None)
-        if progress_limit is None:
-            progress_limit = controller.config.max_steps
+        progress_label = "∞" if progress_limit is None else str(progress_limit)
         status = (
             f"{state}   speed {controller.speed:g}x   seed {controller.config.seed}   "
-            f"{progress_unit} {progress_value}/{progress_limit}"
+            f"{progress_unit} {progress_value}/{progress_label}"
         )
         self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 704), center=True)
         bindings = controller.keybindings

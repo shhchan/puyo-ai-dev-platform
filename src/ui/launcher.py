@@ -942,8 +942,6 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         config.policy_b,
         "--seed",
         str(config.seed),
-        "--max-ticks",
-        str(config.max_ticks),
         "--speed",
         str(config.speed),
         "--device",
@@ -959,6 +957,8 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         "--inference-latency-ticks",
         str(config.inference_latency_ticks),
     ]
+    if config.max_ticks is not None:
+        args.extend(["--max-ticks", str(config.max_ticks)])
     if config.checkpoint_a:
         args.extend(["--checkpoint-a", config.checkpoint_a])
     if config.checkpoint_b:

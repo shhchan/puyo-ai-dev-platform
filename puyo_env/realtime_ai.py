@@ -28,6 +28,7 @@ REALTIME_OBSERVATION_SCHEMA_VERSION = "realtime-placement-v1"
 REALTIME_ACTION_CONTRACT_VERSION = "placement-index-to-tick-input-v1"
 TURN_BASED_OBSERVATION_SCHEMA_VERSION = "placement-v1"
 REALTIME_SCALAR_FEATURE_DIM = 8
+DEFAULT_REALTIME_FEATURE_HORIZON = 10_000
 
 _PHASE_CODES = {
     "control": 0.0,
@@ -558,14 +559,15 @@ class RealtimePuyoEnv:
     def __init__(
         self,
         seed: int | None = None,
-        max_ticks: int = 10_000,
+        max_ticks: int | None = None,
         timing: RealtimeTimingConfig | None = None,
         reward_config: RealtimeRewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
         use_reachable_action_mask: bool = False,
     ):
         self.base_seed = seed
-        self.max_ticks = int(max_ticks)
+        self.max_ticks = None if max_ticks is None else int(max_ticks)
+        self.feature_max_ticks = self.max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
         self.timing = timing or DEFAULT_REALTIME_TIMING
         self.reward_config = reward_config or RealtimeRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
@@ -617,7 +619,7 @@ class RealtimePuyoEnv:
             self.match.player_states[agent].simulator.game.game_over
             for agent in self.possible_agents
         )
-        truncated = self.match.tick >= self.max_ticks and not terminal
+        truncated = self.max_ticks is not None and self.match.tick >= self.max_ticks and not terminal
         winner = result.winner if terminal else None
         if truncated:
             winner = _winner_from_scores(self.match)
@@ -729,7 +731,7 @@ def build_realtime_observation(
     match: RealtimeVersusMatch,
     agent: str,
     *,
-    max_ticks: int = 10_000,
+    max_ticks: int | None = DEFAULT_REALTIME_FEATURE_HORIZON,
     include_action_mask: bool = False,
 ) -> dict[str, Any]:
     """Build a placement-policy compatible realtime observation."""
@@ -739,6 +741,7 @@ def build_realtime_observation(
     opponent_state = match.player_states[_opponent(agent)]
     own_board = encode_board(state.simulator.game)
     opponent_board = encode_board(opponent_state.simulator.game)
+    feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
     observation = {
         "board": numpy.concatenate([own_board, opponent_board], axis=0).astype(numpy.float32, copy=False),
         "own_board": own_board,
@@ -747,11 +750,11 @@ def build_realtime_observation(
         "scalars": encode_scalars(
             state.simulator.game,
             step_count=match.tick,
-            max_steps=max_ticks,
+            max_steps=feature_max_ticks,
             pending_ojama=state.pending_ojama,
             sent_ojama=state.sent_ojama_total,
         ),
-        "realtime_scalars": encode_realtime_scalars(match, agent, max_ticks=max_ticks),
+        "realtime_scalars": encode_realtime_scalars(match, agent, max_ticks=feature_max_ticks),
         "schema_version": REALTIME_OBSERVATION_SCHEMA_VERSION,
     }
     if include_action_mask:
@@ -763,7 +766,7 @@ def encode_realtime_scalars(
     match: RealtimeVersusMatch,
     agent: str,
     *,
-    max_ticks: int = 10_000,
+    max_ticks: int | None = DEFAULT_REALTIME_FEATURE_HORIZON,
     dtype: Any | None = None,
 ):
     numpy = _require_numpy()
@@ -774,9 +777,10 @@ def encode_realtime_scalars(
     active_y = 0.0 if game.current_puyo_1 is None else game.puyo_y / float(max(1, GRID_HEIGHT - 1))
     rotation = 0.0 if game.current_puyo_1 is None else _rotation_scalar(game.puyo_rot)
     incoming_ticks = _incoming_ticks(match, agent)
+    feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
     return numpy.asarray(
         [
-            min(float(match.tick) / float(max(1, max_ticks)), 1.0),
+            min(float(match.tick) / float(max(1, feature_max_ticks)), 1.0),
             active_x,
             active_y,
             rotation,
@@ -793,7 +797,7 @@ def build_realtime_info(
     match: RealtimeVersusMatch,
     agent: str,
     *,
-    max_ticks: int = 10_000,
+    max_ticks: int | None = DEFAULT_REALTIME_FEATURE_HORIZON,
     use_reachable_action_mask: bool = True,
 ) -> dict[str, Any]:
     state = match.player_states[agent]
@@ -806,6 +810,7 @@ def build_realtime_info(
     )
     incoming_ticks = _incoming_ticks(match, agent)
     opponent_incoming_ticks = _incoming_ticks(match, opponent)
+    feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
     return {
         "action_mask": action_mask,
         "action_mask_source": "reachable_planner" if use_reachable_action_mask else "placement_legal",
@@ -839,7 +844,7 @@ def build_realtime_info(
         "held_actions": state.simulator.snapshot().held_actions,
         "step_count": match.tick,
         "tick_count": match.tick,
-        "max_steps": max_ticks,
+        "max_steps": feature_max_ticks,
         "max_ticks": max_ticks,
     }
 

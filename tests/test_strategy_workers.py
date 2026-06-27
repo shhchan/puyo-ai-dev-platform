@@ -199,6 +199,18 @@ class TestStrategyWorkers(unittest.TestCase):
 
         verifier = clone_simulator(simulator)
         for step in plan.steps:
+            placement = action_to_placement(step.action)
+            pair_colors = (verifier.game.current_puyo_1.color, verifier.game.current_puyo_2.color)
+            expected_cells = tuple(
+                (x, y, color.name)
+                for x, y, color in verifier.game.get_landing_cells(
+                    placement.axis_x,
+                    placement.rotation,
+                    pair_colors,
+                )
+            )
+            self.assertEqual(step.placement_cells, expected_cells)
+            self.assertEqual(len(step.placement_cells), 2)
             result = verifier.step(action_to_placement(step.action))
             self.assertTrue(result.valid)
             self.assertEqual(result.chain_count, step.predicted_chain_count)

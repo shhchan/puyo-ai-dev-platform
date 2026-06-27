@@ -27,6 +27,7 @@ try:
         animation_progress,
         live_active_pair_cells,
         plan_step_delta_cells,
+        plan_step_placement_cells,
         settle_scale,
     )
 
@@ -45,6 +46,7 @@ except (ImportError, OSError):
     animation_progress = None
     live_active_pair_cells = None
     plan_step_delta_cells = None
+    plan_step_placement_cells = None
 
 try:
     import pygame  # noqa: F401
@@ -56,6 +58,12 @@ except (ImportError, OSError):
 
 @unittest.skipUnless(ENV_AVAILABLE, "gymnasium/numpy are not installed")
 class TestRealtimeVersusUiConfig(unittest.TestCase):
+    def test_tick_limit_is_disabled_by_default(self):
+        config = parse_config([])
+
+        self.assertIsNone(config.max_ticks)
+        self.assertIsNone(config.max_steps)
+
     def test_realtime_policy_options_are_parsed(self):
         config = parse_config(
             [
@@ -173,6 +181,21 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(
             plan_step_delta_cells(base_board, step),
             ((1, 0, "BLUE"), (2, 1, "GREEN")),
+        )
+
+    def test_explicit_plan_placement_cells_override_cumulative_board_delta(self):
+        base_board = [[PuyoColor.EMPTY for _ in range(6)] for _ in range(12)]
+        step = {
+            "placement_cells": [
+                {"x": 5, "y": 0, "color": "RED"},
+                {"x": 5, "y": 1, "color": "YELLOW"},
+            ],
+            "predicted_board": [["BLUE", "GREEN"]],
+        }
+
+        self.assertEqual(
+            plan_step_placement_cells(base_board, step),
+            ((5, 0, "RED"), (5, 1, "YELLOW")),
         )
 
     def test_slow_policy_does_not_block_other_player_or_render_tick(self):

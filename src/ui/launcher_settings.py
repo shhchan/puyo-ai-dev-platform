@@ -72,7 +72,7 @@ class LauncherSettings:
     beam_minimum_chain_a: int | None = None
     beam_minimum_chain_b: int | None = None
     max_steps: int = 100
-    max_ticks: int = 600
+    max_ticks: int | None = None
     games: int = 1
     inference_latency_ticks: int = 0
     timeout_ticks: int | None = None
@@ -100,9 +100,9 @@ class LauncherSettings:
 
 def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "play":
-        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=10_000, start_paused=True)
+        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=None, start_paused=True)
     if action_key == "spectate":
-        return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=600, start_paused=True)
+        return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=None, start_paused=True)
     if action_key == "arena":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=180, games=1)
     if action_key == "training":
@@ -306,8 +306,11 @@ class LauncherSettingsManager:
             for action in ("play", "spectate", "arena", "training", "models")
         }
         play = self._settings["play"]
-        if play.max_steps == 100 and play.max_ticks == 600:
-            self._settings["play"] = replace(play, max_ticks=10_000)
+        if play.max_steps == 100 and play.max_ticks in {600, 10_000}:
+            self._settings["play"] = replace(play, max_ticks=None)
+        spectate = self._settings["spectate"]
+        if spectate.max_ticks == 600:
+            self._settings["spectate"] = replace(spectate, max_ticks=None)
         self._preset_indices: dict[str, int] = {}
 
     def for_action(self, action_key: str) -> LauncherSettings:
@@ -421,7 +424,8 @@ class LauncherSettingsManager:
         spec = FIELD_SPECS.get(field)
         value = getattr(self.for_action(action_key), field)
         label = spec.label if spec is not None else field
-        return f"{label}: {_display_value(value)}"
+        display = "無制限" if field == "max_ticks" and value is None else _display_value(value)
+        return f"{label}: {display}"
 
     def field_help(self, action_key: str, field: str) -> str:
         _ = action_key
@@ -459,7 +463,12 @@ class LauncherSettingsManager:
             return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
             return self.update(action_key, field, _cycle_value(value, (None, True, False), delta))
-        if field in {"seed", "seed_a", "seed_b", "max_steps", "max_ticks", "games", "inference_latency_ticks"}:
+        if field == "max_ticks":
+            if value is None:
+                return self.update(action_key, field, 1_000 if delta > 0 else None)
+            updated = int(value) + delta * 1_000
+            return self.update(action_key, field, updated if updated > 0 else None)
+        if field in {"seed", "seed_a", "seed_b", "max_steps", "games", "inference_latency_ticks"}:
             current = int(value) if value is not None else self.for_action(action_key).seed
             step = 10 if field in {"max_steps", "max_ticks"} else 1
             return self.update(action_key, field, max(1, current + delta * step))
@@ -489,7 +498,7 @@ class LauncherSettingsManager:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
-        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "timeout_ticks", "action_deadline_ticks", "max_frames"}:
+        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames"}:
             return "number"
         return "choice"
 
@@ -559,8 +568,10 @@ class LauncherSettingsManager:
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
             if settings.max_steps <= 0:
                 errors.append("max_steps must be positive")
-            if settings.max_ticks <= 0:
+            if settings.max_ticks is not None and settings.max_ticks <= 0:
                 errors.append("max_ticks must be positive")
+            if action_key == "arena" and settings.max_ticks is None:
+                errors.append("max_ticks is required for arena evaluation")
             if settings.games <= 0:
                 errors.append("games must be positive")
             if settings.inference_latency_ticks < 0:
