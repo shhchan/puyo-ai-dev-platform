@@ -22,6 +22,7 @@ except ImportError:  # pragma: no cover - dependency guard
     yaml = None
 
 REGISTRY_SCHEMA_VERSION = "puyo.lineage_registry.v1"
+HUMAN_SESSION_MANIFEST_SCHEMA_VERSION = "puyo.human_session_manifest.v1"
 
 
 @dataclass
@@ -663,12 +664,83 @@ def _add_benchmark_manifest(registry: LineageRegistry, manifest_path: Path) -> N
         registry.add_edge(LineageEdge(source=benchmark_id, target=node_id, edge_type="evaluates"))
 
 
+def _add_human_session_manifest(registry: LineageRegistry, manifest_path: Path) -> None:
+    manifest = _read_json(manifest_path)
+    if manifest.get("schema_version") != HUMAN_SESSION_MANIFEST_SCHEMA_VERSION:
+        return
+    session_id = str(manifest.get("session_id") or manifest_path.parent.name)
+    session_node_id = f"human_session:{session_id}"
+    registry.add_node(
+        LineageNode(
+            id=session_node_id,
+            node_type="human_dataset_session",
+            label=session_id,
+            path=str(manifest_path.parent),
+            metadata={
+                "manifest_path": str(manifest_path),
+                "dataset_version": manifest.get("dataset_version"),
+                "seed": manifest.get("seed"),
+                "config_digest": manifest.get("config_digest"),
+                "outcome": manifest.get("outcome", {}),
+            },
+        )
+    )
+    environment = manifest.get("environment", {})
+    environment_id = f"environment:{json_digest(environment)[:16]}"
+    registry.add_node(
+        LineageNode(
+            id=environment_id,
+            node_type="environment",
+            label=str(environment.get("name") or "environment"),
+            metadata=dict(environment) if isinstance(environment, dict) else {},
+        )
+    )
+    registry.add_edge(LineageEdge(source=environment_id, target=session_node_id, edge_type="records"))
+    for agent, model in sorted(manifest.get("models", {}).items()):
+        if not isinstance(model, dict):
+            continue
+        checkpoint_path = model.get("checkpoint_path")
+        model_identity = {
+            "policy": model.get("policy"),
+            "model_id": model.get("model_id"),
+            "checkpoint_path": checkpoint_path,
+            "checkpoint_sha256": model.get("checkpoint_sha256"),
+        }
+        model_id = f"dataset_model:{json_digest(model_identity)[:16]}"
+        registry.add_node(
+            LineageNode(
+                id=model_id,
+                node_type="dataset_model",
+                label=str(model.get("model_id") or model.get("policy") or agent),
+                path=str(checkpoint_path) if checkpoint_path else None,
+                metadata={**model_identity, "agent": agent},
+            )
+        )
+        registry.add_edge(
+            LineageEdge(source=model_id, target=session_node_id, edge_type="generated_with", metadata={"agent": agent})
+        )
+        parent_path = model.get("parent_checkpoint_path")
+        if parent_path:
+            parent_id = _path_id("external_checkpoint", str(parent_path))
+            registry.add_node(
+                LineageNode(
+                    id=parent_id,
+                    node_type="external_checkpoint",
+                    label=Path(str(parent_path)).name,
+                    path=str(parent_path),
+                    metadata={"declared_by": str(manifest_path)},
+                )
+            )
+            registry.add_edge(LineageEdge(source=parent_id, target=model_id, edge_type="parent"))
+
+
 def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
     registry = LineageRegistry()
     path_index: dict[str, str] = {}
     manifest_paths = []
     suite_paths = []
     benchmark_paths = []
+    human_session_paths = []
     legacy_run_dirs: set[Path] = set()
     for root in roots:
         base = Path(root)
@@ -694,6 +766,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
                 suite_paths.append(path)
             elif path.name == "benchmark_manifest.json":
                 benchmark_paths.append(path)
+            elif path.name == "human_session_manifest.json":
+                human_session_paths.append(path)
     manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
     for path in sorted(manifest_paths):
         _preindex_artifact_manifest_checkpoints(path, path_index)
@@ -709,6 +783,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
         _add_suite_manifest(registry, path)
     for path in sorted(benchmark_paths):
         _add_benchmark_manifest(registry, path)
+    for path in sorted(human_session_paths):
+        _add_human_session_manifest(registry, path)
     return registry
 
 
