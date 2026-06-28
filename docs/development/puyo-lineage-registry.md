@@ -44,6 +44,7 @@ manifest がない v1.3.0 以前の run についても、`summary.json`、`meta
 | `advances_to` | legacy run 内の periodic checkpoint -> 後続 checkpoint |
 | `records` | environment -> human dataset session |
 | `generated_with` | model/checkpoint -> human dataset session |
+| `trains` | human dataset session -> derived training run |
 
 `train.lineage.ancestors(registry, node_id)` と `descendants(registry, node_id)` で、任意 node の祖先・子孫を取得できる。
 
