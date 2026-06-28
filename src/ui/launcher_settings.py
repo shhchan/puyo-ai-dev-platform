@@ -85,6 +85,9 @@ class LauncherSettings:
     replay_path: str | None = None
     config_path: str = "train/config/realtime_smoke.yaml"
     run_id: str = "launcher-smoke"
+    collection_enabled: bool = False
+    dataset_root: str = "human_datasets"
+    collection_feedback: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -152,6 +155,9 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena の replay 出力 path です。auto の場合は書き出しません。"),
     "config_path": LauncherFieldSpec("config_path", "学習 config", "--config", "train.train_realtime に渡す YAML/JSON config path です。"),
     "run_id": LauncherFieldSpec("run_id", "run_id", "--set run_id=...", "training smoke の run_id です。"),
+    "collection_enabled": LauncherFieldSpec("collection_enabled", "人間対戦データ収集", "--collect-human-data", "ON の間だけ入力、盤面、AI plan、結果、任意 feedback を保存します。既定は OFF です。"),
+    "dataset_root": LauncherFieldSpec("dataset_root", "収集データ保存先", "--dataset-root", "人間対戦 dataset と collection audit log の保存先です。"),
+    "collection_feedback": LauncherFieldSpec("collection_feedback", "任意 feedback", "--collection-feedback", "収集 session の結果へ付与する任意の短い feedback です。"),
 }
 
 
@@ -358,6 +364,9 @@ class LauncherSettingsManager:
                 "beam_minimum_chain_a",
                 "beam_minimum_chain_b",
                 "keybindings_path",
+                "collection_enabled",
+                "dataset_root",
+                "collection_feedback",
             )
         if action_key == "spectate":
             return (
@@ -450,16 +459,18 @@ class LauncherSettingsManager:
         if field in {"device", "device_a", "device_b"}:
             choices = ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
             return self.update(action_key, field, _cycle_value(value, choices, delta))
-        if field in {"keybindings_path", "result_json", "replay_path"}:
+        if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
             choices_by_field = {
                 "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
                 "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
                 "replay_path": (None, "/tmp/puyo-arena-replay.json"),
+                "dataset_root": ("human_datasets", "/tmp/puyo-human-datasets"),
+                "collection_feedback": (None, "good match", "needs review"),
             }
             return self.update(action_key, field, _cycle_value(value, choices_by_field[field], delta))
         if field == "speed":
             return self.update(action_key, field, _cycle_value(value, SPEED_CHOICES, delta))
-        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides"}:
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
             return self.update(action_key, field, _cycle_value(value, (None, True, False), delta))
@@ -494,7 +505,7 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
@@ -514,15 +525,17 @@ class LauncherSettingsManager:
             return ("launcher-smoke", "launcher-check", "manual-gui")
         if field in {"device", "device_a", "device_b"}:
             return ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
-        if field in {"keybindings_path", "result_json", "replay_path"}:
+        if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
             return {
                 "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
                 "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
                 "replay_path": (None, "/tmp/puyo-arena-replay.json"),
+                "dataset_root": ("human_datasets", "/tmp/puyo-human-datasets"),
+                "collection_feedback": (None, "good match", "needs review"),
             }[field]
         if field == "speed":
             return SPEED_CHOICES
-        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides"}:
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return (False, True)
         if field in {"deterministic_a", "deterministic_b"}:
             return (None, True, False)

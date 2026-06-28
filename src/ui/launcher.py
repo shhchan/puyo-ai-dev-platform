@@ -244,6 +244,9 @@ class LauncherService:
             deterministic_a=settings.deterministic_a,
             deterministic_b=settings.deterministic_b,
             keybindings_path=settings.keybindings_path,
+            collection_enabled=settings.collection_enabled,
+            dataset_root=settings.dataset_root,
+            collection_feedback=settings.collection_feedback,
         )
 
     def command_for(self, action_key: str) -> tuple[str, ...]:
@@ -984,6 +987,11 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         args.extend(["--max-frames", str(config.max_frames)])
     if config.keybindings_path:
         args.extend(["--keybindings", config.keybindings_path])
+    if config.collection_enabled:
+        args.append("--collect-human-data")
+    args.extend(["--dataset-root", config.dataset_root])
+    if config.collection_feedback:
+        args.extend(["--collection-feedback", config.collection_feedback])
     return tuple(args)
 
 

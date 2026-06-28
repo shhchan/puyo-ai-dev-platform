@@ -135,6 +135,21 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual((config.beam_depth_a, config.beam_depth_b), (8, 10))
         self.assertEqual(config.speed, 2.0)
 
+    def test_human_collection_settings_round_trip_to_play_command(self):
+        service = self.make_service()
+        dataset_root = str(Path(self.temp_dir.name) / "human-data")
+        service.update_setting("play", "collection_enabled", True)
+        service.update_setting("play", "dataset_root", dataset_root)
+        service.update_setting("play", "collection_feedback", "helpful match")
+
+        config = parse_realtime_config(service.command_for("play")[3:])
+
+        self.assertTrue(config.collection_enabled)
+        self.assertEqual(config.dataset_root, dataset_root)
+        self.assertEqual(config.collection_feedback, "helpful match")
+        for field in ("collection_enabled", "dataset_root", "collection_feedback"):
+            self.assertIn(field, service.settings.editable_fields("play"))
+
     def test_checkpoint_policy_is_rejected_before_process_start_without_path(self):
         started = []
 

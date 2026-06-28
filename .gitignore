@@ -12,6 +12,7 @@ dist/
 
 # Training outputs
 runs/
+human_datasets/
 
 # Local Codex skills
 .agents/skills/pr-to-english/
