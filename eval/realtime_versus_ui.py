@@ -22,6 +22,8 @@ except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
 from eval.versus_ui import SPEED_CHOICES, VisualEvent
+from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
+from human_data.dataset import create_session
 from puyo_env.actions import placement_to_action_index
 from puyo_env.realtime_ai import (
     RealtimeControllerDiagnostics,
@@ -181,6 +183,9 @@ class RealtimeVersusUiConfig:
     result_json: str | None = None
     max_frames: int | None = None
     plan_overlay: bool = True
+    collection_enabled: bool = False
+    dataset_root: str = "human_datasets"
+    collection_feedback: str | None = None
 
     @property
     def max_steps(self) -> int | None:
@@ -193,6 +198,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError(f"policy must be one of: {', '.join(REALTIME_POLICY_CHOICES)}")
     if policies.count("human") > 1:
         raise ValueError("only one human player is supported")
+    if config.collection_enabled and "human" not in policies:
+        raise ValueError("human data collection requires one human policy")
     if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
         raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
     if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
@@ -209,6 +216,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("action_deadline_ticks must be non-negative")
     if config.max_frames is not None and config.max_frames <= 0:
         raise ValueError("max_frames must be positive")
+    if not config.dataset_root.strip():
+        raise ValueError("dataset_root must not be empty")
     for side in ("a", "b"):
         depth = getattr(config, f"beam_depth_{side}")
         width = getattr(config, f"beam_width_{side}")
@@ -264,6 +273,10 @@ class RealtimeVersusMatchController:
             "player_0": config.plan_overlay,
             "player_1": config.plan_overlay,
         }
+        self.collection_enabled = config.collection_enabled
+        self.collection_replay_ticks: list[dict] = []
+        self.collection_last_session_id: str | None = None
+        self.collection_message = "COLLECTION ON" if self.collection_enabled else "COLLECTION OFF"
         self.policies: dict[str, Policy | None] = {}
         self.controllers: dict[str, RealtimePolicyController | RealtimeHumanController] = {}
         self.human: RealtimeHumanController | None = None
@@ -271,6 +284,14 @@ class RealtimeVersusMatchController:
         self.observations = {}
         self.infos = {}
         self.reset()
+        if self.human_agent is not None:
+            append_collection_audit(
+                self.config.dataset_root,
+                event="session_started",
+                enabled=self.collection_enabled,
+                tick=0,
+                details={"contents": list(COLLECTION_CONTENTS)},
+            )
 
     @property
     def progress_value(self) -> int:
@@ -367,6 +388,8 @@ class RealtimeVersusMatchController:
         return placement_to_action_index(PlacementAction(2, Direction.UP))
 
     def reset(self) -> None:
+        if hasattr(self, "env") and getattr(self, "collection_enabled", False):
+            self.finalize_collection(interrupted=True)
         self.policies = {
             "player_0": None if self.config.policy_a == "human" else self._make_policy("a"),
             "player_1": None if self.config.policy_b == "human" else self._make_policy("b"),
@@ -403,6 +426,7 @@ class RealtimeVersusMatchController:
             self.event_elapsed_by_agent[agent] = 0.0
         self.tick_elapsed = 0.0
         self.last_inputs = {}
+        self.collection_replay_ticks = []
         self._sync_display_boards()
 
     def advance_one(self, include_human: bool = False) -> bool:
@@ -422,6 +446,8 @@ class RealtimeVersusMatchController:
             )
         self.last_inputs = inputs
         self.observations, _, _, _, self.infos = self.env.step(inputs)
+        if self.collection_enabled:
+            self._record_collection_tick(inputs)
         self._sync_display_boards()
         match_result = self.infos["player_0"].get("match_result")
         if match_result is not None:
@@ -430,6 +456,107 @@ class RealtimeVersusMatchController:
             for agent in REALTIME_AGENTS:
                 self._start_next_event(agent)
         return True
+
+    @property
+    def collection_status(self) -> str:
+        if self.human_agent is None:
+            return ""
+        return f"{self.collection_message}  {self.config.dataset_root}  [C toggle/stop]"
+
+    @property
+    def collection_contents_label(self) -> str:
+        return "saves inputs / boards / AI plans / result / optional feedback"
+
+    def _record_collection_tick(self, inputs: dict[str, TickInput]) -> None:
+        match_result = self.infos["player_0"]["match_result"]
+        self.collection_replay_ticks.append(
+            {
+                "tick": match_result.tick,
+                "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
+                "policy_diagnostics": {
+                    agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
+                },
+                "controller_status": {
+                    agent: {
+                        "active_action_index": self.target_action(agent),
+                        "kind": "human" if agent == self.human_agent else "policy",
+                    }
+                    for agent in REALTIME_AGENTS
+                },
+                "snapshot_hash": match_result.snapshot_hash,
+            }
+        )
+
+    def toggle_collection(self) -> None:
+        if self.human_agent is None:
+            self.collection_message = "COLLECTION unavailable: no human player"
+            return
+        if self.collection_enabled:
+            discarded = len(self.collection_replay_ticks)
+            self.collection_enabled = False
+            self.collection_replay_ticks.clear()
+            self.collection_message = f"COLLECTION OFF: discarded {discarded} buffered ticks"
+            append_collection_audit(
+                self.config.dataset_root,
+                event="collection_stopped",
+                enabled=False,
+                tick=self.env.match.tick,
+                details={"discarded_ticks": discarded},
+            )
+            return
+        self.collection_enabled = True
+        self.collection_message = "COLLECTION ON: restarted match at tick 0"
+        append_collection_audit(
+            self.config.dataset_root,
+            event="collection_started",
+            enabled=True,
+            tick=self.env.match.tick,
+            details={"match_restarted": True, "contents": list(COLLECTION_CONTENTS)},
+        )
+        self.reset()
+
+    def finalize_collection(self, *, interrupted: bool = False) -> dict | None:
+        if not self.collection_enabled or not self.collection_replay_ticks:
+            return None
+        replay = {
+            "format": "puyo-realtime-match-v1",
+            "seed": self.config.seed,
+            "max_ticks": self.config.max_ticks,
+            "ticks": list(self.collection_replay_ticks),
+            "expected_final_hash": self.env.match.state_hash(),
+        }
+        models = {
+            "player_0": {"policy": self.config.policy_a, "checkpoint_path": self.config.checkpoint_a},
+            "player_1": {"policy": self.config.policy_b, "checkpoint_path": self.config.checkpoint_b},
+        }
+        manifest = create_session(
+            self.config.dataset_root,
+            replay,
+            models=models,
+            config={
+                "collection_enabled": True,
+                "contents": list(COLLECTION_CONTENTS),
+                "policy_a": self.config.policy_a,
+                "policy_b": self.config.policy_b,
+                "max_ticks": self.config.max_ticks,
+            },
+            outcome={
+                "winner": self.winner,
+                "interrupted": interrupted,
+                "feedback": self.config.collection_feedback,
+            },
+        )
+        self.collection_last_session_id = manifest["session_id"]
+        self.collection_replay_ticks.clear()
+        self.collection_message = f"SAVED {self.collection_last_session_id}"
+        append_collection_audit(
+            self.config.dataset_root,
+            event="session_saved",
+            enabled=True,
+            tick=self.env.match.tick,
+            details={"session_id": self.collection_last_session_id, "interrupted": interrupted},
+        )
+        return manifest
 
     def update(self, delta_time: float) -> None:
         if self.paused:
@@ -609,6 +736,8 @@ class RealtimeVersusMatchController:
         elif key == pygame.K_o:
             enabled = not all(self.plan_overlay_enabled.values())
             self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
+        elif key == pygame.K_c:
+            self.toggle_collection()
         elif self.human is not None:
             action = self._human_action_for_key(key)
             if action is not None:
@@ -693,6 +822,11 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
     parser.add_argument("--no-plan-overlay", dest="plan_overlay", action="store_false")
     parser.set_defaults(plan_overlay=True)
+    parser.add_argument("--collect-human-data", dest="collection_enabled", action="store_true")
+    parser.add_argument("--no-collect-human-data", dest="collection_enabled", action="store_false")
+    parser.set_defaults(collection_enabled=False)
+    parser.add_argument("--dataset-root", default="human_datasets")
+    parser.add_argument("--collection-feedback")
     parser.add_argument(
         "--keybindings",
         dest="keybindings_path",
@@ -736,6 +870,9 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         result_json=args.result_json,
         max_frames=args.max_frames,
         plan_overlay=args.plan_overlay,
+        collection_enabled=args.collection_enabled,
+        dataset_root=args.dataset_root,
+        collection_feedback=args.collection_feedback,
     )
     try:
         validate_config(config)
@@ -771,6 +908,7 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
     except KeyboardInterrupt:
         pass
     finally:
+        collection_manifest = controller.finalize_collection(interrupted=bool(controller.env.agents))
         result = {
             "winner": controller.winner,
             "score_player_0": controller.infos["player_0"]["score"],
@@ -782,6 +920,9 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
             "emitted_input_ticks_player_1": controller.controllers["player_1"].diagnostics.emitted_input_ticks,
             "plan_overlay_player_0": controller.plan_overlay_enabled["player_0"],
             "plan_overlay_player_1": controller.plan_overlay_enabled["player_1"],
+            "collection_enabled": controller.collection_enabled,
+            "collection_session_id": None if collection_manifest is None else collection_manifest["session_id"],
+            "collection_dataset_root": config.dataset_root,
         }
         controller.shutdown()
         pygame.quit()
