@@ -24,6 +24,8 @@ POLICY_CHOICES = (
 )
 REALTIME_POLICY_CHOICES = POLICY_CHOICES
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
+TRAINING_OPERATIONS = ("submit", "status", "pause", "resume", "cancel")
+HUMAN_TRAINING_METHODS = ("imitation", "advantage_weighted", "mixed_replay")
 
 
 @dataclass(frozen=True)
@@ -88,6 +90,10 @@ class LauncherSettings:
     collection_enabled: bool = False
     dataset_root: str = "human_datasets"
     collection_feedback: str | None = None
+    training_operation: str = "submit"
+    training_job_id: str = "puyo-87-smoke"
+    parent_checkpoint_path: str | None = None
+    training_method: str = "imitation"
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -109,7 +115,12 @@ def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "arena":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=180, games=1)
     if action_key == "training":
-        return LauncherSettings(seed=57, config_path="train/config/realtime_smoke.yaml", run_id="launcher-smoke")
+        return LauncherSettings(
+            seed=87,
+            config_path="train/config/human_derived_smoke.yaml",
+            run_id="puyo-87-smoke",
+            training_job_id="puyo-87-smoke",
+        )
     return LauncherSettings()
 
 
@@ -158,6 +169,10 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "collection_enabled": LauncherFieldSpec("collection_enabled", "人間対戦データ収集", "--collect-human-data", "ON の間だけ入力、盤面、AI plan、結果、任意 feedback を保存します。既定は OFF です。"),
     "dataset_root": LauncherFieldSpec("dataset_root", "収集データ保存先", "--dataset-root", "人間対戦 dataset と collection audit log の保存先です。"),
     "collection_feedback": LauncherFieldSpec("collection_feedback", "任意 feedback", "--collection-feedback", "収集 session の結果へ付与する任意の短い feedback です。"),
+    "training_operation": LauncherFieldSpec("training_operation", "job 操作", "submit / pause / resume / cancel / status", "派生モデル job の投入、一時停止、再開、取消、状態確認を選びます。"),
+    "training_job_id": LauncherFieldSpec("training_job_id", "job ID", "--job-id", "操作対象の永続 job ID です。submit 時は run_id が job ID になります。"),
+    "parent_checkpoint_path": LauncherFieldSpec("parent_checkpoint_path", "親 checkpoint", "--set parent_checkpoint_path=...", "変更せず保持する親 realtime checkpoint です。派生 challenger の lineage に記録します。"),
+    "training_method": LauncherFieldSpec("training_method", "学習方式", "--set method=...", "imitation、advantage_weighted、mixed_replay から sampler を選びます。"),
 }
 
 
@@ -317,6 +332,14 @@ class LauncherSettingsManager:
         spectate = self._settings["spectate"]
         if spectate.max_ticks == 600:
             self._settings["spectate"] = replace(spectate, max_ticks=None)
+        training = self._settings["training"]
+        if training.config_path == "train/config/realtime_smoke.yaml":
+            self._settings["training"] = replace(
+                training,
+                config_path="train/config/human_derived_smoke.yaml",
+                run_id="puyo-87-smoke",
+                training_job_id="puyo-87-smoke",
+            )
         self._preset_indices: dict[str, int] = {}
 
     def for_action(self, action_key: str) -> LauncherSettings:
@@ -332,7 +355,16 @@ class LauncherSettingsManager:
 
     def editable_fields(self, action_key: str) -> tuple[str, ...]:
         if action_key == "training":
-            return ("config_path", "run_id", "seed")
+            return (
+                "training_operation",
+                "training_job_id",
+                "config_path",
+                "run_id",
+                "seed",
+                "dataset_root",
+                "parent_checkpoint_path",
+                "training_method",
+            )
         if action_key == "play":
             return (
                 "policy_a",
@@ -505,7 +537,7 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
@@ -519,10 +551,18 @@ class LauncherSettingsManager:
             return self.policy_choices(action_key)
         if field in {"checkpoint_a", "checkpoint_b"}:
             return (None,) + tuple(entry.path for entry in self.registry.checkpoint_entries())
+        if field == "parent_checkpoint_path":
+            return (None,) + tuple(entry.path for entry in self.registry.checkpoint_entries())
         if field == "config_path":
             return tuple(entry.path for entry in self.registry.config_entries())
         if field == "run_id":
-            return ("launcher-smoke", "launcher-check", "manual-gui")
+            return ("puyo-87-smoke", "human-derived-check", "manual-gui")
+        if field == "training_job_id":
+            return ("puyo-87-smoke", "human-derived-check", "manual-gui")
+        if field == "training_operation":
+            return TRAINING_OPERATIONS
+        if field == "training_method":
+            return HUMAN_TRAINING_METHODS
         if field in {"device", "device_a", "device_b"}:
             return ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
         if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
@@ -596,7 +636,21 @@ class LauncherSettingsManager:
             if settings.max_frames is not None and settings.max_frames <= 0:
                 errors.append("max_frames must be positive")
         if action_key == "training":
-            errors.extend(self._validate_config_path(settings.config_path))
+            if settings.training_operation not in TRAINING_OPERATIONS:
+                errors.append(f"training_operation must be one of: {', '.join(TRAINING_OPERATIONS)}")
+            if settings.training_operation == "submit":
+                errors.extend(self._validate_config_path(settings.config_path))
+                if settings.training_method not in HUMAN_TRAINING_METHODS:
+                    errors.append(f"training_method must be one of: {', '.join(HUMAN_TRAINING_METHODS)}")
+                dataset_root = resolve_repo_path(settings.dataset_root, self.repo_root)
+                if not dataset_root.exists():
+                    errors.append(f"dataset_root does not exist: {settings.dataset_root}")
+                if not settings.parent_checkpoint_path:
+                    errors.append("parent_checkpoint_path is required for human-derived training")
+                elif not resolve_repo_path(settings.parent_checkpoint_path, self.repo_root).is_file():
+                    errors.append(f"parent_checkpoint_path does not exist: {settings.parent_checkpoint_path}")
+            elif not settings.training_job_id:
+                errors.append("training_job_id is required for job control")
         return errors
 
     def _validate_checkpoint(self, side: str, policy: str, checkpoint: str | None) -> list[str]:

@@ -179,6 +179,35 @@ def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_
             },
         )
     )
+    human_training = manifest.get("extra", {}).get("human_training", {})
+    if isinstance(human_training, dict):
+        for session in human_training.get("sessions", []):
+            if not isinstance(session, dict) or not session.get("session_id"):
+                continue
+            session_id = str(session["session_id"])
+            session_node_id = f"human_session:{session_id}"
+            session_manifest_path = session.get("manifest_path")
+            registry.add_node(
+                LineageNode(
+                    id=session_node_id,
+                    node_type="human_dataset_session",
+                    label=session_id,
+                    path=str(Path(session_manifest_path).parent) if session_manifest_path else None,
+                    metadata={
+                        "manifest_path": session_manifest_path,
+                        "manifest_sha256": session.get("manifest_sha256"),
+                        "trajectory_sha256": session.get("trajectory_sha256"),
+                    },
+                )
+            )
+            registry.add_edge(
+                LineageEdge(
+                    source=session_node_id,
+                    target=run_node_id,
+                    edge_type="trains",
+                    metadata={"method": human_training.get("method")},
+                )
+            )
     parent_checkpoint_path = run.get("parent_checkpoint_path")
     if parent_checkpoint_path:
         parent_path = _resolve_record_path(manifest_path, str(parent_checkpoint_path))

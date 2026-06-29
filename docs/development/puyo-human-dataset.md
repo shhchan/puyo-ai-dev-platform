@@ -47,3 +47,41 @@ Only inputs, board snapshots, AI plans, the result, and optional feedback enter 
 kept in memory until session finalization, so interruption cannot leave partial trajectory files;
 normal window close and `Ctrl-C` finalize an enabled session as `interrupted`, while stopping
 collection discards it.
+
+## Derived challenger training
+
+`train.human_training` validates and deterministically replays every selected session, then
+reconstructs the human player's placement action and the observation at the start of that piece.
+The available samplers are `imitation`, `advantage_weighted`, and `mixed_replay`. The latter mixes
+recorded non-human placements at the configured ratio rather than reading untracked external data.
+
+Run a foreground smoke job with an existing realtime parent checkpoint:
+
+```bash
+python3 -m train.human_training run \
+  --config train/config/human_derived_smoke.yaml \
+  --set run_id=puyo-87-smoke \
+  --set dataset_root=human_datasets \
+  --set parent_checkpoint_path=runs/realtime_ppo/<parent>/checkpoints/latest.pt \
+  --set active_checkpoint_path=runs/realtime_ppo/<parent>/checkpoints/latest.pt \
+  --set method=imitation
+```
+
+The output is written below `runs/human_training/<run-id>/`: `dataset_selection.json`, resolved
+`config.yaml`, `summary.json`, `artifact_manifest.json`, and `checkpoints/challenger.pt`.
+The summary monitors train/validation loss, overfit gap, parent-policy KL, and small-dataset bias.
+Training only writes a challenger; it hashes the configured active checkpoint before and after the
+run and fails if that file changes.
+
+For a queued background job, replace `run` with `submit`. The launcher Training screen exposes the
+same dataset, parent, method, and job controls. Jobs can also be controlled from CUI:
+
+```bash
+python3 -m train.human_training status --job-id puyo-87-smoke
+python3 -m train.human_training pause --job-id puyo-87-smoke
+python3 -m train.human_training resume --job-id puyo-87-smoke
+python3 -m train.human_training cancel --job-id puyo-87-smoke
+```
+
+Job records and logs are stored under `runs/human_training/jobs/`. A cancelled or failed job never
+updates an active-model registry; promotion is a separate evaluation-gate responsibility.
