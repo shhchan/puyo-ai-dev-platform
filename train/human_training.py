@@ -30,6 +30,7 @@ except ImportError:  # pragma: no cover - dependency guard
 from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 from agents.realtime_ppo import stack_realtime_masks, stack_realtime_observations, validate_realtime_training_checkpoint
 from human_data.sampler import TRAINING_METHODS, PlacementSample, sample_human_dataset
+from human_data.audit import append_audit_event
 from puyo_env.realtime_ai import realtime_checkpoint_metadata
 from train.artifacts import attach_checkpoint_schema, file_sha256, git_commit, utc_timestamp, write_artifact_manifest
 from train.restore import checkpoint_state_hash
@@ -144,6 +145,15 @@ def train_human_derived(config: HumanTrainingConfig) -> dict[str, Any]:
     """Warm-start from a parent and write a challenger without changing active model state."""
     _require_deps()
     validate_config(config)
+    audit_path = Path(config.log_dir) / "audit_events.jsonl"
+    append_audit_event(
+        audit_path,
+        event="training.started",
+        resource_type="derived_run",
+        resource_id=_safe_name(config.run_id),
+        status="started",
+        details={"session_ids": list(config.session_ids), "method": config.method},
+    )
     random.seed(config.seed)
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)
@@ -292,6 +302,18 @@ def train_human_derived(config: HumanTrainingConfig) -> dict[str, Any]:
         },
     )
     validate_realtime_training_checkpoint(checkpoint_path, map_location=device)
+    append_audit_event(
+        audit_path,
+        event="training.completed",
+        resource_type="derived_run",
+        resource_id=run_id,
+        details={
+            "session_ids": summary["session_ids"],
+            "checkpoint_path": str(checkpoint_path),
+            "parent_checkpoint_sha256": parent_digest,
+            "active_checkpoint_unchanged": summary["active_checkpoint_unchanged"],
+        },
+    )
     return {**summary, "run_dir": str(run_dir), "manifest_path": str(manifest_path)}
 
 
@@ -370,6 +392,15 @@ def run_worker(job_file: str | Path) -> None:
     except Exception as exc:
         record.update({"state": "failed", "finished_at_utc": utc_timestamp(), "error": str(exc)})
         _write_json(path, record)
+        config = HumanTrainingConfig(**record["config"])
+        append_audit_event(
+            Path(config.log_dir) / "audit_events.jsonl",
+            event="training.failed",
+            resource_type="derived_run",
+            resource_id=_safe_name(config.run_id),
+            status="failed",
+            details={"error_type": type(exc).__name__},
+        )
         raise
     latest = _read_job(path)
     if latest.get("state") != "cancelled":

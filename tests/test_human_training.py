@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from dataclasses import asdict
 from pathlib import Path
 from unittest import mock
 
@@ -17,6 +18,7 @@ from train.human_training import (
     JOB_SCHEMA_VERSION,
     HumanTrainingConfig,
     control_job,
+    run_worker,
     train_human_derived,
 )
 from train.lineage import ancestors, build_registry
@@ -158,6 +160,42 @@ class TestHumanTraining(unittest.TestCase):
 
             self.assertEqual((paused["state"], resumed["state"], cancelled["state"]), ("paused", "running", "cancelled"))
             self.assertEqual(kill.call_count, 3)
+
+    def test_worker_crash_is_persistent_and_audited_without_active_model_update(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            active = root / "active.pt"
+            active.write_bytes(b"active")
+            before = file_sha256(active)
+            config = HumanTrainingConfig(
+                run_id="crash-test",
+                log_dir=str(root / "runs"),
+                parent_checkpoint_path=str(active),
+                active_checkpoint_path=str(active),
+            )
+            job = root / "job.json"
+            job.write_text(
+                json.dumps(
+                    {
+                        "schema_version": JOB_SCHEMA_VERSION,
+                        "job_id": "crash-test",
+                        "state": "queued",
+                        "config": asdict(config),
+                        "pid": None,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with mock.patch("train.human_training.train_human_derived", side_effect=RuntimeError("injected crash")):
+                with self.assertRaisesRegex(RuntimeError, "injected crash"):
+                    run_worker(job)
+
+            record = json.loads(job.read_text(encoding="utf-8"))
+            audit = (root / "runs" / "audit_events.jsonl").read_text(encoding="utf-8")
+            self.assertEqual(record["state"], "failed")
+            self.assertIn('"event": "training.failed"', audit)
+            self.assertEqual(file_sha256(active), before)
 
 
 if __name__ == "__main__":

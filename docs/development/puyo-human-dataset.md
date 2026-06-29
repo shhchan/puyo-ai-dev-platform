@@ -17,14 +17,19 @@ python3 -m human_data.dataset validate human_datasets/sessions/<session-id>
 python3 -m human_data.dataset replay human_datasets/sessions/<session-id>
 python3 -m human_data.dataset quarantine human_datasets
 python3 -m human_data.dataset rebuild-index human_datasets
-python3 -m human_data.dataset delete human_datasets <session-id>
+python3 -m human_data.audit plan-delete --dataset-root human_datasets \
+  --training-root runs/human_training --registry runs/model_registry.json \
+  --session-id <session-id> --output /tmp/deletion-plan.json
 ```
 
 Validation rejects unknown schema versions, non-anonymous IDs, missing provenance, config or
 trajectory checksum drift, non-contiguous ticks, incomplete player fields, invalid hashes, and
 replays that diverge from their recorded snapshots or final state.
 Quarantine moves invalid sessions out of `sessions/`, records all reasons, and rebuilds the index.
-Deletion accepts only canonical anonymous IDs and also rebuilds the index.
+Deletion must use the audited preview and confirmation workflow documented in
+`docs/development/puyo-human-data-audit.md`. The legacy direct-delete command only removes a raw
+session and does not inspect derived-model references; it is retained for backward compatibility
+and should not be used operationally.
 
 `python3 -m train.lineage --root human_datasets ...` adds environment and dataset-model ancestors
 for every valid session manifest, so a dataset can be traced back to its policy/checkpoint and

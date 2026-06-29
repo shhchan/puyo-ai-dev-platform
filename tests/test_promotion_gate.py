@@ -3,6 +3,7 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from eval.promotion_gate import (
     GateConfig,
@@ -184,6 +185,41 @@ class TestPromotionGate(unittest.TestCase):
             self.assertEqual(registry["revision"], 2)
             self.assertEqual(len(registry["evaluations"]), 1)
             collect.assert_called_once()
+
+    def test_audit_disk_error_prevents_active_model_change(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            champion_path = self._checkpoint(root, "champion")
+            challenger_path = self._checkpoint(root, "challenger")
+            registry_path = root / "registry.json"
+            initial = initialize_registry(registry_path, champion_path=champion_path)
+            challenger = {
+                "path": str(challenger_path.resolve()),
+                "sha256": hashlib.sha256(challenger_path.read_bytes()).hexdigest(),
+            }
+            evaluation = build_evaluation(initial["roles"]["champion"], challenger, GateConfig(), self._metrics())
+
+            with mock.patch("eval.promotion_gate.append_audit_event", side_effect=OSError("disk full")):
+                with self.assertRaisesRegex(OSError, "disk full"):
+                    apply_evaluation(registry_path, evaluation, artifact_path=root / "evaluation.json", opponent_pool_limit=8)
+
+            self.assertEqual(load_registry(registry_path)["roles"], initial["roles"])
+
+    def test_evaluation_failure_is_audited_without_active_model_change(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            champion_path = self._checkpoint(root, "champion")
+            challenger_path = self._checkpoint(root, "challenger")
+            registry_path = root / "registry.json"
+            initial = initialize_registry(registry_path, champion_path=champion_path)
+
+            with mock.patch("eval.promotion_gate.collect_metrics", side_effect=RuntimeError("arena failed")):
+                with self.assertRaisesRegex(RuntimeError, "arena failed"):
+                    evaluate_and_apply(registry_path, challenger_path, config=GateConfig(), output_dir=root / "evaluations")
+
+            audit = (root / "audit_events.jsonl").read_text(encoding="utf-8")
+            self.assertIn('"event": "gate.evaluation.failed"', audit)
+            self.assertEqual(load_registry(registry_path)["roles"], initial["roles"])
 
 
 if __name__ == "__main__":

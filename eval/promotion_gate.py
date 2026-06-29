@@ -16,6 +16,7 @@ from eval.realtime_arena import RealtimeArenaResult, run_realtime_paired_series
 from puyo_env.realtime_ai import RealtimeDecisionConfig
 from selfplay.policies import make_policy
 from train.artifacts import file_sha256, json_digest, utc_timestamp
+from human_data.audit import append_audit_event
 
 
 REGISTRY_SCHEMA_VERSION = "puyo.model_role_registry.v1"
@@ -384,6 +385,18 @@ def apply_evaluation(
         registry["opponent_pool_limit"] = opponent_pool_limit
         registry["revision"] = int(registry.get("revision", 0)) + 1
         registry["updated_at_utc"] = utc_timestamp()
+        append_audit_event(
+            target.parent / "audit_events.jsonl",
+            event=f"gate.{'promotion' if decision == 'promote' else 'rejection'}.authorized",
+            resource_type="evaluation",
+            resource_id=evaluation_id,
+            status="authorized",
+            details={
+                "champion_sha256": champion["sha256"],
+                "challenger_sha256": challenger["sha256"],
+                "registry_revision": registry["revision"],
+            },
+        )
         _atomic_write_json(target, registry)
         return registry
 
@@ -398,6 +411,7 @@ def evaluate_and_apply(
     registry = load_registry(registry_path)
     champion = registry["roles"]["champion"]
     challenger = _checkpoint_record(challenger_path)
+    audit_path = Path(registry_path).parent / "audit_events.jsonl"
     config_digest = json_digest(asdict(config))
     for record in reversed(registry.get("evaluations", [])):
         same_inputs = (
@@ -417,8 +431,27 @@ def evaluate_and_apply(
     if artifact_path.is_file():
         evaluation = json.loads(artifact_path.read_text(encoding="utf-8"))
     else:
-        metrics = collect_metrics(challenger["path"], champion["path"], config)
-        evaluation = build_evaluation(champion, challenger, config, metrics)
+        append_audit_event(
+            audit_path,
+            event="gate.evaluation.started",
+            resource_type="evaluation",
+            resource_id=evaluation_id,
+            status="started",
+            details={"champion_sha256": champion["sha256"], "challenger_sha256": challenger["sha256"]},
+        )
+        try:
+            metrics = collect_metrics(challenger["path"], champion["path"], config)
+            evaluation = build_evaluation(champion, challenger, config, metrics)
+        except Exception as exc:
+            append_audit_event(
+                audit_path,
+                event="gate.evaluation.failed",
+                resource_type="evaluation",
+                resource_id=evaluation_id,
+                status="failed",
+                details={"error_type": type(exc).__name__},
+            )
+            raise
     apply_evaluation(
         registry_path,
         evaluation,
@@ -459,6 +492,19 @@ def rollback(registry_path: str | Path, *, reason: str) -> dict[str, Any]:
         )
         registry["revision"] = int(registry.get("revision", 0)) + 1
         registry["updated_at_utc"] = utc_timestamp()
+        append_audit_event(
+            target.parent / "audit_events.jsonl",
+            event="gate.rollback.authorized",
+            resource_type="model_registry",
+            resource_id=str(target.resolve()),
+            status="authorized",
+            details={
+                "reason": reason.strip(),
+                "from_sha256": champion["sha256"],
+                "to_sha256": previous["sha256"],
+                "registry_revision": registry["revision"],
+            },
+        )
         _atomic_write_json(target, registry)
         return registry
 

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import getpass
 import json
+import os
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -26,6 +28,12 @@ def append_collection_audit(
     record = {
         "schema_version": COLLECTION_AUDIT_SCHEMA_VERSION,
         "recorded_at_utc": utc_timestamp(),
+        "actor": (
+            os.environ.get("PUYO_AUDIT_ACTOR")
+            or os.environ.get("USER")
+            or getpass.getuser()
+            or "unknown"
+        ),
         "event": event,
         "enabled": bool(enabled),
         "tick": int(tick),
