@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from eval.realtime_arena import replay_realtime_match
+from human_data.audit import append_audit_event
 from train.artifacts import file_sha256, git_commit, json_digest, utc_timestamp
 
 DATASET_VERSION = "puyo.human_dataset.v1"
@@ -124,6 +125,14 @@ def create_session(
 ) -> dict[str, Any]:
     """Persist one immutable session and rebuild the dataset index."""
     session_id = session_id or secrets.token_hex(16)
+    audit_path = Path(dataset_root) / "audit_events.jsonl"
+    append_audit_event(
+        audit_path,
+        event="dataset.import.started",
+        resource_type="human_session",
+        resource_id=session_id,
+        status="started",
+    )
     session_dir = _session_path(dataset_root, session_id)
     if session_dir.exists():
         raise FileExistsError(f"session already exists: {session_id}")
@@ -160,6 +169,13 @@ def create_session(
         shutil.rmtree(session_dir)
         raise ValueError("invalid session: " + "; ".join(errors))
     rebuild_index(dataset_root)
+    append_audit_event(
+        audit_path,
+        event="dataset.import.completed",
+        resource_type="human_session",
+        resource_id=session_id,
+        details={"manifest_sha256": file_sha256(session_dir / "human_session_manifest.json")},
+    )
     return manifest
 
 
@@ -360,6 +376,13 @@ def quarantine_invalid_sessions(dataset_root: str | Path) -> list[dict[str, Any]
         shutil.move(str(session_dir), target)
         record = {"session": session_dir.name, "quarantined_at_utc": utc_timestamp(), "errors": errors}
         _write_json(target / "quarantine_reason.json", record)
+        append_audit_event(
+            root / "audit_events.jsonl",
+            event="dataset.quarantined",
+            resource_type="human_session",
+            resource_id=session_dir.name,
+            details={"errors": errors},
+        )
         records.append(record)
     rebuild_index(root)
     return records
@@ -371,6 +394,13 @@ def delete_session(dataset_root: str | Path, session_id: str) -> bool:
         return False
     shutil.rmtree(session_dir)
     rebuild_index(dataset_root)
+    append_audit_event(
+        Path(dataset_root) / "audit_events.jsonl",
+        event="dataset.deleted_legacy",
+        resource_type="human_session",
+        resource_id=session_id,
+        details={"warning": "direct deletion does not inspect derived model references"},
+    )
     return True
 
 
