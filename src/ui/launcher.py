@@ -344,6 +344,8 @@ class LauncherService:
                 "runs",
                 "--lineage-root",
                 "docs/benchmarks",
+                "--model-registry",
+                "runs/model_registry.json",
                 "--report-json",
                 "/tmp/puyo-model-viewer-report.json",
                 "--report-markdown",

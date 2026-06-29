@@ -199,6 +199,37 @@ class TestModelViewerData(unittest.TestCase):
 
             self.assertEqual(controller.message, "lineage only")
             self.assertEqual(report["replay"]["mode"], "lineage_only")
+
+    def test_report_includes_model_roles_and_last_gate_transition(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._write_run(root)
+            registry_path = root / "model_registry.json"
+            registry_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "puyo.model_role_registry.v1",
+                        "revision": 3,
+                        "roles": {
+                            "champion": {"path": "/models/champion.pt", "sha256": "a"},
+                            "challenger": None,
+                            "previous_stable": {"path": "/models/previous.pt", "sha256": "b"},
+                        },
+                        "evaluations": [{"artifact_path": "/runs/evaluation.json", "decision": "promote"}],
+                        "transitions": [{"kind": "promotion"}],
+                        "opponent_pool": [{"sha256": "b"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            data = build_model_viewer_data(lineage_roots=(str(root),), model_registry_path=registry_path)
+            report = ModelViewerController(data).report()
+
+            self.assertEqual(report["model_registry"]["revision"], 3)
+            self.assertEqual(report["model_registry"]["roles"]["champion"]["path"], "/models/champion.pt")
+            self.assertEqual(report["model_registry"]["last_transition"]["kind"], "promotion")
+            self.assertEqual(report["model_registry"]["opponent_pool_size"], 1)
             self.assertIsNone(report["replay"]["selected_tick"])
             self.assertEqual(report["lineage"]["selected_node"]["node_type"], "checkpoint")
 

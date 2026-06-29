@@ -118,6 +118,7 @@ class ModelViewerData:
     policy_metadata: dict[str, Any]
     timeline: tuple[ReplayTimelineEntry, ...]
     lineage: LineageSummary
+    model_registry: dict[str, Any]
 
     def to_report(self, *, selected_tick: int | None = None, bookmarks: tuple[int, ...] = ()) -> dict[str, Any]:
         return {
@@ -140,6 +141,7 @@ class ModelViewerData:
                 "edges": len(self.lineage.edges),
                 "issues": list(self.lineage.issues),
             },
+            "model_registry": dict(self.model_registry),
         }
 
 
@@ -323,6 +325,7 @@ def build_model_viewer_data(
     *,
     replay_path: str | Path | None = None,
     lineage_roots: tuple[str, ...] = (),
+    model_registry_path: str | Path | None = "runs/model_registry.json",
 ) -> ModelViewerData:
     replay_path_str, replay_format, seed, expected_final_hash, policy_metadata, timeline = load_replay_timeline(replay_path)
     return ModelViewerData(
@@ -333,7 +336,33 @@ def build_model_viewer_data(
         policy_metadata=policy_metadata,
         timeline=timeline,
         lineage=build_lineage_summary(lineage_roots),
+        model_registry=load_model_registry_summary(model_registry_path),
     )
+
+
+def load_model_registry_summary(path: str | Path | None) -> dict[str, Any]:
+    if path is None or not Path(path).is_file():
+        return {"path": None if path is None else str(path), "available": False, "roles": {}, "last_transition": None}
+    target = Path(path)
+    try:
+        registry = json.loads(target.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"path": str(target), "available": False, "roles": {}, "last_transition": None}
+    if not isinstance(registry, Mapping) or registry.get("schema_version") != "puyo.model_role_registry.v1":
+        return {"path": str(target), "available": False, "roles": {}, "last_transition": None}
+    roles = registry.get("roles", {})
+    evaluations = registry.get("evaluations", [])
+    transitions = registry.get("transitions", [])
+    return {
+        "path": str(target),
+        "available": True,
+        "revision": registry.get("revision"),
+        "updated_at_utc": registry.get("updated_at_utc"),
+        "roles": dict(roles) if isinstance(roles, Mapping) else {},
+        "last_evaluation": evaluations[-1] if isinstance(evaluations, list) and evaluations else None,
+        "last_transition": transitions[-1] if isinstance(transitions, list) and transitions else None,
+        "opponent_pool_size": len(registry.get("opponent_pool", [])),
+    }
 
 
 def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | None = None, markdown_path: str | Path | None = None) -> None:
@@ -346,6 +375,7 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
         target.parent.mkdir(parents=True, exist_ok=True)
         replay = report.get("replay", {})
         lineage = report.get("lineage", {})
+        model_registry = report.get("model_registry", {})
         selected_entry = replay.get("selected_entry", {})
         lines = [
             "# Puyo Model Viewer Report",
@@ -383,6 +413,17 @@ def write_viewer_report(report: Mapping[str, Any], *, json_path: str | Path | No
                     )
         lines.extend(
             [
+                "",
+                "## Model Roles",
+                "",
+                f"- registry: `{model_registry.get('path') or '-'}`",
+                f"- revision: `{model_registry.get('revision')}`",
+                *[
+                    f"- {role}: `{(model_registry.get('roles', {}).get(role) or {}).get('path', '-')}`"
+                    for role in ("champion", "challenger", "previous_stable")
+                ],
+                f"- last_transition: `{(model_registry.get('last_transition') or {}).get('kind', '-')}`",
+                f"- last_evaluation: `{(model_registry.get('last_evaluation') or {}).get('artifact_path', '-')}`",
                 "",
                 "## Lineage",
                 "",
@@ -587,9 +628,20 @@ class ModelViewerRenderer:
         rect = pygame.Rect(568, 104, 500, 548)
         pygame.draw.rect(self.screen, PANEL, rect, border_radius=6)
         pygame.draw.rect(self.screen, WARNING, rect, 2)
-        self._draw_text("Lineage", self.heading_font, TEXT, (rect.x + 18, rect.y + 16))
+        self._draw_text("Model roles / Lineage", self.heading_font, TEXT, (rect.x + 18, rect.y + 16))
         summary = controller.data.lineage
         y = rect.y + 58
+        model_registry = controller.data.model_registry
+        roles = model_registry.get("roles", {}) if isinstance(model_registry, Mapping) else {}
+        for role in ("champion", "challenger", "previous_stable"):
+            record = roles.get(role) if isinstance(roles, Mapping) else None
+            label = "-" if not isinstance(record, Mapping) else Path(str(record.get("path", "-"))).name
+            self._draw_text(f"{role}: {label}", self.small_font, ACCENT, (rect.x + 18, y), width=rect.width - 36)
+            y += 20
+        transition = model_registry.get("last_transition") if isinstance(model_registry, Mapping) else None
+        transition_kind = transition.get("kind", "-") if isinstance(transition, Mapping) else "-"
+        self._draw_text(f"last transition: {transition_kind}", self.small_font, WARNING, (rect.x + 18, y))
+        y += 24
         stats = [
             f"runs: {len(summary.runs)}",
             f"checkpoints: {len(summary.checkpoints)}",
@@ -600,7 +652,7 @@ class ModelViewerRenderer:
         for line in stats:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y))
             y += 24
-        graph_rect = pygame.Rect(rect.x + 18, y + 8, rect.width - 36, 190)
+        graph_rect = pygame.Rect(rect.x + 18, y + 8, rect.width - 36, 126)
         self._draw_lineage_graph(controller, graph_rect)
         detail_rect = pygame.Rect(rect.x + 18, graph_rect.bottom + 14, rect.width - 36, rect.bottom - graph_rect.bottom - 28)
         self._draw_lineage_detail(controller, detail_rect)
