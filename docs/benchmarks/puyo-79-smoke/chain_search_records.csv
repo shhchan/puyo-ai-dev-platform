@@ -1,0 +1,3 @@
+policy,seed,steps,score,max_chain,chains_fired,mean_fired_chain,elapsed_seconds,mean_decision_ms,expanded_nodes,mean_expanded_nodes
+greedy,1,8,40,1,1,1,0.06632622799952514,8.290778499940643,0,0.0
+beam,1,8,0,0,0,0.0,0.2652822049858514,33.16027562323143,2288,286

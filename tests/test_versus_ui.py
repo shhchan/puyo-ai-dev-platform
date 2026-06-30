@@ -159,6 +159,16 @@ class TestVersusMatchController(unittest.TestCase):
             reloaded.reset_defaults()
             self.assertTrue(KeyBindings(path).matches("pause", pygame.K_p))
 
+    def test_legacy_drop_binding_is_migrated_to_include_w(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "keys.json"
+            path.write_text(json.dumps({"drop": ["s", "return", "space"]}), encoding="utf-8")
+
+            bindings = KeyBindings(path)
+
+            self.assertTrue(bindings.matches("drop", pygame.K_w))
+            self.assertTrue(bindings.matches("drop", pygame.K_s))
+
     def test_key_settings_overlay_rebinds_controller_action(self):
         with tempfile.TemporaryDirectory() as directory:
             path = os.path.join(directory, "keys.json")

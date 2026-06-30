@@ -58,6 +58,10 @@ class MatchResult:
     mean_target_attack_player_1: float = 0.0
     mean_incoming_attack_player_0: float = 0.0
     mean_incoming_attack_player_1: float = 0.0
+    objective_success_rate_player_0: float = 0.0
+    objective_success_rate_player_1: float = 0.0
+    objective_miss_reasons_player_0: str = "{}"
+    objective_miss_reasons_player_1: str = "{}"
     missed_lethal_player_0: int = 0
     missed_lethal_player_1: int = 0
     failed_counter_player_0: int = 0
@@ -112,6 +116,8 @@ class _PolicyDiagnostics:
     switch_reasons: dict[str, int] = field(default_factory=dict)
     target_attack_total: int = 0
     incoming_attack_total: int = 0
+    objective_successes: int = 0
+    objective_miss_reasons: dict[str, int] = field(default_factory=dict)
     missed_lethal: int = 0
     failed_counter: int = 0
 
@@ -127,6 +133,14 @@ class _PolicyDiagnostics:
             self.switch_reasons[reason] = self.switch_reasons.get(reason, 0) + 1
             self.target_attack_total += int(proposal.target_attack)
             self.incoming_attack_total += int(proposal.incoming_attack)
+            result = getattr(proposal, "objective_result", None)
+            if result is not None:
+                self.objective_successes += int(result.achieved)
+                for miss_reason in result.miss_reasons:
+                    reason_name = str(miss_reason)
+                    self.objective_miss_reasons[reason_name] = (
+                        self.objective_miss_reasons.get(reason_name, 0) + 1
+                    )
             if proposal.strategy == "punish" and proposal.predicted_attack < proposal.target_attack:
                 self.missed_lethal += 1
             if proposal.strategy == "counter" and proposal.predicted_attack < proposal.target_attack:
@@ -156,6 +170,10 @@ class _PolicyDiagnostics:
     @property
     def mean_incoming_attack(self) -> float:
         return 0.0 if self.decisions == 0 else self.incoming_attack_total / self.decisions
+
+    @property
+    def objective_success_rate(self) -> float:
+        return 0.0 if self.decisions == 0 else self.objective_successes / self.decisions
 
 
 @dataclass(frozen=True)
@@ -300,6 +318,10 @@ def run_match(
         mean_target_attack_player_1=diagnostics["player_1"].mean_target_attack,
         mean_incoming_attack_player_0=diagnostics["player_0"].mean_incoming_attack,
         mean_incoming_attack_player_1=diagnostics["player_1"].mean_incoming_attack,
+        objective_success_rate_player_0=diagnostics["player_0"].objective_success_rate,
+        objective_success_rate_player_1=diagnostics["player_1"].objective_success_rate,
+        objective_miss_reasons_player_0=json.dumps(diagnostics["player_0"].objective_miss_reasons, sort_keys=True),
+        objective_miss_reasons_player_1=json.dumps(diagnostics["player_1"].objective_miss_reasons, sort_keys=True),
         missed_lethal_player_0=diagnostics["player_0"].missed_lethal,
         missed_lethal_player_1=diagnostics["player_1"].missed_lethal,
         failed_counter_player_0=diagnostics["player_0"].failed_counter,
@@ -416,6 +438,7 @@ def read_matches_csv(path: str | Path) -> tuple[MatchResult, ...]:
         "mean_expanded_nodes_player_0", "mean_expanded_nodes_player_1",
         "mean_target_attack_player_0", "mean_target_attack_player_1",
         "mean_incoming_attack_player_0", "mean_incoming_attack_player_1",
+        "objective_success_rate_player_0", "objective_success_rate_player_1",
     }
     matches = []
     with Path(path).open(newline="", encoding="utf-8") as handle:
@@ -518,6 +541,7 @@ def summarize_result(
         "mean_strategy_switches_policy_a": _mean_policy_a_metric(result, "switches_for_policy_a"),
         "mean_target_attack_policy_a": _mean_policy_side_metric(result, "mean_target_attack"),
         "mean_incoming_attack_policy_a": _mean_policy_side_metric(result, "mean_incoming_attack"),
+        "objective_success_rate_policy_a": _mean_policy_side_metric(result, "objective_success_rate"),
         "mean_missed_lethal_policy_a": _mean_policy_side_metric(result, "missed_lethal"),
         "mean_failed_counter_policy_a": _mean_policy_side_metric(result, "failed_counter"),
         "mean_max_chain_policy_a": _mean_policy_side_metric(result, "max_chain"),
@@ -527,6 +551,7 @@ def summarize_result(
         "mean_canceled_ojama_policy_a": _mean_policy_side_metric(result, "canceled_ojama"),
         "profile_counts_policy_a": _aggregate_policy_side_json(result, "profile_counts"),
         "switch_reasons_policy_a": _aggregate_policy_side_json(result, "switch_reasons"),
+        "objective_miss_reasons_policy_a": _aggregate_policy_side_json(result, "objective_miss_reasons"),
         "initial_rating_player_0": rating_a,
         "initial_rating_player_1": rating_b,
         "final_rating_player_0": final_rating_a,

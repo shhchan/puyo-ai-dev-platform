@@ -1,16 +1,4 @@
 import argparse
-import pygame
-import sys
-import time
-from src.core.game import GameState
-from src.core.constants import (
-    PUYO_SIZE,
-    Action,
-    SOFT_DROP_REPEAT_INTERVAL,
-    GRAVITY_INTERVAL_SECONDS,
-)
-from src.ui.renderer import Renderer
-from src.input_handler import InputHandler
 
 SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 700
@@ -27,17 +15,34 @@ def _quantize_half_cell(progress):
 
 
 def parse_cli_args(argv=None):
-    parser = argparse.ArgumentParser(description="Puyo Base")
+    parser = argparse.ArgumentParser(description="Puyo AI Dev Platform")
     parser.add_argument(
         "-d",
         "--debug",
         action="store_true",
-        help="Show debug HUD and offscreen rows (13-14).",
+        help="Open the classic single-player game with debug HUD and offscreen rows.",
+    )
+    parser.add_argument(
+        "--classic",
+        action="store_true",
+        help="Open the classic single-player game instead of the unified launcher.",
+    )
+    parser.add_argument(
+        "--max-frames",
+        type=int,
+        help="Stop the launcher after N frames for smoke tests.",
     )
     return parser.parse_args(argv)
 
 
-def main(debug_mode=False):
+def run_classic_game(debug_mode=False):
+    import pygame
+    import time
+    from src.core.game import GameState
+    from src.core.constants import PUYO_SIZE, Action, SOFT_DROP_REPEAT_INTERVAL, GRAVITY_INTERVAL_SECONDS
+    from src.input_handler import InputHandler
+    from src.ui.renderer import Renderer
+
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo Base")
@@ -137,8 +142,16 @@ def main(debug_mode=False):
         clock.tick(FPS)
 
     pygame.quit()
-    sys.exit()
+
+
+def main(argv=None):
+    args = parse_cli_args(argv)
+    if args.classic or args.debug:
+        run_classic_game(debug_mode=args.debug)
+        return
+    from src.ui.launcher import run_launcher
+
+    run_launcher(max_frames=args.max_frames)
 
 if __name__ == "__main__":
-    args = parse_cli_args()
-    main(debug_mode=args.debug)
+    main()

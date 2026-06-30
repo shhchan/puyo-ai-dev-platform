@@ -1,0 +1,12 @@
+arena_seeds: [58, 59, 60, 61]
+tactical_seeds: [145, 245, 345, 445]
+max_ticks: 600
+device: cpu
+opponent_pool_limit: 8
+criteria:
+  minimum_win_rate: 0.50
+  maximum_tactical_score_drop: 0.05
+  maximum_chain_drop: 0.50
+  maximum_operation_failure_rate: 0.05
+  maximum_deadline_miss_rate: 0.01
+  maximum_mean_policy_elapsed_ms: 80.0

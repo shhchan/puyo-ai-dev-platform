@@ -1,0 +1,74 @@
+[
+  {
+    "category": "safe_build",
+    "correct": 1,
+    "deadline": 6,
+    "expected_strategy": "build_large",
+    "incoming_attack": 0,
+    "reason": "safe board with no urgent attack",
+    "scenario": "safe_build",
+    "seed": 100,
+    "selected_strategy": "build_large",
+    "target_attack": 0
+  },
+  {
+    "category": "punish",
+    "correct": 1,
+    "deadline": 3,
+    "expected_strategy": "punish",
+    "incoming_attack": 0,
+    "reason": "immediate attack clears the lethal target",
+    "scenario": "lethal_punish",
+    "seed": 101,
+    "selected_strategy": "punish",
+    "target_attack": 10
+  },
+  {
+    "category": "counter",
+    "correct": 1,
+    "deadline": 2,
+    "expected_strategy": "counter",
+    "incoming_attack": 10,
+    "reason": "incoming attack can be canceled before arrival",
+    "scenario": "counter_available",
+    "seed": 102,
+    "selected_strategy": "counter",
+    "target_attack": 12
+  },
+  {
+    "category": "counter_impossible",
+    "correct": 1,
+    "deadline": 1,
+    "expected_strategy": "survival",
+    "incoming_attack": 18,
+    "reason": "deadline attack exceeds estimated return",
+    "scenario": "counter_impossible",
+    "seed": 103,
+    "selected_strategy": "survival",
+    "target_attack": 0
+  },
+  {
+    "category": "survival",
+    "correct": 1,
+    "deadline": 1,
+    "expected_strategy": "survival",
+    "incoming_attack": 0,
+    "reason": "choke danger requires immediate survival",
+    "scenario": "high_danger_survival",
+    "seed": 104,
+    "selected_strategy": "survival",
+    "target_attack": 0
+  },
+  {
+    "category": "recovery",
+    "correct": 1,
+    "deadline": 6,
+    "expected_strategy": "build_large",
+    "incoming_attack": 0,
+    "reason": "danger has cleared and construction can resume",
+    "scenario": "recovered_build",
+    "seed": 105,
+    "selected_strategy": "build_large",
+    "target_attack": 0
+  }
+]

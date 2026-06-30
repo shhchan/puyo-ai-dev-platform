@@ -47,6 +47,40 @@
 ## References
 ```
 
+### PUYO-53〜PUYO-58 の統合ブランチ運用
+
+- PUYO-53〜PUYO-58 は `master` へ直接 merge しない。
+- 統合検証用ブランチは `integration/puyo-53-58` とする。
+- PUYO-53〜PUYO-58 の各作業 PR は、base branch を `integration/puyo-53-58` にする。
+- PUYO-53 の既存 PR #17 は、必要に応じて `integration/puyo-53-58` へ取り込んで検証する。
+- PUYO-54〜PUYO-58 の作業開始時は、原則として `integration/puyo-53-58` を起点に `PUYO-54/...` 形式の作業ブランチを切る。
+- `master` への PR は、PUYO-53〜PUYO-58 を統合ブランチ上で目視確認・QA してから `integration/puyo-53-58` から作成する。
+- 統合ブランチ上での QA では、ユニットテストだけでなく、画面または実行ログで目に見える動作確認を行う。
+
+### PUYO-56 の単一チケット実行
+
+- PUYO-56 / v1.4.0 関連の実装依頼では、開始前に `docs/development/puyo-56-execution-plan.md` を確認する。
+- PUYO-56 の集約ブランチは `integration/puyo-56` とする。
+- PUYO-56 子チケット（PUYO-74〜PUYO-79）の各作業 PR は、base branch を `integration/puyo-56` にする。
+- PUYO-56 子チケットの作業ブランチは、原則として `integration/puyo-56` を起点に `PUYO-74/...` 形式で切る。
+- PUYO-56 全体の統合確認が完了したら、`integration/puyo-56` から `integration/puyo-53-58` へ PR を作成する。
+- PUYO-56 子チケット PR を `integration/puyo-53-58` へ直接向けない。既に直接向いている PR は `integration/puyo-56` へ retarget する。
+- 「PUYO-56 を実施」のような広い依頼でも、1 セッションで実施する Jira 子チケットは 1 件だけに限定する。
+- 対象チケットの作業開始前に、選択する Jira チケットと Codex CLI の `model_reasoning_effort` をユーザーへ提示する。
+- 対象チケット完了後は、同一セッションで次の PUYO-56 子チケットへ進まない。次に実施すべきチケットと推奨推論レベルだけを提示して停止する。
+- 推奨順序・推論レベル・起動例は `docs/development/puyo-56-execution-plan.md` を正とし、Jira の実ステータスや依存関係に差分がある場合は Jira を優先して更新案を提示する。
+
+### PUYO-57 / PUYO-58 の単一チケット実行
+
+- PUYO-57 / v1.5.0 と PUYO-58 / v1.6.0 関連の実装依頼では、開始前に `docs/development/puyo-57-58-execution-plan.md` を確認する。
+- 「PUYO-57 を実施」「PUYO-58 へ進む」のような広い依頼でも、1 セッションで実施する Jira 子チケットは 1 件だけに限定する。
+- PUYO-57 / PUYO-58 の各作業 PR は、base branch を `integration/puyo-53-58` にする。
+- PUYO-57 / PUYO-58 子チケットの作業ブランチは、原則として `integration/puyo-53-58` を起点に `PUYO-80/...` 形式で切る。
+- 対象チケットの作業開始前に、選択する Jira チケットと Codex CLI の `model_reasoning_effort` をユーザーへ提示する。
+- 対象チケット完了後は、同一セッションで次の PUYO-57 / PUYO-58 子チケットへ進まない。次に実施すべきチケットと推奨推論レベルだけを提示して停止する。
+- 各チケット完了時は、人間が GUI で確認できるコマンドを提示する。GUI で確認できない内容の場合はその旨を明記し、CUI で確認できるコマンド、生成 artifact、期待されるログまたはファイルを提示する。
+- 推奨順序・推論レベル・起動例・成果物チェック方針は `docs/development/puyo-57-58-execution-plan.md` を正とし、Jira の実ステータスや依存関係に差分がある場合は Jira を優先して更新案を提示する。
+
 ## 4. 例外と優先順位
 
 - 軽微な質問・相談・説明依頼のみの場合は Jira を自動起票しない。
