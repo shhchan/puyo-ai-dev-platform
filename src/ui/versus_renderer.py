@@ -645,7 +645,12 @@ class VersusRenderer:
             f"{state}   speed {controller.speed:g}x   seed {controller.config.seed}   "
             f"{progress_unit} {progress_value}/{progress_label}"
         )
-        self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 704), center=True)
+        self._draw_text(status, self.font, (230, 232, 240), (SCREEN_WIDTH // 2, 696), center=True)
+        collection_status = getattr(controller, "collection_status", "")
+        if collection_status:
+            collection_color = (110, 235, 160) if getattr(controller, "collection_enabled", False) else (245, 150, 135)
+            collection_text = f"{collection_status}  {controller.collection_contents_label}"
+            self._draw_text(collection_text, self.tiny_font, collection_color, (SCREEN_WIDTH // 2, 722), center=True)
         bindings = controller.keybindings
         controls = (
             f"{bindings.display_names('open_settings')} keys  "
@@ -662,7 +667,7 @@ class VersusRenderer:
                 f"{bindings.display_names('rotate_right')} rotate  "
                 f"{bindings.display_names('drop')} drop"
             )
-        self._draw_text(controls, self.small_font, (170, 178, 198), (SCREEN_WIDTH // 2, 744), center=True)
+        self._draw_text(controls, self.small_font, (170, 178, 198), (SCREEN_WIDTH // 2, 752), center=True)
 
     def _draw_key_settings(self, controller) -> None:
         shade = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)

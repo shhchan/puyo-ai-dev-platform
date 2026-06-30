@@ -1,9 +1,12 @@
 import os
+import json
+import tempfile
 import threading
 import time
 import unittest
 from contextlib import redirect_stderr
 from io import StringIO
+from pathlib import Path
 
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
@@ -95,6 +98,10 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         config = parse_config(["--no-plan-overlay"])
 
         self.assertFalse(config.plan_overlay)
+
+    def test_collection_requires_a_human_policy(self):
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parse_config(["--policy-a", "first", "--policy-b", "random", "--collect-human-data"])
 
     def test_checkpoint_path_is_required(self):
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
@@ -282,6 +289,87 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         controller.advance_tick()
         self.assertIn(Action.DOWN, controller.last_inputs["player_0"].release)
         controller.shutdown()
+
+    def test_collection_off_writes_audit_without_dataset_session(self):
+        class StubPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RealtimeVersusMatchController(
+                RealtimeVersusUiConfig(
+                    policy_a="human",
+                    policy_b="first",
+                    max_ticks=80,
+                    dataset_root=directory,
+                ),
+                policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+            )
+            for _ in range(4):
+                controller.advance_tick()
+
+            self.assertIsNone(controller.finalize_collection(interrupted=True))
+            self.assertFalse((Path(directory) / "sessions").exists())
+            audit = (Path(directory) / "collection_audit.jsonl").read_text(encoding="utf-8")
+            self.assertIn('"enabled": false', audit)
+            self.assertNotIn("snapshot_hash", audit)
+            controller.shutdown()
+
+    def test_collection_on_persists_replayable_session_and_feedback(self):
+        class StubPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RealtimeVersusMatchController(
+                RealtimeVersusUiConfig(
+                    policy_a="human",
+                    policy_b="first",
+                    max_ticks=80,
+                    collection_enabled=True,
+                    dataset_root=directory,
+                    collection_feedback="useful match",
+                ),
+                policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+            )
+            for _ in range(8):
+                controller.advance_tick()
+            manifest = controller.finalize_collection(interrupted=True)
+
+            self.assertIsNotNone(manifest)
+            session_dir = Path(directory) / "sessions" / manifest["session_id"]
+            stored = json.loads((session_dir / "human_session_manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(stored["outcome"]["feedback"], "useful match")
+            self.assertEqual(stored["trajectory"]["ticks"], 8)
+            audit = (Path(directory) / "collection_audit.jsonl").read_text(encoding="utf-8")
+            self.assertIn('"event": "session_saved"', audit)
+            self.assertNotIn("useful match", audit)
+            controller.shutdown()
+
+    def test_stopping_collection_discards_buffered_trajectory(self):
+        class StubPolicy:
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RealtimeVersusMatchController(
+                RealtimeVersusUiConfig(
+                    policy_a="human",
+                    policy_b="first",
+                    max_ticks=80,
+                    collection_enabled=True,
+                    dataset_root=directory,
+                ),
+                policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+            )
+            controller.advance_tick()
+            controller.toggle_collection()
+
+            self.assertFalse(controller.collection_enabled)
+            self.assertFalse(controller.collection_replay_ticks)
+            self.assertIsNone(controller.finalize_collection(interrupted=True))
+            self.assertFalse((Path(directory) / "sessions").exists())
+            controller.shutdown()
 
     def test_plan_ghost_is_full_size_color_outline_without_center_label(self):
         surface = pygame.Surface((160, 160))

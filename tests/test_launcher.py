@@ -135,6 +135,21 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual((config.beam_depth_a, config.beam_depth_b), (8, 10))
         self.assertEqual(config.speed, 2.0)
 
+    def test_human_collection_settings_round_trip_to_play_command(self):
+        service = self.make_service()
+        dataset_root = str(Path(self.temp_dir.name) / "human-data")
+        service.update_setting("play", "collection_enabled", True)
+        service.update_setting("play", "dataset_root", dataset_root)
+        service.update_setting("play", "collection_feedback", "helpful match")
+
+        config = parse_realtime_config(service.command_for("play")[3:])
+
+        self.assertTrue(config.collection_enabled)
+        self.assertEqual(config.dataset_root, dataset_root)
+        self.assertEqual(config.collection_feedback, "helpful match")
+        for field in ("collection_enabled", "dataset_root", "collection_feedback"):
+            self.assertIn(field, service.settings.editable_fields("play"))
+
     def test_checkpoint_policy_is_rejected_before_process_start_without_path(self):
         started = []
 
@@ -173,6 +188,31 @@ class TestLauncherService(unittest.TestCase):
         service.update_setting("training", "config_path", "missing.yaml")
 
         self.assertIn("config_path does not exist", service.validate_action("training")[0])
+
+    def test_human_training_submit_and_job_control_commands(self):
+        service = self.make_service(repo_root=self.temp_dir.name)
+        config = Path(self.temp_dir.name) / "human.yaml"
+        config.write_text("seed: 87\n", encoding="utf-8")
+        dataset = Path(self.temp_dir.name) / "dataset" / "sessions"
+        dataset.mkdir(parents=True)
+        parent = Path(self.temp_dir.name) / "parent.pt"
+        parent.write_bytes(b"checkpoint")
+        service.update_setting("training", "config_path", str(config))
+        service.update_setting("training", "dataset_root", str(dataset.parent))
+        service.update_setting("training", "parent_checkpoint_path", str(parent))
+        service.update_setting("training", "training_method", "mixed_replay")
+
+        command = service.command_for("training")
+
+        self.assertEqual(command[2:5], ("train.human_training", "submit", "--config"))
+        self.assertIn("method=mixed_replay", command)
+        self.assertEqual(service.validate_action("training"), [])
+        service.update_setting("training", "training_operation", "pause")
+        service.update_setting("training", "training_job_id", "puyo-87-smoke")
+        self.assertEqual(
+            service.command_for("training")[2:],
+            ("train.human_training", "pause", "--job-id", "puyo-87-smoke"),
+        )
 
     def test_models_command_launches_model_viewer(self):
         service = self.make_service()

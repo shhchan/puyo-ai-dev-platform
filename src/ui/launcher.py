@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import time
@@ -114,8 +115,8 @@ class LauncherService:
                 "training",
                 "学習",
                 "training",
-                "Realtime smoke 学習",
-                "既存の smoke training entry point を起動します。",
+                "Human-derived 学習",
+                "人間 dataset から active model を変更せず challenger job を管理します。",
             ),
             "models": LauncherAction(
                 "models",
@@ -244,6 +245,9 @@ class LauncherService:
             deterministic_a=settings.deterministic_a,
             deterministic_b=settings.deterministic_b,
             keybindings_path=settings.keybindings_path,
+            collection_enabled=settings.collection_enabled,
+            dataset_root=settings.dataset_root,
+            collection_feedback=settings.collection_feedback,
         )
 
     def command_for(self, action_key: str) -> tuple[str, ...]:
@@ -302,16 +306,34 @@ class LauncherService:
             return tuple(args)
         if action_key == "training":
             settings = self.settings.for_action("training")
+            if settings.training_operation != "submit":
+                return (
+                    self.python_executable,
+                    "-m",
+                    "train.human_training",
+                    settings.training_operation,
+                    "--job-id",
+                    settings.training_job_id,
+                )
             return (
                 self.python_executable,
                 "-m",
-                "train.train_realtime",
+                "train.human_training",
+                "submit",
                 "--config",
                 settings.config_path,
                 "--set",
                 f"run_id={settings.run_id}",
                 "--set",
                 f"seed={settings.seed}",
+                "--set",
+                f"dataset_root={settings.dataset_root}",
+                "--set",
+                f"parent_checkpoint_path={settings.parent_checkpoint_path}",
+                "--set",
+                f"active_checkpoint_path={settings.parent_checkpoint_path}",
+                "--set",
+                f"method={settings.training_method}",
             )
         if action_key == "models":
             return (
@@ -322,6 +344,8 @@ class LauncherService:
                 "runs",
                 "--lineage-root",
                 "docs/benchmarks",
+                "--model-registry",
+                "runs/model_registry.json",
                 "--report-json",
                 "/tmp/puyo-model-viewer-report.json",
                 "--report-markdown",
@@ -371,6 +395,10 @@ class LauncherService:
         if errors:
             self.message = f"{action.label} を開始できません: {errors[0]}"
             return False
+        if action_key == "training":
+            settings = self.settings.for_action("training")
+            if settings.training_operation == "submit":
+                self.settings.update("training", "training_job_id", settings.run_id)
         command = self.command_for(action_key)
         try:
             process = self.popen_factory(command, cwd=str(self.repo_root))
@@ -409,6 +437,18 @@ class LauncherService:
         if self.current_job is None:
             return "job なし"
         status = self.current_job.status_label()
+        if self.current_job.action.key == "training" and status != "実行中":
+            settings = self.settings.for_action("training")
+            job_path = self.repo_root / "runs" / "human_training" / "jobs" / f"{settings.training_job_id}.json"
+            try:
+                job_record = json.loads(job_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                job_record = None
+            if isinstance(job_record, dict) and job_record.get("state"):
+                state = str(job_record["state"])
+                if state == "failed":
+                    self.message = f"学習 job は失敗しました: {job_record.get('error', 'log を確認してください。')}"
+                return f"学習 job {settings.training_job_id}: {state}"
         if status.startswith("失敗"):
             self.message = f"{self.current_job.action.label} は失敗しました ({status})。terminal 出力と path を確認してください。"
         elif status == "完了":
@@ -984,6 +1024,11 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         args.extend(["--max-frames", str(config.max_frames)])
     if config.keybindings_path:
         args.extend(["--keybindings", config.keybindings_path])
+    if config.collection_enabled:
+        args.append("--collect-human-data")
+    args.extend(["--dataset-root", config.dataset_root])
+    if config.collection_feedback:
+        args.extend(["--collection-feedback", config.collection_feedback])
     return tuple(args)
 
 

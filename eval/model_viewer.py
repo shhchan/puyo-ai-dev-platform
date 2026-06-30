@@ -25,6 +25,12 @@ def parse_args(argv=None):
     )
     parser.add_argument("--report-json", type=Path, help="Write a headless viewer report as JSON.")
     parser.add_argument("--report-markdown", type=Path, help="Write a headless viewer report as Markdown.")
+    parser.add_argument(
+        "--model-registry",
+        type=Path,
+        default=Path("runs/model_registry.json"),
+        help="Model role registry containing champion/challenger/previous stable status.",
+    )
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
     return parser.parse_args(argv)
 
@@ -34,6 +40,7 @@ def main(argv=None) -> None:
     data = build_model_viewer_data(
         replay_path=args.replay,
         lineage_roots=tuple(args.lineage_root),
+        model_registry_path=args.model_registry,
     )
     report = run_model_viewer(
         data,
