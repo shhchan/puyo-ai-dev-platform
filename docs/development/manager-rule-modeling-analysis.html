@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>manager_rule のモデル化解析</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --ink: #182033;
+      --muted: #5f687a;
+      --line: #d8deea;
+      --accent: #146c94;
+      --accent-soft: #e6f3f8;
+      --warn: #8a5a00;
+      --warn-soft: #fff2cf;
+      --ok: #1f7a4d;
+      --ok-soft: #e6f5ee;
+      --code: #263449;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    header {
+      background: #102033;
+      color: #ffffff;
+      padding: 40px 24px 32px;
+    }
+
+    header .inner,
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
+
+    .lead {
+      max-width: 900px;
+      margin: 0;
+      color: #d7e0ed;
+      font-size: 17px;
+    }
+
+    main {
+      padding: 28px 20px 56px;
+    }
+
+    section {
+      margin: 24px 0;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 0 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    code {
+      color: var(--code);
+      background: #eef2f7;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3f8;
+      font-weight: 700;
+    }
+
+    .summary-grid,
+    .flow-grid,
+    .io-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .flow-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .io-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+      min-width: 0;
+    }
+
+    .box h3 {
+      margin-top: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 6px 6px 0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      margin: 14px 0 0;
+    }
+
+    .warning {
+      border-left-color: var(--warn);
+      background: var(--warn-soft);
+    }
+
+    .ok {
+      border-left-color: var(--ok);
+      background: var(--ok-soft);
+    }
+
+    .flow {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 14px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .step {
+      min-width: 210px;
+      flex: 1;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .arrow {
+      align-self: center;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .diagram-panel {
+      margin-top: 16px;
+      border: 1px solid #2d3140;
+      border-radius: 8px;
+      overflow-x: auto;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        #15131d;
+      background-size: 22px 22px;
+      padding: 16px;
+    }
+
+    .diagram {
+      display: block;
+      min-width: 1220px;
+      width: 100%;
+      height: auto;
+      color: #f4f7fb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .diagram .line,
+    .diagram .node,
+    .diagram .board,
+    .diagram .candidate,
+    .diagram .cylinder {
+      fill: #15131d;
+      stroke: #f4f7fb;
+      stroke-width: 2;
+    }
+
+    .diagram .soft {
+      fill: rgba(20, 108, 148, 0.22);
+      stroke: #8bd0ed;
+    }
+
+    .diagram .worker {
+      fill: rgba(31, 122, 77, 0.18);
+      stroke: #9ee3bf;
+    }
+
+    .diagram .output {
+      fill: rgba(138, 90, 0, 0.18);
+      stroke: #ffd980;
+    }
+
+    .diagram .dashed {
+      stroke-dasharray: 8 7;
+    }
+
+    .diagram text {
+      fill: currentColor;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .diagram .title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .diagram .label {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .diagram .small-label {
+      font-size: 13px;
+    }
+
+    .diagram .tiny-label {
+      font-size: 12px;
+      fill: #d7e0ed;
+    }
+
+    @media (max-width: 860px) {
+      .summary-grid,
+      .flow-grid,
+      .io-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 18px;
+      }
+
+      .diagram-panel {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>manager_rule のモデル化解析</h1>
+      <p class="lead">
+        現在のぷよぷよ AI における <code>manager_rule</code> は、盤面と対戦状況から戦術をルールで選び、
+        選ばれた worker がビームサーチまたは目的関数つき探索で実際の設置手を決める、解釈可能な router baseline です。
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>結論</h2>
+      <div class="summary-grid">
+        <div class="box">
+          <h3>INPUT</h3>
+          <p>
+            <code>select_action(observation, info)</code> が受け取る観測です。
+            <code>observation</code> には自盤面・NEXT、<code>info</code> には自他の simulator、
+            予告おじゃま、着弾期限、得点、合法手 mask などが入ります。
+          </p>
+        </div>
+        <div class="box">
+          <h3>判断技術</h3>
+          <p>
+            強化学習ではなく、<code>TacticalContext</code> を作る短期 roll-out 予測と
+            if/elif ルールで戦術を選びます。構築系 worker は Ama 風ビームサーチ、
+            対応系 worker は目的関数つき bounded search を使います。
+          </p>
+        </div>
+        <div class="box">
+          <h3>OUTPUT</h3>
+          <p>
+            返す主出力は離散設置 action です。副産物として profile 名、選択理由、
+            予測連鎖・得点・攻撃、危険度、探索ノード数、N手 plan などの diagnostics を保持します。
+          </p>
+        </div>
+      </div>
+      <p class="note">
+        重要: <code>manager_rule</code> そのものは学習済みニューラルネットではありません。
+        PPO で学習する <code>manager</code> と同じ worker 実行部を使う一方で、worker/profile の選択を固定ルールで行う比較対象です。
+      </p>
+    </section>
+
+    <section>
+      <h2>処理フロー図</h2>
+      <p>
+        <code>manager_rule</code> は、観測をそのままニューラルネットに入れるのではなく、
+        <code>info</code> 内の simulator を clone して短期予測を作り、固定ルールで戦術候補を1つ選びます。
+        選ばれた候補だけが worker として探索され、最終的な設置 action になります。
+      </p>
+      <div class="diagram-panel" role="img" aria-label="manager_rule の入力、戦術判断、候補、探索、出力の流れ">
+        <svg class="diagram" viewBox="0 0 1220 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8 Z" fill="#f4f7fb"></path>
+            </marker>
+          </defs>
+
+          <text class="title" x="26" y="34">manager_rule: INPUT から設置 action まで</text>
+          <text class="tiny-label" x="28" y="58">RuleBasedManagerPolicy.select_action(observation, info)</text>
+
+          <rect class="board" x="24" y="116" width="190" height="260" rx="12"></rect>
+          <rect class="line" x="44" y="150" width="56" height="178"></rect>
+          <rect class="line" x="138" y="150" width="56" height="178"></rect>
+          <circle class="line" cx="66" cy="309" r="8"></circle>
+          <circle class="line" cx="82" cy="309" r="8"></circle>
+          <circle class="line" cx="76" cy="213" r="8"></circle>
+          <circle class="line" cx="76" cy="230" r="8"></circle>
+          <circle class="line" cx="172" cy="213" r="8"></circle>
+          <circle class="line" cx="172" cy="230" r="8"></circle>
+          <circle class="line" cx="162" cy="309" r="8"></circle>
+          <circle class="line" cx="178" cy="309" r="8"></circle>
+          <circle class="line" cx="178" cy="292" r="8"></circle>
+          <text class="label" x="56" y="408">対戦状態</text>
+          <text class="tiny-label" x="44" y="430">自盤面 / 相手盤面</text>
+          <text class="tiny-label" x="44" y="448">current + NEXT</text>
+          <text class="tiny-label" x="44" y="466">おじゃま・得点・step</text>
+
+          <path class="line" d="M214 244 L284 244" marker-end="url(#arrowhead)"></path>
+
+          <path class="cylinder soft" d="M292 190 C292 170 358 170 358 190 L358 298 C358 318 292 318 292 298 Z"></path>
+          <ellipse class="cylinder soft" cx="325" cy="190" rx="33" ry="20"></ellipse>
+          <text class="label" x="301" y="238">INPUT</text>
+          <text class="tiny-label" x="278" y="344">observation: board, next_pairs</text>
+          <text class="tiny-label" x="278" y="362">info: simulator, opponent_simulator</text>
+          <text class="tiny-label" x="278" y="380">incoming_ojama, deadline, mask</text>
+
+          <path class="line" d="M358 244 L426 244" marker-end="url(#arrowhead)"></path>
+
+          <circle class="node soft" cx="502" cy="244" r="74"></circle>
+          <text class="label" x="445" y="228">短期予測</text>
+          <text class="small-label" x="438" y="252">TacticalContext</text>
+          <text class="tiny-label" x="434" y="274">clone rollout / danger</text>
+
+          <path class="line" d="M576 244 L638 244" marker-end="url(#arrowhead)"></path>
+
+          <circle class="node" cx="718" cy="244" r="74"></circle>
+          <text class="label" x="663" y="228">戦術判断</text>
+          <text class="small-label" x="660" y="252">if / elif ルール</text>
+          <text class="tiny-label" x="653" y="274">recommended_strategy</text>
+
+          <path class="line" d="M792 244 L840 244"></path>
+          <path class="line" d="M840 126 L840 384"></path>
+          <path class="line" d="M840 126 L880 126" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 178 L880 178" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 230 L880 230" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 282 L880 282" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 334 L880 334" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 384 L880 384" marker-end="url(#arrowhead)"></path>
+
+          <rect class="candidate worker" x="886" y="106" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="898" y="128">build_large</text>
+          <text class="tiny-label" x="1026" y="128">通常時: 大連鎖構築</text>
+
+          <rect class="candidate worker" x="886" y="158" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="898" y="180">build_budget</text>
+          <text class="tiny-label" x="1026" y="180">軽量な連鎖構築</text>
+
+          <rect class="candidate output" x="886" y="210" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="906" y="232">punish</text>
+          <text class="tiny-label" x="1026" y="232">即時 lethal が届く</text>
+
+          <rect class="candidate output" x="886" y="262" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="904" y="284">counter</text>
+          <text class="tiny-label" x="1026" y="284">期限内に相殺可能</text>
+
+          <rect class="candidate output" x="886" y="314" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="902" y="336">fire_max</text>
+          <text class="tiny-label" x="1026" y="336">危険時に即時発火</text>
+
+          <rect class="candidate output" x="886" y="366" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="900" y="388">survival</text>
+          <text class="tiny-label" x="1026" y="388">返せない攻撃 / 高危険度</text>
+
+          <path class="line dashed" d="M952 140 L952 474 L650 474" marker-end="url(#arrowhead)"></path>
+          <path class="line dashed" d="M952 192 L952 474"></path>
+          <path class="line dashed" d="M952 244 L952 474"></path>
+          <path class="line dashed" d="M952 296 L952 474"></path>
+          <path class="line dashed" d="M952 348 L952 474"></path>
+          <path class="line dashed" d="M952 400 L952 474"></path>
+
+          <circle class="node worker" cx="570" cy="474" r="70"></circle>
+          <text class="label" x="512" y="458">手を探索</text>
+          <text class="small-label" x="502" y="482">選ばれた worker のみ</text>
+          <text class="tiny-label" x="490" y="504">beam search / objective search</text>
+
+          <path class="line" d="M500 474 L424 474" marker-end="url(#arrowhead)"></path>
+
+          <path class="cylinder output" d="M316 420 C316 400 390 400 390 420 L390 528 C390 548 316 548 316 528 Z"></path>
+          <ellipse class="cylinder output" cx="353" cy="420" rx="37" ry="20"></ellipse>
+          <text class="label" x="319" y="470">OUTPUT</text>
+          <text class="tiny-label" x="292" y="574">placement action</text>
+          <text class="tiny-label" x="292" y="592">profile / reason / objective_result</text>
+          <text class="tiny-label" x="292" y="610">plan, expanded_nodes, elapsed</text>
+
+          <path class="line" d="M316 474 L164 474 L164 384" marker-end="url(#arrowhead)"></path>
+          <text class="tiny-label" x="40" y="520">action_to_placement(axis_x, rotation)</text>
+          <text class="tiny-label" x="40" y="538">環境 step で次の盤面へ</text>
+        </svg>
+      </div>
+      <p class="note">
+        図の右側にある6つの候補は同時にすべて探索されるわけではありません。
+        <code>manager_rule</code> はルールで1候補を選び、<code>StrategyOrchestrator</code> がその worker だけを実行します。
+      </p>
+    </section>
+
+    <section>
+      <h2>工程ごとの入出力</h2>
+      <p>
+        To-Be 像を検討するときに抽象化しやすいよう、現在の As-Is 実装を
+        「何を受け取り、何へ変換し、次に何を渡すか」というデータ契約として分解します。
+        ここでいう「戦術戦略」は <code>TacticalContext.recommended_strategy</code> と
+        <code>switch_reason</code> の組、「戦術 profile」は <code>WorkerProfile</code> と
+        <code>TacticalObjective</code> の組として扱うと理解しやすいです。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>工程</th>
+            <th>入力</th>
+            <th>処理内容</th>
+            <th>出力</th>
+            <th>次工程に渡る意味</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>INPUT → 短期予測</strong></td>
+            <td>
+              <code>observation</code> の <code>board</code> と <code>next_pairs</code>、
+              <code>info</code> の <code>simulator</code>、<code>opponent_simulator</code>、
+              <code>incoming_ojama</code>、<code>incoming_turns</code>、<code>incoming_ticks</code>、
+              <code>opponent_pending_ojama</code>、得点・step 情報。
+            </td>
+            <td>
+              自分と相手の simulator を clone し、最大3手までの軽量 rollout で
+              <code>AttackForecast</code> を作る。盤面高さとおじゃま数から
+              <code>board_danger</code> を計算し、相手の残り容量から lethal target も推定する。
+            </td>
+            <td>
+              <code>TacticalContext</code> の材料:
+              自分/相手の <code>AttackForecast</code>、自分/相手の danger、
+              相手 capacity、lethal target、incoming、deadline、counter target、
+              max return by deadline、build potential、build safety。
+            </td>
+            <td>
+              生の盤面・おじゃま・NEXT を、戦術判断で使える「短期的に撃てるか、返せるか、危ないか」の特徴へ圧縮する。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>短期予測 → 戦術戦略</strong></td>
+            <td>
+              <code>TacticalContext</code> の短期予測値:
+              <code>incoming_attack</code>、<code>incoming_deadline</code>、
+              <code>counter_deficit</code>、<code>lethal_margin</code>、
+              <code>own_danger</code>、<code>own_forecast.immediate_attack</code>、
+              <code>build_safety</code>。
+            </td>
+            <td>
+              固定ルールを上から順に評価する。危険な incoming を返せるなら counter、
+              返せないなら survival、即時 lethal が届くなら punish、
+              自盤面が危険なら survival、即時攻撃を抱えていて構築継続が危険なら fire_max、
+              それ以外は build_large とする。
+            </td>
+            <td>
+              <code>recommended_strategy</code>:
+              <code>counter</code>、<code>survival</code>、<code>punish</code>、
+              <code>fire_max</code>、<code>build_large</code> のいずれか。
+              あわせて <code>switch_reason</code> に理由文が入る。
+            </td>
+            <td>
+              「この局面で何を優先すべきか」を1つの戦術意図にする。
+              As-Is ではこの選択が強化学習ではなく if/elif ルールで固定されている。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>戦術戦略 → 戦術 profile</strong></td>
+            <td>
+              <code>recommended_strategy</code> と、固定定義された
+              <code>default_worker_profiles()</code> の6 profile。
+            </td>
+            <td>
+              <code>RuleBasedManagerPolicy</code> が strategy 名を profile 名 alias に対応づける。
+              例: <code>build_large</code> は <code>build_large</code>、
+              <code>counter</code> は <code>counter</code>、
+              <code>punish</code> は <code>punish</code> または発火系 fallback に対応する。
+              その後 <code>objective_for_profile()</code> が profile と
+              <code>TacticalContext</code> から探索目標を作る。
+            </td>
+            <td>
+              <code>WorkerProfile</code>:
+              strategy、depth、width、scenario 数、minimum chain、chain/score weight、
+              safety margin、danger tolerance、fire threshold。
+              <br>
+              <code>TacticalObjective</code>:
+              kind、target attack、target score、target chain、deadline、
+              allowed danger、fallback strategy、reason。
+            </td>
+            <td>
+              抽象的な戦術意図を、実行可能な探索パラメータと達成条件へ落とす。
+              To-Be ではこの段階が「戦術をどの粒度で action 化するか」の設計点になる。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>戦術 profile → 手を探索</strong></td>
+            <td>
+              <code>WorkerProfile</code>、<code>TacticalObjective</code>、
+              <code>observation</code>、<code>info["simulator"]</code>、
+              合法手、現在ツモと可視 NEXT。
+            </td>
+            <td>
+              <code>StrategyOrchestrator</code> が profile に応じて worker を選ぶ。
+              <code>build_large</code> / <code>build_budget</code> は
+              <code>BeamStrategyWorker</code> でビームサーチを実行する。
+              <code>punish</code> / <code>counter</code> / <code>fire_max</code> /
+              <code>survival</code> は <code>TacticalStrategyWorker</code> が
+              objective 達成度、攻撃量、危険度、深さ、盤面評価から候補を採点する。
+            </td>
+            <td>
+              <code>SearchProposal</code>:
+              最初に置く <code>action</code>、profile 名、strategy、予測 chain/score/attack、
+              danger、elapsed seconds、expanded nodes、candidate value、
+              target attack、incoming attack、deadline、objective result。
+              あわせて <code>NTurnPlan</code> が diagnostics として作られる。
+            </td>
+            <td>
+              「どの戦術で考えるか」を「この1手目を置く」に変換する。
+              worker は複数候補を評価するが、対戦環境へ渡すのは最良候補の first action だけ。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>手を探索 → OUTPUT</strong></td>
+            <td>
+              <code>SearchProposal.action</code> と、proposal / plan diagnostics。
+            </td>
+            <td>
+              <code>RuleBasedManagerPolicy.select_action()</code> は
+              <code>SearchProposal.action</code> をそのまま返す。
+              対戦環境側では <code>action_to_placement()</code> により
+              action を <code>axis_x</code> と <code>rotation</code> に変換し、
+              simulator が配置・落下・連鎖・おじゃま処理を進める。
+            </td>
+            <td>
+              主出力は離散 placement action。
+              副出力として <code>last_proposal</code>、<code>last_plan</code>、
+              <code>current_profile_name</code>、<code>tactical_diagnostics</code>、
+              <code>plan_diagnostics</code> が参照可能になる。
+            </td>
+            <td>
+              AI が外部に出す実行可能な意思決定は1手の配置 action。
+              診断情報は、なぜその手になったかを説明するための観測可能な trace になる。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="note">
+        現在の As-Is では、「短期予測 → 戦術戦略」と「戦術戦略 → 戦術 profile」が強く固定ルール化されています。
+        一方で、学習済み <code>manager</code> はこの周辺を actor-critic の action 選択へ置き換える設計ですが、
+        最終的な配置品質は依然として worker 探索に依存します。
+      </p>
+    </section>
+
+    <section>
+      <h2>実行経路</h2>
+      <div class="flow">
+        <div class="step">
+          <strong>1. policy 生成</strong>
+          <code>make_policy("manager_rule")</code> が <code>RuleBasedManagerPolicy</code> を返す。
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <strong>2. 戦術文脈化</strong>
+          <code>build_tactical_context(info)</code> が攻撃予測・危険度・期限を計算する。
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <strong>3. profile 選択</strong>
+          <code>recommended_strategy</code> を profile ID に対応づける。
+        </div>
+        <div class="arrow">→</div>
+        <div class="step">
+          <strong>4. worker 探索</strong>
+          <code>StrategyOrchestrator.propose()</code> が worker を実行し設置 action を返す。
+        </div>
+      </div>
+
+      <h3>主要コード</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ファイル</th>
+            <th>役割</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>selfplay/policies.py</code></td>
+            <td><code>manager_rule</code> という policy 名を <code>RuleBasedManagerPolicy</code> に解決する。</td>
+          </tr>
+          <tr>
+            <td><code>agents/strategy_manager.py</code></td>
+            <td>ルールベース manager と、PPO checkpoint を読む学習済み manager の inference を定義する。</td>
+          </tr>
+          <tr>
+            <td><code>agents/strategy_workers.py</code></td>
+            <td>戦術文脈、worker profile、objective、探索 worker、proposal、plan diagnostics を定義する。</td>
+          </tr>
+          <tr>
+            <td><code>agents/beam_search.py</code></td>
+            <td>構築系 worker が利用するビームサーチの本体を定義する。</td>
+          </tr>
+          <tr>
+            <td><code>puyo_env/manager_env.py</code></td>
+            <td>PPO manager の観測・行動・報酬を定義する。<code>manager_rule</code> との比較対象である学習済み manager の土台。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>INPUT の内訳</h2>
+      <div class="io-grid">
+        <div class="box">
+          <h3><code>observation</code></h3>
+          <ul>
+            <li><code>board</code>: 自分の盤面テンソル。学習済み manager では CNN 入力にもなる。</li>
+            <li><code>next_pairs</code>: current と NEXT を含む可視ツモ情報。</li>
+            <li><code>scalars</code> や追加特徴: flat/checkpoint policy 用の補助情報。<code>manager_rule</code> の中心判断は主に <code>info</code> 側。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3><code>info</code></h3>
+          <ul>
+            <li><code>simulator</code>: 自分側の <code>HeadlessPuyoSimulator</code>。合法手展開と未来手 preview に使う。</li>
+            <li><code>opponent_simulator</code>: 相手側 simulator。相手の即時攻撃力・危険度・容量を推定する。</li>
+            <li><code>incoming_ojama</code> / <code>pending_ojama</code>: 自分に来る予告おじゃま。</li>
+            <li><code>incoming_turns</code> / <code>incoming_ticks</code>: 着弾までの猶予。</li>
+            <li><code>opponent_pending_ojama</code>: 相手側の予告おじゃま。相手の窒息余地計算に使う。</li>
+            <li><code>score</code> / <code>opponent_score</code> / <code>step_count</code>: 診断や学習 manager の特徴に入る。</li>
+            <li><code>action_mask</code>: 呼び出し元 policy によっては合法 action の mask として使われる。</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">
+        simulator がある場合、AI は盤面を直接いじるのではなく clone した headless simulator に action を適用し、
+        連鎖数・得点差・ゲームオーバー・盤面危険度を評価します。これにより UI に依存しない探索ができます。
+      </p>
+    </section>
+
+    <section>
+      <h2>manager_rule が判断するもの</h2>
+      <p>
+        <code>manager_rule</code> が直接選ぶのは「設置位置」ではなく「どの戦術 profile を使うか」です。
+        その後、選ばれた worker が設置 action を探索します。
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>戦術 profile</th>
+            <th>目的</th>
+            <th>主な探索設定</th>
+            <th>使われる worker</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>build_large</code></td>
+            <td>安全な局面で大きな連鎖を構築する。</td>
+            <td>depth 6 / width 32 / minimum chain 6</td>
+            <td>ビームサーチ worker</td>
+          </tr>
+          <tr>
+            <td><code>build_budget</code></td>
+            <td>計算量を抑えつつ連鎖を作る。</td>
+            <td>depth 3 / width 16 / minimum chain 4</td>
+            <td>ビームサーチ worker</td>
+          </tr>
+          <tr>
+            <td><code>punish</code></td>
+            <td>相手を倒せる推定攻撃量が即時にあるとき、致死量を狙う。</td>
+            <td>depth 3 / width 18</td>
+            <td>目的関数つき戦術 worker</td>
+          </tr>
+          <tr>
+            <td><code>counter</code></td>
+            <td>来るおじゃまを期限内に相殺できるとき、必要攻撃量を返す。</td>
+            <td>depth 3 / width 18 / safety margin 2</td>
+            <td>目的関数つき戦術 worker</td>
+          </tr>
+          <tr>
+            <td><code>fire_max</code></td>
+            <td>盤面が危なく、即時に撃てる攻撃を吐き出す。</td>
+            <td>1手探索</td>
+            <td>目的関数つき戦術 worker</td>
+          </tr>
+          <tr>
+            <td><code>survival</code></td>
+            <td>窒息回避と盤面安定を優先する。</td>
+            <td>1手探索 / danger tolerance 0.55</td>
+            <td>目的関数つき戦術 worker</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>戦術選択ルール</h3>
+      <ol>
+        <li>自分と相手の短期攻撃 forecast、盤面危険度、予告おじゃま、着弾期限を推定する。</li>
+        <li>来る攻撃が危険で、期限内に返せるなら <code>counter</code> を選ぶ。</li>
+        <li>来る攻撃が危険で、期限内に返せないなら <code>survival</code> を選ぶ。</li>
+        <li>即時攻撃が相手の推定 lethal target に届くなら <code>punish</code> を選ぶ。</li>
+        <li>自盤面危険度が高いなら <code>survival</code> を選ぶ。</li>
+        <li>即時攻撃が大きく、構築継続の安全性が低いなら <code>fire_max</code> を選ぶ。</li>
+        <li>上記に当てはまらない通常局面では <code>build_large</code> を選ぶ。</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>ビームサーチを利用した部分</h2>
+      <p>
+        ビームサーチは <code>manager_rule</code> の戦術選択そのものではなく、
+        <code>build_large</code> と <code>build_budget</code> が実際の設置手を決める段階で使われます。
+        実装は <code>BeamSearchPolicy</code> を <code>BeamStrategyWorker</code> が profile 設定で包む構造です。
+      </p>
+
+      <div class="flow-grid">
+        <div class="box">
+          <h3>探索木</h3>
+          <p>
+            現在の合法手を root action として clone simulator に適用し、次手以降も合法手を展開します。
+            各 node は「root action」「clone 済み simulator」「評価値」「これまでの最大連鎖価値」「早すぎる発火 penalty」を持ちます。
+          </p>
+        </div>
+        <div class="box">
+          <h3>枝刈り</h3>
+          <p>
+            各 depth で評価値の高い node だけを <code>width</code> 件残します。
+            同じ盤面 fingerprint の候補は、より価値が高いものだけ残して重複展開を抑えます。
+          </p>
+        </div>
+        <div class="box">
+          <h3>未知ツモ</h3>
+          <p>
+            current と可視 NEXT は維持し、そこから先の未知ツモを代表シナリオで置換します。
+            scenario 数を増やすと未知ツモへの頑健性が増えますが、計算量もほぼ比例して増えます。
+          </p>
+        </div>
+        <div class="box">
+          <h3>評価関数</h3>
+          <p>
+            連鎖数と得点を大きく評価し、短すぎる連鎖の早期発火を penalty にします。
+            静的盤面評価では 2連結・3連結・発火可能性を加点し、孤立ぷよ、凸凹、井戸、危険高さ、おじゃまを減点します。
+          </p>
+        </div>
+      </div>
+
+      <h3>ビームサーチの INPUT / OUTPUT</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>INPUT</td>
+            <td>
+              <code>observation</code> と <code>info["simulator"]</code>、
+              profile 由来の <code>depth</code>、<code>width</code>、<code>scenarios</code>、
+              <code>minimum_chain_count</code>、連鎖/得点/早期発火 penalty の重み。
+            </td>
+          </tr>
+          <tr>
+            <td>判断</td>
+            <td>
+              clone simulator で合法配置を展開し、連鎖成果と盤面形状評価を合成した値で候補を残す。
+              root action ごとに最良値を集計し、最大値の action を選ぶ。
+            </td>
+          </tr>
+          <tr>
+            <td>OUTPUT</td>
+            <td>
+              設置 action。diagnostics として elapsed seconds、expanded nodes、scenario count、
+              action 別 candidate value を保持する。worker はさらに preview して予測連鎖・得点・攻撃・危険度を <code>SearchProposal</code> に格納する。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>目的関数つき戦術探索</h2>
+      <p>
+        <code>punish</code>、<code>counter</code>、<code>fire_max</code>、<code>survival</code> は、
+        純粋な連鎖構築ではなく局面目的を満たすための bounded search を使います。
+        <code>objective_for_profile()</code> が戦術ごとに target attack、target score、target chain、deadline、許容危険度を設定します。
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>objective</th>
+            <th>評価の中心</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>punish</code> / <code>counter</code></td>
+            <td>
+              target attack 到達を非常に大きく加点し、不足量、過剰攻撃、遅さ、危険度を減点する。
+              counter は incoming と deadline に合わせて期限を決める。
+            </td>
+          </tr>
+          <tr>
+            <td><code>fire_max</code></td>
+            <td>即時攻撃量、連鎖数、得点を加点し、危険度を減点する。</td>
+          </tr>
+          <tr>
+            <td><code>survival</code></td>
+            <td>静的盤面評価と低危険度を強く重視し、攻撃量は小さく加点する。</td>
+          </tr>
+          <tr>
+            <td><code>build</code></td>
+            <td>fallback 的に盤面評価、連鎖、危険度から値を作る。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        探索結果は <code>ObjectiveResult</code> として、目標達成、期限内達成可能性、未達理由、
+        surplus attack、score/chain delta、danger excess まで診断できます。
+      </p>
+    </section>
+
+    <section>
+      <h2>OUTPUT の内訳</h2>
+      <div class="io-grid">
+        <div class="box">
+          <h3>主出力</h3>
+          <ul>
+            <li><code>select_action()</code> の返り値: 対戦環境に渡す離散 placement action。</li>
+            <li>action は <code>puyo_env.actions.action_to_placement()</code> で axis x と rotation に変換される。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>診断出力</h3>
+          <ul>
+            <li><code>current_profile_name</code>: 今回選んだ profile 名。</li>
+            <li><code>tactical_diagnostics</code>: incoming、target、deadline、reason、objective、objective result。</li>
+            <li><code>plan_diagnostics</code>: N手 plan、各手の配置セル、予測盤面、予測攻撃、再計画条件。</li>
+            <li><code>SearchProposal</code>: 予測連鎖・得点・攻撃、危険度、探索時間、展開ノード数、候補価値。</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note ok">
+        GUI や arena CSV では、これらの診断を使って「なぜその profile を選んだか」「どれくらい探索したか」
+        「目標を達成したか」を外から確認できます。
+      </p>
+    </section>
+
+    <section>
+      <h2>強化学習を利用した部分</h2>
+      <p>
+        強化学習は <code>manager_rule</code> の内部では使われていません。
+        ただし、このリポジトリには同じ worker 群を使う学習済み manager があり、
+        <code>manager_rule</code> はその比較対象として重要です。
+      </p>
+
+      <h3>PPO manager のモデル化</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>学習済み <code>manager</code></th>
+            <th><code>manager_rule</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>選ぶもの</td>
+            <td>worker/profile または tactical option と search-control の組。</td>
+            <td>ルールで選んだ worker/profile。search-control は使わない baseline 実行。</td>
+          </tr>
+          <tr>
+            <td>入力</td>
+            <td>
+              自盤面 <code>board</code>、可視ツモ <code>next_pairs</code>、
+              <code>manager_features</code>。features には incoming、deadline、攻撃 forecast、危険度、
+              lethal margin、counter deficit、直前 profile、探索時間などが入る。
+            </td>
+            <td>
+              主に <code>info</code> から作る <code>TacticalContext</code>。
+              ニューラルネット用の feature vector は作らない。
+            </td>
+          </tr>
+          <tr>
+            <td>判断技術</td>
+            <td>
+              <code>PuyoActorCritic</code> の actor が離散 manager action の logits を出し、
+              deterministic 推論では argmax、学習時は categorical sampling を行う。
+            </td>
+            <td>
+              if/elif で recommended strategy を決め、profile 名 alias で worker に接続する。
+            </td>
+          </tr>
+          <tr>
+            <td>学習</td>
+            <td>
+              <code>ManagerSelfPlayEnv</code> 上で PPO。reward は対戦 reward に加え、切替 penalty、
+              判断時間 penalty、search cost、戦術 auxiliary reward を含む。
+            </td>
+            <td>学習しない。重みや threshold はコード上の固定値。</td>
+          </tr>
+          <tr>
+            <td>出力</td>
+            <td>
+              manager action を worker/profile と search-control に decode し、
+              worker が最終 placement action を返す。
+            </td>
+            <td>
+              profile を固定ルールで決め、worker が最終 placement action を返す。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>PPO 学習ループで何を最適化しているか</h3>
+      <ol>
+        <li><code>ManagerSelfPlayEnv</code> が「manager の action space = decision 数 × search-control 数」と定義する。</li>
+        <li>各 step で actor-critic が action、logprob、value を出す。</li>
+        <li>選ばれた action は profile/control に decode され、orchestrator が worker を実行して placement action を得る。</li>
+        <li>対戦環境を進め、勝敗・得点・攻撃・相殺などに基づく reward を受ける。</li>
+        <li>切替や探索時間を penalty にし、推奨戦術に沿った成功には auxiliary reward を足す。</li>
+        <li>GAE で advantage を計算し、clipped PPO loss、value loss、entropy bonus でネットワークを更新する。</li>
+      </ol>
+      <p class="warning note">
+        したがって「強化学習が直接ぷよの置き場所を選ぶ」のではありません。
+        強化学習は局面ごとの戦術 worker と探索予算を選び、実際の配置品質は worker のビームサーチ/戦術探索に依存します。
+      </p>
+    </section>
+
+    <section>
+      <h2>全体の入出力まとめ</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>段階</th>
+            <th>INPUT</th>
+            <th>技術/判断</th>
+            <th>OUTPUT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>戦術文脈化</td>
+            <td><code>info</code> の simulator、相手 simulator、incoming、deadline、pending、score。</td>
+            <td>clone rollout による短期攻撃 forecast、盤面高さとおじゃまから危険度推定、相手容量から lethal target 推定。</td>
+            <td><code>TacticalContext</code>。</td>
+          </tr>
+          <tr>
+            <td>manager_rule routing</td>
+            <td><code>TacticalContext</code>。</td>
+            <td>危険な incoming、counter 可否、lethal 可否、自盤面危険度、即時発火価値を順に見る固定ルール。</td>
+            <td>profile ID と profile 名。</td>
+          </tr>
+          <tr>
+            <td>objective 化</td>
+            <td>profile と <code>TacticalContext</code>。</td>
+            <td>戦術別に target attack、deadline、target chain、許容 danger、fallback を設定。</td>
+            <td><code>TacticalObjective</code>。</td>
+          </tr>
+          <tr>
+            <td>worker 探索</td>
+            <td>profile、objective、observation、info simulator。</td>
+            <td>構築系はビームサーチ。対応系は目的関数つき bounded search。</td>
+            <td><code>SearchProposal</code> と最終 placement action。</td>
+          </tr>
+          <tr>
+            <td>対戦環境</td>
+            <td>placement action。</td>
+            <td>ぷよ配置、落下、連鎖解決、おじゃま送受信、ゲーム終了判定。</td>
+            <td>次の observation、reward、done、info、diagnostics。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>参照コード</h2>
+      <ul>
+        <li><code>selfplay/policies.py</code>: <code>manager_rule</code> policy 名の解決。</li>
+        <li><code>agents/strategy_manager.py</code>: <code>RuleBasedManagerPolicy</code> と <code>StrategyManagerPolicy</code>。</li>
+        <li><code>agents/strategy_workers.py</code>: tactical context、worker profile、objective、proposal、orchestrator。</li>
+        <li><code>agents/beam_search.py</code>: Ama 風ビームサーチ、未知ツモ scenario、盤面評価。</li>
+        <li><code>puyo_env/manager_env.py</code>: PPO manager の観測、行動空間、報酬、diagnostics。</li>
+        <li><code>agents/manager_ppo.py</code>: behavior cloning、curriculum、自動対戦 PPO 更新、checkpoint 保存。</li>
+        <li><code>docs/development/puyo-strategy-orchestration.md</code>: 戦略 manager の設計背景と評価。</li>
+        <li><code>docs/development/puyo-beam-search.md</code>: ビームサーチの設計背景と評価。</li>
+      </ul>
+      <p class="small">
+        作成日: 2026-07-08。解析対象はこのリポジトリの現在ブランチ上の実装です。
+      </p>
+    </section>
+  </main>
+</body>
+</html>
