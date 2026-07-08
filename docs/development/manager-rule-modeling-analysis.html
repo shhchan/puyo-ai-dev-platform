@@ -481,6 +481,164 @@
     </section>
 
     <section>
+      <h2>工程ごとの入出力</h2>
+      <p>
+        To-Be 像を検討するときに抽象化しやすいよう、現在の As-Is 実装を
+        「何を受け取り、何へ変換し、次に何を渡すか」というデータ契約として分解します。
+        ここでいう「戦術戦略」は <code>TacticalContext.recommended_strategy</code> と
+        <code>switch_reason</code> の組、「戦術 profile」は <code>WorkerProfile</code> と
+        <code>TacticalObjective</code> の組として扱うと理解しやすいです。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>工程</th>
+            <th>入力</th>
+            <th>処理内容</th>
+            <th>出力</th>
+            <th>次工程に渡る意味</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>INPUT → 短期予測</strong></td>
+            <td>
+              <code>observation</code> の <code>board</code> と <code>next_pairs</code>、
+              <code>info</code> の <code>simulator</code>、<code>opponent_simulator</code>、
+              <code>incoming_ojama</code>、<code>incoming_turns</code>、<code>incoming_ticks</code>、
+              <code>opponent_pending_ojama</code>、得点・step 情報。
+            </td>
+            <td>
+              自分と相手の simulator を clone し、最大3手までの軽量 rollout で
+              <code>AttackForecast</code> を作る。盤面高さとおじゃま数から
+              <code>board_danger</code> を計算し、相手の残り容量から lethal target も推定する。
+            </td>
+            <td>
+              <code>TacticalContext</code> の材料:
+              自分/相手の <code>AttackForecast</code>、自分/相手の danger、
+              相手 capacity、lethal target、incoming、deadline、counter target、
+              max return by deadline、build potential、build safety。
+            </td>
+            <td>
+              生の盤面・おじゃま・NEXT を、戦術判断で使える「短期的に撃てるか、返せるか、危ないか」の特徴へ圧縮する。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>短期予測 → 戦術戦略</strong></td>
+            <td>
+              <code>TacticalContext</code> の短期予測値:
+              <code>incoming_attack</code>、<code>incoming_deadline</code>、
+              <code>counter_deficit</code>、<code>lethal_margin</code>、
+              <code>own_danger</code>、<code>own_forecast.immediate_attack</code>、
+              <code>build_safety</code>。
+            </td>
+            <td>
+              固定ルールを上から順に評価する。危険な incoming を返せるなら counter、
+              返せないなら survival、即時 lethal が届くなら punish、
+              自盤面が危険なら survival、即時攻撃を抱えていて構築継続が危険なら fire_max、
+              それ以外は build_large とする。
+            </td>
+            <td>
+              <code>recommended_strategy</code>:
+              <code>counter</code>、<code>survival</code>、<code>punish</code>、
+              <code>fire_max</code>、<code>build_large</code> のいずれか。
+              あわせて <code>switch_reason</code> に理由文が入る。
+            </td>
+            <td>
+              「この局面で何を優先すべきか」を1つの戦術意図にする。
+              As-Is ではこの選択が強化学習ではなく if/elif ルールで固定されている。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>戦術戦略 → 戦術 profile</strong></td>
+            <td>
+              <code>recommended_strategy</code> と、固定定義された
+              <code>default_worker_profiles()</code> の6 profile。
+            </td>
+            <td>
+              <code>RuleBasedManagerPolicy</code> が strategy 名を profile 名 alias に対応づける。
+              例: <code>build_large</code> は <code>build_large</code>、
+              <code>counter</code> は <code>counter</code>、
+              <code>punish</code> は <code>punish</code> または発火系 fallback に対応する。
+              その後 <code>objective_for_profile()</code> が profile と
+              <code>TacticalContext</code> から探索目標を作る。
+            </td>
+            <td>
+              <code>WorkerProfile</code>:
+              strategy、depth、width、scenario 数、minimum chain、chain/score weight、
+              safety margin、danger tolerance、fire threshold。
+              <br>
+              <code>TacticalObjective</code>:
+              kind、target attack、target score、target chain、deadline、
+              allowed danger、fallback strategy、reason。
+            </td>
+            <td>
+              抽象的な戦術意図を、実行可能な探索パラメータと達成条件へ落とす。
+              To-Be ではこの段階が「戦術をどの粒度で action 化するか」の設計点になる。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>戦術 profile → 手を探索</strong></td>
+            <td>
+              <code>WorkerProfile</code>、<code>TacticalObjective</code>、
+              <code>observation</code>、<code>info["simulator"]</code>、
+              合法手、現在ツモと可視 NEXT。
+            </td>
+            <td>
+              <code>StrategyOrchestrator</code> が profile に応じて worker を選ぶ。
+              <code>build_large</code> / <code>build_budget</code> は
+              <code>BeamStrategyWorker</code> でビームサーチを実行する。
+              <code>punish</code> / <code>counter</code> / <code>fire_max</code> /
+              <code>survival</code> は <code>TacticalStrategyWorker</code> が
+              objective 達成度、攻撃量、危険度、深さ、盤面評価から候補を採点する。
+            </td>
+            <td>
+              <code>SearchProposal</code>:
+              最初に置く <code>action</code>、profile 名、strategy、予測 chain/score/attack、
+              danger、elapsed seconds、expanded nodes、candidate value、
+              target attack、incoming attack、deadline、objective result。
+              あわせて <code>NTurnPlan</code> が diagnostics として作られる。
+            </td>
+            <td>
+              「どの戦術で考えるか」を「この1手目を置く」に変換する。
+              worker は複数候補を評価するが、対戦環境へ渡すのは最良候補の first action だけ。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>手を探索 → OUTPUT</strong></td>
+            <td>
+              <code>SearchProposal.action</code> と、proposal / plan diagnostics。
+            </td>
+            <td>
+              <code>RuleBasedManagerPolicy.select_action()</code> は
+              <code>SearchProposal.action</code> をそのまま返す。
+              対戦環境側では <code>action_to_placement()</code> により
+              action を <code>axis_x</code> と <code>rotation</code> に変換し、
+              simulator が配置・落下・連鎖・おじゃま処理を進める。
+            </td>
+            <td>
+              主出力は離散 placement action。
+              副出力として <code>last_proposal</code>、<code>last_plan</code>、
+              <code>current_profile_name</code>、<code>tactical_diagnostics</code>、
+              <code>plan_diagnostics</code> が参照可能になる。
+            </td>
+            <td>
+              AI が外部に出す実行可能な意思決定は1手の配置 action。
+              診断情報は、なぜその手になったかを説明するための観測可能な trace になる。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="note">
+        現在の As-Is では、「短期予測 → 戦術戦略」と「戦術戦略 → 戦術 profile」が強く固定ルール化されています。
+        一方で、学習済み <code>manager</code> はこの周辺を actor-critic の action 選択へ置き換える設計ですが、
+        最終的な配置品質は依然として worker 探索に依存します。
+      </p>
+    </section>
+
+    <section>
       <h2>実行経路</h2>
       <div class="flow">
         <div class="step">
