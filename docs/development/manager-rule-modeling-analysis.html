@@ -219,6 +219,82 @@
       font-size: 13px;
     }
 
+    .diagram-panel {
+      margin-top: 16px;
+      border: 1px solid #2d3140;
+      border-radius: 8px;
+      overflow-x: auto;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+        #15131d;
+      background-size: 22px 22px;
+      padding: 16px;
+    }
+
+    .diagram {
+      display: block;
+      min-width: 1220px;
+      width: 100%;
+      height: auto;
+      color: #f4f7fb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .diagram .line,
+    .diagram .node,
+    .diagram .board,
+    .diagram .candidate,
+    .diagram .cylinder {
+      fill: #15131d;
+      stroke: #f4f7fb;
+      stroke-width: 2;
+    }
+
+    .diagram .soft {
+      fill: rgba(20, 108, 148, 0.22);
+      stroke: #8bd0ed;
+    }
+
+    .diagram .worker {
+      fill: rgba(31, 122, 77, 0.18);
+      stroke: #9ee3bf;
+    }
+
+    .diagram .output {
+      fill: rgba(138, 90, 0, 0.18);
+      stroke: #ffd980;
+    }
+
+    .diagram .dashed {
+      stroke-dasharray: 8 7;
+    }
+
+    .diagram text {
+      fill: currentColor;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .diagram .title {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .diagram .label {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .diagram .small-label {
+      font-size: 13px;
+    }
+
+    .diagram .tiny-label {
+      font-size: 12px;
+      fill: #d7e0ed;
+    }
+
     @media (max-width: 860px) {
       .summary-grid,
       .flow-grid,
@@ -228,6 +304,10 @@
 
       section {
         padding: 18px;
+      }
+
+      .diagram-panel {
+        padding: 10px;
       }
     }
   </style>
@@ -274,6 +354,129 @@
       <p class="note">
         重要: <code>manager_rule</code> そのものは学習済みニューラルネットではありません。
         PPO で学習する <code>manager</code> と同じ worker 実行部を使う一方で、worker/profile の選択を固定ルールで行う比較対象です。
+      </p>
+    </section>
+
+    <section>
+      <h2>処理フロー図</h2>
+      <p>
+        <code>manager_rule</code> は、観測をそのままニューラルネットに入れるのではなく、
+        <code>info</code> 内の simulator を clone して短期予測を作り、固定ルールで戦術候補を1つ選びます。
+        選ばれた候補だけが worker として探索され、最終的な設置 action になります。
+      </p>
+      <div class="diagram-panel" role="img" aria-label="manager_rule の入力、戦術判断、候補、探索、出力の流れ">
+        <svg class="diagram" viewBox="0 0 1220 660" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+              <path d="M0,0 L10,4 L0,8 Z" fill="#f4f7fb"></path>
+            </marker>
+          </defs>
+
+          <text class="title" x="26" y="34">manager_rule: INPUT から設置 action まで</text>
+          <text class="tiny-label" x="28" y="58">RuleBasedManagerPolicy.select_action(observation, info)</text>
+
+          <rect class="board" x="24" y="116" width="190" height="260" rx="12"></rect>
+          <rect class="line" x="44" y="150" width="56" height="178"></rect>
+          <rect class="line" x="138" y="150" width="56" height="178"></rect>
+          <circle class="line" cx="66" cy="309" r="8"></circle>
+          <circle class="line" cx="82" cy="309" r="8"></circle>
+          <circle class="line" cx="76" cy="213" r="8"></circle>
+          <circle class="line" cx="76" cy="230" r="8"></circle>
+          <circle class="line" cx="172" cy="213" r="8"></circle>
+          <circle class="line" cx="172" cy="230" r="8"></circle>
+          <circle class="line" cx="162" cy="309" r="8"></circle>
+          <circle class="line" cx="178" cy="309" r="8"></circle>
+          <circle class="line" cx="178" cy="292" r="8"></circle>
+          <text class="label" x="56" y="408">対戦状態</text>
+          <text class="tiny-label" x="44" y="430">自盤面 / 相手盤面</text>
+          <text class="tiny-label" x="44" y="448">current + NEXT</text>
+          <text class="tiny-label" x="44" y="466">おじゃま・得点・step</text>
+
+          <path class="line" d="M214 244 L284 244" marker-end="url(#arrowhead)"></path>
+
+          <path class="cylinder soft" d="M292 190 C292 170 358 170 358 190 L358 298 C358 318 292 318 292 298 Z"></path>
+          <ellipse class="cylinder soft" cx="325" cy="190" rx="33" ry="20"></ellipse>
+          <text class="label" x="301" y="238">INPUT</text>
+          <text class="tiny-label" x="278" y="344">observation: board, next_pairs</text>
+          <text class="tiny-label" x="278" y="362">info: simulator, opponent_simulator</text>
+          <text class="tiny-label" x="278" y="380">incoming_ojama, deadline, mask</text>
+
+          <path class="line" d="M358 244 L426 244" marker-end="url(#arrowhead)"></path>
+
+          <circle class="node soft" cx="502" cy="244" r="74"></circle>
+          <text class="label" x="445" y="228">短期予測</text>
+          <text class="small-label" x="438" y="252">TacticalContext</text>
+          <text class="tiny-label" x="434" y="274">clone rollout / danger</text>
+
+          <path class="line" d="M576 244 L638 244" marker-end="url(#arrowhead)"></path>
+
+          <circle class="node" cx="718" cy="244" r="74"></circle>
+          <text class="label" x="663" y="228">戦術判断</text>
+          <text class="small-label" x="660" y="252">if / elif ルール</text>
+          <text class="tiny-label" x="653" y="274">recommended_strategy</text>
+
+          <path class="line" d="M792 244 L840 244"></path>
+          <path class="line" d="M840 126 L840 384"></path>
+          <path class="line" d="M840 126 L880 126" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 178 L880 178" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 230 L880 230" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 282 L880 282" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 334 L880 334" marker-end="url(#arrowhead)"></path>
+          <path class="line" d="M840 384 L880 384" marker-end="url(#arrowhead)"></path>
+
+          <rect class="candidate worker" x="886" y="106" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="898" y="128">build_large</text>
+          <text class="tiny-label" x="1026" y="128">通常時: 大連鎖構築</text>
+
+          <rect class="candidate worker" x="886" y="158" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="898" y="180">build_budget</text>
+          <text class="tiny-label" x="1026" y="180">軽量な連鎖構築</text>
+
+          <rect class="candidate output" x="886" y="210" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="906" y="232">punish</text>
+          <text class="tiny-label" x="1026" y="232">即時 lethal が届く</text>
+
+          <rect class="candidate output" x="886" y="262" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="904" y="284">counter</text>
+          <text class="tiny-label" x="1026" y="284">期限内に相殺可能</text>
+
+          <rect class="candidate output" x="886" y="314" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="902" y="336">fire_max</text>
+          <text class="tiny-label" x="1026" y="336">危険時に即時発火</text>
+
+          <rect class="candidate output" x="886" y="366" width="132" height="34" rx="2"></rect>
+          <text class="small-label" x="900" y="388">survival</text>
+          <text class="tiny-label" x="1026" y="388">返せない攻撃 / 高危険度</text>
+
+          <path class="line dashed" d="M952 140 L952 474 L650 474" marker-end="url(#arrowhead)"></path>
+          <path class="line dashed" d="M952 192 L952 474"></path>
+          <path class="line dashed" d="M952 244 L952 474"></path>
+          <path class="line dashed" d="M952 296 L952 474"></path>
+          <path class="line dashed" d="M952 348 L952 474"></path>
+          <path class="line dashed" d="M952 400 L952 474"></path>
+
+          <circle class="node worker" cx="570" cy="474" r="70"></circle>
+          <text class="label" x="512" y="458">手を探索</text>
+          <text class="small-label" x="502" y="482">選ばれた worker のみ</text>
+          <text class="tiny-label" x="490" y="504">beam search / objective search</text>
+
+          <path class="line" d="M500 474 L424 474" marker-end="url(#arrowhead)"></path>
+
+          <path class="cylinder output" d="M316 420 C316 400 390 400 390 420 L390 528 C390 548 316 548 316 528 Z"></path>
+          <ellipse class="cylinder output" cx="353" cy="420" rx="37" ry="20"></ellipse>
+          <text class="label" x="319" y="470">OUTPUT</text>
+          <text class="tiny-label" x="292" y="574">placement action</text>
+          <text class="tiny-label" x="292" y="592">profile / reason / objective_result</text>
+          <text class="tiny-label" x="292" y="610">plan, expanded_nodes, elapsed</text>
+
+          <path class="line" d="M316 474 L164 474 L164 384" marker-end="url(#arrowhead)"></path>
+          <text class="tiny-label" x="40" y="520">action_to_placement(axis_x, rotation)</text>
+          <text class="tiny-label" x="40" y="538">環境 step で次の盤面へ</text>
+        </svg>
+      </div>
+      <p class="note">
+        図の右側にある6つの候補は同時にすべて探索されるわけではありません。
+        <code>manager_rule</code> はルールで1候補を選び、<code>StrategyOrchestrator</code> がその worker だけを実行します。
       </p>
     </section>
 
