@@ -33,7 +33,7 @@
 ## 3. Git / GitHub 運用
 
 - `master` は完了済みモデルバージョンだけを保持する保護対象ブランチとする。Codex は `master` を作業ブランチにせず、直接 commit / push / force-push しない。
-- GitHub の branch protection または ruleset が利用できる場合は、`master` に「PR 必須」「force-push 禁止」「削除禁止」「管理者を含む bypass 禁止」を設定する。status check が整備された後は、その成功と会話の resolve も必須にする。現在の GitHub プランでサーバー側保護が使えない場合も、この禁止事項は維持し、設定可能になった時点で保護を有効化する。
+- GitHub の branch protection または ruleset で、`master` に「PR 必須」「force-push 禁止」「削除禁止」「管理者を含む bypass 禁止」を設定する。status check が整備された後は、その成功と会話の resolve も必須にする。
 - モデルバージョンを表すエピックでは、作業開始時に `master` から短期の統合ブランチ `integration/puyo-103-v1-7-0` の形式を作成する。`PUYO-103` はエピック key、`v1-7-0` はモデルバージョンである。
 - エピック配下の実装タスクは、対応する `integration/...` を起点に `PUYO-118/state-analyzer-schema` の形式でブランチを切り、PR の base も同じ統合ブランチにする。個別タスクの PR を `master` へ直接向けない。
 - バージョンの全タスク、統合 QA、リリース判断が完了した後だけ、統合ブランチから `master` への release PR を作成する。次の連続バージョンの統合ブランチは、この release PR の merge 後の `master` から作成する。
