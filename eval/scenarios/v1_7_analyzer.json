@@ -1,0 +1,92 @@
+{
+  "schema_version": "puyo.state_analyzer.scenarios.v1",
+  "scenarios": [
+    {
+      "name": "short_high_power_sub_chain",
+      "category": "short_tactical_attack",
+      "own": {
+        "board": ["RGGYGG", "BGRRGR", "..RGYB", "..BR.G", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "current_pair": "GR",
+        "next_pairs": ["YG", "RB"]
+      },
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "own.forecast.immediate_attack", "op": "gte", "value": 9},
+        {"path": "own.forecast.main_chain.chain_count", "op": "gte", "value": 2},
+        {"path": "own.attack_options", "op": "any_field_contains", "value": {"field": "chain_group_counts", "value": 2}},
+        {"path": "own.attack_options", "op": "len_gte", "value": 1}
+      ]
+    },
+    {
+      "name": "immediate_rush",
+      "category": "rush",
+      "own": {"board": ["RRRBBB", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "own.forecast.immediate_attack", "op": "gte", "value": 1},
+        {"path": "own.forecast.turns_to_best", "op": "gte", "value": 1}
+      ]
+    },
+    {
+      "name": "main_chain_candidate",
+      "category": "main_chain",
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"]},
+      "opponent": {"board": ["YY....", "GG....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain.chain_count", "op": "gte", "value": 2},
+        {"path": "own.forecast.main_chain.is_main_chain", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "visible_trigger",
+      "category": "trigger",
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain.trigger_cells", "op": "len_gte", "value": 4}
+      ]
+    },
+    {
+      "name": "incoming_unanswerable",
+      "category": "incoming",
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "incoming": [{"amount": 12, "deadline": 1}]},
+      "opponent": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "incoming.amount", "op": "eq", "value": 12},
+        {"path": "incoming.deadline", "op": "eq", "value": 1},
+        {"path": "incoming.can_cancel", "op": "eq", "value": false}
+      ]
+    },
+    {
+      "name": "exact_cancel",
+      "category": "cancel",
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"], "incoming": [{"amount": 5, "deadline": 1}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "incoming.max_return_by_deadline", "op": "gte", "value": 5},
+        {"path": "incoming.can_cancel", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "counter_margin",
+      "category": "counter",
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"], "incoming": [{"amount": 3, "deadline": 1}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "expectations": [
+        {"path": "incoming.can_cancel", "op": "eq", "value": true},
+        {"path": "incoming.can_counter", "op": "eq", "value": true},
+        {"path": "incoming.counter_deficit", "op": "eq", "value": 0}
+      ]
+    },
+    {
+      "name": "all_clear_context",
+      "category": "all_clear",
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YG"]},
+      "expectations": [
+        {"path": "own.is_all_clear", "op": "eq", "value": true},
+        {"path": "opponent.is_all_clear", "op": "eq", "value": true}
+      ]
+    }
+  ]
+}
