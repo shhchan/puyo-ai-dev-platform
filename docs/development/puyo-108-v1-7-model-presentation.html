@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PUYO-108 v1.7.x 新モデル設計プレゼン</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --ink: #172033;
+      --muted: #5c667a;
+      --line: #d9dfeb;
+      --navy: #102033;
+      --teal: #0f766e;
+      --blue: #2563eb;
+      --purple: #7e22ce;
+      --rose: #be123c;
+      --amber: #b7791f;
+      --green: #16a34a;
+      --cyan: #0891b2;
+      --slate: #64748b;
+      --code: #223047;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    header {
+      background: var(--navy);
+      color: #ffffff;
+      padding: 40px 24px 34px;
+    }
+
+    header .inner,
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: 0;
+      line-height: 1.18;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    h4 {
+      margin: 16px 0 6px;
+      font-size: 15px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 0 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    code {
+      color: var(--code);
+      background: #eef2f7;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      overflow-x: auto;
+      background: #152033;
+      color: #edf4ff;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3f8;
+      font-weight: 700;
+    }
+
+    main {
+      padding: 28px 20px 64px;
+    }
+
+    section {
+      margin: 24px 0;
+      padding: 26px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(22, 32, 51, 0.04);
+    }
+
+    .lead {
+      max-width: 920px;
+      margin: 0;
+      color: #d9e3f2;
+      font-size: 17px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 0;
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .box h3,
+    .box h4 {
+      margin-top: 0;
+    }
+
+    .note {
+      border-left: 4px solid var(--blue);
+      background: #eaf2ff;
+      padding: 12px 14px;
+      margin: 14px 0 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .warning {
+      border-left-color: var(--amber);
+      background: #fff7e6;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 0 6px 6px 0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eaf2ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill-row {
+      margin-top: 10px;
+    }
+
+    .toc a {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      background: #fbfcfe;
+    }
+
+    .diagram-panel {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .diagram-source {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .diagram-source a {
+      color: #1d4ed8;
+    }
+
+    .drawio-embed {
+      min-height: 280px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+      margin-top: 14px;
+    }
+
+    .drawio-embed .mxgraph {
+      max-width: 100%;
+      min-height: 260px;
+    }
+
+    .swimlane {
+      display: grid;
+      grid-template-columns: 150px repeat(5, minmax(150px, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .swimlane div {
+      padding: 10px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .swimlane div:nth-child(6n) {
+      border-right: 0;
+    }
+
+    .swimlane .head {
+      background: #eef3f8;
+      font-weight: 700;
+    }
+
+    .swimlane .rowhead {
+      background: #f8fafc;
+      font-weight: 700;
+    }
+
+    .checklist li {
+      list-style: square;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .swimlane {
+        grid-template-columns: 120px repeat(5, 180px);
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      section {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>PUYO-108 v1.7.x 新モデル設計プレゼン</h1>
+      <p class="lead">
+        合意確認用の説明資料。`manager_rule` の固定ルール router から，局面解析 API と学習型 Strategy Manager，
+        parameterized beam worker を組み合わせた階層型モデルへ進める設計案を整理する。
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="toc" aria-labelledby="toc-title">
+      <h2 id="toc-title">目次</h2>
+      <a href="#goal">設計ゴール</a>
+      <a href="#architecture">アーキテクチャ</a>
+      <a href="#schemas">スキーマ</a>
+      <a href="#manager">Manager 評価ロジック</a>
+      <a href="#datasets">データセット作成</a>
+      <a href="#training">学習方法</a>
+      <a href="#io">各ステップ I/O</a>
+      <a href="#qa">評価・合意確認</a>
+    </section>
+
+    <section id="goal">
+      <h2>1. 設計ゴール</h2>
+      <p>
+        v1.7.x の基本方針は「大連鎖志向だが，相手リスクに反応できる AI」を作ること。
+        現状の `manager_rule` は，局面に応じて固定 worker を選ぶ解釈可能 baseline だが，戦術選択・戦術の中身・探索条件が学習で変化しない。
+      </p>
+      <div class="grid-3">
+        <div class="box">
+          <h3>残すもの</h3>
+          <ul>
+            <li>ビームサーチを具体手探索の中核として使う。</li>
+            <li>戦術単位で診断できる構造を残す。</li>
+            <li>UI / replay で判断理由を追えるようにする。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>変えるもの</h3>
+          <ul>
+            <li>固定6 profile の if 文 routing から脱却する。</li>
+            <li>戦術のパラメータを学習対象にする。</li>
+            <li>相手の本線以外の攻撃オプションを明示的に解析する。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>将来拡張</h3>
+          <ul>
+            <li>`TacticSpec` の分岐・統合・改良。</li>
+            <li>latent option 化。</li>
+            <li>value model による候補手列 ranking。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note warning">
+        2ダブは「短期高火力のサブ連鎖」の一例として扱う。設計対象は 2ダブ専用対応ではなく，
+        相手が本線以外に持つ攻撃オプション全体への対応である。
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>2. アーキテクチャ図</h2>
+      <p class="subtitle">
+        draw.io ソースは <code>docs/development/puyo-108-v1-7-architecture.drawio</code>。
+        HTML には draw.io ビューア埋め込みと，同じ構成の静的プレビューを埋め込んでいる。
+      </p>
+      <div class="drawio-embed">
+        <div
+          class="mxgraph"
+          data-mxgraph='{"highlight":"#2563eb","nav":true,"resize":true,"toolbar":"zoom layers lightbox","edit":"_blank","url":"puyo-108-v1-7-architecture.drawio"}'>
+        </div>
+      </div>
+      <p class="diagram-source">
+        上の draw.io ビューアが表示されない場合は，次の静的プレビューを確認してください。
+      </p>
+      <div class="diagram-panel" role="img" aria-label="PUYO-108 v1.7.x model architecture diagram">
+        <svg width="1120" height="640" viewBox="0 0 1120 640" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+              <path d="M2,2 L10,6 L2,10 Z" fill="#334155"/>
+            </marker>
+            <style>
+              .title { font: 700 22px system-ui, sans-serif; fill: #172033; }
+              .box-title { font: 700 15px system-ui, sans-serif; fill: #172033; }
+              .box-text { font: 13px system-ui, sans-serif; fill: #334155; }
+              .label { font: 12px system-ui, sans-serif; fill: #334155; }
+              .arrow { stroke: #334155; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+            </style>
+          </defs>
+          <text class="title" x="560" y="34" text-anchor="middle">PUYO-108 v1.7.x Model Architecture</text>
+
+          <rect x="28" y="84" width="210" height="150" rx="10" fill="#e8f5f2" stroke="#0f766e" stroke-width="2"/>
+          <text class="box-title" x="46" y="112">Observed Inputs</text>
+          <text class="box-text" x="46" y="139">own/opponent board</text>
+          <text class="box-text" x="46" y="161">current pair + visible NEXT</text>
+          <text class="box-text" x="46" y="183">ojama queue + deadlines</text>
+          <text class="box-text" x="46" y="205">score / attack history</text>
+          <text class="box-text" x="46" y="227">tick / previous plan</text>
+
+          <rect x="290" y="84" width="230" height="150" rx="10" fill="#eaf2ff" stroke="#2563eb" stroke-width="2"/>
+          <text class="box-title" x="310" y="112">State Analyzer</text>
+          <text class="box-text" x="310" y="139">attack option inventory</text>
+          <text class="box-text" x="310" y="161">main-chain forecast</text>
+          <text class="box-text" x="310" y="183">short tactical attacks</text>
+          <text class="box-text" x="310" y="205">trigger / danger / context</text>
+          <text class="box-text" x="310" y="227">response feasibility</text>
+
+          <rect x="290" y="320" width="230" height="150" rx="10" fill="#fff7e6" stroke="#b7791f" stroke-width="2"/>
+          <text class="box-title" x="310" y="348">TacticSpec Registry</text>
+          <text class="box-text" x="310" y="375">identity + version</text>
+          <text class="box-text" x="310" y="397">applicability embedding</text>
+          <text class="box-text" x="310" y="419">objective schema</text>
+          <text class="box-text" x="310" y="441">constraints / planner params</text>
+          <text class="box-text" x="310" y="463">termination / fallback</text>
+
+          <rect x="600" y="100" width="240" height="180" rx="10" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2"/>
+          <text class="box-title" x="622" y="128">Learned Strategy Manager</text>
+          <text class="box-text" x="622" y="155">shared encoder</text>
+          <text class="box-text" x="622" y="177">tactic proposal/evaluator heads</text>
+          <text class="box-text" x="622" y="199">planner-preview valuation</text>
+          <text class="box-text" x="622" y="221">final arbitration</text>
+          <text class="box-text" x="622" y="243">intent + tactical parameters</text>
+
+          <rect x="905" y="100" width="210" height="180" rx="10" fill="#feecef" stroke="#be123c" stroke-width="2"/>
+          <text class="box-title" x="924" y="128">Beam Workers</text>
+          <text class="box-text" x="924" y="155">candidate plans</text>
+          <text class="box-text" x="924" y="177">objective-conditioned search</text>
+          <text class="box-text" x="924" y="199">search budget control</text>
+          <text class="box-text" x="924" y="221">plan diagnostics</text>
+          <text class="box-text" x="924" y="243">first action output</text>
+
+          <rect x="905" y="386" width="210" height="132" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+          <text class="box-title" x="924" y="414">Selected Placement</text>
+          <text class="box-text" x="924" y="441">action id</text>
+          <text class="box-text" x="924" y="463">visible N-turn plan</text>
+          <text class="box-text" x="924" y="485">expected chain / attack</text>
+          <text class="box-text" x="924" y="507">deadline / risk diagnostics</text>
+
+          <rect x="600" y="430" width="240" height="150" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+          <text class="box-title" x="622" y="458">Training Signal</text>
+          <text class="box-text" x="622" y="485">win/loss</text>
+          <text class="box-text" x="622" y="507">chain size / attack output</text>
+          <text class="box-text" x="622" y="529">cancel and return success</text>
+          <text class="box-text" x="622" y="551">survival / pressure / latency</text>
+
+          <rect x="290" y="504" width="230" height="120" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+          <text class="box-title" x="310" y="532">Datasets / Artifacts</text>
+          <text class="box-text" x="310" y="559">scenario dataset</text>
+          <text class="box-text" x="310" y="581">teacher / imitation data</text>
+          <text class="box-text" x="310" y="603">benchmark / replay QA</text>
+
+          <path class="arrow" d="M238 159 H290"/>
+          <text class="label" x="250" y="148">raw state</text>
+          <path class="arrow" d="M520 159 H600"/>
+          <text class="label" x="535" y="148">diagnostics</text>
+          <path class="arrow" d="M520 395 C560 395 560 250 600 250"/>
+          <text class="label" x="530" y="370">tactic specs</text>
+          <path class="arrow" d="M840 190 H905"/>
+          <text class="label" x="846" y="179">intent + objective</text>
+          <path class="arrow" d="M1010 100 C1010 58 720 58 720 100"/>
+          <text class="label" x="810" y="72">planner preview</text>
+          <path class="arrow" d="M1010 280 V386"/>
+          <text class="label" x="1021" y="336">first action</text>
+          <path class="arrow" d="M905 452 H840"/>
+          <path class="arrow" d="M720 430 V280"/>
+          <text class="label" x="734" y="363">policy update</text>
+          <path class="arrow" d="M405 504 V470"/>
+          <path class="arrow" d="M520 564 C560 564 560 260 600 260"/>
+          <text class="label" x="528" y="545">bootstrapping</text>
+        </svg>
+      </div>
+      <p class="diagram-source">
+        draw.io 編集用ファイル:
+        <a href="puyo-108-v1-7-architecture.drawio">puyo-108-v1-7-architecture.drawio</a>
+      </p>
+    </section>
+
+    <section id="schemas">
+      <h2>3. スキーマ定義</h2>
+      <p>
+        固定戦術名に閉じないため，観測・攻撃オプション・戦術・plan を構造化して扱う。
+        初期は人間が理解できる schema から始め，将来的には embedding や parameter distribution を学習対象にする。
+      </p>
+
+      <h3>3.1 State Analyzer 出力</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>schema</th>
+            <th>役割</th>
+            <th>主なフィールド</th>
+            <th>使い道</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>AttackOption</code></td>
+            <td>相手/自分が持つ攻撃候補を表す</td>
+            <td><code>kind</code>, <code>turns_to_fire</code>, <code>expected_attack</code>, <code>attack_per_turn</code>, <code>chain_count</code>, <code>uses_main_chain</code></td>
+            <td>本線以外の短期高火力，副砲，速攻，リーサル候補を比較する</td>
+          </tr>
+          <tr>
+            <td><code>MainChainForecast</code></td>
+            <td>本線の伸びしろと発火可能性を表す</td>
+            <td><code>estimated_chain</code>, <code>estimated_attack</code>, <code>trigger_accessible</code>, <code>extension_potential</code></td>
+            <td>大連鎖構築を継続するか，発火するかを判断する材料</td>
+          </tr>
+          <tr>
+            <td><code>BoardRisk</code></td>
+            <td>窒息・発火点喪失・形崩壊の危険度</td>
+            <td><code>danger</code>, <code>choke_risk</code>, <code>trigger_loss_risk</code>, <code>center_height</code></td>
+            <td>生存・安全構築・発火判断の制約</td>
+          </tr>
+          <tr>
+            <td><code>ResponseFeasibility</code></td>
+            <td>incoming や相手攻撃への対応可能性</td>
+            <td><code>incoming_attack</code>, <code>deadline</code>, <code>max_return</code>, <code>counter_margin</code></td>
+            <td>完全相殺，上回る返し，受け，カウンター準備の比較</td>
+          </tr>
+          <tr>
+            <td><code>OpponentVulnerability</code></td>
+            <td>相手のスキを表す</td>
+            <td><code>no_trigger_score</code>, <code>choke_risk</code>, <code>low_response_score</code>, <code>ojama_window</code></td>
+            <td>催促・速攻・リーサル狙いが通りやすいかを見る</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3.2 TacticSpec</h3>
+      <p>
+        戦術を固定名ではなく仕様として表す。`applicability` は候補に出しやすい条件であり，固定 if 文ではない。
+      </p>
+      <pre><code>TacticSpec
+  identity:
+    id / name / version / optional human_label
+  applicability:
+    candidate_features or learned_embedding
+  objective:
+    target_chain / target_attack / deadline
+    counter_margin / pressure_goal
+  constraints:
+    danger_tolerance / trigger_preservation
+    max_latency / avoid_choke
+  planner:
+    beam_depth / beam_width
+    evaluation_weights / candidate_count
+  termination:
+    objective_achieved / timeout / danger_threshold / opponent_fired
+  fallback:
+    fallback_tactic / safety_behavior
+  diagnostics:
+    success_rate / mean_attack / mean_chain
+    response_success / usage_clusters</code></pre>
+
+      <div class="grid-2">
+        <div class="box">
+          <h3>初期 TacticSpec 例</h3>
+          <span class="tag">build_main</span>
+          <span class="tag">prepare_response</span>
+          <span class="tag">counter_or_return</span>
+          <span class="tag">pressure</span>
+          <span class="tag">lethal_attack</span>
+          <span class="tag">all_clear</span>
+          <span class="tag">fire_main</span>
+          <span class="tag">survive</span>
+        </div>
+        <div class="box">
+          <h3>将来の進化</h3>
+          <ul>
+            <li>類似 tactic のクラスタリング。</li>
+            <li>使用局面ごとの成功率で分岐・統合。</li>
+            <li>parameter distribution の学習。</li>
+            <li>latent option への置き換え。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>3.3 Worker 入出力</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>入力</th>
+            <th>出力</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Parameterized Beam Worker</td>
+            <td>盤面，NEXT，`TacticSpec`，`target_attack`，`target_chain`，`deadline`，`danger_tolerance`，探索予算</td>
+            <td>1手目 action，N手 plan，予測連鎖，予測おじゃま，危険度，期限達成可否，発火点維持診断</td>
+          </tr>
+          <tr>
+            <td>Planner Preview</td>
+            <td>上位 tactic 候補，短い beam budget，現在局面</td>
+            <td>候補 tactic ごとの簡易 plan outcome と risk/cost</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="manager">
+      <h2>4. Learned Strategy Manager</h2>
+      <p>
+        初期実装は完全に独立した複数 sub agent ではなく，単一 manager の中に戦術別 proposal/evaluator head を持つ構造にする。
+        これにより，sub agent 的な解釈性を残しつつ，学習・同期・credit assignment を単純にする。
+      </p>
+      <div class="grid-2">
+        <div class="box">
+          <h3>構造</h3>
+          <ol>
+            <li>shared encoder が盤面 tensor と analyzer diagnostics を読む。</li>
+            <li>各 tactic head が「自分を使うならこの条件」という proposal を出す。</li>
+            <li>上位候補だけ worker で短く preview する。</li>
+            <li>final arbitration head が tactic と parameters を決める。</li>
+          </ol>
+        </div>
+        <div class="box">
+          <h3>評価値の考え方</h3>
+          <p>固定式ではなく学習済み value / policy head が出す。</p>
+          <pre><code>value(tactic) =
+  learned_value(
+    analyzer_features,
+    tactic_embedding,
+    planner_preview,
+    previous_plan_state
+  )</code></pre>
+        </div>
+      </div>
+      <h3>診断として保存する分解値</h3>
+      <div class="pill-row">
+        <span class="tag">learned_value</span>
+        <span class="tag">predicted_attack</span>
+        <span class="tag">deadline_success</span>
+        <span class="tag">danger_risk</span>
+        <span class="tag">trigger_preservation</span>
+        <span class="tag">latency_cost</span>
+        <span class="tag">counter_margin</span>
+      </div>
+      <div class="note">
+        人間が重みを固定するのではなく，重み付けは学習対象にする。ただし，UI / replay では評価の内訳を見えるようにする。
+      </div>
+    </section>
+
+    <section id="datasets">
+      <h2>5. データセット作成方法</h2>
+      <p>
+        Stage 1 の dataset は「初期対戦相手」ではなく，局面解析 API と学習/評価の足場である。
+        固定盤面・固定 NEXT・固定おじゃま状態を作り，State Analyzer が何を見ているかを確認できるようにする。
+      </p>
+
+      <h3>5.1 Scenario Dataset</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>scenario class</th>
+            <th>作る局面</th>
+            <th>期待する analyzer 出力</th>
+            <th>学習/評価での用途</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>短期高火力サブ連鎖</td>
+            <td>相手が本線以外に2〜3手以内の副砲を持つ</td>
+            <td>`AttackOption(kind=sub_chain, attack_per_turn=high)`</td>
+            <td>攻撃オプション候補の検出と response 準備評価</td>
+          </tr>
+          <tr>
+            <td>本線保持</td>
+            <td>相手が大きく伸ばせる本線と発火点を持つ</td>
+            <td>`MainChainForecast(estimated_chain, trigger_accessible)`</td>
+            <td>催促か構築継続かの判断材料</td>
+          </tr>
+          <tr>
+            <td>incoming 対応</td>
+            <td>自分におじゃまが落ちる期限付き局面</td>
+            <td>`ResponseFeasibility(max_return, deadline, counter_margin)`</td>
+            <td>完全相殺，上回る返し，生存優先の比較</td>
+          </tr>
+          <tr>
+            <td>相手のスキ</td>
+            <td>相手の発火点がない，受けが狭い，中央が高い</td>
+            <td>`OpponentVulnerability(score=high)`</td>
+            <td>催促・速攻・リーサル狙いの評価</td>
+          </tr>
+          <tr>
+            <td>自滅リスク</td>
+            <td>自分の発火点喪失や窒息が近い局面</td>
+            <td>`BoardRisk(choke_risk, trigger_loss_risk)`</td>
+            <td>survive / fire_main / safe build の評価</td>
+          </tr>
+          <tr>
+            <td>全消し</td>
+            <td>全消し直後，または全消しが狙える局面</td>
+            <td>`context(all_clear=true)`</td>
+            <td>専用 tactic と通常構築の切替評価</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Dataset 作成フロー</h3>
+      <ol>
+        <li>代表局面を fixture として保存する。盤面，NEXT，おじゃま queue，得点，tick を含める。</li>
+        <li>State Analyzer を実行し，structured diagnostics を保存する。</li>
+        <li>sanity check を付ける。例: 「相手サブ連鎖候補が1件以上」「incoming deadline が2」など。</li>
+        <li>必要なら beam preview を実行し，各 tactic の簡易 outcome を保存する。</li>
+        <li>replay / HTML / JSON artifact で人間が確認できる形にする。</li>
+      </ol>
+      <pre><code>{
+  "scenario_id": "short-subchain-threat-001",
+  "inputs": {
+    "own_board": "...",
+    "opponent_board": "...",
+    "visible_next": "...",
+    "ojama_queue": {"own": 0, "opponent": 0},
+    "tick": 120
+  },
+  "analyzer_expected": {
+    "opponent_attack_options_min": 1,
+    "has_short_tactical_attack": true,
+    "opponent_vulnerability": "low_or_medium"
+  },
+  "artifacts": {
+    "replay": "path/to/replay.json",
+    "diagnostics": "path/to/analyzer.json"
+  }
+}</code></pre>
+    </section>
+
+    <section id="training">
+      <h2>6. 学習方法</h2>
+      <p>
+        最初から self-play のみで始めると破綻しやすい。まず観測 API と初期 policy を作り，
+        その後 mixed opponent training，self-play，latent option へ進める。
+      </p>
+      <div class="grid-3">
+        <div class="box">
+          <h3>Stage 1</h3>
+          <p><strong>Analyzer and Scenario Dataset</strong></p>
+          <p>学習前でも局面を観測・説明できる状態を作る。</p>
+        </div>
+        <div class="box">
+          <h3>Stage 2</h3>
+          <p><strong>Bootstrapped Manager</strong></p>
+          <p>scripted scenario，強い beam，人間ログ，既存 checkpoint で初期 manager を作る。</p>
+        </div>
+        <div class="box">
+          <h3>Stage 3+</h3>
+          <p><strong>Training and Evolution</strong></p>
+          <p>mixed opponent，self-play，latent tactic evolution へ進む。</p>
+        </div>
+      </div>
+
+      <h3>学習段階の詳細</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>stage</th>
+            <th>目的</th>
+            <th>入力</th>
+            <th>出力</th>
+            <th>完了条件</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. Analyzer</td>
+            <td>観測 API と scenario dataset の確立</td>
+            <td>固定局面，NEXT，おじゃま queue，ルール情報</td>
+            <td>Analyzer schema，scenario JSON，diagnostics artifact</td>
+            <td>代表シナリオで analyzer の sanity check が通る</td>
+          </tr>
+          <tr>
+            <td>2. Bootstrap</td>
+            <td>破綻しにくい初期 manager の作成</td>
+            <td>Analyzer 出力，scripted teacher，beam preview，人間/既存モデルログ</td>
+            <td>初期 manager checkpoint，behavior cloning metrics</td>
+            <td>自滅率が低く，最低限の構築/相殺/発火ができる</td>
+          </tr>
+          <tr>
+            <td>3. Mixed Opponent</td>
+            <td>固定相手・過去世代・人間由来モデルへ適応</td>
+            <td>初期 manager，opponent pool，報酬設計</td>
+            <td>強化済み checkpoint，対戦 metrics</td>
+            <td>`manager_rule` / beam / baseline に対して改善傾向が出る</td>
+          </tr>
+          <tr>
+            <td>4. Self-Play</td>
+            <td>自己対戦で戦術を強化</td>
+            <td>mixed training 後 checkpoint，過去世代 pool</td>
+            <td>self-play checkpoint，世代別 benchmark</td>
+            <td>戦術崩壊や自滅増加なしに勝率・連鎖・対応が改善</td>
+          </tr>
+          <tr>
+            <td>5. Latent Evolution</td>
+            <td>戦術 schema の分岐・統合・改良</td>
+            <td>TacticSpec usage logs，success metrics，latent embeddings</td>
+            <td>更新された tactic registry，option diagnostics</td>
+            <td>新 tactic が既存 tactic より有効な局面を持つ</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="io">
+      <h2>7. 各ステップの Input / Output</h2>
+      <div class="swimlane" role="table" aria-label="input output by component">
+        <div class="head">Component</div>
+        <div class="head">Input</div>
+        <div class="head">Processing</div>
+        <div class="head">Output</div>
+        <div class="head">Artifact</div>
+        <div class="head">QA</div>
+
+        <div class="rowhead">Observed Inputs</div>
+        <div>盤面，NEXT，おじゃま，tick，score，履歴，前回 plan</div>
+        <div>tensor / structured state へ正規化</div>
+        <div>policy input payload</div>
+        <div>state snapshot JSON</div>
+        <div>replay と一致するか</div>
+
+        <div class="rowhead">State Analyzer</div>
+        <div>policy input payload</div>
+        <div>攻撃候補，本線，危険度，相殺可能性，スキを解析</div>
+        <div>structured diagnostics</div>
+        <div>analyzer diagnostics JSON</div>
+        <div>代表シナリオ sanity check</div>
+
+        <div class="rowhead">Tactic Registry</div>
+        <div>TacticSpec 定義，使用ログ</div>
+        <div>候補 tactic と parameter range を提供</div>
+        <div>candidate tactic set</div>
+        <div>tactic registry JSON</div>
+        <div>schema version と互換性</div>
+
+        <div class="rowhead">Manager</div>
+        <div>diagnostics，candidate tactic，previous plan</div>
+        <div>proposal/evaluator heads と arbitration</div>
+        <div>intent，parameters，search budget</div>
+        <div>manager decision log</div>
+        <div>判断理由が説明可能か</div>
+
+        <div class="rowhead">Beam Workers</div>
+        <div>盤面，intent，objective，budget</div>
+        <div>候補手列探索，preview，最終 plan 作成</div>
+        <div>action，N-turn plan，outcome prediction</div>
+        <div>plan diagnostics JSON</div>
+        <div>action 合法性と deadline</div>
+
+        <div class="rowhead">Training</div>
+        <div>対戦結果，plan outcome，reward features</div>
+        <div>BC / PPO / self-play / opponent pool</div>
+        <div>checkpoint，metrics，updated tactic stats</div>
+        <div>run directory</div>
+        <div>benchmark gate と GUI QA</div>
+      </div>
+    </section>
+
+    <section id="qa">
+      <h2>8. 評価・合意確認</h2>
+      <div class="grid-2">
+        <div class="box">
+          <h3>定量評価</h3>
+          <ul>
+            <li>平均最大連鎖数。段階目標は平均10連鎖級，将来理想は平均14連鎖級。</li>
+            <li>短期高火力サブ連鎖・速攻への対応成功率。</li>
+            <li>incoming 相殺成功率，incoming を上回って返せた割合。</li>
+            <li>催促で相手の発火を誘発できた回数。</li>
+            <li>自滅率，窒息率，発火点喪失率。</li>
+            <li>`manager_rule`，beam，worker baseline，既存 checkpoint への勝率。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>GUI / Replay QA</h3>
+          <ul>
+            <li>安全局面で本線構築を継続する。</li>
+            <li>相手の本線以外の攻撃オプションに反応する。</li>
+            <li>相手にスキがあるとき催促・リーサル狙いを選べる。</li>
+            <li>incoming に対して相殺，返し，生存を選び分ける。</li>
+            <li>全消し局面で専用方針を取る。</li>
+            <li>発火点を潰して自滅しない。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>合意確認チェックリスト</h3>
+      <ul class="checklist">
+        <li>2ダブ専用ではなく，本線以外の攻撃オプション全般を解析対象にする。</li>
+        <li>Analyzer は観測 API であり，行動ルールを固定しない。</li>
+        <li>manager は単一 model + 戦術別 heads から始め，将来 sub agent / MoE に拡張できる形にする。</li>
+        <li>戦術は `TacticSpec` schema で表現し，将来の動的生成・進化に備える。</li>
+        <li>Stage 1 は対戦相手作成ではなく，観測 API と scenario dataset 作成である。</li>
+        <li>Stage 2 は self-play 前の初期 manager bootstrapping である。</li>
+      </ul>
+
+      <div class="note">
+        Open Questions は現時点では保留。次回以降，初期戦術カテゴリ数，Analyzer の初期精度，reward 重み，
+        value model ranking を v1.7.x 初期に含めるかを確認する。
+      </div>
+    </section>
+  </main>
+  <script src="https://viewer.diagrams.net/js/viewer-static.min.js"></script>
+</body>
+</html>
