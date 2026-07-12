@@ -191,7 +191,12 @@ def build_planner_request(
     incoming = int(_path(diagnostics_payload, "incoming.amount", 0))
     target_attack = int(objective.get("target_attack", 0))
     if tactic.identity.tactic_id in {"prepare_response", "counter_or_return", "all_clear"}:
-        target_attack = incoming + int(objective.get("target_attack_margin", 0))
+        margin_name = (
+            "counter_margin"
+            if tactic.identity.tactic_id == "counter_or_return"
+            else "target_attack_margin"
+        )
+        target_attack = incoming + int(objective.get(margin_name, 0))
     deadline = _first_int(
         objective,
         "deadline_turns",
