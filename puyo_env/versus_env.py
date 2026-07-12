@@ -417,9 +417,12 @@ class VersusPuyoEnv:
                 "garbage_received": 0,
                 "score_delta": 0,
                 "chain_count": 0,
+                "attack_score_delta": 0,
                 "attack_generated": 0,
                 "attack_canceled": 0,
                 "attack_outgoing": 0,
+                "all_clear_bonus_consumed": False,
+                "all_clear_bonus_score": 0,
                 "invalid_action": False,
             }
             for agent in self.possible_agents
@@ -451,6 +454,9 @@ class VersusPuyoEnv:
             results[agent] = result
             components[agent]["score_delta"] = result.score_delta
             components[agent]["chain_count"] = result.chain_count
+            components[agent]["attack_score_delta"] = result.attack_score_delta
+            components[agent]["all_clear_bonus_consumed"] = result.all_clear_bonus_consumed
+            components[agent]["all_clear_bonus_score"] = result.all_clear_bonus_score
             state.max_chain_count = max(state.max_chain_count, int(result.chain_count))
             if not result.valid:
                 state.simulator.game.game_over = True

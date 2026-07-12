@@ -5,10 +5,13 @@ try:
     import gymnasium  # noqa: F401
     import numpy
 
+    from puyo_env.actions import placement_to_action_index
+    from puyo_env.realtime_versus import RealtimeVersusMatch
     from puyo_env.selfplay_env import VersusSelfPlayEnv
     from puyo_env.versus_env import VersusPuyoEnv
     from selfplay.policies import FirstLegalPolicy
-    from src.core.constants import PuyoColor, VISIBLE_HEIGHT
+    from src.core.constants import Direction, PuyoColor, VISIBLE_HEIGHT
+    from src.core.headless import PlacementAction
     from src.core.puyo import Puyo
 
     VERSUS_ENV_AVAILABLE = True
@@ -16,8 +19,11 @@ except Exception:
     VERSUS_ENV_AVAILABLE = False
     numpy = None
     VersusPuyoEnv = None
+    RealtimeVersusMatch = None
     VersusSelfPlayEnv = None
     FirstLegalPolicy = None
+    Direction = None
+    PlacementAction = None
     PuyoColor = None
     VISIBLE_HEIGHT = None
     Puyo = None
@@ -123,6 +129,91 @@ class TestVersusPuyoEnv(unittest.TestCase):
 
         self.assertEqual(generated, [0, 0, 1, 1])
         self.assertEqual(env.player_states["player_0"].score_carry, 1)
+
+    def test_all_clear_bonus_uses_attack_cancellation_order_with_realtime_parity(self):
+        env = VersusPuyoEnv(seed=123, max_steps=10, attack_delay_steps=100)
+        env.reset(seed=123)
+        attack_action = placement_to_action_index(PlacementAction(2, Direction.UP))
+        idle_action = placement_to_action_index(PlacementAction(4, Direction.UP))
+        game_0 = env.player_states["player_0"].simulator.game
+        game_1 = env.player_states["player_1"].simulator.game
+
+        game_0.current_puyo_1 = Puyo(PuyoColor.RED)
+        game_0.current_puyo_2 = Puyo(PuyoColor.RED)
+        for y in (0, 1):
+            game_0.field.place_puyo(1, y, Puyo(PuyoColor.RED))
+        game_1.current_puyo_1 = Puyo(PuyoColor.PURPLE)
+        game_1.current_puyo_2 = Puyo(PuyoColor.YELLOW)
+
+        _, _, _, _, infos = env.step(
+            {"player_0": attack_action, "player_1": idle_action}
+        )
+
+        first_attack = infos["player_0"]["reward_components"]
+        self.assertEqual(first_attack["attack_generated"], 0)
+        self.assertFalse(first_attack["all_clear_bonus_consumed"])
+        self.assertTrue(game_0.all_clear_bonus_pending)
+        self.assertEqual(env.player_states["player_0"].score_carry, 40)
+
+        game_0.current_puyo_1 = Puyo(PuyoColor.BLUE)
+        game_0.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        for y in (0, 1):
+            game_0.field.place_puyo(1, y, Puyo(PuyoColor.BLUE))
+        game_0.field.place_puyo(5, 0, Puyo(PuyoColor.RED))
+        game_1.current_puyo_1 = Puyo(PuyoColor.PURPLE)
+        game_1.current_puyo_2 = Puyo(PuyoColor.YELLOW)
+        for x, y in ((0, 0), (0, 1), (1, 0), (1, 1)):
+            game_1.field.place_puyo(x, y, Puyo(PuyoColor.RED))
+        for x, y in ((3, 0), (3, 1), (4, 0), (4, 1)):
+            game_1.field.place_puyo(x, y, Puyo(PuyoColor.BLUE))
+        env.player_states["player_0"].pending_ojama = 5
+
+        _, _, _, _, infos = env.step(
+            {"player_0": attack_action, "player_1": idle_action}
+        )
+
+        attack = infos["player_0"]["reward_components"]
+        turn_resolution = {
+            "generated": attack["attack_generated"],
+            "canceled": attack["attack_canceled"],
+            "outgoing": attack["attack_outgoing"],
+        }
+        self.assertEqual(
+            turn_resolution,
+            {"generated": 31, "canceled": 8, "outgoing": 23},
+        )
+        self.assertEqual(attack["attack_score_delta"], 2140)
+        self.assertTrue(attack["all_clear_bonus_consumed"])
+        self.assertEqual(attack["all_clear_bonus_score"], 2100)
+        self.assertEqual(env.player_states["player_0"].score_carry, 10)
+
+        realtime = RealtimeVersusMatch(seed=123, attack_delay_ticks=100)
+        realtime.player_states["player_0"].score_carry = 40
+        realtime.schedule_attack("player_1", 5, delay_ticks=1000)
+        realtime_generated = {
+            "player_0": realtime._attack_units_from_score("player_0", 2140),
+            "player_1": realtime._attack_units_from_score("player_1", 240),
+        }
+        realtime_resolution = realtime.resolve_generated_attacks(realtime_generated)
+
+        self.assertEqual(realtime_resolution["player_0"], turn_resolution)
+        self.assertEqual(realtime.player_states["player_0"].score_carry, 10)
+
+        game_0.current_puyo_1 = Puyo(PuyoColor.GREEN)
+        game_0.current_puyo_2 = Puyo(PuyoColor.GREEN)
+        for y in (0, 1):
+            game_0.field.place_puyo(1, y, Puyo(PuyoColor.GREEN))
+        game_1.current_puyo_1 = Puyo(PuyoColor.PURPLE)
+        game_1.current_puyo_2 = Puyo(PuyoColor.YELLOW)
+
+        _, _, _, _, infos = env.step(
+            {"player_0": attack_action, "player_1": idle_action}
+        )
+
+        third_attack = infos["player_0"]["reward_components"]
+        self.assertEqual(third_attack["attack_generated"], 0)
+        self.assertFalse(third_attack["all_clear_bonus_consumed"])
+        self.assertEqual(third_attack["all_clear_bonus_score"], 0)
 
     def test_unplaced_ojama_stays_pending_without_false_game_over(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)
