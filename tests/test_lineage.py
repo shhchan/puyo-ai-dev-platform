@@ -5,6 +5,7 @@ from pathlib import Path
 
 from train.artifacts import write_artifact_manifest
 from train.lineage import (
+    LINEAGE_MANIFEST_SCHEMA_VERSION,
     ancestors,
     build_registry,
     descendants,
@@ -217,6 +218,151 @@ class TestLineageRegistry(unittest.TestCase):
                 any(edge.edge_type == "evaluates" and edge.target == evaluation_nodes[0].id for edge in registry.edges)
             )
             self.assertEqual(validate_registry(registry), [])
+
+    def test_declarative_manifest_tracks_schemas_and_decisions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset = root / "scenarios.json"
+            evaluation = root / "evaluation.json"
+            dataset.write_text("{}", encoding="utf-8")
+            evaluation.write_text("{}", encoding="utf-8")
+            manifest = {
+                "schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION,
+                "nodes": [
+                    {
+                        "id": "model:v1.7.0",
+                        "node_type": "model_version",
+                        "label": "v1.7.0",
+                        "metadata": {
+                            "version": "v1.7.0",
+                            "model_family": "Adaptive Chain Manager",
+                            "policy_type": "v1_7_analyzer_manager",
+                            "promotion_state": "candidate",
+                            "git_commit": "abc123",
+                            "decision_reason": "awaiting GUI QA",
+                        },
+                    },
+                    {
+                        "id": "dataset:scenarios-v1",
+                        "node_type": "dataset",
+                        "label": "scenario dataset v1",
+                        "path": str(dataset),
+                        "metadata": {
+                            "schemas": {
+                                "analyzer": "puyo.state_analyzer.diagnostics.v1",
+                                "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+                                "feature": "puyo.lifecycle_features.v1",
+                            },
+                            "compatibility": {"status": "native"},
+                        },
+                    },
+                    {
+                        "id": "evaluation:scenario-v1",
+                        "node_type": "evaluation",
+                        "label": "scenario QA v1",
+                        "path": str(evaluation),
+                        "metadata": {
+                            "evaluation_kind": "scenario_qa",
+                            "status": "passed",
+                            "schemas": {
+                                "analyzer": "puyo.state_analyzer.diagnostics.v1",
+                                "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+                                "feature": "puyo.lifecycle_features.v1",
+                            },
+                            "compatibility": {"status": "native"},
+                        },
+                    },
+                    {
+                        "id": "role:candidate",
+                        "node_type": "registry_role",
+                        "label": "candidate",
+                        "metadata": {},
+                    },
+                ],
+                "edges": [
+                    {
+                        "source": "model:v1.7.0",
+                        "target": "dataset:scenarios-v1",
+                        "edge_type": "trained_with",
+                        "metadata": {},
+                    },
+                    {
+                        "source": "model:v1.7.0",
+                        "target": "evaluation:scenario-v1",
+                        "edge_type": "evaluated_by",
+                        "metadata": {},
+                    },
+                    {
+                        "source": "model:v1.7.0",
+                        "target": "role:candidate",
+                        "edge_type": "promoted_to",
+                        "metadata": {"reason": "headless scenario QA passed"},
+                    },
+                ],
+            }
+            (root / "lineage_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+            registry = build_registry([root])
+
+            self.assertEqual(validate_registry(registry), [])
+            self.assertIn("dataset:scenarios-v1", descendants(registry, "model:v1.7.0"))
+            report = root / "lineage.md"
+            write_markdown_report(registry, report)
+            report_text = report.read_text(encoding="utf-8")
+            self.assertIn("Version Timeline", report_text)
+            self.assertIn("headless scenario QA passed", report_text)
+
+    def test_manifest_rejects_implicit_feature_shape_migration_and_missing_reason(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = {
+                "schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION,
+                "nodes": [
+                    {
+                        "id": "dataset:legacy",
+                        "node_type": "dataset",
+                        "label": "legacy dataset",
+                        "metadata": {
+                            "legacy": True,
+                            "schemas": {
+                                "analyzer": "legacy",
+                                "all_clear_diagnostics": "legacy",
+                                "feature": "legacy-shape",
+                            },
+                            "compatibility": {
+                                "status": "native",
+                                "feature_shape_changed": True,
+                            },
+                        },
+                    },
+                    {
+                        "id": "role:rejected",
+                        "node_type": "registry_role",
+                        "label": "rejected",
+                        "metadata": {},
+                    },
+                ],
+                "edges": [
+                    {
+                        "source": "dataset:legacy",
+                        "target": "role:rejected",
+                        "edge_type": "rejected_by",
+                        "metadata": {},
+                    }
+                ],
+            }
+            (root / "lineage_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+            issue_types = {issue["type"] for issue in validate_registry(build_registry([root]))}
+
+            self.assertEqual(
+                issue_types,
+                {
+                    "implicit_feature_shape_migration",
+                    "legacy_compatibility_unspecified",
+                    "missing_decision_reason",
+                },
+            )
 
 
 if __name__ == "__main__":
