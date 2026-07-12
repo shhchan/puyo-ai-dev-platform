@@ -518,7 +518,9 @@ class GameState:
         self.all_clear_bonus_score = ALL_CLEAR_BONUS_SCORE
         return ALL_CLEAR_BONUS_SCORE
 
-    def _field_is_empty(self):
+    def is_board_empty(self):
+        """Return whether every cell, including hidden rows, is empty."""
+
         return all(
             self.field.get_puyo(x, y).is_empty()
             for y in range(GRID_HEIGHT)
@@ -526,7 +528,7 @@ class GameState:
         )
 
     def _finish_chain_resolution(self):
-        self.all_clear_achieved = self.chain_count > 0 and self._field_is_empty()
+        self.all_clear_achieved = self.chain_count > 0 and self.is_board_empty()
         if self.all_clear_achieved:
             self.all_clear_bonus_pending = True
         if self.chain_count > 0:

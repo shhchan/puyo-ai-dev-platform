@@ -79,3 +79,20 @@ event は次を持つ。
 ## Golden fixture
 
 replay fixture は seed、tick 数、tick input、期待 hash を JSON で保持する。runner は `src/core/replay.py` の `assert_replay_matches_fixture()` を使う。
+
+## 全消し runtime diagnostics
+
+PUYO-151 以降、turn-based / realtime の runtime info と realtime match replay は
+`puyo.all_clear_diagnostics.v1` を共通契約として使う。player ごとのフィールドは次の4つである。
+
+| field | 意味 |
+|---|---|
+| `board_empty` | hidden row を含む現在盤面が空である |
+| `all_clear_achieved` | 直前の連鎖解決で全消しが成立した |
+| `all_clear_bonus_pending` | 次の連鎖で使う全消しボーナスを保持している |
+| `all_clear_bonus_consumed` | 直前の連鎖解決で保持ボーナスを消費した |
+
+runtime info は own field を上記名、相手 field を `opponent_` prefix 付きで公開する。
+replay tick は `all_clear_diagnostics.schema_version` と `players.player_0/player_1` に同じ値を保存し、
+replay 時に snapshot hash と併せて一致を検証する。この変更は既存
+`puyo-realtime-match-v1` への additive diagnostics であり、入力と hash の形式は変更しない。

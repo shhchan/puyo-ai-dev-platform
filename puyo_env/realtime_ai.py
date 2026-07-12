@@ -20,6 +20,7 @@ from puyo_env.obs import encode_board, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
 from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, RealtimeVersusMatch
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
+from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.realtime import DEFAULT_REALTIME_TIMING, RealtimeTimingConfig, TickInput
 
@@ -849,6 +850,10 @@ def build_realtime_info(
         "tick_count": match.tick,
         "max_steps": feature_max_ticks,
         "max_ticks": max_ticks,
+        **build_all_clear_runtime_info(
+            state.simulator.game,
+            opponent_state.simulator.game,
+        ),
     }
 
 

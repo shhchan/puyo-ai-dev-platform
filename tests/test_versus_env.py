@@ -44,6 +44,35 @@ class TestVersusPuyoEnv(unittest.TestCase):
             observations["player_0"]["next_pairs"],
             observations["player_1"]["next_pairs"],
         )
+        self.assertEqual(
+            infos["player_0"]["all_clear_diagnostics_schema_version"],
+            "puyo.all_clear_diagnostics.v1",
+        )
+        self.assertTrue(infos["player_0"]["board_empty"])
+        self.assertFalse(infos["player_0"]["all_clear_achieved"])
+        self.assertFalse(infos["player_0"]["all_clear_bonus_pending"])
+        self.assertFalse(infos["player_0"]["all_clear_bonus_consumed"])
+
+    def test_runtime_info_keeps_own_and_opponent_all_clear_state_independent(self):
+        env = VersusPuyoEnv(seed=123, max_steps=10)
+        env.reset(seed=123)
+        game_0 = env.player_states["player_0"].simulator.game
+        game_1 = env.player_states["player_1"].simulator.game
+        game_0.all_clear_achieved = True
+        game_0.all_clear_bonus_pending = True
+        game_1.field.place_puyo(0, 0, Puyo(PuyoColor.RED))
+        game_1.all_clear_bonus_consumed = True
+
+        info = env._info("player_0")
+
+        self.assertTrue(info["board_empty"])
+        self.assertTrue(info["all_clear_achieved"])
+        self.assertTrue(info["all_clear_bonus_pending"])
+        self.assertFalse(info["all_clear_bonus_consumed"])
+        self.assertFalse(info["opponent_board_empty"])
+        self.assertFalse(info["opponent_all_clear_achieved"])
+        self.assertFalse(info["opponent_all_clear_bonus_pending"])
+        self.assertTrue(info["opponent_all_clear_bonus_consumed"])
 
     def test_first_legal_policies_run_until_truncated(self):
         env = VersusPuyoEnv(seed=123, max_steps=3)

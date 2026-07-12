@@ -334,6 +334,10 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
             )
             for _ in range(8):
                 controller.advance_tick()
+            self.assertEqual(
+                controller.collection_replay_ticks[0]["all_clear_diagnostics"]["schema_version"],
+                "puyo.all_clear_diagnostics.v1",
+            )
             manifest = controller.finalize_collection(interrupted=True)
 
             self.assertIsNotNone(manifest)

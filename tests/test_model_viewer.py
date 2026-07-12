@@ -102,6 +102,23 @@ class TestModelViewerData(unittest.TestCase):
                                     }
                                 }
                             },
+                            "all_clear_diagnostics": {
+                                "schema_version": "puyo.all_clear_diagnostics.v1",
+                                "players": {
+                                    "player_0": {
+                                        "board_empty": True,
+                                        "all_clear_achieved": True,
+                                        "all_clear_bonus_pending": True,
+                                        "all_clear_bonus_consumed": False,
+                                    },
+                                    "player_1": {
+                                        "board_empty": False,
+                                        "all_clear_achieved": False,
+                                        "all_clear_bonus_pending": False,
+                                        "all_clear_bonus_consumed": False,
+                                    },
+                                },
+                            },
                         }
                     ],
                 }
@@ -121,6 +138,9 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(final_hash, "final")
             self.assertEqual(policy_metadata["player_0"]["policy_type"], "manager_rule")
             self.assertEqual(timeline[0].plan_ids, ("plan-1",))
+            self.assertTrue(
+                timeline[0].all_clear_diagnostics["players"]["player_0"]["all_clear_bonus_pending"]
+            )
 
     def test_model_viewer_report_summarizes_replay_and_lineage(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -146,6 +166,15 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(
                 report["replay"]["selected_entry"]["agents"]["player_0"]["diagnostics"]["profile_name"],
                 "build_large",
+            )
+            self.assertEqual(
+                report["replay"]["selected_entry"]["agents"]["player_0"]["all_clear"],
+                {
+                    "board_empty": True,
+                    "all_clear_achieved": True,
+                    "all_clear_bonus_pending": True,
+                    "all_clear_bonus_consumed": False,
+                },
             )
             self.assertEqual(
                 report["replay"]["selected_entry"]["agents"]["player_0"]["lineage_node_id"],

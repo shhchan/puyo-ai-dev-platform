@@ -9,6 +9,10 @@ from dataclasses import dataclass, field
 from typing import Mapping
 
 from src.core.constants import VISIBLE_HEIGHT
+from src.core.diagnostics import (
+    ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
+    build_all_clear_diagnostics,
+)
 from src.core.ojama import convert_score_to_ojama
 from src.core.realtime import (
     DEFAULT_REALTIME_TIMING,
@@ -237,6 +241,19 @@ class RealtimeVersusMatch:
         }
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
+
+    def all_clear_diagnostics(self) -> dict[str, object]:
+        """Return versioned per-player diagnostics for runtime and replay consumers."""
+
+        return {
+            "schema_version": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
+            "players": {
+                agent: build_all_clear_diagnostics(
+                    self.player_states[agent].simulator.game
+                )
+                for agent in self.possible_agents
+            },
+        }
 
     def _opponent(self, agent: str) -> str:
         if agent == "player_0":
