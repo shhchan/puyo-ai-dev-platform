@@ -15,6 +15,8 @@ from puyo_env.realtime_ai import (
 )
 from puyo_env.realtime_versus import RealtimeVersusMatch
 from selfplay.policies import FirstLegalPolicy
+from src.core.constants import PuyoColor
+from src.core.puyo import Puyo
 
 
 class TestRealtimeAI(unittest.TestCase):
@@ -31,6 +33,28 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertEqual(info["incoming_arrival_tick"], 7)
         self.assertEqual(info["own_phase"], "control")
         self.assertIn("active_position", info)
+
+    def test_runtime_info_distinguishes_initial_empty_and_opponent_state(self):
+        match = RealtimeVersusMatch(seed=123)
+        own_game = match.player_states["player_0"].simulator.game
+        opponent_game = match.player_states["player_1"].simulator.game
+        own_game.all_clear_achieved = True
+        own_game.all_clear_bonus_pending = True
+        opponent_game.field.place_puyo(0, 0, Puyo(PuyoColor.RED))
+        opponent_game.all_clear_bonus_consumed = True
+
+        info = build_realtime_info(match, "player_0")
+
+        self.assertEqual(
+            info["all_clear_diagnostics_schema_version"],
+            "puyo.all_clear_diagnostics.v1",
+        )
+        self.assertTrue(info["board_empty"])
+        self.assertTrue(info["all_clear_achieved"])
+        self.assertTrue(info["all_clear_bonus_pending"])
+        self.assertFalse(info["all_clear_bonus_consumed"])
+        self.assertFalse(info["opponent_board_empty"])
+        self.assertTrue(info["opponent_all_clear_bonus_consumed"])
 
     def test_reachable_action_mask_matches_planner(self):
         match = RealtimeVersusMatch(seed=123)

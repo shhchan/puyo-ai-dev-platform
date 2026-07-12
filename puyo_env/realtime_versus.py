@@ -9,6 +9,11 @@ from dataclasses import dataclass, field
 from typing import Mapping
 
 from src.core.constants import VISIBLE_HEIGHT
+from src.core.diagnostics import (
+    ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
+    build_all_clear_diagnostics,
+)
+from src.core.ojama import convert_score_to_ojama
 from src.core.realtime import (
     DEFAULT_REALTIME_TIMING,
     RealtimeHeadlessSimulator,
@@ -48,7 +53,7 @@ class RealtimeMatchTickResult:
     tick: int
     player_results: Mapping[str, RealtimeStepResult]
     generated_attacks: Mapping[str, int]
-    attack_diagnostics: Mapping[str, Mapping[str, int]]
+    attack_diagnostics: Mapping[str, Mapping[str, int | bool]]
     dropped_ojama: Mapping[str, int]
     winner: str | None
     snapshot_hash: str
@@ -111,11 +116,22 @@ class RealtimeVersusMatch:
             for agent in self.possible_agents
         }
 
+        attack_metadata = {
+            agent: self._attack_metadata_from_step(player_results[agent])
+            for agent in self.possible_agents
+        }
         generated = {
-            agent: self._attack_units_from_step(agent, player_results[agent])
+            agent: self._attack_units_from_score(
+                agent,
+                int(attack_metadata[agent]["attack_score_delta"]),
+            )
+            if int(attack_metadata[agent]["attack_score_delta"]) > 0
+            else 0
             for agent in self.possible_agents
         }
         diagnostics = self.resolve_generated_attacks(generated)
+        for agent in self.possible_agents:
+            diagnostics[agent].update(attack_metadata[agent])
         dropped = {
             agent: self._apply_due_ojama(agent)
             for agent in self.possible_agents
@@ -162,9 +178,12 @@ class RealtimeVersusMatch:
             )
         )
 
-    def resolve_generated_attacks(self, generated: Mapping[str, int]) -> dict[str, dict[str, int]]:
+    def resolve_generated_attacks(
+        self,
+        generated: Mapping[str, int],
+    ) -> dict[str, dict[str, int | bool]]:
         remaining: dict[str, int] = {}
-        diagnostics: dict[str, dict[str, int]] = {}
+        diagnostics: dict[str, dict[str, int | bool]] = {}
         for agent in self.possible_agents:
             units = max(0, int(generated.get(agent, 0)))
             canceled_incoming = self._consume_incoming(agent, units)
@@ -206,6 +225,12 @@ class RealtimeVersusMatch:
                         )
                     ],
                     "score_carry": self.player_states[agent].score_carry,
+                    "last_chain_end_score": (
+                        self.player_states[agent].simulator.game.last_chain_end_score
+                    ),
+                    "last_chain_score_delta": (
+                        self.player_states[agent].simulator.game.last_chain_score_delta
+                    ),
                     "sent_ojama_total": self.player_states[agent].sent_ojama_total,
                     "generated_ojama_total": self.player_states[agent].generated_ojama_total,
                     "canceled_ojama_total": self.player_states[agent].canceled_ojama_total,
@@ -217,6 +242,19 @@ class RealtimeVersusMatch:
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
 
+    def all_clear_diagnostics(self) -> dict[str, object]:
+        """Return versioned per-player diagnostics for runtime and replay consumers."""
+
+        return {
+            "schema_version": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
+            "players": {
+                agent: build_all_clear_diagnostics(
+                    self.player_states[agent].simulator.game
+                )
+                for agent in self.possible_agents
+            },
+        }
+
     def _opponent(self, agent: str) -> str:
         if agent == "player_0":
             return "player_1"
@@ -225,17 +263,42 @@ class RealtimeVersusMatch:
         raise KeyError(f"unknown agent: {agent}")
 
     def _attack_units_from_step(self, agent: str, result: RealtimeStepResult) -> int:
-        score_delta = 0
-        for event in result.events:
-            if event.type == "resolution_complete":
-                score_delta += int(event.data.get("score_delta", 0))
+        score_delta = int(self._attack_metadata_from_step(result)["attack_score_delta"])
         if score_delta <= 0:
             return 0
+        return self._attack_units_from_score(agent, score_delta)
+
+    @staticmethod
+    def _attack_metadata_from_step(result: RealtimeStepResult) -> dict[str, int | bool]:
+        score_delta = 0
+        all_clear_bonus_consumed = False
+        all_clear_bonus_score = 0
+        for event in result.events:
+            if (
+                event.type == "resolution_complete"
+                and int(event.data.get("chain_count", 0)) > 0
+            ):
+                score_delta += int(event.data.get("attack_score_delta", 0))
+                all_clear_bonus_consumed = (
+                    all_clear_bonus_consumed
+                    or bool(event.data.get("all_clear_bonus_consumed", False))
+                )
+                all_clear_bonus_score += int(event.data.get("all_clear_bonus_score", 0))
+        return {
+            "attack_score_delta": score_delta,
+            "all_clear_bonus_consumed": all_clear_bonus_consumed,
+            "all_clear_bonus_score": all_clear_bonus_score,
+        }
+
+    def _attack_units_from_score(self, agent: str, score_delta: int) -> int:
         state = self.player_states[agent]
-        total = state.score_carry + score_delta
-        units = total // self.target_score_per_ojama
-        state.score_carry = total % self.target_score_per_ojama
-        return int(units)
+        conversion = convert_score_to_ojama(
+            score_delta,
+            state.score_carry,
+            self.target_score_per_ojama,
+        )
+        state.score_carry = conversion.carry
+        return conversion.units
 
     def _consume_incoming(
         self,

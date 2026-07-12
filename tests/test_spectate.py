@@ -39,6 +39,7 @@ class TestSpectate(unittest.TestCase):
 
         text = output.getvalue()
         self.assertIn("P0      P1", text)
+        self.assertIn("all_clear=(empty=1,achieved=0,pending=0,consumed=0)", text)
         self.assertIn("rewards:", text)
         self.assertEqual(result["steps"], 2)
 

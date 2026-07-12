@@ -1,3 +1,4 @@
+import copy
 import unittest
 
 from eval.realtime_arena import (
@@ -25,7 +26,19 @@ class TestRealtimeArena(unittest.TestCase):
         self.assertGreater(match.decisions_player_0, 0)
         self.assertGreater(match.emitted_input_ticks_player_0, 0)
         self.assertIsNotNone(match.replay)
+        diagnostics = match.replay["ticks"][0]["all_clear_diagnostics"]
+        self.assertEqual(diagnostics["schema_version"], "puyo.all_clear_diagnostics.v1")
+        self.assertEqual(set(diagnostics["players"]), {"player_0", "player_1"})
+        self.assertTrue(diagnostics["players"]["player_0"]["board_empty"])
+        self.assertFalse(diagnostics["players"]["player_0"]["all_clear_achieved"])
         self.assertEqual(replay_realtime_match(match.replay), match.final_hash)
+
+        tampered = copy.deepcopy(match.replay)
+        tampered["ticks"][0]["all_clear_diagnostics"]["players"]["player_0"][
+            "all_clear_bonus_pending"
+        ] = True
+        with self.assertRaisesRegex(AssertionError, "all-clear diagnostics mismatch"):
+            replay_realtime_match(tampered)
 
     def test_realtime_replay_records_search_objective_diagnostics(self):
         match = run_realtime_match(
