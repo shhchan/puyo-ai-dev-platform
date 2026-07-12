@@ -838,6 +838,7 @@ def build_realtime_info(
         "opponent_incoming_ticks": 0 if opponent_incoming_ticks is None else opponent_incoming_ticks,
         "opponent_incoming_turns": _ticks_to_turns(match, opponent_incoming_ticks),
         "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
+        "opponent_score_carry": opponent_state.score_carry,
         "opponent_received_ojama_total": opponent_state.received_ojama_total,
         "opponent_simulator": _placement_simulator_snapshot(opponent_state.simulator.game),
         "opponent_realtime_simulator": opponent_state.simulator,

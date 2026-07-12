@@ -35,8 +35,12 @@ _COLOR_NAMES = {
 class ScenarioResult:
     name: str
     category: str
+    situation: str
+    expected_behavior: tuple[str, ...]
+    non_goals: tuple[str, ...]
     passed: bool
     checks: tuple[dict[str, Any], ...]
+    analyzer_input: dict[str, Any]
     diagnostics: dict[str, Any]
 
 
@@ -47,6 +51,18 @@ def load_scenarios(path: str | Path = DEFAULT_DATASET) -> list[dict[str, Any]]:
     scenarios = payload.get("scenarios")
     if not isinstance(scenarios, list) or not scenarios:
         raise ValueError("scenario dataset must contain a non-empty scenarios list")
+    names = [str(scenario.get("name", "")) for scenario in scenarios]
+    if any(not name for name in names) or len(names) != len(set(names)):
+        raise ValueError("scenario names must be non-empty and unique")
+    for scenario in scenarios:
+        if not str(scenario.get("situation", "")).strip():
+            raise ValueError(f"scenario {scenario['name']} must describe its situation")
+        if not scenario.get("expected_behavior"):
+            raise ValueError(f"scenario {scenario['name']} must describe expected behavior")
+        if not scenario.get("non_goals"):
+            raise ValueError(f"scenario {scenario['name']} must describe tactical non-goals")
+        if not scenario.get("expectations"):
+            raise ValueError(f"scenario {scenario['name']} must contain expectations")
     return scenarios
 
 
@@ -70,14 +86,19 @@ def evaluate_scenarios(
     state_analyzer = analyzer or StateAnalyzer()
     results = []
     for scenario in selected:
-        diagnostics = state_analyzer.analyze(scenario_input(scenario)).to_dict()
+        analyzer_input = scenario_input(scenario)
+        diagnostics = state_analyzer.analyze(analyzer_input).to_dict()
         checks = tuple(_check(diagnostics, expectation) for expectation in scenario.get("expectations", ()))
         results.append(
             ScenarioResult(
                 name=str(scenario["name"]),
                 category=str(scenario["category"]),
+                situation=str(scenario["situation"]),
+                expected_behavior=tuple(str(item) for item in scenario["expected_behavior"]),
+                non_goals=tuple(str(item) for item in scenario["non_goals"]),
                 passed=bool(checks) and all(check["passed"] for check in checks),
                 checks=checks,
+                analyzer_input=analyzer_input.to_dict(),
                 diagnostics=diagnostics,
             )
         )
@@ -98,8 +119,12 @@ def build_report(results: list[ScenarioResult]) -> dict[str, Any]:
             {
                 "name": result.name,
                 "category": result.category,
+                "situation": result.situation,
+                "expected_behavior": list(result.expected_behavior),
+                "non_goals": list(result.non_goals),
                 "passed": result.passed,
                 "checks": list(result.checks),
+                "input": result.analyzer_input,
                 "diagnostics": result.diagnostics,
             }
             for result in results
@@ -117,16 +142,26 @@ def parse_args(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(description="Evaluate State Analyzer diagnostics on fixed scenarios.")
     parser.add_argument("--dataset", default=str(DEFAULT_DATASET))
     parser.add_argument("--json", dest="json_path")
+    parser.add_argument(
+        "--show-boards",
+        action="store_true",
+        help="render each fixed board in top-down human-readable form",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    results = evaluate_scenarios(load_scenarios(args.dataset))
+    scenarios = load_scenarios(args.dataset)
+    results = evaluate_scenarios(scenarios)
     report = build_report(results)
-    for result in results:
+    for scenario, result in zip(scenarios, results):
         label = "PASS" if result.passed else "FAIL"
         print(f"{label} {result.category}: {result.name}")
+        if args.show_boards:
+            print(f"  situation: {result.situation}")
+            print(_render_player("own", scenario["own"]))
+            print(_render_player("opponent", scenario["opponent"]))
         for check in result.checks:
             if not check["passed"]:
                 print(
@@ -154,18 +189,40 @@ def _player(value: Mapping[str, Any]) -> PlayerSnapshot:
             for packet in value.get("incoming", ())
         ),
         score=int(value.get("score", 0)),
+        last_chain_end_score=int(value.get("last_chain_end_score", 0)),
+        score_carry=int(value.get("score_carry", 0)),
         sent_ojama_total=int(value.get("sent_ojama_total", 0)),
         canceled_ojama_total=int(value.get("canceled_ojama_total", 0)),
         received_ojama_total=int(value.get("received_ojama_total", 0)),
+        all_clear_achieved=bool(value.get("all_clear_achieved", False)),
+        all_clear_bonus_pending=bool(value.get("all_clear_bonus_pending", False)),
+        all_clear_bonus_consumed=bool(value.get("all_clear_bonus_consumed", False)),
     )
+
+
+def _render_player(label: str, value: Mapping[str, Any]) -> str:
+    lines = [f"  {label} (top -> bottom):"]
+    lines.extend(f"    |{row}|" for row in reversed(value["board"]))
+    incoming = value.get("incoming", ())
+    lines.append(
+        f"    current={value['current_pair']} next={','.join(value['next_pairs'])} "
+        f"incoming={json.dumps(incoming, separators=(',', ':'))}"
+    )
+    return "\n".join(lines)
 
 
 def _resolve_path(value: Any, path: str) -> Any:
     current = value
     for part in path.split("."):
-        if not isinstance(current, Mapping) or part not in current:
-            raise KeyError(path)
-        current = current[part]
+        if isinstance(current, Mapping) and part in current:
+            current = current[part]
+            continue
+        if isinstance(current, (tuple, list)) and part.isdigit():
+            index = int(part)
+            if index < len(current):
+                current = current[index]
+                continue
+        raise KeyError(path)
     return current
 
 
@@ -173,15 +230,25 @@ def _check(diagnostics: Mapping[str, Any], expectation: Mapping[str, Any]) -> di
     path = str(expectation["path"])
     operator = str(expectation["op"])
     expected = expectation["value"]
-    actual = _resolve_path(diagnostics, path)
+    actual = _json_value(_resolve_path(diagnostics, path))
     operations = {
         "eq": lambda: actual == expected,
+        "ne": lambda: actual != expected,
         "gte": lambda: actual >= expected,
         "lte": lambda: actual <= expected,
+        "len_eq": lambda: len(actual) == int(expected),
         "len_gte": lambda: len(actual) >= int(expected),
         "contains": lambda: expected in actual,
         "any_field_contains": lambda: any(
             expected["value"] in item[expected["field"]] for item in actual
+        ),
+        "any_match": lambda: any(
+            all(item.get(field) == value for field, value in expected.items())
+            for item in actual
+        ),
+        "none_match": lambda: not any(
+            all(item.get(field) == value for field, value in expected.items())
+            for item in actual
         ),
     }
     if operator not in operations:
@@ -193,6 +260,14 @@ def _check(diagnostics: Mapping[str, Any], expectation: Mapping[str, Any]) -> di
         "actual": actual,
         "passed": bool(operations[operator]()),
     }
+
+
+def _json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _json_value(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_value(item) for item in value]
+    return value
 
 
 if __name__ == "__main__":

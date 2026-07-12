@@ -249,6 +249,7 @@ class VersusPuyoEnv:
             "opponent_pending_ojama": opponent_state.pending_ojama,
             "opponent_incoming_turns": self._incoming_turns(self._opponent(agent)),
             "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
+            "opponent_score_carry": opponent_state.score_carry,
             "opponent_received_ojama_total": opponent_state.received_ojama_total,
             "opponent_max_chain_count": opponent_state.max_chain_count,
             "opponent_simulator": opponent_state.simulator,

@@ -11,6 +11,7 @@ from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
 from src.core.game import GameState
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.ojama import convert_score_to_ojama
 from src.core.puyo import Puyo
 
 
@@ -50,9 +51,14 @@ class PlayerSnapshot:
     next_pairs: tuple[tuple[str, str], ...]
     incoming: tuple[AttackPacket, ...] = ()
     score: int = 0
+    last_chain_end_score: int = 0
+    score_carry: int = 0
     sent_ojama_total: int = 0
     canceled_ojama_total: int = 0
     received_ojama_total: int = 0
+    all_clear_achieved: bool = False
+    all_clear_bonus_pending: bool = False
+    all_clear_bonus_consumed: bool = False
 
     def __post_init__(self) -> None:
         if len(self.board) != GRID_HEIGHT or any(len(row) != GRID_WIDTH for row in self.board):
@@ -71,8 +77,17 @@ class PlayerSnapshot:
         pair_colors.update(color for pair in self.next_pairs for color in pair)
         if not pair_colors.issubset(_PAIR_COLORS):
             raise ValueError("current_pair and next_pairs must contain only normal puyo colors")
-        if min(self.score, self.sent_ojama_total, self.canceled_ojama_total, self.received_ojama_total) < 0:
+        if min(
+            self.score,
+            self.last_chain_end_score,
+            self.score_carry,
+            self.sent_ojama_total,
+            self.canceled_ojama_total,
+            self.received_ojama_total,
+        ) < 0:
             raise ValueError("score and ojama totals must be non-negative")
+        if self.last_chain_end_score > self.score:
+            raise ValueError("last_chain_end_score must not exceed score")
 
 
 @dataclass(frozen=True)
@@ -121,6 +136,7 @@ class AnalyzerInput:
                 own_simulator,
                 incoming=own_packets,
                 score=int(info.get("score", 0)),
+                score_carry=int(info.get("score_carry", 0)),
                 sent=int(info.get("sent_ojama_total", 0)),
                 canceled=int(info.get("canceled_ojama_total", 0)),
                 received=int(info.get("received_ojama_total", 0)),
@@ -129,6 +145,7 @@ class AnalyzerInput:
                 opponent_simulator,
                 incoming=(AttackPacket(opponent_pending, opponent_deadline),) if opponent_pending else (),
                 score=int(info.get("opponent_score", 0)),
+                score_carry=int(info.get("opponent_score_carry", 0)),
                 sent=int(info.get("opponent_sent_ojama_total", 0)),
                 canceled=int(info.get("opponent_canceled_ojama_total", 0)),
                 received=int(info.get("opponent_received_ojama_total", 0)),
@@ -157,15 +174,22 @@ class AttackOption:
     turns: int
     chain_count: int
     score: int
+    attack_score: int
     attack: int
+    score_carry_before: int
+    score_carry_after: int
     attack_per_turn: float
     action_path: tuple[tuple[int, str], ...]
     trigger_cells: tuple[tuple[int, int], ...]
+    first_chain_vanished_cells: tuple[tuple[int, int], ...]
     chain_group_counts: tuple[int, ...]
     is_immediate: bool
     is_main_chain: bool = False
     is_sub_chain: bool = False
     is_all_clear: bool = False
+    all_clear_bonus_pending: bool = False
+    all_clear_bonus_consumed: bool = False
+    all_clear_bonus_score: int = 0
     hard_to_answer: bool = False
 
 
@@ -181,9 +205,23 @@ class AttackForecast:
 class PlayerAnalysis:
     danger: float
     vulnerability: float
+    board_empty: bool
     is_all_clear: bool
+    all_clear_achieved: bool
+    all_clear_bonus_pending: bool
+    all_clear_bonus_consumed: bool
     forecast: AttackForecast
     attack_options: tuple[AttackOption, ...]
+
+
+@dataclass(frozen=True)
+class IncomingWindow:
+    deadline: int
+    amount_due: int
+    max_return_by_deadline: int
+    can_cancel: bool
+    can_counter: bool
+    counter_deficit: int
 
 
 @dataclass(frozen=True)
@@ -194,6 +232,7 @@ class IncomingAnalysis:
     can_cancel: bool
     can_counter: bool
     counter_deficit: int
+    windows: tuple[IncomingWindow, ...]
 
 
 @dataclass(frozen=True)
@@ -214,6 +253,7 @@ class AnalyzerDiagnostics:
 class _SearchNode:
     simulator: HeadlessPuyoSimulator
     score: int
+    score_carry: int
     max_chain: int
     path: tuple[tuple[int, str], ...]
 
@@ -233,18 +273,29 @@ class StateAnalyzer:
             _mark_hard_to_answer(opponent.attack_options, own.forecast),
         )
         incoming_amount = sum(packet.amount for packet in analyzer_input.own.incoming)
-        deadline = min((packet.deadline for packet in analyzer_input.own.incoming), default=0)
-        max_return = _return_by_deadline(own.forecast, deadline) if incoming_amount else 0
+        windows = _incoming_windows(analyzer_input.own.incoming, own.attack_options)
+        first_window = windows[0] if windows else None
+        final_window = windows[-1] if windows else None
         return AnalyzerDiagnostics(
             own=own,
             opponent=opponent,
             incoming=IncomingAnalysis(
                 amount=incoming_amount,
-                deadline=deadline,
-                max_return_by_deadline=max_return,
-                can_cancel=incoming_amount > 0 and max_return >= incoming_amount,
-                can_counter=incoming_amount > 0 and max_return > incoming_amount,
-                counter_deficit=max(0, incoming_amount - max_return),
+                deadline=0 if first_window is None else first_window.deadline,
+                max_return_by_deadline=(
+                    0 if first_window is None else first_window.max_return_by_deadline
+                ),
+                can_cancel=bool(windows) and all(window.can_cancel for window in windows),
+                can_counter=(
+                    bool(windows)
+                    and all(window.can_cancel for window in windows)
+                    and bool(final_window and final_window.can_counter)
+                ),
+                counter_deficit=max(
+                    (window.counter_deficit for window in windows),
+                    default=0,
+                ),
+                windows=windows,
             ),
             turn=analyzer_input.turn,
             tick=analyzer_input.tick,
@@ -253,7 +304,7 @@ class StateAnalyzer:
 
     def _analyze_player(self, snapshot: PlayerSnapshot) -> PlayerAnalysis:
         simulator = _simulator_from_snapshot(snapshot)
-        options = self._search(simulator)
+        options = self._search(simulator, snapshot.score_carry)
         main = max(options, key=lambda option: (option.chain_count, option.attack, -option.turns), default=None)
         if main is not None:
             options = tuple(replace(option, is_main_chain=option == main) for option in options)
@@ -267,10 +318,15 @@ class StateAnalyzer:
             + (0.2 if immediate == 0 else 0.0)
             + (0.1 if not options else 0.0),
         )
+        board_empty = _is_all_clear(snapshot.board)
         return PlayerAnalysis(
             danger=danger,
             vulnerability=vulnerability,
-            is_all_clear=_is_all_clear(snapshot.board),
+            board_empty=board_empty,
+            is_all_clear=board_empty,
+            all_clear_achieved=snapshot.all_clear_achieved,
+            all_clear_bonus_pending=snapshot.all_clear_bonus_pending,
+            all_clear_bonus_consumed=snapshot.all_clear_bonus_consumed,
             forecast=AttackForecast(
                 immediate_attack=immediate,
                 short_attack=short,
@@ -280,43 +336,75 @@ class StateAnalyzer:
             attack_options=options,
         )
 
-    def _search(self, root: HeadlessPuyoSimulator) -> tuple[AttackOption, ...]:
-        frontier = [_SearchNode(clone_simulator(root), 0, 0, ())]
+    def _search(
+        self,
+        root: HeadlessPuyoSimulator,
+        score_carry: int,
+    ) -> tuple[AttackOption, ...]:
+        frontier = [_SearchNode(clone_simulator(root), 0, score_carry, 0, ())]
         found: list[AttackOption] = []
         for depth in range(1, self.config.max_depth + 1):
             seen: dict[tuple[Any, ...], tuple[float, _SearchNode]] = {}
             for node in frontier:
                 for action_index in legal_action_indices(node.simulator):
                     child = clone_simulator(node.simulator)
-                    result = child.step(action_to_placement(action_index))
+                    action = action_to_placement(action_index)
+                    pair_colors = (
+                        node.simulator.game.current_puyo_1.color,
+                        node.simulator.game.current_puyo_2.color,
+                    )
+                    placed_cells = {
+                        (x, y)
+                        for x, y, _ in node.simulator.game.get_landing_cells(
+                            action.axis_x,
+                            action.rotation,
+                            pair_colors,
+                        )
+                    }
+                    result = child.step(action)
                     if not result.valid or result.game_over:
                         continue
                     path = node.path + ((result.action.axis_x, result.action.rotation.name),)
                     score = node.score + max(0, int(result.score_delta))
                     max_chain = max(node.max_chain, int(result.chain_count))
-                    next_node = _SearchNode(child, score, max_chain, path)
+                    conversion = convert_score_to_ojama(
+                        result.attack_score_delta,
+                        node.score_carry,
+                    )
+                    next_carry = conversion.carry if result.chain_count > 0 else node.score_carry
+                    next_node = _SearchNode(child, score, next_carry, max_chain, path)
                     rank = score * 1_000.0 + max_chain * 100_000.0 + evaluate_board(child.game)
-                    key = _simulator_key(child)
+                    key = _simulator_key(child) + (next_carry,)
                     previous = seen.get(key)
                     if previous is None or (rank, path) > (previous[0], previous[1].path):
                         seen[key] = (rank, next_node)
                     if result.score_delta > 0 and result.chain_count > 0:
                         trigger_cells: tuple[tuple[int, int], ...] = ()
+                        vanished_cells: tuple[tuple[int, int], ...] = ()
                         if result.chains:
-                            trigger_cells = tuple(sorted(result.chains[0].vanished))
+                            vanished_cells = tuple(sorted(result.chains[0].vanished))
+                            trigger_cells = tuple(sorted(placed_cells.intersection(vanished_cells)))
                         option_score = max(0, int(result.score_delta))
+                        attack_score = max(0, int(result.attack_score_delta)) + node.score_carry
                         found.append(
                             AttackOption(
                                 turns=depth,
                                 chain_count=int(result.chain_count),
                                 score=option_score,
-                                attack=option_score // 70,
-                                attack_per_turn=(option_score // 70) / float(depth),
+                                attack_score=attack_score,
+                                attack=conversion.units,
+                                score_carry_before=node.score_carry,
+                                score_carry_after=conversion.carry,
+                                attack_per_turn=conversion.units / float(depth),
                                 action_path=path,
                                 trigger_cells=trigger_cells,
+                                first_chain_vanished_cells=vanished_cells,
                                 chain_group_counts=tuple(len(chain.groups) for chain in result.chains),
                                 is_immediate=depth == 1,
-                                is_all_clear=_game_is_all_clear(child.game),
+                                is_all_clear=bool(result.all_clear_achieved),
+                                all_clear_bonus_pending=bool(result.all_clear_bonus_pending),
+                                all_clear_bonus_consumed=bool(result.all_clear_bonus_consumed),
+                                all_clear_bonus_score=max(0, int(result.all_clear_bonus_score)),
                             )
                         )
             candidates = list(seen.values())
@@ -326,7 +414,13 @@ class StateAnalyzer:
                 break
         unique: dict[tuple[Any, ...], AttackOption] = {}
         for option in found:
-            key = (option.turns, option.chain_count, option.attack, option.trigger_cells)
+            key = (
+                option.turns,
+                option.chain_count,
+                option.attack,
+                option.score_carry_after,
+                option.trigger_cells,
+            )
             previous = unique.get(key)
             if previous is None or option.action_path < previous.action_path:
                 unique[key] = option
@@ -359,9 +453,14 @@ def _player_snapshot_from_dict(value: Mapping[str, Any]) -> PlayerSnapshot:
         next_pairs=tuple(tuple(str(color) for color in pair) for pair in value["next_pairs"]),
         incoming=tuple(AttackPacket(int(packet["amount"]), int(packet["deadline"])) for packet in value.get("incoming", ())),
         score=int(value.get("score", 0)),
+        last_chain_end_score=int(value.get("last_chain_end_score", 0)),
+        score_carry=int(value.get("score_carry", 0)),
         sent_ojama_total=int(value.get("sent_ojama_total", 0)),
         canceled_ojama_total=int(value.get("canceled_ojama_total", 0)),
         received_ojama_total=int(value.get("received_ojama_total", 0)),
+        all_clear_achieved=bool(value.get("all_clear_achieved", False)),
+        all_clear_bonus_pending=bool(value.get("all_clear_bonus_pending", False)),
+        all_clear_bonus_consumed=bool(value.get("all_clear_bonus_consumed", False)),
     )
 
 
@@ -378,6 +477,7 @@ def _snapshot_from_simulator(
     *,
     incoming: tuple[AttackPacket, ...],
     score: int,
+    score_carry: int,
     sent: int,
     canceled: int,
     received: int,
@@ -395,9 +495,14 @@ def _snapshot_from_simulator(
         next_pairs=next_pairs,
         incoming=incoming,
         score=max(0, score),
+        last_chain_end_score=max(0, int(game.last_chain_end_score)),
+        score_carry=max(0, score_carry),
         sent_ojama_total=max(0, sent),
         canceled_ojama_total=max(0, canceled),
         received_ojama_total=max(0, received),
+        all_clear_achieved=bool(game.all_clear_achieved),
+        all_clear_bonus_pending=bool(game.all_clear_bonus_pending),
+        all_clear_bonus_consumed=bool(game.all_clear_bonus_consumed),
     )
 
 
@@ -412,6 +517,11 @@ def _simulator_from_snapshot(snapshot: PlayerSnapshot) -> HeadlessPuyoSimulator:
         (Puyo(PuyoColor[pair[0]]), Puyo(PuyoColor[pair[1]]))
         for pair in snapshot.next_pairs
     )
+    game.score = snapshot.score
+    game.last_chain_end_score = snapshot.last_chain_end_score
+    game.all_clear_achieved = snapshot.all_clear_achieved
+    game.all_clear_bonus_pending = snapshot.all_clear_bonus_pending
+    game.all_clear_bonus_consumed = snapshot.all_clear_bonus_consumed
     game.state = "control"
     game.game_over = False
     return HeadlessPuyoSimulator(game_state=game)
@@ -422,7 +532,14 @@ def _simulator_key(simulator: HeadlessPuyoSimulator) -> tuple[Any, ...]:
     board = tuple(puyo.color.name for row in game.field.grid for puyo in row)
     current = (game.current_puyo_1.color.name, game.current_puyo_2.color.name)
     next_pairs = tuple(tuple(puyo.color.name for puyo in pair) for pair in game.next_puyo_queue)
-    return board, current, next_pairs
+    return (
+        board,
+        current,
+        next_pairs,
+        game.score,
+        game.last_chain_end_score,
+        game.all_clear_bonus_pending,
+    )
 
 
 def _board_danger(board: Sequence[Sequence[str]]) -> float:
@@ -447,16 +564,36 @@ def _is_all_clear(board: Sequence[Sequence[str]]) -> bool:
     return all(color == PuyoColor.EMPTY.name for row in board for color in row)
 
 
-def _game_is_all_clear(game: GameState) -> bool:
-    return all(puyo.is_empty() for row in game.field.grid for puyo in row)
-
-
 def _return_by_deadline(forecast: AttackForecast, deadline: int) -> int:
     if deadline <= 0:
         return 0
     if deadline == 1:
         return forecast.immediate_attack
     return forecast.short_attack
+
+
+def _incoming_windows(
+    packets: tuple[AttackPacket, ...],
+    options: tuple[AttackOption, ...],
+) -> tuple[IncomingWindow, ...]:
+    windows = []
+    for deadline in sorted({packet.deadline for packet in packets}):
+        amount_due = sum(packet.amount for packet in packets if packet.deadline <= deadline)
+        max_return = max(
+            (option.attack for option in options if option.turns <= deadline),
+            default=0,
+        )
+        windows.append(
+            IncomingWindow(
+                deadline=deadline,
+                amount_due=amount_due,
+                max_return_by_deadline=max_return,
+                can_cancel=max_return >= amount_due,
+                can_counter=max_return > amount_due,
+                counter_deficit=max(0, amount_due - max_return),
+            )
+        )
+    return tuple(windows)
 
 
 def _mark_sub_chains(options: tuple[AttackOption, ...]) -> tuple[AttackOption, ...]:
@@ -466,7 +603,12 @@ def _mark_sub_chains(options: tuple[AttackOption, ...]) -> tuple[AttackOption, .
     return tuple(
         replace(
             option,
-            is_sub_chain=not option.is_main_chain and option.attack_per_turn >= main.attack_per_turn,
+            is_sub_chain=(
+                not option.is_main_chain
+                and option.attack > 0
+                and option.turns < main.turns
+                and option.chain_count < main.chain_count
+            ),
         )
         for option in options
     )
