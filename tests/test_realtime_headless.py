@@ -49,6 +49,7 @@ class TestRealtimeHeadlessSimulator(unittest.TestCase):
         game.spawn_puyo()
         game.current_puyo_1 = Puyo(PuyoColor.RED)
         game.current_puyo_2 = Puyo(PuyoColor.RED)
+        game.score = 29
         game.field.place_puyo(1, 0, Puyo(PuyoColor.RED))
         game.field.place_puyo(1, 1, Puyo(PuyoColor.RED))
         game.puyo_x = 2
@@ -65,7 +66,49 @@ class TestRealtimeHeadlessSimulator(unittest.TestCase):
 
         self.assertEqual(events[0].type, "resolution_complete")
         self.assertEqual(events[0].data["score_delta"], 40)
+        self.assertEqual(events[0].data["attack_score_delta"], 69)
+        self.assertEqual(events[0].data["chain_end_score"], 69)
         self.assertEqual(events[0].data["chain_count"], 1)
+        self.assertTrue(events[0].data["all_clear_achieved"])
+        self.assertTrue(events[0].data["all_clear_bonus_pending"])
+        self.assertFalse(events[0].data["all_clear_bonus_consumed"])
+        self.assertEqual(events[1].type, "all_clear")
+
+        clone = sim.clone()
+        self.assertTrue(clone.game.all_clear_achieved)
+        self.assertTrue(clone.game.all_clear_bonus_pending)
+        self.assertEqual(clone.game.last_chain_end_score, 69)
+        self.assertEqual(clone.game.last_chain_score_delta, 69)
+        self.assertEqual(clone.snapshot(), sim.snapshot())
+
+    def test_pending_all_clear_bonus_is_applied_to_realtime_chain_once(self):
+        game = GameState(seed=0)
+        game.spawn_puyo()
+        game.all_clear_bonus_pending = True
+        game.current_puyo_1 = Puyo(PuyoColor.RED)
+        game.current_puyo_2 = Puyo(PuyoColor.RED)
+        game.field.place_puyo(1, 0, Puyo(PuyoColor.RED))
+        game.field.place_puyo(1, 1, Puyo(PuyoColor.RED))
+        game.field.place_puyo(5, 0, Puyo(PuyoColor.BLUE))
+        game.puyo_x = 2
+        game.puyo_y = game.find_landing_y(2, Direction.UP)
+        game.puyo_rot = Direction.UP
+        game.lock_puyo()
+        sim = RealtimeHeadlessSimulator(game_state=game)
+
+        events = []
+        for result in sim.advance_ticks(120):
+            events.extend(result.events)
+            if events:
+                break
+
+        self.assertEqual(events[0].type, "resolution_complete")
+        self.assertEqual(events[0].data["score_delta"], 2140)
+        self.assertTrue(events[0].data["all_clear_bonus_consumed"])
+        self.assertEqual(events[0].data["all_clear_bonus_score"], 2100)
+        self.assertFalse(events[0].data["all_clear_achieved"])
+        self.assertFalse(events[0].data["all_clear_bonus_pending"])
+        self.assertEqual(len(events), 1)
 
 
 if __name__ == "__main__":

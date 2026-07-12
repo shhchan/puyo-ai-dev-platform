@@ -44,6 +44,7 @@ class ReplayTimelineEntry:
     policy_diagnostics: dict[str, Any] = field(default_factory=dict)
     controller_diagnostics: dict[str, Any] = field(default_factory=dict)
     controller_status: dict[str, Any] = field(default_factory=dict)
+    all_clear_diagnostics: dict[str, Any] = field(default_factory=dict)
 
     @property
     def plan_ids(self) -> tuple[str, ...]:
@@ -281,6 +282,7 @@ def load_replay_timeline(
                 policy_diagnostics=dict(item.get("policy_diagnostics", {})),
                 controller_diagnostics=dict(item.get("controller_diagnostics", {})),
                 controller_status=dict(item.get("controller_status", {})),
+                all_clear_diagnostics=dict(item.get("all_clear_diagnostics", {})),
             )
             for index, item in enumerate(payload["ticks"])
             if isinstance(item, dict)
@@ -444,7 +446,15 @@ def summarize_replay_entry(
     lineage: LineageSummary | None = None,
 ) -> dict[str, Any]:
     agents = {}
-    for agent in sorted(set(entry.inputs) | set(entry.policy_diagnostics) | set(entry.controller_diagnostics)):
+    all_clear_players = entry.all_clear_diagnostics.get("players", {})
+    if not isinstance(all_clear_players, Mapping):
+        all_clear_players = {}
+    for agent in sorted(
+        set(entry.inputs)
+        | set(entry.policy_diagnostics)
+        | set(entry.controller_diagnostics)
+        | set(all_clear_players)
+    ):
         policy = policy_metadata.get(agent, {}) if isinstance(policy_metadata.get(agent, {}), Mapping) else {}
         checkpoint_node = lineage.node_by_path(policy.get("checkpoint_path")) if lineage is not None else None
         diagnostics = entry.policy_diagnostics.get(agent, {})
@@ -505,6 +515,11 @@ def summarize_replay_entry(
                 "update_reason": diagnostics.get("plan_update_reason", "") if isinstance(diagnostics, Mapping) else "",
                 "first_step": first_step,
             },
+            "all_clear": (
+                dict(all_clear_players.get(agent, {}))
+                if isinstance(all_clear_players.get(agent, {}), Mapping)
+                else {}
+            ),
         }
     return {
         "tick": entry.tick,
@@ -525,6 +540,7 @@ def replay_entry_display_lines(
         diagnostics = payload["diagnostics"]
         objective = payload["objective"]
         plan = payload["plan"]
+        all_clear = payload["all_clear"]
         first_step = plan.get("first_step") or {}
         elapsed = decision.get("policy_elapsed_ms")
         elapsed_text = "-" if elapsed is None else f"{elapsed:.1f}ms"
@@ -538,6 +554,14 @@ def replay_entry_display_lines(
                 ),
             ]
         )
+        if all_clear:
+            lines.append(
+                "  all clear "
+                f"empty={int(bool(all_clear.get('board_empty')))} "
+                f"achieved={int(bool(all_clear.get('all_clear_achieved')))} "
+                f"pending={int(bool(all_clear.get('all_clear_bonus_pending')))} "
+                f"consumed={int(bool(all_clear.get('all_clear_bonus_consumed')))}"
+            )
         profile = diagnostics.get("profile_name") or "-"
         objective_kind = objective.get("kind", "-") if isinstance(objective, Mapping) else "-"
         target_chain = objective.get("target_chain", "-") if isinstance(objective, Mapping) else "-"

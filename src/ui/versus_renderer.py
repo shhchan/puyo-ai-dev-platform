@@ -589,6 +589,17 @@ class VersusRenderer:
             (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
             (f"max chain {info.get('max_chain_count', 0)}", (190, 198, 215)),
             (
+                f"board empty {'yes' if info.get('board_empty') else 'no'}",
+                (160, 210, 255),
+            ),
+            (
+                "all clear "
+                f"A{int(bool(info.get('all_clear_achieved')))} "
+                f"P{int(bool(info.get('all_clear_bonus_pending')))} "
+                f"C{int(bool(info.get('all_clear_bonus_consumed')))}",
+                (255, 232, 145),
+            ),
+            (
                 f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
                 (160, 210, 255),
             ),
@@ -623,7 +634,7 @@ class VersusRenderer:
                     (deadline_label, (190, 198, 215)),
                 )
             ):
-                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 392 + offset * 18))
+                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 432 + offset * 18))
 
         if event is not None:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)

@@ -59,12 +59,20 @@ def render_side_by_side(env: VersusPuyoEnv, infos: dict, actions: dict[str, int]
         (
             "player_0 "
             f"score={infos['player_0']['score']} pending={infos['player_0']['pending_ojama']} "
-            f"sent={infos['player_0']['sent_ojama_total']} action={action_0}"
+            f"sent={infos['player_0']['sent_ojama_total']} action={action_0} "
+            f"all_clear=(empty={int(infos['player_0']['board_empty'])},"
+            f"achieved={int(infos['player_0']['all_clear_achieved'])},"
+            f"pending={int(infos['player_0']['all_clear_bonus_pending'])},"
+            f"consumed={int(infos['player_0']['all_clear_bonus_consumed'])})"
         ),
         (
             "player_1 "
             f"score={infos['player_1']['score']} pending={infos['player_1']['pending_ojama']} "
-            f"sent={infos['player_1']['sent_ojama_total']} action={action_1}"
+            f"sent={infos['player_1']['sent_ojama_total']} action={action_1} "
+            f"all_clear=(empty={int(infos['player_1']['board_empty'])},"
+            f"achieved={int(infos['player_1']['all_clear_achieved'])},"
+            f"pending={int(infos['player_1']['all_clear_bonus_pending'])},"
+            f"consumed={int(infos['player_1']['all_clear_bonus_consumed'])})"
         ),
         "  P0      P1",
     ]
