@@ -92,6 +92,7 @@ class TestBeamSearchPolicy(unittest.TestCase):
 
     def test_lightweight_clone_matches_deepcopy_and_is_independent(self):
         simulator = HeadlessPuyoSimulator(seed=11)
+        simulator.game.all_clear_bonus_pending = True
         lightweight = clone_simulator(simulator)
         reference = copy.deepcopy(simulator)
         action = legal_action_mask(simulator).index(True)
@@ -102,6 +103,7 @@ class TestBeamSearchPolicy(unittest.TestCase):
         self.assertEqual(lightweight_result, reference_result)
         self.assertEqual(lightweight.game.field.to_color_grid(), reference.game.field.to_color_grid())
         self.assertEqual(lightweight.game.score, reference.game.score)
+        self.assertTrue(lightweight.game.all_clear_bonus_pending)
         self.assertNotEqual(lightweight.game.field.to_color_grid(), simulator.game.field.to_color_grid())
 
     def test_lightweight_clone_preserves_future_pairs_without_sharing_rng(self):
