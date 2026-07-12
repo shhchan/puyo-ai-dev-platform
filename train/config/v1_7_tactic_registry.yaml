@@ -25,6 +25,7 @@ tactics:
         beam_depth: {kind: integer, default: 3, min: 1, max: 6}
         beam_width: {kind: integer, default: 24, min: 1, max: 128}
         candidate_count: {kind: integer, default: 8, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 60.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
     diagnostics: {fields: [target_chain, mean_chain, success_rate, trigger_preserved]}
@@ -48,6 +49,7 @@ tactics:
         beam_depth: {kind: integer, default: 3, min: 1, max: 6}
         beam_width: {kind: integer, default: 28, min: 1, max: 128}
         candidate_count: {kind: integer, default: 10, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
     termination: {criteria: [response_ready, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
     diagnostics: {fields: [response_window, response_success, trigger_preserved, incoming_coverage]}
@@ -71,6 +73,7 @@ tactics:
         beam_depth: {kind: integer, default: 3, min: 1, max: 6}
         beam_width: {kind: integer, default: 32, min: 1, max: 128}
         candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 40.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, incoming_resolved, timeout, danger_threshold]}
     fallback: {tactic_id: survive}
     diagnostics: {fields: [target_attack, counter_margin, response_success, surplus_attack]}
@@ -95,6 +98,7 @@ tactics:
         beam_depth: {kind: integer, default: 2, min: 1, max: 6}
         beam_width: {kind: integer, default: 28, min: 1, max: 128}
         candidate_count: {kind: integer, default: 10, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 35.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: build_main}
     diagnostics: {fields: [target_attack, mean_attack, attack_per_turn, opponent_response]}
@@ -119,6 +123,7 @@ tactics:
         beam_depth: {kind: integer, default: 3, min: 1, max: 6}
         beam_width: {kind: integer, default: 36, min: 1, max: 128}
         candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 35.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: pressure}
     diagnostics: {fields: [target_attack, lethal_margin, mean_attack, opponent_survival_margin]}
@@ -177,6 +182,7 @@ tactics:
         beam_depth: {kind: integer, default: 3, min: 1, max: 6}
         beam_width: {kind: integer, default: 32, min: 1, max: 128}
         candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
     termination: {criteria: [bonus_consumed, all_clear_reestablished, timeout, danger_threshold]}
     fallback: {tactic_id: build_main}
     diagnostics:
@@ -212,6 +218,7 @@ tactics:
         beam_depth: {kind: integer, default: 1, min: 1, max: 6}
         beam_width: {kind: integer, default: 24, min: 1, max: 128}
         candidate_count: {kind: integer, default: 8, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 30.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, chain_fired, timeout, danger_threshold]}
     fallback: {tactic_id: survive}
     diagnostics: {fields: [target_chain, predicted_attack, fired_chain, attack_score]}
@@ -235,6 +242,7 @@ tactics:
         beam_depth: {kind: integer, default: 2, min: 1, max: 6}
         beam_width: {kind: integer, default: 32, min: 1, max: 128}
         candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 30.0, min: 1.0, max: 500.0}
     termination: {criteria: [danger_reduced, incoming_resolved, timeout]}
     fallback: {safety_behavior: minimum_danger_legal_action}
     diagnostics: {fields: [danger_before, danger_after, incoming_remaining, survival_success]}

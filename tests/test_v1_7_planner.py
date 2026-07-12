@@ -1,0 +1,183 @@
+import json
+import unittest
+from dataclasses import replace
+
+from agents.state_analyzer import StateAnalyzer
+from agents.strategy_workers import StrategyOrchestrator, smoke_worker_profiles
+from agents.v1_7_planner import (
+    PLANNER_REQUEST_SCHEMA_VERSION,
+    PlannerRequest,
+    build_planner_request,
+    resolve_preview_attack,
+)
+from agents.v1_7_tactics import load_tactic_registry
+from eval.analyzer_scenarios import load_scenarios, scenario_input
+from puyo_env.actions import legal_action_mask
+from puyo_env.obs import encode_observation
+from src.core.constants import PuyoColor
+from src.core.headless import HeadlessPuyoSimulator
+from src.core.puyo import Puyo
+
+
+class TestV17Planner(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.registry = load_tactic_registry()
+        cls.scenarios = load_scenarios()
+
+    def test_tactic_parameters_build_versioned_planner_request(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+
+        request = build_planner_request(
+            self.registry.tactic("build_main"),
+            analyzer_input,
+            diagnostics,
+            parameter_overrides={
+                "objective": {"target_chain": 8},
+                "constraints": {"danger_tolerance": 0.7},
+                "planner": {
+                    "beam_depth": 4,
+                    "beam_width": 40,
+                    "latency_budget_ms": 75.0,
+                },
+            },
+        )
+        payload = request.to_dict()
+
+        self.assertEqual(payload["schema_version"], PLANNER_REQUEST_SCHEMA_VERSION)
+        self.assertEqual(payload["tactic_id"], "build_main")
+        self.assertEqual(payload["objective"]["target_chain"], 8)
+        self.assertEqual(payload["constraints"]["danger_tolerance"], 0.7)
+        self.assertEqual(payload["search_budget"]["depth"], 4)
+        self.assertEqual(payload["search_budget"]["width"], 40)
+        self.assertEqual(payload["search_budget"]["latency_budget_ms"], 75.0)
+        self.assertIn("chain_shape_weight", payload["objective"]["weights"])
+        json.dumps(payload)
+
+    def test_all_initial_tactics_resolve_to_positive_search_budgets(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+
+        requests = [
+            build_planner_request(tactic, analyzer_input, diagnostics)
+            for tactic in self.registry.tactics
+        ]
+
+        self.assertEqual(len(requests), 8)
+        self.assertTrue(all(request.search_depth > 0 for request in requests))
+        self.assertTrue(all(request.search_width > 0 for request in requests))
+        self.assertTrue(all(request.candidate_count > 0 for request in requests))
+        self.assertTrue(all(request.latency_budget_ms > 0 for request in requests))
+
+    def test_all_clear_request_preserves_lifecycle_and_does_not_fix_total_attack_to_thirty(self):
+        base = scenario_input(self.scenarios[0])
+        analyzer_input = replace(
+            base,
+            own=replace(
+                base.own,
+                score_carry=69,
+                all_clear_achieved=True,
+                all_clear_bonus_pending=True,
+                all_clear_bonus_consumed=False,
+            ),
+        )
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+
+        request = build_planner_request(
+            self.registry.tactic("all_clear"),
+            analyzer_input,
+            diagnostics,
+        )
+
+        self.assertEqual(request.score_carry, 69)
+        self.assertTrue(request.all_clear_achieved)
+        self.assertTrue(request.all_clear_bonus_pending)
+        self.assertFalse(request.all_clear_bonus_consumed)
+        self.assertEqual(request.target_attack, diagnostics.incoming.amount)
+        self.assertNotEqual(request.target_attack, 30)
+
+    def test_preview_matches_runtime_carry_boundaries_and_cancellation(self):
+        self.assertEqual(resolve_preview_attack(69, 0, 0).to_dict()["generated"], 0)
+        self.assertEqual(resolve_preview_attack(70, 0, 0).to_dict()["generated"], 1)
+        boundary = resolve_preview_attack(71, 0, 0)
+        self.assertEqual((boundary.generated, boundary.score_carry_after), (1, 1))
+
+        exact = resolve_preview_attack(560, 0, 8)
+        excess = resolve_preview_attack(560, 0, 5)
+        deficit = resolve_preview_attack(560, 0, 10)
+        self.assertEqual((exact.generated, exact.canceled, exact.outgoing), (8, 8, 0))
+        self.assertEqual((excess.generated, excess.canceled, excess.outgoing), (8, 5, 3))
+        self.assertEqual((deficit.generated, deficit.canceled, deficit.outgoing), (8, 8, 0))
+        self.assertEqual(deficit.incoming_after, 2)
+
+    def test_orchestrator_plan_reports_bonus_carry_and_attack_resolution(self):
+        simulator = HeadlessPuyoSimulator(seed=123)
+        game = simulator.game
+        game.current_puyo_1 = Puyo(PuyoColor.BLUE)
+        game.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        for y in (0, 1):
+            game.field.place_puyo(1, y, Puyo(PuyoColor.BLUE))
+        game.field.place_puyo(5, 0, Puyo(PuyoColor.RED))
+        game.all_clear_bonus_pending = True
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        info = {
+            "simulator": simulator,
+            "action_mask": legal_action_mask(simulator),
+            "score_carry": 40,
+            "incoming_ojama": 5,
+            "incoming_turns": 1,
+        }
+        request = PlannerRequest(
+            tactic_id="all_clear",
+            tactic_version="1.0",
+            objective_kind="fire_max",
+            target_chain=1,
+            target_attack=1,
+            deadline_turns=1,
+            deadline_ticks=0,
+            danger_tolerance=1.0,
+            trigger_preservation="prefer",
+            search_depth=1,
+            search_width=22,
+            candidate_count=8,
+            latency_budget_ms=10_000.0,
+            fallback_tactic="build_main",
+            objective_weights={},
+            parameters={"objective": {}, "constraints": {}, "planner": {}},
+            score_carry=40,
+            incoming_attack=5,
+            all_clear_achieved=False,
+            all_clear_bonus_pending=True,
+            all_clear_bonus_consumed=False,
+        )
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+
+        proposal = orchestrator.propose(
+            4,
+            observation,
+            info,
+            planner_request=request,
+        )
+        plan = orchestrator.last_plan
+        first = plan.steps[0]
+        payload = plan.to_dict()
+
+        self.assertEqual(plan.first_action, proposal.action)
+        self.assertEqual(first.attack_score_delta, 2140)
+        self.assertEqual((first.score_carry_before, first.score_carry_after), (40, 10))
+        self.assertEqual(
+            (first.attack_generated, first.attack_canceled, first.attack_outgoing),
+            (31, 5, 26),
+        )
+        self.assertTrue(first.all_clear_bonus_consumed)
+        self.assertEqual(first.all_clear_bonus_score, 2100)
+        self.assertEqual(payload["planner_request"]["schema_version"], PLANNER_REQUEST_SCHEMA_VERSION)
+        self.assertEqual(payload["attack_summary"]["generated"], 31)
+        self.assertEqual(payload["attack_summary"]["canceled"], 5)
+        self.assertEqual(payload["attack_summary"]["outgoing"], 26)
+        self.assertEqual(payload["attack_summary"]["final_score_carry"], 10)
+
+
+if __name__ == "__main__":
+    unittest.main()
