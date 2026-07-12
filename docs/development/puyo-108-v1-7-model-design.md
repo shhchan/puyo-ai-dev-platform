@@ -245,6 +245,14 @@ Stage 1 は初期対戦相手を作る段階ではない。モデルが学習で
 各シナリオでは「必ずこの intent を選ぶ」という固定教師ではなく，観測特徴と結果評価を記録する。
 Stage 1 の目的は，学習前でも局面を観測・説明できる状態を作ることである。
 
+固定局面は次の CUI で検証する。`--show-boards` は JSON の bottom-up 盤面を人間向けの top-down 図として表示し、
+`--json` の report は局面入力、期待する診断、戦術判断の non-goal、実測 diagnostics をまとめて保存する。
+
+```bash
+python -m eval.analyzer_scenarios --show-boards
+python -m eval.analyzer_scenarios --json artifacts/v1_7_analyzer_report.json
+```
+
 ### Stage 2: Bootstrapped Manager
 
 Stage 2 では，Stage 1 の Analyzer と scenario dataset を使って初期 manager を作る。
