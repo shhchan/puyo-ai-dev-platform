@@ -19,6 +19,7 @@ except ImportError:  # pragma: no cover - dependency guard
     np = None
 
 from src.core.constants import VISIBLE_HEIGHT
+from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.ojama import convert_score_to_ojama
 
@@ -253,6 +254,10 @@ class VersusPuyoEnv:
             "opponent_simulator": opponent_state.simulator,
             "step_count": self.step_count,
             "max_steps": self.max_steps,
+            **build_all_clear_runtime_info(
+                state.simulator.game,
+                opponent_state.simulator.game,
+            ),
         }
 
     def _observations_and_infos(self):
