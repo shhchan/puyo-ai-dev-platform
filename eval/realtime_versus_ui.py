@@ -483,6 +483,7 @@ class RealtimeVersusMatchController:
                     }
                     for agent in REALTIME_AGENTS
                 },
+                "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
                 "snapshot_hash": match_result.snapshot_hash,
             }
         )

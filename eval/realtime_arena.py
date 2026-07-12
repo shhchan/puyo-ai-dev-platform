@@ -214,6 +214,7 @@ def run_realtime_match(
                         agent: controllers[agent].status().to_dict()
                         for agent in sorted(controllers)
                     },
+                    "all_clear_diagnostics": env.match.all_clear_diagnostics(),
                     "snapshot_hash": match_result.snapshot_hash,
                 }
             )
@@ -338,6 +339,16 @@ def replay_realtime_match(replay: Mapping[str, Any]) -> str:
             for agent, payload in entry.get("inputs", {}).items()
         }
         result = match.step(inputs)
+        expected_diagnostics = entry.get("all_clear_diagnostics")
+        actual_diagnostics = match.all_clear_diagnostics()
+        if (
+            expected_diagnostics is not None
+            and expected_diagnostics != actual_diagnostics
+        ):
+            raise AssertionError(
+                f"all-clear diagnostics mismatch at tick {result.tick}: "
+                f"expected {expected_diagnostics}, got {actual_diagnostics}"
+            )
         expected_hash = entry.get("snapshot_hash")
         if expected_hash is not None and expected_hash != result.snapshot_hash:
             raise AssertionError(

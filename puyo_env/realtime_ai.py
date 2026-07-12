@@ -20,6 +20,7 @@ from puyo_env.obs import encode_board, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
 from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, RealtimeVersusMatch
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
+from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.realtime import DEFAULT_REALTIME_TIMING, RealtimeTimingConfig, TickInput
 
@@ -828,6 +829,9 @@ def build_realtime_info(
         "generated_ojama_total": state.generated_ojama_total,
         "canceled_ojama_total": state.canceled_ojama_total,
         "received_ojama_total": state.received_ojama_total,
+        "score_carry": state.score_carry,
+        "last_chain_end_score": state.simulator.game.last_chain_end_score,
+        "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
         "simulator": _placement_simulator_snapshot(state.simulator.game),
         "realtime_simulator": state.simulator,
         "opponent_pending_ojama": opponent_state.pending_ojama,
@@ -846,6 +850,10 @@ def build_realtime_info(
         "tick_count": match.tick,
         "max_steps": feature_max_ticks,
         "max_ticks": max_ticks,
+        **build_all_clear_runtime_info(
+            state.simulator.game,
+            opponent_state.simulator.game,
+        ),
     }
 
 

@@ -21,6 +21,7 @@ class ChainStepResult:
     groups: tuple
     vanished: frozenset
     board: tuple
+    all_clear_bonus_score: int
 
 
 @dataclass(frozen=True)
@@ -29,10 +30,15 @@ class HeadlessStepResult:
     valid: bool
     axis_y: Optional[int]
     score_delta: int
+    attack_score_delta: int
     chain_count: int
     chains: tuple
     placement_board: tuple
     game_over: bool
+    all_clear_achieved: bool
+    all_clear_bonus_pending: bool
+    all_clear_bonus_consumed: bool
+    all_clear_bonus_score: int
 
 
 class HeadlessPuyoSimulator:
@@ -69,10 +75,15 @@ class HeadlessPuyoSimulator:
                 valid=False,
                 axis_y=None,
                 score_delta=0,
+                attack_score_delta=0,
                 chain_count=0,
                 chains=(),
                 placement_board=(),
                 game_over=self.game.game_over,
+                all_clear_achieved=False,
+                all_clear_bonus_pending=self.game.all_clear_bonus_pending,
+                all_clear_bonus_consumed=False,
+                all_clear_bonus_score=0,
             )
 
         chains = tuple(
@@ -85,6 +96,7 @@ class HeadlessPuyoSimulator:
                 groups=tuple(frozenset(group) for group in chain["groups"]),
                 vanished=frozenset(chain["vanished"]),
                 board=tuple(tuple(row) for row in chain["board"]) if chain["board"] else (),
+                all_clear_bonus_score=chain["all_clear_bonus_score"],
             )
             for chain in raw_result["chains"]
         )
@@ -94,6 +106,7 @@ class HeadlessPuyoSimulator:
             valid=True,
             axis_y=raw_result["axis_y"],
             score_delta=raw_result["score_delta"],
+            attack_score_delta=raw_result["attack_score_delta"],
             chain_count=raw_result["chain_count"],
             chains=chains,
             placement_board=(
@@ -102,4 +115,8 @@ class HeadlessPuyoSimulator:
                 else ()
             ),
             game_over=raw_result["game_over"],
+            all_clear_achieved=self.game.all_clear_achieved,
+            all_clear_bonus_pending=self.game.all_clear_bonus_pending,
+            all_clear_bonus_consumed=self.game.all_clear_bonus_consumed,
+            all_clear_bonus_score=self.game.all_clear_bonus_score,
         )

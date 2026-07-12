@@ -32,6 +32,16 @@ class TestScoring(unittest.TestCase):
 
         self.assertEqual(game.score, 40)
 
+    def test_initial_empty_field_does_not_create_all_clear_event_or_bonus(self):
+        game = GameState()
+
+        chains = game.resolve_chains_synchronously()
+
+        self.assertEqual(chains, [])
+        self.assertFalse(game.all_clear_achieved)
+        self.assertFalse(game.all_clear_bonus_pending)
+        self.assertFalse(game.all_clear_bonus_consumed)
+
     def test_score_5_single_color_single_chain_is_100(self):
         game = GameState()
         group = {(0, 0), (1, 0), (2, 0), (1, 1), (1, 2)}
