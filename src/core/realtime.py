@@ -106,6 +106,9 @@ class RealtimeSnapshot:
     held_actions: tuple[str, ...]
     next_queue: tuple[tuple[str, str], ...]
     board: tuple[tuple[str, ...], ...]
+    all_clear_achieved: bool
+    all_clear_bonus_pending: bool
+    all_clear_bonus_consumed: bool
 
     def stable_dict(self) -> dict[str, object]:
         return {
@@ -119,6 +122,9 @@ class RealtimeSnapshot:
             "held_actions": self.held_actions,
             "next_queue": self.next_queue,
             "board": self.board,
+            "all_clear_achieved": self.all_clear_achieved,
+            "all_clear_bonus_pending": self.all_clear_bonus_pending,
+            "all_clear_bonus_consumed": self.all_clear_bonus_consumed,
         }
 
     def hash(self) -> str:
@@ -190,6 +196,9 @@ class RealtimeHeadlessSimulator:
             held_actions=tuple(sorted(action.name for action in self.held_actions)),
             next_queue=next_queue,
             board=board,
+            all_clear_achieved=game.all_clear_achieved,
+            all_clear_bonus_pending=game.all_clear_bonus_pending,
+            all_clear_bonus_consumed=game.all_clear_bonus_consumed,
         )
 
     def state_hash(self) -> str:
@@ -239,9 +248,21 @@ class RealtimeHeadlessSimulator:
                         "score_delta": score_delta,
                         "chain_count": self.game.chain_count,
                         "game_over": self.game.game_over,
+                        "all_clear_achieved": self.game.all_clear_achieved,
+                        "all_clear_bonus_pending": self.game.all_clear_bonus_pending,
+                        "all_clear_bonus_consumed": self.game.all_clear_bonus_consumed,
+                        "all_clear_bonus_score": self.game.all_clear_bonus_score,
                     },
                 )
             )
+            if self.game.all_clear_achieved:
+                events.append(
+                    RealtimeEvent(
+                        type="all_clear",
+                        tick=current_tick,
+                        data={"bonus_pending": self.game.all_clear_bonus_pending},
+                    )
+                )
             self._resolution_score_start = None
 
         self.tick += 1

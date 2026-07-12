@@ -21,6 +21,7 @@ class ChainStepResult:
     groups: tuple
     vanished: frozenset
     board: tuple
+    all_clear_bonus_score: int
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,10 @@ class HeadlessStepResult:
     chains: tuple
     placement_board: tuple
     game_over: bool
+    all_clear_achieved: bool
+    all_clear_bonus_pending: bool
+    all_clear_bonus_consumed: bool
+    all_clear_bonus_score: int
 
 
 class HeadlessPuyoSimulator:
@@ -73,6 +78,10 @@ class HeadlessPuyoSimulator:
                 chains=(),
                 placement_board=(),
                 game_over=self.game.game_over,
+                all_clear_achieved=False,
+                all_clear_bonus_pending=self.game.all_clear_bonus_pending,
+                all_clear_bonus_consumed=False,
+                all_clear_bonus_score=0,
             )
 
         chains = tuple(
@@ -85,6 +94,7 @@ class HeadlessPuyoSimulator:
                 groups=tuple(frozenset(group) for group in chain["groups"]),
                 vanished=frozenset(chain["vanished"]),
                 board=tuple(tuple(row) for row in chain["board"]) if chain["board"] else (),
+                all_clear_bonus_score=chain["all_clear_bonus_score"],
             )
             for chain in raw_result["chains"]
         )
@@ -102,4 +112,8 @@ class HeadlessPuyoSimulator:
                 else ()
             ),
             game_over=raw_result["game_over"],
+            all_clear_achieved=self.game.all_clear_achieved,
+            all_clear_bonus_pending=self.game.all_clear_bonus_pending,
+            all_clear_bonus_consumed=self.game.all_clear_bonus_consumed,
+            all_clear_bonus_score=self.game.all_clear_bonus_score,
         )

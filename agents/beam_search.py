@@ -305,7 +305,7 @@ def _color_groups(game) -> tuple[frozenset[tuple[int, int]], ...]:
 
 def _field_fingerprint(game) -> tuple:
     grid = game.field.grid
-    return tuple(
+    return (game.all_clear_bonus_pending,) + tuple(
         grid[y][x].color.value
         for y in range(GRID_HEIGHT)
         for x in range(GRID_WIDTH)

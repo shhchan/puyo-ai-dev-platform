@@ -56,6 +56,41 @@ class TestHeadlessSimulator(unittest.TestCase):
         self.assertEqual(result.chains[0].score, 40)
         self.assertEqual(result.chains[0].board, ())
         self.assertEqual(result.placement_board, ())
+        self.assertTrue(result.all_clear_achieved)
+        self.assertTrue(result.all_clear_bonus_pending)
+        self.assertFalse(result.all_clear_bonus_consumed)
+        self.assertEqual(result.all_clear_bonus_score, 0)
+
+    def test_all_clear_bonus_is_consumed_once_by_next_chain(self):
+        sim = self._sim_with_pair(PuyoColor.RED, PuyoColor.RED)
+        sim.game.field.place_puyo(1, 0, Puyo(PuyoColor.RED))
+        sim.game.field.place_puyo(1, 1, Puyo(PuyoColor.RED))
+        first = sim.step((2, Direction.UP))
+        self.assertTrue(first.all_clear_bonus_pending)
+
+        sim.game.current_puyo_1 = Puyo(PuyoColor.BLUE)
+        sim.game.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        sim.game.field.place_puyo(1, 0, Puyo(PuyoColor.BLUE))
+        sim.game.field.place_puyo(1, 1, Puyo(PuyoColor.BLUE))
+        sim.game.field.place_puyo(5, 0, Puyo(PuyoColor.RED))
+        second = sim.step((2, Direction.UP))
+
+        self.assertEqual(second.score_delta, 2140)
+        self.assertEqual(second.chains[0].all_clear_bonus_score, 2100)
+        self.assertTrue(second.all_clear_bonus_consumed)
+        self.assertEqual(second.all_clear_bonus_score, 2100)
+        self.assertFalse(second.all_clear_achieved)
+        self.assertFalse(second.all_clear_bonus_pending)
+
+        sim.game.current_puyo_1 = Puyo(PuyoColor.GREEN)
+        sim.game.current_puyo_2 = Puyo(PuyoColor.GREEN)
+        sim.game.field.place_puyo(1, 0, Puyo(PuyoColor.GREEN))
+        sim.game.field.place_puyo(1, 1, Puyo(PuyoColor.GREEN))
+        third = sim.step((2, Direction.UP))
+
+        self.assertEqual(third.score_delta, 40)
+        self.assertEqual(third.chains[0].all_clear_bonus_score, 0)
+        self.assertFalse(third.all_clear_bonus_consumed)
 
     def test_two_chain_golden_score_is_360(self):
         game = GameState(seed=0)
@@ -69,6 +104,7 @@ class TestHeadlessSimulator(unittest.TestCase):
         self.assertEqual(game.score, 360)
         self.assertEqual(len(chains), 2)
         self.assertEqual([chain["score"] for chain in chains], [40, 320])
+        self.assertEqual([chain["all_clear_bonus_score"] for chain in chains], [0, 0])
         self.assertTrue(all(chain["board"] for chain in chains))
         self.assertEqual(
             {chains[0]["board"][y][x] for x, y in chains[0]["vanished"]},

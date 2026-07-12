@@ -57,6 +57,10 @@ VANISH_FLASH_SECONDS = 0.5
 CHAIN_DROP_TWEEN_SECONDS = 0.24
 VANISH_BLINK_INTERVAL_SECONDS = 0.08
 
+# Puyo Puyo Tsu all-clear bonus. The bonus is awarded once on the next
+# successful chain after a chain resolution empties the field.
+ALL_CLEAR_BONUS_SCORE = 2100
+
 # Deterministic realtime headless timing.
 #
 # Existing UI-facing values above remain seconds. Realtime headless code uses

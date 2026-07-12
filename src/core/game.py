@@ -13,6 +13,7 @@ from .constants import (
     COUNTDOWN_SECONDS,
     VANISH_FLASH_SECONDS,
     CHAIN_DROP_TWEEN_SECONDS,
+    ALL_CLEAR_BONUS_SCORE,
     CHAIN_BONUS_TABLE,
     COLOR_BONUS_TABLE,
     get_connection_bonus,
@@ -29,6 +30,10 @@ class GameState:
         self.score = 0
         self.chain_count = 0
         self.game_over = False
+        self.all_clear_achieved = False
+        self.all_clear_bonus_pending = False
+        self.all_clear_bonus_consumed = False
+        self.all_clear_bonus_score = 0
 
         self.current_puyo_1 = None
         self.current_puyo_2 = None
@@ -67,6 +72,7 @@ class GameState:
         self.chain_display_a = None
         self.chain_display_b = None
         self.chain_display_score = 0
+        self.chain_display_all_clear_bonus = 0
         self.floor_kick_horizontal_grace = False
         self.soft_drop_cells_this_pair = 0
         self.soft_drop_used_this_pair = False
@@ -95,6 +101,7 @@ class GameState:
         self.chain_display_a = None
         self.chain_display_b = None
         self.chain_display_score = 0
+        self.chain_display_all_clear_bonus = 0
 
     def _reset_drop_bonus_state(self):
         self.soft_drop_cells_this_pair = 0
@@ -468,9 +475,8 @@ class GameState:
         self.current_puyo_1 = None
         self.current_puyo_2 = None
         self.state = "animate"
-        self.chain_count = 0
         self._clear_floor_kick_horizontal_grace()
-        self._start_resolve_phase()
+        self._begin_chain_resolution()
 
     def _snapshot_field_colors(self):
         snapshot = []
@@ -493,6 +499,34 @@ class GameState:
         self.chain_display_a = None
         self.chain_display_b = None
         self.chain_display_score = 0
+        self.chain_display_all_clear_bonus = 0
+
+    def _begin_chain_resolution(self):
+        self.chain_count = 0
+        self.all_clear_achieved = False
+        self.all_clear_bonus_consumed = False
+        self.all_clear_bonus_score = 0
+        self._start_resolve_phase()
+
+    def _consume_all_clear_bonus(self):
+        if self.chain_count != 0 or not self.all_clear_bonus_pending:
+            return 0
+        self.all_clear_bonus_pending = False
+        self.all_clear_bonus_consumed = True
+        self.all_clear_bonus_score = ALL_CLEAR_BONUS_SCORE
+        return ALL_CLEAR_BONUS_SCORE
+
+    def _field_is_empty(self):
+        return all(
+            self.field.get_puyo(x, y).is_empty()
+            for y in range(GRID_HEIGHT)
+            for x in range(GRID_WIDTH)
+        )
+
+    def _finish_chain_resolution(self):
+        self.all_clear_achieved = self.chain_count > 0 and self._field_is_empty()
+        if self.all_clear_achieved:
+            self.all_clear_bonus_pending = True
 
     def _calculate_chain_score_components(self):
         puyo_count = len(self.vanish_coords)
@@ -524,8 +558,7 @@ class GameState:
     def resolve_chains_synchronously(self, spawn_next=False, capture_visuals=False):
         chain_results = []
         self.state = "animate"
-        self.chain_count = 0
-        self._start_resolve_phase()
+        self._begin_chain_resolution()
 
         while True:
             self.field.drop_puyo()
@@ -538,7 +571,9 @@ class GameState:
             for group in vanish_groups:
                 self.vanish_coords.update(group)
 
-            a, b, step_score = self._calculate_chain_score_components()
+            a, b, chain_score = self._calculate_chain_score_components()
+            all_clear_bonus_score = self._consume_all_clear_bonus()
+            step_score = chain_score + all_clear_bonus_score
             chain_results.append(
                 {
                     "chain_index": self.chain_count + 1,
@@ -548,6 +583,7 @@ class GameState:
                     "base": a,
                     "bonus": b,
                     "score": step_score,
+                    "all_clear_bonus_score": all_clear_bonus_score,
                     "board": self._snapshot_field_colors() if capture_visuals else None,
                 }
             )
@@ -555,6 +591,7 @@ class GameState:
             self.field.remove_puyos(self.vanish_coords)
             self.chain_count += 1
 
+        self._finish_chain_resolution()
         self._reset_animation_data()
         if spawn_next:
             self.spawn_puyo()
@@ -787,10 +824,13 @@ class GameState:
             for group in vanish_groups:
                 self.vanish_coords.update(group)
             self.chain_display_a, self.chain_display_b, self.chain_display_score = self._calculate_chain_score_components()
+            self.chain_display_all_clear_bonus = self._consume_all_clear_bonus()
+            self.chain_display_score += self.chain_display_all_clear_bonus
             self.animation_state = "vanish_flash"
             self.animation_timer = 0.0
             return
 
+        self._finish_chain_resolution()
         self.spawn_puyo()
 
     def advance_animation(self, delta_time):
@@ -824,6 +864,7 @@ class GameState:
                 self.chain_display_a = None
                 self.chain_display_b = None
                 self.chain_display_score = 0
+                self.chain_display_all_clear_bonus = 0
                 self.animation_state = "resolve"
                 self.animation_timer = 0.0
                 continue
