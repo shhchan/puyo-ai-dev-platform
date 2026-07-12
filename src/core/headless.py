@@ -30,6 +30,7 @@ class HeadlessStepResult:
     valid: bool
     axis_y: Optional[int]
     score_delta: int
+    attack_score_delta: int
     chain_count: int
     chains: tuple
     placement_board: tuple
@@ -74,6 +75,7 @@ class HeadlessPuyoSimulator:
                 valid=False,
                 axis_y=None,
                 score_delta=0,
+                attack_score_delta=0,
                 chain_count=0,
                 chains=(),
                 placement_board=(),
@@ -104,6 +106,7 @@ class HeadlessPuyoSimulator:
             valid=True,
             axis_y=raw_result["axis_y"],
             score_delta=raw_result["score_delta"],
+            attack_score_delta=raw_result["attack_score_delta"],
             chain_count=raw_result["chain_count"],
             chains=chains,
             placement_board=(

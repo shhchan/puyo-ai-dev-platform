@@ -99,6 +99,8 @@ class RealtimeSnapshot:
     tick: int
     state: str
     score: int
+    last_chain_end_score: int
+    last_chain_score_delta: int
     chain_count: int
     game_over: bool
     active_pair: tuple[str | None, str | None]
@@ -115,6 +117,8 @@ class RealtimeSnapshot:
             "tick": self.tick,
             "state": self.state,
             "score": self.score,
+            "last_chain_end_score": self.last_chain_end_score,
+            "last_chain_score_delta": self.last_chain_score_delta,
             "chain_count": self.chain_count,
             "game_over": self.game_over,
             "active_pair": self.active_pair,
@@ -189,6 +193,8 @@ class RealtimeHeadlessSimulator:
             tick=self.tick,
             state=game.state,
             score=game.score,
+            last_chain_end_score=game.last_chain_end_score,
+            last_chain_score_delta=game.last_chain_score_delta,
             chain_count=game.chain_count,
             game_over=game.game_over,
             active_pair=active_pair,
@@ -246,6 +252,8 @@ class RealtimeHeadlessSimulator:
                     tick=current_tick,
                     data={
                         "score_delta": score_delta,
+                        "attack_score_delta": self.game.last_chain_score_delta,
+                        "chain_end_score": self.game.last_chain_end_score,
                         "chain_count": self.game.chain_count,
                         "game_over": self.game.game_over,
                         "all_clear_achieved": self.game.all_clear_achieved,

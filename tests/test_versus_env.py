@@ -112,6 +112,18 @@ class TestVersusPuyoEnv(unittest.TestCase):
         self.assertEqual(env.player_states["player_0"].pending_ojama, 0)
         self.assertEqual(env.player_states["player_1"].pending_ojama, 5)
 
+    def test_score_carry_matches_chain_end_boundary_conversion(self):
+        env = VersusPuyoEnv(seed=123, max_steps=5)
+        env.reset(seed=123)
+
+        generated = [
+            env._attack_units_from_score("player_0", score_delta)
+            for score_delta in (40, 29, 1, 71)
+        ]
+
+        self.assertEqual(generated, [0, 0, 1, 1])
+        self.assertEqual(env.player_states["player_0"].score_carry, 1)
+
     def test_unplaced_ojama_stays_pending_without_false_game_over(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)
         env.reset(seed=123)
