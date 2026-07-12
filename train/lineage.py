@@ -6,7 +6,7 @@ import argparse
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 from train.artifacts import ARTIFACT_MANIFEST_SCHEMA_VERSION, json_digest
 from train.experiment_suite import SUITE_SCHEMA_VERSION
@@ -22,7 +22,56 @@ except ImportError:  # pragma: no cover - dependency guard
     yaml = None
 
 REGISTRY_SCHEMA_VERSION = "puyo.lineage_registry.v1"
+LINEAGE_MANIFEST_SCHEMA_VERSION = "puyo.lineage_manifest.v1"
 HUMAN_SESSION_MANIFEST_SCHEMA_VERSION = "puyo.human_session_manifest.v1"
+
+LINEAGE_MANIFEST_NODE_TYPES = frozenset(
+    {
+        "model_version",
+        "checkpoint",
+        "training_run",
+        "dataset",
+        "config",
+        "evaluation",
+        "tactic_schema",
+        "analyzer_schema",
+        "diagnostics_schema",
+        "feature_schema",
+        "registry_role",
+    }
+)
+LINEAGE_MANIFEST_EDGE_TYPES = frozenset(
+    {
+        "implements",
+        "derived_from",
+        "trained_with",
+        "produced",
+        "evaluated_by",
+        "promoted_to",
+        "uses_schema",
+        "retargeted_from",
+        "rejected_by",
+    }
+)
+SCHEMA_SNAPSHOT_KEYS = frozenset({"analyzer", "all_clear_diagnostics", "feature"})
+CHECKPOINT_METADATA_FIELDS = frozenset(
+    {
+        "model_family",
+        "model_version",
+        "checkpoint_id",
+        "parent_checkpoint_id",
+        "training_run_id",
+        "git_commit",
+        "policy_type",
+        "analyzer_schema_version",
+        "tactic_schema_version",
+        "planner_schema_version",
+        "training_config_path",
+        "datasets",
+        "evaluations",
+        "promotion_state",
+    }
+)
 
 
 @dataclass
@@ -763,6 +812,65 @@ def _add_human_session_manifest(registry: LineageRegistry, manifest_path: Path) 
             registry.add_edge(LineageEdge(source=parent_id, target=model_id, edge_type="parent"))
 
 
+def _add_lineage_manifest(registry: LineageRegistry, manifest_path: Path) -> None:
+    manifest = _read_json(manifest_path)
+    if manifest.get("schema_version") != LINEAGE_MANIFEST_SCHEMA_VERSION:
+        raise ValueError(f"unsupported lineage manifest schema: {manifest_path}")
+    nodes = manifest.get("nodes")
+    edges = manifest.get("edges")
+    if not isinstance(nodes, list) or not isinstance(edges, list):
+        raise ValueError(f"{manifest_path} must define node and edge lists")
+
+    for index, record in enumerate(nodes):
+        if not isinstance(record, Mapping):
+            raise ValueError(f"{manifest_path}: nodes[{index}] must be an object")
+        node_id = record.get("id")
+        node_type = record.get("node_type")
+        label = record.get("label")
+        if not all(isinstance(value, str) and value for value in (node_id, node_type, label)):
+            raise ValueError(f"{manifest_path}: nodes[{index}] requires id, node_type, and label")
+        if node_type not in LINEAGE_MANIFEST_NODE_TYPES:
+            raise ValueError(f"{manifest_path}: unsupported node type {node_type!r}")
+        metadata = record.get("metadata", {})
+        if not isinstance(metadata, Mapping):
+            raise ValueError(f"{manifest_path}: nodes[{index}].metadata must be an object")
+        registry.add_node(
+            LineageNode(
+                id=node_id,
+                node_type=node_type,
+                label=label,
+                path=record.get("path") if isinstance(record.get("path"), str) else None,
+                metadata={
+                    **dict(metadata),
+                    "lineage_manifest_schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION,
+                    "lineage_manifest_path": str(manifest_path),
+                },
+            )
+        )
+
+    for index, record in enumerate(edges):
+        if not isinstance(record, Mapping):
+            raise ValueError(f"{manifest_path}: edges[{index}] must be an object")
+        source = record.get("source")
+        target = record.get("target")
+        edge_type = record.get("edge_type")
+        if not all(isinstance(value, str) and value for value in (source, target, edge_type)):
+            raise ValueError(f"{manifest_path}: edges[{index}] requires source, target, and edge_type")
+        if edge_type not in LINEAGE_MANIFEST_EDGE_TYPES:
+            raise ValueError(f"{manifest_path}: unsupported edge type {edge_type!r}")
+        metadata = record.get("metadata", {})
+        if not isinstance(metadata, Mapping):
+            raise ValueError(f"{manifest_path}: edges[{index}].metadata must be an object")
+        registry.add_edge(
+            LineageEdge(
+                source=source,
+                target=target,
+                edge_type=edge_type,
+                metadata={**dict(metadata), "lineage_manifest_path": str(manifest_path)},
+            )
+        )
+
+
 def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
     registry = LineageRegistry()
     path_index: dict[str, str] = {}
@@ -770,6 +878,7 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
     suite_paths = []
     benchmark_paths = []
     human_session_paths = []
+    lineage_paths = []
     legacy_run_dirs: set[Path] = set()
     for root in roots:
         base = Path(root)
@@ -797,6 +906,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
                 benchmark_paths.append(path)
             elif path.name == "human_session_manifest.json":
                 human_session_paths.append(path)
+            elif path.name == "lineage_manifest.json":
+                lineage_paths.append(path)
     manifest_run_dirs = {path.parent.resolve() for path in manifest_paths}
     for path in sorted(manifest_paths):
         _preindex_artifact_manifest_checkpoints(path, path_index)
@@ -814,6 +925,8 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
         _add_benchmark_manifest(registry, path)
     for path in sorted(human_session_paths):
         _add_human_session_manifest(registry, path)
+    for path in sorted(lineage_paths):
+        _add_lineage_manifest(registry, path)
     return registry
 
 
@@ -827,6 +940,36 @@ def validate_registry(registry: LineageRegistry) -> list[dict[str, Any]]:
             issues.append({"type": "missing_source", "edge": asdict(edge)})
         if edge.target not in registry.nodes:
             issues.append({"type": "missing_target", "edge": asdict(edge)})
+        if edge.metadata.get("lineage_manifest_path") and edge.edge_type in {"promoted_to", "rejected_by"}:
+            if not str(edge.metadata.get("reason", "")).strip():
+                issues.append({"type": "missing_decision_reason", "edge": asdict(edge)})
+    for node in registry.nodes.values():
+        if node.metadata.get("lineage_manifest_schema_version") != LINEAGE_MANIFEST_SCHEMA_VERSION:
+            continue
+        if node.node_type == "checkpoint":
+            for field_name in sorted(CHECKPOINT_METADATA_FIELDS):
+                if node.metadata.get(field_name) in (None, "", []):
+                    issues.append(
+                        {"type": "missing_checkpoint_metadata", "node_id": node.id, "field": field_name}
+                    )
+        if node.node_type in {"checkpoint", "dataset", "evaluation"}:
+            schemas = node.metadata.get("schemas")
+            if not isinstance(schemas, Mapping):
+                issues.append({"type": "missing_schema_snapshot", "node_id": node.id})
+            else:
+                for schema_name in sorted(SCHEMA_SNAPSHOT_KEYS):
+                    if not schemas.get(schema_name):
+                        issues.append(
+                            {"type": "missing_schema_version", "node_id": node.id, "schema": schema_name}
+                        )
+        compatibility = node.metadata.get("compatibility")
+        if node.metadata.get("legacy"):
+            status = compatibility.get("status") if isinstance(compatibility, Mapping) else None
+            if status not in {"regenerate_required", "retrain_required", "incompatible", "archived"}:
+                issues.append({"type": "legacy_compatibility_unspecified", "node_id": node.id})
+        if isinstance(compatibility, Mapping) and compatibility.get("feature_shape_changed"):
+            if compatibility.get("status") not in {"retrain_required", "incompatible"}:
+                issues.append({"type": "implicit_feature_shape_migration", "node_id": node.id})
     return issues
 
 
@@ -865,8 +1008,17 @@ def write_registry(registry: LineageRegistry, path: str | Path) -> None:
 
 
 def write_markdown_report(registry: LineageRegistry, path: str | Path) -> None:
-    runs = [node for node in registry.nodes.values() if node.node_type == "run"]
+    runs = [node for node in registry.nodes.values() if node.node_type in {"run", "training_run"}]
     checkpoints = [node for node in registry.nodes.values() if node.node_type == "checkpoint"]
+    versions = [node for node in registry.nodes.values() if node.node_type == "model_version"]
+    evaluations = [node for node in registry.nodes.values() if node.node_type == "evaluation"]
+    inputs = [node for node in registry.nodes.values() if node.node_type in {"config", "dataset"}]
+    schema_nodes = [
+        node
+        for node in registry.nodes.values()
+        if node.node_type in {"tactic_schema", "analyzer_schema", "diagnostics_schema", "feature_schema"}
+    ]
+    decision_edges = [edge for edge in registry.edges if edge.edge_type in {"promoted_to", "rejected_by"}]
     issues = validate_registry(registry)
     lines = [
         "# Model Lineage Report",
@@ -875,12 +1027,33 @@ def write_markdown_report(registry: LineageRegistry, path: str | Path) -> None:
         f"- checkpoints: {len(checkpoints)}",
         f"- edges: {len(registry.edges)}",
         f"- issues: {len(issues)}",
-        "",
-        "## Runs",
-        "",
-        "| run | trainer/scenario | seed | key metrics |",
-        "|---|---|---:|---|",
     ]
+    if versions:
+        lines.extend(
+            [
+                "",
+                "## Version Timeline",
+                "",
+                "| version | model family | policy | state | git commit | decision |",
+                "|---|---|---|---|---|---|",
+            ]
+        )
+        for node in sorted(versions, key=lambda item: str(item.metadata.get("version") or item.label)):
+            metadata = node.metadata
+            lines.append(
+                f"| `{metadata.get('version') or node.label}` | {metadata.get('model_family') or '-'} | "
+                f"`{metadata.get('policy_type') or '-'}` | {metadata.get('promotion_state') or '-'} | "
+                f"`{metadata.get('git_commit') or '-'}` | {metadata.get('decision_reason') or '-'} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Runs",
+            "",
+            "| run | trainer/scenario | seed | key metrics |",
+            "|---|---|---:|---|",
+        ]
+    )
     for node in sorted(runs, key=lambda item: item.label):
         metadata = node.metadata
         metrics = metadata.get("metrics") or {}
@@ -895,11 +1068,88 @@ def write_markdown_report(registry: LineageRegistry, path: str | Path) -> None:
     lines.extend(["", "## Checkpoints", "", "| checkpoint | role | path |", "|---|---|---|"])
     for node in sorted(checkpoints, key=lambda item: item.label):
         lines.append(f"| `{node.label}` | {node.metadata.get('role', '')} | `{node.path}` |")
+    if evaluations:
+        lines.extend(
+            [
+                "",
+                "## Evaluations",
+                "",
+                "| evaluation | kind | status | metrics | path | compatibility |",
+                "|---|---|---|---|---|---|",
+            ]
+        )
+        for node in sorted(evaluations, key=lambda item: item.label):
+            compatibility = node.metadata.get("compatibility", {})
+            compatibility_status = compatibility.get("status", "-") if isinstance(compatibility, Mapping) else "-"
+            metrics = node.metadata.get("metrics", {})
+            metrics_text = ", ".join(f"{key}={value}" for key, value in sorted(metrics.items()))
+            lines.append(
+                f"| `{node.label}` | {node.metadata.get('evaluation_kind') or '-'} | "
+                f"{node.metadata.get('status') or '-'} | {metrics_text or '-'} | `{node.path or '-'}` | "
+                f"{compatibility_status} |"
+            )
+    if inputs:
+        lines.extend(
+            [
+                "",
+                "## Inputs And Artifacts",
+                "",
+                "| input | type | version | path | sha256 |",
+                "|---|---|---|---|---|",
+            ]
+        )
+        for node in sorted(inputs, key=lambda item: item.id):
+            lines.append(
+                f"| `{node.label}` | {node.node_type} | "
+                f"`{node.metadata.get('dataset_version') or node.metadata.get('config_version') or '-'}` | "
+                f"`{node.path or '-'}` | `{node.metadata.get('sha256') or '-'}` |"
+            )
+    if schema_nodes:
+        lines.extend(
+            [
+                "",
+                "## Schemas",
+                "",
+                "| schema | type | version | compatibility |",
+                "|---|---|---|---|",
+            ]
+        )
+        for node in sorted(schema_nodes, key=lambda item: item.id):
+            compatibility = node.metadata.get("compatibility", {})
+            compatibility_status = compatibility.get("status", "-") if isinstance(compatibility, Mapping) else "-"
+            lines.append(
+                f"| `{node.label}` | {node.node_type} | `{node.metadata.get('schema_version') or '-'}` | "
+                f"{compatibility_status} |"
+            )
+    if registry.edges:
+        lines.extend(
+            [
+                "",
+                "## Graph Edges",
+                "",
+                "| source | relationship | target | reason |",
+                "|---|---|---|---|",
+            ]
+        )
+        for edge in sorted(registry.edges, key=lambda item: (item.source, item.edge_type, item.target)):
+            lines.append(
+                f"| `{edge.source}` | `{edge.edge_type}` | `{edge.target}` | {edge.metadata.get('reason') or '-'} |"
+            )
+    if decision_edges:
+        lines.extend(["", "## Promotion And Rejection Decisions", ""])
+        for edge in sorted(decision_edges, key=lambda item: (item.edge_type, item.source, item.target)):
+            lines.append(
+                f"- `{edge.source}` {edge.edge_type} `{edge.target}`: {edge.metadata.get('reason') or 'reason missing'}"
+            )
     if issues:
         lines.extend(["", "## Issues", ""])
         for issue in issues:
-            lines.append(f"- `{issue['type']}`: `{issue.get('node_id') or issue.get('edge')}`")
-    Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8")
+            subject = issue.get("node_id") or issue.get("edge")
+            detail = issue.get("field") or issue.get("schema")
+            lines.append(f"- `{issue['type']}`: `{subject}`{f' (`{detail}`)' if detail else ''}")
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def parse_args(argv=None):
