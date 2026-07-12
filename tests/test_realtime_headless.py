@@ -49,6 +49,7 @@ class TestRealtimeHeadlessSimulator(unittest.TestCase):
         game.spawn_puyo()
         game.current_puyo_1 = Puyo(PuyoColor.RED)
         game.current_puyo_2 = Puyo(PuyoColor.RED)
+        game.score = 29
         game.field.place_puyo(1, 0, Puyo(PuyoColor.RED))
         game.field.place_puyo(1, 1, Puyo(PuyoColor.RED))
         game.puyo_x = 2
@@ -65,6 +66,8 @@ class TestRealtimeHeadlessSimulator(unittest.TestCase):
 
         self.assertEqual(events[0].type, "resolution_complete")
         self.assertEqual(events[0].data["score_delta"], 40)
+        self.assertEqual(events[0].data["attack_score_delta"], 69)
+        self.assertEqual(events[0].data["chain_end_score"], 69)
         self.assertEqual(events[0].data["chain_count"], 1)
         self.assertTrue(events[0].data["all_clear_achieved"])
         self.assertTrue(events[0].data["all_clear_bonus_pending"])
@@ -74,6 +77,8 @@ class TestRealtimeHeadlessSimulator(unittest.TestCase):
         clone = sim.clone()
         self.assertTrue(clone.game.all_clear_achieved)
         self.assertTrue(clone.game.all_clear_bonus_pending)
+        self.assertEqual(clone.game.last_chain_end_score, 69)
+        self.assertEqual(clone.game.last_chain_score_delta, 69)
         self.assertEqual(clone.snapshot(), sim.snapshot())
 
     def test_pending_all_clear_bonus_is_applied_to_realtime_chain_once(self):

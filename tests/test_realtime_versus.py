@@ -36,6 +36,17 @@ class TestRealtimeVersusMatch(unittest.TestCase):
         self.assertEqual(match.player_states["player_1"].received_ojama_total, 3)
         self.assertEqual(match.player_states["player_1"].pending_ojama, 0)
 
+    def test_score_carry_matches_chain_end_boundary_conversion(self):
+        match = RealtimeVersusMatch(seed=123)
+
+        generated = [
+            match._attack_units_from_score("player_0", score_delta)
+            for score_delta in (40, 29, 1, 71)
+        ]
+
+        self.assertEqual(generated, [0, 0, 1, 1])
+        self.assertEqual(match.player_states["player_0"].score_carry, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

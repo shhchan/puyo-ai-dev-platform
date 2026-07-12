@@ -50,7 +50,7 @@ event は次を持つ。
 | event | 発生条件 | 主な payload |
 |---|---|---|
 | `lock` | `control -> animate` | axis x/y、rotation |
-| `resolution_complete` | `animate -> control/gameover` | score delta、chain count、game over |
+| `resolution_complete` | `animate -> control/gameover` | resolution score delta、attack score delta、chain end score、chain count、game over |
 
 ## 対戦 timing
 
@@ -62,6 +62,8 @@ event は次を持つ。
 4. 両者の残り攻撃を同時相殺し、超過分を相手 queue に予約する。
 5. 着弾 tick に達したおじゃまを、`animate` でない player の盤面へ最大 `max_ojama_drop` 個落とす。
 6. 窒息と勝敗を判定する。
+
+おじゃま生成には `resolution_complete.attack_score_delta` を使う。この値は今回と前回の連鎖終了時累積スコアの差で、連鎖がない resolution では0となり基準値も更新しない。`RealtimeVersusMatch` はこの差分に保持中の `score_carry` を一度だけ加え、70点単位の商と剰余へ分ける。これは turn-based の `VersusPuyoEnv` と同じ変換契約である。
 
 片側が操作中、もう片側が連鎖演出中でも、それぞれの simulator は同じ tick 数だけ独立に進む。操作速度差、連鎖時間差、着弾 tick は queue と event の整数 tick で診断できる。
 

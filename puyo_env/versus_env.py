@@ -20,6 +20,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from src.core.constants import VISIBLE_HEIGHT
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.ojama import convert_score_to_ojama
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import (
@@ -239,6 +240,9 @@ class VersusPuyoEnv:
             "generated_ojama_total": state.generated_ojama_total,
             "canceled_ojama_total": state.canceled_ojama_total,
             "received_ojama_total": state.received_ojama_total,
+            "score_carry": state.score_carry,
+            "last_chain_end_score": state.simulator.game.last_chain_end_score,
+            "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
             "max_chain_count": state.max_chain_count,
             "simulator": state.simulator,
             "opponent_pending_ojama": opponent_state.pending_ojama,
@@ -341,10 +345,13 @@ class VersusPuyoEnv:
 
     def _attack_units_from_score(self, agent: str, score_delta: int) -> int:
         state = self.player_states[agent]
-        total = state.score_carry + max(0, int(score_delta))
-        units = total // self.reward_config.target_score_per_ojama
-        state.score_carry = total % self.reward_config.target_score_per_ojama
-        return int(units)
+        conversion = convert_score_to_ojama(
+            score_delta,
+            state.score_carry,
+            self.reward_config.target_score_per_ojama,
+        )
+        state.score_carry = conversion.carry
+        return conversion.units
 
     def _resolve_attacks(self, generated: dict[str, int]) -> dict[str, dict[str, int]]:
         """Resolve both attacks without player-order bias, then schedule excess."""
@@ -455,7 +462,10 @@ class VersusPuyoEnv:
         for agent, result in results.items():
             if result is None or not result.valid:
                 continue
-            generated_attacks[agent] = self._attack_units_from_score(agent, result.score_delta)
+            generated_attacks[agent] = self._attack_units_from_score(
+                agent,
+                result.attack_score_delta,
+            )
 
         attacks = self._resolve_attacks(generated_attacks)
         for agent, result in results.items():

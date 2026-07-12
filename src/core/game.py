@@ -28,6 +28,8 @@ class GameState:
         self.field = Field()
         self.puyo_sequence = puyo_sequence or PuyoSequence(seed=seed)
         self.score = 0
+        self.last_chain_end_score = 0
+        self.last_chain_score_delta = 0
         self.chain_count = 0
         self.game_over = False
         self.all_clear_achieved = False
@@ -527,6 +529,11 @@ class GameState:
         self.all_clear_achieved = self.chain_count > 0 and self._field_is_empty()
         if self.all_clear_achieved:
             self.all_clear_bonus_pending = True
+        if self.chain_count > 0:
+            self.last_chain_score_delta = max(0, self.score - self.last_chain_end_score)
+            self.last_chain_end_score = self.score
+        else:
+            self.last_chain_score_delta = 0
 
     def _calculate_chain_score_components(self):
         puyo_count = len(self.vanish_coords)
@@ -628,6 +635,7 @@ class GameState:
             "axis_y": landing_y,
             "rotation": rot,
             "score_delta": self.score - score_before,
+            "attack_score_delta": self.last_chain_score_delta,
             "chain_count": len(chain_results),
             "chains": chain_results,
             "placement_board": placement_board,

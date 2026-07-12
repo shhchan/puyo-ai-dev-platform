@@ -51,6 +51,7 @@ class TestHeadlessSimulator(unittest.TestCase):
 
         self.assertTrue(result.valid)
         self.assertEqual(result.score_delta, 40)
+        self.assertEqual(result.attack_score_delta, 40)
         self.assertEqual(result.chain_count, 1)
         self.assertEqual(result.chains[0].vanished_count, 4)
         self.assertEqual(result.chains[0].score, 40)
@@ -67,6 +68,7 @@ class TestHeadlessSimulator(unittest.TestCase):
         sim.game.field.place_puyo(1, 1, Puyo(PuyoColor.RED))
         first = sim.step((2, Direction.UP))
         self.assertTrue(first.all_clear_bonus_pending)
+        self.assertEqual(first.attack_score_delta, 40)
 
         sim.game.current_puyo_1 = Puyo(PuyoColor.BLUE)
         sim.game.current_puyo_2 = Puyo(PuyoColor.BLUE)
@@ -76,6 +78,7 @@ class TestHeadlessSimulator(unittest.TestCase):
         second = sim.step((2, Direction.UP))
 
         self.assertEqual(second.score_delta, 2140)
+        self.assertEqual(second.attack_score_delta, 2140)
         self.assertEqual(second.chains[0].all_clear_bonus_score, 2100)
         self.assertTrue(second.all_clear_bonus_consumed)
         self.assertEqual(second.all_clear_bonus_score, 2100)
@@ -89,6 +92,7 @@ class TestHeadlessSimulator(unittest.TestCase):
         third = sim.step((2, Direction.UP))
 
         self.assertEqual(third.score_delta, 40)
+        self.assertEqual(third.attack_score_delta, 40)
         self.assertEqual(third.chains[0].all_clear_bonus_score, 0)
         self.assertFalse(third.all_clear_bonus_consumed)
 
@@ -102,6 +106,8 @@ class TestHeadlessSimulator(unittest.TestCase):
         chains = game.resolve_chains_synchronously(capture_visuals=True)
 
         self.assertEqual(game.score, 360)
+        self.assertEqual(game.last_chain_score_delta, 360)
+        self.assertEqual(game.last_chain_end_score, 360)
         self.assertEqual(len(chains), 2)
         self.assertEqual([chain["score"] for chain in chains], [40, 320])
         self.assertEqual([chain["all_clear_bonus_score"] for chain in chains], [0, 0])
@@ -114,6 +120,31 @@ class TestHeadlessSimulator(unittest.TestCase):
             {chains[1]["board"][y][x] for x, y in chains[1]["vanished"]},
             {PuyoColor.BLUE},
         )
+
+    def test_attack_score_delta_spans_chain_ends_and_ignores_no_chain_resolution(self):
+        game = GameState(seed=0)
+        for coord in {(0, 0), (1, 0), (0, 1), (1, 1)}:
+            game.field.place_puyo(*coord, Puyo(PuyoColor.RED))
+
+        first = game.resolve_chains_synchronously()
+        self.assertEqual(len(first), 1)
+        self.assertEqual(game.last_chain_score_delta, 40)
+        self.assertEqual(game.last_chain_end_score, 40)
+
+        game.all_clear_bonus_pending = False
+        game.score += 29
+        no_chain = game.resolve_chains_synchronously()
+        self.assertEqual(no_chain, [])
+        self.assertEqual(game.last_chain_score_delta, 0)
+        self.assertEqual(game.last_chain_end_score, 40)
+
+        for coord in {(0, 0), (1, 0), (0, 1), (1, 1)}:
+            game.field.place_puyo(*coord, Puyo(PuyoColor.BLUE))
+        second = game.resolve_chains_synchronously()
+
+        self.assertEqual(len(second), 1)
+        self.assertEqual(game.last_chain_score_delta, 69)
+        self.assertEqual(game.last_chain_end_score, 109)
 
     def test_simultaneous_two_color_clear_golden_score_is_240(self):
         game = GameState(seed=0)

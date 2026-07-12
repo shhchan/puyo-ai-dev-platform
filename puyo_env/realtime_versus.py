@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import Mapping
 
 from src.core.constants import VISIBLE_HEIGHT
+from src.core.ojama import convert_score_to_ojama
 from src.core.realtime import (
     DEFAULT_REALTIME_TIMING,
     RealtimeHeadlessSimulator,
@@ -206,6 +207,12 @@ class RealtimeVersusMatch:
                         )
                     ],
                     "score_carry": self.player_states[agent].score_carry,
+                    "last_chain_end_score": (
+                        self.player_states[agent].simulator.game.last_chain_end_score
+                    ),
+                    "last_chain_score_delta": (
+                        self.player_states[agent].simulator.game.last_chain_score_delta
+                    ),
                     "sent_ojama_total": self.player_states[agent].sent_ojama_total,
                     "generated_ojama_total": self.player_states[agent].generated_ojama_total,
                     "canceled_ojama_total": self.player_states[agent].canceled_ojama_total,
@@ -227,15 +234,24 @@ class RealtimeVersusMatch:
     def _attack_units_from_step(self, agent: str, result: RealtimeStepResult) -> int:
         score_delta = 0
         for event in result.events:
-            if event.type == "resolution_complete":
-                score_delta += int(event.data.get("score_delta", 0))
+            if (
+                event.type == "resolution_complete"
+                and int(event.data.get("chain_count", 0)) > 0
+            ):
+                score_delta += int(event.data.get("attack_score_delta", 0))
         if score_delta <= 0:
             return 0
+        return self._attack_units_from_score(agent, score_delta)
+
+    def _attack_units_from_score(self, agent: str, score_delta: int) -> int:
         state = self.player_states[agent]
-        total = state.score_carry + score_delta
-        units = total // self.target_score_per_ojama
-        state.score_carry = total % self.target_score_per_ojama
-        return int(units)
+        conversion = convert_score_to_ojama(
+            score_delta,
+            state.score_carry,
+            self.target_score_per_ojama,
+        )
+        state.score_carry = conversion.carry
+        return conversion.units
 
     def _consume_incoming(
         self,
