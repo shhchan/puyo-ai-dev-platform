@@ -153,7 +153,9 @@ class TestModelViewerData(unittest.TestCase):
                             "snapshot_hash": "hash-2",
                             "inputs": {"player_0": {"press": []}},
                             "policy_diagnostics": {},
-                            "controller_diagnostics": {},
+                            "controller_diagnostics": {
+                                "player_0": {"last_decision": None}
+                            },
                             "all_clear_diagnostics": {"players": {}},
                             "attack_diagnostics": {},
                         }
@@ -176,6 +178,15 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(policy_metadata["player_0"]["policy_type"], "manager_rule")
             self.assertEqual(timeline[0].plan_ids, ("plan-1",))
             self.assertEqual(timeline[1].plan_ids, ("plan-1",))
+            second = ModelViewerController(
+                build_model_viewer_data(replay_path=replay)
+            )
+            second.seek(1)
+            self.assertIsNone(
+                second.report()["replay"]["selected_entry"]["agents"]["player_0"][
+                    "decision"
+                ]["action_index"]
+            )
             self.assertTrue(
                 timeline[0].all_clear_diagnostics["players"]["player_0"]["all_clear_bonus_pending"]
             )

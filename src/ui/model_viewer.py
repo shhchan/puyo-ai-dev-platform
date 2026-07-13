@@ -468,9 +468,17 @@ def summarize_replay_entry(
     ):
         policy = policy_metadata.get(agent, {}) if isinstance(policy_metadata.get(agent, {}), Mapping) else {}
         checkpoint_node = lineage.node_by_path(policy.get("checkpoint_path")) if lineage is not None else None
+        declared_lineage_node = (
+            lineage.node_by_id(policy.get("lineage_node_id"))
+            if lineage is not None
+            else None
+        )
+        lineage_node = checkpoint_node or declared_lineage_node
         diagnostics = entry.policy_diagnostics.get(agent, {})
         controller = entry.controller_diagnostics.get(agent, {})
         decision = controller.get("last_decision", {}) if isinstance(controller, Mapping) else {}
+        if not isinstance(decision, Mapping):
+            decision = {}
         plan = diagnostics.get("plan", {}) if isinstance(diagnostics, Mapping) else {}
         objective = diagnostics.get("search_objective", {}) if isinstance(diagnostics, Mapping) else {}
         planner = diagnostics.get("planner_request", {}) if isinstance(diagnostics, Mapping) else {}
@@ -503,10 +511,10 @@ def summarize_replay_entry(
         agents[agent] = {
             "policy_type": policy.get("policy_type", agent),
             "checkpoint_path": policy.get("checkpoint_path"),
-            "lineage_node_id": None if checkpoint_node is None else checkpoint_node.get("id"),
+            "lineage_node_id": None if lineage_node is None else lineage_node.get("id"),
             "lineage_ancestors": (
-                [] if checkpoint_node is None or lineage is None
-                else _lineage_ancestor_ids(lineage, str(checkpoint_node["id"]))
+                [] if lineage_node is None or lineage is None
+                else _lineage_ancestor_ids(lineage, str(lineage_node["id"]))
             ),
             "input": _input_label(entry.inputs.get(agent, {})),
             "decision": {
