@@ -10,7 +10,7 @@ from collections import deque
 from concurrent.futures import Future
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -51,10 +51,13 @@ else:  # pragma: no cover - used only for dependency-light config imports
 
 REALTIME_POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "v1_7_analyzer_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
-ASYNC_POLICY_TYPES = frozenset({"beam", "checkpoint", "manager", "manager_rule"})
+ASYNC_POLICY_TYPES = frozenset(
+    {"beam", "checkpoint", "manager", "manager_rule", "v1_7_analyzer_manager"}
+)
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
 
 
@@ -181,6 +184,8 @@ class RealtimeVersusUiConfig:
     use_reachable_action_mask: bool = False
     keybindings_path: str | None = None
     result_json: str | None = None
+    replay_path: str | None = None
+    qa_notes: str | None = None
     max_frames: int | None = None
     plan_overlay: bool = True
     collection_enabled: bool = False
@@ -216,6 +221,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("action_deadline_ticks must be non-negative")
     if config.max_frames is not None and config.max_frames <= 0:
         raise ValueError("max_frames must be positive")
+    if config.replay_path is not None and not config.replay_path.strip():
+        raise ValueError("replay_path must not be empty")
     if not config.dataset_root.strip():
         raise ValueError("dataset_root must not be empty")
     for side in ("a", "b"):
@@ -275,6 +282,8 @@ class RealtimeVersusMatchController:
         }
         self.collection_enabled = config.collection_enabled
         self.collection_replay_ticks: list[dict] = []
+        self.replay_ticks: list[dict] = []
+        self._last_replay_diagnostic_tokens: dict[str, tuple[Any, ...]] = {}
         self.collection_last_session_id: str | None = None
         self.collection_message = "COLLECTION ON" if self.collection_enabled else "COLLECTION OFF"
         self.policies: dict[str, Policy | None] = {}
@@ -314,6 +323,30 @@ class RealtimeVersusMatchController:
         base = self.policy_names[agent]
         return f"{base}: {profile_name}" if profile_name else base
 
+    def policy_metadata(self, agent: str) -> dict[str, Any]:
+        side = "a" if agent == "player_0" else "b"
+        diagnostics = self.tactical_diagnostics(agent)
+        model_metadata = diagnostics.get("model_metadata", {})
+        if not isinstance(model_metadata, Mapping):
+            model_metadata = {}
+        policy_type = self.policy_names[agent]
+        opponent = "player_1" if agent == "player_0" else "player_0"
+        policy_seed = getattr(self.config, f"seed_{side}")
+        if policy_seed is None:
+            policy_seed = self.config.seed + (0 if side == "a" else 10_000)
+        return {
+            "policy_type": policy_type,
+            "model": model_metadata.get("model_family", policy_type),
+            "model_family": model_metadata.get("model_family"),
+            "model_version": model_metadata.get("model_version"),
+            "lineage_node_id": model_metadata.get("lineage_node_id"),
+            "checkpoint_path": (
+                self.config.checkpoint_a if side == "a" else self.config.checkpoint_b
+            ),
+            "policy_seed": policy_seed,
+            "opponent_policy_type": self.policy_names[opponent],
+        }
+
     def tactical_diagnostics(self, agent: str) -> dict:
         policy = self.policies.get(agent)
         diagnostics = getattr(policy, "tactical_diagnostics", None)
@@ -342,6 +375,86 @@ class RealtimeVersusMatchController:
             "deadline": self.config.action_deadline_ticks or 0,
             "reason": decision.reason,
         }
+
+    def tactical_summary(self, agent: str) -> dict[str, Any]:
+        diagnostics = self.tactical_diagnostics(agent)
+        selected = diagnostics.get("selected_tactic", {})
+        analyzer = diagnostics.get("analyzer", {})
+        analyzer_diagnostics = (
+            analyzer.get("diagnostics", {}) if isinstance(analyzer, Mapping) else {}
+        )
+        planner = diagnostics.get("planner_request", {})
+        worker = diagnostics.get("worker", {})
+        own = analyzer_diagnostics.get("own", {}) if isinstance(analyzer_diagnostics, Mapping) else {}
+        opponent = (
+            analyzer_diagnostics.get("opponent", {})
+            if isinstance(analyzer_diagnostics, Mapping)
+            else {}
+        )
+        incoming = (
+            analyzer_diagnostics.get("incoming", {})
+            if isinstance(analyzer_diagnostics, Mapping)
+            else {}
+        )
+        planner_objective = planner.get("objective", {}) if isinstance(planner, Mapping) else {}
+        worker_result = worker.get("result", {}) if isinstance(worker, Mapping) else {}
+        own_forecast = own.get("forecast", {}) if isinstance(own, Mapping) else {}
+        opponent_forecast = opponent.get("forecast", {}) if isinstance(opponent, Mapping) else {}
+        return {
+            "tactic_id": (
+                selected.get("tactic_id")
+                if isinstance(selected, Mapping)
+                else diagnostics.get("profile_name", "")
+            )
+            or diagnostics.get("profile_name", ""),
+            "reason_code": (
+                selected.get("reason_code")
+                if isinstance(selected, Mapping)
+                else diagnostics.get("reason_code", "")
+            )
+            or diagnostics.get("reason_code", ""),
+            "reason": diagnostics.get("reason", ""),
+            "own_danger": own.get("danger") if isinstance(own, Mapping) else None,
+            "own_short_attack": (
+                own_forecast.get("short_attack") if isinstance(own_forecast, Mapping) else None
+            ),
+            "opponent_danger": (
+                opponent.get("danger") if isinstance(opponent, Mapping) else None
+            ),
+            "opponent_short_attack": (
+                opponent_forecast.get("short_attack")
+                if isinstance(opponent_forecast, Mapping)
+                else None
+            ),
+            "incoming_amount": incoming.get("amount") if isinstance(incoming, Mapping) else None,
+            "can_cancel": incoming.get("can_cancel") if isinstance(incoming, Mapping) else None,
+            "objective_kind": (
+                planner_objective.get("kind") if isinstance(planner_objective, Mapping) else None
+            ),
+            "target_chain": (
+                planner_objective.get("target_chain")
+                if isinstance(planner_objective, Mapping)
+                else None
+            ),
+            "target_attack": diagnostics.get("target_attack", 0),
+            "worker_chain": (
+                worker_result.get("predicted_chain_count")
+                if isinstance(worker_result, Mapping)
+                else None
+            ),
+            "worker_attack": (
+                worker_result.get("predicted_attack")
+                if isinstance(worker_result, Mapping)
+                else None
+            ),
+            "worker_danger": (
+                worker_result.get("danger") if isinstance(worker_result, Mapping) else None
+            ),
+            "plan_id": diagnostics.get("plan_id", ""),
+        }
+
+    def attack_diagnostics(self, agent: str) -> dict[str, int | bool]:
+        return dict(self.latest_attack_diagnostics[agent])
 
     def plan_overlay(self, agent: str) -> dict:
         if not self.plan_overlay_enabled.get(agent, False):
@@ -427,6 +540,20 @@ class RealtimeVersusMatchController:
         self.tick_elapsed = 0.0
         self.last_inputs = {}
         self.collection_replay_ticks = []
+        self.replay_ticks = []
+        self._last_replay_diagnostic_tokens = {}
+        self.latest_attack_diagnostics = {
+            agent: {
+                "generated": 0,
+                "canceled": 0,
+                "outgoing": 0,
+                "attack_score_delta": 0,
+                "all_clear_bonus_consumed": False,
+                "all_clear_bonus_score": 0,
+                "score_carry": 0,
+            }
+            for agent in REALTIME_AGENTS
+        }
         self._sync_display_boards()
 
     def advance_one(self, include_human: bool = False) -> bool:
@@ -446,15 +573,19 @@ class RealtimeVersusMatchController:
             )
         self.last_inputs = inputs
         self.observations, _, _, _, self.infos = self.env.step(inputs)
-        if self.collection_enabled:
-            self._record_collection_tick(inputs)
-        self._sync_display_boards()
         match_result = self.infos["player_0"].get("match_result")
         if match_result is not None:
+            tick_payload = self._build_replay_tick(inputs, match_result)
+            self._update_latest_attack_diagnostics(tick_payload["attack_diagnostics"])
+            if self.config.replay_path:
+                self.replay_ticks.append(self._compact_replay_tick(tick_payload))
+            if self.collection_enabled:
+                self.collection_replay_ticks.append(tick_payload)
             for event in self._visual_events_from_tick(match_result):
                 self.event_queues[event.agent].append(event)
             for agent in REALTIME_AGENTS:
                 self._start_next_event(agent)
+        self._sync_display_boards()
         return True
 
     @property
@@ -467,26 +598,211 @@ class RealtimeVersusMatchController:
     def collection_contents_label(self) -> str:
         return "saves inputs / boards / AI plans / result / optional feedback"
 
-    def _record_collection_tick(self, inputs: dict[str, TickInput]) -> None:
-        match_result = self.infos["player_0"]["match_result"]
-        self.collection_replay_ticks.append(
-            {
-                "tick": match_result.tick,
-                "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
-                "policy_diagnostics": {
+    def _build_replay_tick(self, inputs: dict[str, TickInput], match_result) -> dict[str, Any]:
+        attack_diagnostics = {
+            agent: {
+                **dict(match_result.attack_diagnostics[agent]),
+                "score_carry": self.env.player_states[agent].score_carry,
+            }
+            for agent in REALTIME_AGENTS
+        }
+        return {
+            "tick": match_result.tick,
+            "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
+            "policy_diagnostics": {
+                agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
+            },
+            "controller_diagnostics": {
+                agent: self.controllers[agent].diagnostics.to_dict()
+                for agent in REALTIME_AGENTS
+            },
+            "controller_status": {
+                agent: {
+                    **self.controllers[agent].status().to_dict(),
+                    "kind": "human" if agent == self.human_agent else "policy",
+                }
+                for agent in REALTIME_AGENTS
+            },
+            "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
+            "attack_diagnostics": attack_diagnostics,
+            "snapshot_hash": match_result.snapshot_hash,
+        }
+
+    def _update_latest_attack_diagnostics(
+        self,
+        diagnostics: Mapping[str, Mapping[str, int | bool]],
+    ) -> None:
+        significant_fields = (
+            "generated",
+            "canceled",
+            "outgoing",
+            "attack_score_delta",
+            "all_clear_bonus_consumed",
+        )
+        for agent in REALTIME_AGENTS:
+            current = dict(diagnostics[agent])
+            if any(current.get(field) for field in significant_fields):
+                self.latest_attack_diagnostics[agent] = current
+            else:
+                self.latest_attack_diagnostics[agent]["score_carry"] = current["score_carry"]
+
+    def _compact_replay_tick(self, tick: Mapping[str, Any]) -> dict[str, Any]:
+        changed_diagnostics = {}
+        for agent in REALTIME_AGENTS:
+            controller = self.controllers[agent].diagnostics
+            diagnostics = tick["policy_diagnostics"].get(agent, {})
+            plan_id = diagnostics.get("plan_id") if isinstance(diagnostics, Mapping) else None
+            token = (
+                controller.decisions_started,
+                controller.decisions_activated,
+                plan_id,
+            )
+            if self._last_replay_diagnostic_tokens.get(agent) != token:
+                changed_diagnostics[agent] = diagnostics
+                self._last_replay_diagnostic_tokens[agent] = token
+        return {
+            **dict(tick),
+            "policy_diagnostics": changed_diagnostics,
+        }
+
+    def replay_payload(
+        self,
+        *,
+        ticks: list[dict] | None = None,
+        interrupted: bool = False,
+    ) -> dict[str, Any]:
+        return {
+            "format": "puyo-realtime-match-v1",
+            "seed": self.config.seed,
+            "max_ticks": self.config.max_ticks,
+            "policies": {
+                agent: self.policy_metadata(agent) for agent in REALTIME_AGENTS
+            },
+            "ticks": list(self.replay_ticks if ticks is None else ticks),
+            "expected_final_hash": self.env.match.state_hash(),
+            "outcome": {
+                "winner": self.winner,
+                "interrupted": interrupted,
+                "notes": self.config.qa_notes,
+            },
+        }
+
+    def lifecycle_coverage(self) -> dict[str, Any]:
+        per_player = {
+            agent: {
+                "initial_empty": False,
+                "achieved": False,
+                "pending": False,
+                "consumed": False,
+            }
+            for agent in REALTIME_AGENTS
+        }
+        asymmetric_achieved = False
+        for tick in self.replay_ticks:
+            players = tick.get("all_clear_diagnostics", {}).get("players", {})
+            achieved_count = 0
+            for agent in REALTIME_AGENTS:
+                state = players.get(agent, {})
+                achieved = bool(state.get("all_clear_achieved"))
+                achieved_count += int(achieved)
+                per_player[agent]["initial_empty"] |= bool(state.get("board_empty")) and not achieved
+                per_player[agent]["achieved"] |= achieved
+                per_player[agent]["pending"] |= bool(state.get("all_clear_bonus_pending"))
+                per_player[agent]["consumed"] |= bool(state.get("all_clear_bonus_consumed"))
+            asymmetric_achieved |= achieved_count == 1
+        return {
+            "players": per_player,
+            "asymmetric_achieved": asymmetric_achieved,
+        }
+
+    def qa_result(self, *, collection_manifest: dict | None, interrupted: bool) -> dict[str, Any]:
+        scores = {
+            agent: int(self.infos[agent]["score"])
+            for agent in REALTIME_AGENTS
+        }
+        terminal = any(
+            self.env.player_states[agent].simulator.game.game_over
+            for agent in REALTIME_AGENTS
+        )
+        if terminal:
+            termination_reason = "game_over"
+        elif not interrupted:
+            termination_reason = "tick_limit"
+        else:
+            termination_reason = "interrupted"
+        controller_diagnostics = {
+            agent: self.controllers[agent].diagnostics.to_dict()
+            for agent in REALTIME_AGENTS
+        }
+        attack_totals = {
+            agent: {
+                "score_carry": self.env.player_states[agent].score_carry,
+                "generated": self.env.player_states[agent].generated_ojama_total,
+                "canceled": self.env.player_states[agent].canceled_ojama_total,
+                "outgoing": self.env.player_states[agent].sent_ojama_total,
+                "received": self.env.player_states[agent].received_ojama_total,
+            }
+            for agent in REALTIME_AGENTS
+        }
+        result = {
+            "schema_version": "puyo.gui_qa.v1",
+            "models": {
+                agent: self.policy_metadata(agent) for agent in REALTIME_AGENTS
+            },
+            "match": {
+                "seed": self.config.seed,
+                "max_ticks": self.config.max_ticks,
+                "speed": self.speed,
+            },
+            "result": {
+                "winner": self.winner,
+                "scores": scores,
+                "ticks": self.env.match.tick,
+                "completed": not interrupted,
+                "interrupted": interrupted,
+                "termination_reason": termination_reason,
+            },
+            "notes": self.config.qa_notes,
+            "diagnostics": {
+                "policy": {
                     agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
                 },
-                "controller_status": {
-                    agent: {
-                        "active_action_index": self.target_action(agent),
-                        "kind": "human" if agent == self.human_agent else "policy",
-                    }
-                    for agent in REALTIME_AGENTS
+                "controller": controller_diagnostics,
+                "all_clear": self.env.match.all_clear_diagnostics(),
+                "lifecycle_coverage": self.lifecycle_coverage(),
+                "latest_attack": {
+                    agent: self.attack_diagnostics(agent) for agent in REALTIME_AGENTS
                 },
-                "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
-                "snapshot_hash": match_result.snapshot_hash,
-            }
-        )
+                "attack_totals": attack_totals,
+            },
+            "artifacts": {
+                "replay": self.config.replay_path,
+                "collection_session_id": (
+                    None if collection_manifest is None else collection_manifest["session_id"]
+                ),
+            },
+            # Preserve the flat smoke result contract used by existing callers.
+            "winner": self.winner,
+            "score_player_0": scores["player_0"],
+            "score_player_1": scores["player_1"],
+            "ticks": self.env.match.tick,
+            "decisions_player_0": controller_diagnostics["player_0"]["decisions_started"],
+            "decisions_player_1": controller_diagnostics["player_1"]["decisions_started"],
+            "emitted_input_ticks_player_0": controller_diagnostics["player_0"][
+                "emitted_input_ticks"
+            ],
+            "emitted_input_ticks_player_1": controller_diagnostics["player_1"][
+                "emitted_input_ticks"
+            ],
+            "plan_overlay_player_0": self.plan_overlay_enabled["player_0"],
+            "plan_overlay_player_1": self.plan_overlay_enabled["player_1"],
+            "collection_enabled": self.collection_enabled,
+            "collection_session_id": (
+                None if collection_manifest is None else collection_manifest["session_id"]
+            ),
+            "collection_dataset_root": self.config.dataset_root,
+        }
+        return result
 
     def toggle_collection(self) -> None:
         if self.human_agent is None:
@@ -519,13 +835,10 @@ class RealtimeVersusMatchController:
     def finalize_collection(self, *, interrupted: bool = False) -> dict | None:
         if not self.collection_enabled or not self.collection_replay_ticks:
             return None
-        replay = {
-            "format": "puyo-realtime-match-v1",
-            "seed": self.config.seed,
-            "max_ticks": self.config.max_ticks,
-            "ticks": list(self.collection_replay_ticks),
-            "expected_final_hash": self.env.match.state_hash(),
-        }
+        replay = self.replay_payload(
+            ticks=self.collection_replay_ticks,
+            interrupted=interrupted,
+        )
         models = {
             "player_0": {"policy": self.config.policy_a, "checkpoint_path": self.config.checkpoint_a},
             "player_1": {"policy": self.config.policy_b, "checkpoint_path": self.config.checkpoint_b},
@@ -820,6 +1133,8 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--action-deadline-ticks", type=int)
     parser.add_argument("--use-reachable-action-mask", action="store_true")
     parser.add_argument("--result-json", help="Write the final UI smoke result as JSON.")
+    parser.add_argument("--replay", dest="replay_path", help="Write the realtime diagnostic replay as JSON.")
+    parser.add_argument("--qa-notes", help="Attach reviewer notes to the GUI QA result.")
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
     parser.add_argument("--no-plan-overlay", dest="plan_overlay", action="store_false")
     parser.set_defaults(plan_overlay=True)
@@ -869,6 +1184,8 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         use_reachable_action_mask=args.use_reachable_action_mask,
         keybindings_path=args.keybindings_path,
         result_json=args.result_json,
+        replay_path=args.replay_path,
+        qa_notes=args.qa_notes,
         max_frames=args.max_frames,
         plan_overlay=args.plan_overlay,
         collection_enabled=args.collection_enabled,
@@ -880,6 +1197,15 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     except ValueError as exc:
         parser.error(str(exc))
     return config
+
+
+def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> dict:
@@ -909,22 +1235,17 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
     except KeyboardInterrupt:
         pass
     finally:
-        collection_manifest = controller.finalize_collection(interrupted=bool(controller.env.agents))
-        result = {
-            "winner": controller.winner,
-            "score_player_0": controller.infos["player_0"]["score"],
-            "score_player_1": controller.infos["player_1"]["score"],
-            "ticks": controller.env.match.tick,
-            "decisions_player_0": controller.controllers["player_0"].diagnostics.decisions_started,
-            "decisions_player_1": controller.controllers["player_1"].diagnostics.decisions_started,
-            "emitted_input_ticks_player_0": controller.controllers["player_0"].diagnostics.emitted_input_ticks,
-            "emitted_input_ticks_player_1": controller.controllers["player_1"].diagnostics.emitted_input_ticks,
-            "plan_overlay_player_0": controller.plan_overlay_enabled["player_0"],
-            "plan_overlay_player_1": controller.plan_overlay_enabled["player_1"],
-            "collection_enabled": controller.collection_enabled,
-            "collection_session_id": None if collection_manifest is None else collection_manifest["session_id"],
-            "collection_dataset_root": config.dataset_root,
-        }
+        interrupted = bool(controller.env.agents)
+        collection_manifest = controller.finalize_collection(interrupted=interrupted)
+        if config.replay_path:
+            _write_json(
+                config.replay_path,
+                controller.replay_payload(interrupted=interrupted),
+            )
+        result = controller.qa_result(
+            collection_manifest=collection_manifest,
+            interrupted=interrupted,
+        )
         controller.shutdown()
         pygame.quit()
     return result
@@ -934,9 +1255,7 @@ def main(argv=None) -> None:
     config = parse_config(argv)
     result = run_ui(config, max_frames=config.max_frames)
     if config.result_json:
-        path = Path(config.result_json)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        _write_json(config.result_json, result)
     print(
         f"result: winner={result['winner']} score_player_0={result['score_player_0']} "
         f"score_player_1={result['score_player_1']} ticks={result['ticks']}"

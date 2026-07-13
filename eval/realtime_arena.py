@@ -215,6 +215,13 @@ def run_realtime_match(
                         for agent in sorted(controllers)
                     },
                     "all_clear_diagnostics": env.match.all_clear_diagnostics(),
+                    "attack_diagnostics": {
+                        agent: {
+                            **dict(match_result.attack_diagnostics[agent]),
+                            "score_carry": env.match.player_states[agent].score_carry,
+                        }
+                        for agent in sorted(controllers)
+                    },
                     "snapshot_hash": match_result.snapshot_hash,
                 }
             )

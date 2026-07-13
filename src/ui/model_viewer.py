@@ -45,6 +45,7 @@ class ReplayTimelineEntry:
     controller_diagnostics: dict[str, Any] = field(default_factory=dict)
     controller_status: dict[str, Any] = field(default_factory=dict)
     all_clear_diagnostics: dict[str, Any] = field(default_factory=dict)
+    attack_diagnostics: dict[str, Any] = field(default_factory=dict)
 
     @property
     def plan_ids(self) -> tuple[str, ...]:
@@ -274,19 +275,28 @@ def load_replay_timeline(
     expected_final_hash = str(payload.get("expected_final_hash", ""))
     policy_metadata = dict(payload.get("policies", {}))
     if replay_format == "puyo-realtime-match-v1" and isinstance(payload.get("ticks"), list):
-        entries = tuple(
-            ReplayTimelineEntry(
-                tick=int(item.get("tick", index)),
-                snapshot_hash=str(item.get("snapshot_hash", "")),
-                inputs=dict(item.get("inputs", {})),
-                policy_diagnostics=dict(item.get("policy_diagnostics", {})),
-                controller_diagnostics=dict(item.get("controller_diagnostics", {})),
-                controller_status=dict(item.get("controller_status", {})),
-                all_clear_diagnostics=dict(item.get("all_clear_diagnostics", {})),
+        entries_list = []
+        latest_policy_diagnostics: dict[str, Any] = {}
+        for index, item in enumerate(payload["ticks"]):
+            if not isinstance(item, dict):
+                continue
+            updates = item.get("policy_diagnostics", {})
+            if isinstance(updates, Mapping):
+                for agent, diagnostics in updates.items():
+                    latest_policy_diagnostics[str(agent)] = diagnostics
+            entries_list.append(
+                ReplayTimelineEntry(
+                    tick=int(item.get("tick", index)),
+                    snapshot_hash=str(item.get("snapshot_hash", "")),
+                    inputs=dict(item.get("inputs", {})),
+                    policy_diagnostics=dict(latest_policy_diagnostics),
+                    controller_diagnostics=dict(item.get("controller_diagnostics", {})),
+                    controller_status=dict(item.get("controller_status", {})),
+                    all_clear_diagnostics=dict(item.get("all_clear_diagnostics", {})),
+                    attack_diagnostics=dict(item.get("attack_diagnostics", {})),
+                )
             )
-            for index, item in enumerate(payload["ticks"])
-            if isinstance(item, dict)
-        )
+        entries = tuple(entries_list)
         return (
             str(replay_path),
             replay_format,
@@ -454,6 +464,7 @@ def summarize_replay_entry(
         | set(entry.policy_diagnostics)
         | set(entry.controller_diagnostics)
         | set(all_clear_players)
+        | set(entry.attack_diagnostics)
     ):
         policy = policy_metadata.get(agent, {}) if isinstance(policy_metadata.get(agent, {}), Mapping) else {}
         checkpoint_node = lineage.node_by_path(policy.get("checkpoint_path")) if lineage is not None else None
@@ -462,8 +473,31 @@ def summarize_replay_entry(
         decision = controller.get("last_decision", {}) if isinstance(controller, Mapping) else {}
         plan = diagnostics.get("plan", {}) if isinstance(diagnostics, Mapping) else {}
         objective = diagnostics.get("search_objective", {}) if isinstance(diagnostics, Mapping) else {}
+        planner = diagnostics.get("planner_request", {}) if isinstance(diagnostics, Mapping) else {}
+        if not objective and isinstance(planner, Mapping):
+            objective = planner.get("objective", {})
         if not objective and isinstance(plan, Mapping):
             objective = plan.get("objective", {})
+        selected_tactic = (
+            diagnostics.get("selected_tactic", {}) if isinstance(diagnostics, Mapping) else {}
+        )
+        analyzer = diagnostics.get("analyzer", {}) if isinstance(diagnostics, Mapping) else {}
+        analyzer_diagnostics = analyzer.get("diagnostics", {}) if isinstance(analyzer, Mapping) else {}
+        own_analysis = (
+            analyzer_diagnostics.get("own", {})
+            if isinstance(analyzer_diagnostics, Mapping)
+            else {}
+        )
+        opponent_analysis = (
+            analyzer_diagnostics.get("opponent", {})
+            if isinstance(analyzer_diagnostics, Mapping)
+            else {}
+        )
+        incoming_analysis = (
+            analyzer_diagnostics.get("incoming", {})
+            if isinstance(analyzer_diagnostics, Mapping)
+            else {}
+        )
         first_step = _first_plan_step(plan)
         search_diagnostics = diagnostics.get("search_diagnostics", {}) if isinstance(diagnostics, Mapping) else {}
         agents[agent] = {
@@ -494,6 +528,21 @@ def summarize_replay_entry(
                 ),
                 "strategy": diagnostics.get("strategy", "") if isinstance(diagnostics, Mapping) else "",
                 "reason": diagnostics.get("reason", "") if isinstance(diagnostics, Mapping) else "",
+                "reason_code": (
+                    selected_tactic.get("reason_code")
+                    if isinstance(selected_tactic, Mapping)
+                    else ""
+                )
+                or (
+                    diagnostics.get("reason_code", "")
+                    if isinstance(diagnostics, Mapping)
+                    else ""
+                ),
+                "tactic_id": (
+                    selected_tactic.get("tactic_id")
+                    if isinstance(selected_tactic, Mapping)
+                    else ""
+                ),
                 "target_attack": diagnostics.get("target_attack", 0) if isinstance(diagnostics, Mapping) else 0,
                 "deadline": diagnostics.get("deadline", 0) if isinstance(diagnostics, Mapping) else 0,
                 "expanded_nodes": (
@@ -510,6 +559,20 @@ def summarize_replay_entry(
                 ),
             },
             "objective": objective if isinstance(objective, Mapping) else {},
+            "analyzer": {
+                "own": dict(own_analysis) if isinstance(own_analysis, Mapping) else {},
+                "opponent": (
+                    dict(opponent_analysis)
+                    if isinstance(opponent_analysis, Mapping)
+                    else {}
+                ),
+                "incoming": (
+                    dict(incoming_analysis)
+                    if isinstance(incoming_analysis, Mapping)
+                    else {}
+                ),
+            },
+            "planner": dict(planner) if isinstance(planner, Mapping) else {},
             "plan": {
                 "plan_id": diagnostics.get("plan_id", "") if isinstance(diagnostics, Mapping) else "",
                 "update_reason": diagnostics.get("plan_update_reason", "") if isinstance(diagnostics, Mapping) else "",
@@ -518,6 +581,11 @@ def summarize_replay_entry(
             "all_clear": (
                 dict(all_clear_players.get(agent, {}))
                 if isinstance(all_clear_players.get(agent, {}), Mapping)
+                else {}
+            ),
+            "attack": (
+                dict(entry.attack_diagnostics.get(agent, {}))
+                if isinstance(entry.attack_diagnostics.get(agent, {}), Mapping)
                 else {}
             ),
         }
@@ -541,6 +609,8 @@ def replay_entry_display_lines(
         objective = payload["objective"]
         plan = payload["plan"]
         all_clear = payload["all_clear"]
+        attack = payload["attack"]
+        analyzer = payload["analyzer"]
         first_step = plan.get("first_step") or {}
         elapsed = decision.get("policy_elapsed_ms")
         elapsed_text = "-" if elapsed is None else f"{elapsed:.1f}ms"
@@ -561,6 +631,32 @@ def replay_entry_display_lines(
                 f"achieved={int(bool(all_clear.get('all_clear_achieved')))} "
                 f"pending={int(bool(all_clear.get('all_clear_bonus_pending')))} "
                 f"consumed={int(bool(all_clear.get('all_clear_bonus_consumed')))}"
+            )
+        if attack:
+            lines.append(
+                "  attack "
+                f"delta={attack.get('attack_score_delta', 0)} "
+                f"carry={attack.get('score_carry', 0)} "
+                f"generated={attack.get('generated', 0)} "
+                f"canceled={attack.get('canceled', 0)} "
+                f"outgoing={attack.get('outgoing', 0)}"
+            )
+        if diagnostics.get("tactic_id"):
+            lines.append(
+                f"  tactic {diagnostics['tactic_id']} reason {diagnostics.get('reason_code') or '-'}"
+            )
+        own = analyzer.get("own", {}) if isinstance(analyzer, Mapping) else {}
+        opponent = analyzer.get("opponent", {}) if isinstance(analyzer, Mapping) else {}
+        if own or opponent:
+            own_forecast = own.get("forecast", {}) if isinstance(own, Mapping) else {}
+            opponent_forecast = (
+                opponent.get("forecast", {}) if isinstance(opponent, Mapping) else {}
+            )
+            lines.append(
+                "  analyzer "
+                f"own danger={own.get('danger', '-')} short={own_forecast.get('short_attack', '-')} "
+                f"opp danger={opponent.get('danger', '-')} "
+                f"short={opponent_forecast.get('short_attack', '-')}"
             )
         profile = diagnostics.get("profile_name") or "-"
         objective_kind = objective.get("kind", "-") if isinstance(objective, Mapping) else "-"
