@@ -505,7 +505,11 @@ def write_matches_csv(path: str | Path, matches: tuple[MatchResult, ...]) -> Non
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=[item.name for item in fields(MatchResult)])
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[item.name for item in fields(MatchResult)],
+            lineterminator="\n",
+        )
         writer.writeheader()
         for match in matches:
             writer.writerow(asdict(match))
@@ -710,7 +714,11 @@ def write_summary_csv(path: str | Path, summary: dict[str, Any]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(summary.keys()))
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=list(summary.keys()),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerow(summary)
 
