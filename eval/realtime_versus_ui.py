@@ -20,6 +20,12 @@ except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
 from eval.lifecycle_audit import audit_realtime_lifecycle
+from eval.realtime_gui_qa import (
+    GUI_QA_PROFILES,
+    criteria_for_profile,
+    disabled_gui_qa_gate,
+    evaluate_realtime_gui_qa,
+)
 from eval.versus_ui import SPEED_CHOICES, VisualEvent
 from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
 from human_data.dataset import create_session
@@ -162,6 +168,7 @@ class RealtimeVersusUiConfig:
     result_json: str | None = None
     replay_path: str | None = None
     qa_notes: str | None = None
+    qa_profile: str | None = None
     max_frames: int | None = None
     plan_overlay: bool = True
     collection_enabled: bool = False
@@ -197,6 +204,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("timeout_ticks must be non-negative")
     if config.action_deadline_ticks is not None and config.action_deadline_ticks < 0:
         raise ValueError("action_deadline_ticks must be non-negative")
+    if config.qa_profile is not None and config.qa_profile not in GUI_QA_PROFILES:
+        raise ValueError(f"qa_profile must be one of: {GUI_QA_PROFILES}")
     if config.max_frames is not None and config.max_frames <= 0:
         raise ValueError("max_frames must be positive")
     if config.replay_path is not None and not config.replay_path.strip():
@@ -720,6 +729,28 @@ class RealtimeVersusMatchController:
             }
             for agent in REALTIME_AGENTS
         }
+        execution_completed = not interrupted
+        quality_gate = disabled_gui_qa_gate()
+        if self.config.qa_profile is not None:
+            ai_agents = tuple(
+                agent
+                for agent, policy_name in self.policy_names.items()
+                if policy_name != "human"
+            )
+            quality_gate = evaluate_realtime_gui_qa(
+                criteria_for_profile(self.config.qa_profile),
+                agents=ai_agents,
+                ticks=self.env.match.tick,
+                interrupted=interrupted,
+                termination_reason=termination_reason,
+                latency_mode=self.config.latency_mode,
+                controller_diagnostics=controller_diagnostics,
+                attack_totals=attack_totals,
+            )
+        qa_passed = quality_gate["passed"]
+        completed = execution_completed and (
+            not quality_gate["enabled"] or bool(qa_passed)
+        )
         result = {
             "schema_version": "puyo.gui_qa.v1",
             "models": {
@@ -729,15 +760,19 @@ class RealtimeVersusMatchController:
                 "seed": self.config.seed,
                 "max_ticks": self.config.max_ticks,
                 "speed": self.speed,
+                "latency_mode": self.config.latency_mode,
             },
             "result": {
                 "winner": self.winner,
                 "scores": scores,
                 "ticks": self.env.match.tick,
-                "completed": not interrupted,
+                "completed": completed,
+                "execution_completed": execution_completed,
+                "qa_passed": qa_passed,
                 "interrupted": interrupted,
                 "termination_reason": termination_reason,
             },
+            "quality_gate": quality_gate,
             "notes": self.config.qa_notes,
             "diagnostics": {
                 "policy": {
@@ -1117,6 +1152,11 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--result-json", help="Write the final UI smoke result as JSON.")
     parser.add_argument("--replay", dest="replay_path", help="Write the realtime diagnostic replay as JSON.")
     parser.add_argument("--qa-notes", help="Attach reviewer notes to the GUI QA result.")
+    parser.add_argument(
+        "--qa-profile",
+        choices=GUI_QA_PROFILES,
+        help="Enable a versioned playability, attack, stress, or deterministic QA gate.",
+    )
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
     parser.add_argument("--no-plan-overlay", dest="plan_overlay", action="store_false")
     parser.set_defaults(plan_overlay=True)
@@ -1169,6 +1209,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         result_json=args.result_json,
         replay_path=args.replay_path,
         qa_notes=args.qa_notes,
+        qa_profile=args.qa_profile,
         max_frames=args.max_frames,
         plan_overlay=args.plan_overlay,
         collection_enabled=args.collection_enabled,
@@ -1243,6 +1284,8 @@ def main(argv=None) -> None:
         f"result: winner={result['winner']} score_player_0={result['score_player_0']} "
         f"score_player_1={result['score_player_1']} ticks={result['ticks']}"
     )
+    if result["quality_gate"]["enabled"] and not result["quality_gate"]["passed"]:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

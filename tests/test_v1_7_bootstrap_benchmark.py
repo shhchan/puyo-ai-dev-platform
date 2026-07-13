@@ -142,7 +142,8 @@ class TestV17BootstrapBenchmark(unittest.TestCase):
             scenario_report={"summary": {"scenarios": 24, "passed": 24, "failed": 0}},
             summaries=[summary],
             gui_qa={
-                "result": {"completed": True},
+                "result": {"completed": True, "execution_completed": True},
+                "quality_gate": {"enabled": True, "passed": True},
                 "diagnostics": {"controller": {"player_0": {"decisions_activated": 1}}},
             },
             gui_verification={

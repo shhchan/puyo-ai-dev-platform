@@ -90,6 +90,7 @@ class TestLauncherService(unittest.TestCase):
         service.update_setting("spectate", "result_json", "/tmp/result.json")
         service.update_setting("spectate", "replay_path", "/tmp/replay.json")
         service.update_setting("spectate", "qa_notes", "reviewed")
+        service.update_setting("spectate", "qa_profile", "attack")
 
         fields = service.settings.editable_fields("spectate")
         for field in (
@@ -102,6 +103,7 @@ class TestLauncherService(unittest.TestCase):
             "result_json",
             "replay_path",
             "qa_notes",
+            "qa_profile",
             "max_frames",
         ):
             self.assertIn(field, fields)
@@ -118,6 +120,7 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.result_json, "/tmp/result.json")
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
+        self.assertEqual(config.qa_profile, "attack")
 
     def test_arena_uses_configured_latency_by_default(self):
         service = self.make_service()

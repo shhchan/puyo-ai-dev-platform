@@ -139,6 +139,19 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertEqual(controller.diagnostics.last_decision.outcome, "fallback")
         self.assertNotEqual(tick_input, type(tick_input)())
 
+    def test_controller_records_completed_placements_for_cadence_qa(self):
+        match = RealtimeVersusMatch(seed=123)
+        controller = RealtimePolicyController(FirstLegalPolicy())
+
+        for _ in range(100):
+            tick_input = controller.next_input(match, "player_0")
+            match.step({"player_0": tick_input})
+            if controller.diagnostics.placements_completed:
+                break
+
+        self.assertEqual(controller.diagnostics.placements_completed, 1)
+        self.assertGreaterEqual(controller.diagnostics.decisions_activated, 1)
+
     def test_measured_async_latency_uses_completion_match_tick(self):
         class ManualExecutor:
             def __init__(self):

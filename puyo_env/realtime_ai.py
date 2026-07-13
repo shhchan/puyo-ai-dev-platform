@@ -128,6 +128,7 @@ class RealtimeControllerDiagnostics:
     decision_requests: int = 0
     decisions_started: int = 0
     decisions_activated: int = 0
+    placements_completed: int = 0
     timeouts: int = 0
     deadline_misses: int = 0
     unreachable_plans: int = 0
@@ -871,6 +872,8 @@ class RealtimePolicyController:
 
     def _emit_active_plan_input(self) -> TickInput:
         if self._active_plan is None or self._input_cursor >= len(self._active_plan.inputs):
+            if self._active_plan is not None:
+                self.diagnostics.placements_completed += 1
             self._active_plan = None
             self._active_action_index = None
             self._input_cursor = 0
