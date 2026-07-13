@@ -87,6 +87,8 @@ class TestLauncherService(unittest.TestCase):
         service.update_setting("spectate", "use_reachable_action_mask", True)
         service.update_setting("spectate", "max_frames", 9)
         service.update_setting("spectate", "result_json", "/tmp/result.json")
+        service.update_setting("spectate", "replay_path", "/tmp/replay.json")
+        service.update_setting("spectate", "qa_notes", "reviewed")
 
         fields = service.settings.editable_fields("spectate")
         for field in (
@@ -96,6 +98,8 @@ class TestLauncherService(unittest.TestCase):
             "action_deadline_ticks",
             "use_reachable_action_mask",
             "result_json",
+            "replay_path",
+            "qa_notes",
             "max_frames",
         ):
             self.assertIn(field, fields)
@@ -109,6 +113,17 @@ class TestLauncherService(unittest.TestCase):
         self.assertTrue(config.use_reachable_action_mask)
         self.assertEqual(config.max_frames, 9)
         self.assertEqual(config.result_json, "/tmp/result.json")
+        self.assertEqual(config.replay_path, "/tmp/replay.json")
+        self.assertEqual(config.qa_notes, "reviewed")
+
+    def test_v1_7_analyzer_manager_round_trips_without_checkpoint(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "v1_7_analyzer_manager")
+
+        self.assertEqual(service.validate_action("spectate"), [])
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.policy_a, "v1_7_analyzer_manager")
+        self.assertIsNone(config.checkpoint_a)
 
     def test_setting_help_describes_cli_argument(self):
         service = self.make_service()
@@ -366,7 +381,10 @@ class TestLauncherController(unittest.TestCase):
 
         controller.handle_text_input("manager")
         self.assertEqual(controller.search_query, "manager")
-        self.assertEqual(controller.filtered_choices(), ("manager", "manager_rule"))
+        self.assertEqual(
+            controller.filtered_choices(),
+            ("manager", "manager_rule", "v1_7_analyzer_manager"),
+        )
         self.assertEqual(service.settings.for_action("play").policy_a, "manager")
 
     def test_numeric_editor_buttons_are_clickable_and_do_not_hit_setting_rows(self):

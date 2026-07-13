@@ -1,0 +1,319 @@
+{
+  "schema_version": "puyo.state_analyzer.scenarios.v1",
+  "scenarios": [
+    {
+      "name": "short_tactical_sub_chain_keeps_main_distinct",
+      "category": "short_tactical_attack",
+      "situation": "A two-chain attack is available now while the larger three-chain main line needs the visible NEXT.",
+      "expected_behavior": ["Report the one-turn two-chain as a sub-chain.", "Keep the two-turn three-chain as the main chain."],
+      "non_goals": ["Do not choose whether the manager should fire the sub-chain."],
+      "own": {"board": ["RGGYGG", "BGRRGR", "..RGYB", "..BR.G", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RR", "next_pairs": ["RG", "RB"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.immediate_attack", "op": "eq", "value": 6},
+        {"path": "own.forecast.main_chain.turns", "op": "eq", "value": 2},
+        {"path": "own.forecast.main_chain.chain_count", "op": "eq", "value": 3},
+        {"path": "own.attack_options", "op": "any_match", "value": {"turns": 1, "chain_count": 2, "is_main_chain": false, "is_sub_chain": true}}
+      ]
+    },
+    {
+      "name": "immediate_rush_is_not_sub_chain",
+      "category": "rush",
+      "situation": "The current pair immediately fires the best two-chain attack from a shallow rush shape.",
+      "expected_behavior": ["Report a one-turn immediate attack.", "Do not relabel equivalent rush routes as sub-chains."],
+      "non_goals": ["Do not judge whether rushing is strategically correct."],
+      "own": {"board": ["RRRBBB", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.immediate_attack", "op": "eq", "value": 5},
+        {"path": "own.forecast.main_chain.turns", "op": "eq", "value": 1},
+        {"path": "own.attack_options", "op": "none_match", "value": {"is_sub_chain": true}}
+      ]
+    },
+    {
+      "name": "largest_chain_is_selected_as_main",
+      "category": "main_chain",
+      "situation": "The search contains immediate two-chains and a larger three-chain reachable with NEXT.",
+      "expected_behavior": ["Select the maximum three-chain candidate as main.", "Expose smaller attacks separately."],
+      "non_goals": ["Do not prescribe a placement from the main-chain label."],
+      "own": {"board": ["RGGYGG", "BGRRGR", "..RGYB", "..BR.G", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RR", "next_pairs": ["RG", "RB"]},
+      "opponent": {"board": ["YY....", "GG....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain.chain_count", "op": "eq", "value": 3},
+        {"path": "own.forecast.main_chain.is_main_chain", "op": "eq", "value": true},
+        {"path": "own.attack_options", "op": "any_match", "value": {"chain_count": 2, "is_main_chain": false}}
+      ]
+    },
+    {
+      "name": "no_chain_within_visible_horizon",
+      "category": "main_chain_negative",
+      "situation": "An empty opening with six differently distributed colors cannot clear within the three visible pairs.",
+      "expected_behavior": ["Return no main-chain candidate and no attack options."],
+      "non_goals": ["Do not extrapolate beyond current plus two NEXT pairs."],
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "PG"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain", "op": "eq", "value": null},
+        {"path": "own.attack_options", "op": "len_eq", "value": 0}
+      ]
+    },
+    {
+      "name": "trigger_cell_is_the_added_ignition_puyo",
+      "category": "trigger",
+      "situation": "One added red at (0,1) completes a four-red group on the bottom row.",
+      "expected_behavior": ["Report only the added ignition cell as trigger_cells.", "Retain the complete first-chain vanish group separately."],
+      "non_goals": ["Do not call every vanished cell a trigger cell."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain.trigger_cells", "op": "eq", "value": [[0, 1]]},
+        {"path": "own.forecast.main_chain.first_chain_vanished_cells", "op": "eq", "value": [[0, 0], [0, 1], [1, 0], [2, 0]]}
+      ]
+    },
+    {
+      "name": "matching_color_without_group_is_not_trigger",
+      "category": "trigger_negative",
+      "situation": "A lone red exists, but visible pairs cannot form a four-puyo group in the search horizon.",
+      "expected_behavior": ["Report no trigger or attack candidate."],
+      "non_goals": ["Do not infer ignition from color availability alone."],
+      "own": {"board": ["R.....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BY", "next_pairs": ["GP", "YG"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.main_chain", "op": "eq", "value": null},
+        {"path": "own.attack_options", "op": "len_eq", "value": 0}
+      ]
+    },
+    {
+      "name": "deadline_one_exact_cancel",
+      "category": "cancel",
+      "situation": "Five ojama arrive after one move and an immediate two-chain returns exactly five.",
+      "expected_behavior": ["Mark cancellation possible without a counter surplus."],
+      "non_goals": ["Do not decide whether preserving the chain is preferable."],
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"], "incoming": [{"amount": 5, "deadline": 1}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "incoming.windows.0.max_return_by_deadline", "op": "eq", "value": 5},
+        {"path": "incoming.can_cancel", "op": "eq", "value": true},
+        {"path": "incoming.can_counter", "op": "eq", "value": false}
+      ]
+    },
+    {
+      "name": "deadline_one_counter_surplus",
+      "category": "counter",
+      "situation": "Three ojama arrive after one move while the immediate return is five.",
+      "expected_behavior": ["Mark both cancellation and a two-ojama return surplus possible."],
+      "non_goals": ["Do not choose the counter tactic."],
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"], "incoming": [{"amount": 3, "deadline": 1}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "incoming.can_cancel", "op": "eq", "value": true},
+        {"path": "incoming.can_counter", "op": "eq", "value": true},
+        {"path": "incoming.windows.0.counter_deficit", "op": "eq", "value": 0}
+      ]
+    },
+    {
+      "name": "deadline_one_return_is_insufficient",
+      "category": "incoming_deficit",
+      "situation": "Six ojama arrive after one move while the best immediate return is five.",
+      "expected_behavior": ["Report cancellation failure and an exact one-ojama deficit."],
+      "non_goals": ["Do not estimate survival after the ojama lands."],
+      "own": {"board": ["RRR...", "BBB...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BR", "next_pairs": ["YG", "RB"], "incoming": [{"amount": 6, "deadline": 1}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "incoming.can_cancel", "op": "eq", "value": false},
+        {"path": "incoming.counter_deficit", "op": "eq", "value": 1},
+        {"path": "incoming.windows.0.max_return_by_deadline", "op": "eq", "value": 5}
+      ]
+    },
+    {
+      "name": "deadline_two_uses_next_pair",
+      "category": "incoming_deadline_2",
+      "situation": "Ten ojama arrive in two moves; immediate fire returns six, while NEXT completes a 22-ojama main chain.",
+      "expected_behavior": ["Use attacks reachable by the second move when checking cancellation."],
+      "non_goals": ["Do not require an immediate response when the packet deadline is two."],
+      "own": {"board": ["RGGYGG", "BGRRGR", "..RGYB", "..BR.G", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RR", "next_pairs": ["RG", "RB"], "incoming": [{"amount": 10, "deadline": 2}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "incoming.windows.0.deadline", "op": "eq", "value": 2},
+        {"path": "incoming.windows.0.max_return_by_deadline", "op": "eq", "value": 22},
+        {"path": "incoming.can_cancel", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "deadline_three_uses_second_next",
+      "category": "incoming_deadline_3",
+      "situation": "One ojama arrives in three moves; only the second NEXT contains the red needed to cross 70 points with carry.",
+      "expected_behavior": ["Use the full three-pair horizon and report exact cancellation."],
+      "non_goals": ["Do not report the response as immediate."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["GY", "RB"], "score_carry": 30, "incoming": [{"amount": 1, "deadline": 3}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.forecast.immediate_attack", "op": "eq", "value": 0},
+        {"path": "incoming.windows.0.deadline", "op": "eq", "value": 3},
+        {"path": "incoming.windows.0.max_return_by_deadline", "op": "eq", "value": 1},
+        {"path": "incoming.can_cancel", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "mixed_incoming_packets_keep_deadlines_separate",
+      "category": "incoming_mixed_deadlines",
+      "situation": "Three ojama arrive after one move and another twelve after three moves.",
+      "expected_behavior": ["Evaluate cumulative amount due independently at deadlines one and three.", "Avoid applying the earliest deadline to all fifteen ojama."],
+      "non_goals": ["Do not model the manager's exact cancellation sequence."],
+      "own": {"board": ["RGGYGG", "BGRRGR", "..RGYB", "..BR.G", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RR", "next_pairs": ["RG", "RB"], "incoming": [{"amount": 3, "deadline": 1}, {"amount": 12, "deadline": 3}]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "incoming.windows", "op": "len_eq", "value": 2},
+        {"path": "incoming.windows.0.amount_due", "op": "eq", "value": 3},
+        {"path": "incoming.windows.0.max_return_by_deadline", "op": "eq", "value": 6},
+        {"path": "incoming.windows.1.amount_due", "op": "eq", "value": 15},
+        {"path": "incoming.windows.1.max_return_by_deadline", "op": "eq", "value": 22},
+        {"path": "incoming.can_cancel", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "score_total_40_keeps_carry",
+      "category": "score_carry",
+      "situation": "A four-puyo clear earns 40 points with no prior carry.",
+      "expected_behavior": ["Generate zero ojama and carry all 40 points."],
+      "non_goals": ["Do not round a sub-70 score up to one ojama."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [{"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 40, "attack": 0, "score_carry_after": 40}}]
+    },
+    {
+      "name": "score_total_69_stays_below_boundary",
+      "category": "score_carry",
+      "situation": "A 40-point clear combines with 29 carried points for a total of 69.",
+      "expected_behavior": ["Generate zero ojama and retain carry 69."],
+      "non_goals": ["Do not discard the remainder."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "score_carry": 29},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [{"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 69, "attack": 0, "score_carry_after": 69}}]
+    },
+    {
+      "name": "score_total_70_converts_exactly",
+      "category": "score_carry",
+      "situation": "A 40-point clear combines with 30 carried points for exactly 70.",
+      "expected_behavior": ["Generate one ojama with zero carry."],
+      "non_goals": ["Do not double-count the prior carry."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "score_carry": 30},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [{"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 70, "attack": 1, "score_carry_after": 0}}]
+    },
+    {
+      "name": "score_total_71_retains_one",
+      "category": "score_carry",
+      "situation": "A 40-point clear combines with 31 carried points for a total of 71.",
+      "expected_behavior": ["Generate one ojama and retain carry 1."],
+      "non_goals": ["Do not lose the point above the conversion boundary."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "score_carry": 31},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [{"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 71, "attack": 1, "score_carry_after": 1}}]
+    },
+    {
+      "name": "inter_chain_points_cross_boundary",
+      "category": "chain_end_score_delta",
+      "situation": "Thirty points earned since the previous chain end combine with the next 40-point clear.",
+      "expected_behavior": ["Use the full chain-end score delta and generate one ojama."],
+      "non_goals": ["Do not use only the placement-local 40-point score."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "score": 30, "last_chain_end_score": 0},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [{"path": "own.attack_options", "op": "any_match", "value": {"score": 40, "attack_score": 70, "attack": 1, "score_carry_after": 0}}]
+    },
+    {
+      "name": "initial_empty_board_has_no_all_clear_event",
+      "category": "all_clear_initial",
+      "situation": "The game begins on an empty board without a resolved chain.",
+      "expected_behavior": ["Report board_empty while all-clear event and bonus flags remain false."],
+      "non_goals": ["Do not treat initial emptiness as an achieved all clear."],
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "PG"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.board_empty", "op": "eq", "value": true},
+        {"path": "own.all_clear_achieved", "op": "eq", "value": false},
+        {"path": "own.all_clear_bonus_pending", "op": "eq", "value": false}
+      ]
+    },
+    {
+      "name": "own_all_clear_state_is_independent",
+      "category": "all_clear_own",
+      "situation": "Only the own player has just resolved an all clear and holds the pending bonus.",
+      "expected_behavior": ["Keep own and opponent all-clear state independent."],
+      "non_goals": ["Do not infer opponent state from an equally empty board."],
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "PG"], "score": 40, "last_chain_end_score": 40, "score_carry": 40, "all_clear_achieved": true, "all_clear_bonus_pending": true},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.all_clear_achieved", "op": "eq", "value": true},
+        {"path": "own.all_clear_bonus_pending", "op": "eq", "value": true},
+        {"path": "opponent.all_clear_achieved", "op": "eq", "value": false}
+      ]
+    },
+    {
+      "name": "opponent_all_clear_state_is_independent",
+      "category": "all_clear_opponent",
+      "situation": "Only the opponent has just resolved an all clear and holds the pending bonus.",
+      "expected_behavior": ["Report the opponent event without changing own flags."],
+      "non_goals": ["Do not collapse both players into one board-empty flag."],
+      "own": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "PG"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"], "score": 40, "last_chain_end_score": 40, "score_carry": 40, "all_clear_achieved": true, "all_clear_bonus_pending": true},
+      "expectations": [
+        {"path": "own.all_clear_achieved", "op": "eq", "value": false},
+        {"path": "opponent.all_clear_achieved", "op": "eq", "value": true},
+        {"path": "opponent.all_clear_bonus_pending", "op": "eq", "value": true}
+      ]
+    },
+    {
+      "name": "pending_bonus_survives_non_clearing_turn",
+      "category": "all_clear_pending",
+      "situation": "An all-clear bonus is pending, but current and visible NEXT cannot clear anything.",
+      "expected_behavior": ["Keep the input bonus pending and report no immediate consumption candidate."],
+      "non_goals": ["Do not consume the bonus on a placement without a chain."],
+      "own": {"board": ["R.....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "BY", "next_pairs": ["GP", "YG"], "score": 40, "last_chain_end_score": 40, "score_carry": 40, "all_clear_bonus_pending": true},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.all_clear_bonus_pending", "op": "eq", "value": true},
+        {"path": "own.forecast.immediate_attack", "op": "eq", "value": 0},
+        {"path": "own.attack_options", "op": "len_eq", "value": 0}
+      ]
+    },
+    {
+      "name": "pending_bonus_is_consumed_by_next_chain",
+      "category": "all_clear_bonus_consumption",
+      "situation": "A pending all-clear bonus precedes a 40-point single-chain clear that leaves one blue behind.",
+      "expected_behavior": ["Apply 2100 bonus points once and expose the consumed transition."],
+      "non_goals": ["Do not require another all clear to consume the pending bonus."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "all_clear_bonus_pending": true},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 2140, "attack": 30, "all_clear_bonus_consumed": true, "all_clear_bonus_score": 2100, "all_clear_bonus_pending": false}}
+      ]
+    },
+    {
+      "name": "consumed_bonus_is_not_applied_again",
+      "category": "all_clear_bonus_consumed",
+      "situation": "The previous chain consumed the all-clear bonus; a later 40-point clear starts with carry 40.",
+      "expected_behavior": ["Expose the consumed snapshot and omit the 2100 bonus from later candidates."],
+      "non_goals": ["Do not keep a consumed bonus pending."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RB", "next_pairs": ["GY", "BR"], "score": 2140, "last_chain_end_score": 2140, "score_carry": 40, "all_clear_bonus_consumed": true},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.all_clear_bonus_consumed", "op": "eq", "value": true},
+        {"path": "own.all_clear_bonus_pending", "op": "eq", "value": false},
+        {"path": "own.attack_options", "op": "any_match", "value": {"attack_score": 80, "attack": 1, "all_clear_bonus_score": 0}}
+      ]
+    },
+    {
+      "name": "forecast_marks_new_all_clear_event",
+      "category": "all_clear_forecast",
+      "situation": "Two red puyos from the current pair clear the existing three reds and empty the board.",
+      "expected_behavior": ["Mark the candidate as a newly achieved all clear with a pending bonus."],
+      "non_goals": ["Do not apply the newly earned bonus to the same chain."],
+      "own": {"board": ["RRR...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "RR", "next_pairs": ["GY", "BR"]},
+      "opponent": {"board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"], "current_pair": "GY", "next_pairs": ["RB", "YP"]},
+      "expectations": [
+        {"path": "own.attack_options", "op": "any_match", "value": {"is_all_clear": true, "all_clear_bonus_pending": true, "all_clear_bonus_consumed": false, "all_clear_bonus_score": 0}}
+      ]
+    }
+  ]
+}

@@ -94,6 +94,27 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertTrue(config.use_reachable_action_mask)
         self.assertTrue(config.plan_overlay)
 
+    def test_v1_7_policy_and_qa_artifact_options_are_parsed(self):
+        config = parse_config(
+            [
+                "--policy-a",
+                "v1_7_analyzer_manager",
+                "--policy-b",
+                "manager_rule",
+                "--result-json",
+                "/tmp/result.json",
+                "--replay",
+                "/tmp/replay.json",
+                "--qa-notes",
+                "reviewed",
+            ]
+        )
+
+        self.assertEqual(config.policy_a, "v1_7_analyzer_manager")
+        self.assertIsNone(config.checkpoint_a)
+        self.assertEqual(config.replay_path, "/tmp/replay.json")
+        self.assertEqual(config.qa_notes, "reviewed")
+
     def test_plan_overlay_can_be_disabled_from_cli(self):
         config = parse_config(["--no-plan-overlay"])
 
@@ -174,6 +195,104 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(controller.plan_overlay("player_0")["plan_id"], "plan-123")
         controller.plan_overlay_enabled["player_0"] = False
         self.assertEqual(controller.plan_overlay("player_0"), {})
+
+    def test_replay_and_qa_result_share_runtime_lifecycle_and_attack_diagnostics(self):
+        class StubPolicy:
+            tactical_diagnostics = {
+                "model_metadata": {
+                    "model_family": "Adaptive Chain Manager",
+                    "model_version": "v1.7.0",
+                    "lineage_node_id": "model_version:v1.7.0",
+                },
+                "selected_tactic": {
+                    "tactic_id": "build_main",
+                    "reason_code": "safe_build",
+                },
+                "analyzer": {
+                    "diagnostics": {
+                        "own": {"danger": 0.1, "forecast": {"short_attack": 2}},
+                        "opponent": {"danger": 0.2, "forecast": {"short_attack": 3}},
+                        "incoming": {"amount": 4, "can_cancel": True},
+                    }
+                },
+                "planner_request": {
+                    "objective": {"kind": "build", "target_chain": 6}
+                },
+                "worker": {
+                    "result": {
+                        "predicted_chain_count": 2,
+                        "predicted_attack": 3,
+                        "danger": 0.1,
+                    }
+                },
+                "target_attack": 3,
+                "reason": "safe build",
+                "reason_code": "safe_build",
+                "plan_id": "plan-1",
+                "plan": {},
+            }
+
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RealtimeVersusMatchController(
+                RealtimeVersusUiConfig(
+                    policy_a="first",
+                    policy_b="first",
+                    max_ticks=80,
+                    replay_path=str(Path(directory) / "replay.json"),
+                    qa_notes="reviewed",
+                ),
+                policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+            )
+            controller.advance_tick()
+            player_0 = controller.env.player_states["player_0"]
+            player_1 = controller.env.player_states["player_1"]
+            player_0.simulator.game.all_clear_achieved = True
+            player_0.simulator.game.all_clear_bonus_pending = True
+            player_0.score_carry = 69
+            player_1.simulator.game.all_clear_bonus_consumed = True
+            controller.advance_tick()
+
+            tick = controller.replay_ticks[-1]
+            all_clear = tick["all_clear_diagnostics"]["players"]
+            self.assertTrue(all_clear["player_0"]["all_clear_achieved"])
+            self.assertTrue(all_clear["player_0"]["all_clear_bonus_pending"])
+            self.assertTrue(all_clear["player_1"]["all_clear_bonus_consumed"])
+            self.assertEqual(tick["attack_diagnostics"]["player_0"]["score_carry"], 69)
+            self.assertIn("controller_diagnostics", tick)
+            diagnostic_tick = next(
+                item
+                for item in controller.replay_ticks
+                if "player_0" in item["policy_diagnostics"]
+            )
+            self.assertEqual(
+                diagnostic_tick["policy_diagnostics"]["player_0"]["selected_tactic"][
+                    "tactic_id"
+                ],
+                "build_main",
+            )
+
+            summary = controller.tactical_summary("player_0")
+            self.assertEqual(summary["tactic_id"], "build_main")
+            self.assertEqual(summary["own_short_attack"], 2)
+            qa = controller.qa_result(collection_manifest=None, interrupted=True)
+            self.assertEqual(qa["schema_version"], "puyo.gui_qa.v1")
+            self.assertEqual(qa["notes"], "reviewed")
+            self.assertEqual(
+                qa["models"]["player_0"]["model_family"],
+                "Adaptive Chain Manager",
+            )
+            self.assertTrue(
+                qa["diagnostics"]["lifecycle_coverage"]["asymmetric_achieved"]
+            )
+            self.assertTrue(
+                qa["diagnostics"]["lifecycle_coverage"]["players"]["player_1"][
+                    "consumed"
+                ]
+            )
+            controller.shutdown()
 
     def test_plan_step_delta_cells_excludes_existing_board_cells(self):
         base_board = [[PuyoColor.EMPTY for _ in range(6)] for _ in range(12)]
@@ -441,6 +560,32 @@ class TestRealtimeVersusUiSmoke(unittest.TestCase):
 
         self.assertGreater(result["ticks"], 0)
         self.assertGreater(result["decisions_player_0"], 0)
+
+    def test_dummy_video_driver_writes_versioned_replay(self):
+        with tempfile.TemporaryDirectory() as directory:
+            replay_path = Path(directory) / "replay.json"
+            result = run_ui(
+                RealtimeVersusUiConfig(
+                    policy_a="first",
+                    policy_b="random",
+                    seed=54,
+                    max_ticks=1,
+                    speed=4.0,
+                    replay_path=str(replay_path),
+                    qa_notes="dummy smoke",
+                ),
+                max_frames=4,
+            )
+
+            replay = json.loads(replay_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["schema_version"], "puyo.gui_qa.v1")
+            self.assertEqual(replay["format"], "puyo-realtime-match-v1")
+            self.assertEqual(replay["outcome"]["notes"], "dummy smoke")
+            self.assertEqual(
+                replay["ticks"][0]["all_clear_diagnostics"]["schema_version"],
+                "puyo.all_clear_diagnostics.v1",
+            )
+            self.assertIn("attack_diagnostics", replay["ticks"][0])
 
 
 if __name__ == "__main__":

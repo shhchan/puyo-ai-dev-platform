@@ -133,6 +133,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Watch one headless Puyo versus match in text mode.")
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+        "v1_7_analyzer_manager",
         "worker_large", "worker_quick", "worker_fire", "worker_survival",
     ]
     parser.add_argument("--policy-a", choices=policy_choices, default="checkpoint")

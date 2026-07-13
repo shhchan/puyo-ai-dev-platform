@@ -21,6 +21,7 @@ from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
 from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
 from agents.strategy_workers import FixedProfilePolicy, default_worker_profiles, profile_id_by_name
+from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.obs import BOARD_COLOR_CHANNELS, BOARD_ROWS, GRID_WIDTH
 
@@ -202,6 +203,8 @@ def make_policy(
         return FixedProfilePolicy(profile_id_by_name(profiles, "survival"), profiles)
     if policy_type == "manager_rule":
         return RuleBasedManagerPolicy()
+    if policy_type == "v1_7_analyzer_manager":
+        return V17AnalyzerManagerPolicy()
     if policy_type == "manager":
         if checkpoint_path is None:
             raise ValueError("checkpoint_path is required for manager policy")

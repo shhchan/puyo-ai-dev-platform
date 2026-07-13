@@ -1,0 +1,248 @@
+schema_version: tactic-schema-v1
+registry_version: v1.7.0
+compatible_analyzer_schemas:
+  input: puyo.state_analyzer.input.v1
+  diagnostics: puyo.state_analyzer.diagnostics.v1
+
+tactics:
+  - identity: {id: build_main, name: build_main, version: "1.0", human_label: 本線構築}
+    applicability:
+      feature_refs: [diagnostics.own.danger, diagnostics.own.forecast.main_chain, diagnostics.incoming.amount]
+    objective:
+      input_refs: [diagnostics.own.forecast.main_chain]
+      parameters:
+        target_chain: {kind: integer, default: 6, min: 1, max: 19}
+        future_potential_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
+        chain_shape_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.65, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: prefer, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_width: {kind: integer, default: 24, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 8, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 60.0, min: 1.0, max: 500.0}
+    termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
+    fallback: {tactic_id: survive}
+    diagnostics: {fields: [target_chain, mean_chain, success_rate, trigger_preserved]}
+
+  - identity: {id: prepare_response, name: prepare_response, version: "1.0", human_label: 対応準備}
+    applicability:
+      feature_refs: [diagnostics.opponent.attack_options, diagnostics.incoming.windows, diagnostics.own.danger]
+    objective:
+      input_refs: [diagnostics.opponent.forecast, diagnostics.incoming]
+      parameters:
+        response_window: {kind: integer, default: 3, min: 1, max: 6}
+        target_attack_margin: {kind: integer, default: 0, min: 0, max: 30}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.55, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: required, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_width: {kind: integer, default: 28, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 10, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
+    termination: {criteria: [response_ready, timeout, danger_threshold, opponent_fired]}
+    fallback: {tactic_id: survive}
+    diagnostics: {fields: [response_window, response_success, trigger_preserved, incoming_coverage]}
+
+  - identity: {id: counter_or_return, name: counter_or_return, version: "1.0", human_label: 相殺・返し}
+    applicability:
+      feature_refs: [diagnostics.incoming.amount, diagnostics.incoming.deadline, diagnostics.incoming.counter_deficit]
+    objective:
+      input_refs: [diagnostics.incoming.amount, diagnostics.incoming.max_return_by_deadline]
+      parameters:
+        counter_margin: {kind: integer, default: 1, min: 0, max: 30}
+        deadline_turns: {kind: integer, default: 2, min: 1, max: 6}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.75, min: 0.0, max: 1.0}
+        avoid_choke: {kind: discrete, default: true, choices: [true, false]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_width: {kind: integer, default: 32, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 40.0, min: 1.0, max: 500.0}
+    termination: {criteria: [objective_achieved, incoming_resolved, timeout, danger_threshold]}
+    fallback: {tactic_id: survive}
+    diagnostics: {fields: [target_attack, counter_margin, response_success, surplus_attack]}
+
+  - identity: {id: pressure, name: pressure, version: "1.0", human_label: 催促}
+    applicability:
+      feature_refs: [diagnostics.opponent.vulnerability, diagnostics.own.attack_options, diagnostics.opponent.forecast]
+    objective:
+      input_refs: [diagnostics.opponent.vulnerability, diagnostics.opponent.forecast]
+      parameters:
+        target_attack: {kind: integer, default: 6, min: 1, max: 60}
+        harass_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
+        deadline_turns: {kind: integer, default: 2, min: 1, max: 6}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.6, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: prefer, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 2, min: 1, max: 6}
+        beam_width: {kind: integer, default: 28, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 10, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 35.0, min: 1.0, max: 500.0}
+    termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
+    fallback: {tactic_id: build_main}
+    diagnostics: {fields: [target_attack, mean_attack, attack_per_turn, opponent_response]}
+
+  - identity: {id: lethal_attack, name: lethal_attack, version: "1.0", human_label: 必殺攻撃}
+    applicability:
+      feature_refs: [diagnostics.opponent.vulnerability, diagnostics.own.attack_options, diagnostics.opponent.danger]
+    objective:
+      input_refs: [diagnostics.opponent.vulnerability, diagnostics.opponent.danger]
+      parameters:
+        target_attack: {kind: integer, default: 30, min: 1, max: 180}
+        lethal_margin: {kind: integer, default: 6, min: 0, max: 60}
+        deadline_turns: {kind: integer, default: 2, min: 1, max: 6}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.8, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: ignore, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_width: {kind: integer, default: 36, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 35.0, min: 1.0, max: 500.0}
+    termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
+    fallback: {tactic_id: pressure}
+    diagnostics: {fields: [target_attack, lethal_margin, mean_attack, opponent_survival_margin]}
+
+  - identity: {id: all_clear, name: all_clear, version: "1.0", human_label: 全消し運用}
+    applicability:
+      feature_refs:
+        - diagnostics.own.board_empty
+        - input.own.all_clear_achieved
+        - input.own.all_clear_bonus_pending
+        - input.own.all_clear_bonus_consumed
+        - input.own.score_carry
+      candidate_when:
+        - all: [{ref: input.own.all_clear_achieved, op: eq, value: true}]
+        - all: [{ref: input.own.all_clear_bonus_pending, op: eq, value: true}]
+        - all: [{ref: input.own.all_clear_bonus_consumed, op: eq, value: true}]
+      contexts:
+        - id: initial_empty
+          when:
+            - {ref: diagnostics.own.board_empty, op: eq, value: true}
+            - {ref: input.own.all_clear_achieved, op: eq, value: false}
+            - {ref: input.own.all_clear_bonus_pending, op: eq, value: false}
+            - {ref: input.own.all_clear_bonus_consumed, op: eq, value: false}
+        - id: achieved
+          when: [{ref: input.own.all_clear_achieved, op: eq, value: true}]
+        - id: bonus_pending
+          when: [{ref: input.own.all_clear_bonus_pending, op: eq, value: true}]
+        - id: bonus_consumed
+          when: [{ref: input.own.all_clear_bonus_consumed, op: eq, value: true}]
+        - id: bonus_consumed_and_renewed
+          when:
+            - {ref: input.own.all_clear_bonus_consumed, op: eq, value: true}
+            - {ref: input.own.all_clear_bonus_pending, op: eq, value: true}
+    objective:
+      input_refs:
+        - input.own.all_clear_achieved
+        - input.own.all_clear_bonus_pending
+        - input.own.all_clear_bonus_consumed
+        - input.own.score_carry
+        - diagnostics.own.attack_options
+      attack_conversion: score_carry_plus_attack_score_delta
+      all_clear_bonus_score: 2100
+      fixed_total_attack: false
+      parameters:
+        target_chain: {kind: integer, default: 1, min: 1, max: 19}
+        target_attack_margin: {kind: integer, default: 0, min: 0, max: 60}
+        bonus_timing: {kind: discrete, default: preserve_until_chain, choices: [preserve_until_chain, consume_now]}
+    constraints:
+      input_refs: [diagnostics.own.danger, input.own.all_clear_bonus_pending]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.5, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: prefer, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline, input.own.score_carry]
+      parameters:
+        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_width: {kind: integer, default: 32, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
+    termination: {criteria: [bonus_consumed, all_clear_reestablished, timeout, danger_threshold]}
+    fallback: {tactic_id: build_main}
+    diagnostics:
+      fields:
+        - all_clear_achieved
+        - all_clear_bonus_pending
+        - all_clear_bonus_consumed
+        - score_carry
+        - attack_score
+        - attack
+        - active_contexts
+
+  - identity: {id: fire_main, name: fire_main, version: "1.0", human_label: 本線発火}
+    applicability:
+      feature_refs:
+        - diagnostics.own.forecast.main_chain
+        - diagnostics.incoming.amount
+        - diagnostics.opponent.vulnerability
+    objective:
+      input_refs: [diagnostics.own.forecast.main_chain, diagnostics.incoming]
+      parameters:
+        target_chain: {kind: integer, default: 4, min: 1, max: 19}
+        fire_threshold: {kind: continuous, default: 1.0, min: 0.0, max: 2.0}
+        deadline_turns: {kind: integer, default: 1, min: 1, max: 6}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.85, min: 0.0, max: 1.0}
+        trigger_preservation: {kind: discrete, default: ignore, choices: [required, prefer, ignore]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 1, min: 1, max: 6}
+        beam_width: {kind: integer, default: 24, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 8, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 30.0, min: 1.0, max: 500.0}
+    termination: {criteria: [objective_achieved, chain_fired, timeout, danger_threshold]}
+    fallback: {tactic_id: survive}
+    diagnostics: {fields: [target_chain, predicted_attack, fired_chain, attack_score]}
+
+  - identity: {id: survive, name: survive, version: "1.0", human_label: 生存優先}
+    applicability:
+      feature_refs: [diagnostics.own.danger, diagnostics.incoming.amount, diagnostics.incoming.deadline]
+    objective:
+      input_refs: [diagnostics.own.danger, diagnostics.incoming]
+      parameters:
+        safety_margin: {kind: integer, default: 2, min: 0, max: 6}
+        survival_horizon: {kind: integer, default: 3, min: 1, max: 8}
+    constraints:
+      input_refs: [diagnostics.own.danger]
+      parameters:
+        danger_tolerance: {kind: continuous, default: 0.35, min: 0.0, max: 1.0}
+        avoid_choke: {kind: discrete, default: true, choices: [true, false]}
+    planner:
+      input_refs: [input.policy_deadline]
+      parameters:
+        beam_depth: {kind: integer, default: 2, min: 1, max: 6}
+        beam_width: {kind: integer, default: 32, min: 1, max: 128}
+        candidate_count: {kind: integer, default: 12, min: 1, max: 32}
+        latency_budget_ms: {kind: continuous, default: 30.0, min: 1.0, max: 500.0}
+    termination: {criteria: [danger_reduced, incoming_resolved, timeout]}
+    fallback: {safety_behavior: minimum_danger_legal_action}
+    diagnostics: {fields: [danger_before, danger_after, incoming_remaining, survival_success]}

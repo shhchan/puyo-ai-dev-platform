@@ -78,7 +78,26 @@ class TestModelViewerData(unittest.TestCase):
                                 "player_0": {
                                     "profile_name": "build_large",
                                     "expanded_nodes": 42,
-                                    "search_objective": {"kind": "build", "target_chain": 6},
+                                    "selected_tactic": {
+                                        "tactic_id": "build_main",
+                                        "reason_code": "safe_build",
+                                    },
+                                    "analyzer": {
+                                        "diagnostics": {
+                                            "own": {
+                                                "danger": 0.1,
+                                                "forecast": {"short_attack": 2},
+                                            },
+                                            "opponent": {
+                                                "danger": 0.2,
+                                                "forecast": {"short_attack": 3},
+                                            },
+                                            "incoming": {"amount": 4, "can_cancel": True},
+                                        }
+                                    },
+                                    "planner_request": {
+                                        "objective": {"kind": "build", "target_chain": 6}
+                                    },
                                     "plan_id": "plan-1",
                                     "plan": {
                                         "schema_version": "n-turn-plan-v1",
@@ -119,6 +138,26 @@ class TestModelViewerData(unittest.TestCase):
                                     },
                                 },
                             },
+                            "attack_diagnostics": {
+                                "player_0": {
+                                    "attack_score_delta": 2100,
+                                    "score_carry": 69,
+                                    "generated": 30,
+                                    "canceled": 5,
+                                    "outgoing": 25,
+                                }
+                            },
+                        },
+                        {
+                            "tick": 2,
+                            "snapshot_hash": "hash-2",
+                            "inputs": {"player_0": {"press": []}},
+                            "policy_diagnostics": {},
+                            "controller_diagnostics": {
+                                "player_0": {"last_decision": None}
+                            },
+                            "all_clear_diagnostics": {"players": {}},
+                            "attack_diagnostics": {},
                         }
                     ],
                 }
@@ -138,8 +177,22 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(final_hash, "final")
             self.assertEqual(policy_metadata["player_0"]["policy_type"], "manager_rule")
             self.assertEqual(timeline[0].plan_ids, ("plan-1",))
+            self.assertEqual(timeline[1].plan_ids, ("plan-1",))
+            second = ModelViewerController(
+                build_model_viewer_data(replay_path=replay)
+            )
+            second.seek(1)
+            self.assertIsNone(
+                second.report()["replay"]["selected_entry"]["agents"]["player_0"][
+                    "decision"
+                ]["action_index"]
+            )
             self.assertTrue(
                 timeline[0].all_clear_diagnostics["players"]["player_0"]["all_clear_bonus_pending"]
+            )
+            self.assertEqual(
+                timeline[0].attack_diagnostics["player_0"]["attack_score_delta"],
+                2100,
             )
 
     def test_model_viewer_report_summarizes_replay_and_lineage(self):
@@ -176,6 +229,11 @@ class TestModelViewerData(unittest.TestCase):
                     "all_clear_bonus_consumed": False,
                 },
             )
+            player_0 = report["replay"]["selected_entry"]["agents"]["player_0"]
+            self.assertEqual(player_0["diagnostics"]["tactic_id"], "build_main")
+            self.assertEqual(player_0["analyzer"]["own"]["danger"], 0.1)
+            self.assertEqual(player_0["objective"]["target_chain"], 6)
+            self.assertEqual(player_0["attack"]["outgoing"], 25)
             self.assertEqual(
                 report["replay"]["selected_entry"]["agents"]["player_0"]["lineage_node_id"],
                 report["lineage"]["selected_node"]["id"],

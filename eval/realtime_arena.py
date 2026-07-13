@@ -215,6 +215,13 @@ def run_realtime_match(
                         for agent in sorted(controllers)
                     },
                     "all_clear_diagnostics": env.match.all_clear_diagnostics(),
+                    "attack_diagnostics": {
+                        agent: {
+                            **dict(match_result.attack_diagnostics[agent]),
+                            "score_carry": env.match.player_states[agent].score_carry,
+                        }
+                        for agent in sorted(controllers)
+                    },
                     "snapshot_hash": match_result.snapshot_hash,
                 }
             )
@@ -438,6 +445,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two policies in the realtime arena.")
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+        "v1_7_analyzer_manager",
         "worker_large", "worker_quick", "worker_punish", "worker_counter",
         "worker_fire", "worker_fire_max", "worker_survival",
     ]

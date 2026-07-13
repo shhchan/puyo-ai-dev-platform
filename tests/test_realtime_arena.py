@@ -31,6 +31,11 @@ class TestRealtimeArena(unittest.TestCase):
         self.assertEqual(set(diagnostics["players"]), {"player_0", "player_1"})
         self.assertTrue(diagnostics["players"]["player_0"]["board_empty"])
         self.assertFalse(diagnostics["players"]["player_0"]["all_clear_achieved"])
+        self.assertIn("attack_diagnostics", match.replay["ticks"][0])
+        self.assertEqual(
+            match.replay["ticks"][0]["attack_diagnostics"]["player_0"]["score_carry"],
+            0,
+        )
         self.assertEqual(replay_realtime_match(match.replay), match.final_hash)
 
         tampered = copy.deepcopy(match.replay)

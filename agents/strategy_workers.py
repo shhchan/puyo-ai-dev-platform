@@ -8,6 +8,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Protocol
 
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
+from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
 
@@ -272,6 +273,17 @@ class PlanStep:
     objective_result: ObjectiveResult
     predicted_board: tuple[tuple[str, ...], ...]
     placement_cells: tuple[tuple[int, int, str], ...] = ()
+    attack_score_delta: int = 0
+    score_carry_before: int = 0
+    score_carry_after: int = 0
+    attack_generated: int = 0
+    attack_canceled: int = 0
+    attack_outgoing: int = 0
+    incoming_remaining: int = 0
+    all_clear_achieved: bool = False
+    all_clear_bonus_pending: bool = False
+    all_clear_bonus_consumed: bool = False
+    all_clear_bonus_score: int = 0
     valid: bool = True
     scenario: str = "visible"
     reason: str = ""
@@ -290,6 +302,17 @@ class PlanStep:
             "predicted_attack": int(self.predicted_attack),
             "cumulative_score": int(self.cumulative_score),
             "cumulative_attack": int(self.cumulative_attack),
+            "attack_score_delta": int(self.attack_score_delta),
+            "score_carry_before": int(self.score_carry_before),
+            "score_carry_after": int(self.score_carry_after),
+            "attack_generated": int(self.attack_generated),
+            "attack_canceled": int(self.attack_canceled),
+            "attack_outgoing": int(self.attack_outgoing),
+            "incoming_remaining": int(self.incoming_remaining),
+            "all_clear_achieved": bool(self.all_clear_achieved),
+            "all_clear_bonus_pending": bool(self.all_clear_bonus_pending),
+            "all_clear_bonus_consumed": bool(self.all_clear_bonus_consumed),
+            "all_clear_bonus_score": int(self.all_clear_bonus_score),
             "danger": float(self.danger),
             "objective_result": self.objective_result.to_dict(),
             "predicted_board": [list(row) for row in self.predicted_board],
@@ -325,6 +348,10 @@ class NTurnPlan:
     steps: tuple[PlanStep, ...]
     objective: TacticalObjective | None
     search_control: SearchControlDiagnostics | None = None
+    planner_request: PlannerRequest | None = None
+    initial_score_carry: int = 0
+    initial_incoming_attack: int = 0
+    planner_latency_overrun: bool = False
     update_reason: str = "policy_decision"
     replan_conditions: tuple[ReplanCondition, ...] = ()
 
@@ -333,6 +360,11 @@ class NTurnPlan:
         return None if not self.steps else self.steps[0].action
 
     def to_dict(self) -> dict[str, Any]:
+        final_carry = self.initial_score_carry
+        incoming_remaining = self.initial_incoming_attack
+        if self.steps:
+            final_carry = self.steps[-1].score_carry_after
+            incoming_remaining = self.steps[-1].incoming_remaining
         return {
             "schema_version": "n-turn-plan-v1",
             "plan_id": self.plan_id,
@@ -344,6 +376,19 @@ class NTurnPlan:
             "update_reason": self.update_reason,
             "objective": {} if self.objective is None else self.objective.to_dict(),
             "search_control": {} if self.search_control is None else self.search_control.to_dict(),
+            "planner_request": (
+                {} if self.planner_request is None else self.planner_request.to_dict()
+            ),
+            "planner_latency_overrun": bool(self.planner_latency_overrun),
+            "attack_summary": {
+                "initial_score_carry": int(self.initial_score_carry),
+                "final_score_carry": int(final_carry),
+                "initial_incoming_attack": int(self.initial_incoming_attack),
+                "incoming_remaining": int(incoming_remaining),
+                "generated": sum(step.attack_generated for step in self.steps),
+                "canceled": sum(step.attack_canceled for step in self.steps),
+                "outgoing": sum(step.attack_outgoing for step in self.steps),
+            },
             "replan_conditions": [condition.to_dict() for condition in self.replan_conditions],
             "steps": [step.to_dict() for step in self.steps],
         }
@@ -368,6 +413,7 @@ class TacticalContext:
     recommended_strategy: str
     switch_reason: str
     incoming_deadline_ticks: int = 0
+    score_carry: int = 0
 
 
 @dataclass(frozen=True)
@@ -394,6 +440,7 @@ class SearchProposal:
     objective_result: ObjectiveResult | None = None
     search_control: SearchControlDiagnostics | None = None
     tactical_option: TacticalOptionDiagnostics | None = None
+    planner_request: PlannerRequest | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -817,25 +864,27 @@ def estimate_attack_forecast(
     *,
     max_depth: int = 2,
     width: int = 3,
+    score_carry: int = 0,
 ) -> AttackForecast:
     """Bounded cloned rollout used for manager features, not full worker search."""
 
     if simulator is None:
         return AttackForecast()
-    frontier = [(clone_simulator(simulator), 0, 0)]
+    frontier = [(clone_simulator(simulator), 0, 0, max(0, int(score_carry)))]
     best_chain = 0
     best_by_depth = {1: 0, 2: 0, 3: 0}
     best_attack = 0
     best_turn = 0
     for depth in range(1, max(1, min(int(max_depth), 3)) + 1):
         candidates = []
-        for parent, cumulative_attack, cumulative_chain in frontier:
+        for parent, cumulative_attack, cumulative_chain, parent_carry in frontier:
             for action in legal_action_indices(parent):
                 child = clone_simulator(parent)
                 result = child.step(action_to_placement(action))
                 if not result.valid or result.game_over:
                     continue
-                attack = cumulative_attack + max(0, int(result.score_delta // 70))
+                preview = resolve_preview_attack(result.attack_score_delta, parent_carry, 0)
+                attack = cumulative_attack + preview.generated
                 chain = max(cumulative_chain, int(result.chain_count))
                 best_chain = max(best_chain, chain)
                 best_by_depth[depth] = max(best_by_depth[depth], attack)
@@ -843,9 +892,12 @@ def estimate_attack_forecast(
                     best_attack = attack
                     best_turn = depth
                 heuristic = attack * 100_000.0 + chain * 10_000.0 + evaluate_board(child.game)
-                candidates.append((heuristic, child, attack, chain))
+                candidates.append((heuristic, child, attack, chain, preview.score_carry_after))
         candidates.sort(key=lambda item: item[0], reverse=True)
-        frontier = [(item[1], item[2], item[3]) for item in candidates[: max(1, width)]]
+        frontier = [
+            (item[1], item[2], item[3], item[4])
+            for item in candidates[: max(1, width)]
+        ]
         if not frontier:
             break
     return AttackForecast(
@@ -890,8 +942,13 @@ def build_tactical_context(info: dict[str, Any]) -> TacticalContext:
         return cached
     own_simulator = info.get("simulator")
     opponent_simulator = info.get("opponent_simulator")
-    own_forecast = estimate_attack_forecast(own_simulator)
-    opponent_forecast = estimate_attack_forecast(opponent_simulator)
+    score_carry = max(0, int(info.get("score_carry", 0)))
+    opponent_score_carry = max(0, int(info.get("opponent_score_carry", 0)))
+    own_forecast = estimate_attack_forecast(own_simulator, score_carry=score_carry)
+    opponent_forecast = estimate_attack_forecast(
+        opponent_simulator,
+        score_carry=opponent_score_carry,
+    )
     own_danger = board_danger(own_simulator.game) if own_simulator is not None else 1.0
     opponent_danger = board_danger(opponent_simulator.game) if opponent_simulator is not None else 1.0
     incoming = max(0, int(info.get("incoming_ojama", info.get("pending_ojama", 0))))
@@ -949,6 +1006,7 @@ def build_tactical_context(info: dict[str, Any]) -> TacticalContext:
         recommended_strategy=recommended,
         switch_reason=reason,
         incoming_deadline_ticks=deadline_ticks,
+        score_carry=score_carry,
     )
 
 
@@ -1054,6 +1112,15 @@ class BeamStrategyWorker:
         diagnostics = policy.last_diagnostics
         result, danger = _preview_action(context.simulator, action)
         values = dict(diagnostics.candidate_values) if diagnostics is not None else {}
+        attack = (
+            resolve_preview_attack(
+                result.attack_score_delta,
+                context.tactical.score_carry,
+                context.tactical.incoming_attack,
+            ).generated
+            if result is not None
+            else 0
+        )
         return _proposal(
             profile,
             objective,
@@ -1061,7 +1128,7 @@ class BeamStrategyWorker:
             action=action,
             chain=result.chain_count if result is not None else 0,
             score=result.score_delta if result is not None else 0,
-            attack=(result.score_delta // 70) if result is not None else 0,
+            attack=attack,
             danger=danger,
             elapsed=(diagnostics.elapsed_seconds if diagnostics is not None else time.perf_counter() - started),
             expanded=diagnostics.expanded_nodes if diagnostics is not None else 0,
@@ -1080,6 +1147,7 @@ class _TacticalCandidate:
     danger: float
     depth: int
     value: float
+    score_carry: int
 
 
 class TacticalStrategyWorker:
@@ -1121,7 +1189,15 @@ class TacticalStrategyWorker:
                     if not result.valid:
                         continue
                     first_action = action if parent is None else parent.first_action
-                    attack = (0 if parent is None else parent.attack) + max(0, int(result.score_delta // 70))
+                    parent_carry = (
+                        context.tactical.score_carry if parent is None else parent.score_carry
+                    )
+                    preview = resolve_preview_attack(
+                        result.attack_score_delta,
+                        parent_carry,
+                        0,
+                    )
+                    attack = (0 if parent is None else parent.attack) + preview.generated
                     score = (0 if parent is None else parent.score) + max(0, int(result.score_delta))
                     chain = max(0 if parent is None else parent.chain, int(result.chain_count))
                     danger = board_danger(child.game)
@@ -1137,6 +1213,7 @@ class TacticalStrategyWorker:
                         danger,
                         depth,
                         value,
+                        preview.score_carry_after,
                     )
                     next_frontier.append(candidate)
                     all_candidates.append(candidate)
@@ -1268,12 +1345,23 @@ def build_n_turn_plan(
     steps: list[PlanStep] = []
     cumulative_score = 0
     cumulative_attack = 0
+    score_carry = max(0, int(tactical.score_carry))
+    incoming_remaining = max(0, int(tactical.incoming_attack))
     cursor = clone_simulator(simulator) if simulator is not None else None
     objective = proposal.objective
     for step_index in range(max(0, int(max_steps))):
         if cursor is None or objective is None:
             break
-        action = proposal.action if step_index == 0 else _choose_plan_continuation(cursor, objective)
+        action = (
+            proposal.action
+            if step_index == 0
+            else _choose_plan_continuation(
+                cursor,
+                objective,
+                score_carry=score_carry,
+                incoming_attack=incoming_remaining,
+            )
+        )
         if action is None:
             break
         placement = action_to_placement(action)
@@ -1318,13 +1406,23 @@ def build_n_turn_plan(
                     ),
                     predicted_board=_board_snapshot(cursor.game),
                     placement_cells=placement_cells,
+                    score_carry_before=score_carry,
+                    score_carry_after=score_carry,
+                    incoming_remaining=incoming_remaining,
                     valid=False,
                     reason="invalid_action",
                 )
             )
             break
         score = max(0, int(result.score_delta))
-        attack = max(0, int(result.score_delta // 70))
+        attack_preview = resolve_preview_attack(
+            result.attack_score_delta,
+            score_carry,
+            incoming_remaining,
+        )
+        attack = attack_preview.generated
+        score_carry = attack_preview.score_carry_after
+        incoming_remaining = attack_preview.incoming_after
         cumulative_score += score
         cumulative_attack += attack
         danger = board_danger(cursor.game)
@@ -1354,6 +1452,17 @@ def build_n_turn_plan(
                 objective_result=objective_result,
                 predicted_board=_board_snapshot(cursor.game),
                 placement_cells=placement_cells,
+                attack_score_delta=attack_preview.attack_score_delta,
+                score_carry_before=attack_preview.score_carry_before,
+                score_carry_after=attack_preview.score_carry_after,
+                attack_generated=attack_preview.generated,
+                attack_canceled=attack_preview.canceled,
+                attack_outgoing=attack_preview.outgoing,
+                incoming_remaining=attack_preview.incoming_after,
+                all_clear_achieved=bool(result.all_clear_achieved),
+                all_clear_bonus_pending=bool(result.all_clear_bonus_pending),
+                all_clear_bonus_consumed=bool(result.all_clear_bonus_consumed),
+                all_clear_bonus_score=max(0, int(result.all_clear_bonus_score)),
             )
         )
         if result.game_over:
@@ -1369,6 +1478,13 @@ def build_n_turn_plan(
         steps=tuple(steps),
         objective=proposal.objective,
         search_control=proposal.search_control,
+        planner_request=proposal.planner_request,
+        initial_score_carry=max(0, int(tactical.score_carry)),
+        initial_incoming_attack=max(0, int(tactical.incoming_attack)),
+        planner_latency_overrun=(
+            proposal.planner_request is not None
+            and proposal.elapsed_seconds * 1000.0 > proposal.planner_request.latency_budget_ms
+        ),
         update_reason="policy_decision",
         replan_conditions=default_replan_conditions(),
     )
@@ -1406,7 +1522,13 @@ def should_replan(
     return None
 
 
-def _choose_plan_continuation(simulator, objective: TacticalObjective) -> int | None:
+def _choose_plan_continuation(
+    simulator,
+    objective: TacticalObjective,
+    *,
+    score_carry: int = 0,
+    incoming_attack: int = 0,
+) -> int | None:
     legal = legal_action_indices(simulator)
     if not legal:
         return None
@@ -1417,7 +1539,11 @@ def _choose_plan_continuation(simulator, objective: TacticalObjective) -> int | 
         result = child.step(action_to_placement(action))
         if not result.valid:
             continue
-        attack = max(0, int(result.score_delta // 70))
+        attack = resolve_preview_attack(
+            result.attack_score_delta,
+            score_carry,
+            incoming_attack,
+        ).generated
         score = max(0, int(result.score_delta))
         chain = int(result.chain_count)
         danger = board_danger(child.game)
@@ -1453,8 +1579,17 @@ def _plan_id(proposal: SearchProposal, steps: list[PlanStep], visible_steps: int
     digest.update(str(proposal.profile_id).encode("ascii"))
     digest.update(proposal.strategy.encode("ascii"))
     digest.update(str(visible_steps).encode("ascii"))
+    if proposal.planner_request is not None:
+        digest.update(proposal.planner_request.schema_version.encode("ascii"))
+        digest.update(proposal.planner_request.tactic_id.encode("ascii"))
     for step in steps:
-        digest.update(f"{step.action}:{step.predicted_score}:{step.predicted_attack}:".encode("ascii"))
+        digest.update(
+            (
+                f"{step.action}:{step.attack_score_delta}:{step.score_carry_before}:"
+                f"{step.score_carry_after}:{step.attack_generated}:{step.attack_canceled}:"
+                f"{step.attack_outgoing}:{int(step.all_clear_bonus_pending)}:"
+            ).encode("ascii")
+        )
         for x, y, color in step.placement_cells:
             digest.update(f"{x}:{y}:{color}:".encode("ascii"))
         for row in step.predicted_board:
@@ -1507,6 +1642,57 @@ def _evaluate_objective(
     )
 
 
+def _profile_for_planner_request(
+    profile: WorkerProfile,
+    request: PlannerRequest,
+) -> WorkerProfile:
+    weights = request.objective_weights
+    trigger_scale = {"required": 1.5, "prefer": 1.2, "ignore": 1.0}[
+        request.trigger_preservation
+    ]
+    chain_scale = max(0.1, float(weights.get("chain_shape_weight", 1.0)))
+    score_scale = max(
+        0.1,
+        float(weights.get("future_potential_weight", 1.0))
+        + float(weights.get("harass_weight", 0.0)),
+    )
+    return replace(
+        profile,
+        depth=max(1, int(request.search_depth)),
+        width=max(1, int(request.search_width)),
+        minimum_chain_count=(
+            max(1, int(request.target_chain))
+            if request.target_chain > 0
+            else profile.minimum_chain_count
+        ),
+        chain_weight=profile.chain_weight * chain_scale,
+        score_weight=profile.score_weight * score_scale,
+        premature_chain_penalty=profile.premature_chain_penalty * trigger_scale,
+        danger_tolerance=float(request.danger_tolerance),
+    )
+
+
+def _objective_for_planner_request(
+    request: PlannerRequest,
+    profile: WorkerProfile,
+) -> TacticalObjective:
+    return TacticalObjective(
+        kind=request.objective_kind,
+        target_attack=max(0, int(request.target_attack)),
+        target_chain=max(0, int(request.target_chain)),
+        deadline=max(0, int(request.deadline_turns)),
+        deadline_ticks=max(0, int(request.deadline_ticks)),
+        max_danger=float(request.danger_tolerance),
+        fallback_strategy=request.fallback_tactic,
+        source_profile_id=profile.profile_id,
+        source_profile_name=profile.name,
+        reason=(
+            f"PlannerRequest {request.schema_version} from "
+            f"{request.tactic_id}@{request.tactic_version}"
+        ),
+    )
+
+
 class StrategyOrchestrator:
     """Execute exactly one worker selected by a manager action."""
 
@@ -1534,11 +1720,26 @@ class StrategyOrchestrator:
         info: dict[str, Any],
         search_control: SearchControl | None = None,
         tactical_option_id: int | None = None,
+        planner_request: PlannerRequest | None = None,
     ) -> SearchProposal:
         tactical = build_tactical_context(info)
+        if planner_request is not None:
+            tactical = replace(
+                tactical,
+                score_carry=planner_request.score_carry,
+                incoming_attack=planner_request.incoming_attack,
+            )
         self.last_tactical_context = tactical
         option_diagnostics = None
-        if tactical_option_id is None:
+        if planner_request is not None and tactical_option_id is not None:
+            raise ValueError("planner_request and tactical_option_id are mutually exclusive")
+        if planner_request is not None:
+            profile = _profile_for_planner_request(
+                self.profiles[int(profile_id)],
+                planner_request,
+            )
+            objective = _objective_for_planner_request(planner_request, profile)
+        elif tactical_option_id is None:
             profile = self.profiles[int(profile_id)]
             objective = objective_for_profile(tactical, profile)
         else:
@@ -1554,10 +1755,19 @@ class StrategyOrchestrator:
                 max_danger=profile.danger_tolerance,
             )
         context = SearchContext(observation=observation, info=info, tactical=tactical)
-        worker = self._beam_worker if profile.strategy in BUILD_STRATEGIES else self._tactical_worker
+        worker = (
+            self._beam_worker
+            if objective.kind == "build" and profile.strategy in BUILD_STRATEGIES
+            else self._tactical_worker
+        )
         self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
         if option_diagnostics is not None:
             self.last_proposal = replace(self.last_proposal, tactical_option=option_diagnostics)
+        if planner_request is not None:
+            self.last_proposal = replace(
+                self.last_proposal,
+                planner_request=planner_request,
+            )
         self.last_plan = build_n_turn_plan(self.last_proposal, context.simulator, tactical)
         return self.last_proposal
 

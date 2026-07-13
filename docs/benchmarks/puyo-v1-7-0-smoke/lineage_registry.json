@@ -1,0 +1,382 @@
+{
+  "edges": [
+    {
+      "edge_type": "derived_from",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Replaces fixed routing with Analyzer-driven tactics while retaining manager_rule as a comparison baseline."
+      },
+      "source": "model_version:v1.7.0",
+      "target": "model_version:manager_rule"
+    },
+    {
+      "edge_type": "trained_with",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Deterministic baseline consumes this registry as its versioned tactical configuration."
+      },
+      "source": "model_version:v1.7.0",
+      "target": "config:v1.7.0-tactic-registry"
+    },
+    {
+      "edge_type": "trained_with",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "The pre-training baseline is validated against the fixed scenario dataset."
+      },
+      "source": "model_version:v1.7.0",
+      "target": "dataset:v1.7.0-analyzer-scenarios"
+    },
+    {
+      "edge_type": "evaluated_by",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "evaluation:v1.7.0-analyzer-scenarios"
+    },
+    {
+      "edge_type": "evaluated_by",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "PUYO-122 records the completed v1.7.0 versus result, nested diagnostics, and verified replay hash."
+      },
+      "source": "model_version:v1.7.0",
+      "target": "evaluation:v1.7.0-gui-qa"
+    },
+    {
+      "edge_type": "derived_from",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Regenerated after PR #49 with lifecycle and carry contracts."
+      },
+      "source": "evaluation:v1.7.0-analyzer-scenarios",
+      "target": "evaluation:legacy-analyzer-pre-pr49"
+    },
+    {
+      "edge_type": "rejected_by",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Legacy output lacks Analyzer, all-clear diagnostics, and lifecycle feature schema snapshots."
+      },
+      "source": "evaluation:legacy-analyzer-pre-pr49",
+      "target": "evaluation:v1.7.0-analyzer-scenarios"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "tactic_schema:tactic-schema-v1"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "analyzer_schema:input-v1"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "analyzer_schema:diagnostics-v1"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "diagnostics_schema:all-clear-v1"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json"
+      },
+      "source": "model_version:v1.7.0",
+      "target": "feature_schema:lifecycle-v1"
+    },
+    {
+      "edge_type": "promoted_to",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Retained as the stable, interpretable comparison policy."
+      },
+      "source": "model_version:manager_rule",
+      "target": "registry_role:baseline"
+    },
+    {
+      "edge_type": "promoted_to",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "reason": "Headless Analyzer QA and playable GUI QA pass; v1.7.0 remains the candidate baseline for v1.7.1 bootstrapping."
+      },
+      "source": "model_version:v1.7.0",
+      "target": "registry_role:candidate"
+    }
+  ],
+  "issues": [],
+  "nodes": [
+    {
+      "id": "analyzer_schema:diagnostics-v1",
+      "label": "State Analyzer diagnostics v1",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schema_version": "puyo.state_analyzer.diagnostics.v1"
+      },
+      "node_type": "analyzer_schema",
+      "path": "agents/state_analyzer.py"
+    },
+    {
+      "id": "analyzer_schema:input-v1",
+      "label": "State Analyzer input v1",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schema_version": "puyo.state_analyzer.input.v1"
+      },
+      "node_type": "analyzer_schema",
+      "path": "agents/state_analyzer.py"
+    },
+    {
+      "id": "config:v1.7.0-tactic-registry",
+      "label": "v1.7.0 TacticSpec registry",
+      "metadata": {
+        "git_commit": "6b668114f56e3e9f300ed85ab41fd5646c72c157",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "sha256": "4e2ffda9766825d4124e7d07efdacb92de7944a0610c53d7ac336ea12e903548"
+      },
+      "node_type": "config",
+      "path": "train/config/v1_7_tactic_registry.yaml"
+    },
+    {
+      "id": "dataset:v1.7.0-analyzer-scenarios",
+      "label": "v1.7.0 Analyzer scenarios",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "dataset_version": "puyo.state_analyzer.scenarios.v1",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.state_analyzer.input.v1#lifecycle-features"
+        },
+        "sha256": "479aa9634bba5df5efe453199675a5ed06a530cd85b315f104a0f2584342fff2"
+      },
+      "node_type": "dataset",
+      "path": "eval/scenarios/v1_7_analyzer.json"
+    },
+    {
+      "id": "diagnostics_schema:all-clear-v1",
+      "label": "All-clear diagnostics v1",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schema_version": "puyo.all_clear_diagnostics.v1"
+      },
+      "node_type": "diagnostics_schema",
+      "path": "src/core/diagnostics.py"
+    },
+    {
+      "id": "evaluation:legacy-analyzer-pre-pr49",
+      "label": "Legacy Analyzer report before PR #49",
+      "metadata": {
+        "compatibility": {
+          "reason": "The report predates lifecycle-aware Analyzer schemas and must be regenerated.",
+          "status": "regenerate_required"
+        },
+        "evaluation_kind": "legacy_analyzer_benchmark",
+        "legacy": true,
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schemas": {
+          "all_clear_diagnostics": "absent",
+          "analyzer": "pre-puyo.state_analyzer.diagnostics.v1",
+          "feature": "pre-lifecycle-features"
+        },
+        "status": "rejected"
+      },
+      "node_type": "evaluation",
+      "path": null
+    },
+    {
+      "id": "evaluation:v1.7.0-analyzer-scenarios",
+      "label": "v1.7.0 Analyzer scenario benchmark",
+      "metadata": {
+        "compatibility": {
+          "regenerates": "evaluation:legacy-analyzer-pre-pr49",
+          "status": "native"
+        },
+        "evaluation_kind": "headless_benchmark",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "metrics": {
+          "failed": 0,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scenarios": 24
+        },
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.state_analyzer.input.v1#lifecycle-features"
+        },
+        "sha256": "bcb1f20e89826b99c844e12ba663eb5e70e9d74a2dcefd539ce928e9bc6e8d17",
+        "status": "passed"
+      },
+      "node_type": "evaluation",
+      "path": "docs/benchmarks/puyo-v1-7-0-smoke/analyzer_report.json"
+    },
+    {
+      "id": "evaluation:v1.7.0-gui-qa",
+      "label": "v1.7.0 GUI QA",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "evaluation_kind": "gui_qa",
+        "git_commit": "bf28300",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "metrics": {
+          "analyzer_scenarios_failed": 0,
+          "analyzer_scenarios_passed": 24,
+          "decisions_player_0": 5,
+          "decisions_player_1": 5,
+          "gui_completed": true,
+          "lifecycle_contract_cases": 4,
+          "replay_hash_verified": true,
+          "score_player_0": 60,
+          "score_player_1": 48,
+          "ticks": 600,
+          "winner": "player_0"
+        },
+        "replay": {
+          "expected_final_hash": "14115fe89ea9ce4b9b4b305ceb92c2e6c1cbd41b4ce5c12fbc89dbed279c6746",
+          "path": "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa_replay.json",
+          "sha256": "c9cadcde58a4fca935b095228dc601000c5c67bb50f6e3c9d8f2084dd10629ad"
+        },
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.state_analyzer.input.v1#lifecycle-features",
+          "gui_qa": "puyo.gui_qa.v1",
+          "manager_diagnostics": "puyo.v1_7_analyzer_manager.diagnostics.v1",
+          "replay": "puyo-realtime-match-v1"
+        },
+        "sha256": "4565cb8faad17a268f006564cede0a027de5a0acae1f27fa14ffb7e244990f69",
+        "status": "passed"
+      },
+      "node_type": "evaluation",
+      "path": "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa.json"
+    },
+    {
+      "id": "feature_schema:lifecycle-v1",
+      "label": "Lifecycle feature contract v1",
+      "metadata": {
+        "compatibility": {
+          "migration_policy": "A learned encoder shape change requires retraining or an explicit incompatible marker.",
+          "status": "native"
+        },
+        "fields": [
+          "score_carry",
+          "all_clear_achieved",
+          "all_clear_bonus_pending",
+          "all_clear_bonus_consumed"
+        ],
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schema_version": "puyo.state_analyzer.input.v1#lifecycle-features"
+      },
+      "node_type": "feature_schema",
+      "path": "agents/state_analyzer.py"
+    },
+    {
+      "id": "model_version:manager_rule",
+      "label": "manager_rule baseline",
+      "metadata": {
+        "decision_reason": "Retained as the interpretable rule-based comparison baseline for v1.7.x.",
+        "git_commit": "35e8f659737e0da34bdbe37ec1613eda95a4a527",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "model_family": "RuleBasedManagerPolicy",
+        "policy_type": "manager_rule",
+        "promotion_state": "baseline",
+        "version": "manager_rule"
+      },
+      "node_type": "model_version",
+      "path": null
+    },
+    {
+      "id": "model_version:v1.7.0",
+      "label": "Adaptive Chain Manager v1.7.0",
+      "metadata": {
+        "decision_reason": "Playable Analyzer Manager, realtime UI diagnostics, GUI QA result, and replay hash verification pass on PUYO-122.",
+        "git_commit": "bf28300",
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "model_family": "Adaptive Chain Manager",
+        "policy_type": "v1_7_analyzer_manager",
+        "promotion_state": "candidate",
+        "version": "v1.7.0"
+      },
+      "node_type": "model_version",
+      "path": null
+    },
+    {
+      "id": "registry_role:baseline",
+      "label": "baseline",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1"
+      },
+      "node_type": "registry_role",
+      "path": null
+    },
+    {
+      "id": "registry_role:candidate",
+      "label": "candidate",
+      "metadata": {
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1"
+      },
+      "node_type": "registry_role",
+      "path": null
+    },
+    {
+      "id": "tactic_schema:tactic-schema-v1",
+      "label": "TacticSpec schema v1",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "lineage_manifest_path": "docs/benchmarks/puyo-v1-7-0-smoke/lineage_manifest.json",
+        "lineage_manifest_schema_version": "puyo.lineage_manifest.v1",
+        "schema_version": "tactic-schema-v1"
+      },
+      "node_type": "tactic_schema",
+      "path": "train/config/v1_7_tactic_registry.yaml"
+    }
+  ],
+  "schema_version": "puyo.lineage_registry.v1"
+}

@@ -580,42 +580,81 @@ class VersusRenderer:
         tactical = controller.tactical_diagnostics(agent)
         plan = tactical.get("plan", {}) if isinstance(tactical, dict) else {}
         objective = plan.get("objective", {}) if isinstance(plan, dict) else {}
-        stats = (
+        summary_for = getattr(controller, "tactical_summary", None)
+        summary = summary_for(agent) if callable(summary_for) else {}
+        attack_for = getattr(controller, "attack_diagnostics", None)
+        attack = attack_for(agent) if callable(attack_for) else {}
+        lifecycle = (
+            f"empty {int(bool(info.get('board_empty')))} "
+            f"A{int(bool(info.get('all_clear_achieved')))} "
+            f"P{int(bool(info.get('all_clear_bonus_pending')))} "
+            f"C{int(bool(info.get('all_clear_bonus_consumed')))}"
+        )
+        common_stats = (
             (
                 f"pending {info['pending_ojama']} t-{info.get('incoming_turns', 0)}",
                 (238, 238, 242),
             ),
-            (f"carry {player_state.score_carry}/70", (190, 198, 215)),
-            (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
-            (f"max chain {info.get('max_chain_count', 0)}", (190, 198, 215)),
             (
-                f"board empty {'yes' if info.get('board_empty') else 'no'}",
-                (160, 210, 255),
-            ),
-            (
-                "all clear "
-                f"A{int(bool(info.get('all_clear_achieved')))} "
-                f"P{int(bool(info.get('all_clear_bonus_pending')))} "
-                f"C{int(bool(info.get('all_clear_bonus_consumed')))}",
-                (255, 232, 145),
-            ),
-            (
-                f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
-                (160, 210, 255),
-            ),
-            (
-                str(tactical.get("reason", ""))[:18],
-                (180, 188, 205),
-            ),
-            (
-                f"plan {str(tactical.get('plan_id', ''))[:8] or '-'}",
-                (255, 232, 145),
-            ),
-            (
-                f"obj {str(objective.get('reason', ''))[:14] or '-'}",
+                f"carry {player_state.score_carry}/70 d{attack.get('attack_score_delta', 0)}",
                 (190, 198, 215),
             ),
+            (
+                f"atk g{attack.get('generated', 0)} c{attack.get('canceled', 0)} "
+                f"o{attack.get('outgoing', 0)}",
+                (255, 190, 135),
+            ),
+            (lifecycle, (255, 232, 145)),
         )
+        if summary.get("own_danger") is not None:
+            stats = common_stats + (
+                (
+                    f"tactic {str(summary.get('tactic_id') or '-')[:12]}",
+                    (160, 210, 255),
+                ),
+                (
+                    f"why {str(summary.get('reason_code') or '-')[:14]}",
+                    (180, 188, 205),
+                ),
+                (
+                    f"own d{float(summary.get('own_danger') or 0):.2f} "
+                    f"short {summary.get('own_short_attack', 0)}",
+                    (190, 198, 215),
+                ),
+                (
+                    f"opp d{float(summary.get('opponent_danger') or 0):.2f} "
+                    f"short {summary.get('opponent_short_attack', 0)}",
+                    (190, 198, 215),
+                ),
+                (
+                    f"obj {str(summary.get('objective_kind') or '-')[:7]} "
+                    f"c{summary.get('target_chain', 0)} a{summary.get('target_attack', 0)}",
+                    (160, 210, 255),
+                ),
+                (
+                    f"plan {str(summary.get('plan_id') or '-')[:8]} "
+                    f"w c{summary.get('worker_chain', 0)} a{summary.get('worker_attack', 0)}",
+                    (255, 232, 145),
+                ),
+            )
+        else:
+            stats = common_stats + (
+                (f"sent {info['sent_ojama_total']}", (190, 198, 215)),
+                (f"max chain {info.get('max_chain_count', 0)}", (190, 198, 215)),
+                (
+                    f"target {tactical.get('target_attack', 0)} in {tactical.get('deadline', 0)}",
+                    (160, 210, 255),
+                ),
+                (str(tactical.get("reason", ""))[:18], (180, 188, 205)),
+                (
+                    f"plan {str(tactical.get('plan_id', ''))[:8] or '-'}",
+                    (255, 232, 145),
+                ),
+                (
+                    f"obj {str(objective.get('reason', ''))[:14] or '-'}",
+                    (190, 198, 215),
+                ),
+            )
         for offset, (text, color) in enumerate(stats):
             self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 225 + offset * 20))
 
