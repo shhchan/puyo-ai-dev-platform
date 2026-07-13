@@ -370,7 +370,17 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
 
         controller.advance_tick()
 
-        event = controller.current_events["player_1"]
+        self.assertIsNone(controller.current_events["player_1"])
+        self.assertEqual(controller.env.player_states["player_1"].pending_ojama, 3)
+        for _ in range(99):
+            controller._advance_visual_events(1.0)
+            controller.advance_tick()
+            event = controller.current_events["player_1"]
+            if event is not None and event.kind == "garbage":
+                break
+        else:
+            self.fail("ojama animation did not start at a placement boundary")
+
         self.assertEqual(event.kind, "garbage")
         self.assertEqual(len(event.coords), 3)
         self.assertEqual(event.amount, len(event.coords))
