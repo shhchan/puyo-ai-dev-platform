@@ -1,0 +1,203 @@
+{
+  "edges": [
+    {
+      "edge_type": "derived_from",
+      "metadata": {},
+      "source": "model_version:v1.7.1",
+      "target": "model_version:v1.7.0"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {},
+      "source": "model_version:v1.7.0",
+      "target": "feature_schema:v1.7.0"
+    },
+    {
+      "edge_type": "uses_schema",
+      "metadata": {},
+      "source": "model_version:v1.7.1",
+      "target": "feature_schema:v1.7.1"
+    },
+    {
+      "edge_type": "trained_with",
+      "metadata": {},
+      "source": "training_run:puyo-128-bootstrap-round-1-seed1129",
+      "target": "dataset:9b167e778fe72dc0691628988d1ea68a8a97762ca23f0f4c8aa630e33afad55e"
+    },
+    {
+      "edge_type": "produced",
+      "metadata": {},
+      "source": "training_run:puyo-128-bootstrap-round-1-seed1129",
+      "target": "checkpoint:932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b"
+    },
+    {
+      "edge_type": "implements",
+      "metadata": {},
+      "source": "model_version:v1.7.1",
+      "target": "checkpoint:932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b"
+    },
+    {
+      "edge_type": "evaluated_by",
+      "metadata": {},
+      "source": "checkpoint:932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+      "target": "evaluation:PUYO-128"
+    },
+    {
+      "edge_type": "promoted_to",
+      "metadata": {
+        "reason": "PUYO-128 benchmark hard gates passed"
+      },
+      "source": "checkpoint:932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+      "target": "registry_role:candidate"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "model_version:v1.7.0",
+      "label": "v1.7.0 Analyzer Manager",
+      "metadata": {
+        "decision_reason": "PUYO-128 comparison baseline",
+        "git_commit": "b1c8460863f42170ef5ff65c4c05c4ad96c4d471",
+        "model_family": "Adaptive Chain Manager",
+        "policy_type": "v1_7_analyzer_manager",
+        "promotion_state": "previous_stable",
+        "version": "v1.7.0"
+      },
+      "node_type": "model_version"
+    },
+    {
+      "id": "model_version:v1.7.1",
+      "label": "v1.7.1 Bootstrap Manager",
+      "metadata": {
+        "decision_reason": "PUYO-128 benchmark hard gates passed",
+        "git_commit": "b1c8460863f42170ef5ff65c4c05c4ad96c4d471",
+        "model_family": "Adaptive Chain Manager",
+        "policy_type": "v1_7_bootstrap_manager",
+        "promotion_state": "candidate",
+        "version": "v1.7.1"
+      },
+      "node_type": "model_version"
+    },
+    {
+      "id": "feature_schema:v1.7.0",
+      "label": "v1.7.0 structured analyzer input",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "representation": "rule-based structured analyzer input",
+        "schema_version": "puyo.state_analyzer.input.v1"
+      },
+      "node_type": "feature_schema"
+    },
+    {
+      "id": "feature_schema:v1.7.1",
+      "label": "v1.7.1 learned manager feature contract",
+      "metadata": {
+        "compatibility": {
+          "feature_shape_changed": true,
+          "status": "retrain_required"
+        },
+        "context_dim": 77,
+        "difference_from_v1_7_0": "adds ordered context/tactic/preview vectors for learned arbitration",
+        "preview_dim": 23,
+        "representation": "ordered learned feature vectors",
+        "schema_version": "puyo.v1_7_strategy_manager.features.v1",
+        "tactic_dim": 56
+      },
+      "node_type": "feature_schema"
+    },
+    {
+      "id": "dataset:9b167e778fe72dc0691628988d1ea68a8a97762ca23f0f4c8aa630e33afad55e",
+      "label": "bootstrap dataset 9b167e778fe7",
+      "metadata": {
+        "compatibility": {
+          "legacy_reasons": {},
+          "migration_sources": {},
+          "rejection_reasons": {}
+        },
+        "dataset_version": null,
+        "declared_path": "runs/puyo-128/datasets/round-1",
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.v1_7_strategy_manager.features.v1"
+        },
+        "sha256": "8e0d417db12257588754930790086fc38f1fcd82f896fc7b826717e45c98a3fa"
+      },
+      "node_type": "dataset"
+    },
+    {
+      "id": "training_run:puyo-128-bootstrap-round-1-seed1129",
+      "label": "puyo-128-bootstrap-round-1-seed1129",
+      "metadata": {
+        "metrics": {
+          "global_step": 16040
+        },
+        "seed": 1129,
+        "trainer_name": "v1_7_manager_bootstrap"
+      },
+      "node_type": "training_run"
+    },
+    {
+      "id": "checkpoint:932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+      "label": "puyo-128-bootstrap-round-1-seed1129:bootstrap",
+      "metadata": {
+        "analyzer_schema_version": "puyo.state_analyzer.diagnostics.v1",
+        "checkpoint_id": "932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+        "compatibility": {
+          "feature_shape_changed": false,
+          "status": "native"
+        },
+        "datasets": [
+          "9b167e778fe72dc0691628988d1ea68a8a97762ca23f0f4c8aa630e33afad55e"
+        ],
+        "declared_path": "runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt",
+        "evaluations": [
+          "evaluation:PUYO-128"
+        ],
+        "git_commit": "b1c8460863f42170ef5ff65c4c05c4ad96c4d471",
+        "model_family": "Adaptive Chain Manager",
+        "model_version": "v1.7.1",
+        "parent_checkpoint_id": "model_version:v1.7.0",
+        "planner_schema_version": "planner-schema-v1",
+        "policy_type": "v1_7_bootstrap_manager",
+        "promotion_state": "candidate",
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.v1_7_strategy_manager.features.v1"
+        },
+        "tactic_schema_version": "tactic-schema-v1",
+        "training_config_path": "train/config/v1_7_manager_bootstrap.yaml",
+        "training_run_id": "puyo-128-bootstrap-round-1-seed1129"
+      },
+      "node_type": "checkpoint"
+    },
+    {
+      "id": "evaluation:PUYO-128",
+      "label": "PUYO-128 bootstrap benchmark and GUI QA",
+      "metadata": {
+        "compatibility": {
+          "status": "native"
+        },
+        "evaluation_kind": "paired_benchmark_gui_replay",
+        "schemas": {
+          "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
+          "analyzer": "puyo.state_analyzer.diagnostics.v1",
+          "feature": "puyo.v1_7_strategy_manager.features.v1"
+        },
+        "status": "passed"
+      },
+      "node_type": "evaluation",
+      "path": "docs/benchmarks/puyo-v1-7-1-smoke/benchmark_summary.json"
+    },
+    {
+      "id": "registry_role:candidate",
+      "label": "candidate",
+      "metadata": {},
+      "node_type": "registry_role"
+    }
+  ],
+  "schema_version": "puyo.lineage_manifest.v1"
+}

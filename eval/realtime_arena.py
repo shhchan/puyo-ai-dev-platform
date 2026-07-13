@@ -25,6 +25,10 @@ from src.core.realtime import TickInput
 
 def _policy_search_objective_diagnostics(policy: Policy) -> dict[str, Any]:
     diagnostics = getattr(policy, "tactical_diagnostics", None)
+    if isinstance(diagnostics, dict) and diagnostics.get("schema_version"):
+        # Versioned diagnostics are replay/training contracts. Preserve them in
+        # full rather than reducing them to the legacy search-objective view.
+        return dict(diagnostics)
     if isinstance(diagnostics, dict) and (
         diagnostics.get("objective") or diagnostics.get("objective_result") or diagnostics.get("plan")
     ):
@@ -181,6 +185,7 @@ def run_realtime_match(
         "player_1": RealtimePolicyController(policy_player_1, config=decision_config),
     }
     replay_ticks: list[dict[str, Any]] = []
+    initial_all_clear_diagnostics = env.match.all_clear_diagnostics()
     last_infos = infos
     while env.agents:
         inputs: dict[str, TickInput] = {}
@@ -236,6 +241,7 @@ def run_realtime_match(
             "format": "puyo-realtime-match-v1",
             "seed": seed,
             "max_ticks": max_ticks,
+            "initial_all_clear_diagnostics": initial_all_clear_diagnostics,
             "ticks": replay_ticks,
             "expected_final_hash": env.match.state_hash(),
         }
@@ -337,6 +343,14 @@ def replay_realtime_match(replay: Mapping[str, Any]) -> str:
     from puyo_env.realtime_versus import RealtimeVersusMatch
 
     match = RealtimeVersusMatch(seed=replay.get("seed"))
+    expected_initial = replay.get("initial_all_clear_diagnostics")
+    if expected_initial is not None:
+        actual_initial = match.all_clear_diagnostics()
+        if expected_initial != actual_initial:
+            raise AssertionError(
+                "initial all-clear diagnostics mismatch: "
+                f"expected {expected_initial}, got {actual_initial}"
+            )
     for entry in replay.get("ticks", ()):
         inputs = {
             agent: TickInput.from_names(
@@ -356,6 +370,20 @@ def replay_realtime_match(replay: Mapping[str, Any]) -> str:
                 f"all-clear diagnostics mismatch at tick {result.tick}: "
                 f"expected {expected_diagnostics}, got {actual_diagnostics}"
             )
+        expected_attack = entry.get("attack_diagnostics")
+        if expected_attack is not None:
+            actual_attack = {
+                agent: {
+                    **dict(result.attack_diagnostics[agent]),
+                    "score_carry": match.player_states[agent].score_carry,
+                }
+                for agent in sorted(match.player_states)
+            }
+            if expected_attack != actual_attack:
+                raise AssertionError(
+                    f"attack diagnostics mismatch at tick {result.tick}: "
+                    f"expected {expected_attack}, got {actual_attack}"
+                )
         expected_hash = entry.get("snapshot_hash")
         if expected_hash is not None and expected_hash != result.snapshot_hash:
             raise AssertionError(
@@ -445,7 +473,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two policies in the realtime arena.")
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-        "v1_7_analyzer_manager",
+        "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
         "worker_large", "worker_quick", "worker_punish", "worker_counter",
         "worker_fire", "worker_fire_max", "worker_survival",
     ]

@@ -1,0 +1,188 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "analyzer_report.json",
+      "required": true,
+      "role": "analyzer_report",
+      "sha256": "bcb1f20e89826b99c844e12ba663eb5e70e9d74a2dcefd539ce928e9bc6e8d17",
+      "size_bytes": 462911
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "19de070ccc79758d59aba9d9e63d82e2bc84062651d8b572fc55d44925ccb6cd",
+      "size_bytes": 1927
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "e363ca5e4929051f9f279240e37ebdc82b754918d9fc3ace5f8afdd0011d456c",
+      "size_bytes": 331313
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "checkpoint_evidence.json",
+      "required": true,
+      "role": "checkpoint_evidence",
+      "sha256": "139cf1730629afa8e35a3d0742a88603127d9a23c4328c7fb382d3268323e66b",
+      "size_bytes": 14849
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa.json",
+      "required": true,
+      "role": "gui_qa",
+      "sha256": "38a6e1964d538ef32d5adaaca946dfad3197fbd569fe7e000afa327ac5e299d6",
+      "size_bytes": 283703
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa_replay.json",
+      "required": true,
+      "role": "gui_qa_replay",
+      "sha256": "a640747df639dd358b746239b165654609c8f3286de53aa3d54362ba88296dae",
+      "size_bytes": 5052114
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "lineage_manifest.json",
+      "required": true,
+      "role": "lineage_manifest",
+      "sha256": "a9af093d7ad4a5a1aca2b67d276cf3097730cd3901b7f1ee31d66c229fa64413",
+      "size_bytes": 6914
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "lineage_registry.json",
+      "required": true,
+      "role": "lineage_registry",
+      "sha256": "c8443ed0cd3cfddc0588176f391436fbcdf9f375fb760a897cba9f6aab954198",
+      "size_bytes": 9341
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "lineage_report.md",
+      "required": true,
+      "role": "lineage_report",
+      "sha256": "f1dc9e9cf640c10f817f69816edcb807f575e9769d87c4fdb8381856659ce979",
+      "size_bytes": 2803
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "manager_rule_matches.csv",
+      "required": true,
+      "role": "manager_rule_matches",
+      "sha256": "2cd28d934299238f5fce99fc69e4e2bc6af267a8579d77b8381c57d534694c89",
+      "size_bytes": 32753
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "manager_rule_report.md",
+      "required": true,
+      "role": "manager_rule_report",
+      "sha256": "83ee2c45f833d7f243509549802813a61f638cba71f6734805751a558bdf55f6",
+      "size_bytes": 993
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "manager_rule_summary.csv",
+      "required": true,
+      "role": "manager_rule_summary",
+      "sha256": "5e1715b4d4a6e85f9d8d06993bb1cdd1a5fe837699960f47cba5b493c89e3841",
+      "size_bytes": 2706
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "standard_beam_matches.csv",
+      "required": true,
+      "role": "standard_beam_matches",
+      "sha256": "9cbbdfaf9e19a15c522c38fd39d106177d955d2a53563c165b182f451ef3baf9",
+      "size_bytes": 22289
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "standard_beam_report.md",
+      "required": true,
+      "role": "standard_beam_report",
+      "sha256": "bd3371e9549171c0dc43cfe42aec6680d5e18b018c554d81ee487b14c852bbf6",
+      "size_bytes": 986
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "standard_beam_summary.csv",
+      "required": true,
+      "role": "standard_beam_summary",
+      "sha256": "1e6251bf115843b0a6062a9bda0a75d02fe43c1d59aa5473b71b497ca1b1d499",
+      "size_bytes": 2705
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "v1_7_0_matches.csv",
+      "required": true,
+      "role": "v1_7_0_matches",
+      "sha256": "e74131575125f3a39784e30e52cd29698dd9a38e19b77dc299e431bc2b49109c",
+      "size_bytes": 38215
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "v1_7_0_report.md",
+      "required": true,
+      "role": "v1_7_0_report",
+      "sha256": "369d9426f269dc9d649a57c1376531298674975bad489584c4b3539377928edd",
+      "size_bytes": 999
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "v1_7_0_summary.csv",
+      "required": true,
+      "role": "v1_7_0_summary",
+      "sha256": "279b5f4df19bbdd84659570fbfa39b71d6b5668d5b01e26a1ac3e9fe16bf7870",
+      "size_bytes": 2739
+    }
+  ],
+  "checkpoint": {
+    "path": "runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt",
+    "sha256": "932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b"
+  },
+  "config": {
+    "beam_depth": 10,
+    "beam_minimum_chain": 6,
+    "beam_scenarios": 1,
+    "beam_width": 48,
+    "games": 20,
+    "gui_max_ticks": 600,
+    "gui_seed": 123,
+    "gui_speed": 1,
+    "matches_per_baseline": 40,
+    "max_steps": 40,
+    "seed": 123,
+    "workers": 8
+  },
+  "created_at_utc": "2026-07-13T08:42:44Z",
+  "name": "puyo-v1-7-1-bootstrap",
+  "passed": true,
+  "schema_version": "puyo.v1_7_bootstrap_benchmark.v1"
+}

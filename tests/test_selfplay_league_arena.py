@@ -123,12 +123,16 @@ class TestArena(unittest.TestCase):
 
             match_text = match_path.read_text(encoding="utf-8")
             summary_text = summary_path.read_text(encoding="utf-8")
+            match_bytes = match_path.read_bytes()
+            summary_bytes = summary_path.read_bytes()
 
         self.assertIn("max_chain_player_0", match_text)
         self.assertIn("elo_delta_player_0", summary_text)
         self.assertIn("score_rate_policy_a_ci95_low", summary_text)
         self.assertIn("profile_counts_policy_a", summary_text)
         self.assertIn("canceled_ojama_player_0", match_text)
+        self.assertNotIn(b"\r\n", match_bytes)
+        self.assertNotIn(b"\r\n", summary_bytes)
         self.assertEqual(loaded_matches, result.matches)
         self.assertIn("mean_canceled_ojama_policy_a", summary)
 

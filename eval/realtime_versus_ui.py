@@ -21,6 +21,7 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
+from eval.lifecycle_audit import audit_realtime_lifecycle
 from eval.versus_ui import SPEED_CHOICES, VisualEvent
 from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
 from human_data.dataset import create_session
@@ -51,12 +52,19 @@ else:  # pragma: no cover - used only for dependency-light config imports
 
 REALTIME_POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-    "v1_7_analyzer_manager",
+    "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
 ASYNC_POLICY_TYPES = frozenset(
-    {"beam", "checkpoint", "manager", "manager_rule", "v1_7_analyzer_manager"}
+    {
+        "beam",
+        "checkpoint",
+        "manager",
+        "manager_rule",
+        "v1_7_analyzer_manager",
+        "v1_7_bootstrap_manager",
+    }
 )
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
 
@@ -205,9 +213,9 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("only one human player is supported")
     if config.collection_enabled and "human" not in policies:
         raise ValueError("human data collection requires one human policy")
-    if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
+    if config.policy_a in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_a:
         raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
-    if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
+    if config.policy_b in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_b:
         raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
@@ -530,6 +538,7 @@ class RealtimeVersusMatchController:
                 decision_executor=executor,
             )
         self.observations, self.infos = self.env.reset(seed=self.config.seed)
+        self.initial_all_clear_diagnostics = self.env.match.all_clear_diagnostics()
         self.event_queue.clear()
         self.current_event = None
         self.event_elapsed = 0.0
@@ -675,6 +684,7 @@ class RealtimeVersusMatchController:
             "format": "puyo-realtime-match-v1",
             "seed": self.config.seed,
             "max_ticks": self.config.max_ticks,
+            "initial_all_clear_diagnostics": self.initial_all_clear_diagnostics,
             "policies": {
                 agent: self.policy_metadata(agent) for agent in REALTIME_AGENTS
             },
@@ -688,32 +698,10 @@ class RealtimeVersusMatchController:
         }
 
     def lifecycle_coverage(self) -> dict[str, Any]:
-        per_player = {
-            agent: {
-                "initial_empty": False,
-                "achieved": False,
-                "pending": False,
-                "consumed": False,
-            }
-            for agent in REALTIME_AGENTS
-        }
-        asymmetric_achieved = False
-        for tick in self.replay_ticks:
-            players = tick.get("all_clear_diagnostics", {}).get("players", {})
-            achieved_count = 0
-            for agent in REALTIME_AGENTS:
-                state = players.get(agent, {})
-                achieved = bool(state.get("all_clear_achieved"))
-                achieved_count += int(achieved)
-                per_player[agent]["initial_empty"] |= bool(state.get("board_empty")) and not achieved
-                per_player[agent]["achieved"] |= achieved
-                per_player[agent]["pending"] |= bool(state.get("all_clear_bonus_pending"))
-                per_player[agent]["consumed"] |= bool(state.get("all_clear_bonus_consumed"))
-            asymmetric_achieved |= achieved_count == 1
-        return {
-            "players": per_player,
-            "asymmetric_achieved": asymmetric_achieved,
-        }
+        return audit_realtime_lifecycle(
+            initial_all_clear_diagnostics=self.initial_all_clear_diagnostics,
+            ticks=self.replay_ticks,
+        )
 
     def qa_result(self, *, collection_manifest: dict | None, interrupted: bool) -> dict[str, Any]:
         scores = {

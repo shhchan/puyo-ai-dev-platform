@@ -22,6 +22,10 @@ from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
 from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
 from agents.strategy_workers import FixedProfilePolicy, default_worker_profiles, profile_id_by_name
 from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
+from agents.v1_7_strategy_manager import (
+    POLICY_TYPE as V17_BOOTSTRAP_POLICY_TYPE,
+    V17StrategyManagerPolicy,
+)
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.obs import BOARD_COLOR_CHANNELS, BOARD_ROWS, GRID_WIDTH
 
@@ -205,6 +209,16 @@ def make_policy(
         return RuleBasedManagerPolicy()
     if policy_type == "v1_7_analyzer_manager":
         return V17AnalyzerManagerPolicy()
+    if policy_type == V17_BOOTSTRAP_POLICY_TYPE:
+        if checkpoint_path is None:
+            raise ValueError(
+                "checkpoint_path is required for v1_7_bootstrap_manager policy"
+            )
+        return V17StrategyManagerPolicy.from_checkpoint(
+            checkpoint_path,
+            device=device,
+            deterministic=deterministic,
+        )
     if policy_type == "manager":
         if checkpoint_path is None:
             raise ValueError("checkpoint_path is required for manager policy")

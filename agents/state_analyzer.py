@@ -303,7 +303,7 @@ class StateAnalyzer:
         )
 
     def _analyze_player(self, snapshot: PlayerSnapshot) -> PlayerAnalysis:
-        simulator = _simulator_from_snapshot(snapshot)
+        simulator = simulator_from_snapshot(snapshot)
         options = self._search(simulator, snapshot.score_carry)
         main = max(options, key=lambda option: (option.chain_count, option.attack, -option.turns), default=None)
         if main is not None:
@@ -506,7 +506,9 @@ def _snapshot_from_simulator(
     )
 
 
-def _simulator_from_snapshot(snapshot: PlayerSnapshot) -> HeadlessPuyoSimulator:
+def simulator_from_snapshot(snapshot: PlayerSnapshot) -> HeadlessPuyoSimulator:
+    """Rebuild a deterministic simulator from a versioned analyzer snapshot."""
+
     game = GameState(seed=0)
     for y, row in enumerate(snapshot.board):
         for x, color in enumerate(row):

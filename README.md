@@ -316,9 +316,11 @@ python3 -m eval.versus_ui \
   --seed 123
 ```
 
-`--policy-a` / `--policy-b` には `checkpoint`，`manager`，`manager_rule`，固定 worker，`beam`，
+`--policy-a` / `--policy-b` には `checkpoint`，`manager`，`manager_rule`，
+`v1_7_bootstrap_manager`，固定 worker，`beam`，
 `greedy`，`random`，`human` を指定できます．checkpoint または manager を選んだ側には対応する
-`--checkpoint-a` / `--checkpoint-b` が必要です．
+`--checkpoint-a` / `--checkpoint-b` が必要です．`v1_7_bootstrap_manager` にも対応する
+checkpoint path が必須です．
 方策の乱数seedは `--seed-a` / `--seed-b` で個別指定できます．未指定時は対戦環境の
 `--seed` を基準にプレイヤーごとの既定値を使用します．beam方策は
 `--beam-depth-a` / `--beam-depth-b`，`--beam-width-a` / `--beam-width-b`，
@@ -385,6 +387,74 @@ python3 -m eval.realtime_versus_ui \
 結果画面を確認して GUI を終了すると，`puyo.gui_qa.v1` JSON に model / checkpoint / seed /
 opponent / result / notes が保存されます．replay は policy / controller / all-clear / attack
 diagnostics と各 tick の hash を保持し，`eval.model_viewer` から確認できます．
+
+### v1.7.1 Bootstrap Manager checkpoint
+
+v1.7.1 の学習済み Strategy Manager は、次のコマンドで再現可能な bootstrap checkpoint を
+生成します．出力先は `runs/` 配下で、binary checkpoint は Git に追加しません．
+
+```bash
+python3 -m train.train_v1_7_manager \
+  --config train/config/v1_7_manager_bootstrap.yaml
+```
+
+生成した checkpoint は `v1_7_bootstrap_manager` として arena、realtime GUI、統合ランチャーから
+利用できます．arena での最小確認例:
+
+```bash
+python3 -m eval.arena \
+  --policy-a v1_7_bootstrap_manager \
+  --checkpoint-a runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --policy-b v1_7_analyzer_manager \
+  --games 2 \
+  --max-steps 40
+```
+
+realtime GUI では次のように指定します．`python3 main.py` から起動する場合も、対戦・観戦・評価の
+設定画面で同じ policy と側ごとの checkpoint を選択します．
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a human \
+  --policy-b v1_7_bootstrap_manager \
+  --checkpoint-b runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --seed 123
+```
+
+ロード時は model family/version、policy type、schema 群、tactic registry、feature の順序と shape、
+lifecycle carry、config digest、dataset provenance、git commit、親 lineage、tensor shape、state hash を
+検証します．不一致は期待値と実値を表示して重み適用前に停止し、旧 checkpoint の暗黙 padding や
+migration は行いません．詳細は
+[v1.7.1 Manager Bootstrap Training](docs/development/puyo-v1-7-manager-bootstrap.md) を参照してください．
+
+### v1.7.1 Bootstrap benchmark / GUI QA / lineage
+
+PUYO-128 の正式評価は、学習済み policy を `manager_rule`、標準 beam、v1.7.0 Analyzer Manager と
+paired seed で比較し、24 scenario、GUI replay、全消し lifecycle、bonus 込み攻撃診断、lineage を
+同じ artifact directory に保存します．checkpoint binary は `runs/` 配下のまま Git へ追加しません．
+
+```bash
+python3 -m eval.v1_7_bootstrap_benchmark run \
+  --checkpoint runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --output-dir docs/benchmarks/puyo-v1-7-1-smoke \
+  --games 20 --seed 123 --max-steps 40 --workers 8
+
+python3 -m eval.v1_7_bootstrap_benchmark verify \
+  --checkpoint runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --artifact-dir docs/benchmarks/puyo-v1-7-1-smoke
+```
+
+人間が画面で確認する場合は `python3 main.py` の「観戦」を開き、1P に
+`v1_7_bootstrap_manager` と同じ checkpoint、2P に `v1_7_analyzer_manager`、seed 123、速度 1x、
+決定的推論 ON を指定します．学習済み側が実際に操作し、HUD の tactic/reason、全消し
+pending/consumed、generated/canceled/outgoing が更新されることを確認してください．保存 replay と
+lineage は次の viewer で確認できます．
+
+```bash
+python3 -m eval.model_viewer \
+  --replay docs/benchmarks/puyo-v1-7-1-smoke/gui_qa_replay.json \
+  --lineage-root docs/benchmarks/puyo-v1-7-1-smoke/lineage_manifest.json
+```
 
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
