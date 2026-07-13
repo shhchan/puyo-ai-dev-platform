@@ -133,7 +133,10 @@ class RealtimeVersusMatch:
         for agent in self.possible_agents:
             diagnostics[agent].update(attack_metadata[agent])
         dropped = {
-            agent: self._apply_due_ojama(agent)
+            agent: self._apply_due_ojama(
+                agent,
+                placement_boundary=self._completed_placement(player_results[agent]),
+            )
             for agent in self.possible_agents
         }
         winner = self._winner_from_game_over()
@@ -332,10 +335,14 @@ class RealtimeVersusMatch:
         state.incoming_attacks = retained
         return consumed
 
-    def _apply_due_ojama(self, agent: str) -> int:
+    @staticmethod
+    def _completed_placement(result: RealtimeStepResult) -> bool:
+        return any(event.type == "resolution_complete" for event in result.events)
+
+    def _apply_due_ojama(self, agent: str, *, placement_boundary: bool) -> int:
         state = self.player_states[agent]
         game = state.simulator.game
-        if game.game_over or game.state == "animate":
+        if game.game_over or not placement_boundary:
             return 0
         due = sum(packet.amount for packet in state.incoming_attacks if packet.arrival_tick <= self.tick)
         drop_count = min(due, self.max_ojama_drop)
