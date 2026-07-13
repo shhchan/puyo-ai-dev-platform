@@ -128,6 +128,28 @@ sections. `--replay` writes `puyo-realtime-match-v1`; repeated policy diagnostic
 are stored only when the active decision changes and are carried forward by the
 model viewer.
 
+Enable a versioned quality gate when the artifact is promotion or benchmark
+evidence:
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a v1_7_analyzer_manager \
+  --policy-b manager_rule \
+  --max-ticks 2000 \
+  --latency-mode measured \
+  --qa-profile attack \
+  --result-json /tmp/puyo-attack-qa.json
+```
+
+The `playability`, `attack`, `stress`, and `deterministic` profiles record their
+minimum decisions and completed placements, idle ratio, timeout/deadline limits,
+latency mode, and attack requirement under `quality_gate.criteria`. Observed
+values and machine-readable `failure_reasons` are stored in the same artifact.
+With a profile enabled, a failed gate sets `result.completed=false` even if the
+tick loop ended normally, preserves `result.execution_completed=true`, and makes
+the CLI exit with status 2. A tick limit alone is therefore not promotion
+evidence. Runs without `--qa-profile` retain the prior smoke behavior.
+
 Run a dummy video smoke test and write a QA artifact:
 
 ```bash
