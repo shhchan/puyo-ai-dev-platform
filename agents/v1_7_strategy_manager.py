@@ -40,7 +40,7 @@ STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION = (
 )
 MODEL_FAMILY = "Adaptive Chain Manager"
 MODEL_VERSION = "v1.7.1"
-POLICY_TYPE = "v1_7_strategy_manager"
+POLICY_TYPE = "v1_7_bootstrap_manager"
 LINEAGE_NODE_ID = "model_version:v1.7.1"
 DEFAULT_PREVIEW_TOP_K = 3
 
