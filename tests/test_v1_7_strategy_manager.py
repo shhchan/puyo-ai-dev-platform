@@ -240,6 +240,66 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertIsNone(policy.last_plan)
         env.close()
 
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_evaluation_override_forces_build_main_after_preview(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+            build_main_index = self.encoder.contract.tactic_ids.index("build_main")
+            model.proposal_heads[build_main_index].bias[0] = -100.0
+        env = VersusPuyoEnv(seed=132, max_steps=4)
+        observations, infos = env.reset(seed=132)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            forced_tactic_id="build_main",
+        )
+
+        action = policy.select_action(observations["player_0"], infos["player_0"])
+        diagnostics = policy.tactical_diagnostics
+        selected = diagnostics["selected_tactic"]
+
+        self.assertTrue(bool(infos["player_0"]["action_mask"][action]))
+        self.assertEqual(policy.current_profile_name, "build_main")
+        self.assertEqual(diagnostics["reason_code"], "evaluation_forced_tactic")
+        self.assertEqual(
+            diagnostics["evaluation_override"],
+            {"enabled": True, "forced_tactic_id": "build_main"},
+        )
+        self.assertEqual(selected["tactic_id"], "build_main")
+        self.assertTrue(
+            next(
+                candidate
+                for candidate in diagnostics["tactic_candidates"]
+                if candidate["tactic_id"] == "build_main"
+            )["previewed"]
+        )
+        self.assertEqual(
+            selected["parameters"],
+            decode_tactic_parameters(
+                self.registry.tactic("build_main"),
+                [0.0] * self.encoder.contract.max_parameter_logits,
+            ),
+        )
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_evaluation_override_rejects_unknown_tactic(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+
+        with self.assertRaisesRegex(ValueError, "unknown forced tactic"):
+            V17StrategyManagerPolicy(
+                model,
+                registry=self.registry,
+                forced_tactic_id="missing",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
