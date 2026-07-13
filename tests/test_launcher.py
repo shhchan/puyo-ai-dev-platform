@@ -82,6 +82,7 @@ class TestLauncherService(unittest.TestCase):
         service = self.make_service()
         service.update_setting("spectate", "max_ticks", 720)
         service.update_setting("spectate", "inference_latency_ticks", 2)
+        service.update_setting("spectate", "latency_mode", "configured")
         service.update_setting("spectate", "timeout_ticks", 5)
         service.update_setting("spectate", "action_deadline_ticks", 4)
         service.update_setting("spectate", "use_reachable_action_mask", True)
@@ -94,6 +95,7 @@ class TestLauncherService(unittest.TestCase):
         for field in (
             "max_ticks",
             "inference_latency_ticks",
+            "latency_mode",
             "timeout_ticks",
             "action_deadline_ticks",
             "use_reachable_action_mask",
@@ -108,6 +110,7 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertEqual(config.max_ticks, 720)
         self.assertEqual(config.inference_latency_ticks, 2)
+        self.assertEqual(config.latency_mode, "configured")
         self.assertEqual(config.timeout_ticks, 5)
         self.assertEqual(config.action_deadline_ticks, 4)
         self.assertTrue(config.use_reachable_action_mask)
@@ -115,6 +118,14 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.result_json, "/tmp/result.json")
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
+
+    def test_arena_uses_configured_latency_by_default(self):
+        service = self.make_service()
+
+        command = service.command_for("arena")
+
+        latency_mode_index = command.index("--latency-mode")
+        self.assertEqual(command[latency_mode_index + 1], "configured")
 
     def test_v1_7_analyzer_manager_round_trips_without_checkpoint(self):
         service = self.make_service()

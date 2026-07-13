@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Iterable
@@ -203,6 +202,7 @@ class LauncherService:
             deterministic_a=settings.deterministic_a,
             deterministic_b=settings.deterministic_b,
             inference_latency_ticks=settings.inference_latency_ticks,
+            latency_mode=settings.latency_mode,
             timeout_ticks=settings.timeout_ticks,
             action_deadline_ticks=settings.action_deadline_ticks,
             use_reachable_action_mask=settings.use_reachable_action_mask,
@@ -299,6 +299,8 @@ class LauncherService:
                 *checkpoint_argv(settings),
                 "--inference-latency-ticks",
                 str(settings.inference_latency_ticks),
+                "--latency-mode",
+                settings.latency_mode,
             ]
             if settings.timeout_ticks is not None:
                 args.extend(["--timeout-ticks", str(settings.timeout_ticks)])
@@ -1001,6 +1003,8 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         str(config.beam_minimum_chain),
         "--inference-latency-ticks",
         str(config.inference_latency_ticks),
+        "--latency-mode",
+        config.latency_mode,
     ]
     if config.max_ticks is not None:
         args.extend(["--max-ticks", str(config.max_ticks)])

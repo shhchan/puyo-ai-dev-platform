@@ -1,7 +1,7 @@
 import os
 import json
+import multiprocessing
 import tempfile
-import threading
 import time
 import unittest
 from contextlib import redirect_stderr
@@ -53,6 +53,20 @@ except (ImportError, OSError):
     plan_step_placement_cells = None
     ASYNC_POLICY_TYPES = frozenset()
 
+
+class BlockingTestPolicy:
+    def __init__(self, release):
+        self.release = release
+
+    def select_action(self, observation, info):
+        self.release.wait(1.0)
+        return legal_indices(info)[0]
+
+
+class FastTestPolicy:
+    def select_action(self, observation, info):
+        return legal_indices(info)[0]
+
 try:
     import pygame  # noqa: F401
 
@@ -82,6 +96,8 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
                 "120",
                 "--inference-latency-ticks",
                 "2",
+                "--latency-mode",
+                "configured",
                 "--timeout-ticks",
                 "4",
                 "--use-reachable-action-mask",
@@ -93,6 +109,7 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.max_ticks, 120)
         self.assertEqual(config.max_steps, 120)
         self.assertEqual(config.inference_latency_ticks, 2)
+        self.assertEqual(config.latency_mode, "configured")
         self.assertTrue(config.use_reachable_action_mask)
         self.assertTrue(config.plan_overlay)
 
@@ -343,20 +360,14 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         )
 
     def test_slow_policy_does_not_block_other_player_or_render_tick(self):
-        release = threading.Event()
-
-        class StubPolicy:
-            def __init__(self, slow=False):
-                self.slow = slow
-
-            def select_action(self, observation, info):
-                if self.slow:
-                    release.wait(1.0)
-                return legal_indices(info)[0]
+        release = multiprocessing.get_context("spawn").Event()
 
         controller = RealtimeVersusMatchController(
-            RealtimeVersusUiConfig(policy_a="manager_rule", policy_b="first", max_ticks=80),
-            policy_factory=lambda policy_type, **kwargs: StubPolicy(policy_type == "manager_rule"),
+            RealtimeVersusUiConfig(policy_a="manager_rule", policy_b="first", max_ticks=500),
+            policy_factory=lambda policy_type, **kwargs: (
+                BlockingTestPolicy(release) if policy_type == "manager_rule" else FastTestPolicy()
+            ),
+            decision_process_start_method="spawn",
         )
         started = time.perf_counter()
         controller.advance_tick()
@@ -366,40 +377,38 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(controller.env.match.tick, 1)
         self.assertEqual(controller.controllers["player_0"].diagnostics.last_event, "thinking")
         self.assertGreater(controller.controllers["player_1"].diagnostics.emitted_input_ticks, 0)
+        self.assertNotEqual(
+            controller._decision_executors["player_0"].process_pid,
+            os.getpid(),
+        )
 
         release.set()
-        for _ in range(30):
+        for _ in range(300):
             controller.advance_tick()
             if controller.controllers["player_0"].diagnostics.decisions_activated:
                 break
-            time.sleep(0.005)
+            time.sleep(0.01)
         self.assertGreater(controller.controllers["player_0"].diagnostics.decisions_activated, 0)
         controller.shutdown()
 
     def test_stale_async_decision_is_rejected_after_active_pair_changes(self):
-        release = threading.Event()
-
-        class SlowPolicy:
-            def select_action(self, observation, info):
-                release.wait(1.0)
-                return legal_indices(info)[0]
-
-        class FastPolicy:
-            def select_action(self, observation, info):
-                return legal_indices(info)[0]
+        release = multiprocessing.get_context("spawn").Event()
 
         controller = RealtimeVersusMatchController(
-            RealtimeVersusUiConfig(policy_a="beam", policy_b="first", max_ticks=80),
-            policy_factory=lambda policy_type, **kwargs: SlowPolicy() if policy_type == "beam" else FastPolicy(),
+            RealtimeVersusUiConfig(policy_a="beam", policy_b="first", max_ticks=500),
+            policy_factory=lambda policy_type, **kwargs: (
+                BlockingTestPolicy(release) if policy_type == "beam" else FastTestPolicy()
+            ),
+            decision_process_start_method="spawn",
         )
         controller.advance_tick()
         controller.env.player_states["player_0"].simulator.game.spawn_puyo()
         release.set()
-        for _ in range(20):
+        for _ in range(300):
             controller.advance_tick()
             if controller.controllers["player_0"].diagnostics.stale_decisions:
                 break
-            time.sleep(0.005)
+            time.sleep(0.01)
         self.assertEqual(controller.controllers["player_0"].diagnostics.stale_decisions, 1)
         controller.shutdown()
 
