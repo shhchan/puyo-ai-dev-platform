@@ -1,0 +1,144 @@
+{
+  "policies": [
+    {
+      "decision_p50_ms": 894.0435574913863,
+      "decision_p95_ms": 1076.488964195596,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 4.4,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 118,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "v1_7_1",
+      "max_chain_max": 6,
+      "max_chain_p50": 4.0,
+      "max_chain_p90": 5.0,
+      "mean_max_chain": 4.4,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 118,
+      "premature_fire_rate": 0.09833333333333333,
+      "trigger_loss_count": 128,
+      "trigger_loss_rate": 0.1245136186770428,
+      "trigger_opportunities": 1028
+    },
+    {
+      "decision_p50_ms": 940.1673109969124,
+      "decision_p95_ms": 1177.3530524282248,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 4.533333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 65,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "forced_build_main",
+      "max_chain_max": 6,
+      "max_chain_p50": 5.0,
+      "max_chain_p90": 5.0,
+      "mean_max_chain": 4.533333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 65,
+      "premature_fire_rate": 0.05416666666666667,
+      "trigger_loss_count": 198,
+      "trigger_loss_rate": 0.1813186813186813,
+      "trigger_opportunities": 1092
+    },
+    {
+      "decision_p50_ms": 735.5061629787087,
+      "decision_p95_ms": 896.8387278349837,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 7.133333333333334,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 40,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "worker_large",
+      "max_chain_max": 10,
+      "max_chain_p50": 7.0,
+      "max_chain_p90": 8.0,
+      "mean_max_chain": 7.133333333333334,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 40,
+      "premature_fire_rate": 0.03333333333333333,
+      "trigger_loss_count": 274,
+      "trigger_loss_rate": 0.29782608695652174,
+      "trigger_opportunities": 920
+    },
+    {
+      "decision_p50_ms": 1880.1149380160496,
+      "decision_p95_ms": 2261.0525309486547,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 7.4,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 37,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "standard_beam",
+      "max_chain_max": 10,
+      "max_chain_p50": 7.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 7.4,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 37,
+      "premature_fire_rate": 0.030833333333333334,
+      "trigger_loss_count": 259,
+      "trigger_loss_rate": 0.29003359462486,
+      "trigger_opportunities": 893
+    }
+  ]
+}
