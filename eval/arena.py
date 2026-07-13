@@ -66,6 +66,26 @@ class MatchResult:
     missed_lethal_player_1: int = 0
     failed_counter_player_0: int = 0
     failed_counter_player_1: int = 0
+    termination_reason_player_0: str = ""
+    termination_reason_player_1: str = ""
+    self_choke_player_0: int = 0
+    self_choke_player_1: int = 0
+    initial_empty_false_positive_player_0: int = 0
+    initial_empty_false_positive_player_1: int = 0
+    all_clear_achieved_player_0: int = 0
+    all_clear_achieved_player_1: int = 0
+    all_clear_bonus_pending_steps_player_0: int = 0
+    all_clear_bonus_pending_steps_player_1: int = 0
+    all_clear_bonus_consumed_player_0: int = 0
+    all_clear_bonus_consumed_player_1: int = 0
+    all_clear_bonus_double_consumed_player_0: int = 0
+    all_clear_bonus_double_consumed_player_1: int = 0
+    all_clear_bonus_generated_ojama_player_0: int = 0
+    all_clear_bonus_generated_ojama_player_1: int = 0
+    all_clear_bonus_canceled_ojama_player_0: int = 0
+    all_clear_bonus_canceled_ojama_player_1: int = 0
+    all_clear_bonus_outgoing_ojama_player_0: int = 0
+    all_clear_bonus_outgoing_ojama_player_1: int = 0
 
     @property
     def score_for_player_0(self) -> float:
@@ -176,6 +196,46 @@ class _PolicyDiagnostics:
         return 0.0 if self.decisions == 0 else self.objective_successes / self.decisions
 
 
+@dataclass
+class _LifecycleAudit:
+    pending_before: bool = False
+    initial_empty_false_positive: int = 0
+    achieved: int = 0
+    pending_steps: int = 0
+    consumed: int = 0
+    double_consumed: int = 0
+    bonus_generated_ojama: int = 0
+    bonus_canceled_ojama: int = 0
+    bonus_outgoing_ojama: int = 0
+
+    @classmethod
+    def from_initial_info(cls, info: dict[str, Any]) -> "_LifecycleAudit":
+        board_empty = bool(info.get("board_empty"))
+        achieved = bool(info.get("all_clear_achieved"))
+        pending = bool(info.get("all_clear_bonus_pending"))
+        return cls(
+            pending_before=pending,
+            initial_empty_false_positive=int(board_empty and achieved),
+            achieved=int(achieved),
+            pending_steps=int(pending),
+        )
+
+    def record(self, info: dict[str, Any]) -> None:
+        components = info.get("reward_components", {})
+        consumed = bool(components.get("all_clear_bonus_consumed"))
+        if consumed:
+            self.consumed += 1
+            self.double_consumed += int(not self.pending_before)
+            self.bonus_generated_ojama += int(components.get("attack_generated", 0))
+            self.bonus_canceled_ojama += int(components.get("attack_canceled", 0))
+            self.bonus_outgoing_ojama += int(components.get("attack_outgoing", 0))
+        achieved = bool(info.get("all_clear_achieved"))
+        pending = bool(info.get("all_clear_bonus_pending"))
+        self.achieved += int(achieved)
+        self.pending_steps += int(pending)
+        self.pending_before = pending
+
+
 @dataclass(frozen=True)
 class ArenaResult:
     matches: tuple[MatchResult, ...]
@@ -277,6 +337,10 @@ def run_match(
     env = VersusPuyoEnv(seed=seed, max_steps=max_steps)
     observations, infos = env.reset(seed=seed)
     diagnostics = {"player_0": _PolicyDiagnostics(), "player_1": _PolicyDiagnostics()}
+    lifecycle = {
+        agent: _LifecycleAudit.from_initial_info(infos[agent])
+        for agent in ("player_0", "player_1")
+    }
 
     while env.agents:
         actions = {}
@@ -285,6 +349,8 @@ def run_match(
             actions[agent] = policy.select_action(observations[agent], infos[agent])
             diagnostics[agent].record(policy)
         observations, _, _, _, infos = env.step(actions)
+        for agent in ("player_0", "player_1"):
+            lifecycle[agent].record(infos[agent])
 
     info_0 = infos["player_0"]
     info_1 = infos["player_1"]
@@ -326,6 +392,30 @@ def run_match(
         missed_lethal_player_1=diagnostics["player_1"].missed_lethal,
         failed_counter_player_0=diagnostics["player_0"].failed_counter,
         failed_counter_player_1=diagnostics["player_1"].failed_counter,
+        termination_reason_player_0=str(info_0.get("termination_reason") or ""),
+        termination_reason_player_1=str(info_1.get("termination_reason") or ""),
+        self_choke_player_0=int(
+            info_0.get("termination_reason") in {"invalid_action", "placement_top_out"}
+        ),
+        self_choke_player_1=int(
+            info_1.get("termination_reason") in {"invalid_action", "placement_top_out"}
+        ),
+        initial_empty_false_positive_player_0=lifecycle["player_0"].initial_empty_false_positive,
+        initial_empty_false_positive_player_1=lifecycle["player_1"].initial_empty_false_positive,
+        all_clear_achieved_player_0=lifecycle["player_0"].achieved,
+        all_clear_achieved_player_1=lifecycle["player_1"].achieved,
+        all_clear_bonus_pending_steps_player_0=lifecycle["player_0"].pending_steps,
+        all_clear_bonus_pending_steps_player_1=lifecycle["player_1"].pending_steps,
+        all_clear_bonus_consumed_player_0=lifecycle["player_0"].consumed,
+        all_clear_bonus_consumed_player_1=lifecycle["player_1"].consumed,
+        all_clear_bonus_double_consumed_player_0=lifecycle["player_0"].double_consumed,
+        all_clear_bonus_double_consumed_player_1=lifecycle["player_1"].double_consumed,
+        all_clear_bonus_generated_ojama_player_0=lifecycle["player_0"].bonus_generated_ojama,
+        all_clear_bonus_generated_ojama_player_1=lifecycle["player_1"].bonus_generated_ojama,
+        all_clear_bonus_canceled_ojama_player_0=lifecycle["player_0"].bonus_canceled_ojama,
+        all_clear_bonus_canceled_ojama_player_1=lifecycle["player_1"].bonus_canceled_ojama,
+        all_clear_bonus_outgoing_ojama_player_0=lifecycle["player_0"].bonus_outgoing_ojama,
+        all_clear_bonus_outgoing_ojama_player_1=lifecycle["player_1"].bonus_outgoing_ojama,
     )
 
 
@@ -432,6 +522,15 @@ def read_matches_csv(path: str | Path) -> tuple[MatchResult, ...]:
         "strategy_switches_player_0", "strategy_switches_player_1",
         "missed_lethal_player_0", "missed_lethal_player_1",
         "failed_counter_player_0", "failed_counter_player_1",
+        "self_choke_player_0", "self_choke_player_1",
+        "initial_empty_false_positive_player_0", "initial_empty_false_positive_player_1",
+        "all_clear_achieved_player_0", "all_clear_achieved_player_1",
+        "all_clear_bonus_pending_steps_player_0", "all_clear_bonus_pending_steps_player_1",
+        "all_clear_bonus_consumed_player_0", "all_clear_bonus_consumed_player_1",
+        "all_clear_bonus_double_consumed_player_0", "all_clear_bonus_double_consumed_player_1",
+        "all_clear_bonus_generated_ojama_player_0", "all_clear_bonus_generated_ojama_player_1",
+        "all_clear_bonus_canceled_ojama_player_0", "all_clear_bonus_canceled_ojama_player_1",
+        "all_clear_bonus_outgoing_ojama_player_0", "all_clear_bonus_outgoing_ojama_player_1",
     }
     float_fields = {
         "mean_decision_ms_player_0", "mean_decision_ms_player_1",

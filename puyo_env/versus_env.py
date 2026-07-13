@@ -147,6 +147,7 @@ class VersusPuyoEnv:
         self._episode_index = 0
         self._ojama_rngs: dict[str, random.Random] = {}
         self._last_winner: str | None = None
+        self._termination_reasons: dict[str, str | None] = {}
 
     def observation_space(self, agent: str):
         return self._observation_spaces[agent]
@@ -174,6 +175,7 @@ class VersusPuyoEnv:
         self.agents = list(self.possible_agents)
         self.step_count = 0
         self._last_winner = None
+        self._termination_reasons = {agent: None for agent in self.possible_agents}
 
         self.player_states = {
             agent: VersusPlayerState(simulator=HeadlessPuyoSimulator(seed=effective_seed))
@@ -255,6 +257,7 @@ class VersusPuyoEnv:
             "opponent_simulator": opponent_state.simulator,
             "step_count": self.step_count,
             "max_steps": self.max_steps,
+            "termination_reason": self._termination_reasons.get(agent),
             **build_all_clear_runtime_info(
                 state.simulator.game,
                 opponent_state.simulator.game,
@@ -448,6 +451,7 @@ class VersusPuyoEnv:
             if invalid_index or masked_out:
                 state.simulator.game.game_over = True
                 state.simulator.game.state = "gameover"
+                self._termination_reasons[agent] = "invalid_action"
                 components[agent]["invalid_action"] = True
                 rewards[agent] -= self.reward_config.invalid_action_penalty
                 results[agent] = None
@@ -467,8 +471,11 @@ class VersusPuyoEnv:
             if not result.valid:
                 state.simulator.game.game_over = True
                 state.simulator.game.state = "gameover"
+                self._termination_reasons[agent] = "invalid_action"
                 components[agent]["invalid_action"] = True
                 rewards[agent] -= self.reward_config.invalid_action_penalty
+            elif result.game_over:
+                self._termination_reasons[agent] = "placement_top_out"
 
         generated_attacks = {agent: 0 for agent in self.possible_agents}
         for agent, result in results.items():
@@ -502,15 +509,24 @@ class VersusPuyoEnv:
 
         self.step_count += 1
         for agent in list(self.agents):
+            was_game_over = self.player_states[agent].simulator.game.game_over
             placed = self._apply_pending_ojama(agent, due_only=True)
             components[agent]["garbage_received"] = placed
             rewards[agent] -= self.reward_config.garbage_penalty * float(placed)
+            if (
+                not was_game_over
+                and placed > 0
+                and self.player_states[agent].simulator.game.game_over
+            ):
+                self._termination_reasons[agent] = "garbage_top_out"
 
         terminal = any(self.player_states[agent].simulator.game.game_over for agent in self.possible_agents)
         truncated = self.step_count >= self.max_steps and not terminal
         winner = self._winner_from_game_over() if terminal else None
         if truncated:
             winner = self._winner_from_scores()
+            for agent in self.possible_agents:
+                self._termination_reasons[agent] = "step_limit"
         self._last_winner = winner
 
         episode_done = terminal or truncated
@@ -531,6 +547,7 @@ class VersusPuyoEnv:
                     "step_result": results.get(agent),
                     "winner": winner,
                     "step_count": self.step_count,
+                    "termination_reason": self._termination_reasons[agent],
                 }
             )
             if episode_done:
@@ -547,6 +564,7 @@ class VersusPuyoEnv:
                     "canceled_ojama": self.player_states[agent].canceled_ojama_total,
                     "received_ojama": self.player_states[agent].received_ojama_total,
                     "max_chain": self.player_states[agent].max_chain_count,
+                    "termination_reason": self._termination_reasons[agent],
                 }
 
         if episode_done:
