@@ -66,6 +66,10 @@ class MatchResult:
     missed_lethal_player_1: int = 0
     failed_counter_player_0: int = 0
     failed_counter_player_1: int = 0
+    short_threat_opportunities_player_0: int = 0
+    short_threat_opportunities_player_1: int = 0
+    short_threat_responses_player_0: int = 0
+    short_threat_responses_player_1: int = 0
     termination_reason_player_0: str = ""
     termination_reason_player_1: str = ""
     self_choke_player_0: int = 0
@@ -140,8 +144,18 @@ class _PolicyDiagnostics:
     objective_miss_reasons: dict[str, int] = field(default_factory=dict)
     missed_lethal: int = 0
     failed_counter: int = 0
+    short_threat_opportunities: int = 0
+    short_threat_responses: int = 0
 
     def record(self, policy: Policy) -> None:
+        analyzer = getattr(policy, "last_analyzer_diagnostics", None)
+        short_threat = False
+        if analyzer is not None:
+            short_threat = bool(
+                int(analyzer.incoming.amount) > 0
+                or int(analyzer.opponent.forecast.short_attack) > 0
+            )
+            self.short_threat_opportunities += int(short_threat)
         proposal = getattr(policy, "last_proposal", None)
         if proposal is not None:
             self.decisions += 1
@@ -165,6 +179,12 @@ class _PolicyDiagnostics:
                 self.missed_lethal += 1
             if proposal.strategy == "counter" and proposal.predicted_attack < proposal.target_attack:
                 self.failed_counter += 1
+            if short_threat:
+                tactic_id = str(getattr(policy, "current_profile_name", "") or "")
+                self.short_threat_responses += int(
+                    tactic_id in {"prepare_response", "counter_or_return", "survive"}
+                    or proposal.strategy in {"counter", "survival"}
+                )
             if self.previous_profile is not None and proposal.profile_id != self.previous_profile:
                 self.switches += 1
             self.previous_profile = int(proposal.profile_id)
@@ -392,6 +412,10 @@ def run_match(
         missed_lethal_player_1=diagnostics["player_1"].missed_lethal,
         failed_counter_player_0=diagnostics["player_0"].failed_counter,
         failed_counter_player_1=diagnostics["player_1"].failed_counter,
+        short_threat_opportunities_player_0=diagnostics["player_0"].short_threat_opportunities,
+        short_threat_opportunities_player_1=diagnostics["player_1"].short_threat_opportunities,
+        short_threat_responses_player_0=diagnostics["player_0"].short_threat_responses,
+        short_threat_responses_player_1=diagnostics["player_1"].short_threat_responses,
         termination_reason_player_0=str(info_0.get("termination_reason") or ""),
         termination_reason_player_1=str(info_1.get("termination_reason") or ""),
         self_choke_player_0=int(
@@ -526,6 +550,8 @@ def read_matches_csv(path: str | Path) -> tuple[MatchResult, ...]:
         "strategy_switches_player_0", "strategy_switches_player_1",
         "missed_lethal_player_0", "missed_lethal_player_1",
         "failed_counter_player_0", "failed_counter_player_1",
+        "short_threat_opportunities_player_0", "short_threat_opportunities_player_1",
+        "short_threat_responses_player_0", "short_threat_responses_player_1",
         "self_choke_player_0", "self_choke_player_1",
         "initial_empty_false_positive_player_0", "initial_empty_false_positive_player_1",
         "all_clear_achieved_player_0", "all_clear_achieved_player_1",
@@ -647,6 +673,12 @@ def summarize_result(
         "objective_success_rate_policy_a": _mean_policy_side_metric(result, "objective_success_rate"),
         "mean_missed_lethal_policy_a": _mean_policy_side_metric(result, "missed_lethal"),
         "mean_failed_counter_policy_a": _mean_policy_side_metric(result, "failed_counter"),
+        "short_threat_opportunities_policy_a": _sum_policy_side_metric(
+            result, "short_threat_opportunities"
+        ),
+        "short_threat_responses_policy_a": _sum_policy_side_metric(
+            result, "short_threat_responses"
+        ),
         "mean_max_chain_policy_a": _mean_policy_side_metric(result, "max_chain"),
         "mean_sent_ojama_policy_a": _mean_policy_side_metric(result, "sent_ojama"),
         "mean_received_ojama_policy_a": _mean_policy_side_metric(result, "received_ojama"),
@@ -686,6 +718,14 @@ def _mean_policy_side_metric(result: ArenaResult, stem: str) -> float:
         suffix = "player_0" if match.policy_a_side == "player_0" else "player_1"
         values.append(float(getattr(match, f"{stem}_{suffix}")))
     return sum(values) / len(values)
+
+
+def _sum_policy_side_metric(result: ArenaResult, stem: str) -> int:
+    total = 0
+    for match in result.matches:
+        suffix = "player_0" if match.policy_a_side == "player_0" else "player_1"
+        total += int(getattr(match, f"{stem}_{suffix}"))
+    return total
 
 
 def _aggregate_policy_side_json(result: ArenaResult, stem: str) -> str:

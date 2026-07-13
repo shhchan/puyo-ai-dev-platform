@@ -1,0 +1,40 @@
+{
+  "final_hash": "8f3359f80ec7d2a9aed3fc1e6ce63fdf75345064cdbcb6fd9898d273c35629b7",
+  "lifecycle": {
+    "asymmetric_achieved": false,
+    "initial_snapshot_present": true,
+    "players": {
+      "player_0": {
+        "achieved": false,
+        "achieved_count": 0,
+        "bonus_attack_canceled": 0,
+        "bonus_attack_generated": 0,
+        "bonus_attack_outgoing": 0,
+        "consumed": false,
+        "consumed_count": 0,
+        "double_consumptions": 0,
+        "initial_empty": true,
+        "initial_empty_false_positives": 0,
+        "pending": false,
+        "pending_ticks": 0
+      },
+      "player_1": {
+        "achieved": false,
+        "achieved_count": 0,
+        "bonus_attack_canceled": 0,
+        "bonus_attack_generated": 0,
+        "bonus_attack_outgoing": 0,
+        "consumed": false,
+        "consumed_count": 0,
+        "double_consumptions": 0,
+        "initial_empty": true,
+        "initial_empty_false_positives": 0,
+        "pending": false,
+        "pending_ticks": 0
+      }
+    },
+    "schema_version": "puyo.lifecycle_audit.v1",
+    "ticks_audited": 1200
+  },
+  "verified": true
+}

@@ -848,6 +848,7 @@ class V17StrategyManagerPolicy:
         preview_top_k: int = DEFAULT_PREVIEW_TOP_K,
         device: str = "cpu",
         deterministic: bool = True,
+        forced_tactic_id: str | None = None,
         checkpoint_path: str | Path | None = None,
         checkpoint_metadata: Mapping[str, Any] | None = None,
     ):
@@ -873,6 +874,12 @@ class V17StrategyManagerPolicy:
         self.model.eval()
         self.preview_top_k = min(int(preview_top_k), len(self.registry.tactics))
         self.deterministic = bool(deterministic)
+        if forced_tactic_id is not None:
+            try:
+                self.registry.tactic(forced_tactic_id)
+            except KeyError as exc:
+                raise ValueError(f"unknown forced tactic: {forced_tactic_id}") from exc
+        self.forced_tactic_id = forced_tactic_id
         self.checkpoint_path = (
             None if checkpoint_path is None else str(Path(checkpoint_path))
         )
@@ -897,6 +904,7 @@ class V17StrategyManagerPolicy:
         preview_top_k: int = DEFAULT_PREVIEW_TOP_K,
         device: str = "cpu",
         deterministic: bool = True,
+        forced_tactic_id: str | None = None,
     ) -> "V17StrategyManagerPolicy":
         """Load one metadata-validated v1.7.1 bootstrap checkpoint."""
 
@@ -949,6 +957,7 @@ class V17StrategyManagerPolicy:
             preview_top_k=preview_top_k,
             device=device,
             deterministic=deterministic,
+            forced_tactic_id=forced_tactic_id,
             checkpoint_path=target,
             checkpoint_metadata=runtime_metadata,
         )
@@ -1017,6 +1026,15 @@ class V17StrategyManagerPolicy:
             ),
         )
         preview_indices = ranked_indices[:preview_count]
+        forced_index = None
+        if self.forced_tactic_id is not None:
+            forced_index = self.encoder.contract.tactic_ids.index(self.forced_tactic_id)
+            if not encoded.eligibility_mask[forced_index]:
+                raise RuntimeError(
+                    f"forced tactic is not eligible: {self.forced_tactic_id}"
+                )
+            if forced_index not in preview_indices:
+                preview_indices.append(forced_index)
         previews = {
             index: self._preview_tactic(
                 index,
@@ -1051,7 +1069,9 @@ class V17StrategyManagerPolicy:
                 preview_tensor,
                 preview_mask,
             )
-            if self.deterministic:
+            if forced_index is not None:
+                selected_index = forced_index
+            elif self.deterministic:
                 selected_index = int(torch.argmax(final_scores[0]).item())
             else:
                 selected_index = int(
@@ -1059,10 +1079,16 @@ class V17StrategyManagerPolicy:
                 )
         selected_preview = previews[selected_index]
         selected_tactic = self.registry.tactics[selected_index]
-        reason = (
-            "learned final arbitration selected "
-            f"{selected_tactic.identity.tactic_id} after planner preview"
-        )
+        if forced_index is not None:
+            reason = (
+                "evaluation override forced "
+                f"{selected_tactic.identity.tactic_id} after planner preview"
+            )
+        else:
+            reason = (
+                "learned final arbitration selected "
+                f"{selected_tactic.identity.tactic_id} after planner preview"
+            )
         proposal = selected_preview.proposal
         objective = proposal.objective
         if objective is not None:
@@ -1278,7 +1304,15 @@ class V17StrategyManagerPolicy:
             "target_attack": int(proposal.target_attack),
             "deadline": int(proposal.deadline),
             "reason": reason,
-            "reason_code": "learned_final_arbitration",
+            "reason_code": (
+                "evaluation_forced_tactic"
+                if self.forced_tactic_id is not None
+                else "learned_final_arbitration"
+            ),
+            "evaluation_override": {
+                "enabled": self.forced_tactic_id is not None,
+                "forced_tactic_id": self.forced_tactic_id,
+            },
             "objective": proposal.objective_dict,
             "objective_result": proposal.objective_result_dict,
             "profile_name": proposal.profile_name,

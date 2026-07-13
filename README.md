@@ -456,6 +456,33 @@ python3 -m eval.model_viewer \
   --lineage-root docs/benchmarks/puyo-v1-7-1-smoke/lineage_manifest.json
 ```
 
+### v1.7.2 学習前 benchmark / scenario QA
+
+PUYO-132 は v1.7.2 の学習開始前に、v1.7.1、強制 `build_main`、large worker、標準 beam を
+30 fixed seed・40手で比較します．さらに v1.7.1 を `manager_rule`、標準 beam、large worker、
+既存 champion checkpoint と paired side で評価し、短期攻撃対応率、相殺率、自滅率、latency を
+保存します．24 Analyzer scenario、6 outcome scenario、carry/cancel/lifecycle、attack-profile GUI replay
+も同じ artifact に含めます．
+
+```bash
+python3 -m eval.v1_7_benchmark run \
+  --checkpoint runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt \
+  --model-registry runs/model_registry.json \
+  --output-dir docs/benchmarks/puyo-v1-7-2-baseline \
+  --safe-games 30 --arena-games 20 --seed 123 --max-steps 40 --workers 8
+
+python3 -m eval.v1_7_benchmark verify \
+  --checkpoint runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt \
+  --model-registry runs/model_registry.json \
+  --artifact-dir docs/benchmarks/puyo-v1-7-2-baseline
+```
+
+`verify` は既定で evaluator の完走、checkpoint identity、artifact hash、GUI replay を検証します．
+`training_gate_passed` はこれと独立しており、v1.7.1 baseline が大連鎖・premature fire・固定 outcome
+の gate を満たさない場合でも PUYO-132 の evaluator は完成扱いにできます．学習開始可否まで CI で
+要求する場合だけ `--require-training-gate` を追加してください．training gate が false の間は
+PUYO-130 を開始しません．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
