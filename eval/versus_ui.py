@@ -41,6 +41,7 @@ else:  # pragma: no cover - used only for dependency-light config imports
 
 POLICY_CHOICES = (
     "human", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "v1_7_bootstrap_manager",
     "worker_large", "worker_quick", "worker_fire", "worker_survival",
 )
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
@@ -100,9 +101,9 @@ def validate_config(config: VersusUiConfig) -> None:
         raise ValueError(f"policy must be one of: {', '.join(POLICY_CHOICES)}")
     if policies.count("human") > 1:
         raise ValueError("only one human player is supported")
-    if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
+    if config.policy_a in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_a:
         raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
-    if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
+    if config.policy_b in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_b:
         raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")

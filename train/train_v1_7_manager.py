@@ -25,7 +25,9 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from agents.state_analyzer import ANALYZER_INPUT_SCHEMA_VERSION
 from agents.v1_7_strategy_manager import (
+    BOOTSTRAP_TRAINER_NAME,
     FEATURE_SCHEMA_VERSION,
+    LIFECYCLE_CARRY_FEATURES,
     MODEL_FAMILY,
     MODEL_VERSION,
     POLICY_TYPE,
@@ -33,7 +35,9 @@ from agents.v1_7_strategy_manager import (
     PREVIEW_FEATURE_NAMES,
     V17StrategyFeatureEncoder,
     V17StrategyManagerNetwork,
+    build_v1_7_checkpoint_metadata,
     decode_tactic_parameters,
+    validate_v1_7_strategy_manager_checkpoint_payload,
 )
 from agents.v1_7_tactics import ParameterSpec, TacticRegistry, load_tactic_registry
 from eval.analyzer_scenarios import (
@@ -48,7 +52,6 @@ from train.artifacts import (
     git_commit,
     utc_timestamp,
     validate_artifact_manifest,
-    validate_checkpoint_payload,
     write_artifact_manifest,
 )
 from train.restore import checkpoint_state_hash
@@ -59,7 +62,7 @@ from train.v1_7_bootstrap_dataset import (
 )
 
 
-TRAINER_NAME = "v1_7_manager_bootstrap"
+TRAINER_NAME = BOOTSTRAP_TRAINER_NAME
 SUMMARY_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.summary.v1"
 METRICS_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.metrics.v1"
 CONFUSION_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.confusion.v1"
@@ -69,16 +72,6 @@ DEFAULT_CONFIG_PATH = Path(__file__).with_name("config") / "v1_7_manager_bootstr
 DEFAULT_DATASET_DIR = "docs/benchmarks/puyo-v1-7-1-bootstrap-dataset-smoke"
 DEFAULT_SCENARIO_DATASET = "eval/scenarios/v1_7_analyzer.json"
 _PARAMETER_SECTIONS = ("objective", "constraints", "planner")
-_LIFECYCLE_CARRY_FEATURES = (
-    "own.score_carry",
-    "own.all_clear_achieved",
-    "own.all_clear_bonus_pending",
-    "own.all_clear_bonus_consumed",
-    "opponent.score_carry",
-    "opponent.all_clear_achieved",
-    "opponent.all_clear_bonus_pending",
-    "opponent.all_clear_bonus_consumed",
-)
 
 
 @dataclass
@@ -754,7 +747,7 @@ def _lifecycle_carry_contract(dataset: _LoadedDataset) -> dict[str, Any]:
     return {
         "analyzer_input_schema_version": schemas.get("analyzer_input"),
         "strategy_feature_schema_version": schemas.get("feature"),
-        "required_features": list(_LIFECYCLE_CARRY_FEATURES),
+        "required_features": list(LIFECYCLE_CARRY_FEATURES),
         "legacy_implicit_defaults_allowed": False,
     }
 
@@ -867,6 +860,10 @@ def train_v1_7_manager(
             "global_step": global_step,
             "hidden_dim": cfg.hidden_dim,
             "feature_contract": encoder.contract.to_metadata(),
+            "checkpoint_metadata": build_v1_7_checkpoint_metadata(
+                registry,
+                run_id=str(paths["run_id"]),
+            ),
             "dataset": {
                 "path": str(dataset.root),
                 "dataset_id": dataset.manifest["dataset_id"],
@@ -896,7 +893,10 @@ def train_v1_7_manager(
         },
     )
     checkpoint["state_hash"] = checkpoint_state_hash(checkpoint)
-    checkpoint_errors = validate_checkpoint_payload(checkpoint)
+    checkpoint_errors = validate_v1_7_strategy_manager_checkpoint_payload(
+        checkpoint,
+        registry=registry,
+    )
     if checkpoint_errors:
         raise ValueError("generated checkpoint is invalid: " + "; ".join(checkpoint_errors))
     torch.save(checkpoint, checkpoint_path)
@@ -913,6 +913,7 @@ def train_v1_7_manager(
         "policy_type": POLICY_TYPE,
         "model_version": MODEL_VERSION,
         "dataset": checkpoint["dataset"],
+        "checkpoint_metadata": checkpoint["checkpoint_metadata"],
         "feature_contract": encoder.contract.to_metadata(),
         "lifecycle_carry_contract": checkpoint["lifecycle_carry_contract"],
         "training_samples": len(dataset.train),
@@ -946,6 +947,7 @@ def train_v1_7_manager(
         extra={
             "dataset_id": dataset.manifest["dataset_id"],
             "dataset_manifest_sha256": dataset.manifest_sha256,
+            "checkpoint_metadata": checkpoint["checkpoint_metadata"],
             "feature_contract": encoder.contract.to_metadata(),
             "lifecycle_carry_contract": checkpoint["lifecycle_carry_contract"],
             "scenario_validation": analyzer_scenario_report["summary"],

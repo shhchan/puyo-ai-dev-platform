@@ -19,7 +19,7 @@ SETTINGS_SCHEMA_VERSION = "puyo.launcher_settings.v1"
 PRESET_SCHEMA_VERSION = "puyo.launcher_presets.v1"
 POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-    "v1_7_analyzer_manager",
+    "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter", "worker_fire",
     "worker_fire_max", "worker_survival",
 )
@@ -128,9 +128,9 @@ def default_settings(action_key: str) -> LauncherSettings:
 
 FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "policy_a": LauncherFieldSpec("policy_a", "1P 方策", "--policy-a", "1P 側で使う policy を選びます。human、beam、manager_rule などは CLI 名のまま表示します。"),
-    "policy_b": LauncherFieldSpec("policy_b", "2P 方策", "--policy-b", "2P 側で使う policy を選びます。checkpoint / manager を選ぶ場合は対応する checkpoint が必要です。"),
-    "checkpoint_a": LauncherFieldSpec("checkpoint_a", "1P checkpoint", "--checkpoint-a", "1P 側 policy が checkpoint または manager のときに読み込むモデル path です。"),
-    "checkpoint_b": LauncherFieldSpec("checkpoint_b", "2P checkpoint", "--checkpoint-b", "2P 側 policy が checkpoint または manager のときに読み込むモデル path です。"),
+    "policy_b": LauncherFieldSpec("policy_b", "2P 方策", "--policy-b", "2P 側で使う policy を選びます。checkpoint / manager / v1_7_bootstrap_manager を選ぶ場合は対応する checkpoint が必要です。"),
+    "checkpoint_a": LauncherFieldSpec("checkpoint_a", "1P checkpoint", "--checkpoint-a", "1P 側の checkpoint-backed policy が読み込むモデル path です。"),
+    "checkpoint_b": LauncherFieldSpec("checkpoint_b", "2P checkpoint", "--checkpoint-b", "2P 側の checkpoint-backed policy が読み込むモデル path です。"),
     "seed": LauncherFieldSpec("seed", "対戦 seed", "--seed", "環境・つも系列を再現するための共通 seed です。"),
     "seed_a": LauncherFieldSpec("seed_a", "1P policy seed", "--seed-a", "1P 側 policy 専用の乱数 seed です。auto の場合は共通 seed から決まります。"),
     "seed_b": LauncherFieldSpec("seed_b", "2P policy seed", "--seed-b", "2P 側 policy 専用の乱数 seed です。auto の場合は共通 seed から決まります。"),
@@ -624,7 +624,7 @@ class LauncherSettingsManager:
                 if policy not in choices:
                     errors.append(f"policy_{side} must be one of: {', '.join(choices)}")
                 checkpoint = getattr(settings, f"checkpoint_{side}")
-                if policy in {"checkpoint", "manager"}:
+                if policy in {"checkpoint", "manager", "v1_7_bootstrap_manager"}:
                     errors.extend(self._validate_checkpoint(side, policy, checkpoint))
             if settings.speed not in SPEED_CHOICES and action_key != "arena":
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
@@ -680,6 +680,15 @@ class LauncherSettingsManager:
             return [f"checkpoint_{side} could not be loaded: {exc}"]
         if not isinstance(payload, Mapping):
             return [f"checkpoint_{side} must contain a mapping payload"]
+        if policy == "v1_7_bootstrap_manager":
+            from agents.v1_7_strategy_manager import (
+                validate_v1_7_strategy_manager_checkpoint_payload,
+            )
+
+            return [
+                f"checkpoint_{side}: {error}"
+                for error in validate_v1_7_strategy_manager_checkpoint_payload(payload)
+            ]
         errors = []
         if "checkpoint_schema" in payload:
             errors.extend(f"checkpoint_{side}: {error}" for error in validate_checkpoint_payload(payload))
@@ -688,8 +697,19 @@ class LauncherSettingsManager:
                 errors.append(f"checkpoint_{side}: unsupported checkpoint schema")
         if policy == "manager" and payload.get("policy_type") not in {None, "strategy_manager"}:
             errors.append(f"checkpoint_{side} is not a strategy manager checkpoint")
-        if policy == "checkpoint" and payload.get("policy_type") == "strategy_manager":
-            errors.append(f"checkpoint_{side} is a manager checkpoint; use policy_{side}=manager")
+        if policy == "checkpoint" and payload.get("policy_type") in {
+            "strategy_manager",
+            "v1_7_bootstrap_manager",
+        }:
+            required_policy = (
+                "manager"
+                if payload.get("policy_type") == "strategy_manager"
+                else "v1_7_bootstrap_manager"
+            )
+            errors.append(
+                f"checkpoint_{side} is a {required_policy} checkpoint; "
+                f"use policy_{side}={required_policy}"
+            )
         if "model_state_dict" not in payload and not any(str(key).endswith("weight") for key in payload):
             errors.append(f"checkpoint_{side} is missing model_state_dict")
         return errors

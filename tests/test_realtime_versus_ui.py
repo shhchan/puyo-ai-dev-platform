@@ -17,6 +17,7 @@ try:
     import numpy  # noqa: F401
 
     from eval.realtime_versus_ui import (
+        ASYNC_POLICY_TYPES,
         RealtimeVersusMatchController,
         RealtimeVersusUiConfig,
         parse_config,
@@ -50,6 +51,7 @@ except (ImportError, OSError):
     live_active_pair_cells = None
     plan_step_delta_cells = None
     plan_step_placement_cells = None
+    ASYNC_POLICY_TYPES = frozenset()
 
 try:
     import pygame  # noqa: F401
@@ -114,6 +116,22 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertIsNone(config.checkpoint_a)
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
+
+    def test_v1_7_bootstrap_checkpoint_policy_is_async_and_requires_a_path(self):
+        config = parse_config(
+            [
+                "--policy-a",
+                "v1_7_bootstrap_manager",
+                "--checkpoint-a",
+                "bootstrap.pt",
+            ]
+        )
+
+        self.assertEqual(config.policy_a, "v1_7_bootstrap_manager")
+        self.assertEqual(config.checkpoint_a, "bootstrap.pt")
+        self.assertIn("v1_7_bootstrap_manager", ASYNC_POLICY_TYPES)
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parse_config(["--policy-a", "v1_7_bootstrap_manager"])
 
     def test_plan_overlay_can_be_disabled_from_cli(self):
         config = parse_config(["--no-plan-overlay"])

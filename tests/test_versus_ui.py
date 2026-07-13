@@ -97,6 +97,21 @@ class TestVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.policy_a, "manager")
         self.assertEqual(config.checkpoint_b, "manager-b.pt")
 
+    def test_v1_7_bootstrap_checkpoint_can_be_selected(self):
+        config = parse_config(
+            [
+                "--policy-b",
+                "v1_7_bootstrap_manager",
+                "--checkpoint-b",
+                "bootstrap.pt",
+            ]
+        )
+
+        self.assertEqual(config.policy_b, "v1_7_bootstrap_manager")
+        self.assertEqual(config.checkpoint_b, "bootstrap.pt")
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parse_config(["--policy-b", "v1_7_bootstrap_manager"])
+
     def test_keybindings_path_can_be_overridden(self):
         config = parse_config(["--keybindings", "/tmp/puyo-keys.json"])
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import math
 from dataclasses import dataclass, replace
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 try:
@@ -14,7 +15,13 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
     nn = None
 
-from agents.state_analyzer import AnalyzerDiagnostics, AnalyzerInput, StateAnalyzer
+from agents.state_analyzer import (
+    ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+    ANALYZER_INPUT_SCHEMA_VERSION,
+    AnalyzerDiagnostics,
+    AnalyzerInput,
+    StateAnalyzer,
+)
 from agents.strategy_workers import (
     NTurnPlan,
     SearchProposal,
@@ -23,14 +30,26 @@ from agents.strategy_workers import (
     default_worker_profiles,
     profile_id_by_name,
 )
-from agents.v1_7_planner import PlannerRequest, build_planner_request
+from agents.v1_7_planner import (
+    PLANNER_REQUEST_SCHEMA_VERSION,
+    PlannerRequest,
+    build_planner_request,
+)
 from agents.v1_7_tactics import (
+    TACTIC_SCHEMA_VERSION,
     ParameterSpec,
     TacticRegistry,
     TacticSpec,
     build_tactic_diagnostics,
     load_tactic_registry,
 )
+from src.core.diagnostics import ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION
+from train.artifacts import (
+    CHECKPOINT_SCHEMA_VERSION,
+    json_digest,
+    validate_checkpoint_payload,
+)
+from train.restore import checkpoint_state_hash
 
 
 FEATURE_SCHEMA_VERSION = "puyo.v1_7_strategy_manager.features.v1"
@@ -42,7 +61,22 @@ MODEL_FAMILY = "Adaptive Chain Manager"
 MODEL_VERSION = "v1.7.1"
 POLICY_TYPE = "v1_7_bootstrap_manager"
 LINEAGE_NODE_ID = "model_version:v1.7.1"
+PARENT_LINEAGE_NODE_ID = "model_version:v1.7.0"
+BOOTSTRAP_TRAINER_NAME = "v1_7_manager_bootstrap"
+CHECKPOINT_METADATA_SCHEMA_VERSION = (
+    "puyo.v1_7_strategy_manager.checkpoint_metadata.v1"
+)
 DEFAULT_PREVIEW_TOP_K = 3
+LIFECYCLE_CARRY_FEATURES = (
+    "own.score_carry",
+    "own.all_clear_achieved",
+    "own.all_clear_bonus_pending",
+    "own.all_clear_bonus_consumed",
+    "opponent.score_carry",
+    "opponent.all_clear_achieved",
+    "opponent.all_clear_bonus_pending",
+    "opponent.all_clear_bonus_consumed",
+)
 
 _PARAMETER_SECTIONS = ("objective", "constraints", "planner")
 _TACTIC_TO_WORKER = {
@@ -145,6 +179,38 @@ PREVIEW_FEATURE_NAMES = (
     "first_step.all_clear_bonus_pending",
     "first_step.all_clear_bonus_consumed",
 )
+
+
+def build_v1_7_checkpoint_metadata(
+    registry: TacticRegistry,
+    *,
+    run_id: str,
+) -> dict[str, Any]:
+    """Return the complete runtime compatibility snapshot for a checkpoint."""
+
+    return {
+        "schema_version": CHECKPOINT_METADATA_SCHEMA_VERSION,
+        "policy_type": POLICY_TYPE,
+        "model_family": MODEL_FAMILY,
+        "model_version": MODEL_VERSION,
+        "lineage": {
+            "node_id": LINEAGE_NODE_ID,
+            "parent_node_id": PARENT_LINEAGE_NODE_ID,
+            "training_run_id": str(run_id),
+        },
+        "schemas": {
+            "checkpoint": CHECKPOINT_SCHEMA_VERSION,
+            "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "all_clear_diagnostics": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": registry.registry_version,
+            "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
+            "strategy_features": FEATURE_SCHEMA_VERSION,
+            "planner_preview_features": PREVIEW_FEATURE_SCHEMA_VERSION,
+            "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
+        },
+    }
 
 
 @dataclass(frozen=True)
@@ -488,6 +554,277 @@ else:
             raise ImportError("V17StrategyManagerNetwork requires torch")
 
 
+def _append_checkpoint_mismatch(
+    errors: list[str],
+    field: str,
+    actual: Any,
+    expected: Any,
+) -> None:
+    if actual != expected:
+        errors.append(f"{field}: expected {expected!r}, got {actual!r}")
+
+
+def _state_dict_shape_errors(
+    state_dict: Mapping[str, Any],
+    contract: StrategyFeatureContract,
+    hidden_dim: int,
+) -> list[str]:
+    if torch is None:
+        return ["checkpoint model shape validation requires torch"]
+    with torch.random.fork_rng(devices=[]):
+        expected_state = V17StrategyManagerNetwork(
+            contract,
+            hidden_dim=hidden_dim,
+        ).state_dict()
+    errors = []
+    missing = sorted(set(expected_state) - set(state_dict))
+    unexpected = sorted(set(state_dict) - set(expected_state), key=str)
+    if missing:
+        errors.append(f"model_state_dict missing keys: {', '.join(missing)}")
+    if unexpected:
+        errors.append(
+            "model_state_dict unexpected keys: "
+            + ", ".join(repr(key) for key in unexpected)
+        )
+    for key in sorted(set(expected_state) & set(state_dict)):
+        expected_shape = tuple(expected_state[key].shape)
+        actual_shape_value = getattr(state_dict[key], "shape", None)
+        actual_shape = (
+            None if actual_shape_value is None else tuple(actual_shape_value)
+        )
+        if actual_shape != expected_shape:
+            errors.append(
+                "model_state_dict shape mismatch for "
+                f"{key}: expected {expected_shape!r}, got {actual_shape!r}"
+            )
+    return errors
+
+
+def validate_v1_7_strategy_manager_checkpoint_payload(
+    checkpoint: Mapping[str, Any],
+    *,
+    registry: TacticRegistry | None = None,
+) -> list[str]:
+    """Validate runtime metadata and tensor shapes without applying weights."""
+
+    if not isinstance(checkpoint, Mapping):
+        return ["checkpoint must be a mapping"]
+    errors = list(validate_checkpoint_payload(checkpoint))
+    selected_registry = registry or load_tactic_registry()
+    expected_contract = StrategyFeatureContract.from_registry(selected_registry)
+
+    _append_checkpoint_mismatch(
+        errors,
+        "artifact_schema_version",
+        checkpoint.get("artifact_schema_version"),
+        CHECKPOINT_SCHEMA_VERSION,
+    )
+    _append_checkpoint_mismatch(
+        errors,
+        "policy_type",
+        checkpoint.get("policy_type"),
+        POLICY_TYPE,
+    )
+    _append_checkpoint_mismatch(
+        errors,
+        "model_family",
+        checkpoint.get("model_family"),
+        MODEL_FAMILY,
+    )
+    _append_checkpoint_mismatch(
+        errors,
+        "model_version",
+        checkpoint.get("model_version"),
+        MODEL_VERSION,
+    )
+
+    config = checkpoint.get("config")
+    if not isinstance(config, Mapping):
+        errors.append("config must be a mapping")
+    elif not config:
+        errors.append("config must not be empty")
+
+    schema = checkpoint.get("checkpoint_schema")
+    if isinstance(schema, Mapping):
+        _append_checkpoint_mismatch(
+            errors,
+            "checkpoint_schema.trainer_name",
+            schema.get("trainer_name"),
+            BOOTSTRAP_TRAINER_NAME,
+        )
+        _append_checkpoint_mismatch(
+            errors,
+            "checkpoint_schema.checkpoint_kind",
+            schema.get("checkpoint_kind"),
+            "bootstrap",
+        )
+        _append_checkpoint_mismatch(
+            errors,
+            "checkpoint_schema.run_id",
+            schema.get("run_id"),
+            checkpoint.get("run_id"),
+        )
+        _append_checkpoint_mismatch(
+            errors,
+            "checkpoint_schema.global_step",
+            schema.get("global_step"),
+            checkpoint.get("global_step"),
+        )
+        if isinstance(config, Mapping):
+            _append_checkpoint_mismatch(
+                errors,
+                "checkpoint_schema.config_digest",
+                schema.get("config_digest"),
+                json_digest(dict(config)),
+            )
+        git_commit_value = schema.get("git_commit")
+        if not isinstance(git_commit_value, str) or not git_commit_value:
+            errors.append("checkpoint_schema.git_commit must be a non-empty string")
+
+    run_id = checkpoint.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        errors.append("run_id must be a non-empty string")
+    metadata = checkpoint.get("checkpoint_metadata")
+    if not isinstance(metadata, Mapping):
+        errors.append("checkpoint_metadata must be a mapping")
+    else:
+        expected_metadata = build_v1_7_checkpoint_metadata(
+            selected_registry,
+            run_id="" if not isinstance(run_id, str) else run_id,
+        )
+        for field in (
+            "schema_version",
+            "policy_type",
+            "model_family",
+            "model_version",
+        ):
+            _append_checkpoint_mismatch(
+                errors,
+                f"checkpoint_metadata.{field}",
+                metadata.get(field),
+                expected_metadata[field],
+            )
+        lineage = metadata.get("lineage")
+        expected_lineage = expected_metadata["lineage"]
+        if not isinstance(lineage, Mapping):
+            errors.append("checkpoint_metadata.lineage must be a mapping")
+        else:
+            for field, expected_value in expected_lineage.items():
+                _append_checkpoint_mismatch(
+                    errors,
+                    f"checkpoint_metadata.lineage.{field}",
+                    lineage.get(field),
+                    expected_value,
+                )
+        schemas = metadata.get("schemas")
+        expected_schemas = expected_metadata["schemas"]
+        if not isinstance(schemas, Mapping):
+            errors.append("checkpoint_metadata.schemas must be a mapping")
+        else:
+            for field, expected_value in expected_schemas.items():
+                _append_checkpoint_mismatch(
+                    errors,
+                    f"checkpoint_metadata.schemas.{field}",
+                    schemas.get(field),
+                    expected_value,
+                )
+
+    feature_contract = checkpoint.get("feature_contract")
+    if not isinstance(feature_contract, Mapping):
+        errors.append("feature_contract must be a mapping")
+    else:
+        try:
+            expected_contract.validate_metadata(feature_contract)
+        except ValueError as exc:
+            errors.append(str(exc))
+
+    dataset = checkpoint.get("dataset")
+    if not isinstance(dataset, Mapping):
+        errors.append("dataset must be a mapping")
+    else:
+        for field in ("path", "dataset_id", "manifest_sha256"):
+            if not isinstance(dataset.get(field), str) or not dataset.get(field):
+                errors.append(f"dataset.{field} must be a non-empty string")
+        if not isinstance(dataset.get("compatibility"), Mapping):
+            errors.append("dataset.compatibility must be a mapping")
+        dataset_schemas = dataset.get("schemas")
+        expected_dataset_schemas = {
+            "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "feature": FEATURE_SCHEMA_VERSION,
+            "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": selected_registry.registry_version,
+        }
+        if not isinstance(dataset_schemas, Mapping):
+            errors.append("dataset.schemas must be a mapping")
+        else:
+            for field, expected_value in expected_dataset_schemas.items():
+                _append_checkpoint_mismatch(
+                    errors,
+                    f"dataset.schemas.{field}",
+                    dataset_schemas.get(field),
+                    expected_value,
+                )
+
+    lifecycle_contract = checkpoint.get("lifecycle_carry_contract")
+    expected_lifecycle = {
+        "analyzer_input_schema_version": ANALYZER_INPUT_SCHEMA_VERSION,
+        "strategy_feature_schema_version": FEATURE_SCHEMA_VERSION,
+        "required_features": list(LIFECYCLE_CARRY_FEATURES),
+        "legacy_implicit_defaults_allowed": False,
+    }
+    if not isinstance(lifecycle_contract, Mapping):
+        errors.append("lifecycle_carry_contract must be a mapping")
+    else:
+        for field, expected_value in expected_lifecycle.items():
+            _append_checkpoint_mismatch(
+                errors,
+                f"lifecycle_carry_contract.{field}",
+                lifecycle_contract.get(field),
+                expected_value,
+            )
+
+    hidden_dim = checkpoint.get("hidden_dim")
+    if isinstance(hidden_dim, bool) or not isinstance(hidden_dim, int) or hidden_dim <= 0:
+        errors.append(f"hidden_dim must be a positive integer, got {hidden_dim!r}")
+    if isinstance(config, Mapping):
+        _append_checkpoint_mismatch(
+            errors,
+            "config.hidden_dim",
+            config.get("hidden_dim"),
+            hidden_dim,
+        )
+    state_dict = checkpoint.get("model_state_dict")
+    if not isinstance(state_dict, Mapping):
+        errors.append("model_state_dict must be a mapping")
+    elif isinstance(hidden_dim, int) and not isinstance(hidden_dim, bool) and hidden_dim > 0:
+        errors.extend(
+            _state_dict_shape_errors(
+                state_dict,
+                expected_contract,
+                hidden_dim,
+            )
+        )
+
+    saved_state_hash = checkpoint.get("state_hash")
+    if not isinstance(saved_state_hash, str) or not saved_state_hash:
+        errors.append("state_hash must be a non-empty string")
+    else:
+        try:
+            actual_state_hash = checkpoint_state_hash(checkpoint)
+        except Exception as exc:  # pragma: no cover - defensive malformed payload guard
+            errors.append(f"state_hash could not be computed: {exc}")
+        else:
+            _append_checkpoint_mismatch(
+                errors,
+                "state_hash",
+                saved_state_hash,
+                actual_state_hash,
+            )
+    return errors
+
+
 @dataclass(frozen=True)
 class _PreviewResult:
     tactic_index: int
@@ -511,6 +848,8 @@ class V17StrategyManagerPolicy:
         preview_top_k: int = DEFAULT_PREVIEW_TOP_K,
         device: str = "cpu",
         deterministic: bool = True,
+        checkpoint_path: str | Path | None = None,
+        checkpoint_metadata: Mapping[str, Any] | None = None,
     ):
         if torch is None:
             raise ImportError("V17StrategyManagerPolicy requires torch")
@@ -534,6 +873,10 @@ class V17StrategyManagerPolicy:
         self.model.eval()
         self.preview_top_k = min(int(preview_top_k), len(self.registry.tactics))
         self.deterministic = bool(deterministic)
+        self.checkpoint_path = (
+            None if checkpoint_path is None else str(Path(checkpoint_path))
+        )
+        self.checkpoint_metadata = copy.deepcopy(dict(checkpoint_metadata or {}))
         self._last_step_count = -1
         self.last_analyzer_input: AnalyzerInput | None = None
         self.last_analyzer_diagnostics: AnalyzerDiagnostics | None = None
@@ -542,6 +885,73 @@ class V17StrategyManagerPolicy:
         self.last_proposal: SearchProposal | None = None
         self.last_plan: NTurnPlan | None = None
         self._tactical_diagnostics: dict[str, Any] = {}
+
+    @classmethod
+    def from_checkpoint(
+        cls,
+        checkpoint_path: str | Path,
+        *,
+        analyzer: StateAnalyzer | None = None,
+        registry: TacticRegistry | None = None,
+        profiles: tuple[WorkerProfile, ...] | None = None,
+        preview_top_k: int = DEFAULT_PREVIEW_TOP_K,
+        device: str = "cpu",
+        deterministic: bool = True,
+    ) -> "V17StrategyManagerPolicy":
+        """Load one metadata-validated v1.7.1 bootstrap checkpoint."""
+
+        if torch is None:
+            raise ImportError("V17StrategyManagerPolicy requires torch")
+        target = Path(checkpoint_path)
+        if not target.is_file():
+            raise FileNotFoundError(
+                f"v1.7 bootstrap checkpoint not found: {target}"
+            )
+        checkpoint = torch.load(target, map_location="cpu", weights_only=False)
+        if not isinstance(checkpoint, Mapping):
+            raise ValueError(
+                f"v1.7 bootstrap checkpoint must be a mapping: {target}"
+            )
+        selected_registry = registry or load_tactic_registry()
+        errors = validate_v1_7_strategy_manager_checkpoint_payload(
+            checkpoint,
+            registry=selected_registry,
+        )
+        if errors:
+            raise ValueError(
+                f"incompatible v1.7 bootstrap checkpoint {target}: "
+                + "; ".join(errors)
+            )
+        contract = StrategyFeatureContract.from_registry(selected_registry)
+        with torch.random.fork_rng(devices=[]):
+            model = V17StrategyManagerNetwork(
+                contract,
+                hidden_dim=int(checkpoint["hidden_dim"]),
+            )
+        model.load_state_dict(checkpoint["model_state_dict"], strict=True)
+        checkpoint_schema = checkpoint["checkpoint_schema"]
+        dataset = checkpoint["dataset"]
+        feature_contract = checkpoint["feature_contract"]
+        compatibility = checkpoint["checkpoint_metadata"]
+        runtime_metadata = {
+            "run_id": checkpoint["run_id"],
+            "git_commit": checkpoint_schema["git_commit"],
+            "dataset_id": dataset["dataset_id"],
+            "feature_schema_version": feature_contract["schema_version"],
+            "lineage": copy.deepcopy(compatibility["lineage"]),
+            "schemas": copy.deepcopy(compatibility["schemas"]),
+        }
+        return cls(
+            model,
+            analyzer=analyzer,
+            registry=selected_registry,
+            profiles=profiles,
+            preview_top_k=preview_top_k,
+            device=device,
+            deterministic=deterministic,
+            checkpoint_path=target,
+            checkpoint_metadata=runtime_metadata,
+        )
 
     def reset(self) -> None:
         self._last_step_count = -1
@@ -800,15 +1210,34 @@ class V17StrategyManagerPolicy:
             }
             for side in ("own", "opponent")
         }
+        model_metadata = {
+            "policy_type": POLICY_TYPE,
+            "model_family": MODEL_FAMILY,
+            "model_version": MODEL_VERSION,
+            "checkpoint_required": True,
+            "lineage_node_id": LINEAGE_NODE_ID,
+        }
+        lineage = {"node_id": LINEAGE_NODE_ID}
+        if self.checkpoint_metadata:
+            checkpoint_lineage = self.checkpoint_metadata.get("lineage", {})
+            model_metadata.update(
+                {
+                    "checkpoint_path": self.checkpoint_path,
+                    "checkpoint_run_id": self.checkpoint_metadata.get("run_id"),
+                    "checkpoint_git_commit": self.checkpoint_metadata.get("git_commit"),
+                    "dataset_id": self.checkpoint_metadata.get("dataset_id"),
+                    "feature_schema_version": self.checkpoint_metadata.get(
+                        "feature_schema_version"
+                    ),
+                    "parent_lineage_node_id": checkpoint_lineage.get(
+                        "parent_node_id"
+                    ),
+                }
+            )
+            lineage.update(copy.deepcopy(dict(checkpoint_lineage)))
         return {
             "schema_version": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
-            "model_metadata": {
-                "policy_type": POLICY_TYPE,
-                "model_family": MODEL_FAMILY,
-                "model_version": MODEL_VERSION,
-                "checkpoint_required": True,
-                "lineage_node_id": LINEAGE_NODE_ID,
-            },
+            "model_metadata": model_metadata,
             "feature_contract": self.encoder.contract.to_metadata(),
             "lifecycle_features": lifecycle,
             "analyzer": {
@@ -844,7 +1273,7 @@ class V17StrategyManagerPolicy:
                 "result": worker_result,
             },
             "plan": plan.to_dict(),
-            "lineage": {"node_id": LINEAGE_NODE_ID},
+            "lineage": lineage,
             "incoming_attack": int(proposal.incoming_attack),
             "target_attack": int(proposal.target_attack),
             "deadline": int(proposal.deadline),

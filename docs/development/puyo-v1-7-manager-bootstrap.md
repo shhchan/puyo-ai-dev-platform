@@ -39,9 +39,43 @@ The run directory contains:
 - `confusion_report.json`: teacher/prediction matrix and per-tactic precision, recall, and F1.
 - `parameter_report.json`: numeric MAE/RMSE and discrete accuracy by tactic parameter.
 - `scenario_report.json`: PUYO-153 analyzer results plus model predictions for all fixed scenarios.
-- `checkpoints/bootstrap.pt`: model/optimizer state, dataset provenance, feature shape, lifecycle/carry contract, and scenario status.
+- `checkpoints/bootstrap.pt`: model/optimizer state, model and policy identity, config digest, git commit, parent lineage, dataset provenance, schema snapshots, feature shape, lifecycle/carry contract, and scenario status.
 - `artifact_manifest.json`: paths, sizes, and SHA-256 checksums for all artifacts.
 
-Checkpoint loading and policy registration are intentionally deferred to
-PUYO-127. Training artifacts are written below the ignored `runs/` directory and
-binary checkpoints are not committed.
+Training artifacts are written below the ignored `runs/` directory and binary
+checkpoints are not committed.
+
+## Load and play
+
+The saved model is registered as `v1_7_bootstrap_manager`. It always requires a
+checkpoint path:
+
+```bash
+python3 -m eval.arena \
+  --policy-a v1_7_bootstrap_manager \
+  --checkpoint-a runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --policy-b v1_7_analyzer_manager \
+  --games 2 \
+  --max-steps 40
+```
+
+The same policy can be selected in the realtime versus UI:
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a human \
+  --policy-b v1_7_bootstrap_manager \
+  --checkpoint-b runs/v1_7_manager/<run-id>/checkpoints/bootstrap.pt \
+  --seed 123
+```
+
+`python3 main.py` exposes the same policy in the play, spectate, and arena
+settings. Select `v1_7_bootstrap_manager` on a side and set its corresponding
+checkpoint field before starting the workflow.
+
+Loading fails before any weights are applied when the checkpoint does not match
+the current policy. The error reports expected and actual values for the model
+family/version, policy type, schema and tactic registry versions, ordered feature
+contract, lifecycle/carry contract, tensor keys/shapes, config digest, or state
+hash. A legacy checkpoint without the v1.7.1 compatibility metadata must be
+regenerated with the command above; it is not padded or migrated implicitly.

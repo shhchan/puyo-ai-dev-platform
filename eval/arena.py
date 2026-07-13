@@ -684,7 +684,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate two Puyo policies headlessly.")
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-        "v1_7_analyzer_manager",
+        "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
         "worker_large", "worker_quick", "worker_punish", "worker_counter",
         "worker_fire", "worker_fire_max", "worker_survival",
     ]
