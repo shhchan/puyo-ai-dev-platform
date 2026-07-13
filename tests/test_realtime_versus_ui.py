@@ -29,6 +29,7 @@ try:
         ACTIVE_GHOST_SCALE,
         VersusRenderer,
         animation_progress,
+        garbage_animation_cells,
         live_active_pair_cells,
         plan_step_delta_cells,
         plan_step_placement_cells,
@@ -48,6 +49,7 @@ except (ImportError, OSError):
     ACTIVE_GHOST_SCALE = None
     VersusRenderer = None
     animation_progress = None
+    garbage_animation_cells = None
     live_active_pair_cells = None
     plan_step_delta_cells = None
     plan_step_placement_cells = None
@@ -98,6 +100,8 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
                 "2",
                 "--latency-mode",
                 "configured",
+                "--qa-profile",
+                "deterministic",
                 "--timeout-ticks",
                 "4",
                 "--use-reachable-action-mask",
@@ -110,6 +114,7 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.max_steps, 120)
         self.assertEqual(config.inference_latency_ticks, 2)
         self.assertEqual(config.latency_mode, "configured")
+        self.assertEqual(config.qa_profile, "deterministic")
         self.assertTrue(config.use_reachable_action_mask)
         self.assertTrue(config.plan_overlay)
 
@@ -328,6 +333,68 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
                 ]
             )
             controller.shutdown()
+
+    def test_gui_qa_gate_does_not_pass_on_tick_limit_and_zero_attack(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(
+                policy_a="first",
+                policy_b="random",
+                max_ticks=1,
+                qa_profile="attack",
+            )
+        )
+        controller.advance_tick()
+
+        qa = controller.qa_result(collection_manifest=None, interrupted=False)
+
+        self.assertTrue(qa["result"]["execution_completed"])
+        self.assertFalse(qa["result"]["completed"])
+        self.assertFalse(qa["quality_gate"]["passed"])
+        codes = {
+            failure["code"]
+            for failure in qa["quality_gate"]["failure_reasons"]
+        }
+        self.assertIn("attack_not_generated", codes)
+        self.assertIn("minimum_placements_not_met", codes)
+        controller.shutdown()
+
+    def test_ojama_animation_uses_pre_board_and_actual_landing_cells(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(
+                policy_a="first",
+                policy_b="random",
+                max_ticks=100,
+            )
+        )
+        controller.env.match.schedule_attack("player_0", 3, delay_ticks=0)
+
+        controller.advance_tick()
+
+        event = controller.current_events["player_1"]
+        self.assertEqual(event.kind, "garbage")
+        self.assertEqual(len(event.coords), 3)
+        self.assertEqual(event.amount, len(event.coords))
+        for x, y in event.coords:
+            self.assertNotEqual(controller.display_boards["player_1"][y][x], PuyoColor.OJAMA)
+            self.assertEqual(controller._current_board("player_1")[y][x], PuyoColor.OJAMA)
+
+        pre_cells = garbage_animation_cells(event, 0.0)
+        mid_cells = garbage_animation_cells(event, 0.5)
+        post_cells = garbage_animation_cells(event, 1.0)
+        targets = tuple(sorted(event.coords, key=lambda coord: (coord[1], coord[0])))
+        self.assertEqual(tuple((x, int(y)) for x, y in post_cells), targets)
+        for (_, pre_y), (_, mid_y), (_, post_y) in zip(pre_cells, mid_cells, post_cells):
+            self.assertGreater(pre_y, mid_y)
+            self.assertGreater(mid_y, post_y)
+
+        state_hash = controller.env.match.state_hash()
+        controller._advance_visual_events(0.175)
+        self.assertEqual(controller.env.match.state_hash(), state_hash)
+        controller._advance_visual_events(0.2)
+        self.assertEqual(controller.env.match.state_hash(), state_hash)
+        for x, y in event.coords:
+            self.assertEqual(controller.display_boards["player_1"][y][x], PuyoColor.OJAMA)
+        controller.shutdown()
 
     def test_plan_step_delta_cells_excludes_existing_board_cells(self):
         base_board = [[PuyoColor.EMPTY for _ in range(6)] for _ in range(12)]

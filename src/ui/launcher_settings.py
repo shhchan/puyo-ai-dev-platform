@@ -26,6 +26,7 @@ POLICY_CHOICES = (
 REALTIME_POLICY_CHOICES = POLICY_CHOICES
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
 LATENCY_MODE_CHOICES = ("measured", "configured")
+QA_PROFILE_CHOICES = (None, "playability", "attack", "stress", "deterministic")
 TRAINING_OPERATIONS = ("submit", "status", "pause", "resume", "cancel")
 HUMAN_TRAINING_METHODS = ("imitation", "advantage_weighted", "mixed_replay")
 
@@ -89,6 +90,7 @@ class LauncherSettings:
     paired_sides: bool = True
     replay_path: str | None = None
     qa_notes: str | None = None
+    qa_profile: str | None = None
     config_path: str = "train/config/realtime_smoke.yaml"
     run_id: str = "launcher-smoke"
     collection_enabled: bool = False
@@ -177,6 +179,7 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "paired_sides": LauncherFieldSpec("paired_sides", "左右入替評価", "--paired-sides", "ON の場合、arena で 1P/2P を入れ替えた paired evaluation を行います。"),
     "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena または realtime UI の診断 replay 出力 path です。auto の場合は書き出しません。"),
     "qa_notes": LauncherFieldSpec("qa_notes", "QA メモ", "--qa-notes", "結果 JSON に残す確認者向けメモです。"),
+    "qa_profile": LauncherFieldSpec("qa_profile", "QA profile", "--qa-profile", "完走、攻撃、負荷、決定性の条件を artifact 上で判定する profile です。"),
     "config_path": LauncherFieldSpec("config_path", "学習 config", "--config", "train.train_realtime に渡す YAML/JSON config path です。"),
     "run_id": LauncherFieldSpec("run_id", "run_id", "--set run_id=...", "training smoke の run_id です。"),
     "collection_enabled": LauncherFieldSpec("collection_enabled", "人間対戦データ収集", "--collect-human-data", "ON の間だけ入力、盤面、AI plan、結果、任意 feedback を保存します。既定は OFF です。"),
@@ -415,6 +418,7 @@ class LauncherSettingsManager:
                 "result_json",
                 "replay_path",
                 "qa_notes",
+                "qa_profile",
             )
         if action_key == "spectate":
             return (
@@ -455,6 +459,7 @@ class LauncherSettingsManager:
                 "result_json",
                 "replay_path",
                 "qa_notes",
+                "qa_profile",
                 "max_frames",
             )
         if action_key == "arena":
@@ -524,6 +529,8 @@ class LauncherSettingsManager:
             return self.update(action_key, field, _cycle_value(value, SPEED_CHOICES, delta))
         if field == "latency_mode":
             return self.update(action_key, field, _cycle_value(value, LATENCY_MODE_CHOICES, delta))
+        if field == "qa_profile":
+            return self.update(action_key, field, _cycle_value(value, QA_PROFILE_CHOICES, delta))
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
@@ -600,6 +607,8 @@ class LauncherSettingsManager:
             return SPEED_CHOICES
         if field == "latency_mode":
             return LATENCY_MODE_CHOICES
+        if field == "qa_profile":
+            return QA_PROFILE_CHOICES
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return (False, True)
         if field in {"deterministic_a", "deterministic_b"}:
@@ -656,6 +665,8 @@ class LauncherSettingsManager:
                 errors.append("inference_latency_ticks must be non-negative")
             if settings.latency_mode not in LATENCY_MODE_CHOICES:
                 errors.append(f"latency_mode must be one of: {', '.join(LATENCY_MODE_CHOICES)}")
+            if settings.qa_profile not in QA_PROFILE_CHOICES:
+                errors.append("qa_profile must be playability, attack, stress, deterministic, or auto")
             if settings.timeout_ticks is not None and settings.timeout_ticks < 0:
                 errors.append("timeout_ticks must be non-negative")
             if settings.action_deadline_ticks is not None and settings.action_deadline_ticks < 0:
