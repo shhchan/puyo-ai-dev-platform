@@ -7,7 +7,12 @@ from unittest import mock
 
 import torch
 
-from agents.v1_7_strategy_manager import POLICY_TYPE
+from agents.v1_7_strategy_manager import (
+    CHECKPOINT_METADATA_SCHEMA_VERSION,
+    PARENT_LINEAGE_NODE_ID,
+    POLICY_TYPE,
+    validate_v1_7_strategy_manager_checkpoint_payload,
+)
 from eval.analyzer_scenarios import evaluate_scenarios, load_scenarios
 from train.artifacts import validate_artifact_manifest, validate_checkpoint_payload
 from train.train_v1_7_manager import (
@@ -76,8 +81,24 @@ class TestTrainV17Manager(unittest.TestCase):
             self.assertEqual(first["state_hash"], second["state_hash"])
             checkpoint = torch.load(first["checkpoint_path"], map_location="cpu", weights_only=False)
             self.assertEqual(validate_checkpoint_payload(checkpoint), [])
+            self.assertEqual(
+                validate_v1_7_strategy_manager_checkpoint_payload(checkpoint),
+                [],
+            )
             self.assertEqual(checkpoint["checkpoint_schema"]["trainer_name"], TRAINER_NAME)
             self.assertEqual(checkpoint["policy_type"], POLICY_TYPE)
+            self.assertEqual(
+                checkpoint["checkpoint_metadata"]["schema_version"],
+                CHECKPOINT_METADATA_SCHEMA_VERSION,
+            )
+            self.assertEqual(
+                checkpoint["checkpoint_metadata"]["lineage"]["parent_node_id"],
+                PARENT_LINEAGE_NODE_ID,
+            )
+            self.assertEqual(
+                checkpoint["checkpoint_metadata"]["lineage"]["training_run_id"],
+                "first",
+            )
             self.assertEqual(checkpoint["feature_contract"]["context_dim"], 77)
             self.assertEqual(checkpoint["feature_contract"]["preview_dim"], 23)
             self.assertEqual(checkpoint["scenario_validation"]["passed"], 24)
@@ -108,6 +129,10 @@ class TestTrainV17Manager(unittest.TestCase):
             self.assertEqual(scenarios["model_validation"]["samples"], 24)
             manifest_path = Path(first["manifest_path"])
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                manifest["extra"]["checkpoint_metadata"],
+                checkpoint["checkpoint_metadata"],
+            )
             self.assertEqual(
                 validate_artifact_manifest(manifest, run_dir=manifest_path.parent),
                 [],

@@ -125,6 +125,19 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.policy_a, "v1_7_analyzer_manager")
         self.assertIsNone(config.checkpoint_a)
 
+    def test_v1_7_bootstrap_manager_requires_and_round_trips_checkpoint(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "v1_7_bootstrap_manager")
+
+        self.assertIn(
+            "checkpoint_a is required",
+            service.validate_action("spectate")[0],
+        )
+        service.update_setting("spectate", "checkpoint_a", "bootstrap.pt")
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.policy_a, "v1_7_bootstrap_manager")
+        self.assertEqual(config.checkpoint_a, "bootstrap.pt")
+
     def test_setting_help_describes_cli_argument(self):
         service = self.make_service()
 
@@ -383,7 +396,12 @@ class TestLauncherController(unittest.TestCase):
         self.assertEqual(controller.search_query, "manager")
         self.assertEqual(
             controller.filtered_choices(),
-            ("manager", "manager_rule", "v1_7_analyzer_manager"),
+            (
+                "manager",
+                "manager_rule",
+                "v1_7_analyzer_manager",
+                "v1_7_bootstrap_manager",
+            ),
         )
         self.assertEqual(service.settings.for_action("play").policy_a, "manager")
 

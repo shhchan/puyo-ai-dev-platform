@@ -51,12 +51,19 @@ else:  # pragma: no cover - used only for dependency-light config imports
 
 REALTIME_POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
-    "v1_7_analyzer_manager",
+    "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
 ASYNC_POLICY_TYPES = frozenset(
-    {"beam", "checkpoint", "manager", "manager_rule", "v1_7_analyzer_manager"}
+    {
+        "beam",
+        "checkpoint",
+        "manager",
+        "manager_rule",
+        "v1_7_analyzer_manager",
+        "v1_7_bootstrap_manager",
+    }
 )
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
 
@@ -205,9 +212,9 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("only one human player is supported")
     if config.collection_enabled and "human" not in policies:
         raise ValueError("human data collection requires one human policy")
-    if config.policy_a in {"checkpoint", "manager"} and not config.checkpoint_a:
+    if config.policy_a in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_a:
         raise ValueError(f"--checkpoint-a is required when --policy-a={config.policy_a}")
-    if config.policy_b in {"checkpoint", "manager"} and not config.checkpoint_b:
+    if config.policy_b in {"checkpoint", "manager", "v1_7_bootstrap_manager"} and not config.checkpoint_b:
         raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
