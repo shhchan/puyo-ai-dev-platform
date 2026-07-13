@@ -21,6 +21,7 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
+from eval.lifecycle_audit import audit_realtime_lifecycle
 from eval.versus_ui import SPEED_CHOICES, VisualEvent
 from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
 from human_data.dataset import create_session
@@ -537,6 +538,7 @@ class RealtimeVersusMatchController:
                 decision_executor=executor,
             )
         self.observations, self.infos = self.env.reset(seed=self.config.seed)
+        self.initial_all_clear_diagnostics = self.env.match.all_clear_diagnostics()
         self.event_queue.clear()
         self.current_event = None
         self.event_elapsed = 0.0
@@ -682,6 +684,7 @@ class RealtimeVersusMatchController:
             "format": "puyo-realtime-match-v1",
             "seed": self.config.seed,
             "max_ticks": self.config.max_ticks,
+            "initial_all_clear_diagnostics": self.initial_all_clear_diagnostics,
             "policies": {
                 agent: self.policy_metadata(agent) for agent in REALTIME_AGENTS
             },
@@ -695,32 +698,10 @@ class RealtimeVersusMatchController:
         }
 
     def lifecycle_coverage(self) -> dict[str, Any]:
-        per_player = {
-            agent: {
-                "initial_empty": False,
-                "achieved": False,
-                "pending": False,
-                "consumed": False,
-            }
-            for agent in REALTIME_AGENTS
-        }
-        asymmetric_achieved = False
-        for tick in self.replay_ticks:
-            players = tick.get("all_clear_diagnostics", {}).get("players", {})
-            achieved_count = 0
-            for agent in REALTIME_AGENTS:
-                state = players.get(agent, {})
-                achieved = bool(state.get("all_clear_achieved"))
-                achieved_count += int(achieved)
-                per_player[agent]["initial_empty"] |= bool(state.get("board_empty")) and not achieved
-                per_player[agent]["achieved"] |= achieved
-                per_player[agent]["pending"] |= bool(state.get("all_clear_bonus_pending"))
-                per_player[agent]["consumed"] |= bool(state.get("all_clear_bonus_consumed"))
-            asymmetric_achieved |= achieved_count == 1
-        return {
-            "players": per_player,
-            "asymmetric_achieved": asymmetric_achieved,
-        }
+        return audit_realtime_lifecycle(
+            initial_all_clear_diagnostics=self.initial_all_clear_diagnostics,
+            ticks=self.replay_ticks,
+        )
 
     def qa_result(self, *, collection_manifest: dict | None, interrupted: bool) -> dict[str, Any]:
         scores = {

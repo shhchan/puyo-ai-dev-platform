@@ -52,6 +52,7 @@ class TestVersusPuyoEnv(unittest.TestCase):
         self.assertFalse(infos["player_0"]["all_clear_achieved"])
         self.assertFalse(infos["player_0"]["all_clear_bonus_pending"])
         self.assertFalse(infos["player_0"]["all_clear_bonus_consumed"])
+        self.assertIsNone(infos["player_0"]["termination_reason"])
 
     def test_runtime_info_keeps_own_and_opponent_all_clear_state_independent(self):
         env = VersusPuyoEnv(seed=123, max_steps=10)
@@ -94,6 +95,39 @@ class TestVersusPuyoEnv(unittest.TestCase):
         self.assertIn("episode", infos["player_0"])
         self.assertIn("max_chain", infos["player_0"]["episode"])
         self.assertIn("max_chain_count", infos["player_0"])
+        self.assertEqual(infos["player_0"]["termination_reason"], "step_limit")
+        self.assertEqual(infos["player_1"]["termination_reason"], "step_limit")
+
+    def test_invalid_action_has_explicit_termination_reason(self):
+        env = VersusPuyoEnv(seed=123, max_steps=3)
+        _, _ = env.reset(seed=123)
+
+        _, _, terminations, _, infos = env.step(
+            {"player_0": -1, "player_1": 0}
+        )
+
+        self.assertTrue(terminations["player_0"])
+        self.assertEqual(infos["player_0"]["termination_reason"], "invalid_action")
+        self.assertIsNone(infos["player_1"]["termination_reason"])
+
+    def test_due_garbage_top_out_has_explicit_termination_reason(self):
+        env = VersusPuyoEnv(seed=123, max_steps=3)
+        observations, infos = env.reset(seed=123)
+        state = env.player_states["player_0"]
+        for y in range(VISIBLE_HEIGHT - 1):
+            color = PuyoColor.BLUE if y % 2 == 0 else PuyoColor.RED
+            state.simulator.game.field.place_puyo(2, y, Puyo(color))
+        state.pending_ojama = 6
+        policy = FirstLegalPolicy()
+        actions = {
+            agent: policy.select_action(observations[agent], infos[agent])
+            for agent in env.agents
+        }
+
+        _, _, terminations, _, infos = env.step(actions)
+
+        self.assertTrue(terminations["player_0"])
+        self.assertEqual(infos["player_0"]["termination_reason"], "garbage_top_out")
 
     def test_scheduled_ojama_allows_one_response_action_before_drop(self):
         env = VersusPuyoEnv(seed=123, max_steps=5)

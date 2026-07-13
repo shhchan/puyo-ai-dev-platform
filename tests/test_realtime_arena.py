@@ -8,6 +8,7 @@ from eval.realtime_arena import (
     summarize_realtime_result,
 )
 from agents.strategy_workers import FixedProfilePolicy, smoke_worker_profiles
+from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
 from puyo_env.realtime_ai import RealtimeDecisionConfig
 from selfplay.policies import FirstLegalPolicy, RandomPolicy
 
@@ -26,6 +27,11 @@ class TestRealtimeArena(unittest.TestCase):
         self.assertGreater(match.decisions_player_0, 0)
         self.assertGreater(match.emitted_input_ticks_player_0, 0)
         self.assertIsNotNone(match.replay)
+        self.assertTrue(
+            match.replay["initial_all_clear_diagnostics"]["players"]["player_0"][
+                "board_empty"
+            ]
+        )
         diagnostics = match.replay["ticks"][0]["all_clear_diagnostics"]
         self.assertEqual(diagnostics["schema_version"], "puyo.all_clear_diagnostics.v1")
         self.assertEqual(set(diagnostics["players"]), {"player_0", "player_1"})
@@ -45,6 +51,11 @@ class TestRealtimeArena(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, "all-clear diagnostics mismatch"):
             replay_realtime_match(tampered)
 
+        tampered_attack = copy.deepcopy(match.replay)
+        tampered_attack["ticks"][0]["attack_diagnostics"]["player_0"]["score_carry"] = 1
+        with self.assertRaisesRegex(AssertionError, "attack diagnostics mismatch"):
+            replay_realtime_match(tampered_attack)
+
     def test_realtime_replay_records_search_objective_diagnostics(self):
         match = run_realtime_match(
             FixedProfilePolicy(4, smoke_worker_profiles()),
@@ -62,6 +73,25 @@ class TestRealtimeArena(unittest.TestCase):
         self.assertTrue(any(item["search_objective_result"] for item in diagnostics))
         self.assertTrue(any(item["plan_id"] for item in diagnostics))
         self.assertTrue(any(item["plan"].get("schema_version") == "n-turn-plan-v1" for item in diagnostics))
+
+    def test_realtime_replay_preserves_versioned_v1_7_diagnostics(self):
+        match = run_realtime_match(
+            V17AnalyzerManagerPolicy(),
+            FirstLegalPolicy(),
+            seed=123,
+            max_ticks=120,
+            record_replay=True,
+        )
+
+        diagnostics = [
+            tick["policy_diagnostics"]["player_0"]
+            for tick in match.replay["ticks"]
+            if tick["policy_diagnostics"]["player_0"].get("schema_version")
+        ]
+
+        self.assertTrue(diagnostics)
+        self.assertIn("analyzer", diagnostics[0])
+        self.assertIn("selected_tactic", diagnostics[0])
 
     def test_realtime_paired_series_swaps_policy_a_side(self):
         result = run_realtime_paired_series(
