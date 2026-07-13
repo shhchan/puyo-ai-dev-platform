@@ -1,0 +1,5089 @@
+{
+  "artifacts": {
+    "collection_session_id": null,
+    "replay": "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa_replay.json"
+  },
+  "collection_dataset_root": "human_datasets",
+  "collection_enabled": false,
+  "collection_session_id": null,
+  "decisions_player_0": 5,
+  "decisions_player_1": 5,
+  "diagnostics": {
+    "all_clear": {
+      "players": {
+        "player_0": {
+          "all_clear_achieved": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_pending": false,
+          "board_empty": false
+        },
+        "player_1": {
+          "all_clear_achieved": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_pending": false,
+          "board_empty": false
+        }
+      },
+      "schema_version": "puyo.all_clear_diagnostics.v1"
+    },
+    "attack_totals": {
+      "player_0": {
+        "canceled": 0,
+        "generated": 0,
+        "outgoing": 0,
+        "received": 0,
+        "score_carry": 0
+      },
+      "player_1": {
+        "canceled": 0,
+        "generated": 0,
+        "outgoing": 0,
+        "received": 0,
+        "score_carry": 0
+      }
+    },
+    "controller": {
+      "player_0": {
+        "deadline_misses": 0,
+        "decision_requests": 5,
+        "decisions_activated": 5,
+        "decisions_started": 5,
+        "emitted_input_ticks": 278,
+        "fallback_actions": 0,
+        "idle_ticks": 322,
+        "inference_latency_ticks": 0,
+        "last_decision": {
+          "action_index": 8,
+          "axis_x": 2,
+          "deadline_miss": false,
+          "fallback": false,
+          "inference_latency_ticks": 0,
+          "plan_ticks": 58,
+          "policy_elapsed_seconds": 0.8633073329692706,
+          "reachable": true,
+          "reason": "policy",
+          "rotation": "RIGHT",
+          "tick": 517,
+          "timeout": false
+        },
+        "last_emitted_input": {
+          "press": [],
+          "release": []
+        },
+        "last_event": "executing_plan",
+        "masked_actions": 0,
+        "mean_inference_latency_ticks": 0.0,
+        "mean_policy_elapsed_ms": 1044.8806763859466,
+        "planned_input_ticks": 304,
+        "policy_elapsed_seconds": 5.224403381929733,
+        "replans": 0,
+        "stale_decisions": 0,
+        "timeouts": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "deadline_misses": 0,
+        "decision_requests": 5,
+        "decisions_activated": 4,
+        "decisions_started": 5,
+        "emitted_input_ticks": 242,
+        "fallback_actions": 0,
+        "idle_ticks": 358,
+        "inference_latency_ticks": 0,
+        "last_decision": {
+          "action_index": 6,
+          "axis_x": 1,
+          "deadline_miss": false,
+          "fallback": false,
+          "inference_latency_ticks": 0,
+          "plan_ticks": 58,
+          "policy_elapsed_seconds": 1.2078332459786907,
+          "reachable": true,
+          "reason": "policy",
+          "rotation": "LEFT",
+          "tick": 415,
+          "timeout": false
+        },
+        "last_emitted_input": {
+          "press": [],
+          "release": []
+        },
+        "last_event": "thinking",
+        "masked_actions": 0,
+        "mean_inference_latency_ticks": 0.0,
+        "mean_policy_elapsed_ms": 966.9550841790624,
+        "planned_input_ticks": 242,
+        "policy_elapsed_seconds": 4.834775420895312,
+        "replans": 0,
+        "stale_decisions": 0,
+        "timeouts": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "latest_attack": {
+      "player_0": {
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack_score_delta": 0,
+        "canceled": 0,
+        "generated": 0,
+        "outgoing": 0,
+        "score_carry": 0
+      },
+      "player_1": {
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack_score_delta": 0,
+        "canceled": 0,
+        "generated": 0,
+        "outgoing": 0,
+        "score_carry": 0
+      }
+    },
+    "lifecycle_coverage": {
+      "asymmetric_achieved": false,
+      "players": {
+        "player_0": {
+          "achieved": false,
+          "consumed": false,
+          "initial_empty": true,
+          "pending": false
+        },
+        "player_1": {
+          "achieved": false,
+          "consumed": false,
+          "initial_empty": true,
+          "pending": false
+        }
+      }
+    },
+    "policy": {
+      "player_0": {
+        "analyzer": {
+          "diagnostics": {
+            "incoming": {
+              "amount": 0,
+              "can_cancel": false,
+              "can_counter": false,
+              "counter_deficit": 0,
+              "deadline": 0,
+              "max_return_by_deadline": 0,
+              "windows": []
+            },
+            "opponent": {
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "attack_options": [
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "DOWN"
+                    ],
+                    [
+                      3,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.5,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "turns": 2
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "UP"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      0,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      2,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      0,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      0,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      1,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      1,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ],
+                    [
+                      4,
+                      "UP"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "board_empty": false,
+              "danger": 0.10416666666666666,
+              "forecast": {
+                "immediate_attack": 0,
+                "main_chain": {
+                  "action_path": [
+                    [
+                      0,
+                      "DOWN"
+                    ],
+                    [
+                      3,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.5,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "turns": 2
+                },
+                "short_attack": 1,
+                "turns_to_best": 2
+              },
+              "is_all_clear": false,
+              "vulnerability": 0.2729166666666667
+            },
+            "own": {
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "attack_options": [
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      3,
+                      "DOWN"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 2,
+                  "attack_per_turn": 0.6666666666666666,
+                  "attack_score": 149,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 100,
+                  "score_carry_after": 9,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      4,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "board_empty": false,
+              "danger": 0.10416666666666666,
+              "forecast": {
+                "immediate_attack": 1,
+                "main_chain": {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 2,
+                  "attack_per_turn": 0.6666666666666666,
+                  "attack_score": 149,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 100,
+                  "score_carry_after": 9,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 3
+                },
+                "short_attack": 2,
+                "turns_to_best": 3
+              },
+              "is_all_clear": false,
+              "vulnerability": 0.07291666666666666
+            },
+            "policy_deadline": 0,
+            "schema_version": "puyo.state_analyzer.diagnostics.v1",
+            "tick": 0,
+            "turn": 517
+          },
+          "input": {
+            "opponent": {
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "GREEN",
+                  "EMPTY",
+                  "EMPTY",
+                  "GREEN"
+                ],
+                [
+                  "EMPTY",
+                  "RED",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "canceled_ojama_total": 0,
+              "current_pair": [
+                "RED",
+                "YELLOW"
+              ],
+              "incoming": [],
+              "last_chain_end_score": 0,
+              "next_pairs": [
+                [
+                  "GREEN",
+                  "GREEN"
+                ],
+                [
+                  "RED",
+                  "BLUE"
+                ]
+              ],
+              "received_ojama_total": 0,
+              "score": 47,
+              "score_carry": 0,
+              "sent_ojama_total": 0
+            },
+            "own": {
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "GREEN",
+                  "EMPTY",
+                  "GREEN",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "RED",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED",
+                  "YELLOW"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "canceled_ojama_total": 0,
+              "current_pair": [
+                "GREEN",
+                "GREEN"
+              ],
+              "incoming": [],
+              "last_chain_end_score": 0,
+              "next_pairs": [
+                [
+                  "RED",
+                  "BLUE"
+                ],
+                [
+                  "BLUE",
+                  "GREEN"
+                ]
+              ],
+              "received_ojama_total": 0,
+              "score": 49,
+              "score_carry": 0,
+              "sent_ojama_total": 0
+            },
+            "policy_deadline": 0,
+            "schema_version": "puyo.state_analyzer.input.v1",
+            "tick": 0,
+            "turn": 517
+          }
+        },
+        "deadline": 3,
+        "incoming_attack": 0,
+        "lineage": {
+          "node_id": "model_version:v1.7.0"
+        },
+        "model_metadata": {
+          "checkpoint_required": false,
+          "lineage_node_id": "model_version:v1.7.0",
+          "model_family": "Adaptive Chain Manager",
+          "model_version": "v1.7.0",
+          "policy_type": "v1_7_analyzer_manager"
+        },
+        "objective": {
+          "allowed_danger": 0.55,
+          "deadline": 3,
+          "deadline_ticks": 0,
+          "fallback_strategy": "survive",
+          "kind": "counter",
+          "reason": "the opponent has a short-horizon attack option",
+          "safety_margin": 0,
+          "schema_version": "search-objective-v1",
+          "source_profile_id": 3,
+          "source_profile_name": "counter",
+          "target_attack": 0,
+          "target_chain": 0,
+          "target_score": 0
+        },
+        "objective_result": {
+          "achieved": true,
+          "chain_delta": 1,
+          "danger_excess": 0.0,
+          "deadline_missed": false,
+          "miss_reasons": [],
+          "possible_by_deadline": true,
+          "score_delta": 40,
+          "surplus_attack": 1,
+          "time_overrun_ticks": 0
+        },
+        "plan": {
+          "attack_summary": {
+            "canceled": 0,
+            "final_score_carry": 19,
+            "generated": 1,
+            "incoming_remaining": 0,
+            "initial_incoming_attack": 0,
+            "initial_score_carry": 0,
+            "outgoing": 1
+          },
+          "max_steps": 3,
+          "objective": {
+            "allowed_danger": 0.55,
+            "deadline": 3,
+            "deadline_ticks": 0,
+            "fallback_strategy": "survive",
+            "kind": "counter",
+            "reason": "the opponent has a short-horizon attack option",
+            "safety_margin": 0,
+            "schema_version": "search-objective-v1",
+            "source_profile_id": 3,
+            "source_profile_name": "counter",
+            "target_attack": 0,
+            "target_chain": 0,
+            "target_score": 0
+          },
+          "plan_id": "981a4914aefedf69",
+          "planner_latency_overrun": true,
+          "planner_request": {
+            "analyzer_diagnostics_schema_version": "puyo.state_analyzer.diagnostics.v1",
+            "analyzer_input_schema_version": "puyo.state_analyzer.input.v1",
+            "constraints": {
+              "danger_tolerance": 0.55,
+              "trigger_preservation": "required"
+            },
+            "fallback_tactic": "survive",
+            "objective": {
+              "deadline_ticks": 0,
+              "deadline_turns": 3,
+              "kind": "counter",
+              "target_attack": 0,
+              "target_chain": 0,
+              "weights": {}
+            },
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.55,
+                "trigger_preservation": "required"
+              },
+              "objective": {
+                "response_window": 3,
+                "target_attack_margin": 0
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 28,
+                "candidate_count": 10,
+                "latency_budget_ms": 50.0
+              }
+            },
+            "runtime_context": {
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "incoming_attack": 0,
+              "score_carry": 0
+            },
+            "schema_version": "planner-schema-v1",
+            "search_budget": {
+              "candidate_count": 10,
+              "depth": 3,
+              "latency_budget_ms": 50.0,
+              "width": 28
+            },
+            "tactic_id": "prepare_response",
+            "tactic_version": "1.0"
+          },
+          "profile_id": 3,
+          "profile_name": "counter",
+          "replan_conditions": [
+            {
+              "detail": "opponent score, chain, or incoming attack changed",
+              "reason": "opponent_event"
+            },
+            {
+              "detail": "reserved ojama landed before the plan was consumed",
+              "reason": "incoming_attack_landed"
+            },
+            {
+              "detail": "the planned placement is no longer reachable",
+              "reason": "input_failure"
+            },
+            {
+              "detail": "a fresh search produced a different first action or plan id",
+              "reason": "search_result_changed"
+            }
+          ],
+          "schema_version": "n-turn-plan-v1",
+          "search_control": {},
+          "steps": [
+            {
+              "action": 8,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 1,
+              "attack_outgoing": 1,
+              "attack_score_delta": 89,
+              "axis_x": 2,
+              "cumulative_attack": 1,
+              "cumulative_score": 40,
+              "danger": 0.049999999999999996,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": true,
+                "chain_delta": 1,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [],
+                "possible_by_deadline": true,
+                "score_delta": 40,
+                "surplus_attack": 1,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "GREEN",
+                  "x": 3,
+                  "y": 0
+                },
+                {
+                  "color": "GREEN",
+                  "x": 2,
+                  "y": 1
+                }
+              ],
+              "predicted_attack": 1,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "RED",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "YELLOW"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 1,
+              "predicted_score": 40,
+              "reason": "",
+              "rotation": "RIGHT",
+              "scenario": "visible",
+              "score_carry_after": 19,
+              "score_carry_before": 0,
+              "step_index": 0,
+              "valid": true
+            },
+            {
+              "action": 11,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 0,
+              "attack_outgoing": 0,
+              "attack_score_delta": 0,
+              "axis_x": 3,
+              "cumulative_attack": 1,
+              "cumulative_score": 40,
+              "danger": 0.049999999999999996,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": true,
+                "chain_delta": 0,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [],
+                "possible_by_deadline": true,
+                "score_delta": 40,
+                "surplus_attack": 1,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "RED",
+                  "x": 3,
+                  "y": 0
+                },
+                {
+                  "color": "BLUE",
+                  "x": 3,
+                  "y": 1
+                }
+              ],
+              "predicted_attack": 0,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "EMPTY",
+                  "RED",
+                  "RED",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "RED",
+                  "EMPTY",
+                  "BLUE",
+                  "EMPTY",
+                  "YELLOW"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 0,
+              "predicted_score": 0,
+              "reason": "",
+              "rotation": "UP",
+              "scenario": "visible",
+              "score_carry_after": 19,
+              "score_carry_before": 19,
+              "step_index": 1,
+              "valid": true
+            },
+            {
+              "action": 0,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 0,
+              "attack_outgoing": 0,
+              "attack_score_delta": 0,
+              "axis_x": 0,
+              "cumulative_attack": 1,
+              "cumulative_score": 40,
+              "danger": 0.075,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": true,
+                "chain_delta": 0,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [],
+                "possible_by_deadline": true,
+                "score_delta": 40,
+                "surplus_attack": 1,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "BLUE",
+                  "x": 0,
+                  "y": 1
+                },
+                {
+                  "color": "GREEN",
+                  "x": 0,
+                  "y": 2
+                }
+              ],
+              "predicted_attack": 0,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "EMPTY",
+                  "RED",
+                  "RED",
+                  "RED"
+                ],
+                [
+                  "BLUE",
+                  "RED",
+                  "EMPTY",
+                  "BLUE",
+                  "EMPTY",
+                  "YELLOW"
+                ],
+                [
+                  "GREEN",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 0,
+              "predicted_score": 0,
+              "reason": "",
+              "rotation": "UP",
+              "scenario": "visible",
+              "score_carry_after": 19,
+              "score_carry_before": 19,
+              "step_index": 2,
+              "valid": true
+            }
+          ],
+          "strategy": "counter",
+          "update_reason": "policy_decision",
+          "visible_steps": 3
+        },
+        "plan_id": "981a4914aefedf69",
+        "plan_update_reason": "policy_decision",
+        "planner_request": {
+          "analyzer_diagnostics_schema_version": "puyo.state_analyzer.diagnostics.v1",
+          "analyzer_input_schema_version": "puyo.state_analyzer.input.v1",
+          "constraints": {
+            "danger_tolerance": 0.55,
+            "trigger_preservation": "required"
+          },
+          "fallback_tactic": "survive",
+          "objective": {
+            "deadline_ticks": 0,
+            "deadline_turns": 3,
+            "kind": "counter",
+            "target_attack": 0,
+            "target_chain": 0,
+            "weights": {}
+          },
+          "parameters": {
+            "constraints": {
+              "danger_tolerance": 0.55,
+              "trigger_preservation": "required"
+            },
+            "objective": {
+              "response_window": 3,
+              "target_attack_margin": 0
+            },
+            "planner": {
+              "beam_depth": 3,
+              "beam_width": 28,
+              "candidate_count": 10,
+              "latency_budget_ms": 50.0
+            }
+          },
+          "runtime_context": {
+            "all_clear_achieved": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_pending": false,
+            "incoming_attack": 0,
+            "score_carry": 0
+          },
+          "schema_version": "planner-schema-v1",
+          "search_budget": {
+            "candidate_count": 10,
+            "depth": 3,
+            "latency_budget_ms": 50.0,
+            "width": 28
+          },
+          "tactic_id": "prepare_response",
+          "tactic_version": "1.0"
+        },
+        "profile_name": "counter",
+        "reason": "the opponent has a short-horizon attack option",
+        "reason_code": "opponent_short_threat",
+        "schema_version": "puyo.v1_7_analyzer_manager.diagnostics.v1",
+        "selected_tactic": {
+          "name": "prepare_response",
+          "parameters": {
+            "constraints": {
+              "danger_tolerance": 0.55,
+              "trigger_preservation": "required"
+            },
+            "objective": {
+              "response_window": 3,
+              "target_attack_margin": 0
+            },
+            "planner": {
+              "beam_depth": 3,
+              "beam_width": 28,
+              "candidate_count": 10,
+              "latency_budget_ms": 50.0
+            }
+          },
+          "priority_band": 5,
+          "reason": "the opponent has a short-horizon attack option",
+          "reason_code": "opponent_short_threat",
+          "tactic_id": "prepare_response",
+          "version": "1.0",
+          "worker_profile": "counter",
+          "worker_strategy": "counter"
+        },
+        "strategy": "counter",
+        "tactic_candidates": [
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.incoming.amount": 0,
+              "diagnostics.own.danger": 0.10416666666666666,
+              "diagnostics.own.forecast.main_chain": {
+                "action_path": [
+                  [
+                    2,
+                    "UP"
+                  ],
+                  [
+                    1,
+                    "LEFT"
+                  ],
+                  [
+                    2,
+                    "RIGHT"
+                  ]
+                ],
+                "all_clear_bonus_consumed": false,
+                "all_clear_bonus_pending": false,
+                "all_clear_bonus_score": 0,
+                "attack": 2,
+                "attack_per_turn": 0.6666666666666666,
+                "attack_score": 149,
+                "chain_count": 1,
+                "chain_group_counts": [
+                  1
+                ],
+                "first_chain_vanished_cells": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    1
+                  ],
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ],
+                "hard_to_answer": false,
+                "is_all_clear": false,
+                "is_immediate": false,
+                "is_main_chain": true,
+                "is_sub_chain": false,
+                "score": 100,
+                "score_carry_after": 9,
+                "score_carry_before": 0,
+                "trigger_cells": [
+                  [
+                    3,
+                    0
+                  ]
+                ],
+                "turns": 3
+              },
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "build_main",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.65,
+                "trigger_preservation": "prefer"
+              },
+              "objective": {
+                "chain_shape_weight": 1.0,
+                "future_potential_weight": 1.0,
+                "target_chain": 6
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 24,
+                "candidate_count": 8,
+                "latency_budget_ms": 60.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": true,
+              "attack": 2,
+              "danger": 0.10416666666666666,
+              "deadline": 3,
+              "priority_band": 6,
+              "priority_score": 1,
+              "rank_key": [
+                1.0,
+                2.0,
+                -3.0,
+                0.10416666666666666,
+                0.0
+              ],
+              "reason": "no higher-priority tactical condition is active",
+              "reason_code": "safe_build",
+              "registry_order": 0,
+              "signals": {
+                "can_cancel": false,
+                "incoming_attack": 0,
+                "max_return_by_deadline": 0,
+                "opponent_short_attack": 1,
+                "own_danger": 0.10416666666666666,
+                "own_short_attack": 2
+              }
+            },
+            "selected": false,
+            "tactic_id": "build_main",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.incoming": {
+                "amount": 0,
+                "can_cancel": false,
+                "can_counter": false,
+                "counter_deficit": 0,
+                "deadline": 0,
+                "max_return_by_deadline": 0,
+                "windows": []
+              },
+              "diagnostics.incoming.windows": [],
+              "diagnostics.opponent.attack_options": [
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "DOWN"
+                    ],
+                    [
+                      3,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.5,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "turns": 2
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "UP"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      0,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      0,
+                      2
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      0,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      0,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      2,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "RIGHT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ],
+                    [
+                      0,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      0,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      1,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      1,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      1,
+                      2
+                    ],
+                    [
+                      2,
+                      2
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      2
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ],
+                    [
+                      4,
+                      "UP"
+                    ],
+                    [
+                      3,
+                      "LEFT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      1,
+                      0
+                    ],
+                    [
+                      1,
+                      1
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "diagnostics.opponent.forecast": {
+                "immediate_attack": 0,
+                "main_chain": {
+                  "action_path": [
+                    [
+                      0,
+                      "DOWN"
+                    ],
+                    [
+                      3,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.5,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "turns": 2
+                },
+                "short_attack": 1,
+                "turns_to_best": 2
+              },
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "prepare_response",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.55,
+                "trigger_preservation": "required"
+              },
+              "objective": {
+                "response_window": 3,
+                "target_attack_margin": 0
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 28,
+                "candidate_count": 10,
+                "latency_budget_ms": 50.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": true,
+              "attack": 1,
+              "danger": 0.2729166666666667,
+              "deadline": 2,
+              "priority_band": 5,
+              "priority_score": 2,
+              "rank_key": [
+                2.0,
+                1.0,
+                -2.0,
+                0.2729166666666667,
+                -1.0
+              ],
+              "reason": "the opponent has a short-horizon attack option",
+              "reason_code": "opponent_short_threat",
+              "registry_order": 1,
+              "signals": {
+                "can_cancel": false,
+                "incoming_attack": 0,
+                "max_return_by_deadline": 0,
+                "opponent_short_attack": 1,
+                "own_danger": 0.10416666666666666,
+                "own_short_attack": 2
+              }
+            },
+            "selected": true,
+            "tactic_id": "prepare_response",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.incoming.amount": 0,
+              "diagnostics.incoming.counter_deficit": 0,
+              "diagnostics.incoming.deadline": 0,
+              "diagnostics.incoming.max_return_by_deadline": 0,
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "counter_or_return",
+            "parameters": {
+              "constraints": {
+                "avoid_choke": true,
+                "danger_tolerance": 0.75
+              },
+              "objective": {
+                "counter_margin": 1,
+                "deadline_turns": 2
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 32,
+                "candidate_count": 12,
+                "latency_budget_ms": 40.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 2,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "counter_or_return",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.opponent.forecast": {
+                "immediate_attack": 0,
+                "main_chain": {
+                  "action_path": [
+                    [
+                      0,
+                      "DOWN"
+                    ],
+                    [
+                      3,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.5,
+                  "attack_score": 87,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 17,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "turns": 2
+                },
+                "short_attack": 1,
+                "turns_to_best": 2
+              },
+              "diagnostics.opponent.vulnerability": 0.2729166666666667,
+              "diagnostics.own.attack_options": [
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      3,
+                      "DOWN"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 2,
+                  "attack_per_turn": 0.6666666666666666,
+                  "attack_score": 149,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 100,
+                  "score_carry_after": 9,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      4,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "pressure",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.6,
+                "trigger_preservation": "prefer"
+              },
+              "objective": {
+                "deadline_turns": 2,
+                "harass_weight": 1.0,
+                "target_attack": 6
+              },
+              "planner": {
+                "beam_depth": 2,
+                "beam_width": 28,
+                "candidate_count": 10,
+                "latency_budget_ms": 35.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 3,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "pressure",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.opponent.danger": 0.10416666666666666,
+              "diagnostics.opponent.vulnerability": 0.2729166666666667,
+              "diagnostics.own.attack_options": [
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      3,
+                      "DOWN"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 2,
+                  "attack_per_turn": 0.6666666666666666,
+                  "attack_score": 149,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 100,
+                  "score_carry_after": 9,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      4,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "lethal_attack",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.8,
+                "trigger_preservation": "ignore"
+              },
+              "objective": {
+                "deadline_turns": 2,
+                "lethal_margin": 6,
+                "target_attack": 30
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 36,
+                "candidate_count": 12,
+                "latency_budget_ms": 35.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 4,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "lethal_attack",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.own.attack_options": [
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      3,
+                      "DOWN"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 1.0,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": true,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 1
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      2,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 2,
+                  "attack_per_turn": 0.6666666666666666,
+                  "attack_score": 149,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": true,
+                  "is_sub_chain": false,
+                  "score": 100,
+                  "score_carry_after": 9,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      0
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      3
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      2,
+                      "UP"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      3,
+                      "UP"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      2,
+                      2
+                    ],
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      3,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                },
+                {
+                  "action_path": [
+                    [
+                      4,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "LEFT"
+                    ],
+                    [
+                      1,
+                      "RIGHT"
+                    ]
+                  ],
+                  "all_clear_bonus_consumed": false,
+                  "all_clear_bonus_pending": false,
+                  "all_clear_bonus_score": 0,
+                  "attack": 1,
+                  "attack_per_turn": 0.3333333333333333,
+                  "attack_score": 89,
+                  "chain_count": 1,
+                  "chain_group_counts": [
+                    1
+                  ],
+                  "first_chain_vanished_cells": [
+                    [
+                      2,
+                      0
+                    ],
+                    [
+                      2,
+                      1
+                    ],
+                    [
+                      3,
+                      0
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "hard_to_answer": false,
+                  "is_all_clear": false,
+                  "is_immediate": false,
+                  "is_main_chain": false,
+                  "is_sub_chain": false,
+                  "score": 40,
+                  "score_carry_after": 19,
+                  "score_carry_before": 0,
+                  "trigger_cells": [
+                    [
+                      2,
+                      1
+                    ]
+                  ],
+                  "turns": 3
+                }
+              ],
+              "diagnostics.own.board_empty": false,
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.own.all_clear_achieved": false,
+              "input.own.all_clear_bonus_consumed": false,
+              "input.own.all_clear_bonus_pending": false,
+              "input.own.score_carry": 0,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [
+              {
+                "conditions": [
+                  {
+                    "actual": false,
+                    "expected": true,
+                    "op": "eq",
+                    "passed": false,
+                    "ref": "input.own.all_clear_achieved"
+                  }
+                ],
+                "passed": false
+              },
+              {
+                "conditions": [
+                  {
+                    "actual": false,
+                    "expected": true,
+                    "op": "eq",
+                    "passed": false,
+                    "ref": "input.own.all_clear_bonus_pending"
+                  }
+                ],
+                "passed": false
+              },
+              {
+                "conditions": [
+                  {
+                    "actual": false,
+                    "expected": true,
+                    "op": "eq",
+                    "passed": false,
+                    "ref": "input.own.all_clear_bonus_consumed"
+                  }
+                ],
+                "passed": false
+              }
+            ],
+            "eligible": false,
+            "name": "all_clear",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.5,
+                "trigger_preservation": "prefer"
+              },
+              "objective": {
+                "bonus_timing": "preserve_until_chain",
+                "target_attack_margin": 0,
+                "target_chain": 1
+              },
+              "planner": {
+                "beam_depth": 3,
+                "beam_width": 32,
+                "candidate_count": 12,
+                "latency_budget_ms": 50.0
+              }
+            },
+            "registry_eligible": false,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 5,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "all_clear",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.incoming": {
+                "amount": 0,
+                "can_cancel": false,
+                "can_counter": false,
+                "counter_deficit": 0,
+                "deadline": 0,
+                "max_return_by_deadline": 0,
+                "windows": []
+              },
+              "diagnostics.incoming.amount": 0,
+              "diagnostics.opponent.vulnerability": 0.2729166666666667,
+              "diagnostics.own.danger": 0.10416666666666666,
+              "diagnostics.own.forecast.main_chain": {
+                "action_path": [
+                  [
+                    2,
+                    "UP"
+                  ],
+                  [
+                    1,
+                    "LEFT"
+                  ],
+                  [
+                    2,
+                    "RIGHT"
+                  ]
+                ],
+                "all_clear_bonus_consumed": false,
+                "all_clear_bonus_pending": false,
+                "all_clear_bonus_score": 0,
+                "attack": 2,
+                "attack_per_turn": 0.6666666666666666,
+                "attack_score": 149,
+                "chain_count": 1,
+                "chain_group_counts": [
+                  1
+                ],
+                "first_chain_vanished_cells": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    1
+                  ],
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ],
+                "hard_to_answer": false,
+                "is_all_clear": false,
+                "is_immediate": false,
+                "is_main_chain": true,
+                "is_sub_chain": false,
+                "score": 100,
+                "score_carry_after": 9,
+                "score_carry_before": 0,
+                "trigger_cells": [
+                  [
+                    3,
+                    0
+                  ]
+                ],
+                "turns": 3
+              },
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "fire_main",
+            "parameters": {
+              "constraints": {
+                "danger_tolerance": 0.85,
+                "trigger_preservation": "ignore"
+              },
+              "objective": {
+                "deadline_turns": 1,
+                "fire_threshold": 1.0,
+                "target_chain": 4
+              },
+              "planner": {
+                "beam_depth": 1,
+                "beam_width": 24,
+                "candidate_count": 8,
+                "latency_budget_ms": 30.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 6,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "fire_main",
+            "version": "1.0"
+          },
+          {
+            "active_contexts": [],
+            "analyzer_inputs": {
+              "diagnostics.incoming": {
+                "amount": 0,
+                "can_cancel": false,
+                "can_counter": false,
+                "counter_deficit": 0,
+                "deadline": 0,
+                "max_return_by_deadline": 0,
+                "windows": []
+              },
+              "diagnostics.incoming.amount": 0,
+              "diagnostics.incoming.deadline": 0,
+              "diagnostics.own.danger": 0.10416666666666666,
+              "input.policy_deadline": 0
+            },
+            "candidate_condition_groups": [],
+            "eligible": true,
+            "name": "survive",
+            "parameters": {
+              "constraints": {
+                "avoid_choke": true,
+                "danger_tolerance": 0.35
+              },
+              "objective": {
+                "safety_margin": 2,
+                "survival_horizon": 3
+              },
+              "planner": {
+                "beam_depth": 2,
+                "beam_width": 32,
+                "candidate_count": 12,
+                "latency_budget_ms": 30.0
+              }
+            },
+            "registry_eligible": true,
+            "scoring": {
+              "active": false,
+              "attack": 0,
+              "danger": 0.10416666666666666,
+              "deadline": 0,
+              "priority_band": null,
+              "priority_score": 0,
+              "rank_key": null,
+              "reason": "the tactic's manager activation condition is not active",
+              "reason_code": "condition_not_active",
+              "registry_order": 7,
+              "signals": {}
+            },
+            "selected": false,
+            "tactic_id": "survive",
+            "version": "1.0"
+          }
+        ],
+        "tactic_registry": {
+          "registry_version": "v1.7.0",
+          "schema_version": "tactic-schema-v1",
+          "source_path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/train/config/v1_7_tactic_registry.yaml"
+        },
+        "target_attack": 0,
+        "worker": {
+          "objective": {
+            "allowed_danger": 0.55,
+            "deadline": 3,
+            "deadline_ticks": 0,
+            "fallback_strategy": "survive",
+            "kind": "counter",
+            "reason": "the opponent has a short-horizon attack option",
+            "safety_margin": 0,
+            "schema_version": "search-objective-v1",
+            "source_profile_id": 3,
+            "source_profile_name": "counter",
+            "target_attack": 0,
+            "target_chain": 0,
+            "target_score": 0
+          },
+          "objective_result": {
+            "achieved": true,
+            "chain_delta": 1,
+            "danger_excess": 0.0,
+            "deadline_missed": false,
+            "miss_reasons": [],
+            "possible_by_deadline": true,
+            "score_delta": 40,
+            "surplus_attack": 1,
+            "time_overrun_ticks": 0
+          },
+          "profile_id": 3,
+          "profile_name": "counter",
+          "result": {
+            "action": 8,
+            "candidate_value": 1019250.0,
+            "danger": 0.049999999999999996,
+            "expanded_nodes": 1122,
+            "predicted_attack": 1,
+            "predicted_chain_count": 1,
+            "predicted_score": 40
+          },
+          "strategy": "counter"
+        }
+      },
+      "player_1": {
+        "deadline": 6,
+        "incoming_attack": 0,
+        "objective": {
+          "allowed_danger": 0.75,
+          "deadline": 6,
+          "deadline_ticks": 0,
+          "fallback_strategy": "survival",
+          "kind": "build",
+          "reason": "no urgent lethal, counter, or survival condition is active",
+          "safety_margin": 0,
+          "schema_version": "search-objective-v1",
+          "source_profile_id": 0,
+          "source_profile_name": "build_large",
+          "target_attack": 0,
+          "target_chain": 6,
+          "target_score": 0
+        },
+        "objective_result": {
+          "achieved": false,
+          "chain_delta": -6,
+          "danger_excess": 0.0,
+          "deadline_missed": false,
+          "miss_reasons": [
+            "target_chain"
+          ],
+          "possible_by_deadline": true,
+          "score_delta": 0,
+          "surplus_attack": 0,
+          "time_overrun_ticks": 0
+        },
+        "plan": {
+          "attack_summary": {
+            "canceled": 0,
+            "final_score_carry": 58,
+            "generated": 1,
+            "incoming_remaining": 0,
+            "initial_incoming_attack": 0,
+            "initial_score_carry": 0,
+            "outgoing": 1
+          },
+          "max_steps": 3,
+          "objective": {
+            "allowed_danger": 0.75,
+            "deadline": 6,
+            "deadline_ticks": 0,
+            "fallback_strategy": "survival",
+            "kind": "build",
+            "reason": "no urgent lethal, counter, or survival condition is active",
+            "safety_margin": 0,
+            "schema_version": "search-objective-v1",
+            "source_profile_id": 0,
+            "source_profile_name": "build_large",
+            "target_attack": 0,
+            "target_chain": 6,
+            "target_score": 0
+          },
+          "plan_id": "ceafb426cb45be6a",
+          "planner_latency_overrun": false,
+          "planner_request": {},
+          "profile_id": 0,
+          "profile_name": "build_large",
+          "replan_conditions": [
+            {
+              "detail": "opponent score, chain, or incoming attack changed",
+              "reason": "opponent_event"
+            },
+            {
+              "detail": "reserved ojama landed before the plan was consumed",
+              "reason": "incoming_attack_landed"
+            },
+            {
+              "detail": "the planned placement is no longer reachable",
+              "reason": "input_failure"
+            },
+            {
+              "detail": "a fresh search produced a different first action or plan id",
+              "reason": "search_result_changed"
+            }
+          ],
+          "schema_version": "n-turn-plan-v1",
+          "search_control": {},
+          "steps": [
+            {
+              "action": 8,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 0,
+              "attack_outgoing": 0,
+              "attack_score_delta": 0,
+              "axis_x": 2,
+              "cumulative_attack": 0,
+              "cumulative_score": 0,
+              "danger": 0.15357142857142858,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": false,
+                "chain_delta": -6,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [
+                  "target_chain"
+                ],
+                "possible_by_deadline": true,
+                "score_delta": 0,
+                "surplus_attack": 0,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "GREEN",
+                  "x": 3,
+                  "y": 0
+                },
+                {
+                  "color": "GREEN",
+                  "x": 2,
+                  "y": 1
+                }
+              ],
+              "predicted_attack": 0,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "RED",
+                  "GREEN",
+                  "GREEN",
+                  "EMPTY",
+                  "GREEN"
+                ],
+                [
+                  "YELLOW",
+                  "RED",
+                  "GREEN",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "RED",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 0,
+              "predicted_score": 0,
+              "reason": "",
+              "rotation": "RIGHT",
+              "scenario": "visible",
+              "score_carry_after": 0,
+              "score_carry_before": 0,
+              "step_index": 0,
+              "valid": true
+            },
+            {
+              "action": 1,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 1,
+              "attack_outgoing": 1,
+              "attack_score_delta": 88,
+              "axis_x": 0,
+              "cumulative_attack": 1,
+              "cumulative_score": 40,
+              "danger": 0.12857142857142856,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": false,
+                "chain_delta": -5,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [
+                  "target_chain"
+                ],
+                "possible_by_deadline": true,
+                "score_delta": 40,
+                "surplus_attack": 1,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "RED",
+                  "x": 0,
+                  "y": 2
+                },
+                {
+                  "color": "BLUE",
+                  "x": 1,
+                  "y": 3
+                }
+              ],
+              "predicted_attack": 1,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "BLUE",
+                  "GREEN",
+                  "GREEN",
+                  "EMPTY",
+                  "GREEN"
+                ],
+                [
+                  "YELLOW",
+                  "EMPTY",
+                  "GREEN",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 1,
+              "predicted_score": 40,
+              "reason": "",
+              "rotation": "RIGHT",
+              "scenario": "visible",
+              "score_carry_after": 18,
+              "score_carry_before": 0,
+              "step_index": 1,
+              "valid": true
+            },
+            {
+              "action": 4,
+              "all_clear_achieved": false,
+              "all_clear_bonus_consumed": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_score": 0,
+              "attack_canceled": 0,
+              "attack_generated": 0,
+              "attack_outgoing": 0,
+              "attack_score_delta": 40,
+              "axis_x": 1,
+              "cumulative_attack": 1,
+              "cumulative_score": 80,
+              "danger": 0.049999999999999996,
+              "incoming_remaining": 0,
+              "known_tsumo": true,
+              "objective_result": {
+                "achieved": false,
+                "chain_delta": -5,
+                "danger_excess": 0.0,
+                "deadline_missed": false,
+                "miss_reasons": [
+                  "target_chain"
+                ],
+                "possible_by_deadline": true,
+                "score_delta": 80,
+                "surplus_attack": 1,
+                "time_overrun_ticks": 0
+              },
+              "placement_cells": [
+                {
+                  "color": "BLUE",
+                  "x": 1,
+                  "y": 1
+                },
+                {
+                  "color": "GREEN",
+                  "x": 2,
+                  "y": 2
+                }
+              ],
+              "predicted_attack": 0,
+              "predicted_board": [
+                [
+                  "YELLOW",
+                  "BLUE",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "GREEN"
+                ],
+                [
+                  "YELLOW",
+                  "BLUE",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "RED"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ],
+                [
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY",
+                  "EMPTY"
+                ]
+              ],
+              "predicted_chain_count": 1,
+              "predicted_score": 40,
+              "reason": "",
+              "rotation": "RIGHT",
+              "scenario": "visible",
+              "score_carry_after": 58,
+              "score_carry_before": 18,
+              "step_index": 2,
+              "valid": true
+            }
+          ],
+          "strategy": "build_large",
+          "update_reason": "policy_decision",
+          "visible_steps": 3
+        },
+        "plan_id": "ceafb426cb45be6a",
+        "plan_update_reason": "policy_decision",
+        "reason": "no urgent lethal, counter, or survival condition is active",
+        "target_attack": 0
+      }
+    }
+  },
+  "emitted_input_ticks_player_0": 278,
+  "emitted_input_ticks_player_1": 242,
+  "match": {
+    "max_ticks": 600,
+    "seed": 123,
+    "speed": 1.0
+  },
+  "models": {
+    "player_0": {
+      "checkpoint_path": null,
+      "lineage_node_id": "model_version:v1.7.0",
+      "model": "Adaptive Chain Manager",
+      "model_family": "Adaptive Chain Manager",
+      "model_version": "v1.7.0",
+      "opponent_policy_type": "manager_rule",
+      "policy_seed": 123,
+      "policy_type": "v1_7_analyzer_manager"
+    },
+    "player_1": {
+      "checkpoint_path": null,
+      "lineage_node_id": null,
+      "model": "manager_rule",
+      "model_family": null,
+      "model_version": null,
+      "opponent_policy_type": "v1_7_analyzer_manager",
+      "policy_seed": 10123,
+      "policy_type": "manager_rule"
+    }
+  },
+  "notes": "Automated dummy-SDL GUI QA on bf28300; v1.7 diagnostics rendered through the completed result and replay hash verified separately.",
+  "plan_overlay_player_0": true,
+  "plan_overlay_player_1": true,
+  "result": {
+    "completed": true,
+    "interrupted": false,
+    "scores": {
+      "player_0": 60,
+      "player_1": 48
+    },
+    "termination_reason": "tick_limit",
+    "ticks": 600,
+    "winner": "player_0"
+  },
+  "schema_version": "puyo.gui_qa.v1",
+  "score_player_0": 60,
+  "score_player_1": 48,
+  "ticks": 600,
+  "winner": "player_0"
+}
