@@ -41,7 +41,7 @@ from puyo_env.realtime_ai import (
 )
 from puyo_env.realtime_versus import REALTIME_AGENTS
 from selfplay.policies import Policy, make_policy
-from src.core.constants import Action, Direction
+from src.core.constants import Action, Direction, PuyoColor
 from src.core.headless import PlacementAction
 from src.core.realtime import TickInput
 
@@ -569,6 +569,9 @@ class RealtimeVersusMatchController:
     def advance_tick(self) -> bool:
         if not self.env.agents:
             return False
+        boards_before = {
+            agent: self._current_board(agent) for agent in REALTIME_AGENTS
+        }
         inputs = {}
         for agent in self.env.agents:
             inputs[agent] = self.controllers[agent].next_input(
@@ -587,7 +590,14 @@ class RealtimeVersusMatchController:
                 self.replay_ticks.append(self._compact_replay_tick(tick_payload))
             if self.collection_enabled:
                 self.collection_replay_ticks.append(tick_payload)
-            for event in self._visual_events_from_tick(match_result):
+            boards_after = {
+                agent: self._current_board(agent) for agent in REALTIME_AGENTS
+            }
+            for event in self._visual_events_from_tick(
+                match_result,
+                boards_before=boards_before,
+                boards_after=boards_after,
+            ):
                 self.event_queues[event.agent].append(event)
             for agent in REALTIME_AGENTS:
                 self._start_next_event(agent)
@@ -928,8 +938,17 @@ class RealtimeVersusMatchController:
 
     def _sync_display_boards(self) -> None:
         self.display_boards = {agent: self._current_board(agent) for agent in REALTIME_AGENTS}
+        for agent, event in self.current_events.items():
+            if event is not None and event.kind == "garbage" and event.board:
+                self.display_boards[agent] = event.board
 
-    def _visual_events_from_tick(self, match_result) -> list[VisualEvent]:
+    def _visual_events_from_tick(
+        self,
+        match_result,
+        *,
+        boards_before: Mapping[str, tuple] | None = None,
+        boards_after: Mapping[str, tuple] | None = None,
+    ) -> list[VisualEvent]:
         events = []
         for agent in REALTIME_AGENTS:
             for event in match_result.player_results[agent].events:
@@ -962,7 +981,25 @@ class RealtimeVersusMatchController:
                         )
         for agent, amount in match_result.dropped_ojama.items():
             if amount:
-                events.append(VisualEvent("garbage", agent, f"OJAMA +{amount}", amount=int(amount)))
+                board_before = () if boards_before is None else boards_before[agent]
+                board_after = () if boards_after is None else boards_after[agent]
+                placed_cells = frozenset(
+                    (x, y)
+                    for y, row in enumerate(board_after)
+                    for x, color in enumerate(row)
+                    if color == PuyoColor.OJAMA
+                    and (not board_before or board_before[y][x] != PuyoColor.OJAMA)
+                )
+                events.append(
+                    VisualEvent(
+                        "garbage",
+                        agent,
+                        f"OJAMA +{amount}",
+                        amount=int(amount),
+                        coords=placed_cells,
+                        board=board_before,
+                    )
+                )
         return events
 
     def _start_next_event(self, agent: str) -> None:
@@ -971,6 +1008,7 @@ class RealtimeVersusMatchController:
             self.event_elapsed_by_agent[agent] = 0.0
 
     def _advance_visual_events(self, delta_time: float) -> None:
+        changed = False
         for agent in REALTIME_AGENTS:
             event = self.current_events[agent]
             if event is None:
@@ -980,6 +1018,9 @@ class RealtimeVersusMatchController:
             if self.event_elapsed_by_agent[agent] >= self._event_duration(event):
                 self.current_events[agent] = None
                 self._start_next_event(agent)
+                changed = True
+        if changed:
+            self._sync_display_boards()
 
     def _event_duration(self, event: VisualEvent | None) -> float:
         if event is None:
