@@ -363,6 +363,29 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m eval.ui_regression_smoke 
   --result-json /tmp/puyo-84-ui-regression-smoke.json
 ```
 
+### v1.7.0 Realtime GUI QA
+
+`python3 main.py` の対戦・観戦設定では `v1_7_analyzer_manager` を checkpoint なしで選択できます．
+realtime HUD は選択 tactic と理由，Analyzer の自他 danger / short attack，Planner objective，
+全消しの empty / achieved / pending / consumed，直近攻撃の score delta / carry / generated /
+canceled / outgoing を runtime diagnostics から表示します．
+
+CLI から QA JSON と診断 replay を保存する場合:
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a v1_7_analyzer_manager \
+  --policy-b manager_rule \
+  --seed 123 \
+  --result-json /tmp/puyo-v1-7-gui-qa.json \
+  --replay /tmp/puyo-v1-7-gui-qa-replay.json \
+  --qa-notes "Reviewed through the winner screen"
+```
+
+結果画面を確認して GUI を終了すると，`puyo.gui_qa.v1` JSON に model / checkpoint / seed /
+opponent / result / notes が保存されます．replay は policy / controller / all-clear / attack
+diagnostics と各 tick の hash を保持し，`eval.model_viewer` から確認できます．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

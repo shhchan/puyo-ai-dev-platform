@@ -19,6 +19,7 @@ SETTINGS_SCHEMA_VERSION = "puyo.launcher_settings.v1"
 PRESET_SCHEMA_VERSION = "puyo.launcher_presets.v1"
 POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
+    "v1_7_analyzer_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter", "worker_fire",
     "worker_fire_max", "worker_survival",
 )
@@ -85,6 +86,7 @@ class LauncherSettings:
     max_frames: int | None = None
     paired_sides: bool = True
     replay_path: str | None = None
+    qa_notes: str | None = None
     config_path: str = "train/config/realtime_smoke.yaml"
     run_id: str = "launcher-smoke"
     collection_enabled: bool = False
@@ -163,7 +165,8 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "max_frames": LauncherFieldSpec("max_frames", "最大 frame", "--max-frames", "UI smoke 用に描画 frame 数で停止する設定です。auto の場合は停止しません。"),
     "games": LauncherFieldSpec("games", "試合数", "--games", "arena で実行する game 数です。"),
     "paired_sides": LauncherFieldSpec("paired_sides", "左右入替評価", "--paired-sides", "ON の場合、arena で 1P/2P を入れ替えた paired evaluation を行います。"),
-    "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena の replay 出力 path です。auto の場合は書き出しません。"),
+    "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena または realtime UI の診断 replay 出力 path です。auto の場合は書き出しません。"),
+    "qa_notes": LauncherFieldSpec("qa_notes", "QA メモ", "--qa-notes", "結果 JSON に残す確認者向けメモです。"),
     "config_path": LauncherFieldSpec("config_path", "学習 config", "--config", "train.train_realtime に渡す YAML/JSON config path です。"),
     "run_id": LauncherFieldSpec("run_id", "run_id", "--set run_id=...", "training smoke の run_id です。"),
     "collection_enabled": LauncherFieldSpec("collection_enabled", "人間対戦データ収集", "--collect-human-data", "ON の間だけ入力、盤面、AI plan、結果、任意 feedback を保存します。既定は OFF です。"),
@@ -399,6 +402,9 @@ class LauncherSettingsManager:
                 "collection_enabled",
                 "dataset_root",
                 "collection_feedback",
+                "result_json",
+                "replay_path",
+                "qa_notes",
             )
         if action_key == "spectate":
             return (
@@ -436,6 +442,8 @@ class LauncherSettingsManager:
                 "use_reachable_action_mask",
                 "keybindings_path",
                 "result_json",
+                "replay_path",
+                "qa_notes",
                 "max_frames",
             )
         if action_key == "arena":
@@ -537,7 +545,7 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
@@ -565,11 +573,12 @@ class LauncherSettingsManager:
             return HUMAN_TRAINING_METHODS
         if field in {"device", "device_a", "device_b"}:
             return ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
-        if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
+        if field in {"keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback"}:
             return {
                 "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
                 "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
-                "replay_path": (None, "/tmp/puyo-arena-replay.json"),
+                "replay_path": (None, "/tmp/puyo-realtime-replay.json"),
+                "qa_notes": (None, "GUI QA passed", "needs review"),
                 "dataset_root": ("human_datasets", "/tmp/puyo-human-datasets"),
                 "collection_feedback": (None, "good match", "needs review"),
             }[field]

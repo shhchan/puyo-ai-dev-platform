@@ -10,7 +10,7 @@
 | version | model family | policy | state | git commit | decision |
 |---|---|---|---|---|---|
 | `manager_rule` | RuleBasedManagerPolicy | `manager_rule` | baseline | `35e8f659737e0da34bdbe37ec1613eda95a4a527` | Retained as the interpretable rule-based comparison baseline for v1.7.x. |
-| `v1.7.0` | Adaptive Chain Manager | `v1_7_analyzer_manager` | candidate | `d9b5e16c5406b14fefa208eda56f430358c2ce57` | Analyzer, tactic registry, and planner contracts pass headless QA; playable policy and GUI QA remain pending in downstream tickets. |
+| `v1.7.0` | Adaptive Chain Manager | `v1_7_analyzer_manager` | candidate | `bf28300` | Playable Analyzer Manager, realtime UI diagnostics, GUI QA result, and replay hash verification pass on PUYO-122. |
 
 ## Runs
 
@@ -28,7 +28,7 @@
 |---|---|---|---|---|---|
 | `Legacy Analyzer report before PR #49` | legacy_analyzer_benchmark | rejected | - | `-` | regenerate_required |
 | `v1.7.0 Analyzer scenario benchmark` | headless_benchmark | passed | failed=0, pass_rate=1.0, passed=24, scenarios=24 | `docs/benchmarks/puyo-v1-7-0-smoke/analyzer_report.json` | native |
-| `v1.7.0 GUI QA` | gui_qa | pending | - | `-` | pending |
+| `v1.7.0 GUI QA` | gui_qa | passed | analyzer_scenarios_failed=0, analyzer_scenarios_passed=24, decisions_player_0=5, decisions_player_1=5, gui_completed=True, lifecycle_contract_cases=4, replay_hash_verified=True, score_player_0=60, score_player_1=48, ticks=600, winner=player_0 | `docs/benchmarks/puyo-v1-7-0-smoke/gui_qa.json` | native |
 
 ## Inputs And Artifacts
 
@@ -56,8 +56,8 @@
 | `model_version:manager_rule` | `promoted_to` | `registry_role:baseline` | Retained as the stable, interpretable comparison policy. |
 | `model_version:v1.7.0` | `derived_from` | `model_version:manager_rule` | Replaces fixed routing with Analyzer-driven tactics while retaining manager_rule as a comparison baseline. |
 | `model_version:v1.7.0` | `evaluated_by` | `evaluation:v1.7.0-analyzer-scenarios` | - |
-| `model_version:v1.7.0` | `evaluated_by` | `evaluation:v1.7.0-gui-qa` | Reserved for PUYO-122 realtime UI and main.py evidence. |
-| `model_version:v1.7.0` | `promoted_to` | `registry_role:candidate` | Headless Analyzer QA passed; champion promotion remains blocked on playable and GUI QA evidence. |
+| `model_version:v1.7.0` | `evaluated_by` | `evaluation:v1.7.0-gui-qa` | PUYO-122 records the completed v1.7.0 versus result, nested diagnostics, and verified replay hash. |
+| `model_version:v1.7.0` | `promoted_to` | `registry_role:candidate` | Headless Analyzer QA and playable GUI QA pass; v1.7.0 remains the candidate baseline for v1.7.1 bootstrapping. |
 | `model_version:v1.7.0` | `trained_with` | `config:v1.7.0-tactic-registry` | Deterministic baseline consumes this registry as its versioned tactical configuration. |
 | `model_version:v1.7.0` | `trained_with` | `dataset:v1.7.0-analyzer-scenarios` | The pre-training baseline is validated against the fixed scenario dataset. |
 | `model_version:v1.7.0` | `uses_schema` | `analyzer_schema:diagnostics-v1` | - |
@@ -69,5 +69,5 @@
 ## Promotion And Rejection Decisions
 
 - `model_version:manager_rule` promoted_to `registry_role:baseline`: Retained as the stable, interpretable comparison policy.
-- `model_version:v1.7.0` promoted_to `registry_role:candidate`: Headless Analyzer QA passed; champion promotion remains blocked on playable and GUI QA evidence.
+- `model_version:v1.7.0` promoted_to `registry_role:candidate`: Headless Analyzer QA and playable GUI QA pass; v1.7.0 remains the candidate baseline for v1.7.1 bootstrapping.
 - `evaluation:legacy-analyzer-pre-pr49` rejected_by `evaluation:v1.7.0-analyzer-scenarios`: Legacy output lacks Analyzer, all-clear diagnostics, and lifecycle feature schema snapshots.

@@ -208,6 +208,8 @@ class LauncherService:
             use_reachable_action_mask=settings.use_reachable_action_mask,
             keybindings_path=settings.keybindings_path,
             result_json=settings.result_json,
+            replay_path=settings.replay_path,
+            qa_notes=settings.qa_notes,
             max_frames=settings.max_frames,
         )
 
@@ -245,6 +247,9 @@ class LauncherService:
             deterministic_a=settings.deterministic_a,
             deterministic_b=settings.deterministic_b,
             keybindings_path=settings.keybindings_path,
+            result_json=settings.result_json,
+            replay_path=settings.replay_path,
+            qa_notes=settings.qa_notes,
             collection_enabled=settings.collection_enabled,
             dataset_root=settings.dataset_root,
             collection_feedback=settings.collection_feedback,
@@ -1020,6 +1025,10 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     args.extend(_side_specific_argv(config, ("device", "deterministic", "beam_depth", "beam_width", "beam_scenarios", "beam_minimum_chain")))
     if config.result_json:
         args.extend(["--result-json", config.result_json])
+    if config.replay_path:
+        args.extend(["--replay", config.replay_path])
+    if config.qa_notes:
+        args.extend(["--qa-notes", config.qa_notes])
     if config.max_frames is not None:
         args.extend(["--max-frames", str(config.max_frames)])
     if config.keybindings_path:

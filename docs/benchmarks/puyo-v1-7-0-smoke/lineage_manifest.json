@@ -19,8 +19,8 @@
       "node_type": "model_version",
       "label": "Adaptive Chain Manager v1.7.0",
       "metadata": {
-        "decision_reason": "Analyzer, tactic registry, and planner contracts pass headless QA; playable policy and GUI QA remain pending in downstream tickets.",
-        "git_commit": "d9b5e16c5406b14fefa208eda56f430358c2ce57",
+        "decision_reason": "Playable Analyzer Manager, realtime UI diagnostics, GUI QA result, and replay hash verification pass on PUYO-122.",
+        "git_commit": "bf28300",
         "model_family": "Adaptive Chain Manager",
         "policy_type": "v1_7_analyzer_manager",
         "promotion_state": "candidate",
@@ -104,18 +104,41 @@
       "id": "evaluation:v1.7.0-gui-qa",
       "node_type": "evaluation",
       "label": "v1.7.0 GUI QA",
+      "path": "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa.json",
       "metadata": {
         "compatibility": {
-          "reason": "Awaiting playable policy and realtime UI integration.",
-          "status": "pending"
+          "status": "native"
         },
         "evaluation_kind": "gui_qa",
+        "git_commit": "bf28300",
+        "metrics": {
+          "analyzer_scenarios_failed": 0,
+          "analyzer_scenarios_passed": 24,
+          "decisions_player_0": 5,
+          "decisions_player_1": 5,
+          "gui_completed": true,
+          "lifecycle_contract_cases": 4,
+          "replay_hash_verified": true,
+          "score_player_0": 60,
+          "score_player_1": 48,
+          "ticks": 600,
+          "winner": "player_0"
+        },
+        "replay": {
+          "expected_final_hash": "14115fe89ea9ce4b9b4b305ceb92c2e6c1cbd41b4ce5c12fbc89dbed279c6746",
+          "path": "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa_replay.json",
+          "sha256": "c9cadcde58a4fca935b095228dc601000c5c67bb50f6e3c9d8f2084dd10629ad"
+        },
         "schemas": {
           "all_clear_diagnostics": "puyo.all_clear_diagnostics.v1",
           "analyzer": "puyo.state_analyzer.diagnostics.v1",
-          "feature": "puyo.state_analyzer.input.v1#lifecycle-features"
+          "feature": "puyo.state_analyzer.input.v1#lifecycle-features",
+          "gui_qa": "puyo.gui_qa.v1",
+          "manager_diagnostics": "puyo.v1_7_analyzer_manager.diagnostics.v1",
+          "replay": "puyo-realtime-match-v1"
         },
-        "status": "pending"
+        "sha256": "4565cb8faad17a268f006564cede0a027de5a0acae1f27fa14ffb7e244990f69",
+        "status": "passed"
       }
     },
     {
@@ -234,7 +257,7 @@
       "target": "evaluation:v1.7.0-gui-qa",
       "edge_type": "evaluated_by",
       "metadata": {
-        "reason": "Reserved for PUYO-122 realtime UI and main.py evidence."
+        "reason": "PUYO-122 records the completed v1.7.0 versus result, nested diagnostics, and verified replay hash."
       }
     },
     {
@@ -296,7 +319,7 @@
       "target": "registry_role:candidate",
       "edge_type": "promoted_to",
       "metadata": {
-        "reason": "Headless Analyzer QA passed; champion promotion remains blocked on playable and GUI QA evidence."
+        "reason": "Headless Analyzer QA and playable GUI QA pass; v1.7.0 remains the candidate baseline for v1.7.1 bootstrapping."
       }
     }
   ]

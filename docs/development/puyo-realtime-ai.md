@@ -104,6 +104,30 @@ the active pair from `game.puyo_x`, `game.puyo_y`, and `game.puyo_rot`. The side
 panel shows the current `TickInput`, active plan cursor, controller event, and
 incoming attack deadline.
 
+The checkpoint-free v1.7.0 Analyzer Manager is available from this CLI and from
+the play/spectate settings opened through `python3 main.py`:
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a v1_7_analyzer_manager \
+  --policy-b manager_rule \
+  --seed 123 \
+  --result-json /tmp/puyo-v1-7-gui-qa.json \
+  --replay /tmp/puyo-v1-7-gui-qa-replay.json \
+  --qa-notes "Reviewed through the winner screen"
+```
+
+The v1.7 HUD flattens the nested Analyzer, selected TacticSpec, PlannerRequest,
+and worker result into human-readable rows. All-clear lifecycle fields and
+attack score/carry/generated/canceled/outgoing values come from the versioned
+runtime diagnostics rather than being inferred from the rendered board.
+
+`--result-json` writes the backward-compatible flat smoke fields plus the
+versioned `puyo.gui_qa.v1` model, opponent, outcome, notes, and final diagnostic
+sections. `--replay` writes `puyo-realtime-match-v1`; repeated policy diagnostics
+are stored only when the active decision changes and are carried forward by the
+model viewer.
+
 Run a dummy video smoke test and write a QA artifact:
 
 ```bash
@@ -126,4 +150,10 @@ Manual QA checklist:
 - Lock, chain, and ojama labels appear without pausing the realtime tick loop.
 - First/random and one search policy, for example `beam`, start from the same
   UI command path.
+- `v1_7_analyzer_manager` displays its tactic, reason, Analyzer forecast, and
+  Planner target while playing against `manager_rule`.
+- Empty/achieved/pending/consumed and attack/carry values match the saved replay
+  entry at the same tick.
+- The winner banner is visible before exit and the result JSON records
+  `completed=true`, the winner, both models, the seed, and reviewer notes.
 - Pause, reset, step, and speed controls work in the realtime viewer.
