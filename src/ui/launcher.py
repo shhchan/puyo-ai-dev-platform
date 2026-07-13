@@ -210,6 +210,7 @@ class LauncherService:
             result_json=settings.result_json,
             replay_path=settings.replay_path,
             qa_notes=settings.qa_notes,
+            qa_profile=settings.qa_profile,
             max_frames=settings.max_frames,
         )
 
@@ -250,6 +251,7 @@ class LauncherService:
             result_json=settings.result_json,
             replay_path=settings.replay_path,
             qa_notes=settings.qa_notes,
+            qa_profile=settings.qa_profile,
             collection_enabled=settings.collection_enabled,
             dataset_root=settings.dataset_root,
             collection_feedback=settings.collection_feedback,
@@ -1033,6 +1035,8 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         args.extend(["--replay", config.replay_path])
     if config.qa_notes:
         args.extend(["--qa-notes", config.qa_notes])
+    if config.qa_profile:
+        args.extend(["--qa-profile", config.qa_profile])
     if config.max_frames is not None:
         args.extend(["--max-frames", str(config.max_frames)])
     if config.keybindings_path:

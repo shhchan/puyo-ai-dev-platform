@@ -219,12 +219,23 @@ def _run_gui_qa(
         str(replay_path),
         "--qa-notes",
         "PUYO-128 deterministic dummy-SDL GUI QA; repeat visibly through main.py",
+        "--latency-mode",
+        "measured",
+        "--qa-profile",
+        "playability",
         "--max-frames",
         str(max_frames),
     ]
     environment = os.environ.copy()
     environment.update({"SDL_VIDEODRIVER": "dummy", "SDL_AUDIODRIVER": "dummy"})
-    subprocess.run(command, check=True, cwd=Path(__file__).resolve().parents[1], env=environment)
+    completed = subprocess.run(
+        command,
+        check=False,
+        cwd=Path(__file__).resolve().parents[1],
+        env=environment,
+    )
+    if completed.returncode not in (0, 2):
+        raise subprocess.CalledProcessError(completed.returncode, command)
     qa = _read_json(qa_path)
     replay = _read_json(replay_path)
     final_hash = replay_realtime_match(replay)
@@ -262,6 +273,7 @@ def build_gates(
         else {}
     )
     gui_result = gui_qa.get("result", {}) if gui_qa is not None else {}
+    gui_quality_gate = gui_qa.get("quality_gate", {}) if gui_qa is not None else {}
     gui_lifecycle = (
         gui_verification.get("lifecycle", {}).get("players", {})
         if gui_verification is not None
@@ -313,9 +325,15 @@ def build_gates(
             "v1.7.1 <= v1.7.0",
         ),
         "gui_completed": gate(
-            bool(gui_qa) and bool(gui_result.get("completed")),
+            bool(gui_qa) and bool(gui_result.get("execution_completed")),
             gui_result,
-            "completed without interruption",
+            "execution completed without interruption",
+        ),
+        "gui_quality_gate": gate(
+            bool(gui_quality_gate.get("enabled"))
+            and bool(gui_quality_gate.get("passed")),
+            gui_quality_gate,
+            "versioned GUI QA gate passed",
         ),
         "gui_decision_activated": gate(
             int(gui_controller.get("decisions_activated", 0)) >= 1,

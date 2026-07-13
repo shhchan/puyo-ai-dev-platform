@@ -37,6 +37,21 @@ def animation_progress(elapsed: float, duration: float) -> float:
     return max(0.0, min(1.0, elapsed / duration))
 
 
+def garbage_animation_cells(event, progress: float) -> tuple[tuple[int, float], ...]:
+    """Interpolate garbage overlays from above the field to actual landed cells."""
+
+    progress = max(0.0, min(1.0, float(progress)))
+    targets = sorted(event.coords, key=lambda coord: (coord[1], coord[0]))
+    if not targets:
+        count = min(GRID_WIDTH, max(1, int(event.amount)))
+        targets = [(x, VISIBLE_HEIGHT - 1) for x in range(count)]
+    cells = []
+    for x, target_y in targets:
+        start_y = VISIBLE_HEIGHT + 1 + target_y
+        cells.append((x, start_y + (target_y - start_y) * progress))
+    return tuple(cells)
+
+
 def settle_scale(progress: float) -> tuple[float, float]:
     """Return an elapsed-time squash/bounce scale independent of frame delta."""
     progress = max(0.0, min(1.0, progress))
@@ -299,9 +314,7 @@ class VersusRenderer:
 
         if event is not None and event.kind == "garbage":
             progress = animation_progress(event_elapsed, OJAMA_FALL_SECONDS)
-            count = min(GRID_WIDTH, max(1, event.amount))
-            for x in range(count):
-                y = (VISIBLE_HEIGHT + 1) * (1.0 - progress) + (VISIBLE_HEIGHT - 1) * progress
+            for x, y in garbage_animation_cells(event, progress):
                 sx, sy = self._grid_position(field, x, y)
                 self._draw_puyo(sx, sy, self.colors[PuyoColor.OJAMA], scale=0.9)
 
@@ -507,6 +520,7 @@ class VersusRenderer:
             event = controller.current_event if controller.current_event and controller.current_event.agent == agent else None
         visual_elapsed = getattr(controller, "visual_event_elapsed", None)
         event_elapsed = visual_elapsed(agent) if callable(visual_elapsed) else controller.event_elapsed
+        event_elapsed *= controller.speed
 
         pygame.draw.rect(self.screen, (28, 33, 43), panel, border_radius=8)
         pygame.draw.rect(self.screen, (92, 105, 132), panel, 2, border_radius=8)
