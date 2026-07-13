@@ -5,9 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import threading
 from collections import deque
-from concurrent.futures import Future
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Mapping
@@ -27,6 +25,8 @@ from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
 from human_data.dataset import create_session
 from puyo_env.actions import placement_to_action_index
 from puyo_env.realtime_ai import (
+    REALTIME_LATENCY_MODES,
+    PolicyProcessExecutor,
     RealtimeControllerDiagnostics,
     RealtimeControllerStatus,
     RealtimeDecisionConfig,
@@ -67,39 +67,6 @@ ASYNC_POLICY_TYPES = frozenset(
     }
 )
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
-
-
-class DaemonDecisionExecutor:
-    """Small daemon-backed executor so closing the UI never waits for inference."""
-
-    def __init__(self):
-        self._futures: set[Future] = set()
-        self._closed = False
-
-    def submit(self, function, *args, **kwargs) -> Future:
-        if self._closed:
-            raise RuntimeError("decision executor is closed")
-        future = Future()
-        self._futures.add(future)
-
-        def run():
-            if not future.set_running_or_notify_cancel():
-                return
-            try:
-                future.set_result(function(*args, **kwargs))
-            except BaseException as exc:  # pragma: no cover - surfaced through Future.result
-                future.set_exception(exc)
-            finally:
-                self._futures.discard(future)
-
-        threading.Thread(target=run, name="puyo-policy", daemon=True).start()
-        return future
-
-    def shutdown(self, wait: bool = False, cancel_futures: bool = True) -> None:
-        self._closed = True
-        if cancel_futures:
-            for future in tuple(self._futures):
-                future.cancel()
 
 
 class RealtimeHumanController:
@@ -187,6 +154,7 @@ class RealtimeVersusUiConfig:
     deterministic_a: bool | None = None
     deterministic_b: bool | None = None
     inference_latency_ticks: int = 0
+    latency_mode: str = "measured"
     timeout_ticks: int | None = None
     action_deadline_ticks: int | None = None
     use_reachable_action_mask: bool = False
@@ -223,6 +191,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("max_ticks must be positive")
     if config.inference_latency_ticks < 0:
         raise ValueError("inference_latency_ticks must be non-negative")
+    if config.latency_mode not in REALTIME_LATENCY_MODES:
+        raise ValueError(f"latency_mode must be one of: {REALTIME_LATENCY_MODES}")
     if config.timeout_ticks is not None and config.timeout_ticks < 0:
         raise ValueError("timeout_ticks must be non-negative")
     if config.action_deadline_ticks is not None and config.action_deadline_ticks < 0:
@@ -255,11 +225,13 @@ class RealtimeVersusMatchController:
         self,
         config: RealtimeVersusUiConfig,
         policy_factory: Callable[..., Policy] = make_policy,
+        decision_process_start_method: str | None = None,
     ):
         validate_config(config)
         self.config = config
         self.policy_factory = policy_factory
-        self._decision_executor = DaemonDecisionExecutor()
+        self.decision_process_start_method = decision_process_start_method
+        self._decision_executors: dict[str, PolicyProcessExecutor] = {}
         self.env = RealtimePuyoEnv(
             seed=config.seed,
             max_ticks=config.max_ticks,
@@ -356,6 +328,10 @@ class RealtimeVersusMatchController:
         }
 
     def tactical_diagnostics(self, agent: str) -> dict:
+        controller = self.controllers.get(agent)
+        process_diagnostics = getattr(controller, "latest_policy_diagnostics", None)
+        if isinstance(process_diagnostics, dict) and process_diagnostics:
+            return process_diagnostics
         policy = self.policies.get(agent)
         diagnostics = getattr(policy, "tactical_diagnostics", None)
         if isinstance(diagnostics, dict):
@@ -511,12 +487,14 @@ class RealtimeVersusMatchController:
     def reset(self) -> None:
         if hasattr(self, "env") and getattr(self, "collection_enabled", False):
             self.finalize_collection(interrupted=True)
+        self._shutdown_decision_executors()
         self.policies = {
             "player_0": None if self.config.policy_a == "human" else self._make_policy("a"),
             "player_1": None if self.config.policy_b == "human" else self._make_policy("b"),
         }
         decision_config = RealtimeDecisionConfig(
             inference_latency_ticks=self.config.inference_latency_ticks,
+            latency_mode=self.config.latency_mode,
             timeout_ticks=self.config.timeout_ticks,
             action_deadline_ticks=self.config.action_deadline_ticks,
             use_reachable_action_mask=self.config.use_reachable_action_mask,
@@ -531,7 +509,17 @@ class RealtimeVersusMatchController:
                 self.controllers[agent] = self.human
                 continue
             policy_name = self.policy_names[agent]
-            executor = self._decision_executor if policy_name in ASYNC_POLICY_TYPES else None
+            executor = None
+            if policy_name in ASYNC_POLICY_TYPES:
+                start_method = self.decision_process_start_method
+                if start_method is None:
+                    start_method = "spawn" if self.policy_factory is make_policy else "fork"
+                executor = PolicyProcessExecutor(
+                    policy,
+                    name=f"puyo-policy-{agent}",
+                    start_method=start_method,
+                )
+                self._decision_executors[agent] = executor
             self.controllers[agent] = RealtimePolicyController(
                 policy,
                 config=decision_config,
@@ -1067,7 +1055,12 @@ class RealtimeVersusMatchController:
         return None
 
     def shutdown(self) -> None:
-        self._decision_executor.shutdown(wait=False, cancel_futures=True)
+        self._shutdown_decision_executors()
+
+    def _shutdown_decision_executors(self) -> None:
+        for executor in self._decision_executors.values():
+            executor.shutdown(wait=False, cancel_futures=True)
+        self._decision_executors.clear()
 
     def _format_input_label(self, tick_input: TickInput, held_actions) -> str:
         edges = [f"+{action.name}" for action in tick_input.press]
@@ -1117,6 +1110,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         )
         parser.set_defaults(**{f"deterministic_{side}": None})
     parser.add_argument("--inference-latency-ticks", type=int, default=0)
+    parser.add_argument("--latency-mode", choices=REALTIME_LATENCY_MODES, default="measured")
     parser.add_argument("--timeout-ticks", type=int)
     parser.add_argument("--action-deadline-ticks", type=int)
     parser.add_argument("--use-reachable-action-mask", action="store_true")
@@ -1167,6 +1161,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         deterministic_a=args.deterministic_a,
         deterministic_b=args.deterministic_b,
         inference_latency_ticks=args.inference_latency_ticks,
+        latency_mode=args.latency_mode,
         timeout_ticks=args.timeout_ticks,
         action_deadline_ticks=args.action_deadline_ticks,
         use_reachable_action_mask=args.use_reachable_action_mask,

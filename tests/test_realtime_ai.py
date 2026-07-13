@@ -1,9 +1,12 @@
+import os
 import unittest
+from concurrent.futures import Future
 
 from puyo_env.action_planner import plan_placement_action
 from puyo_env.actions import NUM_ACTIONS
 from puyo_env.realtime_ai import (
     REALTIME_OBSERVATION_SCHEMA_VERSION,
+    PolicyProcessExecutor,
     RealtimeDecisionConfig,
     RealtimePolicyController,
     RealtimePuyoEnv,
@@ -19,7 +22,29 @@ from src.core.constants import PuyoColor
 from src.core.puyo import Puyo
 
 
+class ProcessTestPolicy:
+    def select_action(self, observation, info):
+        return int(info["selected_action"])
+
+    @property
+    def tactical_diagnostics(self):
+        return {"schema_version": "process-test-v1", "worker_pid": os.getpid()}
+
+
 class TestRealtimeAI(unittest.TestCase):
+    def test_policy_process_executor_uses_spawned_process_and_returns_diagnostics(self):
+        executor = PolicyProcessExecutor(ProcessTestPolicy())
+        try:
+            future = executor.submit_policy({}, {"selected_action": 4})
+            selected, elapsed, diagnostics = future.result(timeout=5.0)
+        finally:
+            executor.shutdown(wait=True)
+
+        self.assertEqual(selected, 4)
+        self.assertGreaterEqual(elapsed, 0.0)
+        self.assertEqual(diagnostics["schema_version"], "process-test-v1")
+        self.assertNotEqual(diagnostics["worker_pid"], os.getpid())
+
     def test_realtime_observation_contains_deadline_and_reachable_mask(self):
         match = RealtimeVersusMatch(seed=123, attack_delay_ticks=12)
         match.schedule_attack("player_0", 4, delay_ticks=7)
@@ -88,6 +113,12 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertEqual(controller.diagnostics.decisions_started, 1)
         self.assertEqual(controller.diagnostics.idle_ticks, 2)
         self.assertEqual(controller.diagnostics.last_decision.inference_latency_ticks, 2)
+        self.assertEqual(controller.diagnostics.last_decision.latency_mode, "configured")
+        self.assertEqual(controller.diagnostics.last_decision.request_tick, 0)
+        self.assertEqual(controller.diagnostics.last_decision.completion_tick, 0)
+        self.assertEqual(controller.diagnostics.last_decision.scheduled_activation_tick, 2)
+        self.assertEqual(controller.diagnostics.last_decision.activation_tick, 2)
+        self.assertEqual(controller.diagnostics.last_decision.outcome, "activated")
 
     def test_controller_timeout_uses_fallback_deadline(self):
         match = RealtimeVersusMatch(seed=123)
@@ -103,7 +134,132 @@ class TestRealtimeAI(unittest.TestCase):
         self.assertEqual(controller.diagnostics.timeouts, 1)
         self.assertTrue(controller.diagnostics.last_decision.timeout)
         self.assertTrue(controller.diagnostics.last_decision.fallback)
+        self.assertEqual(controller.diagnostics.last_decision.timeout_tick, 1)
+        self.assertEqual(controller.diagnostics.last_decision.activation_tick, 1)
+        self.assertEqual(controller.diagnostics.last_decision.outcome, "fallback")
         self.assertNotEqual(tick_input, type(tick_input)())
+
+    def test_measured_async_latency_uses_completion_match_tick(self):
+        class ManualExecutor:
+            def __init__(self):
+                self.future = Future()
+
+            def submit(self, function):
+                return self.future
+
+        match = RealtimeVersusMatch(seed=123)
+        executor = ManualExecutor()
+        controller = RealtimePolicyController(
+            FirstLegalPolicy(),
+            config=RealtimeDecisionConfig(latency_mode="measured"),
+            decision_executor=executor,
+        )
+
+        first = controller.next_input(match, "player_0")
+        match.step({"player_0": first})
+        executor.future.set_result((0, 0.125))
+        second = controller.next_input(match, "player_0")
+
+        decision = controller.diagnostics.last_decision
+        self.assertNotEqual(second, type(second)())
+        self.assertEqual(decision.request_tick, 0)
+        self.assertEqual(decision.completion_tick, 1)
+        self.assertEqual(decision.activation_tick, 1)
+        self.assertEqual(decision.inference_latency_ticks, 1)
+        self.assertEqual(decision.latency_mode, "measured")
+
+    def test_configured_latency_activates_on_same_tick_for_sync_and_async(self):
+        class ManualExecutor:
+            def __init__(self):
+                self.future = Future()
+
+            def submit(self, function):
+                return self.future
+
+        sync_match = RealtimeVersusMatch(seed=123)
+        async_match = RealtimeVersusMatch(seed=123)
+        config = RealtimeDecisionConfig(inference_latency_ticks=2)
+        sync_controller = RealtimePolicyController(FirstLegalPolicy(), config=config)
+        executor = ManualExecutor()
+        async_controller = RealtimePolicyController(
+            FirstLegalPolicy(),
+            config=config,
+            decision_executor=executor,
+        )
+
+        sync_inputs = [sync_controller.next_input(sync_match, "player_0")]
+        async_inputs = [async_controller.next_input(async_match, "player_0")]
+        executor.future.set_result((0, 0.25))
+        for _ in range(2):
+            sync_match.step({"player_0": sync_inputs[-1]})
+            async_match.step({"player_0": async_inputs[-1]})
+            sync_inputs.append(sync_controller.next_input(sync_match, "player_0"))
+            async_inputs.append(async_controller.next_input(async_match, "player_0"))
+
+        self.assertEqual(sync_inputs, async_inputs)
+        self.assertEqual(sync_controller.diagnostics.last_decision.activation_tick, 2)
+        self.assertEqual(async_controller.diagnostics.last_decision.activation_tick, 2)
+        self.assertEqual(async_controller.diagnostics.last_decision.completion_tick, 1)
+
+    def test_async_timeout_activates_fallback_and_discards_late_result(self):
+        class ManualExecutor:
+            def __init__(self):
+                self.future = Future()
+
+            def submit(self, function):
+                return self.future
+
+        match = RealtimeVersusMatch(seed=123)
+        executor = ManualExecutor()
+        controller = RealtimePolicyController(
+            FirstLegalPolicy(),
+            config=RealtimeDecisionConfig(latency_mode="measured", timeout_ticks=1),
+            decision_executor=executor,
+        )
+
+        controller.next_input(match, "player_0")
+        match.step()
+        tick_input = controller.next_input(match, "player_0")
+
+        decision = controller.diagnostics.last_decision
+        self.assertTrue(executor.future.cancelled())
+        self.assertNotEqual(tick_input, type(tick_input)())
+        self.assertTrue(decision.timeout)
+        self.assertTrue(decision.fallback)
+        self.assertEqual(decision.request_tick, 0)
+        self.assertEqual(decision.completion_tick, 1)
+        self.assertEqual(decision.activation_tick, 1)
+        self.assertEqual(decision.fallback_reason, "timeout_fallback")
+
+    def test_measured_inference_latency_counts_toward_action_deadline(self):
+        class ManualExecutor:
+            def __init__(self):
+                self.future = Future()
+
+            def submit(self, function):
+                return self.future
+
+        match = RealtimeVersusMatch(seed=123)
+        executor = ManualExecutor()
+        controller = RealtimePolicyController(
+            FirstLegalPolicy(),
+            config=RealtimeDecisionConfig(
+                latency_mode="measured",
+                action_deadline_ticks=62,
+            ),
+            decision_executor=executor,
+        )
+
+        controller.next_input(match, "player_0")
+        match.step()
+        executor.future.set_result((0, 0.125))
+        controller.next_input(match, "player_0")
+
+        decision = controller.diagnostics.last_decision
+        self.assertTrue(decision.deadline_miss)
+        self.assertTrue(decision.fallback)
+        self.assertEqual(decision.reason, "deadline_fallback")
+        self.assertEqual(decision.inference_latency_ticks, 1)
 
     def test_deadline_fallback_prefers_short_reachable_plan(self):
         match = RealtimeVersusMatch(seed=123)

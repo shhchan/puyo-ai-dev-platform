@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from puyo_env.realtime_ai import (
+    REALTIME_LATENCY_MODES,
     RealtimeDecisionConfig,
     RealtimePolicyController,
     RealtimePuyoEnv,
@@ -491,6 +492,7 @@ def parse_args(argv=None):
     parser.add_argument("--beam-scenarios", type=int, default=1)
     parser.add_argument("--beam-minimum-chain", type=int, default=6)
     parser.add_argument("--inference-latency-ticks", type=int, default=0)
+    parser.add_argument("--latency-mode", choices=REALTIME_LATENCY_MODES, default="configured")
     parser.add_argument("--timeout-ticks", type=int, default=None)
     parser.add_argument("--action-deadline-ticks", type=int, default=None)
     parser.add_argument("--paired-sides", action="store_true")
@@ -523,6 +525,7 @@ def main(argv=None):
     args = parse_args(argv)
     decision_config = RealtimeDecisionConfig(
         inference_latency_ticks=args.inference_latency_ticks,
+        latency_mode=args.latency_mode,
         timeout_ticks=args.timeout_ticks,
         action_deadline_ticks=args.action_deadline_ticks,
     )

@@ -25,6 +25,7 @@ POLICY_CHOICES = (
 )
 REALTIME_POLICY_CHOICES = POLICY_CHOICES
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
+LATENCY_MODE_CHOICES = ("measured", "configured")
 TRAINING_OPERATIONS = ("submit", "status", "pause", "resume", "cancel")
 HUMAN_TRAINING_METHODS = ("imitation", "advantage_weighted", "mixed_replay")
 
@@ -78,6 +79,7 @@ class LauncherSettings:
     max_ticks: int | None = None
     games: int = 1
     inference_latency_ticks: int = 0
+    latency_mode: str = "measured"
     timeout_ticks: int | None = None
     action_deadline_ticks: int | None = None
     use_reachable_action_mask: bool = False
@@ -115,7 +117,14 @@ def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "spectate":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=None, start_paused=True)
     if action_key == "arena":
-        return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=180, games=1)
+        return LauncherSettings(
+            policy_a="first",
+            policy_b="random",
+            seed=57,
+            max_ticks=180,
+            games=1,
+            latency_mode="configured",
+        )
     if action_key == "training":
         return LauncherSettings(
             seed=87,
@@ -157,6 +166,7 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "beam_minimum_chain_a": LauncherFieldSpec("beam_minimum_chain_a", "1P 最小連鎖", "--beam-minimum-chain-a", "1P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "beam_minimum_chain_b": LauncherFieldSpec("beam_minimum_chain_b", "2P 最小連鎖", "--beam-minimum-chain-b", "2P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
+    "latency_mode": LauncherFieldSpec("latency_mode", "latency mode", "--latency-mode", "measured は実測完了 tick、configured は設定 tick だけで action の反映時刻を決めます。"),
     "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),
     "action_deadline_ticks": LauncherFieldSpec("action_deadline_ticks", "deadline tick", "--action-deadline-ticks", "AI action を deadline miss と扱う tick 数です。auto の場合は無効です。"),
     "use_reachable_action_mask": LauncherFieldSpec("use_reachable_action_mask", "到達可能 mask", "--use-reachable-action-mask", "ON の場合、realtime 環境で到達可能な action だけを policy に渡します。"),
@@ -437,6 +447,7 @@ class LauncherSettingsManager:
                 "beam_minimum_chain_a",
                 "beam_minimum_chain_b",
                 "inference_latency_ticks",
+                "latency_mode",
                 "timeout_ticks",
                 "action_deadline_ticks",
                 "use_reachable_action_mask",
@@ -461,6 +472,7 @@ class LauncherSettingsManager:
                 "beam_scenarios",
                 "beam_minimum_chain",
                 "inference_latency_ticks",
+                "latency_mode",
                 "timeout_ticks",
                 "action_deadline_ticks",
                 "paired_sides",
@@ -510,6 +522,8 @@ class LauncherSettingsManager:
             return self.update(action_key, field, _cycle_value(value, choices_by_field[field], delta))
         if field == "speed":
             return self.update(action_key, field, _cycle_value(value, SPEED_CHOICES, delta))
+        if field == "latency_mode":
+            return self.update(action_key, field, _cycle_value(value, LATENCY_MODE_CHOICES, delta))
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return self.update(action_key, field, not bool(value))
         if field in {"deterministic_a", "deterministic_b"}:
@@ -584,6 +598,8 @@ class LauncherSettingsManager:
             }[field]
         if field == "speed":
             return SPEED_CHOICES
+        if field == "latency_mode":
+            return LATENCY_MODE_CHOICES
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
             return (False, True)
         if field in {"deterministic_a", "deterministic_b"}:
@@ -638,6 +654,8 @@ class LauncherSettingsManager:
                 errors.append("games must be positive")
             if settings.inference_latency_ticks < 0:
                 errors.append("inference_latency_ticks must be non-negative")
+            if settings.latency_mode not in LATENCY_MODE_CHOICES:
+                errors.append(f"latency_mode must be one of: {', '.join(LATENCY_MODE_CHOICES)}")
             if settings.timeout_ticks is not None and settings.timeout_ticks < 0:
                 errors.append("timeout_ticks must be non-negative")
             if settings.action_deadline_ticks is not None and settings.action_deadline_ticks < 0:

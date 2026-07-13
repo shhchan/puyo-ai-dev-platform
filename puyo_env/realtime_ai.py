@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import copy
 import math
+import multiprocessing
+import queue
+import threading
 import time
 from concurrent.futures import Executor, Future
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from typing import Any, Mapping, Sequence
 
 try:
@@ -30,6 +33,7 @@ REALTIME_ACTION_CONTRACT_VERSION = "placement-index-to-tick-input-v1"
 TURN_BASED_OBSERVATION_SCHEMA_VERSION = "placement-v1"
 REALTIME_SCALAR_FEATURE_DIM = 8
 DEFAULT_REALTIME_FEATURE_HORIZON = 10_000
+REALTIME_LATENCY_MODES = ("configured", "measured")
 
 _PHASE_CODES = {
     "control": 0.0,
@@ -51,6 +55,7 @@ class RealtimeDecisionConfig:
     """Deterministic controller timing and fallback contract."""
 
     inference_latency_ticks: int = 0
+    latency_mode: str = "configured"
     timeout_ticks: int | None = None
     action_deadline_ticks: int | None = None
     fallback_action_index: int | None = None
@@ -62,6 +67,8 @@ class RealtimeDecisionConfig:
     def __post_init__(self) -> None:
         if self.inference_latency_ticks < 0:
             raise ValueError("inference_latency_ticks must be non-negative")
+        if self.latency_mode not in REALTIME_LATENCY_MODES:
+            raise ValueError(f"latency_mode must be one of: {REALTIME_LATENCY_MODES}")
         if self.timeout_ticks is not None and self.timeout_ticks < 0:
             raise ValueError("timeout_ticks must be non-negative")
         if self.action_deadline_ticks is not None and self.action_deadline_ticks < 0:
@@ -103,6 +110,14 @@ class RealtimeDecisionRecord:
     fallback: bool
     reason: str
     policy_elapsed_seconds: float
+    latency_mode: str
+    request_tick: int
+    completion_tick: int
+    scheduled_activation_tick: int
+    activation_tick: int | None
+    timeout_tick: int | None
+    outcome: str
+    fallback_reason: str | None
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
@@ -125,6 +140,7 @@ class RealtimeControllerDiagnostics:
     policy_elapsed_seconds: float = 0.0
     inference_latency_ticks: int = 0
     planned_input_ticks: int = 0
+    latency_mode: str = "configured"
     last_event: str = "idle"
     last_emitted_input: dict[str, list[str]] | None = None
     last_decision: RealtimeDecisionRecord | None = None
@@ -165,6 +181,189 @@ class _AsyncDecision:
     info: dict[str, Any]
 
 
+def _policy_diagnostics_snapshot(policy: Any) -> dict[str, Any]:
+    diagnostics = getattr(policy, "tactical_diagnostics", None)
+    if isinstance(diagnostics, Mapping):
+        try:
+            return copy.deepcopy(dict(diagnostics))
+        except Exception:
+            return {}
+    proposal = getattr(policy, "last_proposal", None)
+    plan = getattr(policy, "last_plan", None)
+    search_diagnostics = getattr(policy, "last_diagnostics", None)
+    if proposal is None and plan is None and search_diagnostics is None:
+        return {}
+    try:
+        serialized_search = {} if search_diagnostics is None else asdict(search_diagnostics)
+    except (TypeError, ValueError):
+        serialized_search = {}
+    return {
+        "reason": "" if proposal is None else proposal.reason,
+        "profile_name": "" if proposal is None else proposal.profile_name,
+        "target_attack": 0 if proposal is None else proposal.target_attack,
+        "incoming_attack": 0 if proposal is None else proposal.incoming_attack,
+        "deadline": 0 if proposal is None else proposal.deadline,
+        "objective": {} if proposal is None else getattr(proposal, "objective_dict", {}),
+        "objective_result": (
+            {} if proposal is None else getattr(proposal, "objective_result_dict", {})
+        ),
+        "search_diagnostics": serialized_search,
+        "plan": {} if plan is None else plan.to_dict(),
+        "plan_id": "" if plan is None else plan.plan_id,
+        "plan_update_reason": "" if plan is None else plan.update_reason,
+    }
+
+
+def _policy_process_main(policy, request_queue, result_queue) -> None:
+    result_queue.put(("ready",))
+    while True:
+        command = request_queue.get()
+        if command is None:
+            return
+        request_id, operation, payload = command
+        if operation == "reset":
+            reset = getattr(policy, "reset", None)
+            if callable(reset):
+                reset()
+            continue
+        observation, info = payload
+        started = time.perf_counter()
+        try:
+            selected = int(policy.select_action(observation, info))
+            elapsed = time.perf_counter() - started
+            response = (
+                request_id,
+                True,
+                selected,
+                elapsed,
+                _policy_diagnostics_snapshot(policy),
+            )
+        except BaseException as exc:
+            response = (
+                request_id,
+                False,
+                None,
+                time.perf_counter() - started,
+                f"{type(exc).__name__}: {exc}",
+            )
+        result_queue.put(response)
+
+
+class PolicyProcessExecutor:
+    """Run one stateful policy in a dedicated process."""
+
+    def __init__(
+        self,
+        policy: Any,
+        *,
+        name: str = "puyo-policy",
+        start_method: str = "spawn",
+    ):
+        methods = multiprocessing.get_all_start_methods()
+        if start_method not in methods:
+            raise ValueError(f"unsupported multiprocessing start method: {start_method}")
+        self.start_method = start_method
+        self._context = multiprocessing.get_context(start_method)
+        self._request_queue = self._context.Queue()
+        self._result_queue = self._context.Queue()
+        self._futures: dict[int, Future] = {}
+        self._next_request_id = 0
+        self._closed = False
+        self._process = self._context.Process(
+            target=_policy_process_main,
+            args=(policy, self._request_queue, self._result_queue),
+            name=name,
+            daemon=True,
+        )
+        self._process.start()
+        try:
+            ready = self._result_queue.get(timeout=30.0)
+        except queue.Empty as exc:
+            self._process.terminate()
+            self._process.join(timeout=0.5)
+            raise RuntimeError("policy process did not become ready") from exc
+        if ready != ("ready",):
+            self._process.terminate()
+            self._process.join(timeout=0.5)
+            raise RuntimeError("policy process returned an invalid readiness response")
+        self._reader_name = f"{name}-results"
+        self._reader: threading.Thread | None = None
+
+    @property
+    def process_pid(self) -> int | None:
+        return self._process.pid
+
+    def submit_policy(self, observation: Mapping[str, Any], info: Mapping[str, Any]) -> Future:
+        if self._closed:
+            raise RuntimeError("decision executor is closed")
+        request_id = self._next_request_id
+        self._next_request_id += 1
+        self._ensure_reader()
+        future = Future()
+        self._futures[request_id] = future
+        self._request_queue.put(
+            (request_id, "select", (dict(observation), dict(info)))
+        )
+        return future
+
+    def _ensure_reader(self) -> None:
+        if self._reader is not None:
+            return
+        self._reader = threading.Thread(
+            target=self._read_results,
+            name=self._reader_name,
+            daemon=True,
+        )
+        self._reader.start()
+
+    def reset_policy(self) -> None:
+        if not self._closed:
+            self._request_queue.put((-1, "reset", None))
+
+    def _read_results(self) -> None:
+        while True:
+            try:
+                response = self._result_queue.get()
+            except (EOFError, OSError):
+                return
+            if response is None:
+                return
+            request_id, succeeded, selected, elapsed, detail = response
+            future = self._futures.pop(int(request_id), None)
+            if future is None or future.cancelled():
+                continue
+            if succeeded:
+                future.set_result((selected, elapsed, detail))
+            else:
+                future.set_exception(RuntimeError(str(detail)))
+
+    def shutdown(self, wait: bool = False, cancel_futures: bool = True) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        if cancel_futures:
+            for future in tuple(self._futures.values()):
+                future.cancel()
+        self._futures.clear()
+        try:
+            self._request_queue.put_nowait(None)
+        except (OSError, queue.Full):
+            pass
+        self._process.join(timeout=1.0 if wait else 0.05)
+        if self._process.is_alive():
+            self._process.terminate()
+            self._process.join(timeout=0.5)
+        try:
+            self._result_queue.put_nowait(None)
+        except (OSError, queue.Full):
+            pass
+        if self._reader is not None:
+            self._reader.join(timeout=0.5)
+        for process_queue in (self._request_queue, self._result_queue):
+            process_queue.close()
+            process_queue.join_thread()
+
+
 @dataclass(frozen=True)
 class RealtimeControllerStatus:
     active_action_index: int | None
@@ -193,7 +392,8 @@ class RealtimePolicyController:
         self.config = config or RealtimeDecisionConfig()
         self.timing = timing or DEFAULT_REALTIME_TIMING
         self.decision_executor = decision_executor
-        self.diagnostics = RealtimeControllerDiagnostics()
+        self.diagnostics = RealtimeControllerDiagnostics(latency_mode=self.config.latency_mode)
+        self.latest_policy_diagnostics: dict[str, Any] = {}
         self._pending_decision: _PendingDecision | None = None
         self._async_decision: _AsyncDecision | None = None
         self._active_plan: PlannedPlacement | None = None
@@ -212,6 +412,14 @@ class RealtimePolicyController:
         return self._active_action_index
 
     def status(self) -> RealtimeControllerStatus:
+        if self._pending_decision is not None:
+            pending_ready_tick = self._pending_decision.ready_tick
+        elif self._async_decision is not None:
+            pending_ready_tick = (
+                self._async_decision.requested_tick + self.config.inference_latency_ticks
+            )
+        else:
+            pending_ready_tick = None
         return RealtimeControllerStatus(
             active_action_index=self._active_action_index,
             active_plan_ticks=0 if self._active_plan is None else len(self._active_plan.inputs),
@@ -222,14 +430,18 @@ class RealtimePolicyController:
                 if self._active_plan is None
                 else tuple(action.name for action in self._active_plan.high_level_actions)
             ),
-            pending_ready_tick=None if self._pending_decision is None else self._pending_decision.ready_tick,
+            pending_ready_tick=pending_ready_tick,
         )
 
     def reset(self) -> None:
         reset = getattr(self.policy, "reset", None)
         if callable(reset):
             reset()
-        self.diagnostics = RealtimeControllerDiagnostics()
+        reset_executor = getattr(self.decision_executor, "reset_policy", None)
+        if callable(reset_executor):
+            reset_executor()
+        self.diagnostics = RealtimeControllerDiagnostics(latency_mode=self.config.latency_mode)
+        self.latest_policy_diagnostics = {}
         self._pending_decision = None
         if self._async_decision is not None:
             self._async_decision.future.cancel()
@@ -283,27 +495,55 @@ class RealtimePolicyController:
 
         if self._async_decision is not None:
             if not self._async_decision.future.done():
-                self.diagnostics.idle_ticks += 1
-                self.diagnostics.last_event = "thinking"
-                return TickInput()
-            pending_async = self._async_decision
-            self._async_decision = None
-            try:
-                selected_action, elapsed = pending_async.future.result()
-            except Exception:
-                selected_action, elapsed = None, 0.0
-            if pending_async.state_token != self._decision_state_token(match, agent):
-                self.diagnostics.stale_decisions += 1
-                self.diagnostics.last_event = "stale_decision_rejected"
-                return TickInput()
-            self._pending_decision = self._complete_decision(
-                match,
-                agent,
-                selected_action,
-                pending_async.info,
-                elapsed,
-                requested_tick=pending_async.requested_tick,
-            )
+                if self._async_timed_out(match, self._async_decision):
+                    timed_out = self._async_decision
+                    self._async_decision = None
+                    timed_out.future.cancel()
+                    self._reset_executor_policy()
+                    self._pending_decision = self._complete_decision(
+                        match,
+                        agent,
+                        None,
+                        timed_out.info,
+                        0.0,
+                        requested_tick=timed_out.requested_tick,
+                        completion_tick=match.tick,
+                        force_timeout=True,
+                    )
+                else:
+                    self.diagnostics.idle_ticks += 1
+                    self.diagnostics.last_event = "thinking"
+                    return TickInput()
+            else:
+                pending_async = self._async_decision
+                self._async_decision = None
+                policy_diagnostics = {}
+                try:
+                    result = pending_async.future.result()
+                    selected_action, elapsed = result[:2]
+                    if len(result) > 2 and isinstance(result[2], Mapping):
+                        policy_diagnostics = dict(result[2])
+                except Exception:
+                    selected_action, elapsed = None, 0.0
+                self.latest_policy_diagnostics = policy_diagnostics
+                if pending_async.state_token != self._decision_state_token(match, agent):
+                    self._reset_executor_policy()
+                    self._record_stale_decision(
+                        match,
+                        selected_action,
+                        elapsed,
+                        requested_tick=pending_async.requested_tick,
+                    )
+                    return TickInput()
+                self._pending_decision = self._complete_decision(
+                    match,
+                    agent,
+                    selected_action,
+                    pending_async.info,
+                    elapsed,
+                    requested_tick=pending_async.requested_tick,
+                    completion_tick=match.tick,
+                )
 
         if match.tick < self._pending_decision.ready_tick:
             self.diagnostics.idle_ticks += 1
@@ -312,14 +552,19 @@ class RealtimePolicyController:
 
         pending = self._pending_decision
         self._pending_decision = None
+        activated_record = replace(
+            pending.record,
+            activation_tick=match.tick,
+            outcome="fallback" if pending.record.fallback else "activated",
+        )
         self._active_plan = pending.plan
-        self._active_action_index = pending.record.action_index
+        self._active_action_index = activated_record.action_index
         self._input_cursor = 0
         self.diagnostics.decisions_activated += 1
-        self.diagnostics.last_decision = pending.record
+        self.diagnostics.last_decision = activated_record
         if self._active_plan is None or not self._active_plan.inputs:
             self.diagnostics.idle_ticks += 1
-            self.diagnostics.last_event = pending.record.reason
+            self.diagnostics.last_event = activated_record.reason
             return TickInput()
         return self._emit_active_plan_input()
 
@@ -346,8 +591,14 @@ class RealtimePolicyController:
             selected = int(self.policy.select_action(observation, info))
             return selected, time.perf_counter() - started
 
+        submit_policy = getattr(self.decision_executor, "submit_policy", None)
+        future = (
+            submit_policy(observation, info)
+            if callable(submit_policy)
+            else self.decision_executor.submit(select)
+        )
         return _AsyncDecision(
-            future=self.decision_executor.submit(select),
+            future=future,
             requested_tick=match.tick,
             state_token=self._decision_state_token(match, agent),
             info=dict(info),
@@ -367,15 +618,31 @@ class RealtimePolicyController:
         elapsed: float,
         *,
         requested_tick: int | None = None,
+        completion_tick: int | None = None,
+        force_timeout: bool = False,
     ) -> _PendingDecision:
         self.diagnostics.policy_elapsed_seconds += elapsed
 
         mask = _bool_mask(info.get("action_mask"))
+        request_tick = match.tick if requested_tick is None else int(requested_tick)
+        completed_tick = match.tick if completion_tick is None else int(completion_tick)
         timeout_limit = self.config.timeout_ticks
         configured_latency = int(self.config.inference_latency_ticks)
-        timeout = timeout_limit is not None and configured_latency > timeout_limit
-        effective_latency = min(configured_latency, timeout_limit) if timeout else configured_latency
-        self.diagnostics.inference_latency_ticks += int(effective_latency or 0)
+        scheduled_activation_tick = request_tick + configured_latency
+        timeout_tick = None if timeout_limit is None else request_tick + int(timeout_limit)
+        measured_activation_tick = max(scheduled_activation_tick, completed_tick)
+        ready_tick = (
+            scheduled_activation_tick
+            if self.config.latency_mode == "configured"
+            else measured_activation_tick
+        )
+        timeout = force_timeout or (
+            timeout_tick is not None and ready_tick > timeout_tick
+        )
+        if timeout and timeout_tick is not None:
+            ready_tick = timeout_tick
+        effective_latency = max(0, ready_tick - request_tick)
+        self.diagnostics.inference_latency_ticks += effective_latency
 
         action_index = None if selected_action is None else int(selected_action)
         reason = "policy"
@@ -409,7 +676,7 @@ class RealtimePolicyController:
             plan is not None
             and plan.reachable
             and self.config.action_deadline_ticks is not None
-            and plan.tick_count > self.config.action_deadline_ticks
+            and effective_latency + plan.tick_count > self.config.action_deadline_ticks
         ):
             deadline_miss = True
             self.diagnostics.deadline_misses += 1
@@ -425,7 +692,7 @@ class RealtimePolicyController:
 
         placement = action_to_placement(action_index) if action_index is not None else None
         record = RealtimeDecisionRecord(
-            tick=match.tick if requested_tick is None else requested_tick,
+            tick=request_tick,
             action_index=action_index,
             axis_x=None if placement is None else placement.axis_x,
             rotation=None if placement is None else placement.rotation.name,
@@ -437,12 +704,79 @@ class RealtimePolicyController:
             fallback=fallback,
             reason=reason if plan is None or plan.reachable else (plan.reason or reason),
             policy_elapsed_seconds=elapsed,
+            latency_mode=self.config.latency_mode,
+            request_tick=request_tick,
+            completion_tick=completed_tick,
+            scheduled_activation_tick=scheduled_activation_tick,
+            activation_tick=None,
+            timeout_tick=timeout_tick,
+            outcome="scheduled",
+            fallback_reason=reason if fallback else None,
         )
         self.diagnostics.last_decision = record
-        ready_tick = match.tick + int(effective_latency or 0)
         if plan is not None and not plan.reachable:
             plan = None
         return _PendingDecision(ready_tick=ready_tick, record=record, plan=plan)
+
+    def _async_timed_out(self, match, pending: _AsyncDecision) -> bool:
+        timeout = self.config.timeout_ticks
+        if timeout is None:
+            return False
+        timeout_tick = pending.requested_tick + int(timeout)
+        scheduled_tick = pending.requested_tick + int(self.config.inference_latency_ticks)
+        return scheduled_tick > timeout_tick or match.tick >= timeout_tick
+
+    def _reset_executor_policy(self) -> None:
+        reset_policy = getattr(self.decision_executor, "reset_policy", None)
+        if callable(reset_policy):
+            reset_policy()
+
+    def _record_stale_decision(
+        self,
+        match,
+        selected_action,
+        elapsed: float,
+        *,
+        requested_tick: int,
+    ) -> None:
+        self.diagnostics.policy_elapsed_seconds += elapsed
+        self.diagnostics.stale_decisions += 1
+        self.diagnostics.last_event = "stale_decision_rejected"
+        action_index = None if selected_action is None else int(selected_action)
+        placement = (
+            action_to_placement(action_index)
+            if action_index is not None and 0 <= action_index < NUM_ACTIONS
+            else None
+        )
+        completion_tick = int(match.tick)
+        scheduled_tick = requested_tick + int(self.config.inference_latency_ticks)
+        self.diagnostics.inference_latency_ticks += max(0, completion_tick - requested_tick)
+        self.diagnostics.last_decision = RealtimeDecisionRecord(
+            tick=requested_tick,
+            action_index=action_index,
+            axis_x=None if placement is None else placement.axis_x,
+            rotation=None if placement is None else placement.rotation.name,
+            reachable=False,
+            plan_ticks=0,
+            inference_latency_ticks=max(0, completion_tick - requested_tick),
+            timeout=False,
+            deadline_miss=False,
+            fallback=False,
+            reason="stale_decision_rejected",
+            policy_elapsed_seconds=elapsed,
+            latency_mode=self.config.latency_mode,
+            request_tick=requested_tick,
+            completion_tick=completion_tick,
+            scheduled_activation_tick=scheduled_tick,
+            activation_tick=None,
+            timeout_tick=(
+                None
+                if self.config.timeout_ticks is None
+                else requested_tick + int(self.config.timeout_ticks)
+            ),
+            outcome="stale",
+            fallback_reason="state_token_changed",
+        )
 
     def _plan_action(
         self,
