@@ -51,9 +51,59 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(payload["constraints"]["danger_tolerance"], 0.7)
         self.assertEqual(payload["search_budget"]["depth"], 4)
         self.assertEqual(payload["search_budget"]["width"], 40)
+        self.assertEqual(payload["search_budget"]["candidate_count"], 8)
         self.assertEqual(payload["search_budget"]["latency_budget_ms"], 75.0)
         self.assertIn("chain_shape_weight", payload["objective"]["weights"])
         json.dumps(payload)
+
+    def test_build_main_reuses_candidate_count_for_potential_probe_only(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+        simulator = HeadlessPuyoSimulator(seed=9)
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        info = {
+            "simulator": simulator,
+            "action_mask": legal_action_mask(simulator),
+        }
+        build_request = build_planner_request(
+            self.registry.tactic("build_main"),
+            analyzer_input,
+            diagnostics,
+            parameter_overrides={
+                "planner": {
+                    "beam_depth": 1,
+                    "beam_width": 4,
+                    "candidate_count": 2,
+                }
+            },
+        )
+        fire_request = build_planner_request(
+            self.registry.tactic("fire_main"),
+            analyzer_input,
+            diagnostics,
+        )
+        orchestrator = StrategyOrchestrator(smoke_worker_profiles())
+
+        build = orchestrator.propose(
+            0,
+            observation,
+            info,
+            planner_request=build_request,
+        )
+        fire = orchestrator.propose(
+            4,
+            observation,
+            info,
+            planner_request=fire_request,
+        )
+
+        self.assertEqual(build.trigger_preservation, "required")
+        self.assertEqual(build.potential_probe_width, 2)
+        self.assertGreater(build.potential_probe_count, 0)
+        self.assertEqual(build.build_potential_dict["probe_width"], 2)
+        self.assertEqual(fire.trigger_preservation, "ignore")
+        self.assertEqual(fire.potential_probe_width, 0)
+        self.assertEqual(fire.potential_probe_count, 0)
 
     def test_all_initial_tactics_resolve_to_positive_search_budgets(self):
         analyzer_input = scenario_input(self.scenarios[0])

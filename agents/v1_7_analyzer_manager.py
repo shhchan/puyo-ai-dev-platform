@@ -329,6 +329,7 @@ class V17AnalyzerManagerPolicy:
                 "strategy": proposal.strategy,
                 "objective": proposal.objective_dict,
                 "objective_result": proposal.objective_result_dict,
+                "build_potential": proposal.build_potential_dict,
                 "result": worker_result,
             },
             "plan": {} if plan is None else plan.to_dict(),
