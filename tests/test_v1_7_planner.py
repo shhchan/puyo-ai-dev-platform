@@ -112,13 +112,89 @@ class TestV17Planner(unittest.TestCase):
         requests = [
             build_planner_request(tactic, analyzer_input, diagnostics)
             for tactic in self.registry.tactics
+            if tactic.identity.tactic_id != "prepare_response"
         ]
 
-        self.assertEqual(len(requests), 8)
+        self.assertEqual(len(requests), 7)
         self.assertTrue(all(request.search_depth > 0 for request in requests))
         self.assertTrue(all(request.search_width > 0 for request in requests))
         self.assertTrue(all(request.candidate_count > 0 for request in requests))
         self.assertTrue(all(request.latency_budget_ms > 0 for request in requests))
+
+    def test_prepare_response_uses_positive_forecast_as_readiness_not_fire_target(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+        threat = replace(
+            diagnostics,
+            opponent=replace(
+                diagnostics.opponent,
+                forecast=replace(
+                    diagnostics.opponent.forecast,
+                    short_attack=8,
+                    turns_to_best=2,
+                ),
+            ),
+        )
+
+        request = build_planner_request(
+            self.registry.tactic("prepare_response"),
+            analyzer_input,
+            threat,
+        )
+
+        self.assertEqual(request.objective_kind, "response_readiness")
+        self.assertEqual(request.target_attack, 0)
+        self.assertEqual(request.required_response_attack, 8)
+        self.assertEqual(request.response_source, "opponent_forecast")
+        self.assertEqual(request.deadline_turns, 2)
+        self.assertEqual(request.to_dict()["objective"]["required_response_attack"], 8)
+
+    def test_response_readiness_worker_avoids_available_immediate_fire(self):
+        simulator = HeadlessPuyoSimulator(seed=91)
+        game = simulator.game
+        game.current_puyo_1 = Puyo(PuyoColor.BLUE)
+        game.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        game.field.place_puyo(1, 0, Puyo(PuyoColor.BLUE))
+        game.field.place_puyo(1, 1, Puyo(PuyoColor.BLUE))
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        info = {"simulator": simulator, "action_mask": legal_action_mask(simulator)}
+        request = PlannerRequest(
+            tactic_id="prepare_response",
+            tactic_version="2.0",
+            objective_kind="response_readiness",
+            target_chain=0,
+            target_attack=0,
+            deadline_turns=3,
+            deadline_ticks=0,
+            danger_tolerance=1.0,
+            trigger_preservation="required",
+            search_depth=2,
+            search_width=8,
+            candidate_count=4,
+            latency_budget_ms=10_000.0,
+            fallback_tactic="survive",
+            objective_weights={},
+            parameters={"objective": {}, "constraints": {}, "planner": {}},
+            score_carry=0,
+            incoming_attack=0,
+            all_clear_achieved=False,
+            all_clear_bonus_pending=False,
+            all_clear_bonus_consumed=False,
+            required_response_attack=1,
+            response_source="opponent_forecast",
+        )
+
+        proposal = StrategyOrchestrator(smoke_worker_profiles()).propose(
+            3,
+            observation,
+            info,
+            planner_request=request,
+        )
+
+        self.assertEqual(proposal.objective.kind, "response_readiness")
+        self.assertEqual(proposal.predicted_attack, 0)
+        self.assertFalse(proposal.immediate_fire)
+        self.assertNotIn("immediate_fire", proposal.objective_result.miss_reasons)
 
     def test_all_clear_request_preserves_lifecycle_and_does_not_fix_total_attack_to_thirty(self):
         base = scenario_input(self.scenarios[0])

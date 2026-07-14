@@ -58,14 +58,19 @@ STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION = (
     "puyo.v1_7_strategy_manager.diagnostics.v1"
 )
 MODEL_FAMILY = "Adaptive Chain Manager"
-MODEL_VERSION = "v1.7.1"
+MODEL_VERSION = "v1.7.2"
 POLICY_TYPE = "v1_7_bootstrap_manager"
-LINEAGE_NODE_ID = "model_version:v1.7.1"
-PARENT_LINEAGE_NODE_ID = "model_version:v1.7.0"
+LINEAGE_NODE_ID = "model_version:v1.7.2"
+PARENT_LINEAGE_NODE_ID = "model_version:v1.7.1"
 BOOTSTRAP_TRAINER_NAME = "v1_7_manager_bootstrap"
 CHECKPOINT_METADATA_SCHEMA_VERSION = (
     "puyo.v1_7_strategy_manager.checkpoint_metadata.v1"
 )
+CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v1"
+LEGACY_MODEL_VERSION = "v1.7.1"
+LEGACY_TACTIC_SCHEMA_VERSION = "tactic-schema-v1"
+LEGACY_TACTIC_REGISTRY_VERSION = "v1.7.0"
+LEGACY_PLANNER_SCHEMA_VERSION = "planner-schema-v1"
 DEFAULT_PREVIEW_TOP_K = 3
 LIFECYCLE_CARRY_FEATURES = (
     "own.score_carry",
@@ -600,6 +605,130 @@ def _state_dict_shape_errors(
     return errors
 
 
+def migrate_v1_7_1_checkpoint_payload(
+    checkpoint: Mapping[str, Any],
+    *,
+    registry: TacticRegistry | None = None,
+) -> dict[str, Any]:
+    """Explicitly migrate v1.7.1 metadata while preserving compatible weights."""
+
+    if not isinstance(checkpoint, Mapping):
+        raise ValueError("checkpoint must be a mapping")
+    source = copy.deepcopy(dict(checkpoint))
+    metadata = source.get("checkpoint_metadata")
+    if not isinstance(metadata, Mapping):
+        raise ValueError("v1.7.1 checkpoint_metadata must be a mapping")
+    schemas = metadata.get("schemas")
+    if not isinstance(schemas, Mapping):
+        raise ValueError("v1.7.1 checkpoint_metadata.schemas must be a mapping")
+    expected_source = {
+        "model_version": (source.get("model_version"), LEGACY_MODEL_VERSION),
+        "checkpoint_metadata.model_version": (
+            metadata.get("model_version"),
+            LEGACY_MODEL_VERSION,
+        ),
+        "checkpoint_metadata.schemas.tactic_registry": (
+            schemas.get("tactic_registry"),
+            LEGACY_TACTIC_SCHEMA_VERSION,
+        ),
+        "checkpoint_metadata.schemas.tactic_registry_version": (
+            schemas.get("tactic_registry_version"),
+            LEGACY_TACTIC_REGISTRY_VERSION,
+        ),
+        "checkpoint_metadata.schemas.planner_request": (
+            schemas.get("planner_request"),
+            LEGACY_PLANNER_SCHEMA_VERSION,
+        ),
+    }
+    mismatches = [
+        f"{field}: expected {expected!r}, got {actual!r}"
+        for field, (actual, expected) in expected_source.items()
+        if actual != expected
+    ]
+    if mismatches:
+        raise ValueError("checkpoint is not a supported v1.7.1 source: " + "; ".join(mismatches))
+
+    selected_registry = registry or load_tactic_registry()
+    target_contract = StrategyFeatureContract.from_registry(selected_registry).to_metadata()
+    source_contract = source.get("feature_contract")
+    if not isinstance(source_contract, Mapping):
+        raise ValueError("v1.7.1 feature_contract must be a mapping")
+    for field, target_value in target_contract.items():
+        if field == "registry_version":
+            continue
+        if source_contract.get(field) != target_value:
+            raise ValueError(
+                "v1.7.1 weights require an unchanged feature shape during migration: "
+                f"feature_contract.{field} differs"
+            )
+
+    migrated = source
+    migrated["model_version"] = MODEL_VERSION
+    migrated_metadata = dict(migrated["checkpoint_metadata"])
+    migrated_metadata["model_version"] = MODEL_VERSION
+    migrated_metadata["lineage"] = {
+        "node_id": LINEAGE_NODE_ID,
+        "parent_node_id": PARENT_LINEAGE_NODE_ID,
+        "training_run_id": str(migrated.get("run_id", "")),
+    }
+    migrated_schemas = dict(migrated_metadata["schemas"])
+    migrated_schemas.update(
+        {
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": selected_registry.registry_version,
+            "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
+        }
+    )
+    migrated_metadata["schemas"] = migrated_schemas
+    migrated["checkpoint_metadata"] = migrated_metadata
+    migrated["feature_contract"] = target_contract
+
+    dataset = migrated.get("dataset")
+    if not isinstance(dataset, Mapping):
+        raise ValueError("v1.7.1 dataset metadata must be a mapping")
+    migrated_dataset = dict(dataset)
+    dataset_schemas = dict(migrated_dataset.get("schemas", {}))
+    dataset_schemas.update(
+        {
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": selected_registry.registry_version,
+        }
+    )
+    migrated_dataset["schemas"] = dataset_schemas
+    compatibility = dict(migrated_dataset.get("compatibility", {}))
+    migration_sources = dict(compatibility.get("migration_sources", {}))
+    migration_sources[CHECKPOINT_MIGRATION_SCHEMA_VERSION] = 1
+    compatibility["migration_sources"] = migration_sources
+    migrated_dataset["compatibility"] = compatibility
+    migrated["dataset"] = migrated_dataset
+    migrated["schema_migration"] = {
+        "schema_version": CHECKPOINT_MIGRATION_SCHEMA_VERSION,
+        "source_model_version": LEGACY_MODEL_VERSION,
+        "target_model_version": MODEL_VERSION,
+        "source_tactic_schema_version": LEGACY_TACTIC_SCHEMA_VERSION,
+        "target_tactic_schema_version": TACTIC_SCHEMA_VERSION,
+        "source_planner_schema_version": LEGACY_PLANNER_SCHEMA_VERSION,
+        "target_planner_schema_version": PLANNER_REQUEST_SCHEMA_VERSION,
+        "weights_changed": False,
+        "feature_shape_changed": False,
+        "semantic_changes": [
+            "prepare_response requires positive incoming or opponent forecast attack",
+            "prepare_response optimizes response readiness without immediate firing",
+            "counter_or_return remains responsible for cancellation and surplus return",
+            "active incoming deadlines are guarded to counter_or_return or survive",
+        ],
+        "source_state_hash": str(source.get("state_hash", "")),
+    }
+    migrated["state_hash"] = checkpoint_state_hash(migrated)
+    errors = validate_v1_7_strategy_manager_checkpoint_payload(
+        migrated,
+        registry=selected_registry,
+    )
+    if errors:
+        raise ValueError("migrated v1.7.2 checkpoint is incompatible: " + "; ".join(errors))
+    return migrated
+
+
 def validate_v1_7_strategy_manager_checkpoint_payload(
     checkpoint: Mapping[str, Any],
     *,
@@ -835,6 +964,26 @@ class _PreviewResult:
     features: tuple[float, ...]
 
 
+def _response_guard_eligibility(
+    contract: StrategyFeatureContract,
+    registry_mask: Sequence[bool],
+    diagnostics: AnalyzerDiagnostics,
+) -> tuple[bool, ...]:
+    """Reserve active incoming deadlines for counter or survival responsibility."""
+
+    if diagnostics.incoming.amount <= 0:
+        return tuple(bool(value) for value in registry_mask)
+    required_tactic = (
+        "counter_or_return" if diagnostics.incoming.can_cancel else "survive"
+    )
+    required_index = contract.tactic_ids.index(required_tactic)
+    if not registry_mask[required_index]:
+        raise RuntimeError(
+            f"required response tactic is not registry-eligible: {required_tactic}"
+        )
+    return tuple(index == required_index for index in range(len(registry_mask)))
+
+
 class V17StrategyManagerPolicy:
     """Run learned tactic evaluation, bounded previews, and one selected worker."""
 
@@ -906,7 +1055,7 @@ class V17StrategyManagerPolicy:
         deterministic: bool = True,
         forced_tactic_id: str | None = None,
     ) -> "V17StrategyManagerPolicy":
-        """Load one metadata-validated v1.7.1 bootstrap checkpoint."""
+        """Load one metadata-validated v1.7.2-compatible bootstrap checkpoint."""
 
         if torch is None:
             raise ImportError("V17StrategyManagerPolicy requires torch")
@@ -986,6 +1135,12 @@ class V17StrategyManagerPolicy:
             previous_plan=previous_plan,
             previous_tactic_id=previous_tactic_id,
         )
+        effective_eligibility = _response_guard_eligibility(
+            encoded.contract,
+            encoded.eligibility_mask,
+            analyzer_diagnostics,
+        )
+        encoded = replace(encoded, eligibility_mask=effective_eligibility)
         context = torch.tensor(
             [encoded.context],
             dtype=torch.float32,
@@ -1082,6 +1237,11 @@ class V17StrategyManagerPolicy:
         if forced_index is not None:
             reason = (
                 "evaluation override forced "
+                f"{selected_tactic.identity.tactic_id} after planner preview"
+            )
+        elif analyzer_diagnostics.incoming.amount > 0:
+            reason = (
+                "incoming response guard selected "
                 f"{selected_tactic.identity.tactic_id} after planner preview"
             )
         else:
@@ -1195,7 +1355,8 @@ class V17StrategyManagerPolicy:
                     "tactic_id": tactic.identity.tactic_id,
                     "name": tactic.identity.name,
                     "version": tactic.identity.version,
-                    "eligible": bool(candidate["eligible"]),
+                    "eligible": bool(encoded.eligibility_mask[index]),
+                    "registry_eligible": bool(candidate["eligible"]),
                     "active_contexts": list(candidate.get("active_contexts", ())),
                     "logit": float(lightweight.proposal_logits[0, index].item()),
                     "value": float(lightweight.values[0, index].item()),
@@ -1221,6 +1382,10 @@ class V17StrategyManagerPolicy:
             "danger": float(proposal.danger),
             "expanded_nodes": int(proposal.expanded_nodes),
             "candidate_value": float(proposal.candidate_value),
+            "response_capacity": int(proposal.response_capacity),
+            "incoming_coverage": float(proposal.incoming_coverage),
+            "trigger_preserved": bool(proposal.trigger_preserved),
+            "immediate_fire": bool(proposal.immediate_fire),
         }
         lifecycle = {
             side: {
@@ -1308,8 +1473,24 @@ class V17StrategyManagerPolicy:
             "reason_code": (
                 "evaluation_forced_tactic"
                 if self.forced_tactic_id is not None
-                else "learned_final_arbitration"
+                else (
+                    "incoming_response_guard"
+                    if analyzer_diagnostics.incoming.amount > 0
+                    else "learned_final_arbitration"
+                )
             ),
+            "response_guard": {
+                "active": analyzer_diagnostics.incoming.amount > 0,
+                "required_tactic_id": (
+                    None
+                    if analyzer_diagnostics.incoming.amount <= 0
+                    else (
+                        "counter_or_return"
+                        if analyzer_diagnostics.incoming.can_cancel
+                        else "survive"
+                    )
+                ),
+            },
             "evaluation_override": {
                 "enabled": self.forced_tactic_id is not None,
                 "forced_tactic_id": self.forced_tactic_id,

@@ -17,7 +17,7 @@ from agents.state_analyzer import (
 )
 
 
-TACTIC_SCHEMA_VERSION = "tactic-schema-v1"
+TACTIC_SCHEMA_VERSION = "tactic-schema-v2"
 TACTIC_DIAGNOSTICS_SCHEMA_VERSION = "puyo.tactic_registry.diagnostics.v1"
 TACTIC_ARTIFACT_SCHEMA_VERSION = "puyo.tactic_registry.artifact.v1"
 DEFAULT_TACTIC_REGISTRY_PATH = (

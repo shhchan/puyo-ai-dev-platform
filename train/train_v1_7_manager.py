@@ -6,7 +6,7 @@ import argparse
 import json
 import math
 import random
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -39,7 +39,12 @@ from agents.v1_7_strategy_manager import (
     decode_tactic_parameters,
     validate_v1_7_strategy_manager_checkpoint_payload,
 )
-from agents.v1_7_tactics import ParameterSpec, TacticRegistry, load_tactic_registry
+from agents.v1_7_tactics import (
+    TACTIC_SCHEMA_VERSION,
+    ParameterSpec,
+    TacticRegistry,
+    load_tactic_registry,
+)
 from eval.analyzer_scenarios import (
     SCENARIO_SCHEMA_VERSION,
     build_report as build_analyzer_scenario_report,
@@ -106,6 +111,45 @@ class _LoadedDataset:
     manifest_sha256: str
     train: tuple[Mapping[str, Any], ...]
     validation: tuple[Mapping[str, Any], ...]
+
+
+def _migrate_v1_7_1_dataset_metadata(
+    dataset: _LoadedDataset,
+    encoder: V17StrategyFeatureEncoder,
+) -> _LoadedDataset:
+    """Normalize shape-compatible v1.7.1 dataset metadata for v1.7.2 training."""
+
+    migrated_manifest = dict(dataset.manifest)
+    feature_contract = dict(migrated_manifest.get("feature_contract", {}))
+    if feature_contract.get("registry_version") == encoder.contract.registry_version:
+        encoder.contract.validate_metadata(feature_contract)
+        return dataset
+    if feature_contract.get("registry_version") != "v1.7.0":
+        encoder.contract.validate_metadata(feature_contract)
+    target_contract = encoder.contract.to_metadata()
+    for field, value in target_contract.items():
+        if field == "registry_version":
+            continue
+        if feature_contract.get(field) != value:
+            raise ValueError(
+                "v1.7.1 dataset cannot migrate without changing feature shape: "
+                f"feature_contract.{field} differs"
+            )
+    migrated_manifest["feature_contract"] = target_contract
+    schemas = dict(migrated_manifest.get("schemas", {}))
+    schemas.update(
+        {
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": encoder.contract.registry_version,
+        }
+    )
+    migrated_manifest["schemas"] = schemas
+    compatibility = dict(migrated_manifest.get("compatibility", {}))
+    migration_sources = dict(compatibility.get("migration_sources", {}))
+    migration_sources["puyo.v1_7_2_dataset_metadata_migration.v1"] = 1
+    compatibility["migration_sources"] = migration_sources
+    migrated_manifest["compatibility"] = compatibility
+    return replace(dataset, manifest=migrated_manifest)
 
 
 @dataclass(frozen=True)
@@ -755,7 +799,7 @@ def _lifecycle_carry_contract(dataset: _LoadedDataset) -> dict[str, Any]:
 def train_v1_7_manager(
     config: V17ManagerBootstrapConfig | None = None,
 ) -> dict[str, Any]:
-    """Train and persist one schema-checked v1.7.1 bootstrap checkpoint."""
+    """Train and persist one schema-checked v1.7.2 bootstrap checkpoint."""
 
     _require_deps()
     cfg = config or V17ManagerBootstrapConfig()
@@ -764,6 +808,7 @@ def train_v1_7_manager(
     _, analyzer_scenario_report = _validate_scenarios(cfg, dataset)
     registry = load_tactic_registry()
     encoder = V17StrategyFeatureEncoder(registry)
+    dataset = _migrate_v1_7_1_dataset_metadata(dataset, encoder)
     encoder.contract.validate_metadata(dataset.manifest.get("feature_contract", {}))
     if dataset.manifest.get("schemas", {}).get("analyzer_input") != ANALYZER_INPUT_SCHEMA_VERSION:
         raise ValueError("dataset Analyzer input schema does not match the current model")

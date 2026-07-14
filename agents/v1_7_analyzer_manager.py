@@ -301,6 +301,10 @@ class V17AnalyzerManagerPolicy:
             "danger": float(proposal.danger),
             "expanded_nodes": int(proposal.expanded_nodes),
             "candidate_value": float(proposal.candidate_value),
+            "response_capacity": int(proposal.response_capacity),
+            "incoming_coverage": float(proposal.incoming_coverage),
+            "trigger_preserved": bool(proposal.trigger_preserved),
+            "immediate_fire": bool(proposal.immediate_fire),
         }
         return {
             "schema_version": ANALYZER_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,

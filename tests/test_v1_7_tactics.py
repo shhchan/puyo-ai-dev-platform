@@ -29,7 +29,7 @@ class TestV17TacticRegistry(unittest.TestCase):
 
     def test_default_registry_has_versioned_initial_intents_and_all_sections(self):
         self.assertEqual(self.registry.schema_version, TACTIC_SCHEMA_VERSION)
-        self.assertEqual(self.registry.registry_version, "v1.7.0")
+        self.assertEqual(self.registry.registry_version, "v1.7.2")
         self.assertEqual(
             [tactic.identity.tactic_id for tactic in self.registry.tactics],
             [
@@ -73,6 +73,20 @@ class TestV17TacticRegistry(unittest.TestCase):
             "required",
         )
         self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
+        prepare = self.registry.tactic("prepare_response")
+        self.assertEqual(prepare.identity.version, "2.0")
+
+        diagnostics = build_tactic_diagnostics(
+            self.registry,
+            self.base_input,
+            StateAnalyzer().analyze(self.base_input),
+        )
+        prepare_candidate = next(
+            item for item in diagnostics["candidates"]
+            if item["tactic_id"] == "prepare_response"
+        )
+        self.assertFalse(prepare_candidate["eligible"])
+        self.assertEqual(len(prepare_candidate["candidate_condition_groups"]), 2)
 
     def test_registry_rejects_unsupported_schema_version(self):
         payload = yaml.safe_load(DEFAULT_TACTIC_REGISTRY_PATH.read_text(encoding="utf-8"))

@@ -15,10 +15,10 @@ from agents.v1_7_tactics import TacticSpec
 from src.core.ojama import convert_score_to_ojama
 
 
-PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v1"
+PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v2"
 _OBJECTIVE_KINDS = {
     "build_main": "build",
-    "prepare_response": "counter",
+    "prepare_response": "response_readiness",
     "counter_or_return": "counter",
     "pressure": "punish",
     "lethal_attack": "punish",
@@ -79,6 +79,8 @@ class PlannerRequest:
     all_clear_achieved: bool
     all_clear_bonus_pending: bool
     all_clear_bonus_consumed: bool
+    required_response_attack: int = 0
+    response_source: str = "none"
     analyzer_input_schema_version: str = ANALYZER_INPUT_SCHEMA_VERSION
     analyzer_diagnostics_schema_version: str = ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
     schema_version: str = PLANNER_REQUEST_SCHEMA_VERSION
@@ -88,7 +90,14 @@ class PlannerRequest:
             raise ValueError(f"unsupported planner request schema: {self.schema_version}")
         if not self.tactic_id or not self.tactic_version:
             raise ValueError("planner request tactic identity is required")
-        if self.objective_kind not in {"build", "counter", "punish", "fire_max", "survival"}:
+        if self.objective_kind not in {
+            "build",
+            "response_readiness",
+            "counter",
+            "punish",
+            "fire_max",
+            "survival",
+        }:
             raise ValueError(f"unsupported planner objective: {self.objective_kind}")
         if min(
             self.target_chain,
@@ -97,6 +106,7 @@ class PlannerRequest:
             self.deadline_ticks,
             self.score_carry,
             self.incoming_attack,
+            self.required_response_attack,
         ) < 0:
             raise ValueError("planner targets, deadlines, carry, and incoming must be non-negative")
         if not 0.0 <= self.danger_tolerance <= 1.0:
@@ -107,6 +117,10 @@ class PlannerRequest:
             raise ValueError("planner search budgets must be positive")
         if self.latency_budget_ms <= 0.0:
             raise ValueError("planner latency budget must be positive")
+        if self.response_source not in {"none", "incoming", "opponent_forecast", "combined"}:
+            raise ValueError(f"unsupported response source: {self.response_source}")
+        if self.objective_kind == "response_readiness" and self.required_response_attack <= 0:
+            raise ValueError("response readiness requires positive response attack")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -117,6 +131,8 @@ class PlannerRequest:
                 "kind": self.objective_kind,
                 "target_chain": int(self.target_chain),
                 "target_attack": int(self.target_attack),
+                "required_response_attack": int(self.required_response_attack),
+                "response_source": self.response_source,
                 "deadline_turns": int(self.deadline_turns),
                 "deadline_ticks": int(self.deadline_ticks),
                 "weights": {key: float(value) for key, value in self.objective_weights.items()},
@@ -189,21 +205,54 @@ def build_planner_request(
     planner = parameters["planner"]
     own = _mapping(input_payload.get("own"), "Analyzer own input")
     incoming = int(_path(diagnostics_payload, "incoming.amount", 0))
+    opponent_threat = int(_path(diagnostics_payload, "opponent.forecast.short_attack", 0))
     target_attack = int(objective.get("target_attack", 0))
-    if tactic.identity.tactic_id in {"prepare_response", "counter_or_return", "all_clear"}:
+    required_response_attack = 0
+    response_source = "none"
+    if tactic.identity.tactic_id == "prepare_response":
+        margin = int(objective.get("target_attack_margin", 0))
+        required_response_attack = max(incoming, opponent_threat) + margin
+        if incoming > 0 and opponent_threat > 0:
+            response_source = "combined"
+        elif incoming > 0:
+            response_source = "incoming"
+        elif opponent_threat > 0:
+            response_source = "opponent_forecast"
+        if required_response_attack <= 0:
+            raise ValueError("prepare_response requires positive incoming or forecast attack")
+        # Firing is deliberately not part of this objective. The dedicated
+        # readiness worker evaluates whether this attack can be produced later.
+        target_attack = 0
+    elif tactic.identity.tactic_id in {"counter_or_return", "all_clear"}:
         margin_name = (
             "counter_margin"
             if tactic.identity.tactic_id == "counter_or_return"
             else "target_attack_margin"
         )
         target_attack = incoming + int(objective.get(margin_name, 0))
-    deadline = _first_int(
-        objective,
-        "deadline_turns",
-        "response_window",
-        "survival_horizon",
-        default=int(planner.get("beam_depth", 1)),
-    )
+    if tactic.identity.tactic_id == "prepare_response":
+        response_window = int(objective.get("response_window", planner.get("beam_depth", 1)))
+        incoming_deadline = int(_path(diagnostics_payload, "incoming.deadline", 0))
+        opponent_deadline = int(
+            _path(diagnostics_payload, "opponent.forecast.turns_to_best", 0)
+        )
+        threat_deadlines = [
+            value
+            for value, active in (
+                (incoming_deadline, incoming > 0),
+                (opponent_deadline, opponent_threat > 0),
+            )
+            if active and value > 0
+        ]
+        deadline = min([response_window, *threat_deadlines]) if threat_deadlines else response_window
+    else:
+        deadline = _first_int(
+            objective,
+            "deadline_turns",
+            "response_window",
+            "survival_horizon",
+            default=int(planner.get("beam_depth", 1)),
+        )
     weights = {
         name: float(value)
         for section in parameters.values()
@@ -233,6 +282,8 @@ def build_planner_request(
         all_clear_achieved=bool(own.get("all_clear_achieved", False)),
         all_clear_bonus_pending=bool(own.get("all_clear_bonus_pending", False)),
         all_clear_bonus_consumed=bool(own.get("all_clear_bonus_consumed", False)),
+        required_response_attack=max(0, required_response_attack),
+        response_source=response_source,
     )
 
 

@@ -1,5 +1,5 @@
-schema_version: tactic-schema-v1
-registry_version: v1.7.0
+schema_version: tactic-schema-v2
+registry_version: v1.7.2
 compatible_analyzer_schemas:
   input: puyo.state_analyzer.input.v1
   diagnostics: puyo.state_analyzer.diagnostics.v1
@@ -30,9 +30,14 @@ tactics:
     fallback: {tactic_id: survive}
     diagnostics: {fields: [target_chain, mean_chain, success_rate, trigger_preserved]}
 
-  - identity: {id: prepare_response, name: prepare_response, version: "1.0", human_label: 対応準備}
+  - identity: {id: prepare_response, name: prepare_response, version: "2.0", human_label: 対応準備}
     applicability:
       feature_refs: [diagnostics.opponent.attack_options, diagnostics.incoming.windows, diagnostics.own.danger]
+      candidate_when:
+        - all:
+            - {ref: diagnostics.incoming.amount, op: gt, value: 0}
+        - all:
+            - {ref: diagnostics.opponent.forecast.short_attack, op: gt, value: 0}
     objective:
       input_refs: [diagnostics.opponent.forecast, diagnostics.incoming]
       parameters:
@@ -52,7 +57,7 @@ tactics:
         latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
     termination: {criteria: [response_ready, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
-    diagnostics: {fields: [response_window, response_success, trigger_preserved, incoming_coverage]}
+    diagnostics: {fields: [required_response_attack, response_source, response_window, response_capacity, response_success, trigger_preserved, incoming_coverage, immediate_fire]}
 
   - identity: {id: counter_or_return, name: counter_or_return, version: "1.0", human_label: 相殺・返し}
     applicability:
