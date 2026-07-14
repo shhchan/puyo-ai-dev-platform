@@ -1,7 +1,14 @@
 import copy
 import unittest
 
-from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
+from agents.beam_search import (
+    BeamSearchConfig,
+    BeamSearchPolicy,
+    BuildPotential,
+    clone_simulator,
+    evaluate_board,
+    evaluate_build_potential,
+)
 from puyo_env.actions import action_to_placement, legal_action_mask
 from src.core.constants import PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
@@ -19,6 +26,10 @@ class TestBeamSearchPolicy(unittest.TestCase):
             BeamSearchConfig(scenarios=7)
         with self.assertRaises(ValueError):
             BeamSearchConfig(minimum_chain_count=0)
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(trigger_preservation="unsupported")
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(probe_width=-1)
 
     def test_policy_returns_deterministic_legal_action(self):
         simulator = HeadlessPuyoSimulator(seed=7)
@@ -113,6 +124,82 @@ class TestBeamSearchPolicy(unittest.TestCase):
 
         self.assertEqual(first.game.puyo_sequence.next_pair()[0].color, second.game.puyo_sequence.next_pair()[0].color)
         self.assertEqual(first.game.puyo_sequence.next_pair()[1].color, second.game.puyo_sequence.next_pair()[1].color)
+
+    def test_build_potential_finds_one_two_and_three_puyo_ignitions(self):
+        potentials = []
+        for existing in (3, 2, 1):
+            simulator = HeadlessPuyoSimulator(seed=31)
+            for x in range(existing):
+                simulator.game.field.place_puyo(x, 0, Puyo(PuyoColor.RED))
+            before = simulator.game.field.to_color_grid()
+
+            potential = evaluate_build_potential(simulator)
+
+            potentials.append(potential)
+            self.assertEqual(simulator.game.field.to_color_grid(), before)
+
+        self.assertEqual([item.required_puyos for item in potentials], [1, 2, 3])
+        self.assertTrue(all(item.chain_count == 1 for item in potentials))
+        self.assertTrue(all(item.trigger_color == PuyoColor.RED for item in potentials))
+
+    def test_build_potential_uses_stable_trigger_tie_break(self):
+        simulator = HeadlessPuyoSimulator(seed=32)
+        for x in range(3):
+            simulator.game.field.place_puyo(x, 0, Puyo(PuyoColor.RED))
+
+        first = evaluate_build_potential(simulator)
+        second = evaluate_build_potential(simulator)
+
+        self.assertEqual(first, second)
+        self.assertEqual(first, BuildPotential(1, 1, 0, 1, PuyoColor.RED))
+
+    def test_preserve_mode_suppresses_only_subtarget_fires_when_quiet_exists(self):
+        policy = BeamSearchPolicy(
+            BeamSearchConfig(
+                minimum_chain_count=10,
+                trigger_preservation="required",
+                probe_width=1,
+            )
+        )
+        quiet = object()
+        premature = object()
+        target = object()
+
+        retained = policy._suppress_premature(
+            [(premature, 9), (quiet, 0), (target, 10)]
+        )
+
+        self.assertEqual(retained, [quiet, target])
+
+    def test_preserve_mode_avoids_premature_fire_and_resets_decision_cache(self):
+        simulator = HeadlessPuyoSimulator(seed=33)
+        for x in range(3):
+            simulator.game.field.place_puyo(x, 0, Puyo(PuyoColor.RED))
+        simulator.game.current_puyo_1 = Puyo(PuyoColor.RED)
+        simulator.game.current_puyo_2 = Puyo(PuyoColor.BLUE)
+        policy = BeamSearchPolicy(
+            BeamSearchConfig(
+                depth=1,
+                width=22,
+                minimum_chain_count=10,
+                trigger_preservation="required",
+                probe_width=8,
+            )
+        )
+        info = {"action_mask": legal_action_mask(simulator), "simulator": simulator}
+
+        first_action = policy.select_action({}, info)
+        first_probes = policy.last_diagnostics.potential_probe_count
+        second_action = policy.select_action({}, info)
+        second_probes = policy.last_diagnostics.potential_probe_count
+        result = copy.deepcopy(simulator).step(action_to_placement(first_action))
+
+        self.assertEqual(result.chain_count, 0)
+        self.assertEqual(first_action, second_action)
+        self.assertGreater(first_probes, 0)
+        self.assertEqual(first_probes, second_probes)
+        self.assertEqual(policy.last_diagnostics.trigger_preservation, "required")
+        self.assertEqual(policy.last_diagnostics.probe_width, 8)
 
 
 if __name__ == "__main__":

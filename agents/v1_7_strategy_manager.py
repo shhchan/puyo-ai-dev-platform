@@ -1296,6 +1296,7 @@ class V17StrategyManagerPolicy:
                 "strategy": proposal.strategy,
                 "objective": proposal.objective_dict,
                 "objective_result": proposal.objective_result_dict,
+                "build_potential": proposal.build_potential_dict,
                 "result": worker_result,
             },
             "plan": plan.to_dict(),
@@ -1479,8 +1480,18 @@ def _parameter_signatures(tactic: TacticSpec) -> tuple[str, ...]:
     for section in _PARAMETER_SECTIONS:
         for name, spec in tactic.parameters[section].items():
             choices = ",".join(str(choice) for choice in spec.choices)
+            maximum = spec.maximum
+            # v1.7.1 checkpoints record this bound in their feature ABI. The
+            # runtime planner may use the v1.1 upper bound without changing the
+            # parameter/logit shape seen by those strict-load checkpoints.
+            if (
+                tactic.identity.tactic_id == "build_main"
+                and section == "planner"
+                and name == "beam_depth"
+            ):
+                maximum = 6
             signatures.append(
-                f"{section}.{name}:{spec.kind}:{spec.minimum}:{spec.maximum}:{choices}"
+                f"{section}.{name}:{spec.kind}:{spec.minimum}:{maximum}:{choices}"
             )
     return tuple(signatures)
 

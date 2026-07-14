@@ -64,6 +64,16 @@ class TestV17TacticRegistry(unittest.TestCase):
                 }.issubset(tactic)
             )
 
+        build_main = self.registry.tactic("build_main")
+        defaults = build_main.resolve_parameters()
+        self.assertEqual(build_main.identity.version, "1.1")
+        self.assertEqual(defaults["objective"]["target_chain"], 10)
+        self.assertEqual(
+            defaults["constraints"]["trigger_preservation"],
+            "required",
+        )
+        self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
+
     def test_registry_rejects_unsupported_schema_version(self):
         payload = yaml.safe_load(DEFAULT_TACTIC_REGISTRY_PATH.read_text(encoding="utf-8"))
         payload["schema_version"] = "tactic-schema-v0"

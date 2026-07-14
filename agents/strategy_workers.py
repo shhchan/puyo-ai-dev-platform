@@ -7,7 +7,13 @@ import hashlib
 from dataclasses import dataclass, replace
 from typing import Any, Protocol
 
-from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
+from agents.beam_search import (
+    BeamSearchConfig,
+    BeamSearchPolicy,
+    BuildPotential,
+    clone_simulator,
+    evaluate_board,
+)
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
@@ -45,12 +51,20 @@ class WorkerProfile:
     safety_margin: int = 2
     danger_tolerance: float = 0.75
     fire_threshold: float = 1.0
+    trigger_preservation: str = "ignore"
+    potential_probe_width: int = 0
 
     def __post_init__(self) -> None:
         if self.strategy not in STRATEGY_NAMES:
             raise ValueError(f"unknown strategy: {self.strategy}")
         if self.profile_id < 0:
             raise ValueError("profile_id must be non-negative")
+        if self.trigger_preservation not in {"required", "prefer", "ignore"}:
+            raise ValueError(
+                f"unsupported trigger preservation: {self.trigger_preservation}"
+            )
+        if self.potential_probe_width < 0:
+            raise ValueError("potential probe width must be non-negative")
 
 
 @dataclass(frozen=True)
@@ -441,6 +455,13 @@ class SearchProposal:
     search_control: SearchControlDiagnostics | None = None
     tactical_option: TacticalOptionDiagnostics | None = None
     planner_request: PlannerRequest | None = None
+    trigger_preservation: str = "ignore"
+    potential_probe_width: int = 0
+    root_build_potential: BuildPotential = BuildPotential()
+    selected_build_potential: BuildPotential = BuildPotential()
+    trigger_preserved: bool = False
+    potential_probe_count: int = 0
+    potential_cache_hits: int = 0
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -457,6 +478,18 @@ class SearchProposal:
     @property
     def tactical_option_dict(self) -> dict[str, Any]:
         return {} if self.tactical_option is None else self.tactical_option.to_dict()
+
+    @property
+    def build_potential_dict(self) -> dict[str, Any]:
+        return {
+            "preserve_mode": self.trigger_preservation,
+            "probe_width": int(self.potential_probe_width),
+            "root": self.root_build_potential.to_dict(),
+            "selected": self.selected_build_potential.to_dict(),
+            "trigger_preserved": bool(self.trigger_preserved),
+            "probe_count": int(self.potential_probe_count),
+            "cache_hits": int(self.potential_cache_hits),
+        }
 
 
 @dataclass(frozen=True)
@@ -702,6 +735,8 @@ def _profile_budget_dict(profile: WorkerProfile) -> dict[str, Any]:
         "premature_chain_penalty": float(profile.premature_chain_penalty),
         "danger_tolerance": float(profile.danger_tolerance),
         "fire_threshold": float(profile.fire_threshold),
+        "trigger_preservation": profile.trigger_preservation,
+        "potential_probe_width": int(profile.potential_probe_width),
     }
 
 
@@ -714,7 +749,12 @@ def apply_search_control(
     if control is None:
         return profile, None
     clamped_fields: list[str] = []
-    depth, clamped = _clamp_int(profile.depth * control.depth_scale, 1, 8)
+    depth_upper = 10 if profile.trigger_preservation != "ignore" else 8
+    depth, clamped = _clamp_int(
+        profile.depth * control.depth_scale,
+        1,
+        depth_upper,
+    )
     if clamped:
         clamped_fields.append("depth")
     width, clamped = _clamp_int(profile.width * control.width_scale, 4, 64)
@@ -1106,6 +1146,8 @@ class BeamStrategyWorker:
                 chain_weight=profile.chain_weight,
                 score_weight=profile.score_weight,
                 premature_chain_penalty=profile.premature_chain_penalty,
+                trigger_preservation=profile.trigger_preservation,
+                probe_width=profile.potential_probe_width,
             )
         )
         action = policy.select_action(context.observation, context.info)
@@ -1121,7 +1163,7 @@ class BeamStrategyWorker:
             if result is not None
             else 0
         )
-        return _proposal(
+        proposal = _proposal(
             profile,
             objective,
             context.tactical,
@@ -1134,6 +1176,18 @@ class BeamStrategyWorker:
             expanded=diagnostics.expanded_nodes if diagnostics is not None else 0,
             value=float(values.get(action, 0.0)),
             search_control=search_control,
+        )
+        if diagnostics is None:
+            return proposal
+        return replace(
+            proposal,
+            trigger_preservation=diagnostics.trigger_preservation,
+            potential_probe_width=diagnostics.probe_width,
+            root_build_potential=diagnostics.root_potential,
+            selected_build_potential=diagnostics.selected_potential,
+            trigger_preserved=diagnostics.trigger_preserved,
+            potential_probe_count=diagnostics.potential_probe_count,
+            potential_cache_hits=diagnostics.potential_cache_hits,
         )
 
 
@@ -1669,6 +1723,13 @@ def _profile_for_planner_request(
         score_weight=profile.score_weight * score_scale,
         premature_chain_penalty=profile.premature_chain_penalty * trigger_scale,
         danger_tolerance=float(request.danger_tolerance),
+        trigger_preservation=request.trigger_preservation,
+        potential_probe_width=(
+            int(request.candidate_count)
+            if request.tactic_id == "build_main"
+            and request.trigger_preservation != "ignore"
+            else 0
+        ),
     )
 
 

@@ -207,6 +207,7 @@ class StrategyManagerPolicy:
             "objective_result": proposal.objective_result_dict,
             "search_control": proposal.search_control_dict,
             "tactical_option": proposal.tactical_option_dict,
+            "build_potential": proposal.build_potential_dict,
             "plan": self.plan_diagnostics,
             "plan_id": "" if self.last_plan is None else self.last_plan.plan_id,
             "plan_update_reason": "" if self.last_plan is None else self.last_plan.update_reason,

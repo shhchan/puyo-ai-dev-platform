@@ -214,6 +214,11 @@ class TestV17AnalyzerManager(unittest.TestCase):
             first_diagnostics["model_metadata"]["lineage_node_id"],
             "model_version:v1.7.0",
         )
+        build_potential = first_diagnostics["worker"]["build_potential"]
+        self.assertEqual(build_potential["preserve_mode"], "required")
+        self.assertEqual(build_potential["probe_width"], 2)
+        self.assertGreater(build_potential["probe_count"], 0)
+        self.assertIn("chain_count", build_potential["root"])
         json.dumps(first_diagnostics)
 
         policy.reset()

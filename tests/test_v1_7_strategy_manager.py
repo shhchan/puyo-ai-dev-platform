@@ -133,7 +133,7 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(low_values["planner"]["beam_depth"], 1)
         self.assertEqual(low_values["planner"]["beam_width"], 1)
         self.assertEqual(high_values["objective"]["target_chain"], 19)
-        self.assertEqual(high_values["planner"]["beam_depth"], 6)
+        self.assertEqual(high_values["planner"]["beam_depth"], 10)
         self.assertEqual(high_values["planner"]["beam_width"], 128)
 
     def test_preview_features_include_bonus_aware_attack_fields(self):

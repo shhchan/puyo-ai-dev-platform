@@ -10,7 +10,13 @@ from dataclasses import dataclass
 from typing import Any
 
 from puyo_env.actions import action_to_placement, legal_action_indices
-from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
+from src.core.constants import (
+    GRID_HEIGHT,
+    GRID_WIDTH,
+    NORMAL_PUYO_COLORS,
+    VISIBLE_HEIGHT,
+    PuyoColor,
+)
 from src.core.field import Field
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.puyo import Puyo
@@ -37,6 +43,8 @@ class BeamSearchConfig:
     premature_chain_penalty: float = 350.0
     minimum_chain_count: int = 6
     scenario_seed: int | None = None
+    trigger_preservation: str = "ignore"
+    probe_width: int = 0
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -47,6 +55,41 @@ class BeamSearchConfig:
             raise ValueError(f"beam scenarios must be in [1, {len(_SCENARIO_BAGS)}]")
         if self.minimum_chain_count < 1:
             raise ValueError("minimum chain count must be at least 1")
+        if self.trigger_preservation not in {"required", "prefer", "ignore"}:
+            raise ValueError(
+                f"unsupported trigger preservation: {self.trigger_preservation}"
+            )
+        if self.probe_width < 0:
+            raise ValueError("potential probe width must be non-negative")
+
+
+@dataclass(frozen=True)
+class BuildPotential:
+    """Best bounded single-column ignition found for one quiet field."""
+
+    chain_count: int = 0
+    required_puyos: int = 0
+    trigger_x: int | None = None
+    trigger_y: int | None = None
+    trigger_color: PuyoColor | None = None
+
+    @property
+    def exists(self) -> bool:
+        return self.chain_count > 0
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "chain_count": int(self.chain_count),
+            "required_puyos": int(self.required_puyos),
+            "trigger": (
+                None
+                if self.trigger_x is None or self.trigger_y is None
+                else {"x": int(self.trigger_x), "y": int(self.trigger_y)}
+            ),
+            "trigger_color": (
+                None if self.trigger_color is None else self.trigger_color.name
+            ),
+        }
 
 
 @dataclass(frozen=True)
@@ -55,6 +98,13 @@ class BeamSearchDiagnostics:
     expanded_nodes: int
     scenario_count: int
     candidate_values: tuple[tuple[int, float], ...]
+    trigger_preservation: str
+    probe_width: int
+    root_potential: BuildPotential
+    selected_potential: BuildPotential
+    trigger_preserved: bool
+    potential_probe_count: int
+    potential_cache_hits: int
 
 
 @dataclass
@@ -64,6 +114,8 @@ class _Node:
     evaluation: float
     best_chain_value: float
     premature_penalty: float
+    potential: BuildPotential
+    target_achieved: bool
 
 
 class _ScenarioSequence:
@@ -96,6 +148,10 @@ class BeamSearchPolicy:
     def __init__(self, config: BeamSearchConfig | None = None):
         self.config = config or BeamSearchConfig()
         self.last_diagnostics: BeamSearchDiagnostics | None = None
+        self._potential_cache: dict[tuple, BuildPotential] = {}
+        self._potential_probe_count = 0
+        self._potential_cache_hits = 0
+        self._root_potential = BuildPotential()
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
         _ = observation
@@ -105,7 +161,17 @@ class BeamSearchPolicy:
             return choices[0] if choices else 0
 
         started = time.perf_counter()
+        self._potential_cache = {}
+        self._potential_probe_count = 0
+        self._potential_cache_hits = 0
+        self._root_potential = (
+            self._probe_potential(simulator)
+            if self._preserves_trigger
+            else BuildPotential()
+        )
         totals: dict[int, float] = {}
+        potentials: dict[int, list[BuildPotential]] = {}
+        preserved: dict[int, list[bool]] = {}
         expanded_nodes = 0
         scenario_ids = list(range(len(_SCENARIO_BAGS)))
         scenario_colors = [NORMAL_PUYO_COLORS] * self.config.scenarios
@@ -123,28 +189,62 @@ class BeamSearchPolicy:
             # The current pair and two visible next pairs stay intact. Only hidden
             # future pairs are replaced by representative scenarios.
             scenario_simulator.game.puyo_sequence = _ScenarioSequence(scenario_id, colors)
-            values, expanded = self._search_scenario(scenario_simulator)
+            values, scenario_potentials, scenario_preserved, expanded = (
+                self._search_scenario(scenario_simulator)
+            )
             expanded_nodes += expanded
             for action, value in values.items():
                 totals[action] = totals.get(action, 0.0) + value
+                potentials.setdefault(action, []).append(scenario_potentials[action])
+                preserved.setdefault(action, []).append(scenario_preserved[action])
 
         legal = legal_action_indices(simulator)
         if not legal:
             return 0
         best_action = max(legal, key=lambda action: (totals.get(action, float("-inf")), -action))
+        selected_candidates = potentials.get(best_action, ())
+        selected_potential = max(
+            selected_candidates,
+            key=_potential_rank_key,
+            default=BuildPotential(),
+        )
         self.last_diagnostics = BeamSearchDiagnostics(
             elapsed_seconds=time.perf_counter() - started,
             expanded_nodes=expanded_nodes,
             scenario_count=self.config.scenarios,
             candidate_values=tuple(sorted(totals.items())),
+            trigger_preservation=self.config.trigger_preservation,
+            probe_width=self.config.probe_width,
+            root_potential=self._root_potential,
+            selected_potential=selected_potential,
+            trigger_preserved=(
+                self._preserves_trigger
+                and bool(preserved.get(best_action))
+                and all(preserved[best_action])
+            ),
+            potential_probe_count=self._potential_probe_count,
+            potential_cache_hits=self._potential_cache_hits,
         )
         return best_action
 
-    def _search_scenario(self, simulator) -> tuple[dict[int, float], int]:
+    @property
+    def _preserves_trigger(self) -> bool:
+        return (
+            self.config.trigger_preservation != "ignore"
+            and self.config.probe_width > 0
+        )
+
+    def _search_scenario(
+        self,
+        simulator,
+    ) -> tuple[dict[int, float], dict[int, BuildPotential], dict[int, bool], int]:
         beam: list[_Node] = []
         best_by_action: dict[int, float] = {}
+        potential_by_action: dict[int, BuildPotential] = {}
+        preserved_by_action: dict[int, bool] = {}
         expanded_nodes = 0
 
+        root_candidates: list[tuple[_Node, int]] = []
         for action in legal_action_indices(simulator):
             child = clone_simulator(simulator)
             result = child.step(action_to_placement(action))
@@ -153,14 +253,32 @@ class BeamSearchPolicy:
                 continue
             chain_value, premature_penalty = self._chain_outcome(result.chain_count, result.score_delta)
             evaluation = evaluate_board(child.game)
-            beam.append(_Node(child, action, evaluation, chain_value, premature_penalty))
-            best_by_action[action] = chain_value - premature_penalty + evaluation
+            root_candidates.append(
+                (
+                    _Node(
+                        child,
+                        action,
+                        evaluation,
+                        chain_value,
+                        premature_penalty,
+                        BuildPotential(),
+                        result.chain_count >= self.config.minimum_chain_count,
+                    ),
+                    result.chain_count,
+                )
+            )
 
-        beam = self._prune(beam)
+        beam = self._prune(self._suppress_premature(root_candidates))
+        self._record_best(
+            beam,
+            best_by_action,
+            potential_by_action,
+            preserved_by_action,
+        )
         for _ in range(1, self.config.depth):
-            children: list[_Node] = []
             seen: dict[tuple, _Node] = {}
             for node in beam:
+                node_candidates: list[tuple[_Node, int]] = []
                 for action in legal_action_indices(node.simulator):
                     child = clone_simulator(node.simulator)
                     result = child.step(action_to_placement(action))
@@ -174,26 +292,109 @@ class BeamSearchPolicy:
                         result.score_delta,
                     )
                     evaluation = evaluate_board(child.game)
-                    candidate = _Node(child, node.root_action, evaluation, chain_value, premature_penalty)
-                    fingerprint = _field_fingerprint(child.game)
-                    previous = seen.get(fingerprint)
-                    if previous is None or _node_value(candidate) > _node_value(previous):
-                        seen[fingerprint] = candidate
+                    candidate = _Node(
+                        child,
+                        node.root_action,
+                        evaluation,
+                        chain_value,
+                        premature_penalty,
+                        BuildPotential(),
+                        node.target_achieved
+                        or result.chain_count >= self.config.minimum_chain_count,
+                    )
+                    node_candidates.append((candidate, result.chain_count))
 
-                    value = chain_value - premature_penalty + evaluation
-                    if value > best_by_action.get(node.root_action, float("-inf")):
-                        best_by_action[node.root_action] = value
+                for candidate in self._suppress_premature(node_candidates):
+                    fingerprint = _field_fingerprint(candidate.simulator.game)
+                    previous = seen.get(fingerprint)
+                    if previous is None or _base_node_value(candidate) > _base_node_value(previous):
+                        seen[fingerprint] = candidate
 
             if not seen:
                 break
-            children.extend(seen.values())
-            beam = self._prune(children)
+            beam = self._prune(list(seen.values()))
+            self._record_best(
+                beam,
+                best_by_action,
+                potential_by_action,
+                preserved_by_action,
+            )
 
-        return best_by_action, expanded_nodes
+        return best_by_action, potential_by_action, preserved_by_action, expanded_nodes
+
+    def _suppress_premature(
+        self,
+        candidates: list[tuple[_Node, int]],
+    ) -> list[_Node]:
+        if not self._preserves_trigger or not any(chain == 0 for _, chain in candidates):
+            return [node for node, _ in candidates]
+        return [
+            node
+            for node, chain in candidates
+            if not 0 < chain < self.config.minimum_chain_count
+        ]
+
+    def _record_best(
+        self,
+        nodes: list[_Node],
+        values: dict[int, float],
+        potentials: dict[int, BuildPotential],
+        preserved: dict[int, bool],
+    ) -> None:
+        for node in nodes:
+            value = _node_value(node)
+            if value <= values.get(node.root_action, float("-inf")):
+                continue
+            values[node.root_action] = value
+            potentials[node.root_action] = node.potential
+            preserved[node.root_action] = node.target_achieved or _same_trigger(
+                self._root_potential,
+                node.potential,
+            )
 
     def _prune(self, nodes: list[_Node]) -> list[_Node]:
-        nodes.sort(key=lambda node: (_node_value(node), -node.root_action), reverse=True)
+        nodes.sort(
+            key=lambda node: (_base_node_value(node), -node.root_action),
+            reverse=True,
+        )
+        if self._preserves_trigger:
+            for node in nodes[: self.config.probe_width]:
+                node.potential = self._probe_potential(node.simulator)
+                if not node.target_achieved:
+                    potential_value = _potential_value(node.potential)
+                    root_value = _potential_value(self._root_potential)
+                    node.evaluation += self.config.chain_weight * potential_value
+                    if potential_value < root_value:
+                        preserve_scale = {
+                            "prefer": 0.5,
+                            "required": 1.0,
+                            "ignore": 0.0,
+                        }[self.config.trigger_preservation]
+                        node.evaluation -= (
+                            self.config.chain_weight
+                            * (root_value - potential_value)
+                            * preserve_scale
+                        )
+        nodes.sort(
+            key=lambda node: (
+                _node_value(node),
+                _potential_rank_key(node.potential),
+                -node.root_action,
+            ),
+            reverse=True,
+        )
         return nodes[: self.config.width]
+
+    def _probe_potential(self, simulator) -> BuildPotential:
+        fingerprint = _field_fingerprint(simulator.game)
+        cached = self._potential_cache.get(fingerprint)
+        if cached is not None:
+            self._potential_cache_hits += 1
+            return cached
+        potential = evaluate_build_potential(simulator)
+        self._potential_cache[fingerprint] = potential
+        self._potential_probe_count += 1
+        return potential
 
     def _chain_outcome(self, chain_count: int, score_delta: int) -> tuple[float, float]:
         if 0 < chain_count < self.config.minimum_chain_count:
@@ -326,6 +527,103 @@ def _reachable_ignition_count(group, game, heights: tuple[int, ...]) -> int:
     return len(candidates)
 
 
+def evaluate_build_potential(
+    simulator: HeadlessPuyoSimulator,
+    *,
+    max_required_puyos: int = 3,
+) -> BuildPotential:
+    """Evaluate Ama's bounded quiet ignition search without mutating ``simulator``."""
+
+    if max_required_puyos < 1:
+        raise ValueError("max required puyos must be at least 1")
+    heights = _column_heights(simulator.game)
+    x_min, x_max = _quiet_search_bounds(heights)
+    best = BuildPotential()
+    for x in range(x_min, x_max + 1):
+        drop_max = min(max_required_puyos, VISIBLE_HEIGHT - heights[x])
+        if drop_max <= 0:
+            continue
+        for color in NORMAL_PUYO_COLORS:
+            trigger_y = heights[x]
+            for required in range(1, drop_max + 1):
+                if not _virtual_drop_triggers(
+                    simulator.game,
+                    x=x,
+                    y=trigger_y,
+                    color=color,
+                    count=required,
+                ):
+                    continue
+                candidate = clone_simulator(simulator)
+                for offset in range(required):
+                    candidate.game.field.place_puyo(
+                        x,
+                        trigger_y + offset,
+                        Puyo(color),
+                    )
+                chains = candidate.game.resolve_chains_synchronously(
+                    spawn_next=False,
+                    capture_visuals=False,
+                )
+                potential = BuildPotential(
+                    chain_count=len(chains),
+                    required_puyos=required,
+                    trigger_x=x,
+                    trigger_y=trigger_y,
+                    trigger_color=color,
+                )
+                if _potential_rank_key(potential) > _potential_rank_key(best):
+                    best = potential
+                break
+    return best
+
+
+def _virtual_drop_triggers(
+    game,
+    *,
+    x: int,
+    y: int,
+    color: PuyoColor,
+    count: int,
+) -> bool:
+    """Check the dropped color group locally before cloning and resolving."""
+
+    virtual = {(x, y + offset) for offset in range(count)}
+    stack = [(x, y)]
+    visited: set[tuple[int, int]] = set()
+    while stack:
+        cell = stack.pop()
+        if cell in visited:
+            continue
+        cx, cy = cell
+        if not (0 <= cx < GRID_WIDTH and 0 <= cy < VISIBLE_HEIGHT):
+            continue
+        if cell not in virtual and game.field.grid[cy][cx].color != color:
+            continue
+        visited.add(cell)
+        if len(visited) >= 4:
+            return True
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            stack.append((cx + dx, cy + dy))
+    return False
+
+
+def _quiet_search_bounds(heights: tuple[int, ...]) -> tuple[int, int]:
+    """Match Ama's center-reachable column bound for quiet drops."""
+
+    x_min = 2
+    x_max = 2
+    for x in range(3, GRID_WIDTH):
+        if heights[x] > VISIBLE_HEIGHT - 1:
+            break
+        x_max += 1
+    for x in range(1, -1, -1):
+        if heights[x] > VISIBLE_HEIGHT - 1:
+            break
+        x_min -= 1
+    return x_min, x_max
+
+
 def clone_simulator(simulator: HeadlessPuyoSimulator) -> HeadlessPuyoSimulator:
     """Clone the mutable headless search state without copying UI-only data."""
 
@@ -369,6 +667,43 @@ def _clone_sequence(sequence):
 
 def _node_value(node: _Node) -> float:
     return node.best_chain_value - node.premature_penalty + node.evaluation
+
+
+def _base_node_value(node: _Node) -> float:
+    return node.best_chain_value - node.premature_penalty + node.evaluation
+
+
+def _potential_value(potential: BuildPotential) -> float:
+    if not potential.exists:
+        return 0.0
+    return float(potential.chain_count) - 0.25 * float(potential.required_puyos - 1)
+
+
+def _potential_rank_key(potential: BuildPotential) -> tuple[int, int, int, int, int]:
+    color_rank = (
+        len(NORMAL_PUYO_COLORS)
+        if potential.trigger_color is None
+        else NORMAL_PUYO_COLORS.index(potential.trigger_color)
+    )
+    return (
+        int(potential.chain_count),
+        -int(potential.required_puyos),
+        -int(potential.trigger_x if potential.trigger_x is not None else GRID_WIDTH),
+        -int(potential.trigger_y if potential.trigger_y is not None else GRID_HEIGHT),
+        -color_rank,
+    )
+
+
+def _same_trigger(root: BuildPotential, selected: BuildPotential) -> bool:
+    if not root.exists:
+        return not selected.exists
+    return (
+        selected.exists
+        and selected.chain_count >= root.chain_count
+        and selected.trigger_x == root.trigger_x
+        and selected.trigger_y == root.trigger_y
+        and selected.trigger_color == root.trigger_color
+    )
 
 
 def _legal_indices_from_info(info: dict[str, Any]) -> list[int]:
