@@ -1,4 +1,4 @@
-schema_version: tactic-schema-v2
+schema_version: tactic-schema-v3
 registry_version: v1.7.2
 compatible_analyzer_schemas:
   input: puyo.state_analyzer.input.v1
@@ -6,6 +6,12 @@ compatible_analyzer_schemas:
 
 tactics:
   - identity: {id: build_main, name: build_main, version: "2.0", human_label: 本線構築}
+    chain_style:
+      schema_version: puyo.chain_style.v1
+      style_id: unconstrained
+      style_version: "1.0"
+      constraint_mode: unconstrained
+      weight: 0.0
     applicability:
       feature_refs:
         - diagnostics.own.danger

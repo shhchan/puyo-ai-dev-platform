@@ -9,6 +9,13 @@ from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
     BUILD_POTENTIAL_V1_SCHEMA_VERSION,
 )
+from agents.chain_styles import (
+    ChainStyleProvider,
+    ChainStyleRegistry,
+    ChainStyleResolution,
+    ChainStyleSelection,
+    load_chain_style_registry,
+)
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -19,7 +26,7 @@ from agents.v1_7_tactics import TacticSpec
 from src.core.ojama import convert_score_to_ojama
 
 
-PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v3"
+PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v4"
 _OBJECTIVE_KINDS = {
     "build_main": "build",
     "prepare_response": "response_readiness",
@@ -83,6 +90,13 @@ class PlannerRequest:
     all_clear_achieved: bool
     all_clear_bonus_pending: bool
     all_clear_bonus_consumed: bool
+    chain_style: ChainStyleResolution = ChainStyleResolution(
+        requested=ChainStyleSelection(),
+        selected=ChainStyleSelection(),
+        provider_id="builtin.unconstrained.v1",
+        status="unconstrained",
+        diagnostic_code="none",
+    )
     required_response_attack: int = 0
     response_source: str = "none"
     build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
@@ -174,6 +188,7 @@ class PlannerRequest:
             "analyzer_input_schema_version": self.analyzer_input_schema_version,
             "analyzer_diagnostics_schema_version": self.analyzer_diagnostics_schema_version,
             "build_potential_schema_version": self.build_potential_schema_version,
+            "chain_style": self.chain_style.to_dict(),
         }
 
 
@@ -204,6 +219,9 @@ def build_planner_request(
     analyzer_input: AnalyzerInput | Mapping[str, Any],
     analyzer_diagnostics: AnalyzerDiagnostics | Mapping[str, Any],
     parameter_overrides: Mapping[str, Mapping[str, Any]] | None = None,
+    chain_style: ChainStyleSelection | Mapping[str, Any] | None = None,
+    chain_style_registry: ChainStyleRegistry | None = None,
+    chain_style_providers: Mapping[str, ChainStyleProvider] | None = None,
 ) -> PlannerRequest:
     """Resolve one TacticSpec into an executable, versioned worker request."""
 
@@ -274,6 +292,11 @@ def build_planner_request(
         if name.endswith("_weight")
     }
     fallback = str(tactic.fallback.get("tactic_id") or tactic.fallback.get("safety_behavior"))
+    style_registry = chain_style_registry or load_chain_style_registry()
+    style_resolution = style_registry.resolve(
+        tactic.chain_style if chain_style is None else chain_style,
+        chain_style_providers,
+    )
     return PlannerRequest(
         tactic_id=tactic.identity.tactic_id,
         tactic_version=tactic.identity.version,
@@ -296,6 +319,7 @@ def build_planner_request(
         all_clear_achieved=bool(own.get("all_clear_achieved", False)),
         all_clear_bonus_pending=bool(own.get("all_clear_bonus_pending", False)),
         all_clear_bonus_consumed=bool(own.get("all_clear_bonus_consumed", False)),
+        chain_style=style_resolution,
         required_response_attack=max(0, required_response_attack),
         response_source=response_source,
         build_potential_schema_version=(

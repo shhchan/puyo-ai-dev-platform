@@ -9,6 +9,10 @@ from typing import Any, Mapping, Sequence
 
 import yaml
 
+from agents.chain_styles import (
+    CHAIN_STYLE_SCHEMA_VERSION,
+    ChainStyleSelection,
+)
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -17,7 +21,8 @@ from agents.state_analyzer import (
 )
 
 
-TACTIC_SCHEMA_VERSION = "tactic-schema-v2"
+TACTIC_SCHEMA_VERSION = "tactic-schema-v3"
+LEGACY_TACTIC_SCHEMA_VERSION = "tactic-schema-v2"
 TACTIC_DIAGNOSTICS_SCHEMA_VERSION = "puyo.tactic_registry.diagnostics.v1"
 TACTIC_ARTIFACT_SCHEMA_VERSION = "puyo.tactic_registry.artifact.v1"
 DEFAULT_TACTIC_REGISTRY_PATH = (
@@ -203,6 +208,7 @@ class TacticSpec:
     candidate_groups: tuple[ConditionGroup, ...]
     contexts: tuple[ContextSpec, ...]
     parameters: Mapping[str, Mapping[str, ParameterSpec]]
+    chain_style: ChainStyleSelection = ChainStyleSelection()
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "TacticSpec":
@@ -254,6 +260,7 @@ class TacticSpec:
             candidate_groups=candidate_groups,
             contexts=contexts,
             parameters=parameters,
+            chain_style=ChainStyleSelection.from_dict(value.get("chain_style")),
         )
 
     @property
@@ -298,6 +305,7 @@ class TacticSpec:
             "termination": _plain(self.termination),
             "fallback": _plain(self.fallback),
             "diagnostics": _plain(self.diagnostics),
+            "chain_style": self.chain_style.to_dict(),
         }
 
 
@@ -312,6 +320,7 @@ class TacticRegistry:
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any], *, source_path: str = "") -> "TacticRegistry":
+        value = migrate_tactic_registry_payload(value)
         schema_version = str(value.get("schema_version", ""))
         if schema_version != TACTIC_SCHEMA_VERSION:
             raise ValueError(f"unsupported tactic schema: {schema_version}")
@@ -368,6 +377,32 @@ def load_tactic_registry(path: str | Path = DEFAULT_TACTIC_REGISTRY_PATH) -> Tac
     return TacticRegistry.from_dict(_mapping(payload, "registry"), source_path=str(source))
 
 
+def migrate_tactic_registry_payload(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Add an explicit unconstrained style to the shape-compatible v2 schema."""
+
+    payload = _plain(_mapping(value, "registry"))
+    schema_version = str(payload.get("schema_version", ""))
+    if schema_version == TACTIC_SCHEMA_VERSION:
+        return payload
+    if schema_version != LEGACY_TACTIC_SCHEMA_VERSION:
+        raise ValueError(f"unsupported tactic schema: {schema_version}")
+    payload["schema_version"] = TACTIC_SCHEMA_VERSION
+    for tactic in payload.get("tactics", ()):
+        if isinstance(tactic, dict):
+            tactic.setdefault("chain_style", ChainStyleSelection().to_dict())
+    migration = dict(payload.get("schema_migration", {}))
+    migration.update(
+        {
+            "source_schema_version": LEGACY_TACTIC_SCHEMA_VERSION,
+            "target_schema_version": TACTIC_SCHEMA_VERSION,
+            "chain_style_schema_version": CHAIN_STYLE_SCHEMA_VERSION,
+            "default_style": "unconstrained",
+        }
+    )
+    payload["schema_migration"] = migration
+    return payload
+
+
 def build_tactic_diagnostics(
     registry: TacticRegistry,
     analyzer_input: AnalyzerInput | Mapping[str, Any],
@@ -409,6 +444,7 @@ def build_tactic_diagnostics(
                 "parameters": tactic.resolve_parameters(
                     None if parameter_overrides is None else parameter_overrides.get(tactic.identity.tactic_id)
                 ),
+                "chain_style": tactic.chain_style.to_dict(),
             }
         )
     return {
@@ -417,6 +453,7 @@ def build_tactic_diagnostics(
         "registry_version": registry.registry_version,
         "analyzer_input_schema_version": registry.analyzer_input_schema_version,
         "analyzer_diagnostics_schema_version": registry.analyzer_diagnostics_schema_version,
+        "chain_style_schema_version": CHAIN_STYLE_SCHEMA_VERSION,
         "selection_performed": False,
         "candidates": candidates,
     }
@@ -432,6 +469,7 @@ def build_tactic_registry_artifact(
         "registry_version": registry.registry_version,
         "analyzer_input_schema_version": registry.analyzer_input_schema_version,
         "analyzer_diagnostics_schema_version": registry.analyzer_diagnostics_schema_version,
+        "chain_style_schema_version": CHAIN_STYLE_SCHEMA_VERSION,
         "source_path": registry.source_path,
         "registry": registry.to_dict(),
     }

@@ -24,6 +24,7 @@ except ImportError:  # pragma: no cover - dependency guard
     F = None
 
 from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.chain_styles import CHAIN_STYLE_SCHEMA_VERSION, ChainStyleSelection
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -166,11 +167,13 @@ def _migrate_v1_7_1_dataset_metadata(
         {
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": encoder.contract.registry_version,
         }
     )
     migrated_manifest["schemas"] = schemas
+    migrated_manifest["chain_style"] = ChainStyleSelection().to_dict()
     if migrated_manifest == dataset.manifest:
         return dataset
     compatibility = dict(migrated_manifest.get("compatibility", {}))
@@ -953,6 +956,12 @@ def train_v1_7_manager(
                 "schemas": dict(dataset.manifest.get("schemas", {})),
                 "counts": dict(dataset.manifest.get("counts", {})),
                 "compatibility": dict(dataset.manifest.get("compatibility", {})),
+                "chain_style": dict(
+                    dataset.manifest.get(
+                        "chain_style",
+                        ChainStyleSelection().to_dict(),
+                    )
+                ),
             },
             "lifecycle_carry_contract": _lifecycle_carry_contract(dataset),
             "scenario_validation": {

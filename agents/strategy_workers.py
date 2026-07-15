@@ -22,6 +22,12 @@ from agents.beam_search import (
     compare_build_potential_triggers,
     evaluate_board,
 )
+from agents.chain_styles import (
+    ChainStyleEvaluator,
+    ChainStyleProvider,
+    ChainStyleRegistry,
+    load_chain_style_registry,
+)
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
@@ -515,6 +521,7 @@ class SearchProposal:
     response_capacity: int = 0
     incoming_coverage: float = 0.0
     immediate_fire: bool = False
+    chain_style_evaluation: Mapping[str, Any] | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -534,6 +541,10 @@ class SearchProposal:
 
     @property
     def build_potential_dict(self) -> dict[str, Any]:
+        value_breakdown = {
+            key: float(value)
+            for key, value in (self.value_breakdown or {}).items()
+        }
         return {
             "schema_version": self.selected_build_potential.schema_version,
             "preserve_mode": self.trigger_preservation,
@@ -544,9 +555,17 @@ class SearchProposal:
             "trigger_recoverability": self.trigger_recoverability.to_dict(),
             "probe_count": int(self.potential_probe_count),
             "cache_hits": int(self.potential_cache_hits),
-            "value_breakdown": {
-                key: float(value)
-                for key, value in (self.value_breakdown or {}).items()
+            "value_breakdown": value_breakdown,
+            "metric_namespaces": {
+                "generic_capability": {
+                    "build_potential": self.selected_build_potential.to_dict(),
+                    "score_contribution": sum(
+                        value
+                        for key, value in value_breakdown.items()
+                        if key not in {"style_adherence", "total"}
+                    ),
+                },
+                "style_adherence": dict(self.chain_style_evaluation or {}),
             },
         }
 
@@ -556,6 +575,7 @@ class SearchContext:
     observation: dict[str, Any]
     info: dict[str, Any]
     tactical: TacticalContext
+    chain_style_evaluator: ChainStyleEvaluator | None = None
 
     @property
     def simulator(self):
@@ -1224,6 +1244,7 @@ class BeamStrategyWorker:
                     profile.build_potential_schema_version
                 ),
                 potential_probe_budget=profile.potential_probe_budget,
+                chain_style_evaluator=context.chain_style_evaluator,
             )
         )
         action = policy.select_action(context.observation, context.info)
@@ -1277,6 +1298,12 @@ class BeamStrategyWorker:
                 None
                 if selected_candidate is None
                 else selected_candidate.value_breakdown
+            ),
+            chain_style_evaluation=(
+                None
+                if selected_candidate is None
+                or not selected_candidate.chain_style_evaluation
+                else selected_candidate.chain_style_evaluation
             ),
         )
 
@@ -2237,6 +2264,8 @@ class StrategyOrchestrator:
         self,
         profiles: tuple[WorkerProfile, ...] | None = None,
         tactical_options: tuple[TacticalOption, ...] | None = None,
+        chain_style_registry: ChainStyleRegistry | None = None,
+        chain_style_providers: Mapping[str, ChainStyleProvider] | None = None,
     ):
         self.profiles = profiles or default_worker_profiles()
         expected = tuple(range(len(self.profiles)))
@@ -2244,6 +2273,8 @@ class StrategyOrchestrator:
         if actual != expected:
             raise ValueError(f"profile ids must be contiguous from zero: {actual}")
         self.option_controller = TacticalOptionController(self.profiles, tactical_options)
+        self.chain_style_registry = chain_style_registry or load_chain_style_registry()
+        self.chain_style_providers = chain_style_providers
         self._beam_worker = BeamStrategyWorker()
         self._response_worker = ResponseReadinessWorker()
         self._tactical_worker = TacticalStrategyWorker()
@@ -2302,7 +2333,20 @@ class StrategyOrchestrator:
                 source_profile_name=profile.name,
                 max_danger=profile.danger_tolerance,
             )
-        context = SearchContext(observation=observation, info=info, tactical=tactical)
+        style_evaluator = None
+        if planner_request is not None and planner_request.chain_style.enabled:
+            style_evaluator = ChainStyleEvaluator(
+                self.chain_style_registry,
+                planner_request.chain_style.selected,
+                providers=self.chain_style_providers,
+                contribution_scale=profile.chain_weight,
+            )
+        context = SearchContext(
+            observation=observation,
+            info=info,
+            tactical=tactical,
+            chain_style_evaluator=style_evaluator,
+        )
         if objective.kind == "response_readiness":
             worker = self._response_worker
         elif objective.kind == "build" and profile.strategy in BUILD_STRATEGIES:

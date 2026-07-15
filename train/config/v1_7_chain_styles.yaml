@@ -1,0 +1,13 @@
+schema_version: puyo.chain_style_registry.v1
+registry_version: v1.0
+
+styles:
+  - style_id: unconstrained
+    style_version: "1.0"
+    provider_id: builtin.unconstrained.v1
+
+  # Contract fixture only. The provider intentionally performs no GTR
+  # detection; production detection, reward, and data belong to later work.
+  - style_id: gtr
+    style_version: "1.0"
+    provider_id: fixture.named-style-stub.v1
