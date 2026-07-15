@@ -11,12 +11,15 @@ from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
     BUILD_POTENTIAL_V1_SCHEMA_VERSION,
     BUILD_SCORING_V2,
+    DIVERSE_CANDIDATE_MODE,
     LEGACY_BUILD_SCORING,
+    LEGACY_CANDIDATE_MODE,
     BeamSearchConfig,
     BeamSearchPolicy,
     BuildPotential,
     BuildPotentialBudget,
     BuildPotentialSession,
+    DiverseBeamCandidate,
     TriggerRecoverability,
     clone_simulator,
     compare_build_potential_triggers,
@@ -522,6 +525,7 @@ class SearchProposal:
     incoming_coverage: float = 0.0
     immediate_fire: bool = False
     chain_style_evaluation: Mapping[str, Any] | None = None
+    beam_candidates: tuple[DiverseBeamCandidate, ...] = ()
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -568,6 +572,10 @@ class SearchProposal:
                 "style_adherence": dict(self.chain_style_evaluation or {}),
             },
         }
+
+    @property
+    def beam_candidate_dicts(self) -> tuple[dict[str, Any], ...]:
+        return tuple(candidate.to_dict() for candidate in self.beam_candidates)
 
 
 @dataclass(frozen=True)
@@ -1245,6 +1253,16 @@ class BeamStrategyWorker:
                 ),
                 potential_probe_budget=profile.potential_probe_budget,
                 chain_style_evaluator=context.chain_style_evaluator,
+                candidate_mode=(
+                    DIVERSE_CANDIDATE_MODE
+                    if profile.scoring_mode == BUILD_SCORING_V2
+                    else LEGACY_CANDIDATE_MODE
+                ),
+                candidate_limit=(
+                    max(1, profile.potential_probe_width)
+                    if profile.scoring_mode == BUILD_SCORING_V2
+                    else 1
+                ),
             )
         )
         action = policy.select_action(context.observation, context.info)
@@ -1305,6 +1323,7 @@ class BeamStrategyWorker:
                 or not selected_candidate.chain_style_evaluation
                 else selected_candidate.chain_style_evaluation
             ),
+            beam_candidates=diagnostics.proposals,
         )
 
 
