@@ -43,6 +43,16 @@ class TestBeamSearchPolicy(unittest.TestCase):
         self.assertEqual(action_a, action_b)
         self.assertIsNotNone(policy.last_diagnostics)
         self.assertGreater(policy.last_diagnostics.expanded_nodes, 0)
+        candidates = policy.last_diagnostics.candidates
+        self.assertEqual(
+            [candidate.action for candidate in candidates],
+            [index for index, allowed in enumerate(info["action_mask"]) if allowed],
+        )
+        selected = next(candidate for candidate in candidates if candidate.action == action_a)
+        self.assertTrue(selected.root_generated)
+        self.assertGreater(selected.base_prune_depth, 0)
+        self.assertGreater(selected.final_prune_depth, 0)
+        self.assertIn("fire_cost", selected.to_dict())
 
     def test_policy_factory_builds_beam_policy(self):
         policy = make_policy("beam", seed=17, beam_depth=2, beam_width=8, beam_scenarios=1)
