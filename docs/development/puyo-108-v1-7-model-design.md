@@ -178,6 +178,10 @@ v1.7.2 の named chain style 拡張は [PUYO-168 contract](puyo-168-named-chain-
 `unconstrained` を既定とし，GTR 等の style adherence は generic BuildPotential / capability gate と
 別 namespace で明示指定時だけ評価する。
 
+v1.7.2 の ranker-facing beam candidate 集合、diversity slot、budget fallback、診断 schema は
+[PUYO-167 contract](puyo-167-diverse-beam-candidates.md) に従う。既存 single-best API は candidate
+rank 0 を返す compatibility adapter として維持する。
+
 ```text
 TacticSpec
   identity:

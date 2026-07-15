@@ -1,0 +1,19 @@
+{
+  "digests": [
+    "3d65105519ae501bfd6cf322131ba68fa45fae426f41be2ee76c6df34f3510ad",
+    "3d65105519ae501bfd6cf322131ba68fa45fae426f41be2ee76c6df34f3510ad"
+  ],
+  "excluded_fields": [
+    "latency_ms",
+    "aggregate.latency"
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "scope": [
+    "candidate set and rank",
+    "plans and BuildPotential-v2 summaries",
+    "generation, retention, and pruning reasons",
+    "cache, transposition, scenario, and budget diagnostics",
+    "latency-free seed and aggregate metrics"
+  ]
+}

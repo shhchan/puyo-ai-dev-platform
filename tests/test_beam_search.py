@@ -5,6 +5,7 @@ from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
     BUILD_POTENTIAL_V1_SCHEMA_VERSION,
     BUILD_SCORING_V2,
+    DIVERSE_CANDIDATE_MODE,
     LEGACY_BUILD_SCORING,
     BeamSearchConfig,
     BeamSearchPolicy,
@@ -45,6 +46,14 @@ class TestBeamSearchPolicy(unittest.TestCase):
             BeamSearchConfig(probe_width=-1)
         with self.assertRaises(ValueError):
             BuildPotentialBudget(max_added_puyos=5)
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(candidate_mode="unsupported")
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(candidate_limit=0)
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(diversity_slots_per_axis=0)
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(max_expanded_nodes=0)
 
     def test_policy_returns_deterministic_legal_action(self):
         simulator = HeadlessPuyoSimulator(seed=7)
@@ -68,6 +77,143 @@ class TestBeamSearchPolicy(unittest.TestCase):
         self.assertGreater(selected.base_prune_depth, 0)
         self.assertGreater(selected.final_prune_depth, 0)
         self.assertIn("fire_cost", selected.to_dict())
+
+    def test_diverse_generator_is_deterministic_and_ranker_ready(self):
+        simulator = HeadlessPuyoSimulator(seed=7)
+        info = {
+            "action_mask": legal_action_mask(simulator),
+            "simulator": simulator,
+        }
+        policy = BeamSearchPolicy(
+            BeamSearchConfig(
+                depth=2,
+                width=8,
+                scenario_seed=17,
+                trigger_preservation="required",
+                probe_width=4,
+                scoring_mode=BUILD_SCORING_V2,
+                build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+                potential_probe_budget=9,
+                candidate_mode=DIVERSE_CANDIDATE_MODE,
+                candidate_limit=4,
+                trace_paths=True,
+            )
+        )
+
+        first = policy.generate_candidates({}, info)
+        first_payload = tuple(candidate.to_dict() for candidate in first)
+        second = policy.generate_candidates({}, info)
+        second_payload = tuple(candidate.to_dict() for candidate in second)
+
+        self.assertEqual(first_payload, second_payload)
+        self.assertEqual(len(first), 4)
+        self.assertEqual([candidate.rank for candidate in first], list(range(4)))
+        self.assertEqual(
+            policy.select_action({}, info),
+            first[0].action,
+        )
+        self.assertTrue(all(info["action_mask"][item.action] for item in first))
+        self.assertTrue(all(item.plan[0] == item.action for item in first))
+        self.assertTrue(
+            all(
+                item.build_potential.schema_version
+                == BUILD_POTENTIAL_SCHEMA_VERSION
+                for item in first
+            )
+        )
+        self.assertTrue(
+            any(
+                "axis:" in reason
+                for item in first
+                for reason in item.retention_reasons
+            )
+        )
+        self.assertEqual(
+            policy.last_diagnostics.scenario_budget["known_pair_count"],
+            3,
+        )
+        self.assertEqual(
+            policy.last_diagnostics.scenario_budget["uncertainty"],
+            "single_hidden_scenario",
+        )
+
+    def test_diverse_search_cache_modes_and_transpositions_are_deterministic(self):
+        simulator = HeadlessPuyoSimulator(seed=0)
+        info = {
+            "action_mask": legal_action_mask(simulator),
+            "simulator": simulator,
+        }
+
+        def run(use_cache):
+            policy = BeamSearchPolicy(
+                BeamSearchConfig(
+                    depth=3,
+                    width=16,
+                    trigger_preservation="required",
+                    probe_width=8,
+                    scoring_mode=BUILD_SCORING_V2,
+                    build_potential_schema_version=(
+                        BUILD_POTENTIAL_SCHEMA_VERSION
+                    ),
+                    potential_probe_budget=25,
+                    candidate_mode=DIVERSE_CANDIDATE_MODE,
+                    candidate_limit=8,
+                    use_potential_cache=use_cache,
+                )
+            )
+            candidates = policy.generate_candidates({}, info)
+            return policy, tuple(item.to_dict() for item in candidates)
+
+        cached, cached_payload = run(True)
+        uncached, uncached_payload = run(False)
+
+        self.assertEqual(cached_payload, uncached_payload)
+        self.assertGreater(cached.last_diagnostics.transposition_hits, 0)
+        self.assertGreater(cached.last_diagnostics.potential_cache_hits, 0)
+        self.assertEqual(uncached.last_diagnostics.potential_cache_hits, 0)
+        self.assertTrue(
+            any(
+                candidate.duplicate_count > 0
+                for candidate in cached.last_diagnostics.candidates
+            )
+        )
+
+    def test_expanded_node_budget_uses_safe_deterministic_fallback(self):
+        simulator = HeadlessPuyoSimulator(seed=11)
+        info = {
+            "action_mask": legal_action_mask(simulator),
+            "simulator": simulator,
+        }
+        policy = BeamSearchPolicy(
+            BeamSearchConfig(
+                depth=4,
+                width=16,
+                candidate_mode=DIVERSE_CANDIDATE_MODE,
+                candidate_limit=4,
+                max_expanded_nodes=1,
+            )
+        )
+
+        first = policy.generate_candidates({}, info)
+        first_payload = tuple(item.to_dict() for item in first)
+        second = policy.generate_candidates({}, info)
+        result = clone_simulator(simulator).step(
+            action_to_placement(first[0].action)
+        )
+
+        self.assertEqual(
+            first_payload,
+            tuple(item.to_dict() for item in second),
+        )
+        self.assertEqual(policy.last_diagnostics.expanded_nodes, 1)
+        self.assertTrue(policy.last_diagnostics.budget_exhausted)
+        self.assertEqual(
+            policy.last_diagnostics.fallback_reason,
+            "expanded_node_budget",
+        )
+        self.assertTrue(info["action_mask"][first[0].action])
+        self.assertTrue(result.valid)
+        self.assertFalse(result.game_over)
 
     def test_policy_factory_builds_beam_policy(self):
         policy = make_policy("beam", seed=17, beam_depth=2, beam_width=8, beam_scenarios=1)

@@ -17,6 +17,7 @@ from typing import Any, Mapping, Sequence
 from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
     BUILD_SCORING_V2,
+    DIVERSE_CANDIDATE_MODE,
     BeamCandidateDiagnostics,
     BeamSearchConfig,
     BeamSearchDiagnostics,
@@ -79,6 +80,8 @@ class SearchBudget:
             "trace_paths": True,
             "scoring_mode": BUILD_SCORING_V2,
             "build_potential_schema_version": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "candidate_mode": DIVERSE_CANDIDATE_MODE,
+            "candidate_limit": int(self.probe_width),
         }
 
     def beam_config(self) -> BeamSearchConfig:
@@ -97,6 +100,8 @@ class SearchBudget:
             danger_tolerance=0.65,
             build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
             potential_probe_budget=self.probe_width * self.depth + 1,
+            candidate_mode=DIVERSE_CANDIDATE_MODE,
+            candidate_limit=self.probe_width,
         )
 
 
