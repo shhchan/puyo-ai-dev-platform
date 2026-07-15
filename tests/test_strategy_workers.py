@@ -57,7 +57,7 @@ class TestStrategyWorkers(unittest.TestCase):
             self.assertEqual(proposal.profile_id, profile.profile_id)
             self.assertGreaterEqual(proposal.expanded_nodes, 1)
             self.assertGreaterEqual(proposal.elapsed_seconds, 0.0)
-            self.assertEqual(proposal.objective_dict["schema_version"], "search-objective-v1")
+            self.assertEqual(proposal.objective_dict["schema_version"], "search-objective-v2")
             self.assertIn("achieved", proposal.objective_result_dict)
             self.assertIs(simulator, info["simulator"])
 

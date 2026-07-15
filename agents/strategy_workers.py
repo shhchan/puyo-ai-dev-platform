@@ -13,6 +13,7 @@ from agents.beam_search import (
     BuildPotential,
     clone_simulator,
     evaluate_board,
+    evaluate_build_potential,
 )
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
 from puyo_env.actions import action_to_placement, legal_action_indices
@@ -210,6 +211,8 @@ class TacticalObjective:
     target_attack: int = 0
     target_score: int = 0
     target_chain: int = 0
+    required_response_attack: int = 0
+    trigger_preservation: str = "ignore"
     deadline: int = 0
     deadline_ticks: int = 0
     safety_margin: int = 0
@@ -225,11 +228,13 @@ class TacticalObjective:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "schema_version": "search-objective-v1",
+            "schema_version": "search-objective-v2",
             "kind": self.kind,
             "target_attack": int(self.target_attack),
             "target_score": int(self.target_score),
             "target_chain": int(self.target_chain),
+            "required_response_attack": int(self.required_response_attack),
+            "trigger_preservation": self.trigger_preservation,
             "deadline": int(self.deadline),
             "deadline_ticks": int(self.deadline_ticks),
             "safety_margin": int(self.safety_margin),
@@ -254,6 +259,10 @@ class ObjectiveResult:
     deadline_missed: bool = False
     danger_excess: float = 0.0
     time_overrun_ticks: int = 0
+    response_capacity: int = 0
+    incoming_coverage: float = 0.0
+    trigger_preserved: bool = False
+    immediate_fire: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -266,6 +275,10 @@ class ObjectiveResult:
             "deadline_missed": bool(self.deadline_missed),
             "danger_excess": float(self.danger_excess),
             "time_overrun_ticks": int(self.time_overrun_ticks),
+            "response_capacity": int(self.response_capacity),
+            "incoming_coverage": float(self.incoming_coverage),
+            "trigger_preserved": bool(self.trigger_preserved),
+            "immediate_fire": bool(self.immediate_fire),
         }
 
 
@@ -462,6 +475,9 @@ class SearchProposal:
     trigger_preserved: bool = False
     potential_probe_count: int = 0
     potential_cache_hits: int = 0
+    response_capacity: int = 0
+    incoming_coverage: float = 0.0
+    immediate_fire: bool = False
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -1191,6 +1207,153 @@ class BeamStrategyWorker:
         )
 
 
+@dataclass(frozen=True)
+class _ResponseCandidate:
+    action: int
+    chain: int
+    score: int
+    attack: int
+    danger: float
+    capacity: int
+    coverage: float
+    immediate_fire: bool
+    selected_potential: BuildPotential
+    trigger_preserved: bool
+    value: float
+
+
+class ResponseReadinessWorker:
+    """Prepare a deadline-bounded response without firing the prepared chain."""
+
+    def propose(
+        self,
+        context: SearchContext,
+        profile: WorkerProfile,
+        objective: TacticalObjective,
+        search_control: SearchControlDiagnostics | None = None,
+    ) -> SearchProposal:
+        started = time.perf_counter()
+        simulator = context.simulator
+        legal = legal_action_indices(simulator) if simulator is not None else _legal_from_info(context.info)
+        if simulator is None or not legal:
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=legal[0] if legal else 0,
+                danger=1.0,
+                search_control=search_control,
+            )
+
+        preserve_trigger = objective.trigger_preservation != "ignore"
+        root_potential = (
+            evaluate_build_potential(simulator) if preserve_trigger else BuildPotential()
+        )
+        forecast_depth = max(1, min(3, int(objective.deadline) - 1))
+        candidates: list[_ResponseCandidate] = []
+        for action in legal:
+            child = clone_simulator(simulator)
+            result = child.step(action_to_placement(action))
+            if not result.valid or result.game_over:
+                continue
+            preview = resolve_preview_attack(
+                result.attack_score_delta,
+                context.tactical.score_carry,
+                context.tactical.incoming_attack,
+            )
+            immediate_fire = result.chain_count > 0 or preview.generated > 0
+            forecast = estimate_attack_forecast(
+                child,
+                max_depth=forecast_depth,
+                width=max(1, min(int(profile.width), 8)),
+                score_carry=preview.score_carry_after,
+            )
+            capacity = max(0, int(forecast.medium_attack))
+            required = max(1, int(objective.required_response_attack))
+            coverage = min(1.0, capacity / required)
+            selected_potential = (
+                evaluate_build_potential(child) if preserve_trigger else BuildPotential()
+            )
+            trigger_preserved = (
+                not preserve_trigger
+                or not root_potential.exists
+                or _same_build_trigger(root_potential, selected_potential)
+            )
+            danger = board_danger(child.game)
+            preserve_value = 1.0 if trigger_preserved else -1.0
+            value = (
+                coverage * 1_000_000.0
+                + capacity * 20_000.0
+                + preserve_value * 120_000.0
+                + evaluate_board(child.game)
+                - danger * 50_000.0
+                - (10_000_000.0 if immediate_fire else 0.0)
+            )
+            candidates.append(
+                _ResponseCandidate(
+                    action=action,
+                    chain=int(result.chain_count),
+                    score=max(0, int(result.score_delta)),
+                    attack=int(preview.generated),
+                    danger=float(danger),
+                    capacity=capacity,
+                    coverage=coverage,
+                    immediate_fire=immediate_fire,
+                    selected_potential=selected_potential,
+                    trigger_preserved=trigger_preserved,
+                    value=value,
+                )
+            )
+        if not candidates:
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=legal[0],
+                danger=1.0,
+                search_control=search_control,
+            )
+        best = max(candidates, key=lambda item: (item.value, -item.action))
+        proposal = _proposal(
+            profile,
+            objective,
+            context.tactical,
+            action=best.action,
+            chain=best.chain,
+            score=best.score,
+            attack=best.attack,
+            danger=best.danger,
+            elapsed=time.perf_counter() - started,
+            expanded=len(candidates),
+            value=best.value,
+            response_capacity=best.capacity,
+            incoming_coverage=best.coverage,
+            trigger_preserved=best.trigger_preserved,
+            immediate_fire=best.immediate_fire,
+            search_control=search_control,
+        )
+        return replace(
+            proposal,
+            trigger_preservation=objective.trigger_preservation,
+            potential_probe_width=int(profile.potential_probe_width),
+            root_build_potential=root_potential,
+            selected_build_potential=best.selected_potential,
+            potential_probe_count=(len(candidates) + 1 if preserve_trigger else 0),
+        )
+
+
+def _same_build_trigger(left: BuildPotential, right: BuildPotential) -> bool:
+    if not left.exists:
+        return True
+    return (
+        right.exists
+        and left.trigger_x == right.trigger_x
+        and left.trigger_y == right.trigger_y
+        and left.trigger_color == right.trigger_color
+        and right.chain_count >= left.chain_count
+    )
+
+
 @dataclass
 class _TacticalCandidate:
     simulator: Any
@@ -1344,6 +1507,10 @@ def _proposal(
     expanded: int = 0,
     value: float = 0.0,
     depth: int = 1,
+    response_capacity: int = 0,
+    incoming_coverage: float = 0.0,
+    trigger_preserved: bool = False,
+    immediate_fire: bool = False,
     search_control: SearchControlDiagnostics | None = None,
     tactical_option: TacticalOptionDiagnostics | None = None,
 ) -> SearchProposal:
@@ -1361,6 +1528,10 @@ def _proposal(
         chain=int(chain),
         danger=float(danger),
         depth=int(depth),
+        response_capacity=int(response_capacity),
+        incoming_coverage=float(incoming_coverage),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
     return SearchProposal(
         action=action,
@@ -1374,7 +1545,11 @@ def _proposal(
         elapsed_seconds=elapsed_seconds,
         expanded_nodes=int(expanded),
         candidate_value=float(value),
-        target_attack=objective.target_attack,
+        target_attack=(
+            objective.required_response_attack
+            if objective.kind == "response_readiness"
+            else objective.target_attack
+        ),
         incoming_attack=tactical.incoming_attack,
         deadline=objective.deadline,
         max_return_attack=tactical.max_return_by_deadline,
@@ -1383,6 +1558,10 @@ def _proposal(
         objective_result=result,
         search_control=search_control,
         tactical_option=tactical_option,
+        response_capacity=int(response_capacity),
+        incoming_coverage=float(incoming_coverage),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
 
 
@@ -1403,6 +1582,14 @@ def build_n_turn_plan(
     incoming_remaining = max(0, int(tactical.incoming_attack))
     cursor = clone_simulator(simulator) if simulator is not None else None
     objective = proposal.objective
+    response_root_potential = (
+        evaluate_build_potential(simulator)
+        if simulator is not None
+        and objective is not None
+        and objective.kind == "response_readiness"
+        and objective.trigger_preservation != "ignore"
+        else BuildPotential()
+    )
     for step_index in range(max(0, int(max_steps))):
         if cursor is None or objective is None:
             break
@@ -1480,6 +1667,30 @@ def build_n_turn_plan(
         cumulative_score += score
         cumulative_attack += attack
         danger = board_danger(cursor.game)
+        response_capacity = 0
+        incoming_coverage = 0.0
+        trigger_preserved = False
+        immediate_fire = False
+        if objective.kind == "response_readiness":
+            remaining_depth = max(1, min(3, objective.deadline - step_index - 1))
+            response_capacity = estimate_attack_forecast(
+                cursor,
+                max_depth=remaining_depth,
+                width=8,
+                score_carry=score_carry,
+            ).medium_attack
+            required = max(1, objective.required_response_attack)
+            incoming_coverage = min(1.0, response_capacity / required)
+            selected_potential = (
+                evaluate_build_potential(cursor)
+                if objective.trigger_preservation != "ignore"
+                else BuildPotential()
+            )
+            trigger_preserved = (
+                objective.trigger_preservation == "ignore"
+                or _same_build_trigger(response_root_potential, selected_potential)
+            )
+            immediate_fire = result.chain_count > 0 or attack > 0
         objective_result = _evaluate_objective(
             objective,
             tactical,
@@ -1488,6 +1699,10 @@ def build_n_turn_plan(
             chain=int(result.chain_count),
             danger=danger,
             depth=step_index + 1,
+            response_capacity=response_capacity,
+            incoming_coverage=incoming_coverage,
+            trigger_preserved=trigger_preserved,
+            immediate_fire=immediate_fire,
         )
         steps.append(
             PlanStep(
@@ -1588,6 +1803,12 @@ def _choose_plan_continuation(
         return None
     best_action = None
     best_value = float("-inf")
+    response_root_potential = (
+        evaluate_build_potential(simulator)
+        if objective.kind == "response_readiness"
+        and objective.trigger_preservation != "ignore"
+        else BuildPotential()
+    )
     for action in legal:
         child = clone_simulator(simulator)
         result = child.step(action_to_placement(action))
@@ -1601,7 +1822,34 @@ def _choose_plan_continuation(
         score = max(0, int(result.score_delta))
         chain = int(result.chain_count)
         danger = board_danger(child.game)
-        value = _tactical_value(objective, attack, score, chain, danger, 1, child.game)
+        if objective.kind == "response_readiness":
+            capacity = estimate_attack_forecast(
+                child,
+                max_depth=max(1, min(3, objective.deadline - 1)),
+                width=8,
+                score_carry=score_carry,
+            ).medium_attack
+            required = max(1, objective.required_response_attack)
+            coverage = min(1.0, capacity / required)
+            selected_potential = (
+                evaluate_build_potential(child)
+                if objective.trigger_preservation != "ignore"
+                else BuildPotential()
+            )
+            preserved = (
+                objective.trigger_preservation == "ignore"
+                or _same_build_trigger(response_root_potential, selected_potential)
+            )
+            value = (
+                coverage * 1_000_000.0
+                + capacity * 20_000.0
+                + (120_000.0 if preserved else -120_000.0)
+                + evaluate_board(child.game)
+                - danger * 50_000.0
+                - (10_000_000.0 if chain > 0 or attack > 0 else 0.0)
+            )
+        else:
+            value = _tactical_value(objective, attack, score, chain, danger, 1, child.game)
         if value > best_value:
             best_action = action
             best_value = value
@@ -1660,10 +1908,27 @@ def _evaluate_objective(
     chain: int,
     danger: float,
     depth: int,
+    response_capacity: int = 0,
+    incoming_coverage: float = 0.0,
+    trigger_preserved: bool = False,
+    immediate_fire: bool = False,
 ) -> ObjectiveResult:
     miss_reasons: list[str] = []
     deadline_missed = objective.deadline > 0 and depth > objective.deadline
-    if objective.target_attack > 0 and attack < objective.target_attack:
+    if (
+        objective.kind == "response_readiness"
+        and response_capacity < objective.required_response_attack
+    ):
+        miss_reasons.append("response_capacity")
+    if objective.kind == "response_readiness" and immediate_fire:
+        miss_reasons.append("immediate_fire")
+    if (
+        objective.kind == "response_readiness"
+        and objective.trigger_preservation == "required"
+        and not trigger_preserved
+    ):
+        miss_reasons.append("trigger_preservation")
+    if objective.kind != "response_readiness" and objective.target_attack > 0 and attack < objective.target_attack:
         miss_reasons.append("target_attack")
     if objective.target_score > 0 and score < objective.target_score:
         miss_reasons.append("target_score")
@@ -1676,7 +1941,11 @@ def _evaluate_objective(
         miss_reasons.append("deadline")
 
     possible_by_deadline = True
-    if objective.deadline > 0 and objective.target_attack > 0:
+    if objective.kind == "response_readiness":
+        possible_by_deadline = response_capacity >= objective.required_response_attack
+        if not possible_by_deadline:
+            miss_reasons.append("impossible_by_deadline")
+    elif objective.deadline > 0 and objective.target_attack > 0:
         if objective.deadline <= max(1, tactical.incoming_deadline or objective.deadline):
             possible_by_deadline = objective.target_attack <= tactical.max_return_by_deadline
         else:
@@ -1693,6 +1962,10 @@ def _evaluate_objective(
         chain_delta=int(chain) - int(objective.target_chain),
         deadline_missed=deadline_missed,
         danger_excess=danger_excess,
+        response_capacity=max(0, int(response_capacity)),
+        incoming_coverage=max(0.0, min(1.0, float(incoming_coverage))),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
 
 
@@ -1726,7 +1999,7 @@ def _profile_for_planner_request(
         trigger_preservation=request.trigger_preservation,
         potential_probe_width=(
             int(request.candidate_count)
-            if request.tactic_id == "build_main"
+            if request.tactic_id in {"build_main", "prepare_response"}
             and request.trigger_preservation != "ignore"
             else 0
         ),
@@ -1740,6 +2013,8 @@ def _objective_for_planner_request(
     return TacticalObjective(
         kind=request.objective_kind,
         target_attack=max(0, int(request.target_attack)),
+        required_response_attack=max(0, int(request.required_response_attack)),
+        trigger_preservation=request.trigger_preservation,
         target_chain=max(0, int(request.target_chain)),
         deadline=max(0, int(request.deadline_turns)),
         deadline_ticks=max(0, int(request.deadline_ticks)),
@@ -1769,6 +2044,7 @@ class StrategyOrchestrator:
             raise ValueError(f"profile ids must be contiguous from zero: {actual}")
         self.option_controller = TacticalOptionController(self.profiles, tactical_options)
         self._beam_worker = BeamStrategyWorker()
+        self._response_worker = ResponseReadinessWorker()
         self._tactical_worker = TacticalStrategyWorker()
         self.last_proposal: SearchProposal | None = None
         self.last_plan: NTurnPlan | None = None
@@ -1816,11 +2092,12 @@ class StrategyOrchestrator:
                 max_danger=profile.danger_tolerance,
             )
         context = SearchContext(observation=observation, info=info, tactical=tactical)
-        worker = (
-            self._beam_worker
-            if objective.kind == "build" and profile.strategy in BUILD_STRATEGIES
-            else self._tactical_worker
-        )
+        if objective.kind == "response_readiness":
+            worker = self._response_worker
+        elif objective.kind == "build" and profile.strategy in BUILD_STRATEGIES:
+            worker = self._beam_worker
+        else:
+            worker = self._tactical_worker
         self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
         if option_diagnostics is not None:
             self.last_proposal = replace(self.last_proposal, tactical_option=option_diagnostics)
