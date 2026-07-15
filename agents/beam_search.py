@@ -634,6 +634,7 @@ class DiverseBeamCandidate:
     pruning_reasons: tuple[str, ...] = ()
     scenario_support: int = 0
     scenario_ids: tuple[int, ...] = ()
+    chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
     schema_version: str = DIVERSE_CANDIDATE_SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
@@ -663,6 +664,7 @@ class DiverseBeamCandidate:
                 "support": int(self.scenario_support),
                 "scenario_ids": [int(value) for value in self.scenario_ids],
             },
+            "chain_style": copy.deepcopy(dict(self.chain_style_evaluation)),
         }
 
 
@@ -1855,6 +1857,9 @@ class BeamSearchPolicy:
                     pruning_reasons=candidate.pruning_reasons,
                     scenario_support=len(candidate.scenario_ids),
                     scenario_ids=candidate.scenario_ids,
+                    chain_style_evaluation=dict(
+                        candidate.chain_style_evaluation
+                    ),
                 )
             )
         return tuple(proposals)

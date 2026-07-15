@@ -1698,6 +1698,7 @@ class V17StrategyManagerPolicy:
                 "objective": proposal.objective_dict,
                 "objective_result": proposal.objective_result_dict,
                 "build_potential": copy.deepcopy(proposal.build_potential_dict),
+                "proposal_batch": copy.deepcopy(proposal.worker_proposal_dict),
                 "result": worker_result,
             },
             "plan": plan.to_dict(),
@@ -1835,6 +1836,7 @@ def _preview_diagnostics(preview: _PreviewResult) -> dict[str, Any]:
             "trigger_recoverability": copy.deepcopy(
                 proposal.trigger_recoverability.to_dict()
             ),
+            "proposal_batch": copy.deepcopy(proposal.worker_proposal_dict),
         },
         "plan": plan.to_dict(),
     }
