@@ -11,6 +11,7 @@ from agents.state_analyzer import (
     AnalyzerInput,
     StateAnalyzer,
 )
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from eval.analyzer_scenarios import (
     SCENARIO_REPORT_SCHEMA_VERSION,
     build_report,
@@ -49,6 +50,29 @@ class TestStateAnalyzer(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first["schema_version"], ANALYZER_DIAGNOSTICS_SCHEMA_VERSION)
         self.assertIn(first["own"]["forecast"]["main_chain"], first["own"]["attack_options"])
+        for player in ("own", "opponent"):
+            potential = first[player]["build_potential"]
+            self.assertEqual(
+                potential["schema_version"],
+                BUILD_POTENTIAL_SCHEMA_VERSION,
+            )
+            self.assertIn(
+                potential["evaluation_status"],
+                {"available", "not_found", "budget_exhausted"},
+            )
+            self.assertEqual(potential["exists"], potential["chain_count"] > 0)
+            self.assertIn("trigger_alternatives", potential)
+            self.assertIn("trigger_recoverability", potential)
+            self.assertIn("budget", potential["search"])
+            for field in (
+                "predicted_chain_potential",
+                "continuation_flexibility",
+                "danger_margin",
+            ):
+                value = potential[field]
+                if value is not None:
+                    self.assertGreaterEqual(value, 0.0)
+                    self.assertLessEqual(value, 1.0)
         json.dumps(first)
 
     def test_runtime_snapshot_does_not_mutate_environment(self):

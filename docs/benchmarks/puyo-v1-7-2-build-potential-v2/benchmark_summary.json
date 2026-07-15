@@ -1,0 +1,534 @@
+{
+  "budget": {
+    "passed": true,
+    "violations": 0
+  },
+  "compatibility": {
+    "build_potential_schema_version": "puyo.build_potential.v2",
+    "common_puyo_165_artifact_schema_changed": false,
+    "learned_analyzer_feature_count": 77,
+    "learned_analyzer_tensor_changed": false
+  },
+  "config": {
+    "budget": {
+      "max_added_puyos": 4,
+      "max_alternatives": 8,
+      "max_continuation_actions": 8,
+      "max_pattern_nodes": 1024,
+      "max_recovery_puyos": 2,
+      "max_resolution_nodes": 48
+    },
+    "cache_modes": [
+      "enabled",
+      "disabled"
+    ],
+    "decision_limit": null,
+    "repetitions": 2,
+    "workers": 8
+  },
+  "coverage": {
+    "candidate_eligibility_rate": 0.698648929536479,
+    "eligible_candidate_records": 16806,
+    "evaluation_status_counts": {
+      "available": 11009,
+      "budget_exhausted": 3150,
+      "not_found": 2647
+    },
+    "excluded_candidate_records": 7249,
+    "positive_potential_records": 14159,
+    "predicted_feature_available_records": 16806,
+    "predicted_feature_coverage_rate": 1.0,
+    "search_complete_rate": 0.8125669403784362,
+    "search_complete_records": 13656,
+    "source_candidate_records": 24055
+  },
+  "created_at_utc": "2026-07-15T14:40:59Z",
+  "determinism": {
+    "cache_evidence": [
+      {
+        "enabled": true,
+        "hits": 1863,
+        "probe_count": 1198,
+        "unique_evaluations": 16141
+      },
+      {
+        "enabled": false,
+        "hits": 0,
+        "probe_count": 1198,
+        "unique_evaluations": 16141
+      }
+    ],
+    "cache_modes": [
+      "enabled",
+      "disabled"
+    ],
+    "digests": [
+      "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6",
+      "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6"
+    ],
+    "passed": true,
+    "repetitions": 2,
+    "scope": "all compact feature records; no wall-clock fields"
+  },
+  "evaluation_completed": true,
+  "feature_contract": {
+    "budget": {
+      "max_added_puyos": 4,
+      "max_alternatives": 8,
+      "max_continuation_actions": 8,
+      "max_pattern_nodes": 1024,
+      "max_recovery_puyos": 2,
+      "max_resolution_nodes": 48
+    },
+    "candidate_cohort": {
+      "board_reconstruction": "replay each seed using frozen current.selected_action between decisions, then apply each current candidate.best_path",
+      "eligibility": "non-empty current best_path and non-null current/reference candidate values",
+      "target_source": "same-action bounded-reference candidate"
+    },
+    "fields": {
+      "v1_scalar": "legacy chain_count - 0.25 * (required_puyos - 1); diagnostic baseline only",
+      "v2_alternative_robustness": "bounded trigger-equivalence class count; higher is better",
+      "v2_composite": {
+        "semantics": "fixed diagnostic projection; not a trained score or quality gate",
+        "weights": {
+          "v2_alternative_robustness": 0.1,
+          "v2_continuation_flexibility": 0.15,
+          "v2_danger_margin": 0.1,
+          "v2_ignition_readiness": 0.15,
+          "v2_predicted_chain_potential": 0.5
+        }
+      },
+      "v2_continuation_flexibility": "bounded two-cell column headroom; higher is better",
+      "v2_danger_margin": "1 - board danger ratio; higher is better",
+      "v2_ignition_readiness": "1 - normalized minimal ignition cost; higher is better",
+      "v2_predicted_chain_potential": "normalized latent chain/cost/alternative strength; higher is better"
+    },
+    "missing_value_semantics": "null means the bounded v2 search exhausted its budget before a potential estimate; it is excluded rather than coerced to zero",
+    "named_chain_shape_features": [],
+    "schema_version": "puyo.build_potential.v2",
+    "style_neutral": true
+  },
+  "feature_records_sha256": "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6",
+  "git_commit": "5b82400e6f65547629ec268ac853e00364001dad",
+  "implementation_files": [
+    {
+      "path": "agents/beam_search.py",
+      "sha256": "06dc0b1ee42ee5e2dca9d7c6bfb12145f18bb5e1bd400b1f72aaf6e486419458",
+      "size_bytes": 76090
+    },
+    {
+      "path": "eval/v1_7_build_potential_benchmark.py",
+      "sha256": "2ce3e91da894a961fa9480b63455819194ae99ff3573de8e8433836a43c685fc",
+      "size_bytes": 48694
+    }
+  ],
+  "interpretation": {
+    "claims": "observational evidence only; no superiority claim",
+    "correlation_unit": "eligible candidate rows pooled across frozen decisions; exact ties use average ranks for Spearman and tau-b for Kendall",
+    "ranking_unit": "one frozen decision; lowest action is the deterministic tie-break, with tie-aware top-set overlap reported separately",
+    "reference_candidate_value": "auxiliary legacy target containing the old board-shape heuristic; negative correlations are a measured design difference, not a failure",
+    "reference_predicted_max_chain": "direct bounded-search target; sparse ties are reported explicitly"
+  },
+  "metrics": {
+    "reference_candidate_value": {
+      "v1_scalar": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 34,
+          "kendall_tau_b": 0.7114882350313881,
+          "spearman_rho": 0.7862428431556306,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.5166944908180301,
+          "deterministic_top1_hits": 619,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 572,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.5109797297297297,
+          "informative_deterministic_top1_hits": 605,
+          "informative_tie_aware_top_set_overlap_hits": 879,
+          "informative_tie_aware_top_set_overlap_rate": 0.7423986486486487,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 893,
+          "tie_aware_top_set_overlap_rate": 0.7454090150250418
+        }
+      },
+      "v2_alternative_robustness": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 9,
+          "kendall_tau_b": 0.2446087498952792,
+          "spearman_rho": 0.2929090037377704,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.17612687813021702,
+          "deterministic_top1_hits": 211,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 800,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.16638513513513514,
+          "informative_deterministic_top1_hits": 197,
+          "informative_tie_aware_top_set_overlap_hits": 462,
+          "informative_tie_aware_top_set_overlap_rate": 0.3902027027027027,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 476,
+          "tie_aware_top_set_overlap_rate": 0.3973288814691152
+        }
+      },
+      "v2_composite": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 2501,
+          "kendall_tau_b": 0.1937501202371501,
+          "spearman_rho": 0.24417036116495572,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.2988313856427379,
+          "deterministic_top1_hits": 358,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 246,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.2905405405405405,
+          "informative_deterministic_top1_hits": 344,
+          "informative_tie_aware_top_set_overlap_hits": 380,
+          "informative_tie_aware_top_set_overlap_rate": 0.32094594594594594,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 394,
+          "tie_aware_top_set_overlap_rate": 0.328881469115192
+        }
+      },
+      "v2_continuation_flexibility": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 12,
+          "kendall_tau_b": -0.24435655083773847,
+          "spearman_rho": -0.30908560386130823,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.16277128547579298,
+          "deterministic_top1_hits": 195,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 1051,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.15287162162162163,
+          "informative_deterministic_top1_hits": 181,
+          "informative_tie_aware_top_set_overlap_hits": 909,
+          "informative_tie_aware_top_set_overlap_rate": 0.7677364864864865,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 923,
+          "tie_aware_top_set_overlap_rate": 0.7704507512520868
+        }
+      },
+      "v2_danger_margin": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 110,
+          "kendall_tau_b": -0.4134030156610307,
+          "spearman_rho": -0.528742952459264,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.13606010016694492,
+          "deterministic_top1_hits": 163,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 941,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.1258445945945946,
+          "informative_deterministic_top1_hits": 149,
+          "informative_tie_aware_top_set_overlap_hits": 320,
+          "informative_tie_aware_top_set_overlap_rate": 0.2702702702702703,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 334,
+          "tie_aware_top_set_overlap_rate": 0.27879799666110183
+        }
+      },
+      "v2_ignition_readiness": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 4,
+          "kendall_tau_b": 0.003797601175305681,
+          "spearman_rho": -0.0015789852251548284,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.17946577629382304,
+          "deterministic_top1_hits": 215,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 1130,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.16976351351351351,
+          "informative_deterministic_top1_hits": 201,
+          "informative_tie_aware_top_set_overlap_hits": 942,
+          "informative_tie_aware_top_set_overlap_rate": 0.7956081081081081,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 956,
+          "tie_aware_top_set_overlap_rate": 0.7979966611018364
+        }
+      },
+      "v2_predicted_chain_potential": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 38,
+          "kendall_tau_b": 0.3754377323671386,
+          "spearman_rho": 0.4202775750764183,
+          "target_unique_values": 12274
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.3989983305509182,
+          "deterministic_top1_hits": 478,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 728,
+          "informative_decisions": 1184,
+          "informative_deterministic_top1_accuracy": 0.3918918918918919,
+          "informative_deterministic_top1_hits": 464,
+          "informative_tie_aware_top_set_overlap_hits": 832,
+          "informative_tie_aware_top_set_overlap_rate": 0.7027027027027027,
+          "target_tie_decisions": 48,
+          "tie_aware_top_set_overlap_hits": 846,
+          "tie_aware_top_set_overlap_rate": 0.7061769616026711
+        }
+      }
+    },
+    "reference_predicted_max_chain": {
+      "v1_scalar": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 34,
+          "kendall_tau_b": -0.06977826997152402,
+          "spearman_rho": -0.08266055242007438,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.8839732888146912,
+          "deterministic_top1_hits": 1059,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 572,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.2057142857142857,
+          "informative_deterministic_top1_hits": 36,
+          "informative_tie_aware_top_set_overlap_hits": 52,
+          "informative_tie_aware_top_set_overlap_rate": 0.29714285714285715,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1075,
+          "tie_aware_top_set_overlap_rate": 0.8973288814691152
+        }
+      },
+      "v2_alternative_robustness": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 9,
+          "kendall_tau_b": -0.11337430515675105,
+          "spearman_rho": -0.12825075508759362,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9106844741235393,
+          "deterministic_top1_hits": 1091,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 800,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.38857142857142857,
+          "informative_deterministic_top1_hits": 68,
+          "informative_tie_aware_top_set_overlap_hits": 119,
+          "informative_tie_aware_top_set_overlap_rate": 0.68,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1142,
+          "tie_aware_top_set_overlap_rate": 0.9532554257095158
+        }
+      },
+      "v2_composite": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 2501,
+          "kendall_tau_b": -0.0828807294759677,
+          "spearman_rho": -0.10213364651091492,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9298831385642737,
+          "deterministic_top1_hits": 1114,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 246,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.52,
+          "informative_deterministic_top1_hits": 91,
+          "informative_tie_aware_top_set_overlap_hits": 96,
+          "informative_tie_aware_top_set_overlap_rate": 0.5485714285714286,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1119,
+          "tie_aware_top_set_overlap_rate": 0.9340567612687813
+        }
+      },
+      "v2_continuation_flexibility": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 12,
+          "kendall_tau_b": -0.06566834705570755,
+          "spearman_rho": -0.07084597679060903,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9465776293823038,
+          "deterministic_top1_hits": 1134,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 1051,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.6342857142857142,
+          "informative_deterministic_top1_hits": 111,
+          "informative_tie_aware_top_set_overlap_hits": 141,
+          "informative_tie_aware_top_set_overlap_rate": 0.8057142857142857,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1164,
+          "tie_aware_top_set_overlap_rate": 0.9716193656093489
+        }
+      },
+      "v2_danger_margin": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 110,
+          "kendall_tau_b": 0.031840436980632894,
+          "spearman_rho": 0.03910767776647571,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9540901502504173,
+          "deterministic_top1_hits": 1143,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 941,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.6857142857142857,
+          "informative_deterministic_top1_hits": 120,
+          "informative_tie_aware_top_set_overlap_hits": 134,
+          "informative_tie_aware_top_set_overlap_rate": 0.7657142857142857,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1157,
+          "tie_aware_top_set_overlap_rate": 0.9657762938230384
+        }
+      },
+      "v2_ignition_readiness": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 4,
+          "kendall_tau_b": -0.08903100568331157,
+          "spearman_rho": -0.0949005852504533,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9198664440734557,
+          "deterministic_top1_hits": 1102,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 1130,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.4514285714285714,
+          "informative_deterministic_top1_hits": 79,
+          "informative_tie_aware_top_set_overlap_hits": 158,
+          "informative_tie_aware_top_set_overlap_rate": 0.9028571428571428,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1181,
+          "tie_aware_top_set_overlap_rate": 0.9858096828046744
+        }
+      },
+      "v2_predicted_chain_potential": {
+        "correlation": {
+          "candidate_pairs": 16806,
+          "coverage_rate": 1.0,
+          "feature_unique_values": 38,
+          "kendall_tau_b": -0.11320157852510103,
+          "spearman_rho": -0.13363076973725344,
+          "target_unique_values": 10
+        },
+        "ranking": {
+          "deterministic_tie_break": "lowest action index",
+          "deterministic_top1_accuracy": 0.9131886477462438,
+          "deterministic_top1_hits": 1094,
+          "eligible_decisions": 1198,
+          "feature_tie_decisions": 728,
+          "informative_decisions": 175,
+          "informative_deterministic_top1_accuracy": 0.4057142857142857,
+          "informative_deterministic_top1_hits": 71,
+          "informative_tie_aware_top_set_overlap_hits": 125,
+          "informative_tie_aware_top_set_overlap_rate": 0.7142857142857143,
+          "target_tie_decisions": 1087,
+          "tie_aware_top_set_overlap_hits": 1148,
+          "tie_aware_top_set_overlap_rate": 0.9582637729549248
+        }
+      }
+    }
+  },
+  "migration": {
+    "board_recompute": {
+      "checks": 2396,
+      "matches": 2396,
+      "passed": true
+    },
+    "fieldless_projection": {
+      "candidate_records": 24055,
+      "error_count": 0,
+      "errors": [],
+      "legacy_positive_records": 14525,
+      "legacy_probe_evidence_records": 15153,
+      "legacy_zero_records": 9530,
+      "passed": true,
+      "semantics": {
+        "board_available": "recompute v2 under the configured bounded budget",
+        "positive": "legacy_partial; scalar fields preserved",
+        "zero": "unknown; v1 cannot distinguish not-found from not-probed"
+      },
+      "source_schema_version": "puyo.build_potential.v1",
+      "status_counts": {
+        "legacy_partial": 14525,
+        "unknown": 9530
+      },
+      "target_schema_version": "puyo.build_potential.v2"
+    }
+  },
+  "quality_gate": null,
+  "replay": {
+    "issue_count": 0,
+    "issues": [],
+    "passed": true
+  },
+  "schema_version": "puyo.v1_7_build_potential_benchmark.v1",
+  "source": {
+    "available_decisions": 1200,
+    "expected_sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+    "hash_guard_passed": true,
+    "immutable_source": true,
+    "path": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+    "schema_version": "puyo.v1_7_search_diagnostics_decision.v1",
+    "selected_decisions": 1200,
+    "selection_rule": "all records in source order",
+    "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+    "size_bytes": 22485773
+  }
+}

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import random
 import time
 from collections import deque
-from dataclasses import dataclass
-from typing import Any, Sequence
+from dataclasses import dataclass, field
+from typing import Any, Mapping, Sequence
 
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import (
@@ -32,6 +33,459 @@ _SCENARIO_BAGS = (
     (2, 3, 0, 1),
 )
 
+BUILD_POTENTIAL_V1_SCHEMA_VERSION = "puyo.build_potential.v1"
+BUILD_POTENTIAL_SCHEMA_VERSION = "puyo.build_potential.v2"
+BUILD_SCORING_V2 = "build_potential_v2"
+LEGACY_BUILD_SCORING = "legacy"
+
+
+@dataclass(frozen=True)
+class BuildPotentialBudget:
+    """Count-bounded, deterministic budget for one board-only evaluation."""
+
+    max_added_puyos: int = 4
+    max_pattern_nodes: int = 1_024
+    max_resolution_nodes: int = 48
+    max_alternatives: int = 8
+    max_continuation_actions: int = 8
+    max_recovery_puyos: int = 2
+
+    def __post_init__(self) -> None:
+        if min(
+            self.max_added_puyos,
+            self.max_pattern_nodes,
+            self.max_resolution_nodes,
+            self.max_alternatives,
+            self.max_continuation_actions,
+        ) <= 0:
+            raise ValueError("build-potential budgets must be positive")
+        if self.max_added_puyos > 4:
+            raise ValueError("build-potential ignition search supports at most 4 puyos")
+        if self.max_recovery_puyos < 0:
+            raise ValueError("build-potential recovery budget must be non-negative")
+
+    def to_dict(self) -> dict[str, int]:
+        return {
+            "max_added_puyos": int(self.max_added_puyos),
+            "max_pattern_nodes": int(self.max_pattern_nodes),
+            "max_resolution_nodes": int(self.max_resolution_nodes),
+            "max_alternatives": int(self.max_alternatives),
+            "max_continuation_actions": int(self.max_continuation_actions),
+            "max_recovery_puyos": int(self.max_recovery_puyos),
+        }
+
+    @property
+    def cache_key(self) -> tuple[int, ...]:
+        return tuple(self.to_dict().values())
+
+
+@dataclass(frozen=True)
+class TriggerAlternative:
+    """One gravity-valid virtual ignition, independent of named chain styles."""
+
+    chain_count: int
+    score: int
+    added_puyos: int
+    trigger_color: PuyoColor
+    placements: tuple[tuple[int, int], ...]
+    anchor_cells: tuple[tuple[int, int], ...]
+    danger_margin: float
+
+    @property
+    def columns(self) -> tuple[int, ...]:
+        return tuple(sorted({x for x, _ in self.placements}))
+
+    @property
+    def ignition_turns_lower_bound(self) -> int:
+        return (self.added_puyos + 1) // 2
+
+    @property
+    def exact_signature(self) -> tuple[Any, ...]:
+        return (
+            self.trigger_color.value,
+            self.anchor_cells,
+            self.placements,
+        )
+
+    @property
+    def equivalence_key(self) -> tuple[int, int]:
+        return (int(self.chain_count), int(self.added_puyos))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "predicted_chain_count": int(self.chain_count),
+            "predicted_score": int(self.score),
+            "ignition_cost": {
+                "puyos": int(self.added_puyos),
+                "turns_lower_bound": int(self.ignition_turns_lower_bound),
+                "columns": len(self.columns),
+            },
+            "trigger_color": self.trigger_color.name,
+            "placements": [
+                {"x": int(x), "y": int(y)} for x, y in self.placements
+            ],
+            "anchor_cells": [
+                {"x": int(x), "y": int(y)} for x, y in self.anchor_cells
+            ],
+            "danger_margin": float(self.danger_margin),
+        }
+
+
+@dataclass(frozen=True)
+class BuildPotential:
+    """Versioned latent chain potential for a quiet field.
+
+    The first five fields retain the v1 constructor ABI.  The v2 status makes an
+    evaluated zero distinguishable from a state that was never probed.
+    """
+
+    chain_count: int = 0
+    required_puyos: int = 0
+    trigger_x: int | None = None
+    trigger_y: int | None = None
+    trigger_color: PuyoColor | None = None
+    alternatives: tuple[TriggerAlternative, ...] = ()
+    predicted_chain_potential: float | None = None
+    continuation_flexibility: float | None = None
+    danger_margin: float | None = None
+    evaluation_status: str = "not_evaluated"
+    search_complete: bool = False
+    pattern_nodes: int = 0
+    resolution_nodes: int = 0
+    truncation_reason: str | None = None
+    budget: BuildPotentialBudget | None = None
+    schema_version: str = BUILD_POTENTIAL_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(f"unsupported build-potential schema: {self.schema_version}")
+        if self.evaluation_status not in {
+            "available",
+            "not_found",
+            "not_evaluated",
+            "budget_exhausted",
+            "legacy_partial",
+            "unknown",
+        }:
+            raise ValueError(f"unsupported build-potential status: {self.evaluation_status}")
+        if min(self.chain_count, self.required_puyos, self.pattern_nodes, self.resolution_nodes) < 0:
+            raise ValueError("build-potential counts must be non-negative")
+        for value, name in (
+            (self.predicted_chain_potential, "predicted_chain_potential"),
+            (self.continuation_flexibility, "continuation_flexibility"),
+            (self.danger_margin, "danger_margin"),
+        ):
+            if value is not None and not 0.0 <= float(value) <= 1.0:
+                raise ValueError(f"{name} must be in [0, 1] when available")
+
+    @property
+    def exists(self) -> bool:
+        return self.chain_count > 0
+
+    @property
+    def evaluated(self) -> bool:
+        return self.evaluation_status in {
+            "available",
+            "not_found",
+            "budget_exhausted",
+        }
+
+    @property
+    def equivalence_class_count(self) -> int:
+        return len({alternative.equivalence_key for alternative in self.alternatives})
+
+    def to_dict(self) -> dict[str, Any]:
+        legacy = {
+            "chain_count": int(self.chain_count),
+            "required_puyos": int(self.required_puyos),
+            "trigger": (
+                None
+                if self.trigger_x is None or self.trigger_y is None
+                else {"x": int(self.trigger_x), "y": int(self.trigger_y)}
+            ),
+            "trigger_color": (
+                None if self.trigger_color is None else self.trigger_color.name
+            ),
+        }
+        if self.schema_version == BUILD_POTENTIAL_V1_SCHEMA_VERSION:
+            return legacy
+        ignition_cost = None
+        if self.exists and self.budget is not None:
+            primary_columns = (
+                len(self.alternatives[0].columns) if self.alternatives else 1
+            )
+            ignition_cost = {
+                "puyos": int(self.required_puyos),
+                "turns_lower_bound": int((self.required_puyos + 1) // 2),
+                "columns": int(primary_columns),
+                "normalized": min(
+                    1.0,
+                    self.required_puyos / float(self.budget.max_added_puyos),
+                ),
+            }
+        recoverability_status = (
+            "available"
+            if self.exists
+            else "not_applicable"
+            if self.evaluation_status == "not_found"
+            else "unknown"
+        )
+        return {
+            "schema_version": self.schema_version,
+            "evaluation_status": self.evaluation_status,
+            "exists": bool(self.exists),
+            **legacy,
+            "predicted_chain_count": (
+                int(self.chain_count)
+                if self.exists
+                or self.evaluation_status in {"not_found", "legacy_partial"}
+                else None
+            ),
+            "predicted_chain_potential": (
+                None
+                if self.predicted_chain_potential is None
+                else float(self.predicted_chain_potential)
+            ),
+            "ignition_cost": ignition_cost,
+            "trigger_alternatives": [
+                alternative.to_dict() for alternative in self.alternatives
+            ],
+            "trigger_equivalence": {
+                "class_count": int(self.equivalence_class_count),
+                "alternative_count": len(self.alternatives),
+            },
+            "trigger_recoverability": {
+                "status": recoverability_status,
+                "equivalent_alternatives": max(
+                    0,
+                    len(self.alternatives) - 1,
+                ),
+            },
+            "continuation_flexibility": (
+                None
+                if self.continuation_flexibility is None
+                else float(self.continuation_flexibility)
+            ),
+            "danger_margin": (
+                None if self.danger_margin is None else float(self.danger_margin)
+            ),
+            "search": {
+                "budget": None if self.budget is None else self.budget.to_dict(),
+                "pattern_nodes": int(self.pattern_nodes),
+                "resolution_nodes": int(self.resolution_nodes),
+                "complete": bool(self.search_complete),
+                "truncation_reason": self.truncation_reason,
+            },
+        }
+
+
+@dataclass(frozen=True)
+class TriggerRecoverability:
+    status: str = "unknown"
+    exact: bool = False
+    equivalent: bool = False
+    recoverable: bool | None = None
+    recovery_cost_puyos: int | None = None
+    root_chain_count: int | None = None
+    selected_chain_count: int | None = None
+
+    @property
+    def policy_preserved(self) -> bool:
+        return self.status == "not_applicable" or bool(self.recoverable)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "exact": bool(self.exact),
+            "equivalent": bool(self.equivalent),
+            "recoverable": self.recoverable,
+            "recovery_cost_puyos": self.recovery_cost_puyos,
+            "root_chain_count": self.root_chain_count,
+            "selected_chain_count": self.selected_chain_count,
+            "policy_preserved": bool(self.policy_preserved),
+        }
+
+
+def compare_build_potential_triggers(
+    root: BuildPotential,
+    selected: BuildPotential,
+    *,
+    max_recovery_puyos: int | None = None,
+) -> TriggerRecoverability:
+    """Compare ignition capability, allowing equivalent and bounded recovery."""
+
+    if not root.exists and root.evaluation_status == "not_found":
+        return TriggerRecoverability(
+            status="not_applicable",
+            recoverable=True,
+            recovery_cost_puyos=0,
+            root_chain_count=0,
+            selected_chain_count=selected.chain_count,
+        )
+    if not root.evaluated or not selected.evaluated:
+        return TriggerRecoverability(
+            status="unknown",
+            root_chain_count=(root.chain_count if root.evaluated else None),
+            selected_chain_count=(selected.chain_count if selected.evaluated else None),
+        )
+    if not root.exists:
+        return TriggerRecoverability(
+            status="unknown",
+            root_chain_count=0,
+            selected_chain_count=selected.chain_count,
+        )
+    recovery_budget = (
+        max_recovery_puyos
+        if max_recovery_puyos is not None
+        else (
+            selected.budget.max_recovery_puyos
+            if selected.budget is not None
+            else 0
+        )
+    )
+    root_alternatives = root.alternatives
+    selected_alternatives = selected.alternatives
+    exact = any(
+        candidate.chain_count >= baseline.chain_count
+        and candidate.exact_signature == baseline.exact_signature
+        for baseline in root_alternatives
+        for candidate in selected_alternatives
+    )
+    equivalent_candidates = [
+        candidate
+        for candidate in selected_alternatives
+        if candidate.chain_count >= root.chain_count
+        and candidate.added_puyos <= root.required_puyos
+    ]
+    equivalent = bool(equivalent_candidates)
+    recoverable_candidates = [
+        candidate
+        for candidate in selected_alternatives
+        if candidate.chain_count >= root.chain_count
+        and candidate.added_puyos <= root.required_puyos + recovery_budget
+    ]
+    recoverable = bool(recoverable_candidates)
+    recovery_cost = (
+        min(
+            max(0, candidate.added_puyos - root.required_puyos)
+            for candidate in recoverable_candidates
+        )
+        if recoverable_candidates
+        else None
+    )
+    if exact:
+        status = "exact"
+    elif equivalent:
+        status = "equivalent"
+    elif recoverable:
+        status = "recoverable"
+    elif selected.search_complete:
+        status = "lost"
+    else:
+        status = "unknown"
+        recoverable = None
+    return TriggerRecoverability(
+        status=status,
+        exact=exact,
+        equivalent=equivalent,
+        recoverable=recoverable,
+        recovery_cost_puyos=recovery_cost,
+        root_chain_count=root.chain_count,
+        selected_chain_count=selected.chain_count,
+    )
+
+
+def migrate_build_potential_v1(
+    value: Mapping[str, Any],
+    *,
+    simulator: HeadlessPuyoSimulator | None = None,
+    budget: BuildPotentialBudget | None = None,
+) -> BuildPotential:
+    """Project legacy diagnostics, or recompute v2 when the board is available."""
+
+    if simulator is not None:
+        return evaluate_build_potential(simulator, budget=budget)
+    chain_count = max(0, int(value.get("chain_count", 0)))
+    required = max(0, int(value.get("required_puyos", 0)))
+    trigger = value.get("trigger")
+    trigger_x = trigger.get("x") if isinstance(trigger, Mapping) else None
+    trigger_y = trigger.get("y") if isinstance(trigger, Mapping) else None
+    raw_color = value.get("trigger_color")
+    trigger_color = (
+        PuyoColor[str(raw_color)]
+        if isinstance(raw_color, str) and raw_color in PuyoColor.__members__
+        else None
+    )
+    return BuildPotential(
+        chain_count=chain_count,
+        required_puyos=required,
+        trigger_x=None if trigger_x is None else int(trigger_x),
+        trigger_y=None if trigger_y is None else int(trigger_y),
+        trigger_color=trigger_color,
+        evaluation_status="legacy_partial" if chain_count > 0 else "unknown",
+        schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+    )
+
+
+class BuildPotentialSession:
+    """Decision-scoped cache whose count budget is independent of cache mode."""
+
+    def __init__(
+        self,
+        *,
+        schema_version: str = BUILD_POTENTIAL_SCHEMA_VERSION,
+        budget: BuildPotentialBudget | None = None,
+        max_evaluations: int = 64,
+        use_cache: bool = True,
+    ) -> None:
+        if schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(f"unsupported build-potential schema: {schema_version}")
+        if max_evaluations <= 0:
+            raise ValueError("build-potential decision budget must be positive")
+        self.schema_version = schema_version
+        self.budget = budget or BuildPotentialBudget()
+        self.max_evaluations = int(max_evaluations)
+        self.use_cache = bool(use_cache)
+        self._cache: dict[tuple[Any, ...], BuildPotential] = {}
+        self._seen: set[tuple[Any, ...]] = set()
+        self.cache_hits = 0
+
+    @property
+    def evaluation_count(self) -> int:
+        return len(self._seen)
+
+    def evaluate(self, simulator: HeadlessPuyoSimulator) -> BuildPotential:
+        key = (
+            self.schema_version,
+            self.budget.cache_key,
+            _build_potential_fingerprint(simulator.game),
+        )
+        if self.use_cache and key in self._cache:
+            self.cache_hits += 1
+            return self._cache[key]
+        is_new = key not in self._seen
+        if is_new and len(self._seen) >= self.max_evaluations:
+            return BuildPotential(
+                evaluation_status="not_evaluated",
+                truncation_reason="decision_probe_budget",
+                budget=self.budget,
+                schema_version=self.schema_version,
+            )
+        self._seen.add(key)
+        if self.schema_version == BUILD_POTENTIAL_V1_SCHEMA_VERSION:
+            result = evaluate_build_potential_v1(simulator)
+        else:
+            result = evaluate_build_potential(simulator, budget=self.budget)
+        if self.use_cache:
+            self._cache[key] = result
+        return result
+
 
 @dataclass(frozen=True)
 class BeamSearchConfig:
@@ -46,6 +500,14 @@ class BeamSearchConfig:
     trigger_preservation: str = "ignore"
     probe_width: int = 0
     trace_paths: bool = False
+    scoring_mode: str = LEGACY_BUILD_SCORING
+    future_potential_weight: float = 1.0
+    chain_shape_weight: float = 1.0
+    danger_weight: float = 1.0
+    danger_tolerance: float = 1.0
+    build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
+    potential_probe_budget: int = 64
+    build_potential_budget: BuildPotentialBudget = BuildPotentialBudget()
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -62,35 +524,31 @@ class BeamSearchConfig:
             )
         if self.probe_width < 0:
             raise ValueError("potential probe width must be non-negative")
-
-
-@dataclass(frozen=True)
-class BuildPotential:
-    """Best bounded single-column ignition found for one quiet field."""
-
-    chain_count: int = 0
-    required_puyos: int = 0
-    trigger_x: int | None = None
-    trigger_y: int | None = None
-    trigger_color: PuyoColor | None = None
-
-    @property
-    def exists(self) -> bool:
-        return self.chain_count > 0
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "chain_count": int(self.chain_count),
-            "required_puyos": int(self.required_puyos),
-            "trigger": (
-                None
-                if self.trigger_x is None or self.trigger_y is None
-                else {"x": int(self.trigger_x), "y": int(self.trigger_y)}
-            ),
-            "trigger_color": (
-                None if self.trigger_color is None else self.trigger_color.name
-            ),
-        }
+        if self.scoring_mode not in {LEGACY_BUILD_SCORING, BUILD_SCORING_V2}:
+            raise ValueError(f"unsupported beam scoring mode: {self.scoring_mode}")
+        if min(
+            self.future_potential_weight,
+            self.chain_shape_weight,
+            self.danger_weight,
+        ) < 0.0:
+            raise ValueError("beam scoring weights must be non-negative")
+        if not 0.0 <= self.danger_tolerance <= 1.0:
+            raise ValueError("danger tolerance must be in [0, 1]")
+        if self.build_potential_schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(
+                "unsupported build-potential schema: "
+                f"{self.build_potential_schema_version}"
+            )
+        if self.potential_probe_budget <= 0:
+            raise ValueError("potential probe budget must be positive")
+        if (
+            self.scoring_mode == BUILD_SCORING_V2
+            and self.build_potential_schema_version != BUILD_POTENTIAL_SCHEMA_VERSION
+        ):
+            raise ValueError("v2 scoring requires the BuildPotential v2 schema")
 
 
 @dataclass(frozen=True)
@@ -104,9 +562,12 @@ class BeamSearchDiagnostics:
     root_potential: BuildPotential
     selected_potential: BuildPotential
     trigger_preserved: bool
+    trigger_recoverability: TriggerRecoverability
     potential_probe_count: int
     potential_cache_hits: int
     candidates: tuple[BeamCandidateDiagnostics, ...]
+    scoring_mode: str = LEGACY_BUILD_SCORING
+    build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
 
 
 @dataclass(frozen=True)
@@ -127,6 +588,7 @@ class BeamCandidateDiagnostics:
     premature_fire_penalty: float
     candidate_value: float | None
     potential: BuildPotential
+    value_breakdown: Mapping[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -149,6 +611,9 @@ class BeamCandidateDiagnostics:
             "candidate_value": (
                 None if self.candidate_value is None else float(self.candidate_value)
             ),
+            "value_breakdown": {
+                key: float(value) for key, value in self.value_breakdown.items()
+            },
             "potential": self.potential.to_dict(),
         }
 
@@ -182,13 +647,26 @@ class _PathTraceState:
 class _SearchTrace:
     """Collect candidate metadata without participating in search ranking."""
 
-    def __init__(self, *, trace_paths: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        trace_paths: bool = False,
+        potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+    ) -> None:
         self._states: dict[int, _CandidateTraceState] = {}
         self._trace_paths = bool(trace_paths)
         self._paths: dict[tuple[int, ...], _PathTraceState] = {}
+        self._potential_schema_version = potential_schema_version
 
     def _state(self, action: int) -> _CandidateTraceState:
-        return self._states.setdefault(int(action), _CandidateTraceState())
+        return self._states.setdefault(
+            int(action),
+            _CandidateTraceState(
+                potential=BuildPotential(
+                    schema_version=self._potential_schema_version,
+                )
+            ),
+        )
 
     def mark_root_generated(self, action: int) -> None:
         self._state(action).root_generated = True
@@ -246,6 +724,7 @@ class _SearchTrace:
         self,
         actions: list[int],
         values: dict[int, float],
+        breakdowns: Mapping[int, Mapping[str, float]],
     ) -> tuple[BeamCandidateDiagnostics, ...]:
         result = []
         for action in actions:
@@ -268,6 +747,7 @@ class _SearchTrace:
                         None if action not in values else float(values[action])
                     ),
                     potential=state.potential,
+                    value_breakdown=dict(breakdowns.get(action, {})),
                 )
             )
         return tuple(result)
@@ -305,6 +785,12 @@ class _Node:
     path: tuple[int, ...]
     potential: BuildPotential
     target_achieved: bool
+    actual_chain_contribution: float = 0.0
+    actual_score_contribution: float = 0.0
+    chain_shape_contribution: float = 0.0
+    danger_contribution: float = 0.0
+    future_potential_contribution: float = 0.0
+    trigger_preservation_contribution: float = 0.0
 
 
 class _ScenarioSequence:
@@ -337,11 +823,12 @@ class BeamSearchPolicy:
     def __init__(self, config: BeamSearchConfig | None = None):
         self.config = config or BeamSearchConfig()
         self.last_diagnostics: BeamSearchDiagnostics | None = None
-        self._potential_cache: dict[tuple, BuildPotential] = {}
-        self._potential_probe_count = 0
-        self._potential_cache_hits = 0
-        self._root_potential = BuildPotential()
-        self._search_trace = _SearchTrace(trace_paths=self.config.trace_paths)
+        self._potential_session = self._new_potential_session()
+        self._root_potential = self._not_probed_potential()
+        self._search_trace = _SearchTrace(
+            trace_paths=self.config.trace_paths,
+            potential_schema_version=self.config.build_potential_schema_version,
+        )
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
         _ = observation
@@ -351,16 +838,18 @@ class BeamSearchPolicy:
             return choices[0] if choices else 0
 
         started = time.perf_counter()
-        self._potential_cache = {}
-        self._potential_probe_count = 0
-        self._potential_cache_hits = 0
-        self._search_trace = _SearchTrace(trace_paths=self.config.trace_paths)
+        self._potential_session = self._new_potential_session()
+        self._search_trace = _SearchTrace(
+            trace_paths=self.config.trace_paths,
+            potential_schema_version=self.config.build_potential_schema_version,
+        )
         self._root_potential = (
             self._probe_potential(simulator)
             if self._preserves_trigger
-            else BuildPotential()
+            else self._not_probed_potential()
         )
         totals: dict[int, float] = {}
+        breakdown_totals: dict[int, dict[str, float]] = {}
         potentials: dict[int, list[BuildPotential]] = {}
         preserved: dict[int, list[bool]] = {}
         expanded_nodes = 0
@@ -380,14 +869,22 @@ class BeamSearchPolicy:
             # The current pair and two visible next pairs stay intact. Only hidden
             # future pairs are replaced by representative scenarios.
             scenario_simulator.game.puyo_sequence = _ScenarioSequence(scenario_id, colors)
-            values, scenario_potentials, scenario_preserved, expanded = (
-                self._search_scenario(scenario_simulator)
-            )
+            (
+                values,
+                scenario_potentials,
+                scenario_preserved,
+                scenario_breakdowns,
+                expanded,
+            ) = self._search_scenario(scenario_simulator)
             expanded_nodes += expanded
             for action, value in values.items():
                 totals[action] = totals.get(action, 0.0) + value
                 potentials.setdefault(action, []).append(scenario_potentials[action])
                 preserved.setdefault(action, []).append(scenario_preserved[action])
+                _merge_value_breakdown(
+                    breakdown_totals.setdefault(action, {}),
+                    scenario_breakdowns[action],
+                )
 
         legal = legal_action_indices(simulator)
         if not legal:
@@ -397,7 +894,12 @@ class BeamSearchPolicy:
         selected_potential = max(
             selected_candidates,
             key=_potential_rank_key,
-            default=BuildPotential(),
+            default=self._not_probed_potential(),
+        )
+        selected_recoverability = compare_build_potential_triggers(
+            self._root_potential,
+            selected_potential,
+            max_recovery_puyos=self.config.build_potential_budget.max_recovery_puyos,
         )
         self.last_diagnostics = BeamSearchDiagnostics(
             elapsed_seconds=time.perf_counter() - started,
@@ -413,9 +915,18 @@ class BeamSearchPolicy:
                 and bool(preserved.get(best_action))
                 and all(preserved[best_action])
             ),
-            potential_probe_count=self._potential_probe_count,
-            potential_cache_hits=self._potential_cache_hits,
-            candidates=self._search_trace.diagnostics(legal, totals),
+            trigger_recoverability=selected_recoverability,
+            potential_probe_count=self._potential_session.evaluation_count,
+            potential_cache_hits=self._potential_session.cache_hits,
+            candidates=self._search_trace.diagnostics(
+                legal,
+                totals,
+                breakdown_totals,
+            ),
+            scoring_mode=self.config.scoring_mode,
+            build_potential_schema_version=(
+                self.config.build_potential_schema_version
+            ),
         )
         return best_action
 
@@ -434,14 +945,31 @@ class BeamSearchPolicy:
             and self.config.probe_width > 0
         )
 
+    @property
+    def _probes_potential(self) -> bool:
+        return self.config.probe_width > 0 and (
+            (
+                self.config.scoring_mode == BUILD_SCORING_V2
+                and self.config.future_potential_weight > 0.0
+            )
+            or self.config.trigger_preservation != "ignore"
+        )
+
     def _search_scenario(
         self,
         simulator,
-    ) -> tuple[dict[int, float], dict[int, BuildPotential], dict[int, bool], int]:
+    ) -> tuple[
+        dict[int, float],
+        dict[int, BuildPotential],
+        dict[int, bool],
+        dict[int, dict[str, float]],
+        int,
+    ]:
         beam: list[_Node] = []
         best_by_action: dict[int, float] = {}
         potential_by_action: dict[int, BuildPotential] = {}
         preserved_by_action: dict[int, bool] = {}
+        breakdown_by_action: dict[int, dict[str, float]] = {}
         expanded_nodes = 0
 
         root_candidates: list[tuple[_Node, int]] = []
@@ -453,8 +981,17 @@ class BeamSearchPolicy:
                 self._search_trace.mark_root_rejected(action)
                 continue
             self._search_trace.mark_root_generated(action)
-            chain_value, premature_penalty = self._chain_outcome(result.chain_count, result.score_delta)
-            evaluation = evaluate_board(child.game)
+            (
+                actual_chain,
+                actual_score,
+                premature_penalty,
+            ) = self._chain_outcome_components(
+                result.chain_count,
+                result.score_delta,
+            )
+            chain_shape, danger = self._board_contributions(child.game)
+            chain_value = actual_chain + actual_score
+            evaluation = chain_shape + danger
             path = (int(action),) if self.config.trace_paths else ()
             best_chain_depth = 1 if result.chain_count > 0 else 0
             node = _Node(
@@ -470,8 +1007,12 @@ class BeamSearchPolicy:
                     result.score_delta,
                 ),
                 path,
-                BuildPotential(),
+                self._not_probed_potential(),
                 result.chain_count >= self.config.minimum_chain_count,
+                actual_chain,
+                actual_score,
+                chain_shape,
+                danger,
             )
             self._search_trace.mark_generated_path(path)
             root_candidates.append(
@@ -490,6 +1031,7 @@ class BeamSearchPolicy:
             best_by_action,
             potential_by_action,
             preserved_by_action,
+            breakdown_by_action,
         )
         for depth in range(2, self.config.depth + 1):
             seen: dict[tuple, _Node] = {}
@@ -502,12 +1044,18 @@ class BeamSearchPolicy:
                     if not result.valid or result.game_over:
                         continue
 
-                    chain_value, premature_penalty = self._advance_chain_outcome(
+                    (
+                        chain_value,
+                        premature_penalty,
+                        actual_chain,
+                        actual_score,
+                    ) = self._advance_chain_outcome_components(
                         node,
                         result.chain_count,
                         result.score_delta,
                     )
-                    evaluation = evaluate_board(child.game)
+                    chain_shape, danger = self._board_contributions(child.game)
+                    evaluation = chain_shape + danger
                     best_chain_depth = (
                         depth
                         if int(result.chain_count) > node.best_chain_count
@@ -532,9 +1080,13 @@ class BeamSearchPolicy:
                             result.score_delta,
                         ),
                         path,
-                        BuildPotential(),
+                        self._not_probed_potential(),
                         node.target_achieved
                         or result.chain_count >= self.config.minimum_chain_count,
+                        actual_chain,
+                        actual_score,
+                        chain_shape,
+                        danger,
                     )
                     self._search_trace.mark_generated_path(path)
                     node_candidates.append((candidate, result.chain_count))
@@ -556,9 +1108,16 @@ class BeamSearchPolicy:
                 best_by_action,
                 potential_by_action,
                 preserved_by_action,
+                breakdown_by_action,
             )
 
-        return best_by_action, potential_by_action, preserved_by_action, expanded_nodes
+        return (
+            best_by_action,
+            potential_by_action,
+            preserved_by_action,
+            breakdown_by_action,
+            expanded_nodes,
+        )
 
     def _suppress_premature(
         self,
@@ -584,6 +1143,7 @@ class BeamSearchPolicy:
         values: dict[int, float],
         potentials: dict[int, BuildPotential],
         preserved: dict[int, bool],
+        breakdowns: dict[int, dict[str, float]],
     ) -> None:
         for node in nodes:
             value = _node_value(node)
@@ -591,10 +1151,14 @@ class BeamSearchPolicy:
                 continue
             values[node.root_action] = value
             potentials[node.root_action] = node.potential
-            preserved[node.root_action] = node.target_achieved or _same_trigger(
-                self._root_potential,
-                node.potential,
+            preserved[node.root_action] = (
+                self._preserves_trigger
+                and (
+                    node.target_achieved
+                    or self._trigger_preserved(node.potential)
+                )
             )
+            breakdowns[node.root_action] = _node_value_breakdown(node)
             self._search_trace.record_best(node, value)
 
     def _prune(self, nodes: list[_Node], *, depth: int = 1) -> list[_Node]:
@@ -603,30 +1167,63 @@ class BeamSearchPolicy:
             reverse=True,
         )
         self._search_trace.mark_stage("base", nodes[: self.config.width], depth)
-        if self._preserves_trigger:
+        if self._probes_potential:
             probed = nodes[: self.config.probe_width]
             self._search_trace.mark_stage("probe", probed, depth)
             for node in probed:
                 node.potential = self._probe_potential(node.simulator)
                 if not node.target_achieved:
                     potential_value = _potential_value(node.potential)
-                    root_value = _potential_value(self._root_potential)
-                    node.evaluation += self.config.chain_weight * potential_value
-                    if potential_value < root_value:
+                    future_weight = (
+                        self.config.future_potential_weight
+                        if self.config.scoring_mode == BUILD_SCORING_V2
+                        else 1.0
+                    )
+                    if potential_value is not None:
+                        node.future_potential_contribution = (
+                            self.config.chain_weight
+                            * future_weight
+                            * potential_value
+                        )
+                    root_value = (
+                        _potential_value(self._root_potential)
+                        if self._preserves_trigger
+                        else None
+                    )
+                    if (
+                        potential_value is not None
+                        and root_value is not None
+                        and potential_value < root_value
+                    ):
                         preserve_scale = {
                             "prefer": 0.5,
                             "required": 1.0,
                             "ignore": 0.0,
                         }[self.config.trigger_preservation]
-                        node.evaluation -= (
+                        should_penalize = (
+                            not self._trigger_preserved(node.potential)
+                            if self.config.scoring_mode == BUILD_SCORING_V2
+                            else True
+                        )
+                        node.trigger_preservation_contribution = -(
                             self.config.chain_weight
                             * (root_value - potential_value)
                             * preserve_scale
-                        )
+                        ) if should_penalize else 0.0
+                    node.evaluation = (
+                        node.chain_shape_contribution
+                        + node.danger_contribution
+                        + node.future_potential_contribution
+                        + node.trigger_preservation_contribution
+                    )
         nodes.sort(
             key=lambda node: (
                 _node_value(node),
-                _potential_rank_key(node.potential),
+                (
+                    _potential_rank_key(node.potential)
+                    if self.config.scoring_mode == LEGACY_BUILD_SCORING
+                    else (0, 0, 0, 0, 0)
+                ),
                 -node.root_action,
             ),
             reverse=True,
@@ -636,25 +1233,80 @@ class BeamSearchPolicy:
         return retained
 
     def _probe_potential(self, simulator) -> BuildPotential:
-        fingerprint = _field_fingerprint(simulator.game)
-        cached = self._potential_cache.get(fingerprint)
-        if cached is not None:
-            self._potential_cache_hits += 1
-            return cached
-        potential = evaluate_build_potential(simulator)
-        self._potential_cache[fingerprint] = potential
-        self._potential_probe_count += 1
-        return potential
+        return self._potential_session.evaluate(simulator)
 
-    def _chain_outcome(self, chain_count: int, score_delta: int) -> tuple[float, float]:
+    def _new_potential_session(self) -> BuildPotentialSession:
+        return BuildPotentialSession(
+            schema_version=self.config.build_potential_schema_version,
+            budget=self.config.build_potential_budget,
+            max_evaluations=self.config.potential_probe_budget,
+        )
+
+    def _not_probed_potential(self) -> BuildPotential:
+        return BuildPotential(
+            evaluation_status="not_evaluated",
+            budget=(
+                self.config.build_potential_budget
+                if self.config.build_potential_schema_version
+                == BUILD_POTENTIAL_SCHEMA_VERSION
+                else None
+            ),
+            schema_version=self.config.build_potential_schema_version,
+        )
+
+    def _trigger_preserved(self, selected: BuildPotential) -> bool:
+        if self.config.scoring_mode != BUILD_SCORING_V2:
+            return _same_trigger(self._root_potential, selected)
+        return compare_build_potential_triggers(
+            self._root_potential,
+            selected,
+            max_recovery_puyos=(
+                self.config.build_potential_budget.max_recovery_puyos
+            ),
+        ).policy_preserved
+
+    def _board_contributions(self, game) -> tuple[float, float]:
+        if self.config.scoring_mode != BUILD_SCORING_V2:
+            return evaluate_board(game), 0.0
+        shape = (
+            self.config.chain_shape_weight
+            * evaluate_chain_shape_v2(game)
+        )
+        danger_risk = _board_danger_ratio(game)
+        tolerance_scale = 1.0 + (1.0 - self.config.danger_tolerance)
+        danger = (
+            -10_000.0
+            * self.config.danger_weight
+            * danger_risk
+            * tolerance_scale
+        )
+        return shape, danger
+
+    def _chain_outcome_components(
+        self,
+        chain_count: int,
+        score_delta: int,
+    ) -> tuple[float, float, float]:
         if 0 < chain_count < self.config.minimum_chain_count:
-            return 0.0, self.config.premature_chain_penalty * float(score_delta)
+            return (
+                0.0,
+                0.0,
+                self.config.premature_chain_penalty * float(score_delta),
+            )
         if chain_count == 0:
-            return 0.0, 0.0
+            return 0.0, 0.0, 0.0
         return (
-            self.config.chain_weight * float(chain_count) + self.config.score_weight * float(score_delta),
+            self.config.chain_weight * float(chain_count),
+            self.config.score_weight * float(score_delta),
             0.0,
         )
+
+    def _chain_outcome(self, chain_count: int, score_delta: int) -> tuple[float, float]:
+        chain, score, penalty = self._chain_outcome_components(
+            chain_count,
+            score_delta,
+        )
+        return chain + score, penalty
 
     def _premature_fire_score(self, chain_count: int, score_delta: int) -> int:
         if 0 < chain_count < self.config.minimum_chain_count:
@@ -669,6 +1321,31 @@ class BeamSearchPolicy:
     ) -> tuple[float, float]:
         chain_value, penalty = self._chain_outcome(chain_count, score_delta)
         return max(node.best_chain_value, chain_value), node.premature_penalty + penalty
+
+    def _advance_chain_outcome_components(
+        self,
+        node: _Node,
+        chain_count: int,
+        score_delta: int,
+    ) -> tuple[float, float, float, float]:
+        chain, score, penalty = self._chain_outcome_components(
+            chain_count,
+            score_delta,
+        )
+        candidate_value = chain + score
+        if candidate_value > node.best_chain_value:
+            return (
+                candidate_value,
+                node.premature_penalty + penalty,
+                chain,
+                score,
+            )
+        return (
+            node.best_chain_value,
+            node.premature_penalty + penalty,
+            node.actual_chain_contribution,
+            node.actual_score_contribution,
+        )
 
 
 def evaluate_board(game) -> float:
@@ -713,6 +1390,33 @@ def evaluate_board(game) -> float:
         - bump_height * 90.0
         - nuisance * 250.0
         - danger
+    )
+
+
+def evaluate_chain_shape_v2(game) -> float:
+    """Symmetric, named-style-free chain-shape contribution for v2 scoring."""
+
+    heights = _column_heights(game)
+    groups = _color_groups(game)
+    link_2 = sum(1 for group in groups if len(group) == 2)
+    link_3 = sum(1 for group in groups if len(group) == 3)
+    isolated = sum(1 for group in groups if len(group) == 1)
+    reachable_ignitions = sum(
+        _reachable_ignition_count(group, game, heights)
+        for group in groups
+        if len(group) == 3
+    )
+    adjacent_roughness = sum(
+        abs(left - right) for left, right in zip(heights, heights[1:])
+    )
+    height_spread = max(heights) - min(heights)
+    return (
+        link_2 * 150.0
+        + link_3 * 420.0
+        + reachable_ignitions * 900.0
+        - isolated * 18.0
+        - adjacent_roughness * 45.0
+        - height_spread * 20.0
     )
 
 
@@ -768,6 +1472,17 @@ def _field_fingerprint(game) -> tuple:
     )
 
 
+def _build_potential_fingerprint(game) -> tuple:
+    """Fingerprint only cells; lifecycle and tsumo state are out of contract."""
+
+    grid = game.field.grid
+    return tuple(
+        grid[y][x].color.value
+        for y in range(GRID_HEIGHT)
+        for x in range(GRID_WIDTH)
+    )
+
+
 def _reachable_ignition_count(group, game, heights: tuple[int, ...]) -> int:
     grid = game.field.grid
     candidates = set()
@@ -782,12 +1497,12 @@ def _reachable_ignition_count(group, game, heights: tuple[int, ...]) -> int:
     return len(candidates)
 
 
-def evaluate_build_potential(
+def evaluate_build_potential_v1(
     simulator: HeadlessPuyoSimulator,
     *,
     max_required_puyos: int = 3,
 ) -> BuildPotential:
-    """Evaluate Ama's bounded quiet ignition search without mutating ``simulator``."""
+    """Evaluate the legacy single-column ignition without mutating ``simulator``."""
 
     if max_required_puyos < 1:
         raise ValueError("max required puyos must be at least 1")
@@ -826,11 +1541,369 @@ def evaluate_build_potential(
                     trigger_x=x,
                     trigger_y=trigger_y,
                     trigger_color=color,
+                    evaluation_status="available",
+                    search_complete=True,
+                    schema_version=BUILD_POTENTIAL_V1_SCHEMA_VERSION,
                 )
                 if _potential_rank_key(potential) > _potential_rank_key(best):
                     best = potential
                 break
-    return best
+    if best.exists:
+        return best
+    return BuildPotential(
+        evaluation_status="not_found",
+        search_complete=True,
+        schema_version=BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+    )
+
+
+def evaluate_build_potential(
+    simulator: HeadlessPuyoSimulator,
+    *,
+    budget: BuildPotentialBudget | None = None,
+    max_required_puyos: int | None = None,
+) -> BuildPotential:
+    """Evaluate deterministic multi-column BuildPotential v2.
+
+    ``max_required_puyos`` remains as a compatibility spelling for callers that
+    previously controlled the v1 ignition depth.  It now widens or narrows the
+    explicit v2 added-puyo budget without restoring single-column semantics.
+    """
+
+    selected_budget = budget or BuildPotentialBudget()
+    if max_required_puyos is not None:
+        if max_required_puyos < 1:
+            raise ValueError("max required puyos must be at least 1")
+        selected_budget = BuildPotentialBudget(
+            max_added_puyos=int(max_required_puyos),
+            max_pattern_nodes=selected_budget.max_pattern_nodes,
+            max_resolution_nodes=selected_budget.max_resolution_nodes,
+            max_alternatives=selected_budget.max_alternatives,
+            max_continuation_actions=selected_budget.max_continuation_actions,
+            max_recovery_puyos=selected_budget.max_recovery_puyos,
+        )
+    heights = _column_heights(simulator.game)
+    alternatives: list[TriggerAlternative] = []
+    seen_alternatives: set[tuple[Any, ...]] = set()
+    pattern_nodes = 0
+    resolution_nodes = 0
+    truncation_reason: str | None = None
+
+    for added_puyos in range(1, selected_budget.max_added_puyos + 1):
+        for column_orbit in _column_pattern_orbits(added_puyos):
+            gravity_valid: list[tuple[tuple[int, int], ...]] = []
+            for columns in column_orbit:
+                counts = tuple(columns.count(x) for x in range(GRID_WIDTH))
+                if any(
+                    heights[x] + count > VISIBLE_HEIGHT
+                    for x, count in enumerate(counts)
+                ):
+                    continue
+                gravity_valid.append(
+                    tuple(
+                        (x, heights[x] + offset)
+                        for x, count in enumerate(counts)
+                        for offset in range(count)
+                    )
+                )
+            if not gravity_valid:
+                continue
+            for color in NORMAL_PUYO_COLORS:
+                # A mirror orbit is admitted atomically.  Reserving the whole
+                # orbit prevents a count cutoff from preferring the left or
+                # right orientation while keeping actual node counts bounded.
+                if (
+                    pattern_nodes + len(gravity_valid)
+                    > selected_budget.max_pattern_nodes
+                ):
+                    truncation_reason = "pattern_nodes"
+                    break
+                pattern_nodes += len(gravity_valid)
+                pending: list[
+                    tuple[tuple[tuple[int, int], ...], tuple[tuple[int, int], ...]]
+                ] = []
+                for placements in gravity_valid:
+                    anchors = _virtual_pattern_trigger_anchors(
+                        simulator.game,
+                        placements=placements,
+                        color=color,
+                    )
+                    if anchors is None:
+                        continue
+                    if any(
+                        _virtual_pattern_trigger_anchors(
+                            simulator.game,
+                            placements=reduced,
+                            color=color,
+                        )
+                        is not None
+                        for reduced in _one_puyo_smaller_gravity_patterns(
+                            placements,
+                            heights=heights,
+                        )
+                    ):
+                        # Supersets inflate alternatives and ignition cost
+                        # without representing a new minimal first ignition.
+                        continue
+                    pending.append((placements, anchors))
+                if (
+                    resolution_nodes + len(pending)
+                    > selected_budget.max_resolution_nodes
+                ):
+                    truncation_reason = "resolution_nodes"
+                    break
+                for placements, anchors in pending:
+                    candidate = clone_simulator(simulator)
+                    # Lifecycle entitlement is deliberately excluded: this is
+                    # a board-only latent-chain probe, not an attack preview.
+                    candidate.game.all_clear_bonus_pending = False
+                    score_before = int(candidate.game.score)
+                    for x, y in placements:
+                        candidate.game.field.place_puyo(x, y, Puyo(color))
+                    chains = candidate.game.resolve_chains_synchronously(
+                        spawn_next=False,
+                        capture_visuals=False,
+                    )
+                    resolution_nodes += 1
+                    if not chains:
+                        continue
+                    alternative = TriggerAlternative(
+                        chain_count=len(chains),
+                        score=max(
+                            0,
+                            int(candidate.game.score) - score_before,
+                        ),
+                        added_puyos=added_puyos,
+                        trigger_color=color,
+                        placements=placements,
+                        anchor_cells=anchors,
+                        danger_margin=_board_danger_margin(candidate.game),
+                    )
+                    signature = (
+                        alternative.chain_count,
+                        alternative.added_puyos,
+                        alternative.trigger_color.value,
+                        alternative.placements,
+                        alternative.anchor_cells,
+                    )
+                    if signature not in seen_alternatives:
+                        seen_alternatives.add(signature)
+                        alternatives.append(alternative)
+            if truncation_reason is not None:
+                break
+        if truncation_reason is not None:
+            break
+
+    alternatives.sort(key=_alternative_rank_key, reverse=True)
+    retained = tuple(alternatives[: selected_budget.max_alternatives])
+    complete = truncation_reason is None
+    continuation = _continuation_flexibility(simulator, selected_budget)
+    danger_margin = _board_danger_margin(simulator.game)
+    if retained:
+        primary = retained[0]
+        potential_value = _predicted_chain_potential(
+            primary,
+            alternative_count=len(retained),
+            budget=selected_budget,
+        )
+        return BuildPotential(
+            chain_count=primary.chain_count,
+            required_puyos=primary.added_puyos,
+            trigger_x=primary.placements[0][0],
+            trigger_y=primary.placements[0][1],
+            trigger_color=primary.trigger_color,
+            alternatives=retained,
+            predicted_chain_potential=potential_value,
+            continuation_flexibility=continuation,
+            danger_margin=danger_margin,
+            evaluation_status=("available" if complete else "budget_exhausted"),
+            search_complete=complete,
+            pattern_nodes=pattern_nodes,
+            resolution_nodes=resolution_nodes,
+            truncation_reason=truncation_reason,
+            budget=selected_budget,
+            schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+    return BuildPotential(
+        predicted_chain_potential=(0.0 if complete else None),
+        continuation_flexibility=continuation,
+        danger_margin=danger_margin,
+        evaluation_status=("not_found" if complete else "budget_exhausted"),
+        search_complete=complete,
+        pattern_nodes=pattern_nodes,
+        resolution_nodes=resolution_nodes,
+        truncation_reason=truncation_reason,
+        budget=selected_budget,
+        schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+    )
+
+
+def _column_pattern_orbits(
+    added_puyos: int,
+) -> tuple[tuple[tuple[int, ...], ...], ...]:
+    """Return deterministic column multisets grouped with their mirror."""
+
+    orbits = []
+    for columns in itertools.combinations_with_replacement(
+        range(GRID_WIDTH),
+        added_puyos,
+    ):
+        mirrored = tuple(sorted(GRID_WIDTH - 1 - x for x in columns))
+        canonical = min(columns, mirrored)
+        if columns != canonical:
+            continue
+        orbits.append(
+            (columns,)
+            if columns == mirrored
+            else tuple(sorted((columns, mirrored)))
+        )
+    return tuple(orbits)
+
+
+def _one_puyo_smaller_gravity_patterns(
+    placements: tuple[tuple[int, int], ...],
+    *,
+    heights: tuple[int, ...],
+) -> tuple[tuple[tuple[int, int], ...], ...]:
+    """Remove one virtual puyo and compact its column under gravity."""
+
+    counts = tuple(
+        sum(x == column for x, _ in placements)
+        for column in range(GRID_WIDTH)
+    )
+    patterns = []
+    for removed_column, count in enumerate(counts):
+        if count == 0:
+            continue
+        reduced_counts = list(counts)
+        reduced_counts[removed_column] -= 1
+        patterns.append(
+            tuple(
+                (column, heights[column] + offset)
+                for column, reduced_count in enumerate(reduced_counts)
+                for offset in range(reduced_count)
+            )
+        )
+    return tuple(patterns)
+
+
+def _alternative_rank_key(
+    alternative: TriggerAlternative,
+) -> tuple[Any, ...]:
+    color_rank = NORMAL_PUYO_COLORS.index(alternative.trigger_color)
+    return (
+        int(alternative.chain_count),
+        -int(alternative.added_puyos),
+        int(alternative.score),
+        float(alternative.danger_margin),
+        tuple((-x, -y) for x, y in alternative.placements),
+        -color_rank,
+    )
+
+
+def _predicted_chain_potential(
+    primary: TriggerAlternative,
+    *,
+    alternative_count: int,
+    budget: BuildPotentialBudget,
+) -> float:
+    chain_progress = min(1.0, primary.chain_count / 19.0)
+    if budget.max_added_puyos <= 1:
+        ignition_efficiency = 1.0
+    else:
+        ignition_efficiency = 1.0 - (
+            (primary.added_puyos - 1) / float(budget.max_added_puyos - 1)
+        )
+    alternative_strength = min(1.0, alternative_count / 4.0)
+    return max(
+        0.0,
+        min(
+            1.0,
+            chain_progress * 0.65
+            + ignition_efficiency * 0.25
+            + alternative_strength * 0.10,
+        ),
+    )
+
+
+def _virtual_pattern_trigger_anchors(
+    game,
+    *,
+    placements: tuple[tuple[int, int], ...],
+    color: PuyoColor,
+) -> tuple[tuple[int, int], ...] | None:
+    virtual = frozenset(placements)
+    if not virtual:
+        return None
+    visited: set[tuple[int, int]] = set()
+    for origin in placements:
+        if origin in visited:
+            continue
+        stack = [origin]
+        component: set[tuple[int, int]] = set()
+        anchors: set[tuple[int, int]] = set()
+        while stack:
+            cell = stack.pop()
+            if cell in component:
+                continue
+            x, y = cell
+            if not (0 <= x < GRID_WIDTH and 0 <= y < VISIBLE_HEIGHT):
+                continue
+            if cell in virtual:
+                pass
+            elif game.field.grid[y][x].color == color:
+                anchors.add(cell)
+            else:
+                continue
+            component.add(cell)
+            visited.add(cell)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                stack.append((x + dx, y + dy))
+        if len(component) >= 4 and component.intersection(virtual):
+            return tuple(sorted(anchors))
+    return None
+
+
+def _board_danger_ratio(game) -> float:
+    heights = _column_heights(game)
+    ojama = sum(
+        game.field.grid[y][x].color == PuyoColor.OJAMA
+        for y in range(GRID_HEIGHT)
+        for x in range(GRID_WIDTH)
+    )
+    center = heights[2] / float(VISIBLE_HEIGHT)
+    peak = max(heights) / float(VISIBLE_HEIGHT)
+    nuisance = min(1.0, ojama / 30.0)
+    return min(1.0, center * 0.55 + peak * 0.35 + nuisance * 0.10)
+
+
+def _board_danger_margin(game) -> float:
+    return max(0.0, min(1.0, 1.0 - _board_danger_ratio(game)))
+
+
+def _continuation_flexibility(
+    simulator: HeadlessPuyoSimulator,
+    budget: BuildPotentialBudget,
+) -> float:
+    # Treat one bounded continuation action as one left/right-equivalent
+    # column orbit.  Cutting the raw column sequence would inspect the left
+    # edge first and make otherwise mirrored boards score differently.
+    column_orbits = tuple(
+        (left, GRID_WIDTH - 1 - left)
+        for left in reversed(range(GRID_WIDTH // 2))
+    )
+    selected_orbits = column_orbits[: budget.max_continuation_actions]
+    columns = tuple(x for orbit in selected_orbits for x in orbit)
+    if not columns:
+        return 0.0
+    heights = _column_heights(simulator.game)
+    # Two cells are one future pair's maximum vertical footprint.  Averaging
+    # bounded per-column headroom is board-only, color/style neutral, and stable
+    # across cache modes and hidden-tsumo scenarios.
+    return sum(
+        min(2, max(0, VISIBLE_HEIGHT - heights[x])) / 2.0
+        for x in columns
+    ) / float(len(columns))
 
 
 def _virtual_drop_triggers(
@@ -928,7 +2001,33 @@ def _base_node_value(node: _Node) -> float:
     return node.best_chain_value - node.premature_penalty + node.evaluation
 
 
-def _potential_value(potential: BuildPotential) -> float:
+def _node_value_breakdown(node: _Node) -> dict[str, float]:
+    result = {
+        "actual_chain": float(node.actual_chain_contribution),
+        "actual_score": float(node.actual_score_contribution),
+        "chain_shape": float(node.chain_shape_contribution),
+        "future_potential": float(node.future_potential_contribution),
+        "danger": float(node.danger_contribution),
+        "trigger_preservation": float(node.trigger_preservation_contribution),
+        "premature_fire": -float(node.premature_penalty),
+    }
+    result["total"] = sum(result.values())
+    return result
+
+
+def _merge_value_breakdown(
+    target: dict[str, float],
+    source: Mapping[str, float],
+) -> None:
+    for key, value in source.items():
+        target[key] = target.get(key, 0.0) + float(value)
+
+
+def _potential_value(potential: BuildPotential) -> float | None:
+    if potential.schema_version == BUILD_POTENTIAL_SCHEMA_VERSION:
+        if not potential.evaluated or potential.predicted_chain_potential is None:
+            return None
+        return float(potential.predicted_chain_potential)
     if not potential.exists:
         return 0.0
     return float(potential.chain_count) - 0.25 * float(potential.required_puyos - 1)

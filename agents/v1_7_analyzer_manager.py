@@ -24,7 +24,7 @@ from src.core.constants import GRID_WIDTH, VISIBLE_HEIGHT
 
 
 ANALYZER_MANAGER_DIAGNOSTICS_SCHEMA_VERSION = (
-    "puyo.v1_7_analyzer_manager.diagnostics.v1"
+    "puyo.v1_7_analyzer_manager.diagnostics.v2"
 )
 MODEL_VERSION = "v1.7.0"
 MODEL_FAMILY = "Adaptive Chain Manager"
@@ -304,6 +304,11 @@ class V17AnalyzerManagerPolicy:
             "response_capacity": int(proposal.response_capacity),
             "incoming_coverage": float(proposal.incoming_coverage),
             "trigger_preserved": bool(proposal.trigger_preserved),
+            "trigger_recoverability": proposal.trigger_recoverability.to_dict(),
+            "value_breakdown": {
+                key: float(value)
+                for key, value in (proposal.value_breakdown or {}).items()
+            },
             "immediate_fire": bool(proposal.immediate_fire),
         }
         return {

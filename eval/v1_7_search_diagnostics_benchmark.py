@@ -1,4 +1,4 @@
-"""PUYO-165 deterministic safe-build candidate coverage diagnostics."""
+"""PUYO-166 BuildPotential-v2 safe-build candidate coverage diagnostics."""
 
 from __future__ import annotations
 
@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BUILD_SCORING_V2,
     BeamCandidateDiagnostics,
     BeamSearchConfig,
     BeamSearchDiagnostics,
@@ -33,10 +35,10 @@ from train.artifacts import (
 )
 
 
-BENCHMARK_SCHEMA_VERSION = "puyo.v1_7_search_diagnostics_benchmark.v1"
-DECISION_SCHEMA_VERSION = "puyo.v1_7_search_diagnostics_decision.v1"
+BENCHMARK_SCHEMA_VERSION = "puyo.v1_7_search_diagnostics_benchmark.v2"
+DECISION_SCHEMA_VERSION = "puyo.v1_7_search_diagnostics_decision.v2"
 SEED_MANIFEST_SCHEMA_VERSION = "puyo.v1_7_safe_build_seed_manifest.v1"
-DEFAULT_OUTPUT_DIR = "docs/benchmarks/puyo-v1-7-2-search-diagnostics"
+DEFAULT_OUTPUT_DIR = "docs/benchmarks/puyo-v1-7-2-search-diagnostics-v2"
 DEFAULT_SEED_SOURCE = "docs/benchmarks/puyo-v1-7-2-build-main/seed_results.csv"
 DEFAULT_SOURCE_CONFIG_ID = "d6-w48-p16"
 LATENCY_MODE = "offline_wall_clock"
@@ -75,6 +77,8 @@ class SearchBudget:
             "minimum_chain_count": MINIMUM_CHAIN_COUNT,
             "trigger_preservation": "required",
             "trace_paths": True,
+            "scoring_mode": BUILD_SCORING_V2,
+            "build_potential_schema_version": BUILD_POTENTIAL_SCHEMA_VERSION,
         }
 
     def beam_config(self) -> BeamSearchConfig:
@@ -83,9 +87,16 @@ class SearchBudget:
             width=self.width,
             scenarios=1,
             minimum_chain_count=MINIMUM_CHAIN_COUNT,
+            premature_chain_penalty=525.0,
             trigger_preservation="required",
             probe_width=self.probe_width,
             trace_paths=True,
+            scoring_mode=BUILD_SCORING_V2,
+            future_potential_weight=1.0,
+            chain_shape_weight=1.0,
+            danger_tolerance=0.65,
+            build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+            potential_probe_budget=self.probe_width * self.depth + 1,
         )
 
 
@@ -925,7 +936,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     )
     manifest = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "name": "puyo-v1-7-2-search-diagnostics",
+        "name": "puyo-v1-7-2-search-diagnostics-v2",
         "created_at_utc": summary["created_at_utc"],
         "git_commit": summary["git_commit"],
         "evaluation_completed": summary["evaluation_completed"],

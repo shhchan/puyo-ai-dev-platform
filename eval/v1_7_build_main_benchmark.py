@@ -1,4 +1,4 @@
-"""PUYO-157 build_main budget sweep and reproducible artifact verification."""
+"""PUYO-166 BuildPotential-v2 build_main budget sweep and verification."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.strategy_workers import (
     StrategyOrchestrator,
     default_worker_profiles,
@@ -23,8 +24,9 @@ from eval.v1_7_benchmark import _run_safe_game, aggregate_safe_suite
 from train.artifacts import describe_artifact, file_sha256, git_commit, utc_timestamp
 
 
-BENCHMARK_SCHEMA_VERSION = "puyo.v1_7_build_main_benchmark.v1"
-DEFAULT_OUTPUT_DIR = "docs/benchmarks/puyo-v1-7-2-build-main"
+BENCHMARK_SCHEMA_VERSION = "puyo.v1_7_build_main_benchmark.v2"
+SELECTION_SCHEMA_VERSION = "puyo.v1_7_build_main_selection.v2"
+DEFAULT_OUTPUT_DIR = "docs/benchmarks/puyo-v1-7-2-build-main-v2"
 DEFAULT_CHECKPOINT = (
     "runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/"
     "checkpoints/bootstrap.pt"
@@ -135,6 +137,7 @@ class ForcedBuildMainPolicy:
             all_clear_bonus_consumed=bool(
                 info.get("all_clear_bonus_consumed", False)
             ),
+            build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
         )
 
 
@@ -180,7 +183,7 @@ def build_selection(summaries: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         }
     )
     return {
-        "schema_version": "puyo.v1_7_build_main_selection.v1",
+        "schema_version": SELECTION_SCHEMA_VERSION,
         "selection_order": ["decision_p95_ms", "depth", "width", "probe_width"],
         "selected_configuration": selected_budget,
         "selected_config_id": None if selected is None else selected["config_id"],
@@ -389,7 +392,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     )
     manifest = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "name": "puyo-v1-7-2-build-main",
+        "name": "puyo-v1-7-2-build-main-v2",
         "created_at_utc": result["created_at_utc"],
         "git_commit": result["git_commit"],
         "evaluation_completed": result["evaluation_completed"],
