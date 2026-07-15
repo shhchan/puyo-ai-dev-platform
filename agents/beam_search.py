@@ -7,7 +7,7 @@ import random
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Sequence
 
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import (
@@ -45,6 +45,7 @@ class BeamSearchConfig:
     scenario_seed: int | None = None
     trigger_preservation: str = "ignore"
     probe_width: int = 0
+    trace_paths: bool = False
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -105,6 +106,190 @@ class BeamSearchDiagnostics:
     trigger_preserved: bool
     potential_probe_count: int
     potential_cache_hits: int
+    candidates: tuple[BeamCandidateDiagnostics, ...]
+
+
+@dataclass(frozen=True)
+class BeamCandidateDiagnostics:
+    """Offline-safe root-candidate survival details for one decision."""
+
+    action: int
+    root_generated: bool
+    root_rejected: bool
+    base_prune_depth: int
+    potential_probe_depth: int
+    final_prune_depth: int
+    safety_suppressed_depth: int
+    predicted_max_chain: int
+    best_chain_depth: int
+    best_path: tuple[int, ...]
+    premature_fire_score: int
+    premature_fire_penalty: float
+    candidate_value: float | None
+    potential: BuildPotential
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "action": int(self.action),
+            "root_generated": bool(self.root_generated),
+            "root_rejected": bool(self.root_rejected),
+            "stages": {
+                "base_prune_depth": int(self.base_prune_depth),
+                "potential_probe_depth": int(self.potential_probe_depth),
+                "final_prune_depth": int(self.final_prune_depth),
+                "safety_suppressed_depth": int(self.safety_suppressed_depth),
+            },
+            "predicted_max_chain": int(self.predicted_max_chain),
+            "best_chain_depth": int(self.best_chain_depth),
+            "best_path": [int(action) for action in self.best_path],
+            "fire_cost": {
+                "score": int(self.premature_fire_score),
+                "penalty": float(self.premature_fire_penalty),
+            },
+            "candidate_value": (
+                None if self.candidate_value is None else float(self.candidate_value)
+            ),
+            "potential": self.potential.to_dict(),
+        }
+
+
+@dataclass
+class _CandidateTraceState:
+    root_generated: bool = False
+    root_rejected: bool = False
+    base_prune_depth: int = 0
+    potential_probe_depth: int = 0
+    final_prune_depth: int = 0
+    safety_suppressed_depth: int = 0
+    best_value: float = float("-inf")
+    predicted_max_chain: int = 0
+    best_chain_depth: int = 0
+    best_path: tuple[int, ...] = ()
+    premature_fire_score: int = 0
+    premature_fire_penalty: float = 0.0
+    potential: BuildPotential = BuildPotential()
+
+
+@dataclass
+class _PathTraceState:
+    generated: bool = False
+    base_prune: bool = False
+    potential_probe: bool = False
+    final_prune: bool = False
+    safety_suppressed: bool = False
+
+
+class _SearchTrace:
+    """Collect candidate metadata without participating in search ranking."""
+
+    def __init__(self, *, trace_paths: bool = False) -> None:
+        self._states: dict[int, _CandidateTraceState] = {}
+        self._trace_paths = bool(trace_paths)
+        self._paths: dict[tuple[int, ...], _PathTraceState] = {}
+
+    def _state(self, action: int) -> _CandidateTraceState:
+        return self._states.setdefault(int(action), _CandidateTraceState())
+
+    def mark_root_generated(self, action: int) -> None:
+        self._state(action).root_generated = True
+
+    def mark_root_rejected(self, action: int) -> None:
+        self._state(action).root_rejected = True
+
+    def mark_generated_path(self, path: tuple[int, ...]) -> None:
+        if self._trace_paths:
+            self._paths.setdefault(path, _PathTraceState()).generated = True
+
+    def mark_stage(self, stage: str, nodes: list[_Node], depth: int) -> None:
+        attribute = {
+            "base": "base_prune_depth",
+            "probe": "potential_probe_depth",
+            "final": "final_prune_depth",
+        }[stage]
+        for node in nodes:
+            state = self._state(node.root_action)
+            setattr(state, attribute, max(int(getattr(state, attribute)), int(depth)))
+            if self._trace_paths:
+                path_state = self._paths.setdefault(node.path, _PathTraceState())
+                setattr(
+                    path_state,
+                    {
+                        "base": "base_prune",
+                        "probe": "potential_probe",
+                        "final": "final_prune",
+                    }[stage],
+                    True,
+                )
+
+    def mark_safety_suppressed(self, node: _Node, depth: int) -> None:
+        state = self._state(node.root_action)
+        state.safety_suppressed_depth = max(
+            state.safety_suppressed_depth,
+            int(depth),
+        )
+        if self._trace_paths:
+            self._paths.setdefault(node.path, _PathTraceState()).safety_suppressed = True
+
+    def record_best(self, node: _Node, value: float) -> None:
+        state = self._state(node.root_action)
+        if value <= state.best_value:
+            return
+        state.best_value = float(value)
+        state.predicted_max_chain = int(node.best_chain_count)
+        state.best_chain_depth = int(node.best_chain_depth)
+        state.best_path = node.path
+        state.premature_fire_score = int(node.premature_fire_score)
+        state.premature_fire_penalty = float(node.premature_penalty)
+        state.potential = node.potential
+
+    def diagnostics(
+        self,
+        actions: list[int],
+        values: dict[int, float],
+    ) -> tuple[BeamCandidateDiagnostics, ...]:
+        result = []
+        for action in actions:
+            state = self._state(action)
+            result.append(
+                BeamCandidateDiagnostics(
+                    action=int(action),
+                    root_generated=state.root_generated,
+                    root_rejected=state.root_rejected,
+                    base_prune_depth=state.base_prune_depth,
+                    potential_probe_depth=state.potential_probe_depth,
+                    final_prune_depth=state.final_prune_depth,
+                    safety_suppressed_depth=state.safety_suppressed_depth,
+                    predicted_max_chain=state.predicted_max_chain,
+                    best_chain_depth=state.best_chain_depth,
+                    best_path=state.best_path,
+                    premature_fire_score=state.premature_fire_score,
+                    premature_fire_penalty=state.premature_fire_penalty,
+                    candidate_value=(
+                        None if action not in values else float(values[action])
+                    ),
+                    potential=state.potential,
+                )
+            )
+        return tuple(result)
+
+    def path_diagnostics(self, path: Sequence[int]) -> tuple[dict[str, Any], ...]:
+        actions = tuple(int(action) for action in path)
+        result = []
+        for depth in range(1, len(actions) + 1):
+            prefix = actions[:depth]
+            state = self._paths.get(prefix, _PathTraceState())
+            result.append(
+                {
+                    "depth": depth,
+                    "path": list(prefix),
+                    "generated": bool(state.generated),
+                    "base_prune": bool(state.base_prune),
+                    "potential_probe": bool(state.potential_probe),
+                    "final_prune": bool(state.final_prune),
+                    "safety_suppressed": bool(state.safety_suppressed),
+                }
+            )
+        return tuple(result)
 
 
 @dataclass
@@ -114,6 +299,10 @@ class _Node:
     evaluation: float
     best_chain_value: float
     premature_penalty: float
+    best_chain_count: int
+    best_chain_depth: int
+    premature_fire_score: int
+    path: tuple[int, ...]
     potential: BuildPotential
     target_achieved: bool
 
@@ -152,6 +341,7 @@ class BeamSearchPolicy:
         self._potential_probe_count = 0
         self._potential_cache_hits = 0
         self._root_potential = BuildPotential()
+        self._search_trace = _SearchTrace(trace_paths=self.config.trace_paths)
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
         _ = observation
@@ -164,6 +354,7 @@ class BeamSearchPolicy:
         self._potential_cache = {}
         self._potential_probe_count = 0
         self._potential_cache_hits = 0
+        self._search_trace = _SearchTrace(trace_paths=self.config.trace_paths)
         self._root_potential = (
             self._probe_potential(simulator)
             if self._preserves_trigger
@@ -224,8 +415,17 @@ class BeamSearchPolicy:
             ),
             potential_probe_count=self._potential_probe_count,
             potential_cache_hits=self._potential_cache_hits,
+            candidates=self._search_trace.diagnostics(legal, totals),
         )
         return best_action
+
+    def candidate_path_diagnostics(
+        self,
+        path: Sequence[int],
+    ) -> tuple[dict[str, Any], ...]:
+        """Return offline trace stages for every prefix of one action path."""
+
+        return self._search_trace.path_diagnostics(path)
 
     @property
     def _preserves_trigger(self) -> bool:
@@ -250,32 +450,48 @@ class BeamSearchPolicy:
             result = child.step(action_to_placement(action))
             expanded_nodes += 1
             if not result.valid or result.game_over:
+                self._search_trace.mark_root_rejected(action)
                 continue
+            self._search_trace.mark_root_generated(action)
             chain_value, premature_penalty = self._chain_outcome(result.chain_count, result.score_delta)
             evaluation = evaluate_board(child.game)
+            path = (int(action),) if self.config.trace_paths else ()
+            best_chain_depth = 1 if result.chain_count > 0 else 0
+            node = _Node(
+                child,
+                action,
+                evaluation,
+                chain_value,
+                premature_penalty,
+                int(result.chain_count),
+                best_chain_depth,
+                self._premature_fire_score(
+                    result.chain_count,
+                    result.score_delta,
+                ),
+                path,
+                BuildPotential(),
+                result.chain_count >= self.config.minimum_chain_count,
+            )
+            self._search_trace.mark_generated_path(path)
             root_candidates.append(
                 (
-                    _Node(
-                        child,
-                        action,
-                        evaluation,
-                        chain_value,
-                        premature_penalty,
-                        BuildPotential(),
-                        result.chain_count >= self.config.minimum_chain_count,
-                    ),
+                    node,
                     result.chain_count,
                 )
             )
 
-        beam = self._prune(self._suppress_premature(root_candidates))
+        beam = self._prune(
+            self._suppress_premature(root_candidates, depth=1),
+            depth=1,
+        )
         self._record_best(
             beam,
             best_by_action,
             potential_by_action,
             preserved_by_action,
         )
-        for _ in range(1, self.config.depth):
+        for depth in range(2, self.config.depth + 1):
             seen: dict[tuple, _Node] = {}
             for node in beam:
                 node_candidates: list[tuple[_Node, int]] = []
@@ -292,19 +508,41 @@ class BeamSearchPolicy:
                         result.score_delta,
                     )
                     evaluation = evaluate_board(child.game)
+                    best_chain_depth = (
+                        depth
+                        if int(result.chain_count) > node.best_chain_count
+                        else node.best_chain_depth
+                    )
+                    path = (
+                        node.path + (int(action),)
+                        if self.config.trace_paths
+                        else ()
+                    )
                     candidate = _Node(
                         child,
                         node.root_action,
                         evaluation,
                         chain_value,
                         premature_penalty,
+                        max(node.best_chain_count, int(result.chain_count)),
+                        best_chain_depth,
+                        node.premature_fire_score
+                        + self._premature_fire_score(
+                            result.chain_count,
+                            result.score_delta,
+                        ),
+                        path,
                         BuildPotential(),
                         node.target_achieved
                         or result.chain_count >= self.config.minimum_chain_count,
                     )
+                    self._search_trace.mark_generated_path(path)
                     node_candidates.append((candidate, result.chain_count))
 
-                for candidate in self._suppress_premature(node_candidates):
+                for candidate in self._suppress_premature(
+                    node_candidates,
+                    depth=depth,
+                ):
                     fingerprint = _field_fingerprint(candidate.simulator.game)
                     previous = seen.get(fingerprint)
                     if previous is None or _base_node_value(candidate) > _base_node_value(previous):
@@ -312,7 +550,7 @@ class BeamSearchPolicy:
 
             if not seen:
                 break
-            beam = self._prune(list(seen.values()))
+            beam = self._prune(list(seen.values()), depth=depth)
             self._record_best(
                 beam,
                 best_by_action,
@@ -325,14 +563,20 @@ class BeamSearchPolicy:
     def _suppress_premature(
         self,
         candidates: list[tuple[_Node, int]],
+        *,
+        depth: int = 1,
     ) -> list[_Node]:
         if not self._preserves_trigger or not any(chain == 0 for _, chain in candidates):
             return [node for node, _ in candidates]
-        return [
-            node
-            for node, chain in candidates
-            if not 0 < chain < self.config.minimum_chain_count
-        ]
+        retained = []
+        for node, chain in candidates:
+            if 0 < chain < self.config.minimum_chain_count:
+                root_action = getattr(node, "root_action", None)
+                if root_action is not None:
+                    self._search_trace.mark_safety_suppressed(node, depth)
+                continue
+            retained.append(node)
+        return retained
 
     def _record_best(
         self,
@@ -351,14 +595,18 @@ class BeamSearchPolicy:
                 self._root_potential,
                 node.potential,
             )
+            self._search_trace.record_best(node, value)
 
-    def _prune(self, nodes: list[_Node]) -> list[_Node]:
+    def _prune(self, nodes: list[_Node], *, depth: int = 1) -> list[_Node]:
         nodes.sort(
             key=lambda node: (_base_node_value(node), -node.root_action),
             reverse=True,
         )
+        self._search_trace.mark_stage("base", nodes[: self.config.width], depth)
         if self._preserves_trigger:
-            for node in nodes[: self.config.probe_width]:
+            probed = nodes[: self.config.probe_width]
+            self._search_trace.mark_stage("probe", probed, depth)
+            for node in probed:
                 node.potential = self._probe_potential(node.simulator)
                 if not node.target_achieved:
                     potential_value = _potential_value(node.potential)
@@ -383,7 +631,9 @@ class BeamSearchPolicy:
             ),
             reverse=True,
         )
-        return nodes[: self.config.width]
+        retained = nodes[: self.config.width]
+        self._search_trace.mark_stage("final", retained, depth)
+        return retained
 
     def _probe_potential(self, simulator) -> BuildPotential:
         fingerprint = _field_fingerprint(simulator.game)
@@ -405,6 +655,11 @@ class BeamSearchPolicy:
             self.config.chain_weight * float(chain_count) + self.config.score_weight * float(score_delta),
             0.0,
         )
+
+    def _premature_fire_score(self, chain_count: int, score_delta: int) -> int:
+        if 0 < chain_count < self.config.minimum_chain_count:
+            return int(score_delta)
+        return 0
 
     def _advance_chain_outcome(
         self,
