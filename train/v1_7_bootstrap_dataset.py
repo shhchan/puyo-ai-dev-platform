@@ -6,12 +6,14 @@ import argparse
 import copy
 import hashlib
 import json
+import math
 import subprocess
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -55,6 +57,22 @@ _CURRENT_DIAGNOSTIC_SCHEMAS = {
     ANALYZER_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
     STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
 }
+_SHAPE_COMPATIBLE_DIAGNOSTIC_SCHEMAS = {
+    "puyo.v1_7_analyzer_manager.diagnostics.v1",
+    "puyo.v1_7_strategy_manager.diagnostics.v1",
+}
+_SUPPORTED_DIAGNOSTIC_SCHEMAS = (
+    _CURRENT_DIAGNOSTIC_SCHEMAS | _SHAPE_COMPATIBLE_DIAGNOSTIC_SCHEMAS
+)
+_STRATEGY_DIAGNOSTIC_SCHEMAS = {
+    STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
+    "puyo.v1_7_strategy_manager.diagnostics.v1",
+}
+_LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = (
+    "puyo.state_analyzer.diagnostics.v1"
+)
+_LEGACY_TACTIC_SCHEMA_VERSION = "tactic-schema-v1"
+_LEGACY_TACTIC_REGISTRY_VERSION = "v1.7.0"
 _LIFECYCLE_FIELDS = (
     "score_carry",
     "all_clear_achieved",
@@ -315,7 +333,7 @@ def _replay_records(
             if not isinstance(diagnostics, Mapping):
                 continue
             schema_version = str(diagnostics.get("schema_version", ""))
-            if schema_version not in _CURRENT_DIAGNOSTIC_SCHEMAS:
+            if schema_version not in _SUPPORTED_DIAGNOSTIC_SCHEMAS:
                 continue
             plan_id = str(diagnostics.get("plan_id") or _json_digest(diagnostics))
             decision_id = f"{agent}:{plan_id}"
@@ -337,7 +355,7 @@ def _replay_records(
                     source_path=source_path,
                     source_kind=(
                         "planner_preview"
-                        if schema_version == STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION
+                        if schema_version in _STRATEGY_DIAGNOSTIC_SCHEMAS
                         else "v1_7_action_log"
                     ),
                     record_id=(
@@ -370,10 +388,10 @@ def _list_records(
         if not isinstance(value, Mapping):
             continue
         schema_version = str(value.get("schema_version", ""))
-        if schema_version in _CURRENT_DIAGNOSTIC_SCHEMAS:
+        if schema_version in _SUPPORTED_DIAGNOSTIC_SCHEMAS:
             kind = (
                 "planner_preview"
-                if schema_version == STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION
+                if schema_version in _STRATEGY_DIAGNOSTIC_SCHEMAS
                 else "v1_7_action_log"
             )
         elif "manager_features" in value and "selected_profile_name" in value:
@@ -410,7 +428,7 @@ def _source_records(path: Path) -> tuple[list[_SourceRecord], dict[str, Any]]:
             return _scenario_report_records(path, payload)
         if payload.get("format") == "puyo-realtime-match-v1":
             return _replay_records(path, payload)
-        if schema_version in _CURRENT_DIAGNOSTIC_SCHEMAS:
+        if schema_version in _SUPPORTED_DIAGNOSTIC_SCHEMAS:
             return _list_records(path, [payload])
         return _list_records(path, [payload])
     if isinstance(payload, list):
@@ -920,6 +938,7 @@ def build_bootstrap_dataset(
         "schemas": {
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "scenario": SCENARIO_SCHEMA_VERSION,
             "scenario_report": SCENARIO_REPORT_SCHEMA_VERSION,
             "feature": FEATURE_SCHEMA_VERSION,
@@ -988,11 +1007,169 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
     return records
 
 
+def _shape_compatible_legacy_manifest_errors(
+    manifest: Mapping[str, Any],
+    *,
+    encoder: V17StrategyFeatureEncoder,
+    registry: TacticRegistry,
+) -> list[str]:
+    """Validate the metadata boundary for the one shape-compatible legacy path."""
+
+    errors = []
+    feature_contract = manifest.get("feature_contract")
+    expected_contract = encoder.contract.to_metadata()
+    if not isinstance(feature_contract, Mapping):
+        return ["legacy feature_contract must be a mapping"]
+    source_registry_version = feature_contract.get("registry_version")
+    if source_registry_version not in {
+        _LEGACY_TACTIC_REGISTRY_VERSION,
+        encoder.contract.registry_version,
+    }:
+        errors.append(
+            "legacy feature_contract.registry_version is not shape-compatible"
+        )
+    for field, expected in expected_contract.items():
+        if field == "registry_version":
+            continue
+        if feature_contract.get(field) != expected:
+            errors.append(
+                "legacy feature_contract shape mismatch for "
+                f"{field}: expected {expected!r}, got {feature_contract.get(field)!r}"
+            )
+
+    schemas = manifest.get("schemas")
+    if not isinstance(schemas, Mapping):
+        return errors + ["legacy manifest schemas must be a mapping"]
+    expected_schemas = {
+        "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
+        "analyzer_diagnostics": _LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        "feature": FEATURE_SCHEMA_VERSION,
+        "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
+    }
+    for field, expected in expected_schemas.items():
+        if schemas.get(field) != expected:
+            errors.append(
+                "legacy manifest schema mismatch for "
+                f"{field}: expected {expected!r}, got {schemas.get(field)!r}"
+            )
+    if schemas.get("build_potential") is not None:
+        errors.append("legacy manifest must not declare a BuildPotential schema")
+    if schemas.get("tactic_registry") not in {
+        _LEGACY_TACTIC_SCHEMA_VERSION,
+        registry.schema_version,
+    }:
+        errors.append("legacy tactic registry schema is unsupported")
+    if schemas.get("tactic_registry_version") != source_registry_version:
+        errors.append(
+            "legacy tactic registry version does not match the feature contract"
+        )
+    return errors
+
+
+def _legacy_analyzer_diagnostics_projection(diagnostics: Any) -> Any:
+    """Project current diagnostics onto the stored v1 JSON contract."""
+
+    payload = _json_value(diagnostics.to_dict())
+    payload["schema_version"] = _LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
+    for side in ("own", "opponent"):
+        player = payload.get(side)
+        if isinstance(player, Mapping):
+            player = dict(player)
+            player.pop("build_potential", None)
+            payload[side] = player
+    return _json_value(payload)
+
+
+def _numeric_vector_errors(
+    value: Any,
+    *,
+    expected_length: int,
+    label: str,
+) -> list[str]:
+    if not isinstance(value, (list, tuple)):
+        return [f"{label} must be a numeric array"]
+    errors = []
+    if len(value) != expected_length:
+        errors.append(
+            f"{label} length mismatch: expected {expected_length}, got {len(value)}"
+        )
+    if any(not _is_finite_number(item) for item in value):
+        errors.append(f"{label} must contain only finite numbers")
+    return errors
+
+
+def _is_finite_number(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (OverflowError, ValueError):
+        return False
+
+
+def _validate_legacy_features(
+    features: Any,
+    *,
+    encoded: Any,
+    encoder: V17StrategyFeatureEncoder,
+) -> tuple[list[str], tuple[bool, ...] | None]:
+    errors = []
+    if not isinstance(features, Mapping):
+        return ["features must be a mapping"], None
+    if features.get("schema_version") != FEATURE_SCHEMA_VERSION:
+        errors.append("feature schema_version is unsupported")
+
+    context = features.get("context")
+    errors.extend(
+        _numeric_vector_errors(
+            context,
+            expected_length=encoder.contract.context_dim,
+            label="features.context",
+        )
+    )
+    if isinstance(context, (list, tuple)) and list(context) != list(encoded.context):
+        errors.append("context features do not match analyzer input")
+
+    tactics = features.get("tactics")
+    if not isinstance(tactics, (list, tuple)):
+        errors.append("features.tactics must be an array")
+    else:
+        expected_tactics = len(encoder.contract.tactic_ids)
+        if len(tactics) != expected_tactics:
+            errors.append(
+                "features.tactics length mismatch: "
+                f"expected {expected_tactics}, got {len(tactics)}"
+            )
+        for index, values in enumerate(tactics):
+            errors.extend(
+                _numeric_vector_errors(
+                    values,
+                    expected_length=encoder.contract.tactic_dim,
+                    label=f"features.tactics[{index}]",
+                )
+            )
+
+    raw_mask = features.get("eligibility_mask")
+    if not isinstance(raw_mask, (list, tuple)):
+        errors.append("features.eligibility_mask must be a boolean array")
+        return errors, None
+    if len(raw_mask) != len(encoder.contract.tactic_ids):
+        errors.append(
+            "features.eligibility_mask length mismatch: expected "
+            f"{len(encoder.contract.tactic_ids)}, got {len(raw_mask)}"
+        )
+    if any(not isinstance(item, bool) for item in raw_mask):
+        errors.append("features.eligibility_mask must contain only booleans")
+        return errors, None
+    return errors, tuple(raw_mask)
+
+
 def _validate_training_sample(
     sample: Mapping[str, Any],
     *,
     encoder: V17StrategyFeatureEncoder,
     registry: TacticRegistry,
+    legacy_projection: bool = False,
 ) -> list[str]:
     errors = []
     try:
@@ -1000,15 +1177,32 @@ def _validate_training_sample(
         analyzer_input = AnalyzerInput.from_dict(analyzer_section["input"])
         diagnostics = StateAnalyzer().analyze(analyzer_input)
         encoded = encoder.encode(analyzer_input, diagnostics)
-        expected_features = {
-            "schema_version": FEATURE_SCHEMA_VERSION,
-            "context": list(encoded.context),
-            "tactics": [list(values) for values in encoded.tactics],
-            "eligibility_mask": list(encoded.eligibility_mask),
-        }
-        if sample.get("features") != expected_features:
-            errors.append("encoded features do not match analyzer input")
-        if analyzer_section.get("diagnostics") != _json_value(diagnostics.to_dict()):
+        stored_mask = None
+        if legacy_projection:
+            feature_errors, stored_mask = _validate_legacy_features(
+                sample.get("features"),
+                encoded=encoded,
+                encoder=encoder,
+            )
+            errors.extend(feature_errors)
+            expected_diagnostics = _legacy_analyzer_diagnostics_projection(
+                diagnostics
+            )
+            stored_diagnostics = _json_value(
+                analyzer_section.get("diagnostics")
+            )
+        else:
+            expected_features = {
+                "schema_version": FEATURE_SCHEMA_VERSION,
+                "context": list(encoded.context),
+                "tactics": [list(values) for values in encoded.tactics],
+                "eligibility_mask": list(encoded.eligibility_mask),
+            }
+            if sample.get("features") != expected_features:
+                errors.append("encoded features do not match analyzer input")
+            expected_diagnostics = _json_value(diagnostics.to_dict())
+            stored_diagnostics = analyzer_section.get("diagnostics")
+        if stored_diagnostics != expected_diagnostics:
             errors.append("analyzer diagnostics do not match analyzer input")
         expected_group = _json_digest(analyzer_input.to_dict())
         if sample.get("group_id") != expected_group:
@@ -1025,7 +1219,12 @@ def _validate_training_sample(
                 index = encoder.contract.tactic_ids.index(tactic_id)
                 if teacher.get("tactic_index") != index:
                     errors.append("teacher tactic_index is invalid")
-                if not encoded.eligibility_mask[index]:
+                eligibility_mask = (
+                    encoded.eligibility_mask
+                    if stored_mask is None
+                    else stored_mask
+                )
+                if index >= len(eligibility_mask) or not eligibility_mask[index]:
                     errors.append("teacher tactic is ineligible")
             action = int(teacher.get("action", -1))
             if not 0 <= action < NUM_ACTIONS:
@@ -1042,8 +1241,17 @@ def _validate_training_sample(
     return errors
 
 
-def validate_bootstrap_dataset(dataset_dir: str | Path) -> list[str]:
-    """Return all manifest, checksum, schema, feature, and action errors."""
+def validate_bootstrap_dataset(
+    dataset_dir: str | Path,
+    *,
+    allow_shape_compatible_legacy: bool = False,
+) -> list[str]:
+    """Return all manifest, checksum, schema, feature, and action errors.
+
+    The opt-in legacy path accepts only the audited v1.7.0/pre-BuildPotential
+    metadata contract. Checksums, sample identities, analyzer projections,
+    numeric feature shapes, stored eligibility, and action legality stay strict.
+    """
 
     root = Path(dataset_dir)
     manifest_path = root / "dataset_manifest.json"
@@ -1064,10 +1272,27 @@ def validate_bootstrap_dataset(dataset_dir: str | Path) -> list[str]:
 
     registry = load_tactic_registry()
     encoder = V17StrategyFeatureEncoder(registry)
-    try:
-        encoder.contract.validate_metadata(manifest.get("feature_contract", {}))
-    except ValueError as exc:
-        errors.append(str(exc))
+    schemas = manifest.get("schemas")
+    legacy_projection = bool(
+        allow_shape_compatible_legacy
+        and isinstance(schemas, Mapping)
+        and schemas.get("analyzer_diagnostics")
+        == _LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
+        and schemas.get("build_potential") is None
+    )
+    if legacy_projection:
+        errors.extend(
+            _shape_compatible_legacy_manifest_errors(
+                manifest,
+                encoder=encoder,
+                registry=registry,
+            )
+        )
+    else:
+        try:
+            encoder.contract.validate_metadata(manifest.get("feature_contract", {}))
+        except ValueError as exc:
+            errors.append(str(exc))
     all_samples = []
     split_samples = {}
     for split, filename in SPLIT_FILENAMES.items():
@@ -1101,7 +1326,12 @@ def validate_bootstrap_dataset(dataset_dir: str | Path) -> list[str]:
             if sample_id != _json_digest(sample_without_id):
                 errors.append(f"sample {sample_id} digest mismatch")
             if split in {"train", "validation"}:
-                for issue in _validate_training_sample(sample, encoder=encoder, registry=registry):
+                for issue in _validate_training_sample(
+                    sample,
+                    encoder=encoder,
+                    registry=registry,
+                    legacy_projection=legacy_projection,
+                ):
                     errors.append(f"sample {sample_id}: {issue}")
             else:
                 compatibility = sample.get("compatibility", {})

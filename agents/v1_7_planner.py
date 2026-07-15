@@ -5,6 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Mapping
 
+from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+)
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -15,7 +19,7 @@ from agents.v1_7_tactics import TacticSpec
 from src.core.ojama import convert_score_to_ojama
 
 
-PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v2"
+PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v3"
 _OBJECTIVE_KINDS = {
     "build_main": "build",
     "prepare_response": "response_readiness",
@@ -81,6 +85,7 @@ class PlannerRequest:
     all_clear_bonus_consumed: bool
     required_response_attack: int = 0
     response_source: str = "none"
+    build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
     analyzer_input_schema_version: str = ANALYZER_INPUT_SCHEMA_VERSION
     analyzer_diagnostics_schema_version: str = ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
     schema_version: str = PLANNER_REQUEST_SCHEMA_VERSION
@@ -119,6 +124,14 @@ class PlannerRequest:
             raise ValueError("planner latency budget must be positive")
         if self.response_source not in {"none", "incoming", "opponent_forecast", "combined"}:
             raise ValueError(f"unsupported response source: {self.response_source}")
+        if self.build_potential_schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(
+                "unsupported build-potential schema: "
+                f"{self.build_potential_schema_version}"
+            )
         if self.objective_kind == "response_readiness" and self.required_response_attack <= 0:
             raise ValueError("response readiness requires positive response attack")
 
@@ -160,6 +173,7 @@ class PlannerRequest:
             },
             "analyzer_input_schema_version": self.analyzer_input_schema_version,
             "analyzer_diagnostics_schema_version": self.analyzer_diagnostics_schema_version,
+            "build_potential_schema_version": self.build_potential_schema_version,
         }
 
 
@@ -284,6 +298,11 @@ def build_planner_request(
         all_clear_bonus_consumed=bool(own.get("all_clear_bonus_consumed", False)),
         required_response_attack=max(0, required_response_attack),
         response_source=response_source,
+        build_potential_schema_version=(
+            BUILD_POTENTIAL_SCHEMA_VERSION
+            if tactic.identity.tactic_id in {"build_main", "prepare_response"}
+            else BUILD_POTENTIAL_V1_SCHEMA_VERSION
+        ),
     )
 
 

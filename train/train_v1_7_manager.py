@@ -23,7 +23,11 @@ except ImportError:  # pragma: no cover - dependency guard
     optim = None
     F = None
 
-from agents.state_analyzer import ANALYZER_INPUT_SCHEMA_VERSION
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.state_analyzer import (
+    ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+    ANALYZER_INPUT_SCHEMA_VERSION,
+)
 from agents.v1_7_strategy_manager import (
     BOOTSTRAP_TRAINER_NAME,
     FEATURE_SCHEMA_VERSION,
@@ -73,6 +77,10 @@ METRICS_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.metrics.v1"
 CONFUSION_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.confusion.v1"
 PARAMETER_REPORT_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.parameters.v1"
 SCENARIO_REPORT_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.scenarios.v1"
+DATASET_METADATA_MIGRATION_SCHEMA_VERSION = (
+    "puyo.build_potential_v2_dataset_metadata_migration.v1"
+)
+LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = "puyo.state_analyzer.diagnostics.v1"
 DEFAULT_CONFIG_PATH = Path(__file__).with_name("config") / "v1_7_manager_bootstrap.yaml"
 DEFAULT_DATASET_DIR = "docs/benchmarks/puyo-v1-7-1-bootstrap-dataset-smoke"
 DEFAULT_SCENARIO_DATASET = "eval/scenarios/v1_7_analyzer.json"
@@ -121,32 +129,53 @@ def _migrate_v1_7_1_dataset_metadata(
 
     migrated_manifest = dict(dataset.manifest)
     feature_contract = dict(migrated_manifest.get("feature_contract", {}))
-    if feature_contract.get("registry_version") == encoder.contract.registry_version:
+    source_registry_version = feature_contract.get("registry_version")
+    if source_registry_version == encoder.contract.registry_version:
         encoder.contract.validate_metadata(feature_contract)
-        return dataset
-    if feature_contract.get("registry_version") != "v1.7.0":
+    elif source_registry_version != "v1.7.0":
         encoder.contract.validate_metadata(feature_contract)
     target_contract = encoder.contract.to_metadata()
-    for field, value in target_contract.items():
-        if field == "registry_version":
-            continue
-        if feature_contract.get(field) != value:
-            raise ValueError(
-                "v1.7.1 dataset cannot migrate without changing feature shape: "
-                f"feature_contract.{field} differs"
-            )
-    migrated_manifest["feature_contract"] = target_contract
+    if source_registry_version == "v1.7.0":
+        for field, value in target_contract.items():
+            if field == "registry_version":
+                continue
+            if feature_contract.get(field) != value:
+                raise ValueError(
+                    "v1.7.1 dataset cannot migrate without changing feature shape: "
+                    f"feature_contract.{field} differs"
+                )
+        migrated_manifest["feature_contract"] = target_contract
+
     schemas = dict(migrated_manifest.get("schemas", {}))
+    analyzer_diagnostics_schema = schemas.get("analyzer_diagnostics")
+    if analyzer_diagnostics_schema not in {
+        LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+    }:
+        raise ValueError(
+            "dataset Analyzer diagnostics schema cannot migrate to BuildPotential v2: "
+            f"{analyzer_diagnostics_schema!r}"
+        )
+    build_potential_schema = schemas.get("build_potential")
+    if build_potential_schema not in {None, BUILD_POTENTIAL_SCHEMA_VERSION}:
+        raise ValueError(
+            "dataset BuildPotential schema is unsupported: "
+            f"{build_potential_schema!r}"
+        )
     schemas.update(
         {
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": encoder.contract.registry_version,
         }
     )
     migrated_manifest["schemas"] = schemas
+    if migrated_manifest == dataset.manifest:
+        return dataset
     compatibility = dict(migrated_manifest.get("compatibility", {}))
     migration_sources = dict(compatibility.get("migration_sources", {}))
-    migration_sources["puyo.v1_7_2_dataset_metadata_migration.v1"] = 1
+    migration_sources[DATASET_METADATA_MIGRATION_SCHEMA_VERSION] = 1
     compatibility["migration_sources"] = migration_sources
     migrated_manifest["compatibility"] = compatibility
     return replace(dataset, manifest=migrated_manifest)
@@ -258,7 +287,10 @@ def _read_jsonl(path: Path) -> tuple[Mapping[str, Any], ...]:
 
 def _load_and_validate_dataset(config: V17ManagerBootstrapConfig) -> _LoadedDataset:
     root = Path(config.dataset_dir)
-    errors = validate_bootstrap_dataset(root)
+    errors = validate_bootstrap_dataset(
+        root,
+        allow_shape_compatible_legacy=True,
+    )
     if errors:
         raise ValueError("invalid bootstrap dataset: " + "; ".join(errors))
     manifest_path = root / "dataset_manifest.json"
@@ -810,8 +842,13 @@ def train_v1_7_manager(
     encoder = V17StrategyFeatureEncoder(registry)
     dataset = _migrate_v1_7_1_dataset_metadata(dataset, encoder)
     encoder.contract.validate_metadata(dataset.manifest.get("feature_contract", {}))
-    if dataset.manifest.get("schemas", {}).get("analyzer_input") != ANALYZER_INPUT_SCHEMA_VERSION:
+    dataset_schemas = dataset.manifest.get("schemas", {})
+    if dataset_schemas.get("analyzer_input") != ANALYZER_INPUT_SCHEMA_VERSION:
         raise ValueError("dataset Analyzer input schema does not match the current model")
+    if dataset_schemas.get("analyzer_diagnostics") != ANALYZER_DIAGNOSTICS_SCHEMA_VERSION:
+        raise ValueError("dataset Analyzer diagnostics schema does not match the current model")
+    if dataset_schemas.get("build_potential") != BUILD_POTENTIAL_SCHEMA_VERSION:
+        raise ValueError("dataset BuildPotential schema does not match the current model")
     _seed_everything(cfg)
     device = _device(cfg)
     model = V17StrategyManagerNetwork(encoder.contract, hidden_dim=cfg.hidden_dim).to(device)

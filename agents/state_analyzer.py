@@ -6,7 +6,13 @@ from collections import deque
 from dataclasses import asdict, dataclass, replace
 from typing import Any, Mapping, Sequence
 
-from agents.beam_search import clone_simulator, evaluate_board
+from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BuildPotentialBudget,
+    BuildPotentialSession,
+    clone_simulator,
+    evaluate_board,
+)
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
 from src.core.game import GameState
@@ -16,7 +22,7 @@ from src.core.puyo import Puyo
 
 
 ANALYZER_INPUT_SCHEMA_VERSION = "puyo.state_analyzer.input.v1"
-ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = "puyo.state_analyzer.diagnostics.v1"
+ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = "puyo.state_analyzer.diagnostics.v2"
 _ALLOWED_COLORS = frozenset(
     color.name for color in PuyoColor if color not in {PuyoColor.WALL}
 )
@@ -161,6 +167,13 @@ class AnalyzerConfig:
     max_depth: int = 3
     beam_width: int = 24
     max_attack_options: int = 8
+    build_potential_budget: BuildPotentialBudget = BuildPotentialBudget(
+        max_added_puyos=4,
+        max_pattern_nodes=512,
+        max_resolution_nodes=16,
+        max_alternatives=6,
+        max_continuation_actions=6,
+    )
 
     def __post_init__(self) -> None:
         if not 1 <= self.max_depth <= 3:
@@ -210,6 +223,7 @@ class PlayerAnalysis:
     all_clear_achieved: bool
     all_clear_bonus_pending: bool
     all_clear_bonus_consumed: bool
+    build_potential: Mapping[str, Any]
     forecast: AttackForecast
     attack_options: tuple[AttackOption, ...]
 
@@ -265,8 +279,13 @@ class StateAnalyzer:
         self.config = config or AnalyzerConfig()
 
     def analyze(self, analyzer_input: AnalyzerInput) -> AnalyzerDiagnostics:
-        own = self._analyze_player(analyzer_input.own)
-        opponent = self._analyze_player(analyzer_input.opponent)
+        potential_session = BuildPotentialSession(
+            schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+            budget=self.config.build_potential_budget,
+            max_evaluations=2,
+        )
+        own = self._analyze_player(analyzer_input.own, potential_session)
+        opponent = self._analyze_player(analyzer_input.opponent, potential_session)
         own = _with_options(own, _mark_sub_chains(own.attack_options))
         opponent = _with_options(
             opponent,
@@ -302,9 +321,14 @@ class StateAnalyzer:
             policy_deadline=analyzer_input.policy_deadline,
         )
 
-    def _analyze_player(self, snapshot: PlayerSnapshot) -> PlayerAnalysis:
+    def _analyze_player(
+        self,
+        snapshot: PlayerSnapshot,
+        potential_session: BuildPotentialSession,
+    ) -> PlayerAnalysis:
         simulator = simulator_from_snapshot(snapshot)
         options = self._search(simulator, snapshot.score_carry)
+        build_potential = potential_session.evaluate(simulator)
         main = max(options, key=lambda option: (option.chain_count, option.attack, -option.turns), default=None)
         if main is not None:
             options = tuple(replace(option, is_main_chain=option == main) for option in options)
@@ -327,6 +351,7 @@ class StateAnalyzer:
             all_clear_achieved=snapshot.all_clear_achieved,
             all_clear_bonus_pending=snapshot.all_clear_bonus_pending,
             all_clear_bonus_consumed=snapshot.all_clear_bonus_consumed,
+            build_potential=build_potential.to_dict(),
             forecast=AttackForecast(
                 immediate_attack=immediate,
                 short_attack=short,

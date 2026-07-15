@@ -2,14 +2,24 @@ schema_version: tactic-schema-v2
 registry_version: v1.7.2
 compatible_analyzer_schemas:
   input: puyo.state_analyzer.input.v1
-  diagnostics: puyo.state_analyzer.diagnostics.v1
+  diagnostics: puyo.state_analyzer.diagnostics.v2
 
 tactics:
-  - identity: {id: build_main, name: build_main, version: "1.1", human_label: 本線構築}
+  - identity: {id: build_main, name: build_main, version: "2.0", human_label: 本線構築}
     applicability:
-      feature_refs: [diagnostics.own.danger, diagnostics.own.forecast.main_chain, diagnostics.incoming.amount]
+      feature_refs:
+        - diagnostics.own.danger
+        - diagnostics.own.forecast.main_chain
+        - diagnostics.own.build_potential.predicted_chain_potential
+        - diagnostics.own.build_potential.continuation_flexibility
+        - diagnostics.own.build_potential.danger_margin
+        - diagnostics.incoming.amount
     objective:
-      input_refs: [diagnostics.own.forecast.main_chain]
+      input_refs:
+        - diagnostics.own.forecast.main_chain
+        - diagnostics.own.build_potential.predicted_chain_potential
+        - diagnostics.own.build_potential.ignition_cost
+        - diagnostics.own.build_potential.trigger_alternatives
       parameters:
         target_chain: {kind: integer, default: 10, min: 1, max: 19}
         future_potential_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
@@ -28,7 +38,19 @@ tactics:
         latency_budget_ms: {kind: continuous, default: 60.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
-    diagnostics: {fields: [target_chain, mean_chain, success_rate, trigger_preserved]}
+    diagnostics:
+      fields:
+        - target_chain
+        - mean_chain
+        - success_rate
+        - predicted_chain_potential
+        - ignition_cost
+        - trigger_alternatives
+        - trigger_recoverability
+        - continuation_flexibility
+        - danger_margin
+        - trigger_preserved
+        - value_breakdown
 
   - identity: {id: prepare_response, name: prepare_response, version: "2.0", human_label: 対応準備}
     applicability:

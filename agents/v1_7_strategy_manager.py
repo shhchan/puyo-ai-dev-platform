@@ -15,6 +15,7 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
     nn = None
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -55,7 +56,7 @@ from train.restore import checkpoint_state_hash
 FEATURE_SCHEMA_VERSION = "puyo.v1_7_strategy_manager.features.v1"
 PREVIEW_FEATURE_SCHEMA_VERSION = "puyo.v1_7_strategy_manager.preview.v1"
 STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION = (
-    "puyo.v1_7_strategy_manager.diagnostics.v1"
+    "puyo.v1_7_strategy_manager.diagnostics.v2"
 )
 MODEL_FAMILY = "Adaptive Chain Manager"
 MODEL_VERSION = "v1.7.2"
@@ -64,13 +65,24 @@ LINEAGE_NODE_ID = "model_version:v1.7.2"
 PARENT_LINEAGE_NODE_ID = "model_version:v1.7.1"
 BOOTSTRAP_TRAINER_NAME = "v1_7_manager_bootstrap"
 CHECKPOINT_METADATA_SCHEMA_VERSION = (
+    "puyo.v1_7_strategy_manager.checkpoint_metadata.v2"
+)
+CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v2"
+BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION = (
+    "puyo.build_potential_v2_checkpoint_migration.v1"
+)
+LEGACY_MODEL_VERSION = "v1.7.1"
+LEGACY_CHECKPOINT_METADATA_SCHEMA_VERSION = (
     "puyo.v1_7_strategy_manager.checkpoint_metadata.v1"
 )
-CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v1"
-LEGACY_MODEL_VERSION = "v1.7.1"
+LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = "puyo.state_analyzer.diagnostics.v1"
+LEGACY_STRATEGY_DIAGNOSTICS_SCHEMA_VERSION = (
+    "puyo.v1_7_strategy_manager.diagnostics.v1"
+)
 LEGACY_TACTIC_SCHEMA_VERSION = "tactic-schema-v1"
 LEGACY_TACTIC_REGISTRY_VERSION = "v1.7.0"
 LEGACY_PLANNER_SCHEMA_VERSION = "planner-schema-v1"
+PREVIOUS_PLANNER_SCHEMA_VERSION = "planner-schema-v2"
 DEFAULT_PREVIEW_TOP_K = 3
 LIFECYCLE_CARRY_FEATURES = (
     "own.score_carry",
@@ -207,6 +219,7 @@ def build_v1_7_checkpoint_metadata(
             "checkpoint": CHECKPOINT_SCHEMA_VERSION,
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "all_clear_diagnostics": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": registry.registry_version,
@@ -665,6 +678,7 @@ def migrate_v1_7_1_checkpoint_payload(
     migrated = source
     migrated["model_version"] = MODEL_VERSION
     migrated_metadata = dict(migrated["checkpoint_metadata"])
+    migrated_metadata["schema_version"] = CHECKPOINT_METADATA_SCHEMA_VERSION
     migrated_metadata["model_version"] = MODEL_VERSION
     migrated_metadata["lineage"] = {
         "node_id": LINEAGE_NODE_ID,
@@ -674,9 +688,16 @@ def migrate_v1_7_1_checkpoint_payload(
     migrated_schemas = dict(migrated_metadata["schemas"])
     migrated_schemas.update(
         {
+            "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "all_clear_diagnostics": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": selected_registry.registry_version,
             "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
+            "strategy_features": FEATURE_SCHEMA_VERSION,
+            "planner_preview_features": PREVIEW_FEATURE_SCHEMA_VERSION,
+            "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
         }
     )
     migrated_metadata["schemas"] = migrated_schemas
@@ -690,6 +711,11 @@ def migrate_v1_7_1_checkpoint_payload(
     dataset_schemas = dict(migrated_dataset.get("schemas", {}))
     dataset_schemas.update(
         {
+            "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "feature": FEATURE_SCHEMA_VERSION,
+            "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": selected_registry.registry_version,
         }
@@ -705,10 +731,15 @@ def migrate_v1_7_1_checkpoint_payload(
         "schema_version": CHECKPOINT_MIGRATION_SCHEMA_VERSION,
         "source_model_version": LEGACY_MODEL_VERSION,
         "target_model_version": MODEL_VERSION,
+        "target_checkpoint_metadata_schema_version": (
+            CHECKPOINT_METADATA_SCHEMA_VERSION
+        ),
         "source_tactic_schema_version": LEGACY_TACTIC_SCHEMA_VERSION,
         "target_tactic_schema_version": TACTIC_SCHEMA_VERSION,
         "source_planner_schema_version": LEGACY_PLANNER_SCHEMA_VERSION,
         "target_planner_schema_version": PLANNER_REQUEST_SCHEMA_VERSION,
+        "source_build_potential_schema_version": None,
+        "target_build_potential_schema_version": BUILD_POTENTIAL_SCHEMA_VERSION,
         "weights_changed": False,
         "feature_shape_changed": False,
         "semantic_changes": [
@@ -716,6 +747,7 @@ def migrate_v1_7_1_checkpoint_payload(
             "prepare_response optimizes response readiness without immediate firing",
             "counter_or_return remains responsible for cancellation and surplus return",
             "active incoming deadlines are guarded to counter_or_return or survive",
+            "build potential diagnostics migrate to the structured v2 contract",
         ],
         "source_state_hash": str(source.get("state_hash", "")),
     }
@@ -726,6 +758,171 @@ def migrate_v1_7_1_checkpoint_payload(
     )
     if errors:
         raise ValueError("migrated v1.7.2 checkpoint is incompatible: " + "; ".join(errors))
+    return migrated
+
+
+def migrate_build_potential_v2_checkpoint_payload(
+    checkpoint: Mapping[str, Any],
+    *,
+    registry: TacticRegistry | None = None,
+) -> dict[str, Any]:
+    """Migrate shape-compatible v1.7.2 metadata to BuildPotential v2.
+
+    The learned 77-dimensional context tensor and every stored model/optimizer
+    tensor are preserved. Only compatibility metadata and the state hash change.
+    """
+
+    if not isinstance(checkpoint, Mapping):
+        raise ValueError("checkpoint must be a mapping")
+    source = copy.deepcopy(dict(checkpoint))
+    metadata = source.get("checkpoint_metadata")
+    if not isinstance(metadata, Mapping):
+        raise ValueError("v1.7.2 checkpoint_metadata must be a mapping")
+    schemas = metadata.get("schemas")
+    if not isinstance(schemas, Mapping):
+        raise ValueError("v1.7.2 checkpoint_metadata.schemas must be a mapping")
+    expected_source = {
+        "model_version": (source.get("model_version"), MODEL_VERSION),
+        "checkpoint_metadata.schema_version": (
+            metadata.get("schema_version"),
+            LEGACY_CHECKPOINT_METADATA_SCHEMA_VERSION,
+        ),
+        "checkpoint_metadata.model_version": (
+            metadata.get("model_version"),
+            MODEL_VERSION,
+        ),
+        "checkpoint_metadata.schemas.analyzer_diagnostics": (
+            schemas.get("analyzer_diagnostics"),
+            LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        ),
+        "checkpoint_metadata.schemas.planner_request": (
+            schemas.get("planner_request"),
+            PREVIOUS_PLANNER_SCHEMA_VERSION,
+        ),
+        "checkpoint_metadata.schemas.strategy_diagnostics": (
+            schemas.get("strategy_diagnostics"),
+            LEGACY_STRATEGY_DIAGNOSTICS_SCHEMA_VERSION,
+        ),
+        "checkpoint_metadata.schemas.build_potential": (
+            schemas.get("build_potential"),
+            None,
+        ),
+    }
+    mismatches = [
+        f"{field}: expected {expected!r}, got {actual!r}"
+        for field, (actual, expected) in expected_source.items()
+        if actual != expected
+    ]
+    if mismatches:
+        raise ValueError(
+            "checkpoint is not a supported pre-BuildPotential-v2 source: "
+            + "; ".join(mismatches)
+        )
+
+    selected_registry = registry or load_tactic_registry()
+    target_contract = StrategyFeatureContract.from_registry(selected_registry)
+    source_contract = source.get("feature_contract")
+    if not isinstance(source_contract, Mapping):
+        raise ValueError("v1.7.2 feature_contract must be a mapping")
+    target_contract.validate_metadata(source_contract)
+
+    dataset = source.get("dataset")
+    if not isinstance(dataset, Mapping):
+        raise ValueError("v1.7.2 dataset metadata must be a mapping")
+    dataset_schemas = dataset.get("schemas")
+    if not isinstance(dataset_schemas, Mapping):
+        raise ValueError("v1.7.2 dataset.schemas must be a mapping")
+    dataset_source = {
+        "dataset.schemas.analyzer_diagnostics": (
+            dataset_schemas.get("analyzer_diagnostics"),
+            LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        ),
+        "dataset.schemas.build_potential": (
+            dataset_schemas.get("build_potential"),
+            None,
+        ),
+    }
+    dataset_mismatches = [
+        f"{field}: expected {expected!r}, got {actual!r}"
+        for field, (actual, expected) in dataset_source.items()
+        if actual != expected
+    ]
+    if dataset_mismatches:
+        raise ValueError(
+            "checkpoint dataset is not a supported pre-BuildPotential-v2 source: "
+            + "; ".join(dataset_mismatches)
+        )
+
+    migrated = source
+    migrated_metadata = dict(metadata)
+    migrated_metadata["schema_version"] = CHECKPOINT_METADATA_SCHEMA_VERSION
+    migrated_schemas = dict(schemas)
+    migrated_schemas.update(
+        {
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
+            "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
+        }
+    )
+    migrated_metadata["schemas"] = migrated_schemas
+    migrated["checkpoint_metadata"] = migrated_metadata
+
+    migrated_dataset = dict(dataset)
+    migrated_dataset_schemas = dict(dataset_schemas)
+    migrated_dataset_schemas.update(
+        {
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+        }
+    )
+    migrated_dataset["schemas"] = migrated_dataset_schemas
+    compatibility = dict(migrated_dataset.get("compatibility", {}))
+    migration_sources = dict(compatibility.get("migration_sources", {}))
+    migration_sources[BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION] = 1
+    compatibility["migration_sources"] = migration_sources
+    migrated_dataset["compatibility"] = compatibility
+    migrated["dataset"] = migrated_dataset
+
+    migrated["schema_migration"] = {
+        "schema_version": BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION,
+        "source_model_version": MODEL_VERSION,
+        "target_model_version": MODEL_VERSION,
+        "source_checkpoint_metadata_schema_version": (
+            LEGACY_CHECKPOINT_METADATA_SCHEMA_VERSION
+        ),
+        "target_checkpoint_metadata_schema_version": (
+            CHECKPOINT_METADATA_SCHEMA_VERSION
+        ),
+        "source_analyzer_diagnostics_schema_version": (
+            LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
+        ),
+        "target_analyzer_diagnostics_schema_version": (
+            ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
+        ),
+        "source_planner_schema_version": PREVIOUS_PLANNER_SCHEMA_VERSION,
+        "target_planner_schema_version": PLANNER_REQUEST_SCHEMA_VERSION,
+        "target_build_potential_schema_version": BUILD_POTENTIAL_SCHEMA_VERSION,
+        "weights_changed": False,
+        "feature_shape_changed": False,
+        "context_dim": target_contract.context_dim,
+        "semantic_changes": [
+            "build potential diagnostics use the structured v2 contract",
+            "future potential and chain shape weights are independently wired",
+            "trigger recoverability is tracked explicitly",
+        ],
+        "source_state_hash": str(source.get("state_hash", "")),
+    }
+    migrated["state_hash"] = checkpoint_state_hash(migrated)
+    errors = validate_v1_7_strategy_manager_checkpoint_payload(
+        migrated,
+        registry=selected_registry,
+    )
+    if errors:
+        raise ValueError(
+            "migrated BuildPotential v2 checkpoint is incompatible: "
+            + "; ".join(errors)
+        )
     return migrated
 
 
@@ -880,6 +1077,7 @@ def validate_v1_7_strategy_manager_checkpoint_payload(
         expected_dataset_schemas = {
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "feature": FEATURE_SCHEMA_VERSION,
             "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
@@ -1386,6 +1584,11 @@ class V17StrategyManagerPolicy:
             "incoming_coverage": float(proposal.incoming_coverage),
             "trigger_preserved": bool(proposal.trigger_preserved),
             "immediate_fire": bool(proposal.immediate_fire),
+            "build_potential": copy.deepcopy(proposal.build_potential_dict),
+            "value_breakdown": copy.deepcopy(dict(proposal.value_breakdown or {})),
+            "trigger_recoverability": copy.deepcopy(
+                proposal.trigger_recoverability.to_dict()
+            ),
         }
         lifecycle = {
             side: {
@@ -1461,7 +1664,7 @@ class V17StrategyManagerPolicy:
                 "strategy": proposal.strategy,
                 "objective": proposal.objective_dict,
                 "objective_result": proposal.objective_result_dict,
-                "build_potential": proposal.build_potential_dict,
+                "build_potential": copy.deepcopy(proposal.build_potential_dict),
                 "result": worker_result,
             },
             "plan": plan.to_dict(),
@@ -1594,6 +1797,11 @@ def _preview_diagnostics(preview: _PreviewResult) -> dict[str, Any]:
             "predicted_attack": int(proposal.predicted_attack),
             "danger": float(proposal.danger),
             "objective_result": proposal.objective_result_dict,
+            "build_potential": copy.deepcopy(proposal.build_potential_dict),
+            "value_breakdown": copy.deepcopy(dict(proposal.value_breakdown or {})),
+            "trigger_recoverability": copy.deepcopy(
+                proposal.trigger_recoverability.to_dict()
+            ),
         },
         "plan": plan.to_dict(),
     }
