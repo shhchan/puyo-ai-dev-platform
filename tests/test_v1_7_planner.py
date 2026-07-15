@@ -68,7 +68,7 @@ class TestV17Planner(unittest.TestCase):
         )
         json.dumps(payload)
 
-    def test_build_main_reuses_candidate_count_for_potential_probe_only(self):
+    def test_build_main_reuses_candidate_count_for_probe_and_candidate_set(self):
         analyzer_input = scenario_input(self.scenarios[0])
         diagnostics = StateAnalyzer().analyze(analyzer_input)
         simulator = HeadlessPuyoSimulator(seed=9)
@@ -125,6 +125,20 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(build.potential_probe_width, 2)
         self.assertGreater(build.potential_probe_count, 0)
         self.assertEqual(build.build_potential_dict["probe_width"], 2)
+        self.assertEqual(len(build.beam_candidates), 2)
+        self.assertEqual(
+            [candidate.rank for candidate in build.beam_candidates],
+            [0, 1],
+        )
+        self.assertEqual(build.beam_candidates[0].action, build.action)
+        self.assertTrue(
+            all(
+                candidate.build_potential.schema_version
+                == BUILD_POTENTIAL_SCHEMA_VERSION
+                for candidate in build.beam_candidates
+            )
+        )
+        json.dumps(build.beam_candidate_dicts)
         self.assertEqual(
             controlled.search_control_dict["effective"]["potential_probe_budget"],
             5,
@@ -137,6 +151,7 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(fire.trigger_preservation, "ignore")
         self.assertEqual(fire.potential_probe_width, 0)
         self.assertEqual(fire.potential_probe_count, 0)
+        self.assertEqual(fire.beam_candidates, ())
 
     def test_fire_main_keeps_legacy_one_step_route(self):
         analyzer_input = scenario_input(self.scenarios[0])
