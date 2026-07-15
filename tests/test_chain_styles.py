@@ -133,6 +133,15 @@ class TestChainStyles(unittest.TestCase):
             namespaces["style_adherence"]["metric_namespace"],
             "style_adherence",
         )
+        selected_candidate = proposal.worker_proposal.selected_candidate
+        self.assertEqual(
+            selected_candidate.chain_style_metadata["metric_namespace"],
+            "style_adherence",
+        )
+        self.assertNotIn(
+            "chain_style",
+            proposal.worker_proposal.ranker_input.to_dict()["feature_names"],
+        )
 
     def test_unknown_deprecated_and_missing_provider_fall_back_deterministically(self):
         registry = load_chain_style_registry()
