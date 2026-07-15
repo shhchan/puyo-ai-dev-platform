@@ -260,6 +260,19 @@ class TestV17StrategyManager(unittest.TestCase):
             diagnostics["worker"]["result"]["trigger_recoverability"],
             build_potential["trigger_recoverability"],
         )
+        worker_proposal = diagnostics["worker"]["proposal_batch"]
+        self.assertEqual(
+            worker_proposal["selection"]["selected_action"],
+            action,
+        )
+        self.assertEqual(
+            worker_proposal["candidate_count"],
+            sum(worker_proposal["masks"]["candidate"]),
+        )
+        self.assertEqual(
+            worker_proposal["ranker_input"]["selected_index"],
+            worker_proposal["selection"]["selected_index"],
+        )
         selected_preview = next(
             candidate["preview"]
             for candidate in candidates

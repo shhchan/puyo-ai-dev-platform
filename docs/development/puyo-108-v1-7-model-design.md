@@ -182,6 +182,11 @@ v1.7.2 の ranker-facing beam candidate 集合、diversity slot、budget fallbac
 [PUYO-167 contract](puyo-167-diverse-beam-candidates.md) に従う。既存 single-best API は candidate
 rank 0 を返す compatibility adapter として維持する。
 
+worker candidate を fixed-length mask、stable ID、structured preview、rollout serialization、
+learned candidate distribution へ接続する境界は
+[PUYO-169 contract](puyo-169-worker-proposals.md) に従う。named chain style は optional metadata として
+保持するが generic candidate ranker feature には暗黙追加しない。
+
 ```text
 TacticSpec
   identity:

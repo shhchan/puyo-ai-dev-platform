@@ -32,7 +32,17 @@ from agents.chain_styles import (
     load_chain_style_registry,
 )
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
-from puyo_env.actions import action_to_placement, legal_action_indices
+from agents.worker_proposals import (
+    WorkerProposalBatch,
+    build_worker_proposal_batch,
+    compatibility_action,
+)
+from puyo_env.actions import (
+    NUM_ACTIONS,
+    action_to_placement,
+    legal_action_indices,
+    legal_action_mask,
+)
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
 
 
@@ -526,6 +536,8 @@ class SearchProposal:
     immediate_fire: bool = False
     chain_style_evaluation: Mapping[str, Any] | None = None
     beam_candidates: tuple[DiverseBeamCandidate, ...] = ()
+    scenario_budget: Mapping[str, Any] | None = None
+    worker_proposal: WorkerProposalBatch | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -576,6 +588,10 @@ class SearchProposal:
     @property
     def beam_candidate_dicts(self) -> tuple[dict[str, Any], ...]:
         return tuple(candidate.to_dict() for candidate in self.beam_candidates)
+
+    @property
+    def worker_proposal_dict(self) -> dict[str, Any]:
+        return {} if self.worker_proposal is None else self.worker_proposal.to_dict()
 
 
 @dataclass(frozen=True)
@@ -1324,6 +1340,7 @@ class BeamStrategyWorker:
                 else selected_candidate.chain_style_evaluation
             ),
             beam_candidates=diagnostics.proposals,
+            scenario_budget=dict(diagnostics.scenario_budget),
         )
 
 
@@ -2380,6 +2397,54 @@ class StrategyOrchestrator:
                 self.last_proposal,
                 planner_request=planner_request,
             )
+        candidate_limit = (
+            int(planner_request.candidate_count)
+            if planner_request is not None
+            else max(1, len(self.last_proposal.beam_candidates))
+        )
+        proposal_batch = build_worker_proposal_batch(
+            self.last_proposal.beam_candidates,
+            selected_action=self.last_proposal.action,
+            candidate_limit=candidate_limit,
+            legal_action_mask=_proposal_legal_action_mask(info, context.simulator),
+            profile_id=self.last_proposal.profile_id,
+            profile_name=self.last_proposal.profile_name,
+            strategy=self.last_proposal.strategy,
+            simulator=context.simulator,
+            score_carry=tactical.score_carry,
+            incoming_attack=tactical.incoming_attack,
+            search_latency_ms=self.last_proposal.elapsed_seconds * 1_000.0,
+            expanded_nodes=self.last_proposal.expanded_nodes,
+            scenario_budget=self.last_proposal.scenario_budget,
+            fallback_preview={
+                "predicted_chain_count": self.last_proposal.predicted_chain_count,
+                "predicted_score": self.last_proposal.predicted_score,
+                "candidate_value": self.last_proposal.candidate_value,
+                "danger": self.last_proposal.danger,
+                "build_potential": self.last_proposal.selected_build_potential.to_dict(),
+                "trigger_recoverability": (
+                    self.last_proposal.trigger_recoverability.to_dict()
+                ),
+                "continuation_flexibility": (
+                    self.last_proposal.selected_build_potential.continuation_flexibility
+                    or 0.0
+                ),
+                "value_breakdown": dict(self.last_proposal.value_breakdown or {}),
+                "chain_style": dict(self.last_proposal.chain_style_evaluation or {}),
+            },
+        )
+        adapted_action = compatibility_action(
+            proposal_batch,
+            empty_action=self.last_proposal.action,
+        )
+        if adapted_action != self.last_proposal.action:
+            raise RuntimeError(
+                "worker proposal compatibility adapter changed the selected action"
+            )
+        self.last_proposal = replace(
+            self.last_proposal,
+            worker_proposal=proposal_batch,
+        )
         self.last_plan = build_n_turn_plan(self.last_proposal, context.simulator, tactical)
         return self.last_proposal
 
@@ -2414,6 +2479,17 @@ def _preview_action(simulator, action: int):
     if not result.valid:
         return None, 1.0
     return result, board_danger(child.game)
+
+
+def _proposal_legal_action_mask(info: Mapping[str, Any], simulator) -> tuple[bool, ...]:
+    raw = info.get("action_mask")
+    if raw is not None:
+        values = tuple(bool(value) for value in raw)
+        if len(values) == NUM_ACTIONS:
+            return values
+    if simulator is not None:
+        return tuple(legal_action_mask(simulator))
+    return tuple(False for _ in range(NUM_ACTIONS))
 
 
 def _legal_from_info(info: dict[str, Any]) -> list[int]:
