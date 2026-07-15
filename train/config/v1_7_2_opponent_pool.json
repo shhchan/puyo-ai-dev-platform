@@ -1,0 +1,236 @@
+{
+  "schema_version": "puyo.opponent_pool.v2",
+  "pool_id": "v1.7.2-mixed-opponents-v1",
+  "path_root": "../..",
+  "elo_config": {
+    "default_rating": 1000.0,
+    "k_factor": 32.0
+  },
+  "sampling": {
+    "strategy": "stratified_elo",
+    "quotas": {
+      "large_builder": 0.3,
+      "rush": 0.2,
+      "counter_survival": 0.2,
+      "rule_manager": 0.15,
+      "historical": 0.15
+    },
+    "elo_temperature": 200.0,
+    "paired_sides": true,
+    "seed_schedule": "base_seed_plus_pair_index"
+  },
+  "fallback_by_stratum": {
+    "large_builder": {
+      "name": "worker_large_fallback",
+      "policy_type": "worker_large",
+      "policy_kwargs": {}
+    },
+    "rush": {
+      "name": "worker_quick_fallback",
+      "policy_type": "worker_quick",
+      "policy_kwargs": {}
+    },
+    "counter_survival": {
+      "name": "worker_counter_fallback",
+      "policy_type": "worker_counter",
+      "policy_kwargs": {}
+    },
+    "rule_manager": {
+      "name": "manager_rule_fallback",
+      "policy_type": "manager_rule",
+      "policy_kwargs": {}
+    },
+    "historical": {
+      "name": "manager_rule_historical_fallback",
+      "policy_type": "manager_rule",
+      "policy_kwargs": {}
+    }
+  },
+  "snapshots": [
+    {
+      "name": "worker_large",
+      "policy_type": "worker_large",
+      "checkpoint_path": null,
+      "rating": 1100.0,
+      "games_played": 0,
+      "metadata": {
+        "source": "PUYO-157",
+        "quality_gate_passed": false,
+        "sampling_weight": 1.0
+      },
+      "stratum": "large_builder",
+      "role": "fixed_large_builder",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "standard_beam_large",
+      "policy_type": "beam",
+      "checkpoint_path": null,
+      "rating": 1150.0,
+      "games_played": 0,
+      "metadata": {
+        "source": "PUYO-132",
+        "quality_gate_passed": false,
+        "sampling_weight": 1.0
+      },
+      "stratum": "large_builder",
+      "role": "fixed_large_builder",
+      "policy_kwargs": {
+        "beam_depth": 10,
+        "beam_width": 48,
+        "beam_scenarios": 1,
+        "beam_minimum_chain": 6
+      },
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "worker_quick",
+      "policy_type": "worker_quick",
+      "checkpoint_path": null,
+      "rating": 1000.0,
+      "games_played": 0,
+      "metadata": {
+        "sampling_weight": 1.0
+      },
+      "stratum": "rush",
+      "role": "fixed_rush",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "worker_punish",
+      "policy_type": "worker_punish",
+      "checkpoint_path": null,
+      "rating": 1050.0,
+      "games_played": 0,
+      "metadata": {
+        "sampling_weight": 1.0
+      },
+      "stratum": "rush",
+      "role": "fixed_rush",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "worker_counter",
+      "policy_type": "worker_counter",
+      "checkpoint_path": null,
+      "rating": 1050.0,
+      "games_played": 0,
+      "metadata": {
+        "sampling_weight": 1.0
+      },
+      "stratum": "counter_survival",
+      "role": "fixed_counter",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "worker_survival",
+      "policy_type": "worker_survival",
+      "checkpoint_path": null,
+      "rating": 1000.0,
+      "games_played": 0,
+      "metadata": {
+        "sampling_weight": 1.0
+      },
+      "stratum": "counter_survival",
+      "role": "fixed_survival",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "manager_rule",
+      "policy_type": "manager_rule",
+      "checkpoint_path": null,
+      "rating": 1100.0,
+      "games_played": 0,
+      "metadata": {
+        "sampling_weight": 1.0
+      },
+      "stratum": "rule_manager",
+      "role": "fixed_rule_manager",
+      "policy_kwargs": {},
+      "checkpoint_sha256": null,
+      "checkpoint_schema": null,
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "v1_7_1_migrated_checkpoint",
+      "policy_type": "v1_7_bootstrap_manager",
+      "checkpoint_path": "runs/v1_7_manager/puyo-158-v1-7-2/checkpoints/bootstrap.pt",
+      "rating": 1125.0,
+      "games_played": 0,
+      "metadata": {
+        "source_model_version": "v1.7.1",
+        "runtime_schema_version": "v1.7.2",
+        "migration": "puyo.v1_7_1_to_v1_7_2_checkpoint_migration.v1",
+        "sampling_weight": 1.0
+      },
+      "stratum": "historical",
+      "role": "migrated_v1_7_1_checkpoint",
+      "policy_kwargs": {},
+      "checkpoint_sha256": "9bba6d326504ef97639c7ccaac8a1db58ef0f2b76754fb63901d9df604d80e8b",
+      "checkpoint_schema": "puyo.checkpoint.v1",
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "historical_strategy_manager",
+      "policy_type": "manager",
+      "checkpoint_path": "runs/manager_ppo/puyo76_option_smoke_check_2/checkpoints/best.pt",
+      "rating": 1000.0,
+      "games_played": 0,
+      "metadata": {
+        "source_model_version": "legacy_strategy_manager",
+        "sampling_weight": 1.0
+      },
+      "stratum": "historical",
+      "role": "historical_checkpoint",
+      "policy_kwargs": {},
+      "checkpoint_sha256": "6ff84ae2528807bec69f76008ac673fd2591913b9af863de14601b03afadb120",
+      "checkpoint_schema": "puyo.checkpoint.v1",
+      "enabled": true,
+      "fallback": {}
+    },
+    {
+      "name": "human_derived_checkpoint",
+      "policy_type": "checkpoint",
+      "checkpoint_path": "runs/human_training/manual-gui/checkpoints/challenger.pt",
+      "rating": 1000.0,
+      "games_played": 0,
+      "metadata": {
+        "source_model_version": "human_derived_realtime",
+        "human_sample_count": 55,
+        "sampling_weight": 1.0
+      },
+      "stratum": "historical",
+      "role": "human_derived_checkpoint",
+      "policy_kwargs": {},
+      "checkpoint_sha256": "ba263faf027f18ddb3552852d8ab513d9bc8c5a0b8db848db8083edea1a177cd",
+      "checkpoint_schema": "puyo.checkpoint.v1",
+      "enabled": true,
+      "fallback": {}
+    }
+  ]
+}
