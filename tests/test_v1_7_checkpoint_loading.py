@@ -61,6 +61,7 @@ def build_checkpoint_payload() -> dict:
                     "analyzer_input": schemas["analyzer_input"],
                     "analyzer_diagnostics": schemas["analyzer_diagnostics"],
                     "build_potential": schemas["build_potential"],
+                    "chain_style": schemas["chain_style"],
                     "feature": schemas["strategy_features"],
                     "preview_feature": schemas["planner_preview_features"],
                     "tactic_registry": schemas["tactic_registry"],
@@ -68,6 +69,7 @@ def build_checkpoint_payload() -> dict:
                 },
                 "counts": {"train": 3, "validation": 26},
                 "compatibility": {},
+                "chain_style": dict(metadata["chain_style"]),
             },
             "lifecycle_carry_contract": {
                 "analyzer_input_schema_version": schemas["analyzer_input"],
