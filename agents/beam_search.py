@@ -508,6 +508,7 @@ class BeamSearchConfig:
     build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
     potential_probe_budget: int = 64
     build_potential_budget: BuildPotentialBudget = BuildPotentialBudget()
+    chain_style_evaluator: Any = None
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -589,6 +590,7 @@ class BeamCandidateDiagnostics:
     candidate_value: float | None
     potential: BuildPotential
     value_breakdown: Mapping[str, float] = field(default_factory=dict)
+    chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -615,6 +617,7 @@ class BeamCandidateDiagnostics:
                 key: float(value) for key, value in self.value_breakdown.items()
             },
             "potential": self.potential.to_dict(),
+            "chain_style_evaluation": dict(self.chain_style_evaluation),
         }
 
 
@@ -633,6 +636,7 @@ class _CandidateTraceState:
     premature_fire_score: int = 0
     premature_fire_penalty: float = 0.0
     potential: BuildPotential = BuildPotential()
+    chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -719,6 +723,7 @@ class _SearchTrace:
         state.premature_fire_score = int(node.premature_fire_score)
         state.premature_fire_penalty = float(node.premature_penalty)
         state.potential = node.potential
+        state.chain_style_evaluation = dict(node.chain_style_evaluation)
 
     def diagnostics(
         self,
@@ -748,6 +753,7 @@ class _SearchTrace:
                     ),
                     potential=state.potential,
                     value_breakdown=dict(breakdowns.get(action, {})),
+                    chain_style_evaluation=dict(state.chain_style_evaluation),
                 )
             )
         return tuple(result)
@@ -791,6 +797,10 @@ class _Node:
     danger_contribution: float = 0.0
     future_potential_contribution: float = 0.0
     trigger_preservation_contribution: float = 0.0
+    chain_style_contribution: float = 0.0
+    chain_style_applicable: bool = False
+    chain_style_constraint_satisfied: bool = True
+    chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
 
 
 class _ScenarioSequence:
@@ -990,8 +1000,9 @@ class BeamSearchPolicy:
                 result.score_delta,
             )
             chain_shape, danger = self._board_contributions(child.game)
+            style = self._chain_style_evaluation(child)
             chain_value = actual_chain + actual_score
-            evaluation = chain_shape + danger
+            evaluation = chain_shape + danger + style[0]
             path = (int(action),) if self.config.trace_paths else ()
             best_chain_depth = 1 if result.chain_count > 0 else 0
             node = _Node(
@@ -1013,6 +1024,10 @@ class BeamSearchPolicy:
                 actual_score,
                 chain_shape,
                 danger,
+                chain_style_contribution=style[0],
+                chain_style_applicable=style[1],
+                chain_style_constraint_satisfied=style[2],
+                chain_style_evaluation=style[3],
             )
             self._search_trace.mark_generated_path(path)
             root_candidates.append(
@@ -1055,7 +1070,8 @@ class BeamSearchPolicy:
                         result.score_delta,
                     )
                     chain_shape, danger = self._board_contributions(child.game)
-                    evaluation = chain_shape + danger
+                    style = self._chain_style_evaluation(child)
+                    evaluation = chain_shape + danger + style[0]
                     best_chain_depth = (
                         depth
                         if int(result.chain_count) > node.best_chain_count
@@ -1087,6 +1103,10 @@ class BeamSearchPolicy:
                         actual_score,
                         chain_shape,
                         danger,
+                        chain_style_contribution=style[0],
+                        chain_style_applicable=style[1],
+                        chain_style_constraint_satisfied=style[2],
+                        chain_style_evaluation=style[3],
                     )
                     self._search_trace.mark_generated_path(path)
                     node_candidates.append((candidate, result.chain_count))
@@ -1162,6 +1182,12 @@ class BeamSearchPolicy:
             self._search_trace.record_best(node, value)
 
     def _prune(self, nodes: list[_Node], *, depth: int = 1) -> list[_Node]:
+        nodes = [
+            node
+            for node in nodes
+            if not node.chain_style_applicable
+            or node.chain_style_constraint_satisfied
+        ]
         nodes.sort(
             key=lambda node: (_base_node_value(node), -node.root_action),
             reverse=True,
@@ -1215,6 +1241,7 @@ class BeamSearchPolicy:
                         + node.danger_contribution
                         + node.future_potential_contribution
                         + node.trigger_preservation_contribution
+                        + node.chain_style_contribution
                     )
         nodes.sort(
             key=lambda node: (
@@ -1231,6 +1258,21 @@ class BeamSearchPolicy:
         retained = nodes[: self.config.width]
         self._search_trace.mark_stage("final", retained, depth)
         return retained
+
+    def _chain_style_evaluation(
+        self,
+        simulator: Any,
+    ) -> tuple[float, bool, bool, Mapping[str, Any]]:
+        evaluator = self.config.chain_style_evaluator
+        if evaluator is None:
+            return (0.0, False, True, {})
+        evaluation = evaluator.evaluate(simulator)
+        return (
+            float(evaluation.score_contribution),
+            bool(evaluation.applicable),
+            bool(evaluation.hard_constraint_satisfied),
+            evaluation.to_dict(),
+        )
 
     def _probe_potential(self, simulator) -> BuildPotential:
         return self._potential_session.evaluate(simulator)
@@ -2009,6 +2051,7 @@ def _node_value_breakdown(node: _Node) -> dict[str, float]:
         "future_potential": float(node.future_potential_contribution),
         "danger": float(node.danger_contribution),
         "trigger_preservation": float(node.trigger_preservation_contribution),
+        "style_adherence": float(node.chain_style_contribution),
         "premature_fire": -float(node.premature_penalty),
     }
     result["total"] = sum(result.values())

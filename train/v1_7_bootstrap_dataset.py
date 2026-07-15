@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.chain_styles import CHAIN_STYLE_SCHEMA_VERSION, ChainStyleSelection
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -835,7 +836,7 @@ def _migration_counts(samples: Iterable[Mapping[str, Any]]) -> dict[str, int]:
 
 
 def _identity_payload(manifest: Mapping[str, Any]) -> dict[str, Any]:
-    return {
+    payload = {
         key: copy.deepcopy(manifest[key])
         for key in (
             "schema_version",
@@ -851,6 +852,9 @@ def _identity_payload(manifest: Mapping[str, Any]) -> dict[str, Any]:
             "validation_scenarios",
         )
     }
+    if "chain_style" in manifest:
+        payload["chain_style"] = copy.deepcopy(manifest["chain_style"])
+    return payload
 
 
 def build_bootstrap_dataset(
@@ -860,6 +864,7 @@ def build_bootstrap_dataset(
     split_seed: int = DEFAULT_SPLIT_SEED,
     validation_ratio: float = DEFAULT_VALIDATION_RATIO,
     include_default_scenarios: bool = True,
+    chain_style: ChainStyleSelection | Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Normalize supported sources and write a deterministic split dataset."""
 
@@ -867,6 +872,11 @@ def build_bootstrap_dataset(
         raise ValueError("split_seed must be non-negative")
     if not 0.0 <= validation_ratio < 1.0:
         raise ValueError("validation_ratio must be in [0, 1)")
+    selected_style = (
+        chain_style
+        if isinstance(chain_style, ChainStyleSelection)
+        else ChainStyleSelection.from_dict(chain_style)
+    )
     paths = [Path(path) for path in source_paths]
     if include_default_scenarios:
         paths.append(DEFAULT_SCENARIO_DATASET)
@@ -939,6 +949,7 @@ def build_bootstrap_dataset(
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "scenario": SCENARIO_SCHEMA_VERSION,
             "scenario_report": SCENARIO_REPORT_SCHEMA_VERSION,
             "feature": FEATURE_SCHEMA_VERSION,
@@ -947,6 +958,7 @@ def build_bootstrap_dataset(
             "tactic_registry_version": registry.registry_version,
         },
         "feature_contract": encoder.contract.to_metadata(),
+        "chain_style": selected_style.to_dict(),
         "sources": source_metadata,
         "split": {
             "seed": split_seed,
@@ -1289,6 +1301,14 @@ def validate_bootstrap_dataset(
             )
         )
     else:
+        if not isinstance(manifest.get("chain_style"), Mapping):
+            errors.append("chain_style must be a mapping")
+        try:
+            ChainStyleSelection.from_dict(manifest.get("chain_style"))
+        except ValueError as exc:
+            errors.append(f"invalid chain_style: {exc}")
+        if not isinstance(schemas, Mapping) or schemas.get("chain_style") != CHAIN_STYLE_SCHEMA_VERSION:
+            errors.append("chain_style schema is unsupported")
         try:
             encoder.contract.validate_metadata(manifest.get("feature_contract", {}))
         except ValueError as exc:
@@ -1381,6 +1401,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     build.add_argument("--split-seed", type=int, default=DEFAULT_SPLIT_SEED)
     build.add_argument("--validation-ratio", type=float, default=DEFAULT_VALIDATION_RATIO)
     build.add_argument("--no-default-scenarios", action="store_true")
+    build.add_argument("--chain-style-id", default="unconstrained")
+    build.add_argument("--chain-style-version", default="1.0")
+    build.add_argument("--chain-style-mode", default="unconstrained")
+    build.add_argument("--chain-style-weight", type=float, default=0.0)
     validate = subparsers.add_parser("validate", help="validate an existing dataset")
     validate.add_argument("dataset_dir")
     return parser.parse_args(argv)
@@ -1395,6 +1419,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             split_seed=args.split_seed,
             validation_ratio=args.validation_ratio,
             include_default_scenarios=not args.no_default_scenarios,
+            chain_style=ChainStyleSelection(
+                style_id=args.chain_style_id,
+                style_version=args.chain_style_version,
+                constraint_mode=args.chain_style_mode,
+                weight=args.chain_style_weight,
+            ),
         )
         print(f"dataset_id: {manifest['dataset_id']}")
         print(

@@ -16,6 +16,10 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
     nn = None
 
 from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.chain_styles import (
+    CHAIN_STYLE_SCHEMA_VERSION,
+    ChainStyleSelection,
+)
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -65,7 +69,7 @@ LINEAGE_NODE_ID = "model_version:v1.7.2"
 PARENT_LINEAGE_NODE_ID = "model_version:v1.7.1"
 BOOTSTRAP_TRAINER_NAME = "v1_7_manager_bootstrap"
 CHECKPOINT_METADATA_SCHEMA_VERSION = (
-    "puyo.v1_7_strategy_manager.checkpoint_metadata.v2"
+    "puyo.v1_7_strategy_manager.checkpoint_metadata.v3"
 )
 CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v2"
 BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION = (
@@ -202,14 +206,21 @@ def build_v1_7_checkpoint_metadata(
     registry: TacticRegistry,
     *,
     run_id: str,
+    chain_style: ChainStyleSelection | Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return the complete runtime compatibility snapshot for a checkpoint."""
 
+    selected_style = (
+        chain_style
+        if isinstance(chain_style, ChainStyleSelection)
+        else ChainStyleSelection.from_dict(chain_style)
+    )
     return {
         "schema_version": CHECKPOINT_METADATA_SCHEMA_VERSION,
         "policy_type": POLICY_TYPE,
         "model_family": MODEL_FAMILY,
         "model_version": MODEL_VERSION,
+        "chain_style": selected_style.to_dict(),
         "lineage": {
             "node_id": LINEAGE_NODE_ID,
             "parent_node_id": PARENT_LINEAGE_NODE_ID,
@@ -220,6 +231,7 @@ def build_v1_7_checkpoint_metadata(
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "all_clear_diagnostics": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": registry.registry_version,
@@ -680,6 +692,7 @@ def migrate_v1_7_1_checkpoint_payload(
     migrated_metadata = dict(migrated["checkpoint_metadata"])
     migrated_metadata["schema_version"] = CHECKPOINT_METADATA_SCHEMA_VERSION
     migrated_metadata["model_version"] = MODEL_VERSION
+    migrated_metadata["chain_style"] = ChainStyleSelection().to_dict()
     migrated_metadata["lineage"] = {
         "node_id": LINEAGE_NODE_ID,
         "parent_node_id": PARENT_LINEAGE_NODE_ID,
@@ -691,6 +704,7 @@ def migrate_v1_7_1_checkpoint_payload(
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "all_clear_diagnostics": ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
             "tactic_registry_version": selected_registry.registry_version,
@@ -714,6 +728,7 @@ def migrate_v1_7_1_checkpoint_payload(
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "feature": FEATURE_SCHEMA_VERSION,
             "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
@@ -721,6 +736,7 @@ def migrate_v1_7_1_checkpoint_payload(
         }
     )
     migrated_dataset["schemas"] = dataset_schemas
+    migrated_dataset["chain_style"] = ChainStyleSelection().to_dict()
     compatibility = dict(migrated_dataset.get("compatibility", {}))
     migration_sources = dict(compatibility.get("migration_sources", {}))
     migration_sources[CHECKPOINT_MIGRATION_SCHEMA_VERSION] = 1
@@ -856,11 +872,13 @@ def migrate_build_potential_v2_checkpoint_payload(
     migrated = source
     migrated_metadata = dict(metadata)
     migrated_metadata["schema_version"] = CHECKPOINT_METADATA_SCHEMA_VERSION
+    migrated_metadata["chain_style"] = ChainStyleSelection().to_dict()
     migrated_schemas = dict(schemas)
     migrated_schemas.update(
         {
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
             "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
         }
@@ -874,9 +892,11 @@ def migrate_build_potential_v2_checkpoint_payload(
         {
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
         }
     )
     migrated_dataset["schemas"] = migrated_dataset_schemas
+    migrated_dataset["chain_style"] = ChainStyleSelection().to_dict()
     compatibility = dict(migrated_dataset.get("compatibility", {}))
     migration_sources = dict(compatibility.get("migration_sources", {}))
     migration_sources[BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION] = 1
@@ -1030,6 +1050,12 @@ def validate_v1_7_strategy_manager_checkpoint_payload(
                 metadata.get(field),
                 expected_metadata[field],
             )
+        _append_checkpoint_mismatch(
+            errors,
+            "checkpoint_metadata.chain_style",
+            metadata.get("chain_style"),
+            expected_metadata["chain_style"],
+        )
         lineage = metadata.get("lineage")
         expected_lineage = expected_metadata["lineage"]
         if not isinstance(lineage, Mapping):
@@ -1078,6 +1104,7 @@ def validate_v1_7_strategy_manager_checkpoint_payload(
             "analyzer_input": ANALYZER_INPUT_SCHEMA_VERSION,
             "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "feature": FEATURE_SCHEMA_VERSION,
             "preview_feature": PREVIEW_FEATURE_SCHEMA_VERSION,
             "tactic_registry": TACTIC_SCHEMA_VERSION,
@@ -1093,6 +1120,12 @@ def validate_v1_7_strategy_manager_checkpoint_payload(
                     dataset_schemas.get(field),
                     expected_value,
                 )
+        _append_checkpoint_mismatch(
+            errors,
+            "dataset.chain_style",
+            dataset.get("chain_style"),
+            ChainStyleSelection().to_dict(),
+        )
 
     lifecycle_contract = checkpoint.get("lifecycle_carry_contract")
     expected_lifecycle = {
