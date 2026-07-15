@@ -1,0 +1,91 @@
+{
+  "checks": {
+    "avoidable_candidate_gap": {
+      "actual": 0,
+      "expected": "<= 0",
+      "passed": true
+    },
+    "deterministic_repetition": {
+      "actual": true,
+      "expected": "true",
+      "passed": true
+    },
+    "fixed_suite": {
+      "actual": {
+        "complete_games": 29,
+        "games": 30
+      },
+      "expected": ">= 30 games with exactly 40 moves",
+      "passed": false
+    },
+    "forced_game_over_gap": {
+      "actual": 0,
+      "expected": "<= 0",
+      "passed": true
+    },
+    "mean_max_chain": {
+      "actual": 2.933333333333333,
+      "expected": ">= 10.0",
+      "passed": false
+    },
+    "registry_latency_budget": {
+      "actual": 917.1215316746384,
+      "expected": "<= 60.0 ms p95",
+      "passed": false
+    }
+  },
+  "configuration_selection": {
+    "evaluated": [
+      {
+        "config_id": "registry-d3-w24-p8-k8",
+        "passed": false,
+        "proposal_p95_ms": 917.1215316746384
+      }
+    ],
+    "rule": "minimum_proposal_p95_ms_among_passing_configurations",
+    "selected_config_id": null,
+    "status": "NO_PASSING_CONFIGURATION",
+    "tie_break": [
+      "depth",
+      "width",
+      "probe_width",
+      "candidate_limit"
+    ]
+  },
+  "metrics": {
+    "avoidable_candidate_gap_count": 0,
+    "best_reachable_chain_max": 11,
+    "best_reachable_chain_mean": 2.933333333333333,
+    "complete_games": 29,
+    "decisions": 1199,
+    "forced_game_over_gap_count": 0,
+    "game_over_before_limit": 1,
+    "games": 30,
+    "latency": {
+      "mode": "observational_wall_clock_including_proposal_projection",
+      "proposal_p50_ms": 582.6698140008375,
+      "proposal_p95_ms": 917.1215316746384,
+      "reference_p50_ms": 5518.347862060182,
+      "reference_p95_ms": 8370.788773684762
+    },
+    "max_chain_max": 11,
+    "mean_max_chain": 2.933333333333333,
+    "premature_classification_counts": {
+      "avoidable": 0,
+      "candidate_limited": 27,
+      "none": 1172
+    },
+    "reference_action_coverage_count": 1003,
+    "reference_action_coverage_rate": 0.8365304420350292,
+    "reference_best_chain_mean": 6.6,
+    "reference_path_coverage_count": 780,
+    "reference_path_coverage_rate": 0.6505421184320267
+  },
+  "puyo_130_long_run": {
+    "reason": "pre-training capability gate did not pass",
+    "status": "BLOCKED"
+  },
+  "responsibility": "pre-training candidate-generator capability; does not evaluate learned candidate selection",
+  "schema_version": "puyo.v1_7_training_capability_gate_result.v1",
+  "training_capability_gate_passed": false
+}

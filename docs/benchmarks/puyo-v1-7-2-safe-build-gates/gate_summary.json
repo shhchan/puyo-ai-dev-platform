@@ -1,0 +1,496 @@
+{
+  "canonical_integration": {
+    "all_required_merges_contained": true,
+    "branch": "integration/puyo-113-v1-7-2",
+    "commit": "d55951ee2574a2c938efce4af43a840ff6ab7379",
+    "required_merges": {
+      "PUYO-129": {
+        "contained": true,
+        "merge_commit": "2a1e2d59d0d9f538be3c6053c9c4cd79134d17c5"
+      },
+      "PUYO-158": {
+        "contained": true,
+        "merge_commit": "d1f8a0a23c483c83ffea4ffac926e2bc9c9bba40"
+      },
+      "PUYO-169": {
+        "contained": true,
+        "merge_commit": "d55951ee2574a2c938efce4af43a840ff6ab7379"
+      }
+    }
+  },
+  "capability": {
+    "determinism": {
+      "digests": [
+        "c0c076d82d427034229d7b5566f3268d20c5eb06af50d46e8fe28e5f6090c783",
+        "c0c076d82d427034229d7b5566f3268d20c5eb06af50d46e8fe28e5f6090c783"
+      ],
+      "excluded_fields": [
+        "proposal_latency_ms",
+        "reference_latency_ms"
+      ],
+      "passed": true,
+      "repetitions": 2,
+      "scope": [
+        "capability-selected actions",
+        "K-best candidate IDs, masks, and previews",
+        "bounded-reference coverage",
+        "premature and candidate-gap classification",
+        "latency-free seed and aggregate metrics"
+      ]
+    },
+    "input": {
+      "config": {
+        "configuration": {
+          "build_potential_schema_version": "puyo.build_potential.v2",
+          "candidate_limit": 8,
+          "candidate_mode": "diverse",
+          "config_id": "registry-d3-w24-p8-k8",
+          "depth": 3,
+          "minimum_chain_count": 10,
+          "probe_width": 8,
+          "scoring_mode": "build_potential_v2",
+          "trigger_preservation": "required",
+          "width": 24
+        },
+        "games": 30,
+        "latency_mode": "observational_wall_clock_including_proposal_projection",
+        "moves_per_game": 40,
+        "reference": {
+          "build_potential_schema_version": "puyo.build_potential.v2",
+          "candidate_limit": 32,
+          "candidate_mode": "diverse",
+          "config_id": "d8-w64-p32",
+          "depth": 8,
+          "minimum_chain_count": 10,
+          "probe_width": 32,
+          "scenarios": 1,
+          "scoring_mode": "build_potential_v2",
+          "trace_paths": true,
+          "trigger_preservation": "required",
+          "width": 64
+        },
+        "repetitions": 2,
+        "workers": 12
+      },
+      "reference": {
+        "semantics": "PUYO-165 bounded reference; not an oracle",
+        "source_artifact": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+        "source_artifact_sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6"
+      },
+      "responsibility": "candidate-generator capability before PUYO-130 long-run training",
+      "schema_version": "puyo.v1_7_training_capability_gate_input.v1",
+      "schemas": {
+        "build_potential": "puyo.build_potential.v2",
+        "tactic_registry": "tactic-schema-v3",
+        "tactic_registry_version": "v1.7.2",
+        "worker_proposal": "puyo.worker_proposal_batch.v1"
+      },
+      "seed_manifest": {
+        "games": 30,
+        "moves_per_seed": 40,
+        "schema_version": "puyo.v1_7_safe_build_seed_manifest.v1",
+        "seeds": [
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152
+        ],
+        "source": "docs/benchmarks/puyo-v1-7-2-build-main/seed_results.csv",
+        "source_config_id": "d6-w48-p16",
+        "source_sha256": "d5d05f0f374baa5129b04ba4d18fa86e39902688c677f008cf721ae01ac14c45"
+      },
+      "thresholds": {
+        "maximum_avoidable_candidate_gaps": 0,
+        "maximum_forced_game_over_gaps": 0,
+        "maximum_p95_latency_ms": 60.0,
+        "minimum_games": 30,
+        "minimum_mean_max_chain": 10.0,
+        "moves_per_game": 40
+      }
+    },
+    "result": {
+      "checks": {
+        "avoidable_candidate_gap": {
+          "actual": 0,
+          "expected": "<= 0",
+          "passed": true
+        },
+        "deterministic_repetition": {
+          "actual": true,
+          "expected": "true",
+          "passed": true
+        },
+        "fixed_suite": {
+          "actual": {
+            "complete_games": 29,
+            "games": 30
+          },
+          "expected": ">= 30 games with exactly 40 moves",
+          "passed": false
+        },
+        "forced_game_over_gap": {
+          "actual": 0,
+          "expected": "<= 0",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 2.933333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "registry_latency_budget": {
+          "actual": 917.1215316746384,
+          "expected": "<= 60.0 ms p95",
+          "passed": false
+        }
+      },
+      "configuration_selection": {
+        "evaluated": [
+          {
+            "config_id": "registry-d3-w24-p8-k8",
+            "passed": false,
+            "proposal_p95_ms": 917.1215316746384
+          }
+        ],
+        "rule": "minimum_proposal_p95_ms_among_passing_configurations",
+        "selected_config_id": null,
+        "status": "NO_PASSING_CONFIGURATION",
+        "tie_break": [
+          "depth",
+          "width",
+          "probe_width",
+          "candidate_limit"
+        ]
+      },
+      "metrics": {
+        "avoidable_candidate_gap_count": 0,
+        "best_reachable_chain_max": 11,
+        "best_reachable_chain_mean": 2.933333333333333,
+        "complete_games": 29,
+        "decisions": 1199,
+        "forced_game_over_gap_count": 0,
+        "game_over_before_limit": 1,
+        "games": 30,
+        "latency": {
+          "mode": "observational_wall_clock_including_proposal_projection",
+          "proposal_p50_ms": 582.6698140008375,
+          "proposal_p95_ms": 917.1215316746384,
+          "reference_p50_ms": 5518.347862060182,
+          "reference_p95_ms": 8370.788773684762
+        },
+        "max_chain_max": 11,
+        "mean_max_chain": 2.933333333333333,
+        "premature_classification_counts": {
+          "avoidable": 0,
+          "candidate_limited": 27,
+          "none": 1172
+        },
+        "reference_action_coverage_count": 1003,
+        "reference_action_coverage_rate": 0.8365304420350292,
+        "reference_best_chain_mean": 6.6,
+        "reference_path_coverage_count": 780,
+        "reference_path_coverage_rate": 0.6505421184320267
+      },
+      "puyo_130_long_run": {
+        "reason": "pre-training capability gate did not pass",
+        "status": "BLOCKED"
+      },
+      "responsibility": "pre-training candidate-generator capability; does not evaluate learned candidate selection",
+      "schema_version": "puyo.v1_7_training_capability_gate_result.v1",
+      "training_capability_gate_passed": false
+    }
+  },
+  "created_at_utc": "2026-07-15T22:24:10Z",
+  "promotion": {
+    "input": {
+      "checkpoint": {
+        "model_version": "v1.7.2",
+        "path": "runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap-v1-7-2-migrated.pt",
+        "role": "pretraining_reference",
+        "schema_version": "puyo.v1_7_checkpoint_evidence.v1",
+        "sha256": "b853a82c4136ff0cd65eebdc5ddf75cc43ff957dbe5df0443b5289598b9f76f8"
+      },
+      "gui_replay": {
+        "passed": false,
+        "reason": "post-training GUI/replay QA belongs to PUYO-133",
+        "status": "not_evaluated"
+      },
+      "lineage": {
+        "git_commit": "b1c8460863f42170ef5ff65c4c05c4ad96c4d471",
+        "node_id": "model_version:v1.7.2",
+        "parent_node_id": "model_version:v1.7.1",
+        "training_run_id": "puyo-128-bootstrap-round-1-seed1129"
+      },
+      "responsibility": "learned selected-policy quality after PUYO-130 training",
+      "schema_version": "puyo.v1_7_promotion_gate_input.v1",
+      "selected_policy_safe_build": {
+        "decision_p50_ms": 2228.968919022009,
+        "decision_p95_ms": 2871.9089348509438,
+        "game_over_before_limit": 0,
+        "games": 30,
+        "gates": {
+          "game_over": {
+            "actual": 0,
+            "expected": "0 before 40 moves",
+            "passed": true
+          },
+          "mean_max_chain": {
+            "actual": 4.133333333333334,
+            "expected": ">= 10.0",
+            "passed": false
+          },
+          "premature_fire": {
+            "actual": 86,
+            "expected": "0 safe/no-threat fires of chain length 1-9",
+            "passed": false
+          }
+        },
+        "label": "pretraining_reference",
+        "max_chain_max": 5,
+        "max_chain_p50": 4.0,
+        "max_chain_p90": 5.0,
+        "mean_max_chain": 4.133333333333334,
+        "moves_per_game": 40,
+        "passed": false,
+        "premature_fire_count": 86,
+        "premature_fire_rate": 0.07166666666666667,
+        "trigger_loss_count": 123,
+        "trigger_loss_rate": 0.1156015037593985,
+        "trigger_opportunities": 1064
+      },
+      "threat_scenarios": {
+        "results": [
+          {
+            "actual": {
+              "action": 12,
+              "canceled": 0,
+              "chain_count": 0,
+              "followup_tactic": null,
+              "generated": 0,
+              "incoming": 1,
+              "outgoing": 0,
+              "received": 0,
+              "response_selected": true,
+              "selected_tactic": "counter_or_return",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_three_uses_second_next",
+            "description": "Three-turn mild threat selects an explicit response tactic.",
+            "failures": [],
+            "name": "mild_threat",
+            "passed": true
+          },
+          {
+            "actual": {
+              "action": 15,
+              "canceled": 0,
+              "chain_count": 0,
+              "followup_tactic": null,
+              "generated": 0,
+              "incoming": 10,
+              "outgoing": 0,
+              "received": 0,
+              "response_selected": true,
+              "selected_tactic": "counter_or_return",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_two_uses_next_pair",
+            "description": "Two-turn burst selects a response and keeps the player alive.",
+            "failures": [],
+            "name": "short_burst",
+            "passed": true
+          },
+          {
+            "actual": {
+              "action": 0,
+              "canceled": 5,
+              "chain_count": 2,
+              "followup_tactic": null,
+              "generated": 5,
+              "incoming": 5,
+              "outgoing": 0,
+              "received": 0,
+              "response_selected": true,
+              "selected_tactic": "counter_or_return",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_one_exact_cancel",
+            "description": "A deadline-one attack is fully canceled with no received garbage.",
+            "failures": [],
+            "name": "full_cancel",
+            "passed": true
+          },
+          {
+            "actual": {
+              "action": 0,
+              "canceled": 3,
+              "chain_count": 2,
+              "followup_tactic": null,
+              "generated": 5,
+              "incoming": 3,
+              "outgoing": 2,
+              "received": 0,
+              "response_selected": true,
+              "selected_tactic": "counter_or_return",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_one_counter_surplus",
+            "description": "A deadline-one counter cancels the threat and returns surplus attack.",
+            "failures": [],
+            "name": "surplus_counter",
+            "passed": true
+          },
+          {
+            "actual": {
+              "action": 0,
+              "canceled": 5,
+              "chain_count": 2,
+              "followup_tactic": null,
+              "generated": 5,
+              "incoming": 6,
+              "outgoing": 0,
+              "received": 1,
+              "response_selected": true,
+              "selected_tactic": "survive",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_one_return_is_insufficient",
+            "description": "An insufficient deadline-one response avoids immediate game over.",
+            "failures": [],
+            "name": "survival",
+            "passed": true
+          },
+          {
+            "actual": {
+              "action": 0,
+              "canceled": 5,
+              "chain_count": 2,
+              "followup_tactic": "build_main",
+              "generated": 5,
+              "incoming": 5,
+              "outgoing": 0,
+              "received": 0,
+              "response_selected": true,
+              "selected_tactic": "counter_or_return",
+              "survived": true
+            },
+            "analyzer_scenario": "deadline_one_exact_cancel",
+            "description": "After a response turn with cleared incoming attack, the manager resumes build_main.",
+            "failures": [],
+            "name": "resume_build",
+            "passed": true
+          }
+        ],
+        "schema_version": "puyo.v1_7_response_scenarios.v1",
+        "summary": {
+          "failed": 0,
+          "passed": 6,
+          "scenarios": 6
+        }
+      },
+      "thresholds": {
+        "maximum_early_game_overs": 0,
+        "maximum_safe_premature_fires": 0,
+        "minimum_games": 30,
+        "minimum_mean_max_chain": 10.0,
+        "minimum_training_seeds": 5,
+        "moves_per_game": 40,
+        "required_threat_scenarios": 6
+      },
+      "training_seeds": []
+    },
+    "result": {
+      "checks": {
+        "fixed_safe_build_suite": {
+          "actual": {
+            "games": 30,
+            "moves_per_game": 40
+          },
+          "expected": ">= 30 games x 40 moves",
+          "passed": true
+        },
+        "fixed_training_seeds": {
+          "actual": [],
+          "expected": ">= 5 version-controlled seeds",
+          "passed": false
+        },
+        "gui_replay_qa": {
+          "actual": false,
+          "expected": "true",
+          "passed": false
+        },
+        "lineage": {
+          "actual": true,
+          "expected": "complete",
+          "passed": true
+        },
+        "post_training_candidate": {
+          "actual": "pretraining_reference",
+          "expected": "post_training_candidate",
+          "passed": false
+        },
+        "selected_policy_early_game_over": {
+          "actual": 0,
+          "expected": "<= 0",
+          "passed": true
+        },
+        "selected_policy_mean_max_chain": {
+          "actual": 4.133333333333334,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "selected_policy_safe_premature_fire": {
+          "actual": 86,
+          "expected": "<= 0",
+          "passed": false
+        },
+        "threat_scenarios": {
+          "actual": {
+            "passed": 6,
+            "scenarios": 6
+          },
+          "expected": "6/6",
+          "passed": true
+        }
+      },
+      "promotion_gate_passed": false,
+      "registry_registration": "BLOCKED",
+      "responsibility": "post-training learned selected-policy promotion; candidate-set capability alone cannot satisfy this gate",
+      "schema_version": "puyo.v1_7_promotion_gate_result.v1",
+      "status": "PENDING_POST_TRAINING"
+    }
+  },
+  "promotion_gate_passed": false,
+  "puyo_130_long_run": {
+    "reason": "pre-training capability gate did not pass",
+    "status": "BLOCKED"
+  },
+  "schema_version": "puyo.v1_7_safe_build_gates.v1",
+  "training_capability_gate_passed": false
+}

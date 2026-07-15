@@ -187,6 +187,10 @@ learned candidate distribution へ接続する境界は
 [PUYO-169 contract](puyo-169-worker-proposals.md) に従う。named chain style は optional metadata として
 保持するが generic candidate ranker feature には暗黙追加しない。
 
+safe-build の学習開始可否と学習後の昇格可否は
+[PUYO-170 two-stage gate](puyo-170-safe-build-gates.md) に従う。K-best 集合の capability と learned policy の
+selected action を別 schema で保存し、bounded reference を promotion 成績として扱わない。
+
 ```text
 TacticSpec
   identity:
