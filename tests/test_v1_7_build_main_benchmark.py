@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 from eval.v1_7_build_main_benchmark import (
     BENCHMARK_SCHEMA_VERSION,
+    DEFAULT_OUTPUT_DIR,
+    SELECTION_SCHEMA_VERSION,
     FALLBACK_BUDGET,
     BuildMainConfiguration,
     ForcedBuildMainPolicy,
@@ -23,6 +25,20 @@ from train.artifacts import file_sha256
 
 
 class TestV17BuildMainBenchmark(unittest.TestCase):
+    def test_v2_artifacts_do_not_overwrite_the_frozen_v1_cohort(self):
+        self.assertEqual(
+            BENCHMARK_SCHEMA_VERSION,
+            "puyo.v1_7_build_main_benchmark.v2",
+        )
+        self.assertEqual(
+            SELECTION_SCHEMA_VERSION,
+            "puyo.v1_7_build_main_selection.v2",
+        )
+        self.assertEqual(
+            DEFAULT_OUTPUT_DIR,
+            "docs/benchmarks/puyo-v1-7-2-build-main-v2",
+        )
+
     def test_default_grid_contains_all_eighteen_configurations(self):
         configurations = configuration_grid()
 
@@ -89,7 +105,7 @@ class TestV17BuildMainBenchmark(unittest.TestCase):
         self.assertTrue(selection["all_configurations_failed"])
         self.assertFalse(selection["puyo_130_may_start"])
 
-    def test_forced_evaluator_applies_build_main_v1_1_budget_and_diagnostics(self):
+    def test_forced_evaluator_applies_build_main_v2_budget_and_diagnostics(self):
         configuration = BuildMainConfiguration(1, 4, 2)
         policy = ForcedBuildMainPolicy(configuration)
         simulator = HeadlessPuyoSimulator(seed=41)
@@ -106,7 +122,7 @@ class TestV17BuildMainBenchmark(unittest.TestCase):
 
         self.assertTrue(info["action_mask"][action])
         self.assertEqual(request.tactic_id, "build_main")
-        self.assertEqual(request.tactic_version, "1.1")
+        self.assertEqual(request.tactic_version, "2.0")
         self.assertEqual(request.target_chain, 10)
         self.assertEqual(request.trigger_preservation, "required")
         self.assertEqual(request.candidate_count, 2)

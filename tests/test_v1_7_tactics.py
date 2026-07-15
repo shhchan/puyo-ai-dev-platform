@@ -66,13 +66,18 @@ class TestV17TacticRegistry(unittest.TestCase):
 
         build_main = self.registry.tactic("build_main")
         defaults = build_main.resolve_parameters()
-        self.assertEqual(build_main.identity.version, "1.1")
+        self.assertEqual(build_main.identity.version, "2.0")
         self.assertEqual(defaults["objective"]["target_chain"], 10)
         self.assertEqual(
             defaults["constraints"]["trigger_preservation"],
             "required",
         )
         self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
+        self.assertIn(
+            "diagnostics.own.build_potential.predicted_chain_potential",
+            build_main.applicability["feature_refs"],
+        )
+        self.assertIn("value_breakdown", build_main.diagnostics["fields"])
         prepare = self.registry.tactic("prepare_response")
         self.assertEqual(prepare.identity.version, "2.0")
 

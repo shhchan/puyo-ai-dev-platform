@@ -60,6 +60,7 @@ def build_checkpoint_payload() -> dict:
                 "schemas": {
                     "analyzer_input": schemas["analyzer_input"],
                     "analyzer_diagnostics": schemas["analyzer_diagnostics"],
+                    "build_potential": schemas["build_potential"],
                     "feature": schemas["strategy_features"],
                     "preview_feature": schemas["planner_preview_features"],
                     "tactic_registry": schemas["tactic_registry"],

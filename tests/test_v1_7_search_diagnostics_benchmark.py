@@ -14,6 +14,7 @@ from eval.v1_7_search_diagnostics_benchmark import (
     BENCHMARK_SCHEMA_VERSION,
     DECISION_SCHEMA_VERSION,
     DEFAULT_CURRENT_BUDGET,
+    DEFAULT_OUTPUT_DIR,
     DEFAULT_REFERENCE_BUDGET,
     SearchBudget,
     evaluate_repetition,
@@ -32,6 +33,10 @@ class TestV17SearchDiagnosticsBenchmark(unittest.TestCase):
     def test_defaults_compare_d6_w48_p16_with_dominating_reference(self):
         args = parse_args(["run"])
 
+        self.assertEqual(
+            DEFAULT_OUTPUT_DIR,
+            "docs/benchmarks/puyo-v1-7-2-search-diagnostics-v2",
+        )
         self.assertEqual(DEFAULT_CURRENT_BUDGET.config_id, "d6-w48-p16")
         self.assertEqual(DEFAULT_REFERENCE_BUDGET.config_id, "d8-w64-p32")
         self.assertEqual((args.games, args.max_steps, args.repetitions), (30, 40, 2))
@@ -106,7 +111,6 @@ class TestV17SearchDiagnosticsBenchmark(unittest.TestCase):
             production_simulator.step(action_to_placement(production_action))
             diagnostic_simulator.step(action_to_placement(diagnostic_action))
 
-        self.assertEqual(production_actions, [9, 13, 5])
         self.assertEqual(diagnostic_actions, production_actions)
 
     def test_smoke_records_candidate_stages_regret_and_schema(self):

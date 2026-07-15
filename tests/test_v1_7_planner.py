@@ -2,8 +2,16 @@ import json
 import unittest
 from dataclasses import replace
 
+from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+)
 from agents.state_analyzer import StateAnalyzer
-from agents.strategy_workers import StrategyOrchestrator, smoke_worker_profiles
+from agents.strategy_workers import (
+    SearchControl,
+    StrategyOrchestrator,
+    smoke_worker_profiles,
+)
 from agents.v1_7_planner import (
     PLANNER_REQUEST_SCHEMA_VERSION,
     PlannerRequest,
@@ -54,6 +62,10 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(payload["search_budget"]["candidate_count"], 8)
         self.assertEqual(payload["search_budget"]["latency_budget_ms"], 75.0)
         self.assertIn("chain_shape_weight", payload["objective"]["weights"])
+        self.assertEqual(
+            payload["build_potential_schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
         json.dumps(payload)
 
     def test_build_main_reuses_candidate_count_for_potential_probe_only(self):
@@ -90,6 +102,18 @@ class TestV17Planner(unittest.TestCase):
             info,
             planner_request=build_request,
         )
+        controlled = orchestrator.propose(
+            0,
+            observation,
+            info,
+            search_control=SearchControl(
+                99,
+                "two-scenario-probe-budget",
+                "discrete_profile",
+                scenarios=2,
+            ),
+            planner_request=build_request,
+        )
         fire = orchestrator.propose(
             4,
             observation,
@@ -101,9 +125,49 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(build.potential_probe_width, 2)
         self.assertGreater(build.potential_probe_count, 0)
         self.assertEqual(build.build_potential_dict["probe_width"], 2)
+        self.assertEqual(
+            controlled.search_control_dict["effective"]["potential_probe_budget"],
+            5,
+        )
+        self.assertEqual(
+            controlled.search_control_dict["effective"]["scenarios"],
+            2,
+        )
+        self.assertLessEqual(controlled.potential_probe_count, 5)
         self.assertEqual(fire.trigger_preservation, "ignore")
         self.assertEqual(fire.potential_probe_width, 0)
         self.assertEqual(fire.potential_probe_count, 0)
+
+    def test_fire_main_keeps_legacy_one_step_route(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+        simulator = HeadlessPuyoSimulator(seed=9)
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        info = {
+            "simulator": simulator,
+            "action_mask": legal_action_mask(simulator),
+        }
+        request = build_planner_request(
+            self.registry.tactic("fire_main"),
+            analyzer_input,
+            diagnostics,
+        )
+
+        proposal = StrategyOrchestrator(smoke_worker_profiles()).propose(
+            4,
+            observation,
+            info,
+            planner_request=request,
+        )
+
+        self.assertEqual(proposal.action, 1)
+        self.assertEqual(proposal.strategy, "fire_max")
+        self.assertEqual(request.search_depth, 1)
+        self.assertEqual(
+            request.build_potential_schema_version,
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+        )
+        self.assertEqual(proposal.potential_probe_count, 0)
 
     def test_all_initial_tactics_resolve_to_positive_search_budgets(self):
         analyzer_input = scenario_input(self.scenarios[0])
@@ -182,6 +246,7 @@ class TestV17Planner(unittest.TestCase):
             all_clear_bonus_consumed=False,
             required_response_attack=1,
             response_source="opponent_forecast",
+            build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
         )
 
         proposal = StrategyOrchestrator(smoke_worker_profiles()).propose(
@@ -195,6 +260,33 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(proposal.predicted_attack, 0)
         self.assertFalse(proposal.immediate_fire)
         self.assertNotIn("immediate_fire", proposal.objective_result.miss_reasons)
+        self.assertEqual(proposal.potential_probe_width, 4)
+        self.assertLessEqual(proposal.potential_probe_count, 5)
+        self.assertEqual(
+            proposal.build_potential_dict["schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+
+        ignored = StrategyOrchestrator(smoke_worker_profiles()).propose(
+            3,
+            observation,
+            info,
+            search_control=SearchControl(
+                100,
+                "ignore-trigger-probe-budget",
+                "discrete_profile",
+            ),
+            planner_request=replace(request, trigger_preservation="ignore"),
+        )
+        self.assertFalse(ignored.trigger_preserved)
+        self.assertEqual(ignored.trigger_recoverability.status, "unknown")
+        self.assertEqual(ignored.potential_probe_count, 0)
+        self.assertEqual(
+            ignored.search_control_dict["effective"][
+                "build_potential_schema_version"
+            ],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
 
     def test_all_clear_request_preserves_lifecycle_and_does_not_fix_total_attack_to_thirty(self):
         base = scenario_input(self.scenarios[0])
@@ -276,6 +368,7 @@ class TestV17Planner(unittest.TestCase):
             all_clear_achieved=False,
             all_clear_bonus_pending=True,
             all_clear_bonus_consumed=False,
+            build_potential_schema_version=BUILD_POTENTIAL_V1_SCHEMA_VERSION,
         )
         orchestrator = StrategyOrchestrator(smoke_worker_profiles())
 

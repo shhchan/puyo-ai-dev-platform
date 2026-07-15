@@ -8,6 +8,7 @@ try:
 except (ImportError, OSError):  # pragma: no cover - optional dependency guard
     torch = None
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.state_analyzer import AnalyzerConfig, StateAnalyzer
 from agents.strategy_workers import smoke_worker_profiles
 from agents.v1_7_strategy_manager import (
@@ -16,6 +17,7 @@ from agents.v1_7_strategy_manager import (
     V17StrategyFeatureEncoder,
     V17StrategyManagerNetwork,
     V17StrategyManagerPolicy,
+    build_v1_7_checkpoint_metadata,
     decode_tactic_parameters,
     encode_preview_features,
 )
@@ -80,6 +82,19 @@ class TestV17StrategyManager(unittest.TestCase):
             "strategy feature contract mismatch for context_dim",
         ):
             self.encoder.contract.validate_metadata(metadata)
+
+    def test_checkpoint_metadata_adds_build_potential_without_feature_growth(self):
+        metadata = build_v1_7_checkpoint_metadata(self.registry, run_id="metadata-test")
+
+        self.assertEqual(
+            metadata["schemas"]["build_potential"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(self.encoder.contract.context_dim, 77)
+        self.assertNotIn(
+            "build_potential",
+            self.encoder.contract.context_feature_names,
+        )
 
     @unittest.skipIf(torch is None, "torch is required")
     def test_network_masks_ineligible_tactics_and_arbitrates_previews(self):
@@ -231,6 +246,28 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(
             diagnostics["plan_id"],
             diagnostics["plan"]["plan_id"],
+        )
+        build_potential = diagnostics["worker"]["result"]["build_potential"]
+        self.assertEqual(
+            build_potential["schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            diagnostics["worker"]["result"]["value_breakdown"],
+            build_potential["value_breakdown"],
+        )
+        self.assertEqual(
+            diagnostics["worker"]["result"]["trigger_recoverability"],
+            build_potential["trigger_recoverability"],
+        )
+        selected_preview = next(
+            candidate["preview"]
+            for candidate in candidates
+            if candidate["selected"]
+        )
+        self.assertEqual(
+            selected_preview["worker"]["build_potential"]["schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
         )
         json.dumps(diagnostics)
 
