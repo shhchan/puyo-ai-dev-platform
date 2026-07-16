@@ -17,6 +17,7 @@ from agents.long_horizon_search import (
     EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
     EXPECTED_CHAIN_RANKING_RULE_VERSION,
     LONG_HORIZON_SEARCH_PROFILES,
+    SCENARIO_SEQUENCE_SCHEMA_VERSION,
     TERMINAL_FIRE_RECORD_AND_STOP,
     LongHorizonSearchConfig,
     build_scenario_sequences,
@@ -109,7 +110,7 @@ DEFAULT_CONFIG_MATRIX = (
         24,
         1,
         1_200,
-        False,
+        True,
     ),
     AblationConfiguration(
         "compact",
@@ -509,6 +510,9 @@ def run_benchmark(
         "schema_version": BENCHMARK_SCHEMA_VERSION,
         "summaries": summaries,
     }
+    manifest_records = [
+        record for record in records if record["config_id"] == matrix[-1].config_id
+    ]
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "generated_at": utc_timestamp(),
@@ -522,6 +526,46 @@ def run_benchmark(
         "canonical_gate_reused": False,
         "seeds": [int(seed) for seed in seeds],
         "config_ids": [config.config_id for config in matrix],
+        "registered_profiles": {
+            name: profile.to_dict()
+            for name, profile in LONG_HORIZON_SEARCH_PROFILES.items()
+        },
+        "known_queue": {
+            "contract": "current_plus_next2",
+            "known_pair_count": 3,
+            "unknown_boundary_cursor": 3,
+            "records": [
+                {
+                    "seed": int(record["seed"]),
+                    "pairs": record["known_queue"],
+                }
+                for record in manifest_records
+            ],
+        },
+        "scenario_sequences": {
+            "schema_version": SCENARIO_SEQUENCE_SCHEMA_VERSION,
+            "config_id": matrix[-1].config_id,
+            "records": [
+                {
+                    "seed": int(record["seed"]),
+                    "scenario_ids": [
+                        int(sequence["scenario_id"])
+                        for sequence in record["scenario_sequences"]
+                    ],
+                    "sequence_digests": record["scenario_sequence_digests"],
+                }
+                for record in manifest_records
+            ],
+        },
+        "count_budgets": [
+            {
+                "config_id": config.config_id,
+                "authority": "expanded_nodes",
+                "max_expanded_nodes": int(config.max_expanded_nodes),
+                "wall_clock_mode": "observational",
+            }
+            for config in matrix
+        ],
         "count_budget_authoritative": True,
         "wall_clock_mode": "observational",
         "elapsed_seconds": elapsed,

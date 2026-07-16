@@ -49,7 +49,7 @@ class TestLongHorizonSearchBenchmark(unittest.TestCase):
                 4,
                 1,
                 30,
-                False,
+                True,
             ),
             AblationConfiguration(
                 "compact-tt",
@@ -81,6 +81,20 @@ class TestLongHorizonSearchBenchmark(unittest.TestCase):
             self.assertTrue(manifest["count_budget_authoritative"])
             self.assertEqual(manifest["wall_clock_mode"], "observational")
             self.assertFalse(manifest["canonical_gate_reused"])
+            self.assertEqual(
+                manifest["registered_profiles"]["quality-d16"]["depth"],
+                16,
+            )
+            self.assertEqual(manifest["known_queue"]["known_pair_count"], 3)
+            self.assertEqual(manifest["known_queue"]["unknown_boundary_cursor"], 3)
+            self.assertEqual(
+                manifest["scenario_sequences"]["records"][0]["scenario_ids"],
+                [0],
+            )
+            self.assertEqual(
+                manifest["count_budgets"][-1]["max_expanded_nodes"],
+                220,
+            )
             self.assertEqual(len(records), 2)
             self.assertEqual(records[1]["schema_version"], BENCHMARK_SCHEMA_VERSION)
             self.assertEqual(records[1]["known_pair_count"], 3)
