@@ -1,0 +1,110 @@
+{
+  "case_count": 9,
+  "digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+  "fixture_path": "tests/fixtures/compact_search_kernel_cases.json",
+  "fixture_sha256": "7d41f90c82c9232febbe06ebf83c3b7601fdf138ca41137d0f695a7b80804a19",
+  "mismatch_count": 0,
+  "mismatches": [],
+  "records": [
+    {
+      "case_id": "empty_quiet",
+      "chain_count": 0,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 22,
+      "result_digest": "08613eac21e0fd2bfa6639a817568143646ffe6f2d91cfafa7d4bdb87ad7734c",
+      "score_delta": 0
+    },
+    {
+      "case_id": "equal_pair_symmetry",
+      "chain_count": 0,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 11,
+      "result_digest": "1bd9783133d6d0a5dbd33ca0083045090ef4fbbb8da5d1f8617b16d8e5fd51cc",
+      "score_delta": 0
+    },
+    {
+      "case_id": "left_right_asymmetric",
+      "chain_count": 0,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 22,
+      "result_digest": "5760340e7806e824d245c888eb156db086bfc30acd457a7def889fb2122922ed",
+      "score_delta": 0
+    },
+    {
+      "case_id": "one_chain_all_clear",
+      "chain_count": 1,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 6,
+      "result_digest": "9843b6a8f7199cec3e6c1484924b1c55abeec82c87f729f5954d7e62fc2b857e",
+      "score_delta": 40
+    },
+    {
+      "case_id": "two_chain",
+      "chain_count": 2,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 22,
+      "result_digest": "2047b590743a61ba2862aee75f7137d3035c56317f93cfb9e118b3b46242a3b1",
+      "score_delta": 360
+    },
+    {
+      "case_id": "adjacent_ojama",
+      "chain_count": 1,
+      "game_over": false,
+      "garbage_cleared_count": 1,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 22,
+      "result_digest": "82cea869718b8a4e49421c79f8e0d0ac209ed1dfcb17a126c8db19db07c406a8",
+      "score_delta": 40
+    },
+    {
+      "case_id": "hidden_rows_preserved",
+      "chain_count": 0,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 17,
+      "passed": true,
+      "reduced_action_count": 17,
+      "result_digest": "9e01ed3aa1c9e2d48b6abdbcbd7db1f508b0c84d5518e5c16f0d4d2c4881fcde",
+      "score_delta": 0
+    },
+    {
+      "case_id": "death_at_choke",
+      "chain_count": 0,
+      "game_over": true,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 22,
+      "result_digest": "85c7317bb22c713d145065f22c21355ecfe8c7c0afa2490765782350eec68d02",
+      "score_delta": 0
+    },
+    {
+      "case_id": "pending_all_clear_bonus",
+      "chain_count": 1,
+      "game_over": false,
+      "garbage_cleared_count": 0,
+      "legal_action_count": 22,
+      "passed": true,
+      "reduced_action_count": 6,
+      "result_digest": "e8be61ae39d2c79258ea800b9d4a3ca9cb9f40ca4df1c4685b24e343ee6ed8c5",
+      "score_delta": 2140
+    }
+  ],
+  "schema_version": "puyo.compact_search_kernel_benchmark.v1"
+}
