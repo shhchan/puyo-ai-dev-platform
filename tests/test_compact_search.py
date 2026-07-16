@@ -296,6 +296,10 @@ class TestCompactSearchKernel(unittest.TestCase):
         second_snapshot = CompactSearchSnapshot.from_simulator(second)
 
         self.assertEqual(first_snapshot.state, second_snapshot.state)
+        self.assertEqual(
+            first_snapshot.state,
+            CompactSearchState.from_game(first.game),
+        )
         self.assertNotEqual(first_snapshot.current_pair, second_snapshot.current_pair)
 
     def test_invalid_placement_returns_original_state(self):

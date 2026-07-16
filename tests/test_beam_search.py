@@ -5,8 +5,10 @@ from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
     BUILD_POTENTIAL_V1_SCHEMA_VERSION,
     BUILD_SCORING_V2,
+    CHAIN_STRUCTURE_NODE_EVALUATOR,
     DIVERSE_CANDIDATE_MODE,
     LEGACY_BUILD_SCORING,
+    LEGACY_NODE_EVALUATOR,
     BeamSearchConfig,
     BeamSearchPolicy,
     BuildPotential,
@@ -21,6 +23,7 @@ from agents.beam_search import (
     evaluate_chain_shape_v2,
     migrate_build_potential_v1,
 )
+from agents.chain_structure import ChainStructureEvaluator
 from agents.state_analyzer import simulator_from_snapshot
 from eval.analyzer_scenarios import load_scenarios, scenario_input
 from puyo_env.actions import action_to_placement, legal_action_mask
@@ -28,6 +31,16 @@ from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.puyo import Puyo
 from selfplay.policies import make_policy
+
+
+class _CountingStructureEvaluator:
+    def __init__(self):
+        self.inner = ChainStructureEvaluator()
+        self.evaluation_count = 0
+
+    def evaluate(self, state, **kwargs):
+        self.evaluation_count += 1
+        return self.inner.evaluate(state, **kwargs)
 
 
 class TestBeamSearchPolicy(unittest.TestCase):
@@ -54,6 +67,90 @@ class TestBeamSearchPolicy(unittest.TestCase):
             BeamSearchConfig(diversity_slots_per_axis=0)
         with self.assertRaises(ValueError):
             BeamSearchConfig(max_expanded_nodes=0)
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(node_evaluator_backend="unsupported")
+        with self.assertRaises(ValueError):
+            BeamSearchConfig(node_evaluator=ChainStructureEvaluator())
+
+    def test_chain_structure_backend_evaluates_every_node_deterministically(self):
+        def run():
+            simulator = HeadlessPuyoSimulator(seed=173)
+            evaluator = _CountingStructureEvaluator()
+            policy = BeamSearchPolicy(
+                BeamSearchConfig(
+                    depth=2,
+                    width=6,
+                    scoring_mode=BUILD_SCORING_V2,
+                    build_potential_schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+                    future_potential_weight=0.0,
+                    probe_width=0,
+                    max_expanded_nodes=80,
+                    node_evaluator_backend=CHAIN_STRUCTURE_NODE_EVALUATOR,
+                    node_evaluator=evaluator,
+                )
+            )
+            action = policy.select_action(
+                {},
+                {
+                    "action_mask": legal_action_mask(simulator),
+                    "simulator": simulator,
+                },
+            )
+            diagnostics = policy.last_diagnostics
+            signature = [
+                (
+                    candidate.action,
+                    candidate.candidate_value,
+                    candidate.chain_structure_evaluation.get(
+                        "tie_break_digest"
+                    ),
+                )
+                for candidate in diagnostics.candidates
+            ]
+            return action, diagnostics, evaluator.evaluation_count, signature
+
+        first = run()
+        second = run()
+        action, diagnostics, evaluation_count, signature = first
+
+        self.assertEqual(action, second[0])
+        self.assertEqual(signature, second[3])
+        self.assertEqual(
+            evaluation_count,
+            diagnostics.generated_nodes + 1,
+        )
+        self.assertEqual(
+            diagnostics.node_evaluator_backend,
+            CHAIN_STRUCTURE_NODE_EVALUATOR,
+        )
+        self.assertTrue(diagnostics.root_chain_structure_evaluation)
+        self.assertTrue(
+            all(
+                candidate.chain_structure_evaluation
+                for candidate in diagnostics.candidates
+                if candidate.candidate_value is not None
+            )
+        )
+        self.assertTrue(
+            all(
+                candidate.value_breakdown["chain_shape"] == 0.0
+                and candidate.value_breakdown["danger"] == 0.0
+                and "chain_structure" in candidate.value_breakdown
+                for candidate in diagnostics.candidates
+                if candidate.candidate_value is not None
+            )
+        )
+        self.assertTrue(diagnostics.proposals)
+        self.assertTrue(
+            all(
+                "chain_structure" not in proposal.to_dict()
+                for proposal in diagnostics.proposals
+            )
+        )
+        self.assertEqual(
+            BeamSearchConfig().node_evaluator_backend,
+            LEGACY_NODE_EVALUATOR,
+        )
 
     def test_policy_returns_deterministic_legal_action(self):
         simulator = HeadlessPuyoSimulator(seed=7)

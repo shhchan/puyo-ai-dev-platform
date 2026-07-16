@@ -28,6 +28,7 @@ from src.core.constants import (
     PuyoColor,
     get_connection_bonus,
 )
+from src.core.game import GameState
 from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 
 
@@ -131,8 +132,13 @@ class CompactSearchState:
         cls,
         simulator: HeadlessPuyoSimulator,
     ) -> "CompactSearchState":
+        return cls.from_game(simulator.game)
+
+    @classmethod
+    def from_game(cls, game: GameState) -> "CompactSearchState":
+        """Adapt a game state without constructing or cloning a simulator."""
+
         planes = [0] * len(_PLANE_COLORS)
-        game = simulator.game
         for y in range(GRID_HEIGHT):
             for x in range(GRID_WIDTH):
                 color = game.field.grid[y][x].color

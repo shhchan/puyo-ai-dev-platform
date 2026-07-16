@@ -1,0 +1,11 @@
+{
+  "digest": "cb18afae1f03bff5c4960922d0a494025ca85e09fc57c3158b2adf03d2a74f52",
+  "excluded_fields": [
+    "created_at_utc",
+    "profile.elapsed_seconds",
+    "profile.node_throughput_per_second"
+  ],
+  "mismatches": [],
+  "passed": true,
+  "repeat_digest": "cb18afae1f03bff5c4960922d0a494025ca85e09fc57c3158b2adf03d2a74f52"
+}

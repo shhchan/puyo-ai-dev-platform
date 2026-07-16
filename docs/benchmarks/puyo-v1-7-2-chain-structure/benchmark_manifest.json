@@ -1,0 +1,93 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "ce95f8b1415c903f240f42600db78d50f18e8015251990806bfa358fcb3e4879",
+      "size_bytes": 1263
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "970cad239a658d1af1da697dcb27c8dfcafe39c5e1201d232fad1c7f0141565c",
+      "size_bytes": 23779
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "93670baf8926a60123085d37d745e646768d44efdde60c65098d961f7ec8c35b",
+      "size_bytes": 330
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "configuration_results.json",
+      "required": true,
+      "role": "configuration_results",
+      "sha256": "5a50f49920014b8329d831e854b429f24aee270ed7f756bff6541c51c89bb862",
+      "size_bytes": 20630
+    }
+  ],
+  "command": "python -m eval.v1_7_chain_structure_benchmark run --output-dir docs/benchmarks/puyo-v1-7-2-chain-structure --fixture tests/fixtures/chain_structure_cases.json --config train/config/v1_7_chain_structure.yaml --profile-repetitions 50",
+  "config": {
+    "fatal_score": -1000000000000.0,
+    "feature_version": "puyo.chain_structure_features.v1",
+    "quiescence": {
+      "max_added_puyos": 3,
+      "max_candidates": 12,
+      "max_pattern_nodes": 512,
+      "max_resolution_nodes": 96
+    },
+    "schema_version": "puyo.chain_structure_weights.v1",
+    "weight_version": "v1.0",
+    "weights": {
+      "adjacent_roughness": -35.0,
+      "bump_height": -70.0,
+      "connection_candidate": 550.0,
+      "connectivity_edge": 90.0,
+      "danger_ratio": -20000.0,
+      "fold_space": 20.0,
+      "foundation_cell": 25.0,
+      "growth_site": 75.0,
+      "height_spread": -25.0,
+      "hidden_row_puyo": -1500.0,
+      "nuisance_puyo": -240.0,
+      "potential_chain_count": 45000.0,
+      "potential_chain_score": 0.05,
+      "premature_fire": -10000.0,
+      "reachable_ignition": 700.0,
+      "remaining_link_2": 140.0,
+      "remaining_link_3": 440.0,
+      "required_key_count": -9000.0,
+      "tear": -4000.0,
+      "trigger_damage": -30000.0,
+      "trigger_height": -180.0,
+      "trigger_protection": 600.0,
+      "waste": -2000.0,
+      "well_depth": -55.0
+    }
+  },
+  "created_at_utc": "2026-07-16T07:15:36Z",
+  "environment": {
+    "implementation": "CPython",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3"
+  },
+  "evaluation_completed": true,
+  "feature_version": "puyo.chain_structure_features.v1",
+  "git_commit": "e9fd4e190a8e7bfcd76bb993c2a69acd5fbf6466",
+  "name": "puyo-v1-7-2-chain-structure",
+  "passed": true,
+  "schema_version": "puyo.chain_structure_benchmark.v1",
+  "seed": 173,
+  "weight_version": "v1.0"
+}
