@@ -72,8 +72,7 @@ class TestV17TacticRegistry(unittest.TestCase):
             defaults["constraints"]["trigger_preservation"],
             "required",
         )
-        self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 16)
-        self.assertEqual(defaults["planner"]["search_profile"], "runtime")
+        self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
         profiles = build_main.planner["search_profiles"]
         self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v1")
         self.assertEqual(profiles["default"], "runtime")

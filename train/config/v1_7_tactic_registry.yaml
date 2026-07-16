@@ -78,9 +78,8 @@ tactics:
             exact_build_potential_stage: final_k
             budget: {authority: expanded_nodes, wall_clock_mode: observational}
       parameters:
-        search_profile: {kind: discrete, default: runtime, choices: [runtime, quality-d12, quality-d16]}
-        beam_depth: {kind: integer, default: 3, min: 1, max: 16}
-        beam_width: {kind: integer, default: 24, min: 1, max: 250}
+        beam_depth: {kind: integer, default: 3, min: 1, max: 10}
+        beam_width: {kind: integer, default: 24, min: 1, max: 128}
         candidate_count: {kind: integer, default: 8, min: 1, max: 32}
         latency_budget_ms: {kind: continuous, default: 60.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
