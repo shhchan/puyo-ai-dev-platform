@@ -1,6 +1,6 @@
 ---
 name: pr-to-english
-description: Translate an existing GitHub pull request title and description from Japanese to English for pre-merge record keeping. Use only when the user explicitly invokes `$pr-to-english` or explicitly names this skill; do not use implicitly from general PR, GitHub, translation, or merge-preparation requests.
+description: Translate an existing GitHub pull request title and description from Japanese to English for pre-merge record keeping, and optionally merge it when the user explicitly requests that in the same prompt. Use only when the user explicitly invokes `$pr-to-english` or explicitly names this skill; do not use implicitly from general PR, GitHub, translation, or merge-preparation requests.
 ---
 
 # PR to English
@@ -60,12 +60,20 @@ Rewrite an already-reviewed GitHub PR title and description in English before me
    - Prefer `gh api repos/<owner>/<repo>/pulls/<number> --jq '{number,title,body,html_url}'` so verification also avoids the `projectCards` GraphQL path.
    - `gh pr view <selector> --json number,title,body,url,state,baseRefName,headRefName` is acceptable when it succeeds.
    - Confirm the title and body now reflect the translated English content.
-   - Report the PR URL and summarize that only title/body were changed.
+   - If no merge was requested, report the PR URL and summarize that only title/body were changed.
+5. Merge the PR only when the user explicitly requests merging in the same prompt.
+   - An explicit request such as “translate it with `pr-to-english` and merge the PR” authorizes the merge after the translation update and verification.
+   - If the user only requests translation, stop after verification and do not merge.
+   - Before merging, inspect the PR state, draft status, and mergeability with `gh api` and use the current PR head SHA as the expected head.
+   - If the PR is a draft, call `POST repos/<owner>/<repo>/pulls/<number>/ready_for_review` before merging, then re-fetch the PR and confirm that it is no longer a draft.
+   - Do not merge a closed, already merged, conflicted, or otherwise non-mergeable PR. If the PR cannot be made ready or is not mergeable, report the reason and stop.
+   - Use the GitHub REST API merge endpoint and preserve the repository's configured merge policy. Do not force a merge method unless the user specifies one or the repository requires it.
+   - Verify the merge result and report the merge commit or the reason it was not merged.
 
 ## Strict Boundaries
 
-- Do not merge the PR.
+- Do not merge the PR unless the user explicitly requests the merge in the same prompt as the skill invocation.
 - Do not approve, request changes, or submit reviews.
-- Do not change labels, reviewers, assignees, milestones, projects, base branch, head branch, draft status, or branch contents.
+- Do not change labels, reviewers, assignees, milestones, projects, base branch, head branch, or branch contents. A merge is allowed only under the explicit condition above; changing a draft PR to ready for review is also allowed only as the required step immediately before that explicitly requested merge.
 - Do not edit issue descriptions or Jira tickets.
 - Do not use this skill at PR creation time unless the user explicitly requests pre-merge English conversion.
