@@ -10,6 +10,14 @@ from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
+from agents.chain_structure import (
+    CHAIN_STRUCTURE_FEATURE_VERSION,
+    ChainStructureAction,
+    ChainStructureEvaluator,
+    ChainStructureResult,
+    CompactNodeEvaluator,
+)
+from agents.compact_search import CompactSearchState
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import (
     GRID_HEIGHT,
@@ -40,6 +48,8 @@ LEGACY_BUILD_SCORING = "legacy"
 LEGACY_CANDIDATE_MODE = "legacy"
 DIVERSE_CANDIDATE_MODE = "diverse"
 DIVERSE_CANDIDATE_SCHEMA_VERSION = "puyo.diverse_beam_candidate.v1"
+LEGACY_NODE_EVALUATOR = "legacy"
+CHAIN_STRUCTURE_NODE_EVALUATOR = "chain_structure_v1"
 
 _DIVERSITY_AXES = (
     "potential",
@@ -527,6 +537,8 @@ class BeamSearchConfig:
     diversity_slots_per_axis: int = 1
     max_expanded_nodes: int | None = None
     use_potential_cache: bool = True
+    node_evaluator_backend: str = LEGACY_NODE_EVALUATOR
+    node_evaluator: CompactNodeEvaluator | None = None
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -576,6 +588,20 @@ class BeamSearchConfig:
             raise ValueError("beam diversity slots must be positive")
         if self.max_expanded_nodes is not None and self.max_expanded_nodes <= 0:
             raise ValueError("beam expanded-node budget must be positive")
+        if self.node_evaluator_backend not in {
+            LEGACY_NODE_EVALUATOR,
+            CHAIN_STRUCTURE_NODE_EVALUATOR,
+        }:
+            raise ValueError(
+                f"unsupported beam node evaluator: {self.node_evaluator_backend}"
+            )
+        if (
+            self.node_evaluator_backend == LEGACY_NODE_EVALUATOR
+            and self.node_evaluator is not None
+        ):
+            raise ValueError(
+                "a custom node evaluator requires the chain-structure backend"
+            )
         if (
             self.scoring_mode == BUILD_SCORING_V2
             and self.build_potential_schema_version != BUILD_POTENTIAL_SCHEMA_VERSION
@@ -612,6 +638,11 @@ class BeamSearchDiagnostics:
     fallback_reason: str | None = None
     reached_depth: int = 0
     scenario_budget: Mapping[str, Any] = field(default_factory=dict)
+    node_evaluator_backend: str = LEGACY_NODE_EVALUATOR
+    chain_structure_feature_version: str | None = None
+    root_chain_structure_evaluation: Mapping[str, Any] = field(
+        default_factory=dict
+    )
 
 
 @dataclass(frozen=True)
@@ -688,6 +719,7 @@ class BeamCandidateDiagnostics:
     potential: BuildPotential
     value_breakdown: Mapping[str, float] = field(default_factory=dict)
     chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
+    chain_structure_evaluation: Mapping[str, Any] = field(default_factory=dict)
     danger: float = 1.0
     continuation_flexibility: float = 0.0
     trigger_recoverability: TriggerRecoverability = TriggerRecoverability()
@@ -698,7 +730,7 @@ class BeamCandidateDiagnostics:
     scenario_ids: tuple[int, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "action": int(self.action),
             "root_generated": bool(self.root_generated),
             "root_rejected": bool(self.root_rejected),
@@ -736,6 +768,11 @@ class BeamCandidateDiagnostics:
             "duplicate_count": int(self.duplicate_count),
             "scenario_ids": [int(value) for value in self.scenario_ids],
         }
+        if self.chain_structure_evaluation:
+            payload["chain_structure_evaluation"] = copy.deepcopy(
+                dict(self.chain_structure_evaluation)
+            )
+        return payload
 
 
 @dataclass
@@ -754,6 +791,7 @@ class _CandidateTraceState:
     premature_fire_penalty: float = 0.0
     potential: BuildPotential = BuildPotential()
     chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
+    chain_structure_evaluation: Mapping[str, Any] = field(default_factory=dict)
     danger: float = 1.0
     continuation_flexibility: float = 0.0
     trigger_recoverability: TriggerRecoverability = TriggerRecoverability()
@@ -877,6 +915,11 @@ class _SearchTrace:
         state.premature_fire_penalty = float(node.premature_penalty)
         state.potential = node.potential
         state.chain_style_evaluation = dict(node.chain_style_evaluation)
+        state.chain_structure_evaluation = (
+            {}
+            if node.chain_structure_evaluation is None
+            else node.chain_structure_evaluation.to_dict()
+        )
         state.danger = float(node.danger)
         state.continuation_flexibility = float(node.continuation_flexibility)
         state.trigger_recoverability = node.trigger_recoverability
@@ -914,6 +957,9 @@ class _SearchTrace:
                     potential=state.potential,
                     value_breakdown=dict(breakdowns.get(action, {})),
                     chain_style_evaluation=dict(state.chain_style_evaluation),
+                    chain_structure_evaluation=dict(
+                        state.chain_structure_evaluation
+                    ),
                     danger=state.danger,
                     continuation_flexibility=state.continuation_flexibility,
                     trigger_recoverability=state.trigger_recoverability,
@@ -963,12 +1009,14 @@ class _Node:
     actual_score_contribution: float = 0.0
     chain_shape_contribution: float = 0.0
     danger_contribution: float = 0.0
+    chain_structure_contribution: float = 0.0
     future_potential_contribution: float = 0.0
     trigger_preservation_contribution: float = 0.0
     chain_style_contribution: float = 0.0
     chain_style_applicable: bool = False
     chain_style_constraint_satisfied: bool = True
     chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
+    chain_structure_evaluation: ChainStructureResult | None = None
     danger: float = 1.0
     continuation_flexibility: float = 0.0
     trigger_recoverability: TriggerRecoverability = TriggerRecoverability()
@@ -1032,6 +1080,8 @@ class BeamSearchPolicy:
         self.config = config or BeamSearchConfig()
         self.last_diagnostics: BeamSearchDiagnostics | None = None
         self.last_candidates: tuple[DiverseBeamCandidate, ...] = ()
+        self._node_evaluator = self._resolve_node_evaluator()
+        self._root_structure_evaluation: ChainStructureResult | None = None
         self._potential_session = self._new_potential_session()
         self._root_potential = self._not_probed_potential()
         self._search_trace = _SearchTrace(
@@ -1091,6 +1141,9 @@ class BeamSearchPolicy:
         self._search_trace = _SearchTrace(
             trace_paths=self.config.trace_paths,
             potential_schema_version=self.config.build_potential_schema_version,
+        )
+        self._root_structure_evaluation = self._evaluate_root_structure(
+            simulator
         )
         self._root_potential = (
             self._probe_potential(simulator)
@@ -1245,6 +1298,17 @@ class BeamSearchPolicy:
                 ),
                 "max_expanded_nodes": self.config.max_expanded_nodes,
             },
+            node_evaluator_backend=self.config.node_evaluator_backend,
+            chain_structure_feature_version=(
+                CHAIN_STRUCTURE_FEATURE_VERSION
+                if self._root_structure_evaluation is not None
+                else None
+            ),
+            root_chain_structure_evaluation=(
+                {}
+                if self._root_structure_evaluation is None
+                else self._root_structure_evaluation.to_dict()
+            ),
         )
         return proposals
 
@@ -1325,10 +1389,19 @@ class BeamSearchPolicy:
                 result.chain_count,
                 result.score_delta,
             )
-            chain_shape, danger = self._board_contributions(child.game)
+            (
+                chain_shape,
+                danger,
+                chain_structure,
+                structure_evaluation,
+            ) = self._node_board_contributions(
+                child,
+                parent=self._root_structure_evaluation,
+                action=result,
+            )
             style = self._chain_style_evaluation(child)
             chain_value = actual_chain + actual_score
-            evaluation = chain_shape + danger + style[0]
+            evaluation = chain_shape + danger + chain_structure + style[0]
             path = (int(action),)
             best_chain_depth = 1 if result.chain_count > 0 else 0
             node = _Node(
@@ -1350,14 +1423,24 @@ class BeamSearchPolicy:
                 actual_score,
                 chain_shape,
                 danger,
+                chain_structure_contribution=chain_structure,
                 chain_style_contribution=style[0],
                 chain_style_applicable=style[1],
                 chain_style_constraint_satisfied=style[2],
                 chain_style_evaluation=style[3],
-                danger=_board_danger_ratio(child.game),
-                continuation_flexibility=_continuation_flexibility(
-                    child,
-                    self.config.build_potential_budget,
+                chain_structure_evaluation=structure_evaluation,
+                danger=(
+                    _board_danger_ratio(child.game)
+                    if structure_evaluation is None
+                    else structure_evaluation.danger
+                ),
+                continuation_flexibility=(
+                    _continuation_flexibility(
+                        child,
+                        self.config.build_potential_budget,
+                    )
+                    if structure_evaluation is None
+                    else structure_evaluation.continuation_flexibility
                 ),
                 scenario_id=int(scenario_id),
                 generation_reasons={
@@ -1414,9 +1497,20 @@ class BeamSearchPolicy:
                         result.chain_count,
                         result.score_delta,
                     )
-                    chain_shape, danger = self._board_contributions(child.game)
+                    (
+                        chain_shape,
+                        danger,
+                        chain_structure,
+                        structure_evaluation,
+                    ) = self._node_board_contributions(
+                        child,
+                        parent=node.chain_structure_evaluation,
+                        action=result,
+                    )
                     style = self._chain_style_evaluation(child)
-                    evaluation = chain_shape + danger + style[0]
+                    evaluation = (
+                        chain_shape + danger + chain_structure + style[0]
+                    )
                     best_chain_depth = (
                         depth
                         if int(result.chain_count) > node.best_chain_count
@@ -1444,14 +1538,24 @@ class BeamSearchPolicy:
                         actual_score,
                         chain_shape,
                         danger,
+                        chain_structure_contribution=chain_structure,
                         chain_style_contribution=style[0],
                         chain_style_applicable=style[1],
                         chain_style_constraint_satisfied=style[2],
                         chain_style_evaluation=style[3],
-                        danger=_board_danger_ratio(child.game),
-                        continuation_flexibility=_continuation_flexibility(
-                            child,
-                            self.config.build_potential_budget,
+                        chain_structure_evaluation=structure_evaluation,
+                        danger=(
+                            _board_danger_ratio(child.game)
+                            if structure_evaluation is None
+                            else structure_evaluation.danger
+                        ),
+                        continuation_flexibility=(
+                            _continuation_flexibility(
+                                child,
+                                self.config.build_potential_budget,
+                            )
+                            if structure_evaluation is None
+                            else structure_evaluation.continuation_flexibility
                         ),
                         scenario_id=int(scenario_id),
                         generation_reasons=set(node.generation_reasons)
@@ -1694,6 +1798,7 @@ class BeamSearchPolicy:
         node.evaluation = (
             node.chain_shape_contribution
             + node.danger_contribution
+            + node.chain_structure_contribution
             + node.future_potential_contribution
             + node.trigger_preservation_contribution
             + node.chain_style_contribution
@@ -1939,6 +2044,41 @@ class BeamSearchPolicy:
             bool(evaluation.hard_constraint_satisfied),
             evaluation.to_dict(),
         )
+
+    def _resolve_node_evaluator(self) -> CompactNodeEvaluator | None:
+        if self.config.node_evaluator_backend == LEGACY_NODE_EVALUATOR:
+            return None
+        return self.config.node_evaluator or ChainStructureEvaluator()
+
+    def _evaluate_root_structure(
+        self,
+        simulator: HeadlessPuyoSimulator,
+    ) -> ChainStructureResult | None:
+        if self._node_evaluator is None:
+            return None
+        return self._node_evaluator.evaluate(
+            CompactSearchState.from_simulator(simulator),
+            target_chain_count=self.config.minimum_chain_count,
+        )
+
+    def _node_board_contributions(
+        self,
+        simulator: HeadlessPuyoSimulator,
+        *,
+        parent: ChainStructureResult | None,
+        action: Any,
+    ) -> tuple[float, float, float, ChainStructureResult | None]:
+        if self._node_evaluator is None:
+            shape, danger = self._board_contributions(simulator.game)
+            return shape, danger, 0.0, None
+        evaluation = self._node_evaluator.evaluate(
+            CompactSearchState.from_simulator(simulator),
+            parent=parent,
+            action=ChainStructureAction.from_result(action),
+            target_chain_count=self.config.minimum_chain_count,
+        )
+        contribution = 0.0 if evaluation.score is None else float(evaluation.score)
+        return 0.0, 0.0, contribution, evaluation
 
     def _probe_potential(self, simulator) -> BuildPotential:
         return self._potential_session.evaluate(simulator)
@@ -2787,6 +2927,10 @@ def _node_value_breakdown(node: _Node) -> dict[str, float]:
         "style_adherence": float(node.chain_style_contribution),
         "premature_fire": -float(node.premature_penalty),
     }
+    if node.chain_structure_evaluation is not None:
+        result["chain_structure"] = float(
+            node.chain_structure_contribution
+        )
     result["total"] = sum(result.values())
     return result
 
