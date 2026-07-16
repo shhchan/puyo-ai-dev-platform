@@ -1,0 +1,158 @@
+{
+  "ablation": [
+    {
+      "backend": "legacy_simulator",
+      "budget_authority": "expanded_nodes",
+      "config_id": "baseline",
+      "depth": 3,
+      "evaluator": "legacy",
+      "max_expanded_nodes": 1200,
+      "scenarios": 1,
+      "stage": "baseline",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": true,
+      "wall_clock_mode": "observational",
+      "width": 24
+    },
+    {
+      "backend": "compact",
+      "budget_authority": "expanded_nodes",
+      "config_id": "compact",
+      "depth": 3,
+      "evaluator": "height",
+      "max_expanded_nodes": 1200,
+      "scenarios": 1,
+      "stage": "compact_kernel",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": false,
+      "wall_clock_mode": "observational",
+      "width": 24
+    },
+    {
+      "backend": "compact",
+      "budget_authority": "expanded_nodes",
+      "config_id": "lightweight",
+      "depth": 3,
+      "evaluator": "chain_structure_v1",
+      "max_expanded_nodes": 1200,
+      "scenarios": 1,
+      "stage": "lightweight_evaluator",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": false,
+      "wall_clock_mode": "observational",
+      "width": 24
+    },
+    {
+      "backend": "compact",
+      "budget_authority": "expanded_nodes",
+      "config_id": "six-scenario",
+      "depth": 3,
+      "evaluator": "chain_structure_v1",
+      "max_expanded_nodes": 3600,
+      "scenarios": 6,
+      "stage": "six_scenario",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": false,
+      "wall_clock_mode": "observational",
+      "width": 8
+    },
+    {
+      "backend": "compact",
+      "budget_authority": "expanded_nodes",
+      "config_id": "long-horizon",
+      "depth": 6,
+      "evaluator": "chain_structure_v1",
+      "max_expanded_nodes": 8000,
+      "scenarios": 6,
+      "stage": "long_horizon",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": false,
+      "wall_clock_mode": "observational",
+      "width": 8
+    },
+    {
+      "backend": "compact",
+      "budget_authority": "expanded_nodes",
+      "config_id": "long-horizon-tt",
+      "depth": 6,
+      "evaluator": "chain_structure_v1",
+      "max_expanded_nodes": 8000,
+      "scenarios": 6,
+      "stage": "transposition_table",
+      "terminal_fire_rule": "record_and_stop",
+      "use_transposition_table": true,
+      "wall_clock_mode": "observational",
+      "width": 8
+    }
+  ],
+  "canonical_gate_reused": false,
+  "registered_profiles": {
+    "quality-d12": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 200000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 12,
+      "name": "quality-d12",
+      "profile_id": "quality-d12@1.0",
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 128
+    },
+    "quality-d16": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "name": "quality-d16",
+      "profile_id": "quality-d16@1.0",
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 250
+    },
+    "runtime": {
+      "budget": {
+        "authority": "external_runtime_deadline",
+        "max_expanded_nodes": 2048,
+        "wall_clock_mode": "external_deadline_contract"
+      },
+      "candidate_limit": 8,
+      "depth": 3,
+      "name": "runtime",
+      "profile_id": "runtime@1.0",
+      "scenarios": 1,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 24
+    }
+  },
+  "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+  "seeds": [
+    174,
+    1174,
+    2174
+  ],
+  "validation_seed_source": "PUYO-174 held-out fixed seeds"
+}

@@ -1,0 +1,256 @@
+{
+  "artifacts": [
+    "config_matrix.json",
+    "seed_results.json",
+    "ablation.json",
+    "determinism.json",
+    "benchmark_report.md"
+  ],
+  "canonical_gate_reused": false,
+  "commit": "f3bf7d87382787b6632d5009956d39816149b0ad",
+  "config_ids": [
+    "baseline",
+    "compact",
+    "lightweight",
+    "six-scenario",
+    "long-horizon",
+    "long-horizon-tt"
+  ],
+  "count_budget_authoritative": true,
+  "count_budgets": [
+    {
+      "authority": "expanded_nodes",
+      "config_id": "baseline",
+      "max_expanded_nodes": 1200,
+      "wall_clock_mode": "observational"
+    },
+    {
+      "authority": "expanded_nodes",
+      "config_id": "compact",
+      "max_expanded_nodes": 1200,
+      "wall_clock_mode": "observational"
+    },
+    {
+      "authority": "expanded_nodes",
+      "config_id": "lightweight",
+      "max_expanded_nodes": 1200,
+      "wall_clock_mode": "observational"
+    },
+    {
+      "authority": "expanded_nodes",
+      "config_id": "six-scenario",
+      "max_expanded_nodes": 3600,
+      "wall_clock_mode": "observational"
+    },
+    {
+      "authority": "expanded_nodes",
+      "config_id": "long-horizon",
+      "max_expanded_nodes": 8000,
+      "wall_clock_mode": "observational"
+    },
+    {
+      "authority": "expanded_nodes",
+      "config_id": "long-horizon-tt",
+      "max_expanded_nodes": 8000,
+      "wall_clock_mode": "observational"
+    }
+  ],
+  "elapsed_seconds": 286.8676202209899,
+  "evidence_schema_version": "puyo.expected_chain_evidence.v1",
+  "generated_at": "2026-07-16T08:26:04Z",
+  "known_queue": {
+    "contract": "current_plus_next2",
+    "known_pair_count": 3,
+    "records": [
+      {
+        "pairs": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "GREEN",
+            "RED"
+          ]
+        ],
+        "seed": 174
+      },
+      {
+        "pairs": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "GREEN",
+            "GREEN"
+          ],
+          [
+            "GREEN",
+            "RED"
+          ]
+        ],
+        "seed": 1174
+      },
+      {
+        "pairs": [
+          [
+            "RED",
+            "RED"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "GREEN",
+            "BLUE"
+          ]
+        ],
+        "seed": 2174
+      }
+    ],
+    "unknown_boundary_cursor": 3
+  },
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "python": "3.12.3",
+  "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+  "registered_profiles": {
+    "quality-d12": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 200000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 12,
+      "name": "quality-d12",
+      "profile_id": "quality-d12@1.0",
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 128
+    },
+    "quality-d16": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "name": "quality-d16",
+      "profile_id": "quality-d16@1.0",
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 250
+    },
+    "runtime": {
+      "budget": {
+        "authority": "external_runtime_deadline",
+        "max_expanded_nodes": 2048,
+        "wall_clock_mode": "external_deadline_contract"
+      },
+      "candidate_limit": 8,
+      "depth": 3,
+      "name": "runtime",
+      "profile_id": "runtime@1.0",
+      "scenarios": 1,
+      "schema_version": "puyo.long_horizon_profile.v1",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 24
+    }
+  },
+  "scenario_sequences": {
+    "config_id": "long-horizon-tt",
+    "records": [
+      {
+        "scenario_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "seed": 174,
+        "sequence_digests": [
+          "scenario-sequence-e16292753e5a2e3e56047dc8",
+          "scenario-sequence-0355f726a16ce832f96eba7c",
+          "scenario-sequence-c7150dac5d143bfee57e8e2e",
+          "scenario-sequence-75cadf9c348488ad83b58f77",
+          "scenario-sequence-7511dda4e73cf734c73cbfd2",
+          "scenario-sequence-7c6721314c4ad2823293eba7"
+        ]
+      },
+      {
+        "scenario_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "seed": 1174,
+        "sequence_digests": [
+          "scenario-sequence-4076df56c47389ff482cac45",
+          "scenario-sequence-5fd6e2103429cd6d54fa4248",
+          "scenario-sequence-ccf7f25f5f947fc9e928dcd6",
+          "scenario-sequence-778cf74fe009d729b01f863b",
+          "scenario-sequence-808bd9f3bb3d983559ef3750",
+          "scenario-sequence-1e45545f62032c3d79dd408d"
+        ]
+      },
+      {
+        "scenario_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "seed": 2174,
+        "sequence_digests": [
+          "scenario-sequence-f0f516e34f788ed0815e2a70",
+          "scenario-sequence-33ef13f480baababac4c81bf",
+          "scenario-sequence-8c174f60e3a3b52ea890c014",
+          "scenario-sequence-a54aa5c7e23f2673a848f0b3",
+          "scenario-sequence-fbbe296546a3b4ac7beba20c",
+          "scenario-sequence-b3efeed8498af496a1986a67"
+        ]
+      }
+    ],
+    "schema_version": "puyo.long_horizon_scenario_sequence.v1"
+  },
+  "schema_version": "puyo.v1_7_long_horizon_search_manifest.v1",
+  "seeds": [
+    174,
+    1174,
+    2174
+  ],
+  "validation_seed_source": "PUYO-174 held-out fixed seeds",
+  "wall_clock_mode": "observational"
+}
