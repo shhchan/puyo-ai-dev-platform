@@ -1,0 +1,130 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "capability_gate_input.json",
+      "required": true,
+      "role": "capability_gate_input",
+      "sha256": "7db088aafb2e8b74b9dc6bfd3e74820c7bfabefd8a997f0442e1340c9081930c",
+      "size_bytes": 2535
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "capability_gate_result.json",
+      "required": true,
+      "role": "capability_gate_result",
+      "sha256": "309f11d3c08dae42f3e0b7fb9f84f292b65701ae14835eb832f22eeb065baa7c",
+      "size_bytes": 2528
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "capability_candidates.json",
+      "required": true,
+      "role": "capability_candidates",
+      "sha256": "206a3515b864c0d4a36c36f9f37aa6ddb96873b744f54370c99ddec4ab69783a",
+      "size_bytes": 17150530
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "capability_seed_results.json",
+      "required": true,
+      "role": "capability_seed_results",
+      "sha256": "72dc6784384b4c38bfa37630f975cc835970e791f4580bc5278cd1da96bf6021",
+      "size_bytes": 21994
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "capability_determinism.json",
+      "required": true,
+      "role": "capability_determinism",
+      "sha256": "86bd00a46f52a896a54fe7cad0b172210bd8418075e6d6a2a02c878f11f31acb",
+      "size_bytes": 518
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "promotion_gate_input.json",
+      "required": true,
+      "role": "promotion_gate_input",
+      "sha256": "d5c18b3ae54c24d9b061f4cb0475f6cc3a70d9415b1e6ee4a9338ef5b0982a38",
+      "size_bytes": 5937
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "promotion_gate_result.json",
+      "required": true,
+      "role": "promotion_gate_result",
+      "sha256": "4980b6eb86655b39dff17fbb89e945db24be9901a9ecc963125f38b2076766a8",
+      "size_bytes": 1490
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "promotion_safe_build_games.csv",
+      "required": true,
+      "role": "promotion_safe_build_games",
+      "sha256": "e98ff7b4118fe3fd8b7eea6547b59d3a587db19f5a1833ad7c54fb25b10f5459",
+      "size_bytes": 2792
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "outcome_scenarios.json",
+      "required": true,
+      "role": "outcome_scenarios",
+      "sha256": "606d52a7839c15b3fa14b7dbfeb2701f4f3ca77e736b90438bd73c8961572efc",
+      "size_bytes": 3558
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gate_summary.json",
+      "required": true,
+      "role": "gate_summary",
+      "sha256": "4c7b3672706c96138ddad3f0fa1058abedd5980bf2f936bf2fef599ccafee595",
+      "size_bytes": 15831
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "gate_report.md",
+      "required": true,
+      "role": "gate_report",
+      "sha256": "b1d91dbbab7f34f7251f5749d680c90916e23c2e3920c0b9f2baa9483c792db2",
+      "size_bytes": 1568
+    }
+  ],
+  "canonical_integration": {
+    "all_required_merges_contained": true,
+    "branch": "integration/puyo-113-v1-7-2",
+    "commit": "d55951ee2574a2c938efce4af43a840ff6ab7379",
+    "required_merges": {
+      "PUYO-129": {
+        "contained": true,
+        "merge_commit": "2a1e2d59d0d9f538be3c6053c9c4cd79134d17c5"
+      },
+      "PUYO-158": {
+        "contained": true,
+        "merge_commit": "d1f8a0a23c483c83ffea4ffac926e2bc9c9bba40"
+      },
+      "PUYO-169": {
+        "contained": true,
+        "merge_commit": "d55951ee2574a2c938efce4af43a840ff6ab7379"
+      }
+    }
+  },
+  "created_at_utc": "2026-07-15T22:24:10Z",
+  "promotion_gate_passed": false,
+  "puyo_130_long_run": {
+    "reason": "pre-training capability gate did not pass",
+    "status": "BLOCKED"
+  },
+  "schema_version": "puyo.v1_7_safe_build_gate_manifest.v1",
+  "training_capability_gate_passed": false
+}

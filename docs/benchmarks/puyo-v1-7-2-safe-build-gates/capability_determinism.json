@@ -1,0 +1,19 @@
+{
+  "digests": [
+    "c0c076d82d427034229d7b5566f3268d20c5eb06af50d46e8fe28e5f6090c783",
+    "c0c076d82d427034229d7b5566f3268d20c5eb06af50d46e8fe28e5f6090c783"
+  ],
+  "excluded_fields": [
+    "proposal_latency_ms",
+    "reference_latency_ms"
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "scope": [
+    "capability-selected actions",
+    "K-best candidate IDs, masks, and previews",
+    "bounded-reference coverage",
+    "premature and candidate-gap classification",
+    "latency-free seed and aggregate metrics"
+  ]
+}

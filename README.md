@@ -483,6 +483,27 @@ python3 -m eval.v1_7_benchmark verify \
 要求する場合だけ `--require-training-gate` を追加してください．training gate が false の間は
 PUYO-130 を開始しません．
 
+### v1.7.2 safe-build capability / promotion gate
+
+PUYO-170 以降は、学習前の K-best candidate generator を測る capability gate と、学習後に learned
+policy が実際に選ぶ手を測る promotion gate を別 schema で判定します．capability gate が fail の間は
+PUYO-130 long-run training を明示的に block し、pretraining checkpoint を promotion 成功として扱いません．
+
+```bash
+python3 -m eval.v1_7_safe_build_gates run \
+  --workers 12 --repetitions 2 \
+  --promotion-checkpoint \
+    runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap-v1-7-2-migrated.pt \
+  --checkpoint-role pretraining_reference
+
+python3 -m eval.v1_7_safe_build_gates verify
+```
+
+固定30 seed x 40手、候補/参照 coverage、premature 分類、forced game-over、latency、決定論、
+selected-policy の 10/0/0、PUYO-158 後の threat scenario 6/6 を同じ manifest で追跡します．
+契約と artifact の読み方は
+[PUYO-170 safe-build two-stage gate](docs/development/puyo-170-safe-build-gates.md) を参照してください．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
