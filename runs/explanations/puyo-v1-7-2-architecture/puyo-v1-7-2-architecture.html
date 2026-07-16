@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v1.7.2 ぷよぷよAI — 現行アーキテクチャとPUYO-130停止理由</title>
+  <meta name="description" content="v1.7.2ぷよぷよAIの現行アーキテクチャ、観測可能な意思決定フロー、PUYO-130 long-runが開始不可となった根拠を説明する資料">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #526079;
+      --line: #d8e0ea;
+      --paper: #f4f7fb;
+      --card: #ffffff;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --purple: #7e22ce;
+      --purple-soft: #f3e8ff;
+      --teal: #0f766e;
+      --teal-soft: #e8f5f2;
+      --amber: #b45309;
+      --amber-soft: #fff4e5;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --green: #15803d;
+      --green-soft: #dcfce7;
+      --cyan: #0e7490;
+      --cyan-soft: #ecfeff;
+      --shadow: 0 18px 48px rgba(23, 32, 51, .09);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 2%, rgba(37,99,235,.10), transparent 28rem),
+        radial-gradient(circle at 92% 12%, rgba(126,34,206,.08), transparent 25rem),
+        var(--paper);
+      font-family: Inter, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+      line-height: 1.75;
+    }
+    a { color: #1d4ed8; }
+    code {
+      padding: .12rem .36rem;
+      border: 1px solid #dbe3ef;
+      border-radius: .35rem;
+      background: #f8fafc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+    }
+    .hero {
+      padding: 4.5rem max(1.25rem, calc((100vw - 1180px) / 2)) 3.5rem;
+      color: white;
+      background:
+        linear-gradient(120deg, rgba(15,23,42,.97), rgba(30,64,175,.93) 58%, rgba(88,28,135,.90)),
+        #0f172a;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+    }
+    .eyebrow {
+      margin: 0 0 .65rem;
+      color: #bfdbfe;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 1050px;
+      margin: 0;
+      font-size: clamp(2rem, 4.5vw, 4rem);
+      line-height: 1.15;
+      letter-spacing: -.035em;
+    }
+    .hero .lead {
+      max-width: 960px;
+      margin: 1.35rem 0 0;
+      color: #e2e8f0;
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+    }
+    .status-row, .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .7rem;
+      margin-top: 1.6rem;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .45rem .75rem;
+      border: 1px solid rgba(255,255,255,.26);
+      border-radius: 999px;
+      background: rgba(255,255,255,.09);
+      color: white;
+      font-size: .9rem;
+      font-weight: 760;
+    }
+    .dot { width: .62rem; height: .62rem; border-radius: 50%; background: currentColor; }
+    .pill.bad { color: #fecaca; }
+    .pill.good { color: #bbf7d0; }
+    .pill.pending { color: #fde68a; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      padding: .65rem .95rem;
+      border: 1px solid #cbd5e1;
+      border-radius: .65rem;
+      background: white;
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: 760;
+      box-shadow: 0 4px 12px rgba(15,23,42,.08);
+      cursor: pointer;
+    }
+    .button:hover { border-color: #60a5fa; transform: translateY(-1px); }
+    .shell { width: min(1180px, calc(100% - 2rem)); margin: 0 auto; }
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.93);
+      backdrop-filter: blur(14px);
+    }
+    .nav .shell {
+      display: flex;
+      gap: .4rem;
+      overflow-x: auto;
+      padding: .65rem 0;
+    }
+    .nav a {
+      flex: 0 0 auto;
+      padding: .42rem .68rem;
+      border-radius: .5rem;
+      color: #334155;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 720;
+    }
+    .nav a:hover { background: #eff6ff; color: #1d4ed8; }
+    main { padding: 2.5rem 0 5rem; }
+    section { scroll-margin-top: 5rem; margin: 0 0 3.25rem; }
+    h2 {
+      margin: 0 0 1rem;
+      font-size: clamp(1.55rem, 3vw, 2.35rem);
+      line-height: 1.25;
+      letter-spacing: -.025em;
+    }
+    h3 { margin: 1.6rem 0 .7rem; font-size: 1.25rem; }
+    .section-intro { max-width: 920px; color: var(--muted); font-size: 1.04rem; }
+    .card {
+      padding: 1.4rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .answer {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .answer .primary {
+      padding: 1.6rem;
+      border-left: .4rem solid var(--red);
+      background: linear-gradient(135deg, #fff, #fff7f7);
+    }
+    .answer .primary p:first-of-type { margin-top: 0; font-size: 1.12rem; }
+    .answer .checkpoint {
+      background: linear-gradient(145deg, var(--amber-soft), #fff);
+      border-color: #fdba74;
+    }
+    .checkpoint strong { color: #9a3412; }
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 1rem;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .callout {
+      padding: 1rem 1.1rem;
+      border-radius: .8rem;
+      border: 1px solid;
+    }
+    .callout.info { background: var(--blue-soft); border-color: #93c5fd; }
+    .callout.warn { background: var(--amber-soft); border-color: #fdba74; }
+    .callout.fail { background: var(--red-soft); border-color: #fca5a5; }
+    .callout.pass { background: var(--green-soft); border-color: #86efac; }
+    .callout p:last-child { margin-bottom: 0; }
+    .kicker {
+      margin: 0 0 .25rem;
+      font-size: .78rem;
+      font-weight: 850;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .kicker.fail { color: var(--red); }
+    .kicker.pass { color: var(--green); }
+    .kicker.info { color: var(--blue); }
+    .kicker.future { color: var(--green); }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: .85rem;
+      background: white;
+      font-size: .94rem;
+    }
+    th, td { padding: .78rem .85rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: #f8fafc; text-align: left; color: #334155; }
+    tr:last-child td { border-bottom: 0; }
+    .result-pass { color: var(--green); font-weight: 850; }
+    .result-fail { color: var(--red); font-weight: 850; }
+    .result-pending { color: var(--amber); font-weight: 850; }
+    .drawio-card { padding: .85rem; overflow: hidden; }
+    .drawio-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: .7rem;
+      margin: 0 0 .75rem;
+    }
+    .drawio-live {
+      min-height: 500px;
+      overflow: hidden;
+      border: 1px dashed #94a3b8;
+      border-radius: .75rem;
+      background: white;
+    }
+    .drawio-hint { margin: .5rem 0 0; color: #64748b; font-size: .86rem; }
+    details.fallback {
+      margin-top: .85rem;
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      background: white;
+    }
+    details.fallback summary {
+      padding: .7rem .9rem;
+      color: #475569;
+      font-weight: 760;
+      cursor: pointer;
+    }
+    .svg-wrap { padding: .5rem; overflow-x: auto; }
+    .svg-wrap svg { display: block; min-width: 940px; width: 100%; height: auto; }
+    .diagram-node { rx: 15; ry: 15; stroke-width: 3; }
+    .diagram-label { font-family: Inter, "Noto Sans JP", sans-serif; fill: #172033; font-size: 20px; font-weight: 750; text-anchor: middle; }
+    .diagram-small { font-size: 16px; font-weight: 560; fill: #475569; }
+    .flow-arrow { fill: none; stroke: #475569; stroke-width: 4; marker-end: url(#arrow); }
+    .flow-arrow-red { fill: none; stroke: #dc2626; stroke-width: 5; marker-end: url(#arrow-red); }
+    .flow-arrow-green { fill: none; stroke: #16a34a; stroke-width: 5; stroke-dasharray: 12 9; marker-end: url(#arrow-green); }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap: .75rem;
+      margin: 1rem 0;
+    }
+    .metric {
+      min-height: 145px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-top: .35rem solid;
+      border-radius: .8rem;
+      background: white;
+    }
+    .metric.fail { border-top-color: var(--red); }
+    .metric.pass { border-top-color: var(--green); }
+    .metric .value { display: block; margin: .35rem 0; font-size: 1.55rem; font-weight: 900; }
+    .histogram {
+      display: grid;
+      grid-template-columns: 2rem 1fr 2rem;
+      gap: .35rem .6rem;
+      align-items: center;
+      font-size: .9rem;
+    }
+    .bar-track { height: .75rem; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+    .bar { height: 100%; background: linear-gradient(90deg, #60a5fa, #7c3aed); border-radius: inherit; }
+    .steps { counter-reset: steps; display: grid; gap: .8rem; }
+    .steps li {
+      counter-increment: steps;
+      list-style: none;
+      position: relative;
+      padding: 1rem 1rem 1rem 3.5rem;
+      border: 1px solid var(--line);
+      border-radius: .8rem;
+      background: white;
+    }
+    .steps li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 1rem; top: 1rem;
+      display: grid; place-items: center;
+      width: 1.8rem; height: 1.8rem;
+      border-radius: 50%;
+      color: white; background: #1d4ed8;
+      font-weight: 850;
+    }
+    .source-list li { margin: .45rem 0; }
+    .fine { color: #64748b; font-size: .88rem; }
+    .footer {
+      padding: 2rem 0 3rem;
+      border-top: 1px solid var(--line);
+      color: #64748b;
+      text-align: center;
+      font-size: .9rem;
+    }
+    @media (max-width: 920px) {
+      .answer, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .metric-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 3rem; }
+      th, td { padding: .65rem; }
+    }
+    @media print {
+      .nav, .button-row, .drawio-live { display: none !important; }
+      details.fallback { display: block; }
+      details.fallback > summary { display: none; }
+      details.fallback > .svg-wrap { display: block; }
+      .card { box-shadow: none; break-inside: avoid; }
+      section { break-inside: avoid; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">PUYO-113 / PUYO-170 • current state as of 2026-07-16</p>
+    <h1>v1.7.2 ぷよぷよAI<br>現行アーキテクチャとPUYO-130停止理由</h1>
+    <p class="lead">
+      現行モデルはend-to-endの単一ニューラルネットではなく、構造化Analyzer、学習済みtactic manager、
+      探索worker、K-best proposal、互換rank-0選択を組み合わせたハイブリッド構成です。
+      capability gateは、学習前の候補生成能力と実行予算がlong-run RLの前提を満たしていないことを再現可能に示しました。
+    </p>
+    <div class="status-row">
+      <span class="pill bad"><span class="dot"></span>Capability gate: BLOCKED</span>
+      <span class="pill bad"><span class="dot"></span>PUYO-130 long-run: BLOCKED</span>
+      <span class="pill pending"><span class="dot"></span>Promotion: PENDING_POST_TRAINING</span>
+      <span class="pill good"><span class="dot"></span>Threat scenarios: 6/6</span>
+    </div>
+    <div class="button-row">
+      <a class="button" href="puyo-v1-7-2-architecture.drawio" download>draw.io元データを保存</a>
+      <a class="button" href="https://app.diagrams.net/" target="_blank" rel="noreferrer">draw.ioを開く</a>
+      <button class="button" type="button" id="download-embedded">HTML埋込XMLを保存</button>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="ページ内ナビゲーション">
+    <div class="shell">
+      <a href="#answer">結論</a>
+      <a href="#architecture">アーキテクチャ</a>
+      <a href="#decision">意思決定フロー</a>
+      <a href="#gate">Gate結果</a>
+      <a href="#diagnosis">原因</a>
+      <a href="#next">解除条件</a>
+      <a href="#sources">根拠</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section id="answer">
+      <h2>最初に結論</h2>
+      <div class="answer">
+        <article class="card primary">
+          <p><strong>PUYO-130が開始不可なのは、PUYO-130のtrainerに不具合が見つかったからではありません。</strong>
+            そのtrainerはまだTo Doです。開始前提である「探索workerが、学習で選び直す価値のある安全な大連鎖候補を、
+            runtime予算内で安定して提示できること」をPUYO-170 capability gateが満たさなかったためです。</p>
+          <p>
+            K-bestの中を評価専用selectorで選び直しても平均最大連鎖は<strong>2.933</strong>で、要求値10に届きません。
+            さらに30 gameのうち1 gameが40手前にgame-overし、proposal p95は<strong>917.12 ms</strong>で
+            registry上限60 msを約15.3倍超過しました。したがって「rankerを学習すれば解決する」とはまだ言えません。
+          </p>
+        </article>
+        <aside class="card checkpoint">
+          <p class="kicker info">現在のCheckpoint（学習済み重み）</p>
+          <h3>v1.7.2 schema上のbootstrap model</h3>
+          <p><strong>実体はv1.7.1 bootstrap checkpointのmigration</strong>です。</p>
+          <ul>
+            <li>policy type: <code>v1_7_bootstrap_manager</code></li>
+            <li>学習済み: tactic選択、parameter、preview arbitration</li>
+            <li>未学習: worker内K候補のcandidate ranker / critic</li>
+            <li>mixed-opponent RL: 未実施</li>
+          </ul>
+        </aside>
+      </div>
+      <div class="grid-3" style="margin-top:1rem">
+        <div class="callout fail">
+          <p class="kicker fail">Blocked</p>
+          <strong>安全時の大連鎖構築</strong>
+          <p>候補能力、長期path、実行予算が基準未達。</p>
+        </div>
+        <div class="callout pass">
+          <p class="kicker pass">Working</p>
+          <strong>脅威対応</strong>
+          <p>小攻撃、burst、全相殺、余剰返し、生存、本線再開は6/6。</p>
+        </div>
+        <div class="callout info">
+          <p class="kicker info">Important distinction</p>
+          <strong>候補生成と候補選択は別</strong>
+          <p>PUYO-170はこの二つをcapability / promotionに分離。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>1. 現行システムアーキテクチャ</h2>
+      <p class="section-intro">
+        青・紫・赤の実線は現時点のruntimeです。緑の破線だけがPUYO-130で追加する予定のcandidate ranker / critic / mixed-opponent更新です。
+        下のinteractive表示はdraw.io公式viewerを使い、同一HTMLに元XMLを埋め込んでいます。ネットワークなしでも静的SVG版を展開できます。
+      </p>
+      <div class="card drawio-card">
+        <div class="drawio-toolbar">
+          <strong>draw.io 1ページ目 — 現行Runtimeアーキテクチャ</strong>
+          <span class="fine">toolbarでzoom・page移動・lightbox表示が可能</span>
+        </div>
+        <div id="viewer-architecture" class="mxgraph drawio-live" data-page="0" aria-label="draw.io現行runtimeアーキテクチャ図"></div>
+        <p class="drawio-hint">interactive viewerは公式 <code>viewer.diagrams.net</code> のJavaScriptを使用します。</p>
+        <details class="fallback" open id="fallback-architecture">
+          <summary>オフライン静的版を表示</summary>
+          <div class="svg-wrap">
+            <svg viewBox="0 0 1500 720" role="img" aria-labelledby="arch-title arch-desc">
+              <title id="arch-title">v1.7.2 現行Runtimeアーキテクチャ</title>
+              <desc id="arch-desc">局面解析器から学習済み戦術選択器、探索Worker、K-best候補群、slot 0の互換選択へ流れる現行構成と、PUYO-130で予定するCandidateRankerを示す。</desc>
+              <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#475569"/></marker>
+                <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/></marker>
+                <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/></marker>
+              </defs>
+              <rect x="20" y="75" width="190" height="125" class="diagram-node" fill="#e8f5f2" stroke="#0f766e"/>
+              <text x="115" y="112" class="diagram-label"><tspan x="115">Runtime局面</tspan><tspan x="115" dy="30" class="diagram-small">盤面 / NEXT / おじゃま</tspan><tspan x="115" dy="24" class="diagram-small">状態遷移 / 直前計画</tspan></text>
+              <rect x="265" y="75" width="200" height="125" class="diagram-node" fill="#eaf2ff" stroke="#2563eb"/>
+              <text x="365" y="112" class="diagram-label"><tspan x="365">StateAnalyzer（局面解析器）</tspan><tspan x="365" dy="30" class="diagram-small">危険度 / 連鎖予測 / 攻撃</tspan><tspan x="365" dy="24" class="diagram-small">BuildPotential v2（構築可能性）</tspan></text>
+              <rect x="520" y="75" width="200" height="125" class="diagram-node" fill="#eef2ff" stroke="#4f46e5"/>
+              <text x="620" y="112" class="diagram-label"><tspan x="620">Feature Contract（特徴量契約）</tspan><tspan x="620" dy="30" class="diagram-small">構造化tensor</tspan><tspan x="620" dy="24" class="diagram-small">適用可否mask</tspan></text>
+              <rect x="775" y="55" width="235" height="165" class="diagram-node" fill="#f3e8ff" stroke="#7e22ce"/>
+              <text x="892" y="94" class="diagram-label"><tspan x="892">Learned Tactic Manager</tspan><tspan x="892" dy="30" class="diagram-small">共有MLP + 戦術別head</tspan><tspan x="892" dy="24" class="diagram-small">logit / 価値 / リスク / parameter</tspan><tspan x="892" dy="24" class="diagram-small">previewを加味した裁定</tspan></text>
+              <rect x="1065" y="75" width="190" height="125" class="diagram-node" fill="#fff7e6" stroke="#b7791f"/>
+              <text x="1160" y="112" class="diagram-label"><tspan x="1160">上位3戦術のpreview</tspan><tspan x="1160" dy="30" class="diagram-small">PlannerRequest</tspan><tspan x="1160" dy="24" class="diagram-small">戦術ごとにWorker探索</tspan></text>
+              <rect x="1310" y="75" width="170" height="125" class="diagram-node" fill="#feecef" stroke="#be123c"/>
+              <text x="1395" y="112" class="diagram-label"><tspan x="1395">Worker探索（配置案生成）</tspan><tspan x="1395" dy="30" class="diagram-small">多様性beam / tactical探索</tspan><tspan x="1395" dy="24" class="diagram-small">heuristicによる評価</tspan></text>
+              <path d="M210 138 H265" class="flow-arrow"/><path d="M465 138 H520" class="flow-arrow"/><path d="M720 138 H775" class="flow-arrow"/><path d="M1010 138 H1065" class="flow-arrow"/><path d="M1255 138 H1310" class="flow-arrow"/>
+              <rect x="590" y="300" width="240" height="140" class="diagram-node" fill="#fff4e5" stroke="#d97706"/>
+              <text x="710" y="334" class="diagram-label"><tspan x="710">TacticSpec Registry（戦術定義台帳）</tspan><tspan x="710" dy="28" class="diagram-small">8戦術 + 制約</tspan><tspan x="710" dy="23" class="diagram-small">目標 / 探索予算 / fallback</tspan></text>
+              <path d="M710 300 V220" class="flow-arrow"/>
+              <rect x="1070" y="300" width="255" height="165" class="diagram-node" fill="#ecfeff" stroke="#0891b2"/>
+              <text x="1197" y="335" class="diagram-label"><tspan x="1197">WorkerProposalBatch（K-best候補群）</tspan><tspan x="1197" dy="28" class="diagram-small">K=8 + mask + 安定ID</tspan><tspan x="1197" dy="23" class="diagram-small">連鎖 / 攻撃 / 構築可能性 / リスク</tspan><tspan x="1197" dy="23" class="diagram-small">latency / 展開node数</tspan></text>
+              <path d="M1395 200 V255 H1197 V300" class="flow-arrow"/>
+              <rect x="1070" y="545" width="255" height="125" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+              <text x="1197" y="578" class="diagram-label"><tspan x="1197">現行：slot 0（先頭候補）</tspan><tspan x="1197" dy="29" class="diagram-small">compatibility_action()</tspan><tspan x="1197" dy="24" class="diagram-small">heuristic順を最終順位に使用</tspan></text>
+              <path d="M1197 465 V545" class="flow-arrow-red"/>
+              <rect x="1370" y="545" width="110" height="125" class="diagram-node" fill="#dcfce7" stroke="#16a34a"/>
+              <text x="1425" y="585" class="diagram-label"><tspan x="1425">配置action</tspan><tspan x="1425" dy="29" class="diagram-small">Simulator（状態更新）</tspan><tspan x="1425" dy="24" class="diagram-small">replay（対局記録）</tspan></text>
+              <path d="M1325 608 H1370" class="flow-arrow"/>
+              <rect x="560" y="520" width="350" height="155" class="diagram-node" fill="#f0fdf4" stroke="#16a34a" stroke-dasharray="12 9"/>
+              <text x="735" y="556" class="diagram-label"><tspan x="735">PUYO-130予定：CandidateRanker</tspan><tspan x="735" dy="29" class="diagram-small">mask済み候補logit + critic</tspan><tspan x="735" dy="24" class="diagram-small">混合対戦相手の報酬で更新</tspan><tspan x="735" dy="24" class="diagram-small">未実装 / 未学習</tspan></text>
+              <path d="M1070 405 H910 V550" class="flow-arrow-green"/><path d="M910 620 H1030 V690 H1425 V670" class="flow-arrow-green"/>
+              <rect x="20" y="510" width="430" height="165" class="diagram-node" fill="#fff4e5" stroke="#d97706"/>
+              <text x="235" y="546" class="diagram-label"><tspan x="235">現在のCheckpoint（学習済み重み）</tspan><tspan x="235" dy="29" class="diagram-small">v1.7.1初期重みを移行</tspan><tspan x="235" dy="24" class="diagram-small">戦術levelのpolicyは学習済み</tspan><tspan x="235" dy="24" class="diagram-small">混合対戦相手RLは未実施</tspan></text>
+              <path d="M450 560 H505 V210 H775" class="flow-arrow"/>
+            </svg>
+          </div>
+        </details>
+      </div>
+
+      <h3>コンポーネント別の責務</h3>
+      <table>
+        <thead><tr><th>層</th><th>現在の実装</th><th>学習か固定か</th><th>重要な点</th></tr></thead>
+        <tbody>
+          <tr><td>StateAnalyzer（局面解析器）</td><td>盤面・攻撃・deadline・全消しlifecycleを構造化診断へ変換</td><td>決定論的ロジック</td><td>learned managerへraw board cellを直接渡さない</td></tr>
+          <tr><td>Tactic registry</td><td>8 tacticの適用条件、目的、制約、search budget、fallback</td><td>versioned YAML contract</td><td>incoming時のresponse責務をhard guardできる</td></tr>
+          <tr><td>Strategy Manager</td><td>shared encoder、tactic head、parameter head、preview arbitration</td><td>bootstrapで学習済み</td><td>「どのtacticを使うか」を学ぶ層</td></tr>
+          <tr><td>Worker探索（配置案生成）</td><td>diverse beam / response / tactical worker</td><td>heuristic search</td><td>具体的なぷよ配置planを生成する層</td></tr>
+          <tr><td>WorkerProposalBatch</td><td>K候補、mask、stable ID、13 feature、telemetry</td><td>schema/APIは実装済み</td><td>PUYO-130が再探索なしで学習できる入口</td></tr>
+          <tr><td>Candidate selection</td><td><code>compatibility_action()</code>でslot 0</td><td>現時点は固定</td><td>K候補をlearned logitsで比較するoptimizerは未実装</td></tr>
+          <tr><td>PUYO-130</td><td>candidate ranker、critic、mixed-opponent reward、rollout update</td><td>将来のRL</td><td>capability gate PASS後だけlong-run可能</td></tr>
+        </tbody>
+      </table>
+
+      <h3>固有名詞・技術用語の意味</h3>
+      <p class="section-intro">
+        コード上のclass名、schema名、Jira key、一般的な機械学習用語はアルファベット表記を残しています。
+        図と本文では、次の意味で使っています。
+      </p>
+      <table>
+        <thead><tr><th>表記</th><th>この資料での意味</th></tr></thead>
+        <tbody>
+          <tr><td><code>StateAnalyzer（局面解析器）</code></td><td>生の盤面・NEXT・予告おじゃまを、危険度、連鎖見込み、攻撃候補などの構造化診断値へ変換する局面解析器。</td></tr>
+          <tr><td><code>Feature Contract</code></td><td>モデルへ渡す特徴量の形状、並び順、mask、schema versionを固定する入出力契約。raw board cellを直接学習器へ渡さない境界でもある。</td></tr>
+          <tr><td><code>TacticSpec</code> / <code>TacticSpec Registry</code></td><td>8戦術それぞれの適用条件、目標、制約、探索予算、fallback先をversion付きで定義した戦術仕様とその台帳。</td></tr>
+          <tr><td><code>Learned Tactic Manager</code></td><td>局面特徴から使う戦術、目標parameter、探索parameterを推定し、preview結果も加味して最終戦術を選ぶ学習済みMLP。</td></tr>
+          <tr><td><code>PlannerRequest</code></td><td>選択戦術の目標連鎖、攻撃量、期限、危険許容度、depth / width / KなどをWorkerへ渡す具体的な探索依頼。</td></tr>
+          <tr><td><code>StrategyOrchestrator</code> / <code>Worker</code></td><td><code>PlannerRequest</code>を構築用・対応用・戦術用の探索器へ振り分け、具体的な配置計画を列挙する仕組み。</td></tr>
+          <tr><td><code>BuildPotential v2（構築可能性）</code></td><td>長連鎖へ伸ばせる可能性、発火コスト、発火点の復旧可能性などをheuristicに数値化する探索評価指標。</td></tr>
+          <tr><td><code>WorkerProposalBatch</code></td><td>Workerが見つけたK-best候補を、固定長slot、mask、安定ID、13特徴量、計測値とともに束ねるversion付きデータ形式。</td></tr>
+          <tr><td><code>compatibility_action()</code> / <code>slot 0</code></td><td>現行互換動作。Workerのheuristic順で先頭に置かれた候補を常に採用し、学習によるK候補比較は行わない。</td></tr>
+          <tr><td><code>CandidateRankerInput</code> / <code>CandidateRanker</code></td><td>前者はK候補を学習器へ渡す固定形状入力、後者はmaskを考慮して候補logitを出し、候補を順位付けするPUYO-130予定の学習器。</td></tr>
+          <tr><td><code>critic</code></td><td>RLで局面や選択結果の期待価値を推定し、candidate rankerの更新を安定させる価値評価器。</td></tr>
+          <tr><td><code>bounded reference</code></td><td>現行探索よりdepth / width / probeを増やした診断用の高予算探索。比較基準ではあるが、最適解を保証するoracleではない。</td></tr>
+          <tr><td><code>Capability Gate</code></td><td>long-run学習前に、候補生成器が十分な品質・安全性・速度・再現性を持つか判定する関門。</td></tr>
+          <tr><td><code>Promotion Gate</code></td><td>学習後checkpointのselected policyが連鎖・安全性・脅威対応などの基準を満たすか判定する別の関門。</td></tr>
+          <tr><td><code>PUYO-130</code></td><td>CandidateRanker、critic、mixed-opponent RL trainerを実装・実行するJira task。候補生成器そのものを改善するtaskではない。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="decision">
+      <h2>2. モデルの観測可能な「思考」プロセス</h2>
+      <p class="section-intro">
+        ここでいう思考プロセスは、診断・logit・preview・proposalとして外から検証できる意思決定pipelineです。
+        非公開の内部chain-of-thoughtではなく、コードとartifactから再構成できる処理順を示しています。
+      </p>
+      <div class="card drawio-card">
+        <div class="drawio-toolbar">
+          <strong>draw.io 2ページ目 — 観測可能な意思決定プロセス</strong>
+          <span class="fine">1 decisionごとの処理</span>
+        </div>
+        <div id="viewer-process" class="mxgraph drawio-live" data-page="1" aria-label="draw.io観測可能な意思決定フロー図"></div>
+        <details class="fallback" open id="fallback-process">
+          <summary>オフライン静的版を表示</summary>
+          <div class="svg-wrap">
+            <svg viewBox="0 0 1500 700" role="img" aria-labelledby="think-title think-desc">
+              <title id="think-title">観測可能なモデル意思決定プロセス</title>
+              <desc id="think-desc">局面解析、強制条件、戦術評価、上位3戦術の事前探索、最終戦術裁定、Worker探索、K候補の正規化、現行slot 0選択、実行の順。</desc>
+              <defs>
+                <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#475569"/></marker>
+                <marker id="arrow2-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/></marker>
+                <marker id="arrow2-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/></marker>
+              </defs>
+              <g>
+                <rect x="20" y="70" width="220" height="125" class="diagram-node" fill="#eaf2ff" stroke="#2563eb"/>
+                <text x="130" y="105" class="diagram-label"><tspan x="130">1 局面を解析</tspan><tspan x="130" dy="29" class="diagram-small">危険度 / 連鎖 / 脅威</tspan><tspan x="130" dy="24" class="diagram-small">期限 / 状態遷移</tspan></text>
+                <rect x="300" y="70" width="220" height="125" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+                <text x="410" y="105" class="diagram-label"><tspan x="410">2 強制条件を反映</tspan><tspan x="410" dy="29" class="diagram-small">適用可否mask</tspan><tspan x="410" dy="24" class="diagram-small">予告おじゃま → 対応戦術</tspan></text>
+                <rect x="580" y="70" width="220" height="125" class="diagram-node" fill="#f3e8ff" stroke="#7e22ce"/>
+                <text x="690" y="105" class="diagram-label"><tspan x="690">3 戦術別headで評価</tspan><tspan x="690" dy="29" class="diagram-small">logit / value / risk</tspan><tspan x="690" dy="24" class="diagram-small">parameterを復号</tspan></text>
+                <rect x="860" y="70" width="220" height="125" class="diagram-node" fill="#fff7e6" stroke="#b7791f"/>
+                <text x="970" y="105" class="diagram-label"><tspan x="970">4 上位3戦術をpreview</tspan><tspan x="970" dy="29" class="diagram-small">戦術ごとにWorker探索</tspan><tspan x="970" dy="24" class="diagram-small">preview特徴量</tspan></text>
+                <rect x="1140" y="70" width="320" height="125" class="diagram-node" fill="#f3e8ff" stroke="#7e22ce"/>
+                <text x="1300" y="105" class="diagram-label"><tspan x="1300">5 最終戦術を裁定</tspan><tspan x="1300" dy="29" class="diagram-small">隠れ状態 + logit/価値/リスク + preview</tspan><tspan x="1300" dy="24" class="diagram-small">戦術を1つ選択</tspan></text>
+                <path d="M240 132 H300 M520 132 H580 M800 132 H860 M1080 132 H1140" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow2)"/>
+                <rect x="1140" y="300" width="320" height="125" class="diagram-node" fill="#feecef" stroke="#be123c"/>
+                <text x="1300" y="335" class="diagram-label"><tspan x="1300">6 選択したWorkerを探索</tspan><tspan x="1300" dy="29" class="diagram-small">PlannerRequest → 多様な計画</tspan><tspan x="1300" dy="24" class="diagram-small">BuildPotential / 発火 / 危険度</tspan></text>
+                <path d="M1300 195 V300" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow2)"/>
+                <rect x="800" y="300" width="270" height="125" class="diagram-node" fill="#ecfeff" stroke="#0891b2"/>
+                <text x="935" y="335" class="diagram-label"><tspan x="935">7 K候補を固定形式へ正規化</tspan><tspan x="935" dy="29" class="diagram-small">mask / ID / 13特徴量</tspan><tspan x="935" dy="24" class="diagram-small">coverage / regret計測</tspan></text>
+                <path d="M1140 362 H1070" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow2)"/>
+                <rect x="470" y="300" width="270" height="125" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+                <text x="605" y="335" class="diagram-label"><tspan x="605">8 現行はslot 0を選択</tspan><tspan x="605" dy="29" class="diagram-small">heuristic順が最終順位</tspan><tspan x="605" dy="24" class="diagram-small">K候補比較は未学習</tspan></text>
+                <path d="M800 362 H740" fill="none" stroke="#dc2626" stroke-width="5" marker-end="url(#arrow2-red)"/>
+                <rect x="80" y="300" width="330" height="125" class="diagram-node" fill="#dcfce7" stroke="#16a34a"/>
+                <text x="245" y="335" class="diagram-label"><tspan x="245">9 実行して記録</tspan><tspan x="245" dy="29" class="diagram-small">Simulator結果 / replay / 次の局面</tspan><tspan x="245" dy="24" class="diagram-small">次の意思決定で反復</tspan></text>
+                <path d="M470 362 H410" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow2)"/>
+                <rect x="490" y="525" width="700" height="125" class="diagram-node" fill="#f0fdf4" stroke="#16a34a" stroke-dasharray="12 9"/>
+                <text x="840" y="560" class="diagram-label"><tspan x="840">PUYO-130予定：K候補内を学習で順位付け</tspan><tspan x="840" dy="29" class="diagram-small">mask済みlogit + 候補分布 + critic + 混合対戦相手の報酬</tspan><tspan x="840" dy="24" class="diagram-small">探索が候補を生成し、RLが選択を学習</tspan></text>
+                <path d="M935 425 V525" fill="none" stroke="#16a34a" stroke-width="5" stroke-dasharray="12 9" marker-end="url(#arrow2-green)"/>
+                <path d="M490 588 H245 V425" fill="none" stroke="#16a34a" stroke-width="5" stroke-dasharray="12 9" marker-end="url(#arrow2-green)"/>
+              </g>
+            </svg>
+          </div>
+        </details>
+      </div>
+
+      <ol class="steps">
+        <li><strong>状態を構造化する。</strong> Analyzerが双方のdanger、main-chain forecast、attack options、incoming deadline、全消しbonus lifecycleを作ります。</li>
+        <li><strong>適用不能なtacticをmaskする。</strong> incomingがある場合はresponse guardが、相殺可能なら<code>counter_or_return</code>、不可能なら<code>survive</code>へ責務を固定します。</li>
+        <li><strong>軽量headで全tacticを評価する。</strong> tactic logit、value、risk、objective/constraint/planner parameterを出します。</li>
+        <li><strong>上位3 tacticだけ実探索してpreviewする。</strong> 連鎖、攻撃、danger、deadline、latency、expanded nodesをmanagerへ戻します。</li>
+        <li><strong>previewを含めて最終tacticを選ぶ。</strong> ここはbootstrap checkpointで学習済みです。</li>
+        <li><strong>選ばれたworkerがK候補を生成する。</strong> build_mainならdiverse beam、response/tacticalなら対応workerを使います。</li>
+        <li><strong>K候補をversioned batchへ正規化する。</strong> mask、stable ID、13 ranker feature、telemetryが揃っています。</li>
+        <li><strong>現時点ではslot 0を実行する。</strong> learned candidate rankingはまだ接続契約だけで、optimizerとlong-run trainingはPUYO-130です。</li>
+      </ol>
+    </section>
+
+    <section id="gate">
+      <h2>3. Capability gateで何が失敗したか</h2>
+      <p class="section-intro">
+        capability gateはruntimeのrank-0をそのまま評価しただけではありません。K候補から「目標10連鎖まで発火を急がず、
+        安全性と到達可能性が高いもの」を選ぶ評価専用selectorで30 seedのpathを作りました。
+        それでも基準に届かなかったため、単なるslot-0選択ミスではなくcandidate-generator側の前提不足と判断できます。
+      </p>
+
+      <div class="metric-grid">
+        <div class="metric fail"><span class="kicker fail">FAIL</span><strong>固定suite</strong><span class="value">29 / 30</span><small>30 gameすべて40手が必要。seed 146は39手で終了。</small></div>
+        <div class="metric fail"><span class="kicker fail">FAIL</span><strong>平均最大連鎖</strong><span class="value">2.933</span><small>要求は10以上。最大11だが1 seedのみ。</small></div>
+        <div class="metric pass"><span class="kicker pass">PASS</span><strong>安全candidate gap</strong><span class="value">0 / 0</span><small>avoidable gap 0、forced game-over gap 0。</small></div>
+        <div class="metric fail"><span class="kicker fail">FAIL</span><strong>proposal p95</strong><span class="value">917.12 ms</span><small>registry上限60 ms。観測wall clock。</small></div>
+        <div class="metric pass"><span class="kicker pass">PASS</span><strong>決定論</strong><span class="value">2 / 2</span><small>latencyを除くdigestが完全一致。</small></div>
+      </div>
+
+      <div class="card drawio-card">
+        <div class="drawio-toolbar">
+          <strong>draw.io 3ページ目 — PUYO-130が開始不可となった理由</strong>
+          <span class="fine">閾値、実測、診断、停止判断</span>
+        </div>
+        <div id="viewer-gate" class="mxgraph drawio-live" data-page="2" aria-label="draw.io PUYO-130停止理由図"></div>
+        <details class="fallback" open id="fallback-gate">
+          <summary>オフライン静的版を表示</summary>
+          <div class="svg-wrap">
+            <svg viewBox="0 0 1500 720" role="img" aria-labelledby="gate-title gate-desc">
+              <title id="gate-title">Capability Gateの開始阻害要因</title>
+              <desc id="gate-desc">固定suite、平均連鎖、latencyがFAIL、安全性gapと決定性がPASS。coverageの根拠から候補生成器と経路品質の不足を診断し、PUYO-130を開始不可とする。</desc>
+              <defs>
+                <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#475569"/></marker>
+                <marker id="arrow3-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#7f1d1d"/></marker>
+              </defs>
+              <rect x="20" y="40" width="270" height="130" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+              <text x="155" y="77" class="diagram-label"><tspan x="155">FAIL 固定suite</tspan><tspan x="155" dy="30" class="diagram-small">29/30 × 40</tspan><tspan x="155" dy="24" class="diagram-small">seed 146：39手</tspan></text>
+              <rect x="315" y="40" width="270" height="130" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+              <text x="450" y="77" class="diagram-label"><tspan x="450">FAIL 大連鎖能力</tspan><tspan x="450" dy="30" class="diagram-small">2.933（要件 ≥ 10）</tspan><tspan x="450" dy="24" class="diagram-small">最大11は1 seedのみ</tspan></text>
+              <rect x="610" y="40" width="270" height="130" class="diagram-node" fill="#dcfce7" stroke="#16a34a"/>
+              <text x="745" y="77" class="diagram-label"><tspan x="745">PASS 安全性gap</tspan><tspan x="745" dy="30" class="diagram-small">回避可能gap 0</tspan><tspan x="745" dy="24" class="diagram-small">強制game-over 0</tspan></text>
+              <rect x="905" y="40" width="270" height="130" class="diagram-node" fill="#fee2e2" stroke="#dc2626"/>
+              <text x="1040" y="77" class="diagram-label"><tspan x="1040">FAIL latency予算</tspan><tspan x="1040" dy="30" class="diagram-small">917.12 ms（要件 ≤ 60 ms）</tspan><tspan x="1040" dy="24" class="diagram-small">予算の約15.3倍</tspan></text>
+              <rect x="1200" y="40" width="270" height="130" class="diagram-node" fill="#dcfce7" stroke="#16a34a"/>
+              <text x="1335" y="77" class="diagram-label"><tspan x="1335">PASS 決定性</tspan><tspan x="1335" dy="30" class="diagram-small">同じdigest × 2</tspan><tspan x="1335" dy="24" class="diagram-small">失敗結果も再現</tspan></text>
+              <rect x="80" y="260" width="420" height="185" class="diagram-node" fill="#eaf2ff" stroke="#2563eb"/>
+              <text x="290" y="296" class="diagram-label"><tspan x="290">Coverage（探索網羅率）の根拠</tspan><tspan x="290" dy="30" class="diagram-small">referenceの連鎖平均 6.600</tspan><tspan x="290" dy="24" class="diagram-small">初手83.7% / 経路65.1%</tspan><tspan x="290" dy="24" class="diagram-small">候補不足の早期発火 27件</tspan></text>
+              <rect x="555" y="235" width="560" height="235" class="diagram-node" fill="#fff4e5" stroke="#d97706"/>
+              <text x="835" y="274" class="diagram-label"><tspan x="835">原因診断</tspan><tspan x="835" dy="31" class="diagram-small">K候補 / 経路が安定した10連鎖以上の継続手を提示できない</tspan><tspan x="835" dy="25" class="diagram-small">探索深さ / 枝刈り / 網羅率によりreferenceの初手・経路prefixが欠落</tspan><tspan x="835" dy="25" class="diagram-small">探索 + 提案データ変換がRuntime予算超過</tspan><tspan x="835" dy="25" class="diagram-small">1経路は依然として早期game-over</tspan></text>
+              <rect x="1170" y="260" width="300" height="185" class="diagram-node" fill="#ecfeff" stroke="#0891b2"/>
+              <text x="1320" y="296" class="diagram-label"><tspan x="1320">Blockerではなかったもの</tspan><tspan x="1320" dy="30" class="diagram-small">脅威scenario 6/6</tspan><tspan x="1320" dy="24" class="diagram-small">schema / hash / gap</tspan><tspan x="1320" dy="24" class="diagram-small">はいずれも正常</tspan></text>
+              <path d="M500 352 H555" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow3)"/>
+              <path d="M1170 352 H1115" fill="none" stroke="#475569" stroke-width="4" marker-end="url(#arrow3)"/>
+              <rect x="195" y="545" width="520" height="130" class="diagram-node" fill="#f3e8ff" stroke="#7e22ce"/>
+              <text x="455" y="580" class="diagram-label"><tspan x="455">なぜRL前に停止するか？</tspan><tspan x="455" dy="30" class="diagram-small">RankerはK候補を並べ替えられるが、欠けた計画は作れない</tspan><tspan x="455" dy="24" class="diagram-small">不正なaction集合でlong-run最適化しない</tspan></text>
+              <rect x="785" y="520" width="620" height="175" class="diagram-node" fill="#7f1d1d" stroke="#450a0a"/>
+              <text x="1095" y="559" class="diagram-label" fill="#ffffff" style="fill:#fff"><tspan x="1095">PUYO-130 LONG-RUN = BLOCKED</tspan><tspan x="1095" dy="32" class="diagram-small" style="fill:#fee2e2">解除条件：30/30 × 40手、平均 ≥10、gap 0、</tspan><tspan x="1095" dy="25" class="diagram-small" style="fill:#fee2e2">p95 ≤60 ms、決定論的反復一致</tspan><tspan x="1095" dy="25" class="diagram-small" style="fill:#fee2e2">その後Ranker / criticを学習し、Promotion Gateを別途評価</tspan></text>
+              <path d="M835 470 V500 H455 V545" fill="none" stroke="#7e22ce" stroke-width="5" marker-end="url(#arrow3)"/>
+              <path d="M835 470 V500 H1095 V520" fill="none" stroke="#7f1d1d" stroke-width="6" marker-end="url(#arrow3-red)"/>
+            </svg>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="card">
+          <h3>実測最大連鎖の分布（30 seed）</h3>
+          <div class="histogram" aria-label="最大連鎖ヒストグラム">
+            <span>0</span><div class="bar-track"><div class="bar" style="width:50%"></div></div><span>4</span>
+            <span>1</span><div class="bar-track"><div class="bar" style="width:62.5%"></div></div><span>5</span>
+            <span>2</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span>8</span>
+            <span>3</span><div class="bar-track"><div class="bar" style="width:37.5%"></div></div><span>3</span>
+            <span>4</span><div class="bar-track"><div class="bar" style="width:62.5%"></div></div><span>5</span>
+            <span>5</span><div class="bar-track"><div class="bar" style="width:12.5%"></div></div><span>1</span>
+            <span>6</span><div class="bar-track"><div class="bar" style="width:12.5%"></div></div><span>1</span>
+            <span>8</span><div class="bar-track"><div class="bar" style="width:25%"></div></div><span>2</span>
+            <span>11</span><div class="bar-track"><div class="bar" style="width:12.5%"></div></div><span>1</span>
+          </div>
+          <p class="fine">左が最大連鎖、右が該当seed数。目標10以上を満たしたのは1/30です。</p>
+        </div>
+        <div class="card">
+          <h3>bounded reference（高予算診断探索）との差</h3>
+          <table>
+            <tbody>
+              <tr><th>current K capability path</th><td>平均最大連鎖 2.933</td></tr>
+              <tr><th>reference best-chain mean</th><td>6.600</td></tr>
+              <tr><th>reference root coverage</th><td>83.65%</td></tr>
+              <tr><th>reference path coverage</th><td>65.05%</td></tr>
+              <tr><th>premature分類</th><td>avoidable 0 / candidate-limited 27</td></tr>
+            </tbody>
+          </table>
+          <p class="fine">referenceはdepth 8 / width 64 / probe 32の高予算診断で、oracleではありません。reference自身も平均10未満です。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="diagnosis">
+      <h2>4. 「どこに問題があったか」の正確な読み方</h2>
+      <div class="grid-2">
+        <article class="card">
+          <p class="kicker fail">Primary problem</p>
+          <h3>候補生成pathの長期品質が不足</h3>
+          <p>
+            現行registry設定は<code>d3 / w24 / probe8 / K8</code>です。K候補を評価専用selectorで選んでも平均2.933連鎖でした。
+            最大11連鎖を作れるseedはあるため能力が完全にゼロではありませんが、30 seedへ一般化していません。
+          </p>
+          <p>
+            reference root coverage 83.7%、path coverage 65.1%は、より高予算な探索が選ぶrootやpath prefixの一部を
+            現行探索が保持できていないことを示します。horizon、pruning、候補diversity、BuildPotentialの長期表現のいずれか、
+            または複合がまだ不足しています。
+          </p>
+        </article>
+        <article class="card">
+          <p class="kicker fail">Second problem</p>
+          <h3>runtime予算を大きく超過</h3>
+          <p>
+            capability proposalの観測p95は917.12 msで、<code>build_main</code> registry budget 60 msの約15.3倍です。
+            これはproposal projectionを含むwall-clock測定であり、12 worker並列実行時の負荷も含むため、
+            単一realtime tickの厳密な代替値ではありません。
+          </p>
+          <p>
+            ただしPUYO-170が採用した再現可能なgate metricでは明確なFAILです。
+            「より深く探索して連鎖を伸ばす」と「realtime budgetを守る」の両方を同時に満たす構成がまだありません。
+          </p>
+        </article>
+        <article class="card">
+          <p class="kicker info">Nuance</p>
+          <h3>27件のcandidate-limited premature</h3>
+          <p>
+            小連鎖発火27件は、同じK内に静かなno-fire候補があったのにselectorが誤選択した
+            <em>avoidable</em> ではなく、K内にその候補がなかった <em>candidate-limited</em> です。
+            一方でavoidable candidate gapは0なので、単純な「legalな静かなrootをKから落とした」ケースではありません。
+          </p>
+          <p>
+            これはそれ以前の手順で盤面を行き止まりにし、発火を避けにくい状態へ到達した可能性を含みます。
+            問題は1 decisionのrankだけでなく、複数手にまたがるtrajectory品質です。
+          </p>
+        </article>
+        <article class="card">
+          <p class="kicker pass">Healthy area</p>
+          <h3>脅威対応は今回のblockerではない</h3>
+          <p>
+            PUYO-158後の小攻撃、burst、全相殺、余剰返し、生存、本線再開は6/6 PASSです。
+            avoidable gap、forced game-over candidate gap、schema、artifact hash、独立再生digestもPASSしました。
+          </p>
+          <p>
+            したがって「モデル全体が動かない」のではありません。安全盤面で長く本線を育てる能力と実行コストが、
+            threat-responseより弱いという局所的な品質問題です。
+          </p>
+        </article>
+      </div>
+
+      <div class="callout warn" style="margin-top:1rem">
+        <strong>pretraining selected-policyの別指標:</strong>
+        migrated bootstrap checkpointを通常runtime policyとして測ると、平均最大連鎖4.133、premature fire 86、early game-over 0でした。
+        threat scenarioは6/6ですが、これはpost-training checkpointではないためpromotionは
+        <code>PENDING_POST_TRAINING</code>です。capability結果とpromotion結果を混ぜてはいけません。
+      </div>
+    </section>
+
+    <section id="next">
+      <h2>5. なぜ先にRLを走らせず、何が揃えば解除できるか</h2>
+      <div class="grid-2">
+        <article class="card">
+          <h3>先に止める理由</h3>
+          <ul>
+            <li>learned rankerはK候補の順序を変えられますが、候補集合にない長期planを作れません。</li>
+            <li>不十分なaction setでlong-runすると、勝率だけ改善し、小連鎖早打ちを残す可能性があります。</li>
+            <li>60 msを大幅に超える探索を前提に学習すると、realtimeで使えない方策になります。</li>
+            <li>gateはgenerator defectをRLで隠すことと、長時間computeの浪費を防ぎます。</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>推奨される解除順</h3>
+          <ol>
+            <li>runtime budget内で長期path coverageを改善する。</li>
+            <li>30 seed × 40手でcapabilityを再評価する。</li>
+            <li>30/30完走、平均最大連鎖10以上、gap 0、p95 60 ms以下、決定論を同時PASSする。</li>
+            <li>その後にPUYO-130でcandidate ranker / critic / rewardをlong-run学習する。</li>
+            <li>PUYO-131でstate class別reward・regret・tactic usageを診断する。</li>
+            <li>PUYO-133で5固定training seed、10/0/0、threat 6/6、GUI/replay、lineageをpromotion判定する。</li>
+          </ol>
+        </article>
+      </div>
+      <table style="margin-top:1rem">
+        <thead><tr><th>段階</th><th>何を証明するか</th><th>現在</th><th>次の責任チケット</th></tr></thead>
+        <tbody>
+          <tr><td>Pre-training capability</td><td>generatorが良い候補pathをbudget内で提示できる</td><td class="result-fail">BLOCKED</td><td>generator/search改善後にPUYO-170 evaluator再実行</td></tr>
+          <tr><td>Mixed-opponent training</td><td>ranker/criticが候補選択を学習する</td><td class="result-fail">未開始</td><td>PUYO-130</td></tr>
+          <tr><td>Diagnostics</td><td>reward、regret、tactic collapseを説明できる</td><td class="result-pending">未実施</td><td>PUYO-131</td></tr>
+          <tr><td>Post-training promotion</td><td>実際のselected policyが10/0/0と6/6を満たす</td><td class="result-pending">PENDING</td><td>PUYO-133</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="sources">
+      <h2>根拠と再確認先</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Jira</h3>
+          <ul class="source-list">
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-113">PUYO-113</a> — v1.7.2 epic、Stop / Go、二段階gate方針</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-130">PUYO-130</a> — mixed-opponent trainer / ranker / critic / reward</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-165">PUYO-165</a> — coverage / regret / pruning診断</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-169">PUYO-169</a> — K-best proposalとranker接続契約</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-170">PUYO-170</a> — capability / promotion gate分離</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-158">PUYO-158</a> — prepare_response修正とthreat 6/6</li>
+            <li><a href="https://shhchan.atlassian.net/browse/PUYO-133">PUYO-133</a> — 5 seed promotion / GUI / lineage</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>実装・artifact</h3>
+          <ul class="source-list">
+            <li><a href="../../../agents/v1_7_strategy_manager.py">agents/v1_7_strategy_manager.py</a> — network、feature contract、top-3 preview、arbitration</li>
+            <li><a href="../../../agents/strategy_workers.py">agents/strategy_workers.py</a> — orchestrator、worker、compatibility selection</li>
+            <li><a href="../../../agents/worker_proposals.py">agents/worker_proposals.py</a> — K-best schema、ranker input、masked distribution</li>
+            <li><a href="../../../train/config/v1_7_tactic_registry.yaml">train/config/v1_7_tactic_registry.yaml</a> — 8 tacticとbudget</li>
+            <li><a href="../../../eval/v1_7_safe_build_gates.py">eval/v1_7_safe_build_gates.py</a> — 二段階gate evaluator</li>
+            <li><a href="../../../docs/benchmarks/puyo-v1-7-2-safe-build-gates/gate_summary.json">gate_summary.json</a> — canonical数値</li>
+            <li><a href="../../../docs/benchmarks/puyo-v1-7-2-safe-build-gates/gate_report.md">gate_report.md</a> — 人間向けgate report</li>
+            <li><a href="https://www.drawio.com/docs/manual/export/embed-html/">draw.io公式: HTML埋め込み</a> — data-mxgraph / viewer方式</li>
+          </ul>
+        </div>
+      </div>
+      <p class="fine">
+        Jira横断検索（Rovo）はsite側にアプリ未導入のため403でした。そのためcloudId指定Jira issue API、
+        repository実装、canonical artifactを照合して作成しています。数値は
+        <code>d55951ee2574a2c938efce4af43a840ff6ab7379</code>をcanonical integration commitとするPUYO-170 artifact由来です。
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">Generated locally for explanation • not tracked or committed • draw.io source embedded and provided separately</div>
+  </footer>
+
+  <script id="drawio-source" type="application/xml">
+<mxfile host="Electron" modified="2026-07-16T01:29:41.621Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.4.13 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="Sgo1o5nnQxu2aCf_4fyG" version="24.4.13" type="device" pages="3">
+  <diagram id="v172-runtime-architecture" name="1. 現行Runtimeアーキテクチャ">
+    <mxGraphModel dx="2795" dy="1597" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="WD4-vwN35DC2D8uVpPbx-1" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="50" y="60" width="2540" height="1850" as="geometry" />
+        </mxCell>
+        <mxCell id="tKkHR2rGfIARAxmE2a8m-1" value="" style="group" parent="WD4-vwN35DC2D8uVpPbx-1" vertex="1" connectable="0">
+          <mxGeometry width="2540" height="1680" as="geometry" />
+        </mxCell>
+        <mxCell id="a-registry" value="TacticSpec Registry v1.7.2（戦術定義台帳）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;build_main / prepare_response&lt;br&gt;counter_or_return / pressure&lt;br&gt;lethal_attack / all_clear&lt;br&gt;fire_main / survive&lt;br&gt;&lt;br&gt;各戦術の適用条件 + 目標 + 制約&lt;br&gt;beam 探索予算 + fallback 先を定義&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e6;strokeColor=#b7791f;strokeWidth=2;fontColor=#623b00;fontSize=13;fontStyle=1;spacing=9;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="980" y="670" width="320" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="a-title" value="v1.7.2 現行 Runtime アーキテクチャ — 学習済み Manager と探索 Worker のハイブリッド構成" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=25;fontStyle=1;fontColor=#172033;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="440" width="1890" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a-input" value="1. Runtime 観測&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;自分 / 相手の盤面&lt;br&gt;現在の組ぷよ + 見えている NEXT&lt;br&gt;予告おじゃま + 到着期限&lt;br&gt;持越し得点 / 全消しの状態遷移&lt;br&gt;直前 \(N\) ターンの計画&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5f2;strokeColor=#0f766e;strokeWidth=2;fontColor=#143f3b;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="120" y="170" width="290" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a-analyzer" value="2. StateAnalyzer（局面解析器）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;生盤面を構造化した診断値へ変換&lt;br&gt;危険度 / 脆弱性&lt;br&gt;本線連鎖の見込み&lt;br&gt;攻撃候補 / おじゃま到着時間帯&lt;br&gt;BuildPotential v2（連鎖構築可能性の指標）&lt;br&gt;発火点の復旧可能性&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#2563eb;strokeWidth=2;fontColor=#193763;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="580" y="170" width="300" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a-features" value="3. Feature Contract（特徴量契約）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;生の盤面セルは直接入力しない&lt;br&gt;局面特徴ベクトル&lt;br&gt;戦術別特徴行列&lt;br&gt;適用可否マスク&lt;br&gt;直前計画の特徴量&lt;br&gt;schema&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-weight: normal; background-color: initial;&quot;&gt;で形状 / 順序を検証&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef2ff;strokeColor=#4f46e5;strokeWidth=2;fontColor=#312e81;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="970" y="170" width="300" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="a-manager" value="4. Learned Tactic Manager（学習済み戦術選択器）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;共有 MLP encoder（特徴抽出器）&lt;br&gt;8 戦術それぞれの出力 head&lt;br&gt;提案 logit / 価値 / リスク&lt;br&gt;目標 + 探索 parameter&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;上位3戦術の候補一覧&lt;br&gt;preview 結果を加味した最終選択&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#7e22ce;strokeWidth=3;fontColor=#442260;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="1580" y="140" width="370" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="a-preview" value="5. Tactic Preview Loop（戦術の事前探索）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;適用可能な上位 3 戦術までを preview&lt;br&gt;戦術ごとに PlannerRequest を生成&lt;br&gt;各 preview で Worker 探索を 1 回実行&lt;br&gt;連鎖 / 攻撃 / リスク / コストを特徴量化&lt;br&gt;Manager が最終戦術を選択&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e6;strokeColor=#b7791f;strokeWidth=2;fontColor=#623b00;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="2130" y="140" width="340" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="a-checkpoint" value="現在の Checkpoint（学習済み重み）の実態&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;policy_type: v1_7_bootstrap_manager&lt;br&gt;v1.7.1の初期重みを移行&lt;br&gt;教師ありで戦術 / parameter を学習&lt;br&gt;v1.7.2 schema 互換性を追加&lt;br&gt;&lt;br&gt;混合対戦相手による RL は未実施&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e5;strokeColor=#d97706;strokeWidth=3;fontColor=#7c2d12;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="820" y="440" width="580" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="a-worker" value="6. StrategyOrchestrator + Worker（探索の振分けと実行器）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;構築 → diverse beam Worker&lt;br&gt;対応準備 → response Worker&lt;br&gt;その他の戦術 → tactical Worker&lt;br&gt;BuildPotential v2 で評価&lt;br&gt;depth / width / probe / latency 予算&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#feecef;strokeColor=#be123c;strokeWidth=2;fontColor=#67142b;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="2080" y="570" width="430" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="a-batch" value="7. WorkerProposalBatch v1（探索候補の固定形式データ）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;固定 \(K\) slot + 候補 mask&lt;br&gt;安定した candidate / proposal ID&lt;br&gt;初手 action + action 列&lt;br&gt;連鎖 / 攻撃 / BuildPotential&lt;br&gt;発火 / 復旧可能性 / 危険度&lt;br&gt;latency + 展開 node 数&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfeff;strokeColor=#0891b2;strokeWidth=3;fontColor=#164e63;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="2090" y="910" width="400" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="a-compat" value="8. 現行の候補選択&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;compatibility_action()（互換選択関数）&lt;br&gt;常に候補 slot 0 を採用&lt;br&gt;従来 heuristic の並び順を維持&lt;br&gt;&lt;br&gt;CandidateRanker は未学習&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=3;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="2130" y="1320" width="330" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="a-artifacts" value="Replay / Rollout / Gate成果物（検証記録）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;戦術診断 + PlannerRequest&lt;br&gt;K-best 候補群 + mask + telemetry&lt;br&gt;seed / config / commit / schema / latency&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=2;fontColor=#334155;fontSize=13;fontStyle=1;spacing=9;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="1550" y="995" width="360" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="a-future" value="PUYO-130 で実装予定 — 現在は未実装&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;CandidateRanker（候補順位付け器）の policy head&lt;br&gt;mask 適用済み候補分布&lt;br&gt;critic（価値評価器）/ 価値目標&lt;br&gt;結合 log 確率 + entropy&lt;br&gt;混合対戦相手の報酬による更新&lt;br&gt;選択候補と最良候補の regret 学習&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=3;dashed=1;fontColor=#14532d;fontSize=14;fontStyle=1;spacing=10;" parent="tKkHR2rGfIARAxmE2a8m-1" vertex="1">
+          <mxGeometry x="1640" y="1310" width="370" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e1" value="確定した局面状態" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-input" target="a-analyzer" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e2" value="診断値" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-analyzer" target="a-features" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e3" value="tensor + mask（入力制御）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;align=right;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-features" target="a-manager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e4" value="上位候補 + parameter" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-manager" target="a-preview" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e5" value="preview 特徴量" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7e22ce;strokeWidth=2;fontColor=#7e22ce;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-preview" target="a-manager" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2340" y="100" />
+              <mxPoint x="1780" y="100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e6" value="選択済み PlannerRequest" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-preview" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2300" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e7" value="\(K\) 件の候補" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;entryX=0.512;entryY=0.003;entryDx=0;entryDy=0;entryPerimeter=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-worker" target="a-batch" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e8" value="順位 0（先頭候補）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#dc2626;strokeWidth=3;fontColor=#dc2626;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-batch" target="a-compat" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2295" y="1240" />
+              <mxPoint x="2295" y="1240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e10" value="telemetry（計測値）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#64748b;strokeWidth=2;fontColor=#64748b;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-batch" target="a-artifacts" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e11" value="戦術定義 + 探索予算" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#b7791f;strokeWidth=2;fontColor=#b7791f;entryX=0.001;entryY=0.702;entryDx=0;entryDy=0;entryPerimeter=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-registry" target="a-manager" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1560" y="350" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1550" y="750" />
+              <mxPoint x="1550" y="350" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e12" value="探索設定" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#b7791f;strokeWidth=2;fontColor=#b7791f;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-registry" target="a-worker" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2220" y="520" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1710" y="810" />
+              <mxPoint x="1710" y="480" />
+              <mxPoint x="2188" y="480" />
+              <mxPoint x="2188" y="570" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e13" value="候補特徴量" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#16a34a;strokeWidth=3;dashed=1;fontColor=#16a34a;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.299;exitY=0.998;exitDx=0;exitDy=0;exitPerimeter=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-batch" target="a-future" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e15" value="schema 検証済み重み" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#d97706;strokeWidth=2;fontColor=#d97706;entryX=-0.002;entryY=0.601;entryDx=0;entryDy=0;entryPerimeter=0;" parent="tKkHR2rGfIARAxmE2a8m-1" source="a-checkpoint" target="a-manager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-action" value="9. 配置実行 + Simulator（公式状態更新器）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;合法な action を1つ実行&lt;br&gt;連鎖 / 攻撃 / 状態遷移を確定&lt;br&gt;診断値を replay / rollout へ保存&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontSize=14;fontStyle=1;spacing=10;" parent="WD4-vwN35DC2D8uVpPbx-1" vertex="1">
+          <mxGeometry x="2140" y="1690" width="330" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="a-e14" value="学習による選択（PUYO-130 後）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#16a34a;strokeWidth=3;dashed=1;fontColor=#16a34a;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.349;entryY=-0.011;entryDx=0;entryDy=0;entryPerimeter=0;" parent="WD4-vwN35DC2D8uVpPbx-1" source="a-future" target="a-action" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1830" y="1630" />
+              <mxPoint x="2250" y="1630" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a-e9" value="配置 action" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;fontColor=#334155;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="WD4-vwN35DC2D8uVpPbx-1" target="a-action" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2305" y="1580" />
+            </Array>
+            <mxPoint x="2305" y="1580" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="v172-decision-process" name="2. 観測可能な意思決定プロセス">
+    <mxGraphModel dx="2313" dy="1321" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="6AE9F17jzYQiLMyGNvM--1" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="40" y="20" width="2335.73" height="1480" as="geometry" />
+        </mxCell>
+        <mxCell id="t-key" value="重要な区別&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;現在学習済み：戦術選択、戦術 parameter、preview を加味した裁定。&lt;br&gt;現在未学習：選択した Worker 内にある \(K\) 件の計画の順位付け。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e5;strokeColor=#d97706;strokeWidth=3;fontColor=#7c2d12;fontSize=15;fontStyle=1;spacing=12;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="742.935" y="1140.0000000000002" width="831.36" height="114.31" as="geometry" />
+        </mxCell>
+        <mxCell id="t-4" value="4. 上位 3 戦術を preview&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;各戦術で予算制限付き Worker を実行&lt;br&gt;連鎖 / 攻撃 / 危険度を予測&lt;br&gt;期限と目標達成を確認&lt;br&gt;latency + 展開 node 数を記録&lt;br&gt;戦術 preview 特徴量を生成&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e6;strokeColor=#b7791f;strokeWidth=2;fontColor=#623b00;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="1345" y="218" width="287.21" height="206.59" as="geometry" />
+        </mxCell>
+        <mxCell id="t-title" value="観測可能な思考プロセス — 1 回の意思決定でモデルが計算する内容" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=25;fontStyle=1;fontColor=#172033;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="413.83804804804805" width="1599.2385585585587" height="70.14218009478672" as="geometry" />
+        </mxCell>
+        <mxCell id="t-note" value="ここで示すのは観測可能な処理経路と診断値であり、非公開の chain-of-thought（内部推論文）ではありません。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#94a3b8;fontColor=#475569;fontSize=13;fontStyle=2;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="708.4346246246247" y="84.17061611374407" width="1010.0454054054055" height="63.127962085308056" as="geometry" />
+        </mxCell>
+        <mxCell id="t-1" value="1. 局面を解析&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;何を構築 / 発火できるか？&lt;br&gt;双方の盤面はどれほど危険か？&lt;br&gt;どの攻撃がいつ到着するか？&lt;br&gt;相殺または返送できるか？&lt;br&gt;全消し bonus は消費済みか？&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#2563eb;strokeWidth=2;fontColor=#193763;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="95" y="218" width="287.21" height="206.59" as="geometry" />
+        </mxCell>
+        <mxCell id="t-2" value="2. 強制的な適用条件を反映&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;Registry の candidate_when 規則を評価&lt;br&gt;不適用な戦術を mask&lt;br&gt;&lt;br&gt;予告おじゃま量 &amp;gt; 0の場合：&lt;br&gt;相殺可能なら counter_or_return を強制&lt;br&gt;それ以外は survive を強制&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="483.98" y="218" width="287.21" height="206.59" as="geometry" />
+        </mxCell>
+        <mxCell id="t-3" value="3. 戦術を軽量評価&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;共有 context encoder（局面特徴抽出器）&lt;br&gt;戦術別の隠れ head&lt;br&gt;提案 logit / 価値 / リスク&lt;br&gt;目標制約を復号&lt;br&gt;beam 探索 parameter を復号&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#7e22ce;strokeWidth=3;fontColor=#442260;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="935" y="218" width="287.21" height="206.59" as="geometry" />
+        </mxCell>
+        <mxCell id="t-5" value="5. 最終戦術を裁定&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;戦術の隠れ状態&lt;br&gt;+ logit / 価値 / リスク&lt;br&gt;+ preview 特徴ベクトルを結合&lt;br&gt;&lt;br&gt;戦術を決定論的に 1 つ選択&lt;br&gt;（または response guard が上書き）&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#7e22ce;strokeWidth=3;fontColor=#442260;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="1985" y="213" width="301.11" height="216.59" as="geometry" />
+        </mxCell>
+        <mxCell id="t-6" value="6. PlannerRequest（探索依頼）を生成&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;戦術目標 + 閾値&lt;br&gt;目標連鎖 / 攻撃 / 期限&lt;br&gt;危険許容度 / 発火 policy&lt;br&gt;depth / width / 候補数 \(K\)&lt;br&gt;fallback 戦術&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e6;strokeColor=#b7791f;strokeWidth=2;fontColor=#623b00;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="1985" y="610.24" width="306.58" height="209.76" as="geometry" />
+        </mxCell>
+        <mxCell id="t-7" value="7. 選択した Worker 内を探索&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;構築：多様性を保つ beam 探索&lt;br&gt;対応：readiness Worker&lt;br&gt;その他：tactical Worker&lt;br&gt;&lt;br&gt;BuildPotential / 発火 / 危険度を評価&lt;br&gt;多様な初手 / 計画を保持&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#feecef;strokeColor=#be123c;strokeWidth=2;fontColor=#67142b;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="1515" y="610.24" width="306.58" height="209.76" as="geometry" />
+        </mxCell>
+        <mxCell id="t-8" value="8. \(K\) 件の候補を固定形式へ正規化&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;初手 / 計画の重複を除去&lt;br&gt;合法手 mask を検証&lt;br&gt;安定 ID + padding mask&lt;br&gt;順位付け用 13 特徴量を直列化&lt;br&gt;coverage / regret の計測値&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfeff;strokeColor=#0891b2;strokeWidth=3;fontColor=#164e63;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="1005.325" y="610.24" width="306.58" height="209.76" as="geometry" />
+        </mxCell>
+        <mxCell id="t-9" value="9. 現行の候補選択&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;compatibility mode が slot 0 を選択&lt;br&gt;Worker の heuristic 順がそのまま最終順位&lt;br&gt;&lt;br&gt;\(K\) 候補間の比較はまだ未学習&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=3;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="483.98" y="610.24" width="306.58" height="209.76" as="geometry" />
+        </mxCell>
+        <mxCell id="t-10" value="10. 実行して結果を観測&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;配置を Simulator へ適用&lt;br&gt;連鎖 / 攻撃結果を確定&lt;br&gt;予告おじゃまと状態遷移を更新&lt;br&gt;戦術 / 提案 / 計画 / latency を保存&lt;br&gt;次の意思決定で繰り返す&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontSize=14;fontStyle=1;spacing=10;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="95" y="615.24" width="291.96" height="199.76" as="geometry" />
+        </mxCell>
+        <mxCell id="t-future" value="PUYO-130 では手順 9 を学習型の候補順位付けへ置換&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;CandidateRankerInput（固定形状の順位付け入力）→ mask 済み logit → 候補分布 → 選択 action&lt;br&gt;混合対戦相手に対する critic + 報酬 + entropy 更新&lt;br&gt;&lt;br&gt;探索が候補を生成し続け、RL がどの候補を選ぶかを学習する。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=3;fontColor=#14532d;fontSize=15;fontStyle=1;spacing=12;dashed=1;" parent="6AE9F17jzYQiLMyGNvM--1" vertex="1">
+          <mxGeometry x="735" y="919.9999999999999" width="847.23" height="195.92" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e1" value="診断値" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-1" target="t-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e2" value="mask 済み特徴量" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-2" target="t-3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e3" value="上位 logit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-3" target="t-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e4" value="preview tensor（事前探索結果）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7e22ce;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-4" target="t-5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e5" value="選択戦術" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-5" target="t-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e6" value="探索依頼" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-6" target="t-7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e7" value="未整形の候補" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-7" target="t-8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e8" value="slot 0（先頭候補）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#dc2626;strokeWidth=3;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-8" target="t-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e9" value="配置" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#334155;strokeWidth=2;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-9" target="t-10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e10" value="次の局面" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#64748b;strokeWidth=2;dashed=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-10" target="t-1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="239" y="610" />
+              <mxPoint x="239" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t-e11" value="将来の候補 logit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#16a34a;strokeWidth=3;dashed=1;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-8" target="t-future" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t-e12" value="将来の選択候補" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#16a34a;strokeWidth=3;dashed=1;" parent="6AE9F17jzYQiLMyGNvM--1" source="t-future" target="t-10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="v172-gate-blocker" name="3. PUYO-130が開始不可となった理由">
+    <mxGraphModel dx="1597" dy="912" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="1" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ik1cYBR1Yb5JweXHlFDj-1" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="35" y="20" width="1730" height="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="g-title" value="PUYO-170 学習前 Capability Gate — PUYO-130 long-run が BLOCKED となった理由" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=25;fontStyle=1;fontColor=#172033;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="215" width="1300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="g-config" value="Canonical input（標準評価条件）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;30 seed × 40 手、決定論的に 2 回反復&lt;br&gt;current（現行探索）：depth 3 / width 24 / probe 8 / \(K\) 8&lt;br&gt;reference（高予算の診断探索）：depth 8 / width 64 / probe 32&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#64748b;strokeWidth=2;fontColor=#334155;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="415" y="65" width="900" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="g-suite" value="FAIL — 固定 suite（共通評価セット）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;要件：30/30 game が 40 手へ到達&lt;br&gt;実績：29/30&lt;br&gt;seed 146 は意思決定 39 で終了&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=3;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry y="215" width="315" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="g-chain" value="FAIL — 大連鎖の生成能力&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;要件：最大連鎖数の平均 ≥ 10&lt;br&gt;実績：2.933&lt;br&gt;分布：0〜11、11 連鎖は 1 seedのみ&lt;br&gt;\(K\) 候補内の最良値平均：2.933&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=3;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="350" y="205" width="330" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="g-gap" value="PASS — 直近の安全性 gap&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;回避可能な未発火 gap：0&lt;br&gt;強制 game-over gap：0&lt;br&gt;&lt;br&gt;ただし長期的な構築品質の証明ではない。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="1085" y="215" width="300" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="g-latency" value="FAIL — Registry の latency 予算&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;要件：提案生成 p95 ≤ 60 ms&lt;br&gt;実績 p50 / p95：582.67 / 917.12 ms&lt;br&gt;計測：実時間の観測値&lt;br&gt;提案データへの変換時間を含む&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=3;fontColor=#7f1d1d;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="725" y="205" width="330" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="g-determinism" value="PASS — 再現性&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;2 回の反復で同一 digest&lt;br&gt;c0c076…c783 × 2&lt;br&gt;&lt;br&gt;失敗結果も決定論的に再現する。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;fontColor=#14532d;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="1415" y="215" width="315" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="g-coverage" value="Coverage（探索網羅率）の根拠&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;reference の最良連鎖平均：6.600&lt;br&gt;reference 初手の coverage：83.7%&lt;br&gt;reference 経路の coverage：65.1%&lt;br&gt;候補不足に起因する早すぎる発火：27 件&lt;br&gt;&lt;br&gt;高予算 reference は改善するが 10 未満。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eaf2ff;strokeColor=#2563eb;strokeWidth=2;fontColor=#193763;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="115" y="470" width="430" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="g-diagnosis" value="原因診断&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;1. 現行 \(K\) 候補 / 経路では、複数 seed で安定する 10 連鎖以上の継続手を提示できない。&lt;br&gt;2. reference の初手 / 経路 prefix 欠落は、探索深さ・枝刈り・候補 coverage の損失を示す。&lt;br&gt;3. 探索 + 提案データ変換は p95 で Runtime 予算の約 15 倍。&lt;br&gt;4. 1 経路は依然として早期 game-over に至る。&lt;br&gt;&lt;br&gt;つまり、良い候補群から学習器が誤選択しただけではない。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e5;strokeColor=#d97706;strokeWidth=3;fontColor=#7c2d12;fontSize=15;fontStyle=1;spacing=12;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="665" y="445" width="650" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="g-not" value="Blocker ではなかったもの&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;PUYO-158 の脅威 scenario：6/6 PASS&lt;br&gt;回避可能な候補 gap：0&lt;br&gt;強制 game-over 候補 gap：0&lt;br&gt;schema / hash / 決定性：PASS&lt;br&gt;&lt;br&gt;脅威対応は機能する一方、安全な長連鎖構築が不足。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ecfeff;strokeColor=#0891b2;strokeWidth=2;fontColor=#164e63;fontSize=14;fontStyle=1;spacing=10;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="1355" y="470" width="375" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="g-why" value="long-run 学習前に停止する理由&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;学習型 Ranker は候補の順序を変えられるが、欠けた長期計画は生成できない。&lt;br&gt;不十分 / 予算超過の action 集合で学習すると、早すぎる発火や脆い構築を残したまま対戦勝率だけを最適化し得る。&lt;br&gt;Gate は RL が候補生成器の欠陥を覆い隠すことと、無効な action 空間への計算資源投入を防ぐ。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#7e22ce;strokeWidth=3;fontColor=#442260;fontSize=15;fontStyle=1;spacing=12;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="195" y="790" width="760" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="g-block" value="判定：PUYO-130 LONG-RUN = BLOCKED（開始不可）&lt;br&gt;&lt;span style=&quot;font-weight: normal;&quot;&gt;&lt;br&gt;Registry 予算内の単一設定で全 Capability Gate を通過した場合のみ解除：&lt;br&gt;30/30 × 40 手、最大連鎖平均 ≥ 10、安全性 gap 0、p95 ≤ 60 ms、決定論的反復一致。&lt;br&gt;&lt;br&gt;その後 PUYO-130 で CandidateRanker / critic を学習可能。PUYO-133 で学習後の選択 policy を別途評価する。&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7f1d1d;strokeColor=#450a0a;strokeWidth=4;fontColor=#ffffff;fontSize=16;fontStyle=1;spacing=14;" parent="ik1cYBR1Yb5JweXHlFDj-1" vertex="1">
+          <mxGeometry x="1015" y="790" width="715" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e1" value="根拠" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#2563eb;strokeWidth=2;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-chain" target="g-coverage" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e2" value="根本原因" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#d97706;strokeWidth=3;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-coverage" target="g-diagnosis" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e3" value="失敗項目" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#dc2626;strokeWidth=3;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-latency" target="g-diagnosis" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e4" value="安全性の解釈" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#0891b2;strokeWidth=2;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-gap" target="g-not" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e5" value="学習リスク" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7e22ce;strokeWidth=3;exitX=0.477;exitY=0.995;exitDx=0;exitDy=0;exitPerimeter=0;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-diagnosis" target="g-why" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g-e6" value="停止 / 開始判定" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#7f1d1d;strokeWidth=4;exitX=0.516;exitY=0.998;exitDx=0;exitDy=0;exitPerimeter=0;" parent="ik1cYBR1Yb5JweXHlFDj-1" source="g-diagnosis" target="g-block" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+  </script>
+  <script>
+    (function () {
+      var xmlNode = document.getElementById("drawio-source");
+      var xml = xmlNode.textContent.trim();
+      var viewers = [
+        ["viewer-architecture", 0, "v1.7.2 現行Runtimeアーキテクチャ", "fallback-architecture"],
+        ["viewer-process", 1, "観測可能な意思決定プロセス", "fallback-process"],
+        ["viewer-gate", 2, "PUYO-130が開始不可となった理由", "fallback-gate"]
+      ];
+
+      viewers.forEach(function (entry) {
+        var target = document.getElementById(entry[0]);
+        target.setAttribute("data-mxgraph", JSON.stringify({
+          xml: xml,
+          page: entry[1],
+          title: entry[2],
+          toolbar: "pages zoom lightbox",
+          "toolbar-nohide": true,
+          "max-height": 720,
+          border: 10,
+          resize: true,
+          center: true,
+          lightbox: true,
+          editable: false
+        }));
+
+        var observer = new MutationObserver(function () {
+          if (target.children.length > 0) {
+            var fallback = document.getElementById(entry[3]);
+            if (fallback) fallback.removeAttribute("open");
+            observer.disconnect();
+          }
+        });
+        observer.observe(target, {childList: true, subtree: true});
+      });
+
+      document.getElementById("download-embedded").addEventListener("click", function () {
+        var blob = new Blob([xml], {type: "application/xml;charset=utf-8"});
+        var link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "puyo-v1-7-2-architecture.drawio";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(link.href); }, 0);
+      });
+
+      var viewerScript = document.createElement("script");
+      viewerScript.src = "https://viewer.diagrams.net/js/viewer-static.min.js";
+      viewerScript.async = true;
+      viewerScript.onerror = function () {
+        document.querySelectorAll("details.fallback").forEach(function (item) {
+          item.setAttribute("open", "");
+        });
+      };
+      document.head.appendChild(viewerScript);
+    }());
+  </script>
+</body>
+</html>
