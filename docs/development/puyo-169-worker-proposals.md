@@ -1,5 +1,10 @@
 # PUYO-169 K-best worker proposal contract
 
+> この文書は PUYO-169 で固定した v1 契約の記録である。production の既定契約は
+> PUYO-175 で v2 へ更新された。v2 の evidence、missingness、migration は
+> [PUYO-175 Worker Proposal / Ranker Contract v2](puyo-175-worker-proposals-v2.md)
+> を参照する。v1 fixture と明示 compatibility projection は引き続き維持する。
+
 ## Scope
 
 PUYO-167 の `DiverseBeamCandidate` は探索内部の deterministic candidate generator であり、
