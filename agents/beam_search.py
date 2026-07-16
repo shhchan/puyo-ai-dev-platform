@@ -778,6 +778,8 @@ class DiverseBeamCandidate:
     scenario_support: int = 0
     scenario_ids: tuple[int, ...] = ()
     chain_style_evaluation: Mapping[str, Any] = field(default_factory=dict)
+    expected_chain_evidence: Mapping[str, Any] = field(default_factory=dict)
+    chain_structure_evaluation: Mapping[str, Any] = field(default_factory=dict)
     schema_version: str = DIVERSE_CANDIDATE_SCHEMA_VERSION
 
     def to_dict(self) -> dict[str, Any]:
@@ -1406,6 +1408,21 @@ class BeamSearchPolicy:
             ),
             reached_depth=counters.reached_depth,
             scenario_budget={
+                "profile": {
+                    "name": self.config.search_profile,
+                    "version": self.config.search_profile_version,
+                },
+                "search_backend": self.config.search_backend,
+                "depth": int(self.config.depth),
+                "width": int(self.config.width),
+                "candidate_limit": int(self.config.candidate_limit),
+                "minimum_chain_count": int(self.config.minimum_chain_count),
+                "potential_probe_budget": int(
+                    self.config.potential_probe_budget
+                ),
+                "build_potential_budget": (
+                    self.config.build_potential_budget.to_dict()
+                ),
                 "known_pair_count": int(1 + len(simulator.game.next_puyo_queue)),
                 "hidden_future_requested": int(self.config.scenarios),
                 "hidden_future_evaluated": len(evaluated_scenario_ids),
@@ -1417,6 +1434,19 @@ class BeamSearchPolicy:
                     else "single_hidden_scenario"
                 ),
                 "max_expanded_nodes": self.config.max_expanded_nodes,
+                "expanded_nodes": int(expansion_budget.consumed),
+                "generated_nodes": int(counters.generated_nodes),
+                "pruned_nodes": 0,
+                "transposition_hits": int(counters.transposition_hits),
+                "potential_probe_count": int(
+                    self._potential_session.evaluation_count
+                ),
+                "potential_cache_hits": int(self._potential_session.cache_hits),
+                "budget_exhausted": bool(expansion_budget.exhausted),
+                "truncation_reason": (
+                    "expanded_node_budget" if expansion_budget.exhausted else None
+                ),
+                "reached_depth": int(counters.reached_depth),
             },
             node_evaluator_backend=self.config.node_evaluator_backend,
             chain_structure_feature_version=(
@@ -1480,6 +1510,7 @@ class BeamSearchPolicy:
         for rank, evidence in enumerate(selected):
             representative = search.representatives[evidence.root_action]
             potential = potential_by_action[evidence.root_action]
+            representative_structure = representative.evaluator_result
             recoverability = compare_build_potential_triggers(
                 self._root_potential,
                 potential,
@@ -1529,6 +1560,14 @@ class BeamSearchPolicy:
                     scenario_ids=search.root_generated_scenarios.get(
                         evidence.root_action,
                         (),
+                    ),
+                    expected_chain_evidence=evidence.to_dict(),
+                    chain_structure_evaluation=(
+                        {}
+                        if representative_structure is None
+                        else copy.deepcopy(
+                            dict(representative_structure.to_dict())
+                        )
                     ),
                 )
             )
@@ -1696,7 +1735,10 @@ class BeamSearchPolicy:
             scenario_count=self.config.scenarios,
             candidate_values=tuple(sorted(candidate_values.items())),
             trigger_preservation=self.config.trigger_preservation,
-            probe_width=self.config.probe_width,
+            # The compact backend probes BuildPotential only after expected-chain
+            # ranking.  Expose that final-K width through the existing planner
+            # diagnostic even though the pre-prune probe_width config remains zero.
+            probe_width=self.config.candidate_limit,
             root_potential=self._root_potential,
             selected_potential=selected_potential,
             trigger_preserved=False,
@@ -1730,6 +1772,17 @@ class BeamSearchPolicy:
                     "name": self.config.search_profile,
                     "version": self.config.search_profile_version,
                 },
+                "search_backend": self.config.search_backend,
+                "depth": int(self.config.depth),
+                "width": int(self.config.width),
+                "candidate_limit": int(self.config.candidate_limit),
+                "minimum_chain_count": int(self.config.minimum_chain_count),
+                "potential_probe_budget": int(
+                    self.config.potential_probe_budget
+                ),
+                "build_potential_budget": (
+                    self.config.build_potential_budget.to_dict()
+                ),
                 "known_pair_count": int(
                     search.scenario_sequences[0].known_pair_count
                 ),
@@ -1752,6 +1805,14 @@ class BeamSearchPolicy:
                 "budget_authority": self.config.budget_authority,
                 "max_expanded_nodes": self.config.max_expanded_nodes,
                 "expanded_nodes": search.counters.expanded_nodes,
+                "generated_nodes": search.counters.generated_nodes,
+                "pruned_nodes": search.counters.pruned_nodes,
+                "transposition_hits": search.counters.transposition_hits,
+                "potential_probe_count": int(
+                    self._potential_session.evaluation_count
+                ),
+                "potential_cache_hits": int(self._potential_session.cache_hits),
+                "budget_exhausted": bool(search.counters.budget_exhausted),
                 "wall_clock_mode": self.config.wall_clock_mode,
                 "elapsed_seconds": elapsed,
                 "truncation_reason": (
@@ -2449,6 +2510,12 @@ class BeamSearchPolicy:
                     scenario_ids=candidate.scenario_ids,
                     chain_style_evaluation=dict(
                         candidate.chain_style_evaluation
+                    ),
+                    expected_chain_evidence=copy.deepcopy(
+                        dict(candidate.expected_chain_evidence)
+                    ),
+                    chain_structure_evaluation=copy.deepcopy(
+                        dict(candidate.chain_structure_evaluation)
                     ),
                 )
             )

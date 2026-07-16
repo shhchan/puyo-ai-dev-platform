@@ -22,6 +22,11 @@ from agents.v1_7_strategy_manager import (
     encode_preview_features,
 )
 from agents.v1_7_tactics import load_tactic_registry
+from agents.worker_proposals import (
+    CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION,
+    CANDIDATE_RANKER_V1_SCHEMA_HASH,
+    WORKER_PROPOSAL_SCHEMA_VERSION,
+)
 from eval.analyzer_scenarios import load_scenarios, scenario_input
 from puyo_env.versus_env import VersusPuyoEnv
 
@@ -89,6 +94,18 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(
             metadata["schemas"]["build_potential"],
             BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_proposal"],
+            WORKER_PROPOSAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_candidate_ranker_input"],
+            CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_candidate_ranker_schema_hash"],
+            CANDIDATE_RANKER_V1_SCHEMA_HASH,
         )
         self.assertEqual(self.encoder.contract.context_dim, 77)
         self.assertNotIn(
@@ -281,6 +298,18 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(
             selected_preview["worker"]["build_potential"]["schema_version"],
             BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            selected_preview["worker"]["proposal_batch"],
+            worker_proposal,
+        )
+        self.assertIn("shared_context", worker_proposal)
+        self.assertTrue(
+            all(
+                "search_cost" not in candidate["preview"]
+                for candidate in worker_proposal["candidates"]
+                if candidate is not None
+            )
         )
         json.dumps(diagnostics)
 

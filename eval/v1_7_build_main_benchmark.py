@@ -94,7 +94,7 @@ class ForcedBuildMainPolicy:
         return int(self.last_proposal.action)
 
     def _request(self, info: Mapping[str, Any]) -> PlannerRequest:
-        parameters = self.tactic.resolve_parameters(
+        resolved_parameters = self.tactic.resolve_parameters(
             {
                 "planner": {
                     "beam_depth": self.configuration.depth,
@@ -103,6 +103,13 @@ class ForcedBuildMainPolicy:
                 }
             }
         )
+        # PUYO-166 artifacts are a frozen legacy-backend budget sweep.  Keep
+        # their reproduction independent from PUYO-175 production routing.
+        parameters = {
+            key: dict(value) if isinstance(value, Mapping) else value
+            for key, value in resolved_parameters.items()
+        }
+        parameters["planner"]["search_profile"] = "legacy"
         objective = parameters["objective"]
         constraints = parameters["constraints"]
         weights = {

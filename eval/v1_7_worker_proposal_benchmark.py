@@ -20,7 +20,7 @@ from agents.beam_search import (
     BeamSearchPolicy,
 )
 from agents.worker_proposals import (
-    WORKER_PROPOSAL_SCHEMA_VERSION,
+    WORKER_PROPOSAL_V1_SCHEMA_VERSION,
     WorkerProposalBatch,
     build_worker_proposal_batch,
     compatibility_action,
@@ -140,6 +140,7 @@ def _measure_record(
             search_latency_ms=diagnostics.elapsed_seconds * 1_000.0,
             expanded_nodes=diagnostics.expanded_nodes,
             scenario_budget=diagnostics.scenario_budget,
+            schema_version=WORKER_PROPOSAL_V1_SCHEMA_VERSION,
         )
         serialized = json.dumps(
             batch.to_dict(),
@@ -269,7 +270,7 @@ def _summarize(
     checks["passed"] = all(checks.values())
     return {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "worker_proposal_schema_version": WORKER_PROPOSAL_SCHEMA_VERSION,
+        "worker_proposal_schema_version": WORKER_PROPOSAL_V1_SCHEMA_VERSION,
         "seeds": [int(seed) for seed in seeds],
         "repetitions": int(repetitions),
         "records": len(records),

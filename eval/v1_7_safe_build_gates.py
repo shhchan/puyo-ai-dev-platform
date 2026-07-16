@@ -34,7 +34,7 @@ from agents.beam_search import (
 from agents.v1_7_strategy_manager import POLICY_TYPE
 from agents.v1_7_tactics import load_tactic_registry
 from agents.worker_proposals import (
-    WORKER_PROPOSAL_SCHEMA_VERSION,
+    WORKER_PROPOSAL_V1_SCHEMA_VERSION,
     WorkerProposalBatch,
     WorkerProposalCandidate,
     build_worker_proposal_batch,
@@ -416,6 +416,7 @@ def _evaluate_capability_decision(
         search_latency_ms=current_diagnostics.elapsed_seconds * 1_000.0,
         expanded_nodes=current_diagnostics.expanded_nodes,
         scenario_budget=current_diagnostics.scenario_budget,
+        schema_version=WORKER_PROPOSAL_V1_SCHEMA_VERSION,
     )
     root_outcomes = _root_outcomes(simulator)
     selected_index = select_capability_candidate(
@@ -1245,7 +1246,7 @@ def run_gates(args: argparse.Namespace) -> dict[str, Any]:
         "thresholds": thresholds.to_dict(),
         "seed_manifest": seed_manifest,
         "schemas": {
-            "worker_proposal": WORKER_PROPOSAL_SCHEMA_VERSION,
+            "worker_proposal": WORKER_PROPOSAL_V1_SCHEMA_VERSION,
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "tactic_registry": registry.schema_version,
             "tactic_registry_version": registry.registry_version,
@@ -1394,7 +1395,7 @@ def run_gates(args: argparse.Namespace) -> dict[str, Any]:
         candidate_path,
         {
             "schema_version": CAPABILITY_CANDIDATE_ARTIFACT_SCHEMA_VERSION,
-            "worker_proposal_schema_version": WORKER_PROPOSAL_SCHEMA_VERSION,
+            "worker_proposal_schema_version": WORKER_PROPOSAL_V1_SCHEMA_VERSION,
             "records": first["decisions"],
         },
         compact=True,

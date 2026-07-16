@@ -43,7 +43,13 @@ from puyo_env.actions import (
     legal_action_indices,
     legal_action_mask,
 )
-from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
+from src.core.constants import (
+    GRID_HEIGHT,
+    GRID_WIDTH,
+    NORMAL_PUYO_COLORS,
+    PuyoColor,
+    VISIBLE_HEIGHT,
+)
 
 
 STRATEGY_NAMES = (
@@ -86,6 +92,7 @@ class WorkerProfile:
     danger_weight: float = 1.0
     build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
     potential_probe_budget: int = 64
+    search_profile: str | None = None
 
     def __post_init__(self) -> None:
         if self.strategy not in STRATEGY_NAMES:
@@ -116,6 +123,8 @@ class WorkerProfile:
             )
         if self.potential_probe_budget <= 0:
             raise ValueError("worker potential probe budget must be positive")
+        if self.search_profile is not None and not self.search_profile:
+            raise ValueError("worker search profile must be non-empty when set")
 
 
 @dataclass(frozen=True)
@@ -848,6 +857,7 @@ def _profile_budget_dict(profile: WorkerProfile) -> dict[str, Any]:
             profile.build_potential_schema_version
         ),
         "potential_probe_budget": int(profile.potential_probe_budget),
+        "search_profile": profile.search_profile,
     }
 
 
@@ -1008,6 +1018,23 @@ def board_danger(game) -> float:
     peak = max(heights) / float(GRID_HEIGHT)
     nuisance = min(ojama / 30.0, 1.0)
     return min(1.0, center * 0.55 + peak * 0.35 + nuisance * 0.10)
+
+
+def _supports_long_horizon_scenarios(simulator: Any) -> bool:
+    """Return whether current/NEXT2 satisfy the compact four-color contract."""
+
+    if simulator is None:
+        return False
+    game = simulator.game
+    pairs = [
+        (game.current_puyo_1, game.current_puyo_2),
+        *tuple(game.next_puyo_queue)[:2],
+    ]
+    return all(
+        puyo is not None and getattr(puyo, "color", None) in NORMAL_PUYO_COLORS
+        for pair in pairs
+        for puyo in pair
+    )
 
 
 def estimate_attack_forecast(
@@ -1248,39 +1275,75 @@ class BeamStrategyWorker:
         search_control: SearchControlDiagnostics | None = None,
     ) -> SearchProposal:
         started = time.perf_counter()
-        policy = BeamSearchPolicy(
-            BeamSearchConfig(
+        config_values = {
+            "depth": profile.depth,
+            "width": profile.width,
+            "scenarios": profile.scenarios,
+            "minimum_chain_count": profile.minimum_chain_count,
+            "chain_weight": profile.chain_weight,
+            "score_weight": profile.score_weight,
+            "premature_chain_penalty": profile.premature_chain_penalty,
+            "trigger_preservation": profile.trigger_preservation,
+            "probe_width": profile.potential_probe_width,
+            "scoring_mode": profile.scoring_mode,
+            "future_potential_weight": profile.future_potential_weight,
+            "chain_shape_weight": profile.chain_shape_weight,
+            "danger_weight": profile.danger_weight,
+            "danger_tolerance": profile.danger_tolerance,
+            "build_potential_schema_version": (
+                profile.build_potential_schema_version
+            ),
+            "potential_probe_budget": profile.potential_probe_budget,
+            "chain_style_evaluator": context.chain_style_evaluator,
+            "candidate_mode": (
+                DIVERSE_CANDIDATE_MODE
+                if profile.scoring_mode == BUILD_SCORING_V2
+                else LEGACY_CANDIDATE_MODE
+            ),
+            "candidate_limit": (
+                max(1, profile.potential_probe_width)
+                if profile.scoring_mode == BUILD_SCORING_V2
+                else 1
+            ),
+        }
+        requested_long_horizon = (
+            profile.search_profile is not None
+            and context.chain_style_evaluator is None
+        )
+        if requested_long_horizon and _supports_long_horizon_scenarios(
+            context.simulator
+        ):
+            beam_config = BeamSearchConfig.for_profile(
+                profile.search_profile,
                 depth=profile.depth,
                 width=profile.width,
                 scenarios=profile.scenarios,
                 minimum_chain_count=profile.minimum_chain_count,
-                chain_weight=profile.chain_weight,
-                score_weight=profile.score_weight,
-                premature_chain_penalty=profile.premature_chain_penalty,
                 trigger_preservation=profile.trigger_preservation,
-                probe_width=profile.potential_probe_width,
-                scoring_mode=profile.scoring_mode,
-                future_potential_weight=profile.future_potential_weight,
-                chain_shape_weight=profile.chain_shape_weight,
                 danger_weight=profile.danger_weight,
                 danger_tolerance=profile.danger_tolerance,
                 build_potential_schema_version=(
                     profile.build_potential_schema_version
                 ),
                 potential_probe_budget=profile.potential_probe_budget,
-                chain_style_evaluator=context.chain_style_evaluator,
-                candidate_mode=(
-                    DIVERSE_CANDIDATE_MODE
-                    if profile.scoring_mode == BUILD_SCORING_V2
-                    else LEGACY_CANDIDATE_MODE
-                ),
                 candidate_limit=(
                     max(1, profile.potential_probe_width)
                     if profile.scoring_mode == BUILD_SCORING_V2
                     else 1
                 ),
             )
-        )
+        else:
+            if requested_long_horizon:
+                config_values.update(
+                    {
+                        "search_profile": (
+                            f"{profile.search_profile}-fallback-legacy"
+                        ),
+                        "search_profile_version": None,
+                    }
+                )
+            beam_config = BeamSearchConfig(**config_values)
+        policy = BeamSearchPolicy(beam_config)
         action = policy.select_action(context.observation, context.info)
         diagnostics = policy.last_diagnostics
         result, danger = _preview_action(context.simulator, action)
@@ -2194,6 +2257,16 @@ def _profile_for_planner_request(
         0.0,
         float(weights.get("future_potential_weight", 1.0)),
     )
+    planner_parameters = request.parameters.get("planner", {})
+    requested_search_profile = (
+        planner_parameters.get("search_profile", "runtime")
+        if isinstance(planner_parameters, Mapping)
+        else "runtime"
+    )
+    if requested_search_profile not in {"runtime", "legacy"}:
+        raise ValueError(
+            "build_main planner search_profile must be runtime or legacy"
+        )
     return replace(
         profile,
         depth=max(1, int(request.search_depth)),
@@ -2242,6 +2315,14 @@ def _profile_for_planner_request(
                 and request.trigger_preservation != "ignore"
             )
             else 0
+        ),
+        search_profile=(
+            None
+            if request.tactic_id == "build_main"
+            and requested_search_profile == "legacy"
+            else "runtime"
+            if request.tactic_id == "build_main"
+            else profile.search_profile
         ),
     )
 
@@ -2432,6 +2513,29 @@ class StrategyOrchestrator:
                 "value_breakdown": dict(self.last_proposal.value_breakdown or {}),
                 "chain_style": dict(self.last_proposal.chain_style_evaluation or {}),
             },
+            worker_deadline_status=(
+                {
+                    "status": (
+                        "overrun"
+                        if self.last_proposal.elapsed_seconds * 1_000.0
+                        > planner_request.latency_budget_ms
+                        else "within_budget"
+                    ),
+                    "budget_ms": float(planner_request.latency_budget_ms),
+                    "overrun": bool(
+                        self.last_proposal.elapsed_seconds * 1_000.0
+                        > planner_request.latency_budget_ms
+                    ),
+                    "source": "planner_request",
+                }
+                if planner_request is not None
+                else {
+                    "status": "not_configured",
+                    "budget_ms": None,
+                    "overrun": False,
+                    "source": "worker_profile",
+                }
+            ),
         )
         adapted_action = compatibility_action(
             proposal_batch,
