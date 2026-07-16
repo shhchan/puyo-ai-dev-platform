@@ -48,6 +48,12 @@ from agents.v1_7_tactics import (
     build_tactic_diagnostics,
     load_tactic_registry,
 )
+from agents.worker_proposals import (
+    CANDIDATE_RANKER_COMPAT_PROJECTION_SCHEMA_VERSION,
+    CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION,
+    CANDIDATE_RANKER_V1_SCHEMA_HASH,
+    WORKER_PROPOSAL_SCHEMA_VERSION,
+)
 from src.core.diagnostics import ALL_CLEAR_DIAGNOSTICS_SCHEMA_VERSION
 from train.artifacts import (
     CHECKPOINT_SCHEMA_VERSION,
@@ -69,9 +75,9 @@ LINEAGE_NODE_ID = "model_version:v1.7.2"
 PARENT_LINEAGE_NODE_ID = "model_version:v1.7.1"
 BOOTSTRAP_TRAINER_NAME = "v1_7_manager_bootstrap"
 CHECKPOINT_METADATA_SCHEMA_VERSION = (
-    "puyo.v1_7_strategy_manager.checkpoint_metadata.v3"
+    "puyo.v1_7_strategy_manager.checkpoint_metadata.v4"
 )
-CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v2"
+CHECKPOINT_MIGRATION_SCHEMA_VERSION = "puyo.v1_7_2_checkpoint_migration.v3"
 BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION = (
     "puyo.build_potential_v2_checkpoint_migration.v1"
 )
@@ -238,6 +244,16 @@ def build_v1_7_checkpoint_metadata(
             "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
             "strategy_features": FEATURE_SCHEMA_VERSION,
             "planner_preview_features": PREVIEW_FEATURE_SCHEMA_VERSION,
+            "worker_proposal": WORKER_PROPOSAL_SCHEMA_VERSION,
+            "worker_candidate_ranker_input": (
+                CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION
+            ),
+            "worker_candidate_ranker_schema_hash": (
+                CANDIDATE_RANKER_V1_SCHEMA_HASH
+            ),
+            "worker_candidate_ranker_projection": (
+                CANDIDATE_RANKER_COMPAT_PROJECTION_SCHEMA_VERSION
+            ),
             "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
         },
     }
@@ -711,6 +727,16 @@ def migrate_v1_7_1_checkpoint_payload(
             "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
             "strategy_features": FEATURE_SCHEMA_VERSION,
             "planner_preview_features": PREVIEW_FEATURE_SCHEMA_VERSION,
+            "worker_proposal": WORKER_PROPOSAL_SCHEMA_VERSION,
+            "worker_candidate_ranker_input": (
+                CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION
+            ),
+            "worker_candidate_ranker_schema_hash": (
+                CANDIDATE_RANKER_V1_SCHEMA_HASH
+            ),
+            "worker_candidate_ranker_projection": (
+                CANDIDATE_RANKER_COMPAT_PROJECTION_SCHEMA_VERSION
+            ),
             "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
         }
     )
@@ -880,6 +906,16 @@ def migrate_build_potential_v2_checkpoint_payload(
             "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
             "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
             "planner_request": PLANNER_REQUEST_SCHEMA_VERSION,
+            "worker_proposal": WORKER_PROPOSAL_SCHEMA_VERSION,
+            "worker_candidate_ranker_input": (
+                CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION
+            ),
+            "worker_candidate_ranker_schema_hash": (
+                CANDIDATE_RANKER_V1_SCHEMA_HASH
+            ),
+            "worker_candidate_ranker_projection": (
+                CANDIDATE_RANKER_COMPAT_PROJECTION_SCHEMA_VERSION
+            ),
             "strategy_diagnostics": STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
         }
     )

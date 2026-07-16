@@ -65,7 +65,7 @@ class TestV17SearchDiagnosticsBenchmark(unittest.TestCase):
         self.assertEqual(manifest["moves_per_seed"], 40)
         self.assertEqual(len(manifest["source_sha256"]), 64)
 
-    def test_diagnostic_current_search_matches_production_selection(self):
+    def test_diagnostic_current_search_matches_frozen_legacy_selection(self):
         production_simulator = HeadlessPuyoSimulator(seed=123)
         diagnostic_simulator = HeadlessPuyoSimulator(seed=123)
         opponent = HeadlessPuyoSimulator(seed=1_000_126)

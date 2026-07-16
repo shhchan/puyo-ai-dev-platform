@@ -418,7 +418,7 @@ class TestLongHorizonSearch(unittest.TestCase):
             "external_deadline_contract",
         )
 
-    def test_worker_proposal_v1_keeps_k8_masks_and_rank_zero_compatibility(self):
+    def test_worker_proposal_v2_keeps_k8_masks_and_rank_zero_compatibility(self):
         simulator = HeadlessPuyoSimulator(seed=11)
         policy = BeamSearchPolicy(
             BeamSearchConfig.for_profile(
@@ -476,6 +476,13 @@ class TestLongHorizonSearch(unittest.TestCase):
         preview = type(batch).from_dict(batch.to_dict()).selected_candidate
         placement = action_to_placement(preview.root_action)
         self.assertIsNotNone(placement)
+        self.assertIsNotNone(preview.evidence.expected_chain)
+        self.assertIsNotNone(preview.evidence.structural_chain)
+        self.assertEqual(
+            preview.evidence.scenario_digest,
+            batch.shared_context.scenario_digest,
+        )
+        self.assertNotIn("search_latency_ms", batch.ranker_input.to_dict()["feature_names"])
 
 
 if __name__ == "__main__":

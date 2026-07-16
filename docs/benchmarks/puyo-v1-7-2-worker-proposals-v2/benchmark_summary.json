@@ -1,0 +1,61 @@
+{
+  "checks": {
+    "all_four_missingness_statuses": true,
+    "candidate_ids_preserved_in_v1_projection": true,
+    "candidate_mask_preserved_in_v1_projection": true,
+    "deterministic_ranker_input_digest": true,
+    "deterministic_serialized_digest": true,
+    "fixed_k8": true,
+    "passed": true,
+    "projection_is_explicitly_lossy": true,
+    "rank_zero_compatibility": true,
+    "round_trip": true,
+    "selected_action_preserved_in_v1_projection": true,
+    "shared_cost_not_in_v2_candidate_features": true,
+    "six_scenario_mask": true,
+    "status_masks_invalid_candidates": true
+  },
+  "feature_coverage": {
+    "mean": 0.936046511627907,
+    "minimum": 0.936046511627907
+  },
+  "generated_at": "2026-07-16T09:59:05Z",
+  "git_commit": "beae89c5f79482c824039feac3ab0db0ab6a77b3",
+  "measurement": {
+    "projection": "explicit v2-to-v1 compatibility projection",
+    "search_budget": "six scenarios, depth 1, 132 expanded nodes",
+    "serialization": "json encode plus v2 decode/readback",
+    "timing": "observational wall clock"
+  },
+  "projection_ms": {
+    "p50": 1.8574830028228462,
+    "p95": 2.1938296500593424
+  },
+  "records": 4,
+  "repetitions": 2,
+  "scenario_feature_coverage": {
+    "mean": 1.0,
+    "minimum": 1.0
+  },
+  "schema_version": "puyo.v1_7_worker_proposal_v2_benchmark.v1",
+  "seeds": [
+    175,
+    176
+  ],
+  "serialization_ms": {
+    "p50": 18.607083009555936,
+    "p95": 20.87209898745641
+  },
+  "serialized_bytes": {
+    "p50": 172232.5,
+    "p95": 181199.80000000002
+  },
+  "status_counts": {
+    "budget_exhausted": 4,
+    "evaluated": 20,
+    "legacy_missing": 4,
+    "not_evaluated": 4
+  },
+  "v1_zero_missingness_confusion_count": 12,
+  "worker_proposal_schema_version": "puyo.worker_proposal_batch.v2"
+}

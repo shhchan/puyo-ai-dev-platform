@@ -153,6 +153,40 @@ class TestV17Planner(unittest.TestCase):
         self.assertEqual(fire.potential_probe_count, 0)
         self.assertEqual(fire.beam_candidates, ())
 
+    def test_build_main_falls_back_when_visible_pair_is_outside_compact_contract(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+        simulator = HeadlessPuyoSimulator(seed=10)
+        simulator.game.next_puyo_queue[0][0].color = PuyoColor.PURPLE
+        request = build_planner_request(
+            self.registry.tactic("build_main"),
+            analyzer_input,
+            diagnostics,
+            parameter_overrides={
+                "planner": {
+                    "beam_depth": 1,
+                    "beam_width": 4,
+                    "candidate_count": 2,
+                }
+            },
+        )
+        proposal = StrategyOrchestrator(smoke_worker_profiles()).propose(
+            0,
+            encode_observation(simulator, step_count=0, max_steps=40),
+            {
+                "simulator": simulator,
+                "action_mask": legal_action_mask(simulator),
+            },
+            planner_request=request,
+        )
+
+        self.assertTrue(legal_action_mask(simulator)[proposal.action])
+        self.assertEqual(
+            proposal.worker_proposal.shared_context.profile["search"]["name"],
+            "runtime-fallback-legacy",
+        )
+        self.assertFalse(any(proposal.worker_proposal.ranker_input.candidate_mask))
+
     def test_fire_main_keeps_legacy_one_step_route(self):
         analyzer_input = scenario_input(self.scenarios[0])
         diagnostics = StateAnalyzer().analyze(analyzer_input)

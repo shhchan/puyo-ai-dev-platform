@@ -1,0 +1,44 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "summary",
+      "sha256": "327f72f21335063ef5d5a07a49aaf647cebd80acc14200f0d63391079ea25795",
+      "size_bytes": 1751
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_records.json",
+      "required": true,
+      "role": "records",
+      "sha256": "b19bd5c939f5a50efb10831ab7e325eb497e10f5c5bd1e02d8fca9569d4970a2",
+      "size_bytes": 5286
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "field_dictionary.json",
+      "required": true,
+      "role": "field_dictionary",
+      "sha256": "bb5e64eb52134c143685616378188cfb0325ad4eeb9c928945c2e7235264734b",
+      "size_bytes": 16032
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "report",
+      "sha256": "c917331648ef79088325eca06a57a8796f9f7211fc7fa7ae2937801d09a22fa6",
+      "size_bytes": 1273
+    }
+  ],
+  "benchmark_schema_version": "puyo.v1_7_worker_proposal_v2_benchmark.v1",
+  "generated_at": "2026-07-16T09:59:05Z",
+  "git_commit": "beae89c5f79482c824039feac3ab0db0ab6a77b3",
+  "schema_version": "puyo.v1_7_worker_proposal_v2_manifest.v1"
+}
