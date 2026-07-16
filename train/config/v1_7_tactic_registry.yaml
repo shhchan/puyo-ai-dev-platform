@@ -37,6 +37,46 @@ tactics:
         trigger_preservation: {kind: discrete, default: required, choices: [required, prefer, ignore]}
     planner:
       input_refs: [input.policy_deadline]
+      search_profiles:
+        schema_version: puyo.long_horizon_profile.v1
+        default: runtime
+        entries:
+          - identity: {name: runtime, version: "1.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v1
+            depth: 3
+            width: 24
+            scenarios: 1
+            candidate_limit: 8
+            max_expanded_nodes: 2048
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: external_runtime_deadline, wall_clock_mode: external_deadline_contract}
+          - identity: {name: quality-d12, version: "1.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v1
+            depth: 12
+            width: 128
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 200000
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: quality-d16, version: "1.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v1
+            depth: 16
+            width: 250
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 600000
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
       parameters:
         beam_depth: {kind: integer, default: 3, min: 1, max: 10}
         beam_width: {kind: integer, default: 24, min: 1, max: 128}
@@ -57,6 +97,9 @@ tactics:
         - danger_margin
         - trigger_preserved
         - value_breakdown
+        - expected_chain_evidence
+        - scenario_sequence_digest
+        - count_budget
 
   - identity: {id: prepare_response, name: prepare_response, version: "2.0", human_label: 対応準備}
     applicability:

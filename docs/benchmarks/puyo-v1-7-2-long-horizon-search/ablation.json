@@ -1,0 +1,125 @@
+{
+  "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+  "summaries": [
+    {
+      "budget_exhaustions": 0,
+      "config_id": "baseline",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": null,
+      "mean_elapsed_seconds": 0.11954607698135078,
+      "mean_expanded_nodes": 1034.0,
+      "mean_expected_chain_score": 0.0,
+      "mean_max_chain": 0.0,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "baseline",
+      "survival_rate": 1.0,
+      "transposition_hits": 722
+    },
+    {
+      "budget_exhaustions": 0,
+      "config_id": "compact",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": {
+        "dead_end_rate": 0.0,
+        "mean_expanded_nodes": 0.0,
+        "mean_expected_chain_score": 0.0,
+        "mean_max_chain": 0.0,
+        "survival_rate": 0.0
+      },
+      "mean_elapsed_seconds": 0.08927406064079453,
+      "mean_expanded_nodes": 1034.0,
+      "mean_expected_chain_score": 0.0,
+      "mean_max_chain": 0.0,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "compact_kernel",
+      "survival_rate": 1.0,
+      "transposition_hits": 0
+    },
+    {
+      "budget_exhaustions": 0,
+      "config_id": "lightweight",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": {
+        "dead_end_rate": 0.0,
+        "mean_expanded_nodes": 0.0,
+        "mean_expected_chain_score": 0.0,
+        "mean_max_chain": 0.0,
+        "survival_rate": 0.0
+      },
+      "mean_elapsed_seconds": 5.439971320990783,
+      "mean_expanded_nodes": 1034.0,
+      "mean_expected_chain_score": 0.0,
+      "mean_max_chain": 0.0,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "lightweight_evaluator",
+      "survival_rate": 1.0,
+      "transposition_hits": 0
+    },
+    {
+      "budget_exhaustions": 0,
+      "config_id": "six-scenario",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": {
+        "dead_end_rate": 0.0,
+        "mean_expanded_nodes": 1210.0,
+        "mean_expected_chain_score": 0.0,
+        "mean_max_chain": 0.0,
+        "survival_rate": 0.0
+      },
+      "mean_elapsed_seconds": 11.708192741304325,
+      "mean_expanded_nodes": 2244.0,
+      "mean_expected_chain_score": 0.0,
+      "mean_max_chain": 0.0,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "six_scenario",
+      "survival_rate": 1.0,
+      "transposition_hits": 0
+    },
+    {
+      "budget_exhaustions": 0,
+      "config_id": "long-horizon",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": {
+        "dead_end_rate": 0.0,
+        "mean_expanded_nodes": 3168.0,
+        "mean_expected_chain_score": 733.3333333333334,
+        "mean_max_chain": 1.6666666666666667,
+        "survival_rate": 0.0
+      },
+      "mean_elapsed_seconds": 29.63378280963904,
+      "mean_expanded_nodes": 5412.0,
+      "mean_expected_chain_score": 733.3333333333334,
+      "mean_max_chain": 1.6666666666666667,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "long_horizon",
+      "survival_rate": 1.0,
+      "transposition_hits": 0
+    },
+    {
+      "budget_exhaustions": 0,
+      "config_id": "long-horizon-tt",
+      "dead_end_rate": 0.0,
+      "delta_from_previous": {
+        "dead_end_rate": 0.0,
+        "mean_expanded_nodes": 0.0,
+        "mean_expected_chain_score": 0.0,
+        "mean_max_chain": 0.0,
+        "survival_rate": 0.0
+      },
+      "mean_elapsed_seconds": 29.263890793391813,
+      "mean_expanded_nodes": 5412.0,
+      "mean_expected_chain_score": 733.3333333333334,
+      "mean_max_chain": 1.6666666666666667,
+      "mean_scenario_coverage": 1.0,
+      "seeds": 3,
+      "stage": "transposition_table",
+      "survival_rate": 1.0,
+      "transposition_hits": 554
+    }
+  ]
+}

@@ -18,6 +18,19 @@ from agents.chain_structure import (
     CompactNodeEvaluator,
 )
 from agents.compact_search import CompactSearchState
+from agents.long_horizon_search import (
+    EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
+    EXPECTED_CHAIN_RANKING_RULE_VERSION,
+    REPRESENTATIVE_SCENARIO_BAGS,
+    TERMINAL_FIRE_CONTINUE,
+    TERMINAL_FIRE_RECORD_AND_STOP,
+    TERMINAL_FIRE_RULES,
+    LONG_HORIZON_PROPOSAL_DIGEST_VERSION,
+    LongHorizonSearchConfig,
+    long_horizon_proposal_digest,
+    long_horizon_profile,
+    run_long_horizon_search,
+)
 from puyo_env.actions import action_to_placement, legal_action_indices
 from src.core.constants import (
     GRID_HEIGHT,
@@ -27,19 +40,13 @@ from src.core.constants import (
     PuyoColor,
 )
 from src.core.field import Field
+from src.core.game import GameState
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.puyo import Puyo
 from src.core.tsumo import PuyoSequence
 
 
-_SCENARIO_BAGS = (
-    (0, 1, 2, 3),
-    (0, 2, 1, 3),
-    (0, 3, 1, 2),
-    (1, 2, 0, 3),
-    (1, 3, 0, 2),
-    (2, 3, 0, 1),
-)
+_SCENARIO_BAGS = REPRESENTATIVE_SCENARIO_BAGS
 
 BUILD_POTENTIAL_V1_SCHEMA_VERSION = "puyo.build_potential.v1"
 BUILD_POTENTIAL_SCHEMA_VERSION = "puyo.build_potential.v2"
@@ -50,6 +57,9 @@ DIVERSE_CANDIDATE_MODE = "diverse"
 DIVERSE_CANDIDATE_SCHEMA_VERSION = "puyo.diverse_beam_candidate.v1"
 LEGACY_NODE_EVALUATOR = "legacy"
 CHAIN_STRUCTURE_NODE_EVALUATOR = "chain_structure_v1"
+SIMULATOR_SEARCH_BACKEND = "simulator"
+COMPACT_LONG_HORIZON_SEARCH_BACKEND = "compact_long_horizon_v1"
+LEAF_SCALAR_RANKING_RULE = "leaf_scalar_v1"
 
 _DIVERSITY_AXES = (
     "potential",
@@ -539,6 +549,56 @@ class BeamSearchConfig:
     use_potential_cache: bool = True
     node_evaluator_backend: str = LEGACY_NODE_EVALUATOR
     node_evaluator: CompactNodeEvaluator | None = None
+    search_profile: str = "custom"
+    search_profile_version: str | None = None
+    search_backend: str = SIMULATOR_SEARCH_BACKEND
+    root_ranking_rule: str = LEAF_SCALAR_RANKING_RULE
+    terminal_fire_rule: str = TERMINAL_FIRE_CONTINUE
+    terminal_fire_chain_count: int = 1
+    use_transposition_table: bool = True
+    budget_authority: str = "expanded_nodes"
+    wall_clock_mode: str = "observational"
+
+    @classmethod
+    def for_profile(
+        cls,
+        profile_name: str,
+        **overrides: Any,
+    ) -> "BeamSearchConfig":
+        """Build one explicit runtime or quality profile.
+
+        Profile defaults keep wall clock observational.  Callers may reduce the
+        count budget for smoke validation, but a wall-clock cutoff is never
+        introduced into the quality path.
+        """
+
+        profile = long_horizon_profile(profile_name)
+        values: dict[str, Any] = {
+            "depth": profile.depth,
+            "width": profile.width,
+            "scenarios": profile.scenarios,
+            "minimum_chain_count": 10,
+            "scoring_mode": BUILD_SCORING_V2,
+            "future_potential_weight": 0.0,
+            "build_potential_schema_version": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "probe_width": 0,
+            "potential_probe_budget": profile.candidate_limit,
+            "candidate_mode": DIVERSE_CANDIDATE_MODE,
+            "candidate_limit": profile.candidate_limit,
+            "max_expanded_nodes": profile.max_expanded_nodes,
+            "node_evaluator_backend": CHAIN_STRUCTURE_NODE_EVALUATOR,
+            "search_profile": profile.name,
+            "search_profile_version": profile.version,
+            "search_backend": COMPACT_LONG_HORIZON_SEARCH_BACKEND,
+            "root_ranking_rule": EXPECTED_CHAIN_RANKING_RULE_VERSION,
+            "terminal_fire_rule": profile.terminal_fire_rule,
+            "terminal_fire_chain_count": profile.terminal_fire_chain_count,
+            "use_transposition_table": profile.use_transposition_table,
+            "budget_authority": profile.budget_authority,
+            "wall_clock_mode": profile.wall_clock_mode,
+        }
+        values.update(overrides)
+        return cls(**values)
 
     def __post_init__(self) -> None:
         if self.depth < 1:
@@ -607,6 +667,53 @@ class BeamSearchConfig:
             and self.build_potential_schema_version != BUILD_POTENTIAL_SCHEMA_VERSION
         ):
             raise ValueError("v2 scoring requires the BuildPotential v2 schema")
+        if self.search_backend not in {
+            SIMULATOR_SEARCH_BACKEND,
+            COMPACT_LONG_HORIZON_SEARCH_BACKEND,
+        }:
+            raise ValueError(f"unsupported beam search backend: {self.search_backend}")
+        if self.root_ranking_rule not in {
+            LEAF_SCALAR_RANKING_RULE,
+            EXPECTED_CHAIN_RANKING_RULE_VERSION,
+        }:
+            raise ValueError(
+                f"unsupported beam root ranking rule: {self.root_ranking_rule}"
+            )
+        if self.terminal_fire_rule not in TERMINAL_FIRE_RULES:
+            raise ValueError(
+                f"unsupported terminal-fire rule: {self.terminal_fire_rule}"
+            )
+        if self.terminal_fire_chain_count <= 0:
+            raise ValueError("terminal-fire chain threshold must be positive")
+        if self.budget_authority not in {
+            "expanded_nodes",
+            "external_runtime_deadline",
+        }:
+            raise ValueError("unsupported beam budget authority")
+        if self.wall_clock_mode not in {
+            "observational",
+            "external_deadline_contract",
+        }:
+            raise ValueError("unsupported beam wall-clock mode")
+        if self.search_backend == COMPACT_LONG_HORIZON_SEARCH_BACKEND:
+            if self.max_expanded_nodes is None:
+                raise ValueError("compact long-horizon search requires a count budget")
+            if self.node_evaluator_backend != CHAIN_STRUCTURE_NODE_EVALUATOR:
+                raise ValueError(
+                    "compact long-horizon search requires the chain-structure evaluator"
+                )
+            if self.root_ranking_rule != EXPECTED_CHAIN_RANKING_RULE_VERSION:
+                raise ValueError(
+                    "compact long-horizon search requires expected-chain ranking"
+                )
+            if self.probe_width != 0:
+                raise ValueError(
+                    "compact long-horizon search probes BuildPotential only for final K"
+                )
+            if self.chain_style_evaluator is not None:
+                raise ValueError(
+                    "compact long-horizon search does not evaluate named styles"
+                )
 
 
 @dataclass(frozen=True)
@@ -643,6 +750,11 @@ class BeamSearchDiagnostics:
     root_chain_structure_evaluation: Mapping[str, Any] = field(
         default_factory=dict
     )
+    search_profile: str = "custom"
+    search_profile_version: str | None = None
+    search_backend: str = SIMULATOR_SEARCH_BACKEND
+    root_ranking_rule: str = LEAF_SCALAR_RANKING_RULE
+    expected_chain_evidence: Mapping[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -728,6 +840,7 @@ class BeamCandidateDiagnostics:
     pruning_reasons: tuple[str, ...] = ()
     duplicate_count: int = 0
     scenario_ids: tuple[int, ...] = ()
+    expected_chain_evidence: Mapping[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -771,6 +884,10 @@ class BeamCandidateDiagnostics:
         if self.chain_structure_evaluation:
             payload["chain_structure_evaluation"] = copy.deepcopy(
                 dict(self.chain_structure_evaluation)
+            )
+        if self.expected_chain_evidence:
+            payload["expected_chain_evidence"] = copy.deepcopy(
+                dict(self.expected_chain_evidence)
             )
         return payload
 
@@ -1134,6 +1251,9 @@ class BeamSearchPolicy:
             )
             return self.last_candidates
 
+        if self.config.search_backend == COMPACT_LONG_HORIZON_SEARCH_BACKEND:
+            return self._generate_long_horizon_candidates(simulator)
+
         started = time.perf_counter()
         counters = _SearchCounters()
         expansion_budget = _ExpansionBudget(self.config.max_expanded_nodes)
@@ -1311,6 +1431,371 @@ class BeamSearchPolicy:
             ),
         )
         return proposals
+
+    def _generate_long_horizon_candidates(
+        self,
+        simulator: HeadlessPuyoSimulator,
+    ) -> tuple[DiverseBeamCandidate, ...]:
+        """Run the profile-gated compact expected-chain backend."""
+
+        started = time.perf_counter()
+        self._potential_session = self._new_potential_session()
+        self._root_potential = self._not_probed_potential()
+        self._search_trace = _SearchTrace(
+            trace_paths=self.config.trace_paths,
+            potential_schema_version=self.config.build_potential_schema_version,
+        )
+        search = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=self.config.depth,
+                width=self.config.width,
+                scenarios=self.config.scenarios,
+                minimum_chain_count=self.config.minimum_chain_count,
+                max_expanded_nodes=int(self.config.max_expanded_nodes or 0),
+                scenario_seed=self.config.scenario_seed,
+                terminal_fire_rule=self.config.terminal_fire_rule,
+                terminal_fire_chain_count=self.config.terminal_fire_chain_count,
+                use_transposition_table=self.config.use_transposition_table,
+            ),
+            evaluator=self._node_evaluator,
+        )
+        self._root_structure_evaluation = search.root_evaluation
+        ranked = [
+            evidence
+            for evidence in search.ranked_roots
+            if evidence.evaluated_scenarios > 0
+            and evidence.root_action in search.representatives
+        ]
+        selected = ranked[: self.config.candidate_limit]
+
+        potential_by_action: dict[int, BuildPotential] = {}
+        for evidence in selected:
+            representative = search.representatives[evidence.root_action]
+            potential_by_action[evidence.root_action] = self._probe_potential(
+                _simulator_from_compact_state(representative.state)
+            )
+
+        proposals = []
+        for rank, evidence in enumerate(selected):
+            representative = search.representatives[evidence.root_action]
+            potential = potential_by_action[evidence.root_action]
+            recoverability = compare_build_potential_triggers(
+                self._root_potential,
+                potential,
+                max_recovery_puyos=(
+                    self.config.build_potential_budget.max_recovery_puyos
+                ),
+            )
+            best_path = (
+                evidence.best_fire.path
+                if evidence.best_fire is not None
+                else representative.path
+            )
+            proposals.append(
+                DiverseBeamCandidate(
+                    rank=rank,
+                    action=int(evidence.root_action),
+                    plan=tuple(int(action) for action in best_path),
+                    candidate_value=evidence.candidate_value,
+                    predicted_max_chain=int(evidence.max_chain_count),
+                    best_chain_depth=(
+                        0
+                        if evidence.best_fire is None
+                        else int(evidence.best_fire.depth)
+                    ),
+                    build_potential=potential,
+                    danger=representative.danger,
+                    continuation_flexibility=(
+                        representative.continuation_flexibility
+                    ),
+                    trigger_recoverability=recoverability,
+                    value_breakdown=evidence.value_breakdown(),
+                    generation_reasons=(
+                        "compact_transition_kernel",
+                        "expected_chain_evidence",
+                    ),
+                    retention_reasons=(
+                        "candidate_set:expected_chain_rank",
+                        f"ranking_rule:{EXPECTED_CHAIN_RANKING_RULE_VERSION}",
+                    ),
+                    pruning_reasons=(
+                        ("expanded_node_budget",)
+                        if search.counters.budget_exhausted
+                        and evidence.coverage < 1.0
+                        else ()
+                    ),
+                    scenario_support=evidence.evaluated_scenarios,
+                    scenario_ids=search.root_generated_scenarios.get(
+                        evidence.root_action,
+                        (),
+                    ),
+                )
+            )
+
+        legal = legal_action_indices(simulator)
+        if not proposals and legal:
+            fallback = self._safe_fallback_action(simulator, legal)
+            proposals = [
+                DiverseBeamCandidate(
+                    rank=0,
+                    action=int(fallback),
+                    plan=(int(fallback),),
+                    candidate_value=0.0,
+                    predicted_max_chain=0,
+                    best_chain_depth=0,
+                    build_potential=self._not_probed_potential(),
+                    danger=1.0,
+                    continuation_flexibility=0.0,
+                    trigger_recoverability=TriggerRecoverability(),
+                    generation_reasons=("safe_legal_fallback",),
+                    retention_reasons=("deterministic_fallback",),
+                )
+            ]
+        self.last_candidates = tuple(proposals)
+
+        evidence_by_action = search.evidence_by_action
+        selected_actions = {proposal.action for proposal in proposals}
+        candidate_values = {
+            action: evidence.candidate_value
+            for action, evidence in evidence_by_action.items()
+            if evidence.evaluated_scenarios > 0
+        }
+        candidate_diagnostics = []
+        for action in legal:
+            evidence = evidence_by_action[action]
+            representative = search.representatives.get(action)
+            potential = potential_by_action.get(
+                action,
+                self._not_probed_potential(),
+            )
+            fire_score = sum(
+                value.max_chain_score
+                for value in evidence.scenario_values
+                if 0 < value.max_chain_count < self.config.minimum_chain_count
+            )
+            structure = (
+                None
+                if representative is None
+                else representative.evaluator_result
+            )
+            structure_payload = (
+                {}
+                if structure is None
+                else copy.deepcopy(dict(structure.to_dict()))
+            )
+            pruning_reasons = set()
+            if search.root_pruned_nodes.get(action, 0) > 0:
+                pruning_reasons.add("beam_width")
+            if evidence.coverage < 1.0:
+                pruning_reasons.add("expanded_node_budget")
+            candidate_diagnostics.append(
+                BeamCandidateDiagnostics(
+                    action=int(action),
+                    root_generated=evidence.evaluated_scenarios > 0,
+                    root_rejected=evidence.evaluated_scenarios == 0,
+                    base_prune_depth=search.root_reached_depth.get(action, 0),
+                    potential_probe_depth=(
+                        search.root_reached_depth.get(action, 0)
+                        if action in potential_by_action
+                        else 0
+                    ),
+                    final_prune_depth=search.root_reached_depth.get(action, 0),
+                    safety_suppressed_depth=0,
+                    predicted_max_chain=int(evidence.max_chain_count),
+                    best_chain_depth=(
+                        0
+                        if evidence.best_fire is None
+                        else int(evidence.best_fire.depth)
+                    ),
+                    best_path=(
+                        ()
+                        if representative is None
+                        else (
+                            evidence.best_fire.path
+                            if evidence.best_fire is not None
+                            else representative.path
+                        )
+                    ),
+                    premature_fire_score=int(fire_score),
+                    premature_fire_penalty=(
+                        self.config.premature_chain_penalty * float(fire_score)
+                    ),
+                    candidate_value=candidate_values.get(action),
+                    potential=potential,
+                    value_breakdown=evidence.value_breakdown(),
+                    chain_structure_evaluation=structure_payload,
+                    danger=(1.0 if representative is None else representative.danger),
+                    continuation_flexibility=(
+                        0.0
+                        if representative is None
+                        else representative.continuation_flexibility
+                    ),
+                    trigger_recoverability=compare_build_potential_triggers(
+                        self._root_potential,
+                        potential,
+                        max_recovery_puyos=(
+                            self.config.build_potential_budget.max_recovery_puyos
+                        ),
+                    ),
+                    generation_reasons=(
+                        ("legal_root", "compact_transition_kernel")
+                        if evidence.evaluated_scenarios > 0
+                        else ()
+                    ),
+                    retention_reasons=(
+                        ("candidate_set:expected_chain_rank",)
+                        if action in selected_actions
+                        else ()
+                    ),
+                    pruning_reasons=tuple(sorted(pruning_reasons)),
+                    duplicate_count=search.root_transposition_hits.get(action, 0),
+                    scenario_ids=search.root_generated_scenarios.get(action, ()),
+                    expected_chain_evidence=evidence.to_dict(),
+                )
+            )
+
+        selected_potential = (
+            proposals[0].build_potential
+            if proposals
+            else self._not_probed_potential()
+        )
+        selected_recoverability = compare_build_potential_triggers(
+            self._root_potential,
+            selected_potential,
+            max_recovery_puyos=(
+                self.config.build_potential_budget.max_recovery_puyos
+            ),
+        )
+        evaluated_scenario_ids = [
+            sequence.scenario_id
+            for sequence in search.scenario_sequences
+            if any(
+                sequence.scenario_id in ids
+                for ids in search.root_generated_scenarios.values()
+            )
+        ]
+        expected_payload = {
+            "schema_version": EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
+            "ranking_rule_version": EXPECTED_CHAIN_RANKING_RULE_VERSION,
+            "deterministic_digest": search.deterministic_digest,
+            "proposal_digest_rule_version": (
+                LONG_HORIZON_PROPOSAL_DIGEST_VERSION
+            ),
+            "proposal_digest": long_horizon_proposal_digest(
+                [proposal.to_dict() for proposal in proposals]
+            ),
+            "roots": [
+                evidence.to_dict() for evidence in search.root_evidence
+            ],
+        }
+        elapsed = time.perf_counter() - started
+        self.last_diagnostics = BeamSearchDiagnostics(
+            elapsed_seconds=elapsed,
+            expanded_nodes=search.counters.expanded_nodes,
+            scenario_count=self.config.scenarios,
+            candidate_values=tuple(sorted(candidate_values.items())),
+            trigger_preservation=self.config.trigger_preservation,
+            probe_width=self.config.probe_width,
+            root_potential=self._root_potential,
+            selected_potential=selected_potential,
+            trigger_preserved=False,
+            trigger_recoverability=selected_recoverability,
+            potential_probe_count=self._potential_session.evaluation_count,
+            potential_cache_hits=self._potential_session.cache_hits,
+            candidates=tuple(candidate_diagnostics),
+            scoring_mode=self.config.scoring_mode,
+            build_potential_schema_version=(
+                self.config.build_potential_schema_version
+            ),
+            proposals=tuple(proposals),
+            candidate_mode=self.config.candidate_mode,
+            candidate_limit=self.config.candidate_limit,
+            generated_nodes=search.counters.generated_nodes,
+            invalid_nodes=search.counters.invalid_nodes,
+            game_over_nodes=search.counters.game_over_nodes,
+            transposition_hits=search.counters.transposition_hits,
+            potential_budget_exhaustions=(
+                self._potential_session.budget_exhaustions
+            ),
+            budget_exhausted=search.counters.budget_exhausted,
+            fallback_reason=(
+                "expanded_node_budget"
+                if search.counters.budget_exhausted
+                else None
+            ),
+            reached_depth=search.counters.reached_depth,
+            scenario_budget={
+                "profile": {
+                    "name": self.config.search_profile,
+                    "version": self.config.search_profile_version,
+                },
+                "known_pair_count": int(
+                    search.scenario_sequences[0].known_pair_count
+                ),
+                "unknown_boundary_cursor": int(
+                    search.scenario_sequences[0].known_pair_count
+                ),
+                "hidden_future_requested": int(self.config.scenarios),
+                "hidden_future_evaluated": len(evaluated_scenario_ids),
+                "scenario_ids": evaluated_scenario_ids,
+                "scenario_seed": self.config.scenario_seed,
+                "scenario_sequences": [
+                    sequence.to_dict()
+                    for sequence in search.scenario_sequences
+                ],
+                "uncertainty": (
+                    "bounded_scenario_set"
+                    if self.config.scenarios > 1
+                    else "single_hidden_scenario"
+                ),
+                "budget_authority": self.config.budget_authority,
+                "max_expanded_nodes": self.config.max_expanded_nodes,
+                "expanded_nodes": search.counters.expanded_nodes,
+                "wall_clock_mode": self.config.wall_clock_mode,
+                "elapsed_seconds": elapsed,
+                "truncation_reason": (
+                    "expanded_node_budget"
+                    if search.counters.budget_exhausted
+                    else None
+                ),
+                "reached_depth": search.counters.reached_depth,
+                "root_coverage": {
+                    str(action): len(ids)
+                    for action, ids in search.root_generated_scenarios.items()
+                },
+                "terminal_fire": {
+                    "rule": self.config.terminal_fire_rule,
+                    "minimum_chain_count": int(
+                        self.config.terminal_fire_chain_count
+                    ),
+                    "terminal_nodes": search.counters.terminal_fire_nodes,
+                    "reason": _long_horizon_terminal_reason(self.config),
+                },
+                "transposition_table": {
+                    "enabled": bool(self.config.use_transposition_table),
+                    "hits": int(search.counters.transposition_hits),
+                    "key_fields": [
+                        "compact_state",
+                        "root_action",
+                        "scenario_id",
+                        "pair_cursor",
+                        "depth",
+                    ],
+                },
+            },
+            node_evaluator_backend=self.config.node_evaluator_backend,
+            chain_structure_feature_version=CHAIN_STRUCTURE_FEATURE_VERSION,
+            root_chain_structure_evaluation=copy.deepcopy(
+                dict(search.root_evaluation.to_dict())
+            ),
+            search_profile=self.config.search_profile,
+            search_profile_version=self.config.search_profile_version,
+            search_backend=self.config.search_backend,
+            root_ranking_rule=self.config.root_ranking_rule,
+            expected_chain_evidence=expected_payload,
+        )
+        return tuple(proposals)
 
     def candidate_path_diagnostics(
         self,
@@ -2799,6 +3284,31 @@ def _quiet_search_bounds(heights: tuple[int, ...]) -> tuple[int, int]:
             break
         x_min -= 1
     return x_min, x_max
+
+
+def _simulator_from_compact_state(
+    state: CompactSearchState,
+) -> HeadlessPuyoSimulator:
+    """Adapt one final compact survivor for board-only exact evaluation."""
+
+    game = GameState(seed=0)
+    for y, row in enumerate(state.to_color_grid()):
+        for x, color in enumerate(row):
+            game.field.grid[y][x] = Puyo(color)
+    game.score = int(state.score)
+    game.last_chain_end_score = int(state.last_chain_end_score)
+    game.all_clear_bonus_pending = bool(state.all_clear_bonus_pending)
+    game.game_over = bool(state.game_over)
+    game.state = "gameover" if state.game_over else "control"
+    game.current_puyo_1 = Puyo(NORMAL_PUYO_COLORS[0])
+    game.current_puyo_2 = Puyo(NORMAL_PUYO_COLORS[1])
+    return HeadlessPuyoSimulator(game_state=game)
+
+
+def _long_horizon_terminal_reason(config: BeamSearchConfig) -> str | None:
+    if config.terminal_fire_rule != TERMINAL_FIRE_RECORD_AND_STOP:
+        return None
+    return f"chain_count_gte_{int(config.terminal_fire_chain_count)}"
 
 
 def clone_simulator(simulator: HeadlessPuyoSimulator) -> HeadlessPuyoSimulator:

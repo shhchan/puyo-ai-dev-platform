@@ -73,6 +73,37 @@ class TestV17TacticRegistry(unittest.TestCase):
             "required",
         )
         self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
+        profiles = build_main.planner["search_profiles"]
+        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v1")
+        self.assertEqual(profiles["default"], "runtime")
+        runtime = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "runtime"
+        )
+        self.assertEqual(
+            runtime["budget"]["authority"],
+            "external_runtime_deadline",
+        )
+        self.assertEqual(
+            runtime["budget"]["wall_clock_mode"],
+            "external_deadline_contract",
+        )
+        quality_d16 = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "quality-d16"
+        )
+        self.assertEqual(
+            (
+                quality_d16["depth"],
+                quality_d16["width"],
+                quality_d16["scenarios"],
+            ),
+            (16, 250, 6),
+        )
+        self.assertEqual(quality_d16["budget"]["authority"], "expanded_nodes")
+        self.assertEqual(quality_d16["budget"]["wall_clock_mode"], "observational")
         self.assertIn(
             "diagnostics.own.build_potential.predicted_chain_potential",
             build_main.applicability["feature_refs"],
