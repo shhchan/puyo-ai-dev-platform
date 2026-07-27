@@ -145,6 +145,13 @@ namespace に追加する。premature / quiet / target / forced-safety の分類
 survivor quota、trigger/構造差分は保存するが、K=8、candidate ID、mask、ranker tensor の次元と
 feature 順序は変更しない。
 
+PUYO-179 以降、canonical profile の scenario は固定色 pairing ではなく
+`puyo.future_tsumo_sampling.v1` の seed 付き sample である。opaque `sample_id`、rollout seed、
+queue digest は shared context の再現メタデータに限定し、candidate/scenario の数値 feature へ
+入力しない。expected-chain の mean/worst/dispersion/support/coverage は sample 順序に依存せず、
+scenario vector は internal ID で canonical slot へ再配置してから ranker input を構築する。
+固定 6 pairing は `legacy-fixed-six` profile のみで利用する。
+
 ## Benchmark
 
 追跡 artifact は `docs/benchmarks/puyo-v1-7-2-worker-proposals-v2/` に置く。

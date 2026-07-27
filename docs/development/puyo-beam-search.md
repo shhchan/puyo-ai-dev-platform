@@ -26,7 +26,10 @@ Ama の `ai/search/beam/` は次の構成を採用している。
 - 井戸、突起、中央列と最高列の危険高さ
 - おじゃまぷよ
 
-現在見えている current + NEXT 2 組はそのまま使用する。そこから先だけを Ama と同じ 6 種類の色順シナリオで置き換える。`--beam-scenarios` を増やすと未知ツモへの頑健性は上がるが、計算量はほぼ比例して増える。
+この PUYO-29 legacy simulator backend では、現在見えている current + NEXT 2 組をそのまま使用し、
+そこから先だけを Ama と同じ 6 種類の色順シナリオで置き換える。`--beam-scenarios` を増やすと
+計算量はほぼ比例して増える。PUYO-179 以降の canonical compact backend は固定色順を使わず、
+production と同じ分布の seed 付き sample を使用する。固定 6 は `legacy-fixed-six` profile に限る。
 
 ## 実行方法
 

@@ -20,7 +20,11 @@ from agents.long_horizon_search import (
     FIRE_CLASS_QUIET,
     FIRE_CLASS_TARGET,
     FIRE_CONTEXT_FORCED_SAFETY,
+    FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+    FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+    LEGACY_FIXED_SIX_PROFILE,
     QUALITY_D16_PROFILE,
+    SMOKE_PROFILE,
     TERMINAL_FIRE_CONTINUE,
     ChainFireEvidence,
     LongHorizonSearchConfig,
@@ -44,6 +48,7 @@ from src.core.constants import (
 )
 from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 from src.core.puyo import Puyo
+from src.core.tsumo import PuyoSequence
 
 
 FIRE_FIXTURE_PATH = Path("tests/fixtures/build_main_fire_cases.json")
@@ -174,14 +179,25 @@ def _scenario_value(scenario_id, chain_count, chain_score):
 class TestLongHorizonSearch(unittest.TestCase):
     def test_versioned_profiles_separate_runtime_and_quality_budgets(self):
         runtime = long_horizon_profile("runtime")
+        smoke = long_horizon_profile(SMOKE_PROFILE)
         quality = long_horizon_profile(QUALITY_D16_PROFILE)
+        legacy = long_horizon_profile(LEGACY_FIXED_SIX_PROFILE)
         config = BeamSearchConfig.for_profile(QUALITY_D16_PROFILE)
 
-        self.assertEqual((runtime.depth, runtime.width, runtime.scenarios), (3, 24, 1))
+        self.assertEqual((runtime.depth, runtime.width, runtime.scenarios), (4, 24, 2))
         self.assertEqual(runtime.budget_authority, "external_runtime_deadline")
         self.assertEqual(runtime.wall_clock_mode, "external_deadline_contract")
+        self.assertEqual((smoke.depth, smoke.width, smoke.scenarios), (6, 48, 3))
         self.assertEqual(
             (quality.depth, quality.width, quality.scenarios), (16, 250, 6)
+        )
+        self.assertEqual(
+            quality.future_sampling_mode,
+            FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+        )
+        self.assertEqual(
+            legacy.future_sampling_mode,
+            FUTURE_SAMPLING_LEGACY_FIXED_SIX,
         )
         self.assertEqual(quality.budget_authority, "expanded_nodes")
         self.assertEqual(quality.wall_clock_mode, "observational")
@@ -200,8 +216,18 @@ class TestLongHorizonSearch(unittest.TestCase):
         simulator.game.next_puyo_queue.append(
             (Puyo(PuyoColor.RED), Puyo(PuyoColor.BLUE))
         )
-        first = build_scenario_sequences(simulator, scenarios=6, depth=8)
-        second = build_scenario_sequences(simulator, scenarios=6, depth=8)
+        first = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=8,
+            decision_seed=179,
+        )
+        second = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=8,
+            decision_seed=179,
+        )
         game = simulator.game
         known = (
             (game.current_puyo_1.color, game.current_puyo_2.color),
@@ -217,13 +243,126 @@ class TestLongHorizonSearch(unittest.TestCase):
             [item.sequence_digest for item in second],
         )
         self.assertEqual(len({item.sequence_digest for item in first}), 6)
+        self.assertEqual(len({item.rollout_seed for item in first}), 6)
+        self.assertEqual(len({item.queue_digest for item in first}), 6)
         for sequence in first:
             self.assertEqual(sequence.known_pairs, known)
             self.assertEqual(sequence.known_pair_count, 3)
+            self.assertEqual(
+                sequence.sampling_mode,
+                FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+            )
+            self.assertFalse(sequence.repeats_hidden_pairs)
             self.assertEqual(sequence.to_dict()["unknown_boundary_cursor"], 3)
             self.assertEqual(
                 [item["source"] for item in sequence.to_dict()["pairs"][:4]],
                 ["known", "known", "known", "unknown"],
+            )
+
+    def test_seeded_samples_use_authoritative_generator_and_do_not_cycle(self):
+        simulator = HeadlessPuyoSimulator(seed=179)
+        sequences = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=12,
+            decision_seed=17_900,
+        )
+
+        for sequence in sequences:
+            authoritative = PuyoSequence(seed=sequence.rollout_seed)
+            expected = tuple(
+                tuple(puyo.color for puyo in pair)
+                for pair in authoritative.next_pairs(len(sequence.hidden_pairs))
+            )
+            self.assertEqual(sequence.hidden_pairs, expected)
+            self.assertEqual(
+                sequence.to_dict()["sampling"]["generator"],
+                "src.core.tsumo.PuyoSequence",
+            )
+            self.assertEqual(
+                sequence.to_dict()["sampling"]["repeat_policy"],
+                "none",
+            )
+            repeated_first_two = tuple(
+                sequence.hidden_pairs[index % 2]
+                for index in range(len(sequence.hidden_pairs))
+            )
+            self.assertNotEqual(sequence.hidden_pairs, repeated_first_two)
+
+    def test_seeded_samples_change_with_decision_seed_and_legacy_is_explicit(self):
+        simulator = HeadlessPuyoSimulator(seed=179)
+        first = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=12,
+            decision_seed=1,
+        )
+        repeated = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=12,
+            decision_seed=1,
+        )
+        changed = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=12,
+            decision_seed=2,
+        )
+        legacy = build_scenario_sequences(
+            simulator,
+            scenarios=6,
+            depth=12,
+            decision_seed=1,
+            sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+        )
+
+        self.assertEqual(
+            [item.queue_digest for item in first],
+            [item.queue_digest for item in repeated],
+        )
+        self.assertNotEqual(
+            [item.queue_digest for item in first],
+            [item.queue_digest for item in changed],
+        )
+        self.assertTrue(all(item.repeats_hidden_pairs for item in legacy))
+        self.assertTrue(
+            all(
+                item.pair_at(item.known_pair_count)
+                == item.pair_at(item.known_pair_count + 2)
+                for item in legacy
+            )
+        )
+        self.assertTrue(
+            all(
+                item.sampling_mode == FUTURE_SAMPLING_LEGACY_FIXED_SIX
+                for item in legacy
+            )
+        )
+
+    def test_decision_seed_fallback_is_state_derived_and_reproducible(self):
+        simulator = HeadlessPuyoSimulator(seed=179)
+        first = build_scenario_sequences(simulator, scenarios=2, depth=6)
+        second = build_scenario_sequences(simulator, scenarios=2, depth=6)
+
+        self.assertEqual(
+            [item.decision_seed for item in first],
+            [item.decision_seed for item in second],
+        )
+        self.assertTrue(
+            all(
+                item.decision_seed_source
+                == "derived_from_simulator_decision_state"
+                for item in first
+            )
+        )
+        with self.assertRaisesRegex(ValueError, "must agree"):
+            build_scenario_sequences(
+                simulator,
+                scenarios=2,
+                depth=6,
+                scenario_seed=1,
+                decision_seed=2,
             )
 
     def test_root_aggregation_preserves_raw_values_and_expected_statistics(self):
@@ -258,6 +397,20 @@ class TestLongHorizonSearch(unittest.TestCase):
         self.assertEqual(
             [item["max_chain_score"] for item in payload["scenario_values"]],
             [100, 300, 0],
+        )
+        reordered = aggregate_expected_chain_evidence(
+            3,
+            tuple(reversed(values)),
+            requested_scenarios=3,
+        )
+        self.assertEqual(aggregate.ranking_key, reordered.ranking_key)
+        self.assertEqual(
+            aggregate.value_breakdown(),
+            reordered.value_breakdown(),
+        )
+        self.assertEqual(
+            aggregate.to_dict()["scenario_values"],
+            reordered.to_dict()["scenario_values"],
         )
 
     def test_terminal_fire_is_recorded_before_branch_stops(self):

@@ -24,6 +24,12 @@ from agents.long_horizon_search import (
     EXPECTED_CHAIN_RANKING_RULE_VERSION,
     FIRE_CONTEXTS,
     FIRE_CONTEXT_SAFE_BUILD,
+    FUTURE_QUEUE_GENERATOR,
+    FUTURE_ROLLOUT_SEED_DERIVATION,
+    FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+    FUTURE_SAMPLING_MODES,
+    FUTURE_SAMPLING_SCHEMA_VERSION,
+    FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
     LONG_HORIZON_PROPOSAL_DIGEST_VERSION,
     REPRESENTATIVE_SCENARIO_BAGS,
     ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION,
@@ -535,6 +541,8 @@ class BeamSearchConfig:
     premature_chain_penalty: float = 350.0
     minimum_chain_count: int = 6
     scenario_seed: int | None = None
+    decision_seed: int | None = None
+    future_sampling_mode: str = FUTURE_SAMPLING_LEGACY_FIXED_SIX
     trigger_preservation: str = "ignore"
     probe_width: int = 0
     trace_paths: bool = False
@@ -595,6 +603,7 @@ class BeamSearchConfig:
             "candidate_mode": DIVERSE_CANDIDATE_MODE,
             "candidate_limit": profile.candidate_limit,
             "max_expanded_nodes": profile.max_expanded_nodes,
+            "future_sampling_mode": profile.future_sampling_mode,
             "node_evaluator_backend": CHAIN_STRUCTURE_NODE_EVALUATOR,
             "search_profile": profile.name,
             "search_profile_version": profile.version,
@@ -622,6 +631,18 @@ class BeamSearchConfig:
             raise ValueError("beam width must be at least 1")
         if not 1 <= self.scenarios <= len(_SCENARIO_BAGS):
             raise ValueError(f"beam scenarios must be in [1, {len(_SCENARIO_BAGS)}]")
+        if self.future_sampling_mode not in FUTURE_SAMPLING_MODES:
+            raise ValueError(
+                f"unsupported future sampling mode: {self.future_sampling_mode}"
+            )
+        if (
+            self.scenario_seed is not None
+            and self.decision_seed is not None
+            and int(self.scenario_seed) != int(self.decision_seed)
+        ):
+            raise ValueError(
+                "scenario_seed and decision_seed must agree when both are set"
+            )
         if self.minimum_chain_count < 1:
             raise ValueError("minimum chain count must be at least 1")
         if self.trigger_preservation not in {"required", "prefer", "ignore"}:
@@ -743,6 +764,14 @@ class BeamSearchConfig:
                 raise ValueError(
                     "compact long-horizon search does not evaluate named styles"
                 )
+
+    @property
+    def resolved_decision_seed(self) -> int | None:
+        return (
+            self.decision_seed
+            if self.decision_seed is not None
+            else self.scenario_seed
+        )
 
 
 @dataclass(frozen=True)
@@ -1512,7 +1541,8 @@ class BeamSearchPolicy:
                 scenarios=self.config.scenarios,
                 minimum_chain_count=self.config.minimum_chain_count,
                 max_expanded_nodes=int(self.config.max_expanded_nodes or 0),
-                scenario_seed=self.config.scenario_seed,
+                decision_seed=self.config.resolved_decision_seed,
+                future_sampling_mode=self.config.future_sampling_mode,
                 terminal_fire_rule=self.config.terminal_fire_rule,
                 terminal_fire_chain_count=self.config.terminal_fire_chain_count,
                 root_survivor_quota=self.config.root_survivor_quota,
@@ -1858,15 +1888,53 @@ class BeamSearchPolicy:
                 "hidden_future_requested": int(self.config.scenarios),
                 "hidden_future_evaluated": len(evaluated_scenario_ids),
                 "scenario_ids": evaluated_scenario_ids,
-                "scenario_seed": self.config.scenario_seed,
+                "scenario_seed": (
+                    search.scenario_sequences[0].decision_seed
+                ),
+                "decision_seed": (
+                    search.scenario_sequences[0].decision_seed
+                ),
+                "decision_seed_source": (
+                    search.scenario_sequences[0].decision_seed_source
+                ),
+                "future_sampling": {
+                    "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                    "mode": self.config.future_sampling_mode,
+                    "generator": (
+                        FUTURE_QUEUE_GENERATOR
+                        if self.config.future_sampling_mode
+                        == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                        else "ama-representative-two-pair-cycle"
+                    ),
+                    "rollout_seed_derivation": (
+                        FUTURE_ROLLOUT_SEED_DERIVATION
+                        if self.config.future_sampling_mode
+                        == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                        else None
+                    ),
+                    "sample_count": int(self.config.scenarios),
+                    "sample_ids": [
+                        sequence.sample_id
+                        for sequence in search.scenario_sequences
+                    ],
+                    "rollout_seeds": [
+                        sequence.rollout_seed
+                        for sequence in search.scenario_sequences
+                    ],
+                    "queue_digests": [
+                        sequence.queue_digest
+                        for sequence in search.scenario_sequences
+                    ],
+                },
                 "scenario_sequences": [
                     sequence.to_dict()
                     for sequence in search.scenario_sequences
                 ],
                 "uncertainty": (
-                    "bounded_scenario_set"
-                    if self.config.scenarios > 1
-                    else "single_hidden_scenario"
+                    "seeded_random_samples"
+                    if self.config.future_sampling_mode
+                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    else "legacy_fixed_six"
                 ),
                 "budget_authority": self.config.budget_authority,
                 "max_expanded_nodes": self.config.max_expanded_nodes,

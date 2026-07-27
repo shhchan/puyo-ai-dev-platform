@@ -18,6 +18,7 @@ from agents.worker_proposals import (
     CANDIDATE_RANKER_SCHEMA_HASH,
     CANDIDATE_RANKER_V1_SCHEMA_HASH,
     CANDIDATE_RANKER_FEATURE_NAMES,
+    CANDIDATE_RANKER_SCENARIO_FEATURE_NAMES,
     EvidenceStatus,
     LEGACY_WORKER_PROPOSAL_SCHEMA_VERSION,
     MaskedNumeric,
@@ -107,6 +108,18 @@ class TestWorkerProposals(unittest.TestCase):
         shared = batch.to_dict()["shared_context"]
         self.assertIn("elapsed_ms", shared["latency"])
         self.assertIn("expanded_nodes", shared["search_totals"])
+        self.assertEqual(
+            shared["search_config"]["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        self.assertEqual(
+            shared["search_config"]["scenario_count"],
+            2,
+        )
+        self.assertIn(
+            shared["search_config"]["decision_seed_source"],
+            {"explicit", "derived_from_simulator_decision_state"},
+        )
         self.assertNotIn("search_latency_ms", CANDIDATE_RANKER_FEATURE_NAMES)
         self.assertNotIn("expanded_nodes", CANDIDATE_RANKER_FEATURE_NAMES)
 
@@ -442,6 +455,24 @@ class TestWorkerProposals(unittest.TestCase):
             sorted(batch.shared_context.scenario_ids),
         )
         self.assertTrue(all(batch.shared_context.scenario_digests))
+        self.assertEqual(
+            batch.shared_context.search_config["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        self.assertEqual(
+            len(
+                {
+                    sequence["sample_id"]
+                    for sequence in batch.shared_context.scenario_sequences
+                }
+            ),
+            6,
+        )
+        self.assertNotIn("sample_id", CANDIDATE_RANKER_FEATURE_NAMES)
+        self.assertNotIn(
+            "sample_id",
+            CANDIDATE_RANKER_SCENARIO_FEATURE_NAMES,
+        )
         self.assertTrue(
             all(sum(candidate.evidence.scenario_mask) == 6 for candidate in batch.candidates)
         )
@@ -467,6 +498,10 @@ class TestWorkerProposals(unittest.TestCase):
         self.assertEqual(
             batch.ranker_input.scenario_features[0],
             reordered.ranker_input.scenario_features[0],
+        )
+        self.assertEqual(
+            batch.ranker_input.deterministic_digest,
+            reordered.ranker_input.deterministic_digest,
         )
         self.assertNotEqual(
             batch.selected_candidate.evidence.expected_chain["scenario_values"],

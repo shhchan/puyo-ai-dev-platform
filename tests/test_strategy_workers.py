@@ -144,6 +144,7 @@ class TestStrategyWorkers(unittest.TestCase):
         self.assertGreaterEqual(effective.width, profile.width)
         self.assertEqual(diagnostics.to_dict()["schema_version"], "search-control-v1")
         self.assertIn("effective", diagnostics.to_dict())
+        self.assertEqual(default_search_controls()[0].scenarios, 2)
 
     def test_orchestrator_accepts_learned_search_control(self):
         _, observation, info = self._state(seed=21)

@@ -31,6 +31,7 @@ from agents.chain_styles import (
     ChainStyleRegistry,
     load_chain_style_registry,
 )
+from agents.long_horizon_search import RUNTIME_PROFILE, long_horizon_profile
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
 from agents.worker_proposals import (
     WorkerProposalBatch,
@@ -668,6 +669,7 @@ def default_search_controls() -> tuple[SearchControl, ...]:
             0,
             "baseline",
             "discrete_profile",
+            scenarios=2,
             latency_budget_ms=40.0,
             parameter_vector=(0.5, 0.5, 0.5),
         ),
@@ -2267,10 +2269,17 @@ def _profile_for_planner_request(
         raise ValueError(
             "build_main planner search_profile must be runtime or legacy"
         )
+    requested_scenarios = (
+        long_horizon_profile(RUNTIME_PROFILE).scenarios
+        if request.tactic_id == "build_main"
+        and requested_search_profile == RUNTIME_PROFILE
+        else profile.scenarios
+    )
     return replace(
         profile,
         depth=max(1, int(request.search_depth)),
         width=max(1, int(request.search_width)),
+        scenarios=int(requested_scenarios),
         minimum_chain_count=(
             max(1, int(request.target_chain))
             if request.target_chain > 0
@@ -2303,7 +2312,8 @@ def _profile_for_planner_request(
             * (
                 1
                 if request.tactic_id == "prepare_response"
-                else max(1, int(request.search_depth)) * max(1, profile.scenarios)
+                else max(1, int(request.search_depth))
+                * max(1, int(requested_scenarios))
             )
             + int(request.trigger_preservation != "ignore"),
         ),

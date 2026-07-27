@@ -66,7 +66,7 @@ changing ranker tensor dimensions.
 
 ## Schemas and profiles
 
-- long-horizon profile: `puyo.long_horizon_profile.v2`
+- long-horizon profile: `puyo.long_horizon_profile.v3` (advanced by PUYO-179)
 - expected-chain evidence: `puyo.expected_chain_evidence.v2`
 - root ranking: `puyo.expected_chain_ranking.v2`
 - terminal score: `puyo.build_main_terminal_score.v1`
@@ -74,8 +74,9 @@ changing ranker tensor dimensions.
 - root diagnostics: `puyo.build_main_root_diagnostics.v1`
 
 The `runtime`, `quality-d12`, and `quality-d16` profile identities are version
-`2.0`. Their terminal threshold remains one chain so a premature branch is
-recorded and stopped, while the objective target remains ten by default.
+`3.0` after PUYO-179 introduced seeded hidden-future sampling. Their PUYO-178
+terminal threshold remains one chain so a premature branch is recorded and
+stopped, while the objective target remains ten by default.
 
 ## Verification
 

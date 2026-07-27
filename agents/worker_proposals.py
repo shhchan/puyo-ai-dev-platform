@@ -2022,6 +2022,13 @@ def _build_shared_context(
         "wall_clock_mode": budget.get("wall_clock_mode"),
         "minimum_chain_count": budget.get("minimum_chain_count"),
         "root_survivor_quota": budget.get("root_survivor_quota"),
+        "future_sampling": _mapping_copy(
+            budget.get("future_sampling")
+            if isinstance(budget.get("future_sampling"), Mapping)
+            else None
+        ),
+        "decision_seed": budget.get("decision_seed"),
+        "decision_seed_source": budget.get("decision_seed_source"),
         "fire_semantics": {
             "context": _nested(budget, "terminal_fire.context", None),
             "winning_score_threshold": _nested(
