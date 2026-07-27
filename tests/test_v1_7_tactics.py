@@ -74,7 +74,7 @@ class TestV17TacticRegistry(unittest.TestCase):
         )
         self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
         profiles = build_main.planner["search_profiles"]
-        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v1")
+        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v2")
         self.assertEqual(profiles["default"], "runtime")
         runtime = next(
             profile
@@ -88,6 +88,12 @@ class TestV17TacticRegistry(unittest.TestCase):
         self.assertEqual(
             runtime["budget"]["wall_clock_mode"],
             "external_deadline_contract",
+        )
+        self.assertEqual(runtime["root_survivor_quota"], 1)
+        self.assertEqual(runtime["fire_semantics"]["context"], "safe_build")
+        self.assertEqual(
+            runtime["ranking_rule"],
+            "puyo.expected_chain_ranking.v2",
         )
         quality_d16 = next(
             profile

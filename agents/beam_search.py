@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import itertools
+import math
 import random
 import time
 from collections import deque
@@ -21,11 +22,15 @@ from agents.compact_search import CompactSearchState
 from agents.long_horizon_search import (
     EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
     EXPECTED_CHAIN_RANKING_RULE_VERSION,
+    FIRE_CONTEXTS,
+    FIRE_CONTEXT_SAFE_BUILD,
+    LONG_HORIZON_PROPOSAL_DIGEST_VERSION,
     REPRESENTATIVE_SCENARIO_BAGS,
+    ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION,
     TERMINAL_FIRE_CONTINUE,
     TERMINAL_FIRE_RECORD_AND_STOP,
     TERMINAL_FIRE_RULES,
-    LONG_HORIZON_PROPOSAL_DIGEST_VERSION,
+    TERMINAL_FIRE_SCORE_VERSION,
     LongHorizonSearchConfig,
     long_horizon_proposal_digest,
     long_horizon_profile,
@@ -555,6 +560,10 @@ class BeamSearchConfig:
     root_ranking_rule: str = LEAF_SCALAR_RANKING_RULE
     terminal_fire_rule: str = TERMINAL_FIRE_CONTINUE
     terminal_fire_chain_count: int = 1
+    root_survivor_quota: int = 1
+    fire_context: str = FIRE_CONTEXT_SAFE_BUILD
+    premature_target_gap_penalty: float = 1_000.0
+    winning_score_threshold: int | None = None
     use_transposition_table: bool = True
     budget_authority: str = "expanded_nodes"
     wall_clock_mode: str = "observational"
@@ -593,6 +602,12 @@ class BeamSearchConfig:
             "root_ranking_rule": EXPECTED_CHAIN_RANKING_RULE_VERSION,
             "terminal_fire_rule": profile.terminal_fire_rule,
             "terminal_fire_chain_count": profile.terminal_fire_chain_count,
+            "root_survivor_quota": profile.root_survivor_quota,
+            "fire_context": profile.fire_context,
+            "premature_target_gap_penalty": (
+                profile.premature_target_gap_penalty
+            ),
+            "winning_score_threshold": profile.winning_score_threshold,
             "use_transposition_table": profile.use_transposition_table,
             "budget_authority": profile.budget_authority,
             "wall_clock_mode": profile.wall_clock_mode,
@@ -685,6 +700,20 @@ class BeamSearchConfig:
             )
         if self.terminal_fire_chain_count <= 0:
             raise ValueError("terminal-fire chain threshold must be positive")
+        if self.root_survivor_quota <= 0:
+            raise ValueError("root survivor quota must be positive")
+        if self.fire_context not in FIRE_CONTEXTS:
+            raise ValueError(f"unsupported fire context: {self.fire_context}")
+        if (
+            not math.isfinite(self.premature_target_gap_penalty)
+            or self.premature_target_gap_penalty < 0.0
+        ):
+            raise ValueError("premature target-gap penalty must be finite and non-negative")
+        if (
+            self.winning_score_threshold is not None
+            and self.winning_score_threshold <= 0
+        ):
+            raise ValueError("winning score threshold must be positive when configured")
         if self.budget_authority not in {
             "expanded_nodes",
             "external_runtime_deadline",
@@ -1486,6 +1515,12 @@ class BeamSearchPolicy:
                 scenario_seed=self.config.scenario_seed,
                 terminal_fire_rule=self.config.terminal_fire_rule,
                 terminal_fire_chain_count=self.config.terminal_fire_chain_count,
+                root_survivor_quota=self.config.root_survivor_quota,
+                fire_context=self.config.fire_context,
+                premature_target_gap_penalty=(
+                    self.config.premature_target_gap_penalty
+                ),
+                winning_score_threshold=self.config.winning_score_threshold,
                 use_transposition_table=self.config.use_transposition_table,
             ),
             evaluator=self._node_evaluator,
@@ -1498,6 +1533,13 @@ class BeamSearchPolicy:
             and evidence.root_action in search.representatives
         ]
         selected = ranked[: self.config.candidate_limit]
+        expected_payload_by_action = {}
+        for evidence in search.root_evidence:
+            payload = evidence.to_dict()
+            payload["root_diagnostics"] = copy.deepcopy(
+                dict(search.root_diagnostics.get(evidence.root_action, {}))
+            )
+            expected_payload_by_action[evidence.root_action] = payload
 
         potential_by_action: dict[int, BuildPotential] = {}
         for evidence in selected:
@@ -1545,10 +1587,12 @@ class BeamSearchPolicy:
                     generation_reasons=(
                         "compact_transition_kernel",
                         "expected_chain_evidence",
+                        f"fire_class:{evidence.fire_class}",
                     ),
                     retention_reasons=(
-                        "candidate_set:expected_chain_rank",
+                        "candidate_set:build_main_fire_class_rank",
                         f"ranking_rule:{EXPECTED_CHAIN_RANKING_RULE_VERSION}",
+                        f"fire_class:{evidence.fire_class}",
                     ),
                     pruning_reasons=(
                         ("expanded_node_budget",)
@@ -1561,7 +1605,9 @@ class BeamSearchPolicy:
                         evidence.root_action,
                         (),
                     ),
-                    expected_chain_evidence=evidence.to_dict(),
+                    expected_chain_evidence=expected_payload_by_action[
+                        evidence.root_action
+                    ],
                     chain_structure_evaluation=(
                         {}
                         if representative_structure is None
@@ -1683,14 +1729,17 @@ class BeamSearchPolicy:
                         else ()
                     ),
                     retention_reasons=(
-                        ("candidate_set:expected_chain_rank",)
+                        (
+                            "candidate_set:build_main_fire_class_rank",
+                            f"fire_class:{evidence.fire_class}",
+                        )
                         if action in selected_actions
                         else ()
                     ),
                     pruning_reasons=tuple(sorted(pruning_reasons)),
                     duplicate_count=search.root_transposition_hits.get(action, 0),
                     scenario_ids=search.root_generated_scenarios.get(action, ()),
-                    expected_chain_evidence=evidence.to_dict(),
+                    expected_chain_evidence=expected_payload_by_action[action],
                 )
             )
 
@@ -1725,9 +1774,23 @@ class BeamSearchPolicy:
                 [proposal.to_dict() for proposal in proposals]
             ),
             "roots": [
-                evidence.to_dict() for evidence in search.root_evidence
+                expected_payload_by_action[evidence.root_action]
+                for evidence in search.root_evidence
             ],
+            "root_diagnostics_schema_version": (
+                ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION
+            ),
         }
+        evaluated_roots = [
+            evidence
+            for evidence in search.root_evidence
+            if evidence.evaluated_scenarios > 0
+        ]
+        quiet_roots = [
+            evidence
+            for evidence in evaluated_roots
+            if evidence.quiet_support > 0
+        ]
         elapsed = time.perf_counter() - started
         self.last_diagnostics = BeamSearchDiagnostics(
             elapsed_seconds=elapsed,
@@ -1775,6 +1838,9 @@ class BeamSearchPolicy:
                 "search_backend": self.config.search_backend,
                 "depth": int(self.config.depth),
                 "width": int(self.config.width),
+                "root_survivor_quota": int(
+                    self.config.root_survivor_quota
+                ),
                 "candidate_limit": int(self.config.candidate_limit),
                 "minimum_chain_count": int(self.config.minimum_chain_count),
                 "potential_probe_budget": int(
@@ -1825,6 +1891,39 @@ class BeamSearchPolicy:
                     str(action): len(ids)
                     for action, ids in search.root_generated_scenarios.items()
                 },
+                "quiet_candidate_coverage": {
+                    "evaluated_root_count": len(evaluated_roots),
+                    "root_count": len(quiet_roots),
+                    "ratio": (
+                        0.0
+                        if not evaluated_roots
+                        else len(quiet_roots) / float(len(evaluated_roots))
+                    ),
+                    "root_actions": [
+                        int(evidence.root_action) for evidence in quiet_roots
+                    ],
+                },
+                "target_not_reached_fire": {
+                    "root_count": sum(
+                        int(evidence.target_not_reached_fire_count > 0)
+                        for evidence in evaluated_roots
+                    ),
+                    "scenario_count": sum(
+                        int(evidence.target_not_reached_fire_count)
+                        for evidence in evaluated_roots
+                    ),
+                    "root_actions": [
+                        int(evidence.root_action)
+                        for evidence in evaluated_roots
+                        if evidence.target_not_reached_fire_count > 0
+                    ],
+                },
+                "root_survivor_coverage": {
+                    str(action): copy.deepcopy(dict(payload))
+                    for action, payload in sorted(
+                        search.root_diagnostics.items()
+                    )
+                },
                 "terminal_fire": {
                     "rule": self.config.terminal_fire_rule,
                     "minimum_chain_count": int(
@@ -1832,6 +1931,16 @@ class BeamSearchPolicy:
                     ),
                     "terminal_nodes": search.counters.terminal_fire_nodes,
                     "reason": _long_horizon_terminal_reason(self.config),
+                    "context": self.config.fire_context,
+                    "winning_score_threshold": (
+                        self.config.winning_score_threshold
+                    ),
+                    "terminal_score_version": (
+                        TERMINAL_FIRE_SCORE_VERSION
+                    ),
+                    "premature_target_gap_penalty": float(
+                        self.config.premature_target_gap_penalty
+                    ),
                 },
                 "transposition_table": {
                     "enabled": bool(self.config.use_transposition_table),

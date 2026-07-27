@@ -1,0 +1,76 @@
+{
+  "schema_version": "puyo.build_main_fire_fixtures.v1",
+  "cases": [
+    {
+      "id": "premature-fire",
+      "rows_bottom_up": [
+        "RRR...", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ],
+      "current_pair": ["RED", "BLUE"],
+      "next_pairs": [["GREEN", "YELLOW"], ["GREEN", "YELLOW"]],
+      "action": 12,
+      "target_chain_count": 10,
+      "fire_context": "safe_build",
+      "expected_fire_class": "premature_fire"
+    },
+    {
+      "id": "quiet-continuation",
+      "rows_bottom_up": [
+        "RRR...", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ],
+      "current_pair": ["RED", "BLUE"],
+      "next_pairs": [["GREEN", "YELLOW"], ["GREEN", "YELLOW"]],
+      "action": 16,
+      "target_chain_count": 10,
+      "fire_context": "safe_build",
+      "expected_fire_class": "quiet_continuation"
+    },
+    {
+      "id": "target-fire",
+      "rows_bottom_up": [
+        "RRR...", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ],
+      "current_pair": ["RED", "BLUE"],
+      "next_pairs": [["GREEN", "YELLOW"], ["GREEN", "YELLOW"]],
+      "action": 12,
+      "target_chain_count": 1,
+      "fire_context": "safe_build",
+      "expected_fire_class": "target_fire"
+    },
+    {
+      "id": "forced-safety-fire",
+      "rows_bottom_up": [
+        "RRR...", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ],
+      "current_pair": ["RED", "BLUE"],
+      "next_pairs": [["GREEN", "YELLOW"], ["GREEN", "YELLOW"]],
+      "action": 12,
+      "target_chain_count": 10,
+      "fire_context": "forced_safety",
+      "expected_fire_class": "forced_safety_fire"
+    }
+  ],
+  "classification_boundaries": [
+    {
+      "id": "ten-chain-target",
+      "chain_count": 10,
+      "chain_score": 70000,
+      "target_chain_count": 10,
+      "fire_context": "safe_build",
+      "expected_fire_class": "target_fire"
+    },
+    {
+      "id": "winning-score-threshold",
+      "chain_count": 4,
+      "chain_score": 12000,
+      "target_chain_count": 10,
+      "fire_context": "safe_build",
+      "winning_score_threshold": 10000,
+      "expected_fire_class": "winning_fire"
+    }
+  ]
+}

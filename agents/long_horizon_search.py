@@ -11,7 +11,8 @@ import hashlib
 import json
 import math
 import random
-from dataclasses import dataclass
+from collections import Counter
+from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
 from agents.chain_structure import (
@@ -29,17 +30,55 @@ from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
 
 
-LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v1"
-EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v1"
-EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v1"
+LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v2"
+EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
+EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
 SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v1"
 LONG_HORIZON_PROPOSAL_DIGEST_VERSION = "puyo.long_horizon_proposal_digest.v1"
+TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
+ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION = "puyo.root_survivor_coverage.v1"
+ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION = "puyo.build_main_root_diagnostics.v1"
 
 TERMINAL_FIRE_CONTINUE = "continue"
 TERMINAL_FIRE_RECORD_AND_STOP = "record_and_stop"
 TERMINAL_FIRE_RULES = {
     TERMINAL_FIRE_CONTINUE,
     TERMINAL_FIRE_RECORD_AND_STOP,
+}
+
+FIRE_CONTEXT_SAFE_BUILD = "safe_build"
+FIRE_CONTEXT_FORCED_SAFETY = "forced_safety"
+FIRE_CONTEXTS = {
+    FIRE_CONTEXT_SAFE_BUILD,
+    FIRE_CONTEXT_FORCED_SAFETY,
+}
+
+FIRE_CLASS_UNAVAILABLE = "unavailable"
+FIRE_CLASS_PREMATURE = "premature_fire"
+FIRE_CLASS_QUIET = "quiet_continuation"
+FIRE_CLASS_FORCED_SAFETY = "forced_safety_fire"
+FIRE_CLASS_TARGET = "target_fire"
+FIRE_CLASS_WINNING = "winning_fire"
+FIRE_CLASSES = {
+    FIRE_CLASS_UNAVAILABLE,
+    FIRE_CLASS_PREMATURE,
+    FIRE_CLASS_QUIET,
+    FIRE_CLASS_FORCED_SAFETY,
+    FIRE_CLASS_TARGET,
+    FIRE_CLASS_WINNING,
+}
+ALLOWED_FIRE_CLASSES = {
+    FIRE_CLASS_FORCED_SAFETY,
+    FIRE_CLASS_TARGET,
+    FIRE_CLASS_WINNING,
+}
+FIRE_CLASS_PRIORITY = {
+    FIRE_CLASS_UNAVAILABLE: 0,
+    FIRE_CLASS_PREMATURE: 1,
+    FIRE_CLASS_QUIET: 2,
+    FIRE_CLASS_FORCED_SAFETY: 3,
+    FIRE_CLASS_TARGET: 4,
+    FIRE_CLASS_WINNING: 5,
 }
 
 RUNTIME_PROFILE = "runtime"
@@ -99,6 +138,10 @@ class LongHorizonSearchProfile:
     candidate_limit: int = 8
     terminal_fire_rule: str = TERMINAL_FIRE_RECORD_AND_STOP
     terminal_fire_chain_count: int = 1
+    root_survivor_quota: int = 1
+    fire_context: str = FIRE_CONTEXT_SAFE_BUILD
+    premature_target_gap_penalty: float = 1_000.0
+    winning_score_threshold: int | None = None
     use_transposition_table: bool = True
     budget_authority: str = "expanded_nodes"
     wall_clock_mode: str = "observational"
@@ -119,6 +162,7 @@ class LongHorizonSearchProfile:
                 self.max_expanded_nodes,
                 self.candidate_limit,
                 self.terminal_fire_chain_count,
+                self.root_survivor_quota,
             )
             <= 0
         ):
@@ -129,6 +173,18 @@ class LongHorizonSearchProfile:
             raise ValueError(
                 f"unsupported terminal-fire rule: {self.terminal_fire_rule}"
             )
+        if self.fire_context not in FIRE_CONTEXTS:
+            raise ValueError(f"unsupported fire context: {self.fire_context}")
+        if (
+            not math.isfinite(self.premature_target_gap_penalty)
+            or self.premature_target_gap_penalty < 0.0
+        ):
+            raise ValueError("premature target-gap penalty must be finite and non-negative")
+        if (
+            self.winning_score_threshold is not None
+            and self.winning_score_threshold <= 0
+        ):
+            raise ValueError("winning score threshold must be positive when configured")
         if self.budget_authority not in {
             "expanded_nodes",
             "external_runtime_deadline",
@@ -163,6 +219,16 @@ class LongHorizonSearchProfile:
                 "rule": self.terminal_fire_rule,
                 "minimum_chain_count": int(self.terminal_fire_chain_count),
             },
+            "fire_semantics": {
+                "context": self.fire_context,
+                "target_chain_source": "objective.target_chain",
+                "winning_score_threshold": self.winning_score_threshold,
+                "terminal_score_version": TERMINAL_FIRE_SCORE_VERSION,
+                "premature_target_gap_penalty": float(
+                    self.premature_target_gap_penalty
+                ),
+            },
+            "root_survivor_quota": int(self.root_survivor_quota),
             "transposition_table": bool(self.use_transposition_table),
             "budget": {
                 "authority": self.budget_authority,
@@ -175,7 +241,7 @@ class LongHorizonSearchProfile:
 LONG_HORIZON_SEARCH_PROFILES: Mapping[str, LongHorizonSearchProfile] = {
     RUNTIME_PROFILE: LongHorizonSearchProfile(
         name=RUNTIME_PROFILE,
-        version="1.0",
+        version="2.0",
         depth=3,
         width=24,
         scenarios=1,
@@ -185,7 +251,7 @@ LONG_HORIZON_SEARCH_PROFILES: Mapping[str, LongHorizonSearchProfile] = {
     ),
     QUALITY_D12_PROFILE: LongHorizonSearchProfile(
         name=QUALITY_D12_PROFILE,
-        version="1.0",
+        version="2.0",
         depth=12,
         width=128,
         scenarios=6,
@@ -193,7 +259,7 @@ LONG_HORIZON_SEARCH_PROFILES: Mapping[str, LongHorizonSearchProfile] = {
     ),
     QUALITY_D16_PROFILE: LongHorizonSearchProfile(
         name=QUALITY_D16_PROFILE,
-        version="1.0",
+        version="2.0",
         depth=16,
         width=250,
         scenarios=6,
@@ -342,6 +408,105 @@ def build_scenario_sequences(
     return tuple(result)
 
 
+def classify_build_main_fire(
+    *,
+    chain_count: int,
+    chain_score: int,
+    target_chain_count: int,
+    fire_context: str = FIRE_CONTEXT_SAFE_BUILD,
+    winning_score_threshold: int | None = None,
+) -> str:
+    """Classify a fire without letting sub-target official score imply success."""
+
+    if fire_context not in FIRE_CONTEXTS:
+        raise ValueError(f"unsupported fire context: {fire_context}")
+    if chain_count <= 0:
+        return FIRE_CLASS_QUIET
+    if (
+        winning_score_threshold is not None
+        and int(chain_score) >= int(winning_score_threshold)
+    ):
+        return FIRE_CLASS_WINNING
+    if int(chain_count) >= int(target_chain_count):
+        return FIRE_CLASS_TARGET
+    if fire_context == FIRE_CONTEXT_FORCED_SAFETY:
+        return FIRE_CLASS_FORCED_SAFETY
+    return FIRE_CLASS_PREMATURE
+
+
+def _mapping_from(value: Any) -> dict[str, Any]:
+    if value is None:
+        return {}
+    if hasattr(value, "to_dict"):
+        payload = value.to_dict()
+        return dict(payload) if isinstance(payload, Mapping) else {}
+    return dict(value) if isinstance(value, Mapping) else {}
+
+
+def _terminal_fire_score(
+    *,
+    result: Any,
+    evaluation: Any,
+    fire_class: str,
+    config: "LongHorizonSearchConfig",
+) -> tuple[float, dict[str, float]]:
+    structural_score = _evaluation_score(evaluation)
+    if not math.isfinite(structural_score):
+        structural_score = -1_000_000_000_000.0
+    target_gap = max(0, int(config.minimum_chain_count) - int(result.chain_count))
+    target_gap_penalty = (
+        -float(config.premature_target_gap_penalty) * float(target_gap)
+        if fire_class == FIRE_CLASS_PREMATURE
+        else 0.0
+    )
+    official_score = (
+        float(result.score_delta) if fire_class in ALLOWED_FIRE_CLASSES else 0.0
+    )
+    total = structural_score + target_gap_penalty + official_score
+    return total, {
+        "structural_score": float(structural_score),
+        "official_score": float(official_score),
+        "target_chain_gap": float(target_gap),
+        "target_gap_penalty": float(target_gap_penalty),
+        "total": float(total),
+    }
+
+
+def _evaluation_fire_details(evaluation: Any) -> dict[str, Any]:
+    action = getattr(evaluation, "action_features", None)
+    features = getattr(evaluation, "features", None)
+    score_breakdown = _mapping_from(getattr(evaluation, "score_breakdown", None))
+    trigger_damage = max(0, int(getattr(action, "trigger_damage", 0)))
+    return {
+        "evaluation_status": str(
+            getattr(evaluation, "evaluation_status", "available")
+        ),
+        "danger": float(getattr(evaluation, "danger", 1.0)),
+        "trigger_damage": trigger_damage,
+        "trigger_preserved": bool(trigger_damage == 0),
+        "structural_potential": {
+            "chain_count": (
+                None
+                if features is None
+                else int(getattr(features, "potential_chain_count", 0))
+            ),
+            "chain_score": (
+                None
+                if features is None
+                else int(getattr(features, "potential_chain_score", 0))
+            ),
+            "required_key_count": (
+                None if features is None else getattr(features, "required_key_count", None)
+            ),
+        },
+        "score_breakdown": {
+            str(key): float(value)
+            for key, value in score_breakdown.items()
+            if isinstance(value, (int, float)) and math.isfinite(float(value))
+        },
+    }
+
+
 @dataclass(frozen=True, slots=True)
 class ChainFireEvidence:
     root_action: int
@@ -354,9 +519,33 @@ class ChainFireEvidence:
     path: tuple[int, ...]
     terminal: bool
     terminal_reason: str | None
+    fire_class: str = FIRE_CLASS_PREMATURE
+    target_chain_count: int = 1
+    target_chain_gap: int = 0
+    allowed: bool = False
+    terminal_score: float | None = None
+    terminal_score_breakdown: Mapping[str, float] = field(default_factory=dict)
+    terminal_evaluation: Mapping[str, Any] = field(default_factory=dict)
 
     @property
     def rank_key(self) -> tuple[Any, ...]:
+        return (
+            int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
+            (
+                float("-inf")
+                if self.terminal_score is None
+                else float(self.terminal_score)
+            ),
+            int(self.chain_score),
+            int(self.chain_count),
+            -int(self.depth),
+            -int(self.trigger_action),
+            self.state_fingerprint,
+            tuple(-int(action) for action in self.path),
+        )
+
+    @property
+    def official_rank_key(self) -> tuple[Any, ...]:
         return (
             int(self.chain_score),
             int(self.chain_count),
@@ -378,6 +567,19 @@ class ChainFireEvidence:
             "path": [int(action) for action in self.path],
             "terminal": bool(self.terminal),
             "terminal_reason": self.terminal_reason,
+            "fire_class": self.fire_class,
+            "allowed": bool(self.allowed),
+            "target_chain_count": int(self.target_chain_count),
+            "target_chain_gap": int(self.target_chain_gap),
+            "terminal_score": {
+                "schema_version": TERMINAL_FIRE_SCORE_VERSION,
+                "value": self.terminal_score,
+                "breakdown": {
+                    str(key): float(value)
+                    for key, value in self.terminal_score_breakdown.items()
+                },
+                "evaluation": dict(self.terminal_evaluation),
+            },
         }
 
 
@@ -400,8 +602,36 @@ class ScenarioRootEvidence:
     truncation_reason: str | None
     terminal_fire_rule: str
     terminal_fire_chain_count: int
+    selected_fire_class: str = FIRE_CLASS_UNAVAILABLE
+    selected_fire: ChainFireEvidence | None = None
+    observed_fire_classes: tuple[str, ...] = ()
+    quiet_survivor: bool = False
+    survivor_quota: int = 1
+    survivor_candidate_counts: tuple[tuple[int, int], ...] = ()
+    survivor_counts: tuple[tuple[int, int], ...] = ()
+    survivor_shortfalls: tuple[tuple[int, str], ...] = ()
+    invalid_nodes: int = 0
+    game_over_nodes: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        candidate_counts = {
+            str(depth): int(count)
+            for depth, count in self.survivor_candidate_counts
+        }
+        retained_counts = {
+            str(depth): int(count) for depth, count in self.survivor_counts
+        }
+        shortfalls = {
+            str(depth): reason for depth, reason in self.survivor_shortfalls
+        }
+        attempted_depths = sorted(
+            {
+                *candidate_counts,
+                *retained_counts,
+                *shortfalls,
+            },
+            key=int,
+        )
         return {
             "root_action": int(self.root_action),
             "scenario_id": int(self.scenario_id),
@@ -411,12 +641,29 @@ class ScenarioRootEvidence:
             "max_chain_count": int(self.max_chain_count),
             "max_chain_score": int(self.max_chain_score),
             "best_fire": (None if self.best_fire is None else self.best_fire.to_dict()),
+            "selected_fire_class": self.selected_fire_class,
+            "selected_fire": (
+                None if self.selected_fire is None else self.selected_fire.to_dict()
+            ),
+            "observed_fire_classes": list(self.observed_fire_classes),
             "fire_count": int(self.fire_count),
             "terminal_fire_count": int(self.terminal_fire_count),
             "survivor_evaluator_score": self.survivor_evaluator_score,
+            "quiet_survivor": bool(self.quiet_survivor),
+            "survivor_coverage": {
+                "schema_version": ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION,
+                "quota": int(self.survivor_quota),
+                "attempted_depths": [int(depth) for depth in attempted_depths],
+                "candidate_counts": candidate_counts,
+                "retained_counts": retained_counts,
+                "shortfalls": shortfalls,
+                "quota_satisfied": bool(attempted_depths and not shortfalls),
+            },
             "expanded_nodes": int(self.expanded_nodes),
             "pruned_nodes": int(self.pruned_nodes),
             "transposition_hits": int(self.transposition_hits),
+            "invalid_nodes": int(self.invalid_nodes),
+            "game_over_nodes": int(self.game_over_nodes),
             "truncation_reason": self.truncation_reason,
             "terminal_fire": {
                 "rule": self.terminal_fire_rule,
@@ -443,6 +690,15 @@ class ExpectedChainRootEvidence:
     max_chain_score: int
     max_chain_count: int
     best_fire: ChainFireEvidence | None
+    fire_class: str = FIRE_CLASS_UNAVAILABLE
+    fire_class_support: Mapping[str, int] = field(default_factory=dict)
+    terminal_score_sum: float = 0.0
+    terminal_score_mean: float | None = None
+    terminal_score_worst: float | None = None
+    terminal_score_dispersion: float = 0.0
+    quiet_support: int = 0
+    target_not_reached_fire_count: int = 0
+    root_survivor_quota: int = 1
     ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
 
@@ -458,14 +714,31 @@ class ExpectedChainRootEvidence:
 
     @property
     def candidate_value(self) -> float:
-        # The public scalar remains the summed official score.  The versioned
-        # tuple below supplies deterministic tie breaks without corrupting it.
-        return float(self.chain_score_sum)
+        if self.fire_class == FIRE_CLASS_QUIET:
+            return float(
+                -1_000_000_000_000.0
+                if self.continuation_score_mean is None
+                else self.continuation_score_mean
+            )
+        if self.fire_class in FIRE_CLASSES - {
+            FIRE_CLASS_UNAVAILABLE,
+            FIRE_CLASS_QUIET,
+        }:
+            return float(
+                -1_000_000_000_000.0
+                if self.terminal_score_mean is None
+                else self.terminal_score_sum
+            )
+        return -1_000_000_000_000.0
 
     @property
     def ranking_key(self) -> tuple[Any, ...]:
+        class_support = int(self.fire_class_support.get(self.fire_class, 0))
         return (
+            int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             float(self.coverage),
+            class_support,
+            float(self.candidate_value),
             int(self.chain_score_sum),
             int(self.chain_count_sum),
             int(self.support),
@@ -478,6 +751,7 @@ class ExpectedChainRootEvidence:
                 if self.continuation_score_mean is None
                 else float(self.continuation_score_mean)
             ),
+            int(self.quiet_support),
             -int(self.root_action),
         )
 
@@ -490,6 +764,26 @@ class ExpectedChainRootEvidence:
             "expected_chain_support": float(self.support),
             "expected_chain_worst_score": float(self.worst_chain_score),
             "expected_chain_score_dispersion": -float(self.chain_score_dispersion),
+            "fire_class_priority": float(
+                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
+            ),
+            "fire_class_support": float(
+                self.fire_class_support.get(self.fire_class, 0)
+            ),
+            "terminal_score_sum": float(self.terminal_score_sum),
+            "terminal_score_mean": float(
+                0.0
+                if self.terminal_score_mean is None
+                else self.terminal_score_mean
+            ),
+            "quiet_candidate_coverage": (
+                0.0
+                if self.requested_scenarios <= 0
+                else self.quiet_support / float(self.requested_scenarios)
+            ),
+            "target_not_reached_fire_count": float(
+                self.target_not_reached_fire_count
+            ),
             "continuation_evaluator": float(
                 0.0
                 if self.continuation_score_mean is None
@@ -503,6 +797,14 @@ class ExpectedChainRootEvidence:
             "schema_version": self.schema_version,
             "ranking_rule_version": self.ranking_rule_version,
             "root_action": int(self.root_action),
+            "fire_class": self.fire_class,
+            "fire_class_priority": int(
+                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
+            ),
+            "fire_class_support": {
+                fire_class: int(self.fire_class_support.get(fire_class, 0))
+                for fire_class in sorted(FIRE_CLASSES)
+            },
             "requested_scenarios": int(self.requested_scenarios),
             "evaluated_scenarios": int(self.evaluated_scenarios),
             "coverage": float(self.coverage),
@@ -522,6 +824,23 @@ class ExpectedChainRootEvidence:
             },
             "support": int(self.support),
             "continuation_score_mean": self.continuation_score_mean,
+            "quiet_candidate_coverage": (
+                0.0
+                if self.requested_scenarios <= 0
+                else self.quiet_support / float(self.requested_scenarios)
+            ),
+            "quiet_support": int(self.quiet_support),
+            "target_not_reached_fire_count": int(
+                self.target_not_reached_fire_count
+            ),
+            "terminal_score": {
+                "schema_version": TERMINAL_FIRE_SCORE_VERSION,
+                "sum": float(self.terminal_score_sum),
+                "mean": self.terminal_score_mean,
+                "worst": self.terminal_score_worst,
+                "dispersion": float(self.terminal_score_dispersion),
+            },
+            "root_survivor_quota": int(self.root_survivor_quota),
             "candidate_value": self.candidate_value,
             "best_fire": (None if self.best_fire is None else self.best_fire.to_dict()),
             "scenario_values": [value.to_dict() for value in self.scenario_values],
@@ -538,6 +857,10 @@ class LongHorizonSearchConfig:
     scenario_seed: int | None = None
     terminal_fire_rule: str = TERMINAL_FIRE_RECORD_AND_STOP
     terminal_fire_chain_count: int = 1
+    root_survivor_quota: int = 1
+    fire_context: str = FIRE_CONTEXT_SAFE_BUILD
+    premature_target_gap_penalty: float = 1_000.0
+    winning_score_threshold: int | None = None
     use_transposition_table: bool = True
 
     def __post_init__(self) -> None:
@@ -549,6 +872,7 @@ class LongHorizonSearchConfig:
                 self.minimum_chain_count,
                 self.max_expanded_nodes,
                 self.terminal_fire_chain_count,
+                self.root_survivor_quota,
             )
             <= 0
         ):
@@ -559,6 +883,18 @@ class LongHorizonSearchConfig:
             raise ValueError(
                 f"unsupported terminal-fire rule: {self.terminal_fire_rule}"
             )
+        if self.fire_context not in FIRE_CONTEXTS:
+            raise ValueError(f"unsupported fire context: {self.fire_context}")
+        if (
+            not math.isfinite(self.premature_target_gap_penalty)
+            or self.premature_target_gap_penalty < 0.0
+        ):
+            raise ValueError("premature target-gap penalty must be finite and non-negative")
+        if (
+            self.winning_score_threshold is not None
+            and self.winning_score_threshold <= 0
+        ):
+            raise ValueError("winning score threshold must be positive when configured")
 
 
 @dataclass(frozen=True, slots=True)
@@ -629,6 +965,7 @@ class LongHorizonSearchResult:
     root_pruned_nodes: Mapping[int, int]
     root_reached_depth: Mapping[int, int]
     root_generated_scenarios: Mapping[int, tuple[int, ...]]
+    root_diagnostics: Mapping[int, Mapping[str, Any]]
 
     @property
     def ranked_roots(self) -> tuple[ExpectedChainRootEvidence, ...]:
@@ -654,6 +991,10 @@ class LongHorizonSearchResult:
                 "scenario_sequences": [
                     sequence.to_dict() for sequence in self.scenario_sequences
                 ],
+                "root_diagnostics": {
+                    str(action): dict(payload)
+                    for action, payload in sorted(self.root_diagnostics.items())
+                },
             },
             prefix="long-horizon-search",
         )
@@ -665,29 +1006,42 @@ class _ScenarioTracker:
     scenario_id: int
     terminal_fire_rule: str
     terminal_fire_chain_count: int
+    root_survivor_quota: int
     evaluated: bool = False
     search_complete: bool = True
     reached_depth: int = 0
     max_chain_count: int = 0
     max_chain_score: int = 0
     best_fire: ChainFireEvidence | None = None
+    fires_by_class: dict[str, ChainFireEvidence] = field(default_factory=dict)
+    terminals_by_class: dict[str, LongHorizonNode] = field(default_factory=dict)
     fire_count: int = 0
     terminal_fire_count: int = 0
     best_survivor: LongHorizonNode | None = None
-    best_terminal: LongHorizonNode | None = None
     expanded_nodes: int = 0
     pruned_nodes: int = 0
     transposition_hits: int = 0
+    invalid_nodes: int = 0
+    game_over_nodes: int = 0
+    survivor_candidate_counts: dict[int, int] = field(default_factory=dict)
+    survivor_counts: dict[int, int] = field(default_factory=dict)
+    survivor_shortfalls: dict[int, str] = field(default_factory=dict)
     truncation_reason: str | None = None
 
     def record_fire(
         self,
         *,
         result: Any,
+        evaluation: Any,
+        fire_class: str,
+        terminal_score: float,
+        terminal_score_breakdown: Mapping[str, float],
+        target_chain_count: int,
         path: tuple[int, ...],
         terminal: bool,
         terminal_reason: str | None,
-    ) -> None:
+    ) -> ChainFireEvidence:
+        details = _evaluation_fire_details(evaluation)
         evidence = ChainFireEvidence(
             root_action=int(self.root_action),
             scenario_id=int(self.scenario_id),
@@ -699,13 +1053,30 @@ class _ScenarioTracker:
             path=path,
             terminal=bool(terminal),
             terminal_reason=terminal_reason,
+            fire_class=fire_class,
+            target_chain_count=int(target_chain_count),
+            target_chain_gap=max(
+                0,
+                int(target_chain_count) - int(result.chain_count),
+            ),
+            allowed=fire_class in ALLOWED_FIRE_CLASSES,
+            terminal_score=float(terminal_score),
+            terminal_score_breakdown=dict(terminal_score_breakdown),
+            terminal_evaluation=details,
         )
         self.fire_count += 1
         self.terminal_fire_count += int(terminal)
         self.max_chain_count = max(self.max_chain_count, evidence.chain_count)
         self.max_chain_score = max(self.max_chain_score, evidence.chain_score)
-        if self.best_fire is None or evidence.rank_key > self.best_fire.rank_key:
+        if (
+            self.best_fire is None
+            or evidence.official_rank_key > self.best_fire.official_rank_key
+        ):
             self.best_fire = evidence
+        best_class_fire = self.fires_by_class.get(fire_class)
+        if best_class_fire is None or evidence.rank_key > best_class_fire.rank_key:
+            self.fires_by_class[fire_class] = evidence
+        return evidence
 
     def record_survivor(self, node: LongHorizonNode) -> None:
         if self.best_survivor is None or _survivor_sort_key(node) < _survivor_sort_key(
@@ -714,20 +1085,66 @@ class _ScenarioTracker:
             self.best_survivor = node
         self.reached_depth = max(self.reached_depth, len(node.path))
 
-    def record_terminal(self, node: LongHorizonNode) -> None:
-        if self.best_terminal is None:
-            self.best_terminal = node
+    def record_terminal(self, node: LongHorizonNode, fire: ChainFireEvidence) -> None:
+        best = self.fires_by_class.get(fire.fire_class)
+        if best is not None and best.path == node.path:
+            self.terminals_by_class[fire.fire_class] = node
+
+    def record_survivor_coverage(
+        self,
+        *,
+        depth: int,
+        candidate_count: int,
+        retained_count: int,
+        quota: int,
+        budget_exhausted: bool,
+    ) -> None:
+        self.survivor_candidate_counts[int(depth)] = int(candidate_count)
+        self.survivor_counts[int(depth)] = int(retained_count)
+        if retained_count >= quota:
+            self.survivor_shortfalls.pop(int(depth), None)
             return
-        left = self.best_fire
-        if left is not None and left.path == node.path:
-            self.best_terminal = node
+        if budget_exhausted:
+            reason = "expanded_node_budget"
+        elif candidate_count >= quota:
+            reason = "beam_width_below_root_quota"
+        elif self.terminal_fire_count > 0:
+            reason = "terminal_fire_without_quiet_survivor"
+        elif self.game_over_nodes > 0:
+            reason = "game_over_without_survivor"
+        elif self.invalid_nodes > 0:
+            reason = "invalid_transition_without_survivor"
+        else:
+            reason = "no_non_terminal_survivor"
+        self.survivor_shortfalls[int(depth)] = reason
+
+    @property
+    def selected_fire_class(self) -> str:
+        available = set(self.fires_by_class)
+        if FIRE_CLASS_WINNING in available:
+            return FIRE_CLASS_WINNING
+        if FIRE_CLASS_TARGET in available:
+            return FIRE_CLASS_TARGET
+        if FIRE_CLASS_FORCED_SAFETY in available:
+            return FIRE_CLASS_FORCED_SAFETY
+        if self.best_survivor is not None:
+            return FIRE_CLASS_QUIET
+        if FIRE_CLASS_PREMATURE in available:
+            return FIRE_CLASS_PREMATURE
+        return FIRE_CLASS_UNAVAILABLE
+
+    @property
+    def selected_fire(self) -> ChainFireEvidence | None:
+        return self.fires_by_class.get(self.selected_fire_class)
 
     @property
     def representative(self) -> LongHorizonNode | None:
-        if self.best_fire is not None and self.best_terminal is not None:
-            if self.best_terminal.path == self.best_fire.path:
-                return self.best_terminal
-        return self.best_survivor or self.best_terminal
+        if self.selected_fire_class == FIRE_CLASS_QUIET:
+            return self.best_survivor
+        return (
+            self.terminals_by_class.get(self.selected_fire_class)
+            or self.best_survivor
+        )
 
     def finish(self, *, budget_exhausted: bool, target_depth: int) -> None:
         if budget_exhausted and self.evaluated and self.reached_depth < target_depth:
@@ -762,6 +1179,18 @@ class _ScenarioTracker:
             truncation_reason=self.truncation_reason,
             terminal_fire_rule=self.terminal_fire_rule,
             terminal_fire_chain_count=int(self.terminal_fire_chain_count),
+            selected_fire_class=self.selected_fire_class,
+            selected_fire=self.selected_fire,
+            observed_fire_classes=tuple(sorted(self.fires_by_class)),
+            quiet_survivor=self.best_survivor is not None,
+            survivor_quota=int(self.root_survivor_quota),
+            survivor_candidate_counts=tuple(
+                sorted(self.survivor_candidate_counts.items())
+            ),
+            survivor_counts=tuple(sorted(self.survivor_counts.items())),
+            survivor_shortfalls=tuple(sorted(self.survivor_shortfalls.items())),
+            invalid_nodes=int(self.invalid_nodes),
+            game_over_nodes=int(self.game_over_nodes),
         )
 
 
@@ -784,14 +1213,76 @@ def aggregate_expected_chain_evidence(
 ) -> ExpectedChainRootEvidence:
     raw = tuple(sorted(scenario_values, key=lambda value: value.scenario_id))
     evaluated = tuple(value for value in raw if value.evaluated)
-    scores = [float(value.max_chain_score) for value in evaluated]
-    counts = [float(value.max_chain_count) for value in evaluated]
+
+    def selected_class(value: ScenarioRootEvidence) -> str:
+        if value.selected_fire_class != FIRE_CLASS_UNAVAILABLE:
+            return value.selected_fire_class
+        if value.best_fire is not None:
+            return value.best_fire.fire_class
+        if value.survivor_evaluator_score is not None:
+            return FIRE_CLASS_QUIET
+        return FIRE_CLASS_UNAVAILABLE
+
+    def selected_fire(value: ScenarioRootEvidence) -> ChainFireEvidence | None:
+        if value.selected_fire is not None:
+            return value.selected_fire
+        if selected_class(value) != FIRE_CLASS_QUIET:
+            return value.best_fire
+        return None
+
+    class_counts = Counter(selected_class(value) for value in evaluated)
+    fire_class = max(
+        class_counts,
+        key=lambda value: (
+            FIRE_CLASS_PRIORITY.get(value, -1),
+            class_counts[value],
+            value,
+        ),
+        default=FIRE_CLASS_UNAVAILABLE,
+    )
+    selected_scenarios = tuple(
+        value for value in evaluated if selected_class(value) == fire_class
+    )
+    selected_fires = tuple(
+        selected_fire(value)
+        for value in selected_scenarios
+        if selected_fire(value) is not None
+    )
+    scores = [
+        float(fire.chain_score)
+        if selected_class(value) == fire_class
+        and (fire := selected_fire(value)) is not None
+        else 0.0
+        for value in evaluated
+    ]
+    counts = [
+        float(fire.chain_count)
+        if selected_class(value) == fire_class
+        and (fire := selected_fire(value)) is not None
+        else 0.0
+        for value in evaluated
+    ]
     continuations = [
         float(value.survivor_evaluator_score)
         for value in evaluated
-        if value.survivor_evaluator_score is not None
+        if selected_class(value) == FIRE_CLASS_QUIET
+        and value.survivor_evaluator_score is not None
     ]
-    fires = [value.best_fire for value in evaluated if value.best_fire is not None]
+    terminal_scores = [
+        float(value.terminal_score)
+        for value in selected_fires
+        if value.terminal_score is not None
+    ]
+    quiet_support = int(class_counts.get(FIRE_CLASS_QUIET, 0))
+    target_not_reached_fire_count = sum(
+        int(
+            any(
+                fire_class_name == FIRE_CLASS_PREMATURE
+                for fire_class_name in value.observed_fire_classes
+            )
+        )
+        for value in evaluated
+    )
     return ExpectedChainRootEvidence(
         root_action=int(root_action),
         requested_scenarios=int(requested_scenarios),
@@ -806,9 +1297,38 @@ def aggregate_expected_chain_evidence(
         chain_score_dispersion=_dispersion(scores),
         chain_count_dispersion=_dispersion(counts),
         continuation_score_mean=(None if not continuations else _mean(continuations)),
-        max_chain_score=int(max(scores, default=0.0)),
-        max_chain_count=int(max(counts, default=0.0)),
-        best_fire=max(fires, key=lambda value: value.rank_key, default=None),
+        max_chain_score=max(
+            (value.max_chain_score for value in evaluated),
+            default=0,
+        ),
+        max_chain_count=max(
+            (value.max_chain_count for value in evaluated),
+            default=0,
+        ),
+        best_fire=max(
+            selected_fires,
+            key=lambda value: value.rank_key,
+            default=None,
+        ),
+        fire_class=fire_class,
+        fire_class_support={
+            candidate_class: int(class_counts.get(candidate_class, 0))
+            for candidate_class in FIRE_CLASSES
+        },
+        terminal_score_sum=float(sum(terminal_scores)),
+        terminal_score_mean=(
+            None if not terminal_scores else _mean(terminal_scores)
+        ),
+        terminal_score_worst=(
+            None if not terminal_scores else min(terminal_scores)
+        ),
+        terminal_score_dispersion=_dispersion(terminal_scores),
+        quiet_support=quiet_support,
+        target_not_reached_fire_count=int(target_not_reached_fire_count),
+        root_survivor_quota=max(
+            (value.survivor_quota for value in evaluated),
+            default=1,
+        ),
     )
 
 
@@ -881,13 +1401,51 @@ def _new_node(
 def _prune_survivors(
     nodes: Sequence[LongHorizonNode],
     *,
+    depth: int,
     width: int,
+    root_survivor_quota: int,
     trackers: Mapping[int, _ScenarioTracker],
     counters: LongHorizonSearchCounters,
 ) -> list[LongHorizonNode]:
     ranked = sorted(nodes, key=_survivor_sort_key)
-    retained = ranked[:width]
-    for node in ranked[width:]:
+    by_root: dict[int, list[LongHorizonNode]] = {
+        int(root_action): [] for root_action in trackers
+    }
+    for node in ranked:
+        by_root[int(node.root_action)].append(node)
+
+    # Reserve one or more deterministic round-robin slots for every legal root
+    # before allowing the remaining candidates to compete in the shared beam.
+    retained: list[LongHorizonNode] = []
+    retained_ids: set[int] = set()
+    for quota_index in range(root_survivor_quota):
+        for root_action in sorted(trackers):
+            candidates = by_root[root_action]
+            if quota_index >= len(candidates) or len(retained) >= width:
+                continue
+            node = candidates[quota_index]
+            retained.append(node)
+            retained_ids.add(id(node))
+    for node in ranked:
+        if len(retained) >= width:
+            break
+        if id(node) in retained_ids:
+            continue
+        retained.append(node)
+        retained_ids.add(id(node))
+
+    retained_counts = Counter(int(node.root_action) for node in retained)
+    for root_action, tracker in trackers.items():
+        tracker.record_survivor_coverage(
+            depth=depth,
+            candidate_count=len(by_root[int(root_action)]),
+            retained_count=int(retained_counts.get(int(root_action), 0)),
+            quota=root_survivor_quota,
+            budget_exhausted=counters.budget_exhausted,
+        )
+    for node in ranked:
+        if id(node) in retained_ids:
+            continue
         trackers[node.root_action].pruned_nodes += 1
         counters.pruned_nodes += 1
     for node in retained:
@@ -904,6 +1462,77 @@ def _consume_budget(
         return False
     counters.expanded_nodes += 1
     return True
+
+
+def _root_build_diagnostics(
+    *,
+    root_evaluation: Any,
+    representative: LongHorizonNode | None,
+    evidence: ExpectedChainRootEvidence,
+) -> dict[str, Any]:
+    before = getattr(root_evaluation, "features", None)
+    after_evaluation = (
+        None if representative is None else representative.evaluator_result
+    )
+    after = getattr(after_evaluation, "features", None)
+    action = getattr(after_evaluation, "action_features", None)
+
+    def delta(name: str) -> int | float | None:
+        if before is None or after is None:
+            return None
+        left = getattr(before, name, None)
+        right = getattr(after, name, None)
+        if not isinstance(left, (int, float)) or not isinstance(
+            right,
+            (int, float),
+        ):
+            return None
+        return right - left
+
+    scenario_coverage = [
+        value.to_dict()["survivor_coverage"]
+        for value in evidence.scenario_values
+    ]
+    trigger_damage = (
+        None if action is None else max(0, int(getattr(action, "trigger_damage", 0)))
+    )
+    return {
+        "schema_version": ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION,
+        "root_action": int(evidence.root_action),
+        "fire_class": evidence.fire_class,
+        "quiet_candidate": evidence.fire_class == FIRE_CLASS_QUIET,
+        "quiet_candidate_coverage": (
+            0.0
+            if evidence.requested_scenarios <= 0
+            else evidence.quiet_support / float(evidence.requested_scenarios)
+        ),
+        "target_not_reached_fire_count": int(
+            evidence.target_not_reached_fire_count
+        ),
+        "survivor_coverage": {
+            "quota": int(evidence.root_survivor_quota),
+            "scenarios": scenario_coverage,
+        },
+        "trigger": {
+            "damage": trigger_damage,
+            "preserved": None if trigger_damage is None else trigger_damage == 0,
+        },
+        "danger": {
+            "value": (
+                None
+                if after_evaluation is None
+                else float(getattr(after_evaluation, "danger", 1.0))
+            ),
+            "delta": delta("danger_ratio"),
+        },
+        "structural_potential_delta": {
+            "potential_chain_count": delta("potential_chain_count"),
+            "potential_chain_score": delta("potential_chain_score"),
+            "reachable_ignitions": delta("reachable_ignition_count"),
+            "connection_candidates": delta("connection_candidate_count"),
+            "growth_sites": delta("growth_site_count"),
+        },
+    }
 
 
 def run_long_horizon_search(
@@ -937,6 +1566,7 @@ def run_long_horizon_search(
                 scenario_id=int(sequence.scenario_id),
                 terminal_fire_rule=config.terminal_fire_rule,
                 terminal_fire_chain_count=config.terminal_fire_chain_count,
+                root_survivor_quota=config.root_survivor_quota,
             )
             for action in roots
         }
@@ -961,42 +1591,75 @@ def run_long_horizon_search(
             result = transition(root_state, root_pair, action)
             if not result.valid:
                 counters.invalid_nodes += 1
+                tracker.invalid_nodes += 1
                 continue
             counters.generated_nodes += 1
             counters.reached_depth = max(counters.reached_depth, 1)
             path = (int(action),)
             terminal = _should_stop_fire(config, result.chain_count)
             reason = _terminal_reason(config) if terminal else None
+            evaluation = None
+            fire = None
             if result.chain_count > 0:
-                tracker.record_fire(
+                evaluation = _evaluate_node(
+                    selected_evaluator,
+                    state=result.state,
+                    parent=root_evaluation,
+                    action=result,
+                    config=config,
+                )
+                counters.evaluated_nodes += 1
+                fire_class = classify_build_main_fire(
+                    chain_count=result.chain_count,
+                    chain_score=result.score_delta,
+                    target_chain_count=config.minimum_chain_count,
+                    fire_context=config.fire_context,
+                    winning_score_threshold=config.winning_score_threshold,
+                )
+                terminal_score, terminal_breakdown = _terminal_fire_score(
                     result=result,
+                    evaluation=evaluation,
+                    fire_class=fire_class,
+                    config=config,
+                )
+                fire = tracker.record_fire(
+                    result=result,
+                    evaluation=evaluation,
+                    fire_class=fire_class,
+                    terminal_score=terminal_score,
+                    terminal_score_breakdown=terminal_breakdown,
+                    target_chain_count=config.minimum_chain_count,
                     path=path,
                     terminal=terminal,
                     terminal_reason=reason,
                 )
             if terminal:
+                if fire is None:
+                    raise RuntimeError("terminal fire is missing classified evidence")
                 counters.terminal_fire_nodes += 1
                 terminal_node = _new_node(
                     result=result,
                     root_action=action,
                     scenario_id=sequence.scenario_id,
                     path=path,
-                    evaluation=None,
+                    evaluation=evaluation,
                     cumulative_action_score=result.score_delta,
                 )
-                tracker.record_terminal(terminal_node)
+                tracker.record_terminal(terminal_node, fire)
                 continue
             if result.game_over:
                 counters.game_over_nodes += 1
+                tracker.game_over_nodes += 1
                 continue
-            evaluation = _evaluate_node(
-                selected_evaluator,
-                state=result.state,
-                parent=root_evaluation,
-                action=result,
-                config=config,
-            )
-            counters.evaluated_nodes += 1
+            if evaluation is None:
+                evaluation = _evaluate_node(
+                    selected_evaluator,
+                    state=result.state,
+                    parent=root_evaluation,
+                    action=result,
+                    config=config,
+                )
+                counters.evaluated_nodes += 1
             root_candidates.append(
                 _new_node(
                     result=result,
@@ -1010,7 +1673,9 @@ def run_long_horizon_search(
 
         beam = _prune_survivors(
             root_candidates,
+            depth=1,
             width=config.width,
+            root_survivor_quota=config.root_survivor_quota,
             trackers=trackers,
             counters=counters,
         )
@@ -1032,44 +1697,79 @@ def run_long_horizon_search(
                     result = transition(node.state, pair, action)
                     if not result.valid:
                         counters.invalid_nodes += 1
+                        tracker.invalid_nodes += 1
                         continue
                     counters.generated_nodes += 1
                     counters.reached_depth = max(counters.reached_depth, depth)
                     path = node.path + (int(action),)
                     terminal = _should_stop_fire(config, result.chain_count)
                     reason = _terminal_reason(config) if terminal else None
+                    evaluation = None
+                    fire = None
                     if result.chain_count > 0:
-                        tracker.record_fire(
+                        evaluation = _evaluate_node(
+                            selected_evaluator,
+                            state=result.state,
+                            parent=node.evaluator_result,
+                            action=result,
+                            config=config,
+                        )
+                        counters.evaluated_nodes += 1
+                        fire_class = classify_build_main_fire(
+                            chain_count=result.chain_count,
+                            chain_score=result.score_delta,
+                            target_chain_count=config.minimum_chain_count,
+                            fire_context=config.fire_context,
+                            winning_score_threshold=config.winning_score_threshold,
+                        )
+                        terminal_score, terminal_breakdown = _terminal_fire_score(
                             result=result,
+                            evaluation=evaluation,
+                            fire_class=fire_class,
+                            config=config,
+                        )
+                        fire = tracker.record_fire(
+                            result=result,
+                            evaluation=evaluation,
+                            fire_class=fire_class,
+                            terminal_score=terminal_score,
+                            terminal_score_breakdown=terminal_breakdown,
+                            target_chain_count=config.minimum_chain_count,
                             path=path,
                             terminal=terminal,
                             terminal_reason=reason,
                         )
                     if terminal:
+                        if fire is None:
+                            raise RuntimeError(
+                                "terminal fire is missing classified evidence"
+                            )
                         counters.terminal_fire_nodes += 1
                         terminal_node = _new_node(
                             result=result,
                             root_action=node.root_action,
                             scenario_id=sequence.scenario_id,
                             path=path,
-                            evaluation=None,
+                            evaluation=evaluation,
                             cumulative_action_score=(
                                 node.cumulative_action_score + result.score_delta
                             ),
                         )
-                        tracker.record_terminal(terminal_node)
+                        tracker.record_terminal(terminal_node, fire)
                         continue
                     if result.game_over:
                         counters.game_over_nodes += 1
+                        tracker.game_over_nodes += 1
                         continue
-                    evaluation = _evaluate_node(
-                        selected_evaluator,
-                        state=result.state,
-                        parent=node.evaluator_result,
-                        action=result,
-                        config=config,
-                    )
-                    counters.evaluated_nodes += 1
+                    if evaluation is None:
+                        evaluation = _evaluate_node(
+                            selected_evaluator,
+                            state=result.state,
+                            parent=node.evaluator_result,
+                            action=result,
+                            config=config,
+                        )
+                        counters.evaluated_nodes += 1
                     candidate = _new_node(
                         result=result,
                         root_action=node.root_action,
@@ -1106,7 +1806,9 @@ def run_long_horizon_search(
                 candidates = list(transpositions.values())
             beam = _prune_survivors(
                 candidates,
+                depth=depth,
                 width=config.width,
+                root_survivor_quota=config.root_survivor_quota,
                 trackers=trackers,
                 counters=counters,
             )
@@ -1123,6 +1825,7 @@ def run_long_horizon_search(
     root_pruned: dict[int, int] = {}
     root_depth: dict[int, int] = {}
     root_scenarios: dict[int, tuple[int, ...]] = {}
+    root_diagnostics: dict[int, Mapping[str, Any]] = {}
     for action in roots:
         trackers = tuple(
             all_trackers[(action, sequence.scenario_id)] for sequence in sequences
@@ -1138,6 +1841,7 @@ def run_long_horizon_search(
             tracker.representative
             for tracker in trackers
             if tracker.representative is not None
+            and tracker.selected_fire_class == aggregate.fire_class
         ]
         if aggregate.best_fire is not None:
             representative = next(
@@ -1155,6 +1859,11 @@ def run_long_horizon_search(
             representative = min(candidates, key=_survivor_sort_key)
         if representative is not None:
             representatives[int(action)] = representative
+        root_diagnostics[int(action)] = _root_build_diagnostics(
+            root_evaluation=root_evaluation,
+            representative=representative,
+            evidence=aggregate,
+        )
         root_tt_hits[int(action)] = sum(
             tracker.transposition_hits for tracker in trackers
         )
@@ -1177,12 +1886,25 @@ def run_long_horizon_search(
         root_pruned_nodes=root_pruned,
         root_reached_depth=root_depth,
         root_generated_scenarios=root_scenarios,
+        root_diagnostics=root_diagnostics,
     )
 
 
 __all__ = [
+    "ALLOWED_FIRE_CLASSES",
     "EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION",
     "EXPECTED_CHAIN_RANKING_RULE_VERSION",
+    "FIRE_CLASSES",
+    "FIRE_CLASS_FORCED_SAFETY",
+    "FIRE_CLASS_PREMATURE",
+    "FIRE_CLASS_PRIORITY",
+    "FIRE_CLASS_QUIET",
+    "FIRE_CLASS_TARGET",
+    "FIRE_CLASS_UNAVAILABLE",
+    "FIRE_CLASS_WINNING",
+    "FIRE_CONTEXTS",
+    "FIRE_CONTEXT_FORCED_SAFETY",
+    "FIRE_CONTEXT_SAFE_BUILD",
     "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_PROFILE_SCHEMA_VERSION",
     "LONG_HORIZON_SEARCH_PROFILES",
@@ -1191,8 +1913,11 @@ __all__ = [
     "REPRESENTATIVE_SCENARIO_BAGS",
     "RUNTIME_PROFILE",
     "SCENARIO_SEQUENCE_SCHEMA_VERSION",
+    "ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION",
+    "ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION",
     "TERMINAL_FIRE_CONTINUE",
     "TERMINAL_FIRE_RECORD_AND_STOP",
+    "TERMINAL_FIRE_SCORE_VERSION",
     "ChainFireEvidence",
     "ExpectedChainRootEvidence",
     "LongHorizonNode",
@@ -1203,6 +1928,7 @@ __all__ = [
     "ScenarioRootEvidence",
     "aggregate_expected_chain_evidence",
     "build_scenario_sequences",
+    "classify_build_main_fire",
     "compact_state_fingerprint",
     "long_horizon_proposal_digest",
     "long_horizon_profile",

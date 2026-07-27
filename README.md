@@ -504,6 +504,19 @@ selected-policy の 10/0/0、PUYO-158 後の threat scenario 6/6 を同じ manif
 契約と artifact の読み方は
 [PUYO-170 safe-build two-stage gate](docs/development/puyo-170-safe-build-gates.md) を参照してください．
 
+PUYO-178 では `build_main` の発火を premature / quiet / target / forced-safety に分離し、
+各 legal root の survivor quota を確保してから共有 beam を配ります．Proposal v2 の K=8 と
+mask/ID 契約を維持した検証は次で再現できます．
+
+```bash
+python3 -m eval.v1_7_build_main_fire_ranking_benchmark run
+python3 -m eval.v1_7_build_main_fire_ranking_benchmark verify
+```
+
+設計は
+[PUYO-178 build-main fire ranking](docs/development/puyo-178-build-main-fire-ranking.md)
+を参照してください．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

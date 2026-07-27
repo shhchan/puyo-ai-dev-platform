@@ -1,6 +1,8 @@
+import json
 import math
 import unittest
 from collections import deque
+from pathlib import Path
 
 from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
@@ -13,6 +15,11 @@ from agents.beam_search import (
 from agents.long_horizon_search import (
     EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
     EXPECTED_CHAIN_RANKING_RULE_VERSION,
+    FIRE_CLASS_FORCED_SAFETY,
+    FIRE_CLASS_PREMATURE,
+    FIRE_CLASS_QUIET,
+    FIRE_CLASS_TARGET,
+    FIRE_CONTEXT_FORCED_SAFETY,
     QUALITY_D16_PROFILE,
     TERMINAL_FIRE_CONTINUE,
     ChainFireEvidence,
@@ -20,6 +27,7 @@ from agents.long_horizon_search import (
     ScenarioRootEvidence,
     aggregate_expected_chain_evidence,
     build_scenario_sequences,
+    classify_build_main_fire,
     long_horizon_profile,
     run_long_horizon_search,
 )
@@ -36,6 +44,17 @@ from src.core.constants import (
 )
 from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 from src.core.puyo import Puyo
+
+
+FIRE_FIXTURE_PATH = Path("tests/fixtures/build_main_fire_cases.json")
+FIRE_FIXTURE_COLORS = {
+    "R": PuyoColor.RED,
+    "B": PuyoColor.BLUE,
+    "G": PuyoColor.GREEN,
+    "Y": PuyoColor.YELLOW,
+    "P": PuyoColor.PURPLE,
+    "O": PuyoColor.OJAMA,
+}
 
 
 class _FastEvaluation:
@@ -95,6 +114,24 @@ def _fire_simulator():
     return simulator
 
 
+def _fire_fixture_simulator(case):
+    simulator = HeadlessPuyoSimulator(seed=178)
+    game = simulator.game
+    for y in range(GRID_HEIGHT):
+        for x in range(GRID_WIDTH):
+            char = case["rows_bottom_up"][y][x]
+            game.field.grid[y][x] = Puyo(
+                PuyoColor.EMPTY if char == "." else FIRE_FIXTURE_COLORS[char]
+            )
+    current = tuple(PuyoColor[name] for name in case["current_pair"])
+    next_pairs = tuple(
+        tuple(PuyoColor[name] for name in pair)
+        for pair in case["next_pairs"]
+    )
+    _set_pairs(simulator, current, next_pairs)
+    return simulator
+
+
 def _scenario_value(scenario_id, chain_count, chain_score):
     best = None
     if chain_count > 0:
@@ -109,6 +146,9 @@ def _scenario_value(scenario_id, chain_count, chain_score):
             path=(3, 7 + scenario_id),
             terminal=True,
             terminal_reason="chain_count_gte_1",
+            fire_class=FIRE_CLASS_TARGET,
+            target_chain_count=1,
+            allowed=True,
         )
     return ScenarioRootEvidence(
         root_action=3,
@@ -246,6 +286,177 @@ class TestLongHorizonSearch(unittest.TestCase):
         self.assertEqual(evidence.best_fire.terminal_reason, "chain_count_gte_1")
         self.assertEqual(evidence.best_fire.path, (action,))
         self.assertEqual(result.representatives[action].path, (action,))
+
+    def test_fixed_fire_semantics_fixture_reproduces_all_four_classes(self):
+        payload = json.loads(FIRE_FIXTURE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(
+            payload["schema_version"],
+            "puyo.build_main_fire_fixtures.v1",
+        )
+        observed = {}
+        for case in payload["cases"]:
+            result = run_long_horizon_search(
+                _fire_fixture_simulator(case),
+                LongHorizonSearchConfig(
+                    depth=1,
+                    width=24,
+                    scenarios=1,
+                    minimum_chain_count=case["target_chain_count"],
+                    max_expanded_nodes=100,
+                    fire_context=case["fire_context"],
+                ),
+                evaluator=_FastEvaluator(),
+            )
+            observed[case["id"]] = result.evidence_by_action[
+                case["action"]
+            ].fire_class
+        self.assertEqual(
+            observed,
+            {
+                case["id"]: case["expected_fire_class"]
+                for case in payload["cases"]
+            },
+        )
+        for boundary in payload["classification_boundaries"]:
+            self.assertEqual(
+                classify_build_main_fire(
+                    chain_count=boundary["chain_count"],
+                    chain_score=boundary["chain_score"],
+                    target_chain_count=boundary["target_chain_count"],
+                    fire_context=boundary["fire_context"],
+                    winning_score_threshold=boundary.get(
+                        "winning_score_threshold"
+                    ),
+                ),
+                boundary["expected_fire_class"],
+            )
+
+    def test_safe_build_fire_classes_rank_quiet_above_premature_and_target_above_quiet(
+        self,
+    ):
+        simulator = _fire_simulator()
+        action = ACTION_TO_INDEX[PlacementAction(3, Direction.RIGHT)]
+        safe = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=2,
+                width=24,
+                scenarios=1,
+                minimum_chain_count=10,
+                max_expanded_nodes=2_000,
+            ),
+        )
+        premature = safe.evidence_by_action[action]
+        quiet = next(
+            evidence
+            for evidence in safe.root_evidence
+            if evidence.fire_class == FIRE_CLASS_QUIET
+        )
+        fire = premature.best_fire
+
+        self.assertEqual(premature.fire_class, FIRE_CLASS_PREMATURE)
+        self.assertFalse(fire.allowed)
+        self.assertGreater(quiet.ranking_key, premature.ranking_key)
+        self.assertEqual(fire.target_chain_gap, 9)
+        self.assertEqual(
+            fire.terminal_score_breakdown["official_score"],
+            0.0,
+        )
+        self.assertLess(
+            fire.terminal_score_breakdown["target_gap_penalty"],
+            0.0,
+        )
+        self.assertLess(
+            fire.terminal_evaluation["score_breakdown"]["premature_fire"],
+            0.0,
+        )
+        self.assertGreater(fire.terminal_evaluation["trigger_damage"], 0)
+        self.assertGreaterEqual(fire.terminal_evaluation["danger"], 0.0)
+
+        target = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=1,
+                width=24,
+                scenarios=1,
+                minimum_chain_count=1,
+                max_expanded_nodes=100,
+            ),
+            evaluator=_FastEvaluator(),
+        ).evidence_by_action[action]
+        self.assertEqual(target.fire_class, FIRE_CLASS_TARGET)
+        self.assertTrue(target.best_fire.allowed)
+        self.assertGreater(target.ranking_key, quiet.ranking_key)
+        self.assertEqual(
+            classify_build_main_fire(
+                chain_count=10,
+                chain_score=70_000,
+                target_chain_count=10,
+            ),
+            FIRE_CLASS_TARGET,
+        )
+
+    def test_forced_safety_fire_is_allowed_but_separate_from_safe_build(self):
+        simulator = _fire_simulator()
+        action = ACTION_TO_INDEX[PlacementAction(3, Direction.RIGHT)]
+        forced = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=1,
+                width=24,
+                scenarios=1,
+                minimum_chain_count=10,
+                max_expanded_nodes=100,
+                fire_context=FIRE_CONTEXT_FORCED_SAFETY,
+            ),
+            evaluator=_FastEvaluator(),
+        ).evidence_by_action[action]
+
+        self.assertEqual(forced.fire_class, FIRE_CLASS_FORCED_SAFETY)
+        self.assertTrue(forced.best_fire.allowed)
+        self.assertEqual(
+            forced.best_fire.terminal_score_breakdown["official_score"],
+            40.0,
+        )
+
+    def test_root_survivor_quota_precedes_shared_beam_and_records_shortfalls(self):
+        simulator = HeadlessPuyoSimulator(seed=7)
+        covered = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=2,
+                width=24,
+                scenarios=1,
+                minimum_chain_count=10,
+                max_expanded_nodes=5_000,
+                root_survivor_quota=1,
+            ),
+            evaluator=_FastEvaluator(),
+        )
+        for evidence in covered.root_evidence:
+            scenario = evidence.scenario_values[0]
+            self.assertGreaterEqual(dict(scenario.survivor_counts)[1], 1)
+            self.assertGreaterEqual(dict(scenario.survivor_counts)[2], 1)
+            self.assertFalse(scenario.survivor_shortfalls)
+
+        constrained = run_long_horizon_search(
+            simulator,
+            LongHorizonSearchConfig(
+                depth=1,
+                width=8,
+                scenarios=1,
+                minimum_chain_count=10,
+                max_expanded_nodes=100,
+                root_survivor_quota=1,
+            ),
+            evaluator=_FastEvaluator(),
+        )
+        shortfalls = [
+            reason
+            for evidence in constrained.root_evidence
+            for _depth, reason in evidence.scenario_values[0].survivor_shortfalls
+        ]
+        self.assertIn("beam_width_below_root_quota", shortfalls)
 
     def test_multiple_fires_keep_each_roots_maximum_evidence_isolated(self):
         simulator = _fire_simulator()
@@ -478,6 +689,14 @@ class TestLongHorizonSearch(unittest.TestCase):
         self.assertIsNotNone(placement)
         self.assertIsNotNone(preview.evidence.expected_chain)
         self.assertIsNotNone(preview.evidence.structural_chain)
+        self.assertEqual(
+            preview.evidence.trajectory["fire_class"],
+            FIRE_CLASS_QUIET,
+        )
+        self.assertIn(
+            "survivor_coverage",
+            preview.evidence.trajectory["root_diagnostics"],
+        )
         self.assertEqual(
             preview.evidence.scenario_digest,
             batch.shared_context.scenario_digest,
