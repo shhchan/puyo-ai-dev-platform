@@ -1,0 +1,225 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "summary",
+      "sha256": "47aa74a8fe65243473cc6e1bab4e9db23038003be8cd530079f586a0c91339c7",
+      "size_bytes": 8047
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "sampling_records.json",
+      "required": true,
+      "role": "records",
+      "sha256": "2064364a922355271da4b7e706cbcebbf6de112e9b20575dfebe3743a235c03f",
+      "size_bytes": 40666
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "report",
+      "sha256": "08ec3550ae9812e8869a16670930f5345bea83770e35ffcb85d364df9e07da1d",
+      "size_bytes": 799
+    }
+  ],
+  "commit": "2abc0cd41d32e1fdd8a68c6ac4520beaf946cefd",
+  "fixture": {
+    "path": "tests/fixtures/future_sampling_cases.json",
+    "sha256": "262a2a4c9ed7cc9ac30ddb1bcba53cb3446a6c5f7aeb75eaa8d93db2e8b794c1"
+  },
+  "generated_at": "2026-07-27T14:05:04Z",
+  "profiles": {
+    "legacy-fixed-six": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "ama-representative-two-pair-cycle",
+        "known_queue": "current_plus_next2",
+        "mode": "legacy-fixed-six",
+        "rollout_seed_derivation": null,
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 13
+      },
+      "name": "legacy-fixed-six",
+      "profile_id": "legacy-fixed-six@1.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 250
+    },
+    "quality-d12": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 200000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 12,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 9
+      },
+      "name": "quality-d12",
+      "profile_id": "quality-d12@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 128
+    },
+    "quality-d16": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 13
+      },
+      "name": "quality-d16",
+      "profile_id": "quality-d16@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 250
+    },
+    "runtime": {
+      "budget": {
+        "authority": "external_runtime_deadline",
+        "max_expanded_nodes": 4096,
+        "wall_clock_mode": "external_deadline_contract"
+      },
+      "candidate_limit": 8,
+      "depth": 4,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 2,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 1
+      },
+      "name": "runtime",
+      "profile_id": "runtime@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 2,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 24
+    },
+    "smoke": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 30000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 6,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 3,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 3
+      },
+      "name": "smoke",
+      "profile_id": "smoke@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 3,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 48
+    }
+  },
+  "schema_version": "puyo.v1_7_future_sampling_manifest.v1"
+}
