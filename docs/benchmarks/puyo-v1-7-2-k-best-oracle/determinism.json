@@ -1,0 +1,12 @@
+{
+  "digests": [
+    "oracle-suite-828a357649a49a19ee163e45",
+    "oracle-suite-828a357649a49a19ee163e45"
+  ],
+  "excluded_fields": [
+    "*latency*"
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "schema_version": "puyo.k_best_offline_oracle_determinism.v1"
+}

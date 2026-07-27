@@ -530,6 +530,23 @@ python3 -m eval.v1_7_future_sampling_benchmark verify
 [PUYO-179 seeded future sampling](docs/development/puyo-179-seeded-future-sampling.md)
 を参照してください．
 
+PUYO-180 では実 seed の未来ツモを評価時だけ参照する offline oracle を使い、Proposal v2 の
+K-best root だけから最大40手の構築と最大6手の発火を同一 trajectory で評価します．rank 0／
+旧 capability selector との regret、trigger 維持、候補不足・評価過大・早期発火・dead-end・
+game-over・発火 timeout の分類も同じ artifact に保存します．
+
+```bash
+python3 -m eval.v1_7_k_best_oracle run \
+  --seeds 123 --profile runtime \
+  --build-steps 40 --fire-steps 6 --target-chain 10
+python3 -m eval.v1_7_k_best_oracle verify
+```
+
+実未来情報が Candidate Ranker／PPO observation に混入しない isolation check と、latency を除く
+2 repeat の trajectory digest を verify します．詳細は
+[PUYO-180 K-best offline oracle](docs/development/puyo-180-k-best-offline-oracle.md)
+を参照してください．canonical 30 seed matrix と PUYO-130 の Go 判定は後続 PUYO-176 で行います．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

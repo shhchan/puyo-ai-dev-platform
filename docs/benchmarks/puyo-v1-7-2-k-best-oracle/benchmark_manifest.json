@@ -1,0 +1,52 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "oracle_config.json",
+      "required": true,
+      "role": "config",
+      "sha256": "23b5ace78a89012fe49a26ecce4176481a6d7730fdc2e91d46566e0689557d3f",
+      "size_bytes": 947
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "oracle_summary.json",
+      "required": true,
+      "role": "summary",
+      "sha256": "e6703b2c8e71a8e1bcbf2ffcb762934b0b2b61d369adc0a3753b5d22ca13d1d0",
+      "size_bytes": 2735
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "trajectory_records.json",
+      "required": true,
+      "role": "trajectories",
+      "sha256": "cb65cade0b8a1e388fb733f5452d1cc35b942eff43421141e9d554e49b01dfc1",
+      "size_bytes": 14403847
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "91c611cac85b1109bddd61f0cbd2e9322f71bfeecec2d6e8cb41b38fb79a2deb",
+      "size_bytes": 259
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "report",
+      "sha256": "14507454fdb9880d37a79477b4fb93dc8260eef3c5b88d20ab690c70a27f7365",
+      "size_bytes": 1043
+    }
+  ],
+  "generated_at": "2026-07-27T14:58:30Z",
+  "git_commit": "ae054ff3d3409911366c0879b647db6dc1e583de",
+  "schema_version": "puyo.k_best_offline_oracle_manifest.v1"
+}
