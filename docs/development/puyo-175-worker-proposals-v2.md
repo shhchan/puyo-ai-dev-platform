@@ -140,6 +140,11 @@ current/NEXT2 fixture は `runtime-fallback-legacy` として明示的に simula
 evidence を `not_evaluated` に mask する。PUYO-166 の既存 budget sweep も再現用に legacy profile を
 明示指定する。
 
+PUYO-178 の expected-chain v2 evidence は `trajectory.fire_class` と root diagnostics を lossless
+namespace に追加する。premature / quiet / target / forced-safety の分類、terminal score、root
+survivor quota、trigger/構造差分は保存するが、K=8、candidate ID、mask、ranker tensor の次元と
+feature 順序は変更しない。
+
 ## Benchmark
 
 追跡 artifact は `docs/benchmarks/puyo-v1-7-2-worker-proposals-v2/` に置く。

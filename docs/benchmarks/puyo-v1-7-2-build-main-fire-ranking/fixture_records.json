@@ -1,0 +1,740 @@
+{
+  "classification_boundaries": [
+    {
+      "chain_count": 10,
+      "chain_score": 70000,
+      "expected_fire_class": "target_fire",
+      "fire_context": "safe_build",
+      "id": "ten-chain-target",
+      "observed_fire_class": "target_fire",
+      "target_chain_count": 10
+    },
+    {
+      "chain_count": 4,
+      "chain_score": 12000,
+      "expected_fire_class": "winning_fire",
+      "fire_context": "safe_build",
+      "id": "winning-score-threshold",
+      "observed_fire_class": "winning_fire",
+      "target_chain_count": 10,
+      "winning_score_threshold": 10000
+    }
+  ],
+  "fixture_records": [
+    {
+      "action": 12,
+      "best_fire": {
+        "allowed": false,
+        "chain_count": 1,
+        "depth": 1,
+        "fire_class": "premature_fire",
+        "official_chain_score": 40,
+        "path": [
+          12
+        ],
+        "root_action": 12,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-a30da431d601d6e8c5469f49",
+        "target_chain_count": 10,
+        "target_chain_gap": 9,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 0.0,
+            "structural_score": -67391.33333333333,
+            "target_chain_gap": 9.0,
+            "target_gap_penalty": -9000.0,
+            "total": -76391.33333333333
+          },
+          "evaluation": {
+            "danger": 0.029166666666666664,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 0.0,
+              "connection_potential": 0.0,
+              "danger": -583.3333333333333,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": -10000.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 0.0,
+              "shape": 1190.0,
+              "tear": -8000.0,
+              "total": -67391.33333333333,
+              "trigger_damage": -60000.0,
+              "trigger_position": 0.0,
+              "waste": -8000.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 3
+            },
+            "trigger_damage": 2,
+            "trigger_preserved": false
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": -76391.33333333333
+        },
+        "trigger_action": 12
+      },
+      "candidate_value": -76391.33333333333,
+      "case_id": "premature-fire",
+      "deterministic_digest": "long-horizon-search-b1a14cfd2f34b3a931d0c265",
+      "expected_fire_class": "premature_fire",
+      "observed_fire_class": "premature_fire",
+      "ranking_key_prefix": [
+        1,
+        1.0,
+        1,
+        -76391.33333333333
+      ],
+      "root_diagnostics": {
+        "danger": {
+          "delta": -0.04583333333333334,
+          "value": 0.029166666666666664
+        },
+        "fire_class": "premature_fire",
+        "quiet_candidate": false,
+        "quiet_candidate_coverage": 0.0,
+        "root_action": 12,
+        "schema_version": "puyo.build_main_root_diagnostics.v1",
+        "structural_potential_delta": {
+          "connection_candidates": 0,
+          "growth_sites": -1,
+          "potential_chain_count": 0,
+          "potential_chain_score": 0,
+          "reachable_ignitions": -1
+        },
+        "survivor_coverage": {
+          "quota": 1,
+          "scenarios": [
+            {
+              "attempted_depths": [
+                1
+              ],
+              "candidate_counts": {
+                "1": 0
+              },
+              "quota": 1,
+              "quota_satisfied": false,
+              "retained_counts": {
+                "1": 0
+              },
+              "schema_version": "puyo.root_survivor_coverage.v1",
+              "shortfalls": {
+                "1": "terminal_fire_without_quiet_survivor"
+              }
+            }
+          ]
+        },
+        "target_not_reached_fire_count": 1,
+        "trigger": {
+          "damage": 2,
+          "preserved": false
+        }
+      }
+    },
+    {
+      "action": 16,
+      "best_fire": null,
+      "candidate_value": 37732.72727272727,
+      "case_id": "quiet-continuation",
+      "deterministic_digest": "long-horizon-search-b1a14cfd2f34b3a931d0c265",
+      "expected_fire_class": "quiet_continuation",
+      "observed_fire_class": "quiet_continuation",
+      "ranking_key_prefix": [
+        2,
+        1.0,
+        1,
+        37732.72727272727
+      ],
+      "root_diagnostics": {
+        "danger": {
+          "delta": 0.0,
+          "value": 0.075
+        },
+        "fire_class": "quiet_continuation",
+        "quiet_candidate": true,
+        "quiet_candidate_coverage": 1.0,
+        "root_action": 16,
+        "schema_version": "puyo.build_main_root_diagnostics.v1",
+        "structural_potential_delta": {
+          "connection_candidates": 1,
+          "growth_sites": 2,
+          "potential_chain_count": 0,
+          "potential_chain_score": 60,
+          "reachable_ignitions": 0
+        },
+        "survivor_coverage": {
+          "quota": 1,
+          "scenarios": [
+            {
+              "attempted_depths": [
+                1
+              ],
+              "candidate_counts": {
+                "1": 1
+              },
+              "quota": 1,
+              "quota_satisfied": true,
+              "retained_counts": {
+                "1": 1
+              },
+              "schema_version": "puyo.root_survivor_coverage.v1",
+              "shortfalls": {}
+            }
+          ]
+        },
+        "target_not_reached_fire_count": 0,
+        "trigger": {
+          "damage": 0,
+          "preserved": true
+        }
+      }
+    },
+    {
+      "action": 12,
+      "best_fire": {
+        "allowed": true,
+        "chain_count": 1,
+        "depth": 1,
+        "fire_class": "target_fire",
+        "official_chain_score": 40,
+        "path": [
+          12
+        ],
+        "root_action": 12,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-a30da431d601d6e8c5469f49",
+        "target_chain_count": 1,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 40.0,
+            "structural_score": 18608.666666666668,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 18648.666666666668
+          },
+          "evaluation": {
+            "danger": 0.029166666666666664,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 0.0,
+              "connection_potential": 0.0,
+              "danger": -583.3333333333333,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 0.0,
+              "shape": 1190.0,
+              "tear": -0.0,
+              "total": 18608.666666666668,
+              "trigger_damage": -0.0,
+              "trigger_position": 0.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 3
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 18648.666666666668
+        },
+        "trigger_action": 12
+      },
+      "candidate_value": 18648.666666666668,
+      "case_id": "target-fire",
+      "deterministic_digest": "long-horizon-search-445af7f2de0e4eb98967cba0",
+      "expected_fire_class": "target_fire",
+      "observed_fire_class": "target_fire",
+      "ranking_key_prefix": [
+        4,
+        1.0,
+        1,
+        18648.666666666668
+      ],
+      "root_diagnostics": {
+        "danger": {
+          "delta": -0.04583333333333334,
+          "value": 0.029166666666666664
+        },
+        "fire_class": "target_fire",
+        "quiet_candidate": false,
+        "quiet_candidate_coverage": 0.0,
+        "root_action": 12,
+        "schema_version": "puyo.build_main_root_diagnostics.v1",
+        "structural_potential_delta": {
+          "connection_candidates": 0,
+          "growth_sites": -1,
+          "potential_chain_count": 0,
+          "potential_chain_score": 0,
+          "reachable_ignitions": -1
+        },
+        "survivor_coverage": {
+          "quota": 1,
+          "scenarios": [
+            {
+              "attempted_depths": [
+                1
+              ],
+              "candidate_counts": {
+                "1": 0
+              },
+              "quota": 1,
+              "quota_satisfied": false,
+              "retained_counts": {
+                "1": 0
+              },
+              "schema_version": "puyo.root_survivor_coverage.v1",
+              "shortfalls": {
+                "1": "terminal_fire_without_quiet_survivor"
+              }
+            }
+          ]
+        },
+        "target_not_reached_fire_count": 0,
+        "trigger": {
+          "damage": 0,
+          "preserved": true
+        }
+      }
+    },
+    {
+      "action": 12,
+      "best_fire": {
+        "allowed": true,
+        "chain_count": 1,
+        "depth": 1,
+        "fire_class": "forced_safety_fire",
+        "official_chain_score": 40,
+        "path": [
+          12
+        ],
+        "root_action": 12,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-a30da431d601d6e8c5469f49",
+        "target_chain_count": 10,
+        "target_chain_gap": 9,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 40.0,
+            "structural_score": -67391.33333333333,
+            "target_chain_gap": 9.0,
+            "target_gap_penalty": 0.0,
+            "total": -67351.33333333333
+          },
+          "evaluation": {
+            "danger": 0.029166666666666664,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 0.0,
+              "connection_potential": 0.0,
+              "danger": -583.3333333333333,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": -10000.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 0.0,
+              "shape": 1190.0,
+              "tear": -8000.0,
+              "total": -67391.33333333333,
+              "trigger_damage": -60000.0,
+              "trigger_position": 0.0,
+              "waste": -8000.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 3
+            },
+            "trigger_damage": 2,
+            "trigger_preserved": false
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": -67351.33333333333
+        },
+        "trigger_action": 12
+      },
+      "candidate_value": -67351.33333333333,
+      "case_id": "forced-safety-fire",
+      "deterministic_digest": "long-horizon-search-74e0f767afb86aa5c4b3e07d",
+      "expected_fire_class": "forced_safety_fire",
+      "observed_fire_class": "forced_safety_fire",
+      "ranking_key_prefix": [
+        3,
+        1.0,
+        1,
+        -67351.33333333333
+      ],
+      "root_diagnostics": {
+        "danger": {
+          "delta": -0.04583333333333334,
+          "value": 0.029166666666666664
+        },
+        "fire_class": "forced_safety_fire",
+        "quiet_candidate": false,
+        "quiet_candidate_coverage": 0.0,
+        "root_action": 12,
+        "schema_version": "puyo.build_main_root_diagnostics.v1",
+        "structural_potential_delta": {
+          "connection_candidates": 0,
+          "growth_sites": -1,
+          "potential_chain_count": 0,
+          "potential_chain_score": 0,
+          "reachable_ignitions": -1
+        },
+        "survivor_coverage": {
+          "quota": 1,
+          "scenarios": [
+            {
+              "attempted_depths": [
+                1
+              ],
+              "candidate_counts": {
+                "1": 0
+              },
+              "quota": 1,
+              "quota_satisfied": false,
+              "retained_counts": {
+                "1": 0
+              },
+              "schema_version": "puyo.root_survivor_coverage.v1",
+              "shortfalls": {
+                "1": "terminal_fire_without_quiet_survivor"
+              }
+            }
+          ]
+        },
+        "target_not_reached_fire_count": 0,
+        "trigger": {
+          "damage": 2,
+          "preserved": false
+        }
+      }
+    }
+  ],
+  "parity_records": [
+    {
+      "action": 12,
+      "case_id": "premature-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 16,
+      "case_id": "quiet-continuation",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 12,
+      "case_id": "target-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 12,
+      "case_id": "forced-safety-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    }
+  ],
+  "proposal_v2": {
+    "candidate_count": 8,
+    "candidate_ids": [
+      "candidate-f19397e3488127d7ee2d79db",
+      "candidate-669648df3c736bceeceb7ab9",
+      "candidate-6d681211a0bb1b3e60bbacd4",
+      "candidate-a6e3d5e57ad876cddc8fb7c1",
+      "candidate-b3f1d56f74a87bb84b35d012",
+      "candidate-4b3499481a9533738dfa2f65",
+      "candidate-2dcf15a025791b191be4978a",
+      "candidate-1d7f1bb9d56de8235340eaa4"
+    ],
+    "candidate_limit": 8,
+    "candidate_mask": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "deterministic_digest": "proposal-contract-e550bd33f7fe8a86cce4947a",
+    "fire_classes": [
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation"
+    ],
+    "legal_roots": true,
+    "rank_zero_compatibility": true,
+    "repeat_candidate_ids": [
+      "candidate-f19397e3488127d7ee2d79db",
+      "candidate-669648df3c736bceeceb7ab9",
+      "candidate-6d681211a0bb1b3e60bbacd4",
+      "candidate-a6e3d5e57ad876cddc8fb7c1",
+      "candidate-b3f1d56f74a87bb84b35d012",
+      "candidate-4b3499481a9533738dfa2f65",
+      "candidate-2dcf15a025791b191be4978a",
+      "candidate-1d7f1bb9d56de8235340eaa4"
+    ],
+    "repeat_digest": "proposal-contract-e550bd33f7fe8a86cce4947a",
+    "root_diagnostics_present": true,
+    "schema_version": "puyo.worker_proposal_batch.v2",
+    "selected_index": 0
+  },
+  "quota": {
+    "constrained_width": 8,
+    "covered": true,
+    "covered_counts": {
+      "0": {
+        "1": 1,
+        "2": 1
+      },
+      "1": {
+        "1": 1,
+        "2": 3
+      },
+      "10": {
+        "1": 1,
+        "2": 1
+      },
+      "11": {
+        "1": 1,
+        "2": 1
+      },
+      "12": {
+        "1": 1,
+        "2": 1
+      },
+      "13": {
+        "1": 1,
+        "2": 1
+      },
+      "14": {
+        "1": 1,
+        "2": 1
+      },
+      "15": {
+        "1": 1,
+        "2": 1
+      },
+      "16": {
+        "1": 1,
+        "2": 1
+      },
+      "17": {
+        "1": 1,
+        "2": 1
+      },
+      "18": {
+        "1": 1,
+        "2": 1
+      },
+      "19": {
+        "1": 1,
+        "2": 1
+      },
+      "2": {
+        "1": 1,
+        "2": 1
+      },
+      "20": {
+        "1": 1,
+        "2": 1
+      },
+      "21": {
+        "1": 1,
+        "2": 1
+      },
+      "3": {
+        "1": 1,
+        "2": 1
+      },
+      "4": {
+        "1": 1,
+        "2": 1
+      },
+      "5": {
+        "1": 1,
+        "2": 1
+      },
+      "6": {
+        "1": 1,
+        "2": 1
+      },
+      "7": {
+        "1": 1,
+        "2": 1
+      },
+      "8": {
+        "1": 1,
+        "2": 1
+      },
+      "9": {
+        "1": 1,
+        "2": 1
+      }
+    },
+    "covered_width": 24,
+    "deterministic_digest": "long-horizon-search-3214d907703a1f3c784f1d47",
+    "quota": 1,
+    "shortfall_reason_recorded": true,
+    "shortfalls": {
+      "10": {
+        "1": "beam_width_below_root_quota"
+      },
+      "11": {
+        "1": "beam_width_below_root_quota"
+      },
+      "12": {
+        "1": "beam_width_below_root_quota"
+      },
+      "13": {
+        "1": "beam_width_below_root_quota"
+      },
+      "14": {
+        "1": "beam_width_below_root_quota"
+      },
+      "15": {
+        "1": "beam_width_below_root_quota"
+      },
+      "16": {
+        "1": "beam_width_below_root_quota"
+      },
+      "17": {
+        "1": "beam_width_below_root_quota"
+      },
+      "18": {
+        "1": "beam_width_below_root_quota"
+      },
+      "19": {
+        "1": "beam_width_below_root_quota"
+      },
+      "20": {
+        "1": "beam_width_below_root_quota"
+      },
+      "21": {
+        "1": "beam_width_below_root_quota"
+      },
+      "8": {
+        "1": "beam_width_below_root_quota"
+      },
+      "9": {
+        "1": "beam_width_below_root_quota"
+      }
+    }
+  },
+  "response_guard": {
+    "failed": 0,
+    "passed": 6,
+    "records": [
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "mild_threat"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "short_burst"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "full_cancel"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "surplus_counter"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "survive"
+        ],
+        "expected_tactic": "survive",
+        "passed": true,
+        "scenario": "survival"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "resume_build"
+      }
+    ],
+    "scenarios": 6
+  },
+  "schema_version": "puyo.v1_7_build_main_fire_ranking_records.v1"
+}

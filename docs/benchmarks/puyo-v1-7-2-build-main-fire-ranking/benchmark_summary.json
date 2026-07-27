@@ -1,0 +1,337 @@
+{
+  "checks": {
+    "compact_authoritative_parity": true,
+    "determinism": true,
+    "fixture_fire_classes": true,
+    "passed": true,
+    "premature_terminal_score": true,
+    "proposal_v2_compatibility": true,
+    "quiet_over_premature": true,
+    "response_guard_6_of_6": true,
+    "root_survivor_quota": true,
+    "target_over_quiet": true
+  },
+  "compact_authoritative_parity": [
+    {
+      "action": 12,
+      "case_id": "premature-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 16,
+      "case_id": "quiet-continuation",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 12,
+      "case_id": "target-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    },
+    {
+      "action": 12,
+      "case_id": "forced-safety-fire",
+      "checks": {
+        "all_clear": true,
+        "chain_count": true,
+        "game_over": true,
+        "planes": true,
+        "score_delta": true,
+        "valid": true
+      },
+      "passed": true
+    }
+  ],
+  "fixture_schema_version": "puyo.build_main_fire_fixtures.v1",
+  "generated_at": "2026-07-27T13:29:58Z",
+  "git_commit": "7c9c8476908e55b85fcd48f64d80b83e34234e06",
+  "latency_free_digest": "build-main-fire-ranking-5b7e943966ac7b5ee638af8e",
+  "proposal_v2": {
+    "candidate_count": 8,
+    "candidate_ids": [
+      "candidate-f19397e3488127d7ee2d79db",
+      "candidate-669648df3c736bceeceb7ab9",
+      "candidate-6d681211a0bb1b3e60bbacd4",
+      "candidate-a6e3d5e57ad876cddc8fb7c1",
+      "candidate-b3f1d56f74a87bb84b35d012",
+      "candidate-4b3499481a9533738dfa2f65",
+      "candidate-2dcf15a025791b191be4978a",
+      "candidate-1d7f1bb9d56de8235340eaa4"
+    ],
+    "candidate_limit": 8,
+    "candidate_mask": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "deterministic_digest": "proposal-contract-e550bd33f7fe8a86cce4947a",
+    "fire_classes": [
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation",
+      "quiet_continuation"
+    ],
+    "legal_roots": true,
+    "rank_zero_compatibility": true,
+    "repeat_candidate_ids": [
+      "candidate-f19397e3488127d7ee2d79db",
+      "candidate-669648df3c736bceeceb7ab9",
+      "candidate-6d681211a0bb1b3e60bbacd4",
+      "candidate-a6e3d5e57ad876cddc8fb7c1",
+      "candidate-b3f1d56f74a87bb84b35d012",
+      "candidate-4b3499481a9533738dfa2f65",
+      "candidate-2dcf15a025791b191be4978a",
+      "candidate-1d7f1bb9d56de8235340eaa4"
+    ],
+    "repeat_digest": "proposal-contract-e550bd33f7fe8a86cce4947a",
+    "root_diagnostics_present": true,
+    "schema_version": "puyo.worker_proposal_batch.v2",
+    "selected_index": 0
+  },
+  "quiet_candidate_coverage": 1.0,
+  "ranking_rule_version": "puyo.expected_chain_ranking.v2",
+  "response_guard": {
+    "failed": 0,
+    "passed": 6,
+    "records": [
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "mild_threat"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "short_burst"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "full_cancel"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "surplus_counter"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "survive"
+        ],
+        "expected_tactic": "survive",
+        "passed": true,
+        "scenario": "survival"
+      },
+      {
+        "build_main_blocked": true,
+        "eligible_tactics": [
+          "counter_or_return"
+        ],
+        "expected_tactic": "counter_or_return",
+        "passed": true,
+        "scenario": "resume_build"
+      }
+    ],
+    "scenarios": 6
+  },
+  "root_survivor_quota": {
+    "constrained_width": 8,
+    "covered": true,
+    "covered_counts": {
+      "0": {
+        "1": 1,
+        "2": 1
+      },
+      "1": {
+        "1": 1,
+        "2": 3
+      },
+      "10": {
+        "1": 1,
+        "2": 1
+      },
+      "11": {
+        "1": 1,
+        "2": 1
+      },
+      "12": {
+        "1": 1,
+        "2": 1
+      },
+      "13": {
+        "1": 1,
+        "2": 1
+      },
+      "14": {
+        "1": 1,
+        "2": 1
+      },
+      "15": {
+        "1": 1,
+        "2": 1
+      },
+      "16": {
+        "1": 1,
+        "2": 1
+      },
+      "17": {
+        "1": 1,
+        "2": 1
+      },
+      "18": {
+        "1": 1,
+        "2": 1
+      },
+      "19": {
+        "1": 1,
+        "2": 1
+      },
+      "2": {
+        "1": 1,
+        "2": 1
+      },
+      "20": {
+        "1": 1,
+        "2": 1
+      },
+      "21": {
+        "1": 1,
+        "2": 1
+      },
+      "3": {
+        "1": 1,
+        "2": 1
+      },
+      "4": {
+        "1": 1,
+        "2": 1
+      },
+      "5": {
+        "1": 1,
+        "2": 1
+      },
+      "6": {
+        "1": 1,
+        "2": 1
+      },
+      "7": {
+        "1": 1,
+        "2": 1
+      },
+      "8": {
+        "1": 1,
+        "2": 1
+      },
+      "9": {
+        "1": 1,
+        "2": 1
+      }
+    },
+    "covered_width": 24,
+    "deterministic_digest": "long-horizon-search-3214d907703a1f3c784f1d47",
+    "quota": 1,
+    "shortfall_reason_recorded": true,
+    "shortfalls": {
+      "10": {
+        "1": "beam_width_below_root_quota"
+      },
+      "11": {
+        "1": "beam_width_below_root_quota"
+      },
+      "12": {
+        "1": "beam_width_below_root_quota"
+      },
+      "13": {
+        "1": "beam_width_below_root_quota"
+      },
+      "14": {
+        "1": "beam_width_below_root_quota"
+      },
+      "15": {
+        "1": "beam_width_below_root_quota"
+      },
+      "16": {
+        "1": "beam_width_below_root_quota"
+      },
+      "17": {
+        "1": "beam_width_below_root_quota"
+      },
+      "18": {
+        "1": "beam_width_below_root_quota"
+      },
+      "19": {
+        "1": "beam_width_below_root_quota"
+      },
+      "20": {
+        "1": "beam_width_below_root_quota"
+      },
+      "21": {
+        "1": "beam_width_below_root_quota"
+      },
+      "8": {
+        "1": "beam_width_below_root_quota"
+      },
+      "9": {
+        "1": "beam_width_below_root_quota"
+      }
+    }
+  },
+  "schema_version": "puyo.v1_7_build_main_fire_ranking_benchmark.v1",
+  "terminal_score_trace": {
+    "danger": 0.029166666666666664,
+    "premature_fire_penalty": -10000.0,
+    "target_chain_gap": 9.0,
+    "target_gap_penalty": -9000.0,
+    "trigger_damage": 2,
+    "value": -76391.33333333333
+  }
+}
