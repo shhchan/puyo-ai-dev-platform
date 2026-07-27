@@ -1,0 +1,29 @@
+{
+  "config_id": "puyo-180-contract-d1-w22-s1-n100-k8",
+  "future_scope": "authoritative seed future is visible only to the offline oracle evaluator",
+  "profile": "runtime",
+  "responsibility": "offline candidate-set upper bound; not a runtime policy or learned-policy promotion result",
+  "schema_version": "puyo.k_best_offline_oracle_config.v1",
+  "search": {
+    "build_potential_budget": {
+      "max_added_puyos": 1,
+      "max_alternatives": 1,
+      "max_continuation_actions": 1,
+      "max_pattern_nodes": 1,
+      "max_recovery_puyos": 0,
+      "max_resolution_nodes": 1
+    },
+    "candidate_limit": 8,
+    "depth": 1,
+    "max_expanded_nodes": 100,
+    "scenarios": 1,
+    "width": 22
+  },
+  "selection_constraint": "executed actions must be legal roots in the current Proposal v2 K-best",
+  "trajectory": {
+    "maximum_build_steps": 40,
+    "maximum_fire_steps": 6,
+    "oracle_preview_steps": 6,
+    "target_chain_count": 10
+  }
+}

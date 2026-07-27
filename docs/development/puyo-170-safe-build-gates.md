@@ -1,5 +1,11 @@
 # PUYO-170 safe-build two-stage gate
 
+> 2026-07-27 update: the handwritten capability selector described below is
+> historical PUYO-170 evidence. PUYO-180 replaces it with the continuous
+> 40-build + 6-fire K-best offline oracle documented in
+> [puyo-180-k-best-offline-oracle.md](puyo-180-k-best-offline-oracle.md).
+> PUYO-176 will consume the oracle result for the revised training-start gate.
+
 ## Purpose
 
 v1.7.2 の safe-build 判定は、学習前の candidate generator と学習後の selected policy を
