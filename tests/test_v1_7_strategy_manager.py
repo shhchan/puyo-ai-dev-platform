@@ -17,6 +17,7 @@ from agents.v1_7_strategy_manager import (
     V17StrategyFeatureEncoder,
     V17StrategyManagerNetwork,
     V17StrategyManagerPolicy,
+    _response_guard_eligibility,
     build_v1_7_checkpoint_metadata,
     decode_tactic_parameters,
     encode_preview_features,
@@ -28,6 +29,7 @@ from agents.worker_proposals import (
     WORKER_PROPOSAL_SCHEMA_VERSION,
 )
 from eval.analyzer_scenarios import load_scenarios, scenario_input
+from eval.v1_7_benchmark import load_response_scenarios
 from puyo_env.versus_env import VersusPuyoEnv
 
 
@@ -167,6 +169,38 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(high_values["objective"]["target_chain"], 19)
         self.assertEqual(high_values["planner"]["beam_depth"], 10)
         self.assertEqual(high_values["planner"]["beam_width"], 128)
+
+    def test_response_guard_keeps_all_six_threat_fixtures_out_of_build_main(self):
+        results = []
+        for definition in load_response_scenarios():
+            analyzer_input = self.scenario_input(definition["analyzer_scenario"])
+            diagnostics = self.analyzer.analyze(analyzer_input)
+            encoded = self.encoder.encode(analyzer_input, diagnostics)
+            guarded = _response_guard_eligibility(
+                self.encoder.contract,
+                encoded.eligibility_mask,
+                diagnostics,
+            )
+            selected = [
+                tactic_id
+                for tactic_id, allowed in zip(
+                    self.encoder.contract.tactic_ids,
+                    guarded,
+                )
+                if allowed
+            ]
+            expected = (
+                "counter_or_return"
+                if diagnostics.incoming.can_cancel
+                else "survive"
+            )
+            results.append((definition["name"], selected, expected))
+
+        self.assertEqual(len(results), 6)
+        for name, selected, expected in results:
+            with self.subTest(name=name):
+                self.assertEqual(selected, [expected])
+                self.assertNotIn("build_main", selected)
 
     def test_preview_features_include_bonus_aware_attack_fields(self):
         objective = SimpleNamespace(

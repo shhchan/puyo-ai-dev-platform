@@ -2021,6 +2021,25 @@ def _build_shared_context(
         "budget_authority": budget.get("budget_authority"),
         "wall_clock_mode": budget.get("wall_clock_mode"),
         "minimum_chain_count": budget.get("minimum_chain_count"),
+        "root_survivor_quota": budget.get("root_survivor_quota"),
+        "fire_semantics": {
+            "context": _nested(budget, "terminal_fire.context", None),
+            "winning_score_threshold": _nested(
+                budget,
+                "terminal_fire.winning_score_threshold",
+                None,
+            ),
+            "terminal_score_version": _nested(
+                budget,
+                "terminal_fire.terminal_score_version",
+                None,
+            ),
+            "premature_target_gap_penalty": _nested(
+                budget,
+                "terminal_fire.premature_target_gap_penalty",
+                None,
+            ),
+        },
         "terminal_fire": _mapping_copy(
             budget.get("terminal_fire")
             if isinstance(budget.get("terminal_fire"), Mapping)
@@ -2182,18 +2201,48 @@ def _build_candidate_evidence(
     target_chain = int(
         shared_context.search_config.get("minimum_chain_count") or 0
     )
+    fire_class = str(
+        expected.get("fire_class", "")
+        if expected is not None
+        else ""
+    )
     terminal_fire = bool(best_fire_payload.get("terminal", False))
-    trajectory = {
-        "max_chain_depth": max(0, int(best_chain_depth)),
-        "terminal_fire": terminal_fire,
-        "terminal_fire_reason": best_fire_payload.get("terminal_reason"),
-        "premature_fire": bool(
+    premature_fire = (
+        fire_class == "premature_fire"
+        if fire_class
+        else bool(
             best_chain_count > 0
             and target_chain > 0
             and best_chain_count < target_chain
-        ),
-        "target_fire": bool(target_chain > 0 and best_chain_count >= target_chain),
+        )
+    )
+    target_fire = (
+        fire_class in {"target_fire", "winning_fire"}
+        if fire_class
+        else bool(target_chain > 0 and best_chain_count >= target_chain)
+    )
+    trajectory = {
+        "max_chain_depth": max(0, int(best_chain_depth)),
+        "fire_class": fire_class or "unavailable",
+        "terminal_fire": terminal_fire,
+        "terminal_fire_reason": best_fire_payload.get("terminal_reason"),
+        "premature_fire": premature_fire,
+        "quiet_continuation": fire_class == "quiet_continuation",
+        "forced_safety_fire": fire_class == "forced_safety_fire",
+        "winning_fire": fire_class == "winning_fire",
+        "target_fire": target_fire,
         "best_fire_chain_count": best_chain_count,
+        "terminal_score": _nested(
+            expected or {},
+            "terminal_score.mean",
+            None,
+        ),
+        "root_diagnostics": _mapping_copy(
+            expected.get("root_diagnostics")
+            if expected is not None
+            and isinstance(expected.get("root_diagnostics"), Mapping)
+            else None
+        ),
     }
     build_status = _status_for_source(build_potential)
     build_evaluated = build_status in {
