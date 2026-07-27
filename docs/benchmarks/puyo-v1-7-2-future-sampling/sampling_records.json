@@ -1,0 +1,1916 @@
+{
+  "different_seed": {
+    "checks": {
+      "authoritative_generator_match": true,
+      "independent_queue_digests": true,
+      "known_prefix_preserved": true,
+      "no_two_pair_cycle": true,
+      "unique_rollout_seeds": true
+    },
+    "decision_seed": 17901,
+    "decision_seed_source": "explicit",
+    "hidden_pairs": [
+      [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      [
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "RED"
+        ]
+      ]
+    ],
+    "known_pair_count": 3,
+    "known_pairs": [
+      [
+        "BLUE",
+        "RED"
+      ],
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "GREEN",
+        "YELLOW"
+      ]
+    ],
+    "queue_digests": [
+      "future-queue-dfeddd54afd0c39d0dbc00d7",
+      "future-queue-9140ab51c65f6453d1dfc1cf",
+      "future-queue-ee58b8dfdcb315d0eeb59f47",
+      "future-queue-87b05829c00498ea70d764bf",
+      "future-queue-35dc6ea0c74982bc0c7ed441",
+      "future-queue-4406999e2b7a3555e75a3956"
+    ],
+    "rollout_seeds": [
+      6767964462974196262,
+      16280308782719745900,
+      7691252063638047416,
+      4447345984142757531,
+      11586544093646164816,
+      2831515685418545848
+    ],
+    "sample_ids": [
+      "future-sample-b3d3e4047829606f25dd4869",
+      "future-sample-a177a8d2668e3978e3664671",
+      "future-sample-176d0114dcc57c17f4a5f46d",
+      "future-sample-44de34ef35db836d9fc11d98",
+      "future-sample-4b6eb57ec3a10566415b83d4",
+      "future-sample-ddcc99fb1103780dbb21cf1c"
+    ],
+    "sampling_metadata": [
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 6767964462974196262,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 16280308782719745900,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 7691252063638047416,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 4447345984142757531,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 11586544093646164816,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17901,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 2831515685418545848,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      }
+    ],
+    "sequence_digests": [
+      "scenario-sequence-70975747758a2b776dd9a601",
+      "scenario-sequence-464f3e3ecbbd891067a87d1b",
+      "scenario-sequence-3599c3301f77697663ac1e06",
+      "scenario-sequence-c7936f774a30277f38b181b9",
+      "scenario-sequence-ba5354ba5580bf2de2a521a0",
+      "scenario-sequence-82ad8a7e9a2da4180846e744"
+    ],
+    "unknown_boundary_cursor": 3
+  },
+  "legacy_fixed_six": [
+    {
+      "hidden_cycle": [
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "YELLOW"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "YELLOW"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "YELLOW"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "YELLOW"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-4e13fa7f496fa7d5265888a7",
+      "sample_id": "legacy-fixed-six-3",
+      "sample_index": 0,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 3,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-1350a6a42b1f9e6be44ed348",
+      "unknown_boundary_cursor": 3
+    },
+    {
+      "hidden_cycle": [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "GREEN"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-cada2b22e39d2687bed0d06f",
+      "sample_id": "legacy-fixed-six-1",
+      "sample_index": 1,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 1,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-c3da423849bf36a4c18c3119",
+      "unknown_boundary_cursor": 3
+    },
+    {
+      "hidden_cycle": [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "BLUE"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "BLUE"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "BLUE"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "BLUE"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "RED"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-c1b7c12cf3f0215feac40f99",
+      "sample_id": "legacy-fixed-six-2",
+      "sample_index": 2,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 2,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-ca1f6017c0e9b382a60a3e3a",
+      "unknown_boundary_cursor": 3
+    },
+    {
+      "hidden_cycle": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "BLUE"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "BLUE"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "BLUE"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "RED",
+            "BLUE"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-3a766103754c2df5dfea945a",
+      "sample_id": "legacy-fixed-six-5",
+      "sample_index": 3,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 5,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-eec39f6aab757f0d75976bb3",
+      "unknown_boundary_cursor": 3
+    },
+    {
+      "hidden_cycle": [
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "GREEN"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "GREEN"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "GREEN"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "GREEN"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "YELLOW",
+            "GREEN"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-c81373540e117a79f48f9564",
+      "sample_id": "legacy-fixed-six-4",
+      "sample_index": 4,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 4,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-1b5a02e0265c6b7993892a7d",
+      "unknown_boundary_cursor": 3
+    },
+    {
+      "hidden_cycle": [
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ]
+      ],
+      "hidden_pair_count": 2,
+      "hidden_pairs": [
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ]
+      ],
+      "known_pair_count": 3,
+      "pairs": [
+        {
+          "colors": [
+            "BLUE",
+            "RED"
+          ],
+          "cursor": 0,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "RED",
+            "RED"
+          ],
+          "cursor": 1,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "cursor": 2,
+          "source": "known"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "RED"
+          ],
+          "cursor": 3,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "YELLOW"
+          ],
+          "cursor": 4,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "RED"
+          ],
+          "cursor": 5,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "YELLOW"
+          ],
+          "cursor": 6,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "RED"
+          ],
+          "cursor": 7,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "YELLOW"
+          ],
+          "cursor": 8,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "RED"
+          ],
+          "cursor": 9,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "BLUE",
+            "YELLOW"
+          ],
+          "cursor": 10,
+          "source": "unknown"
+        },
+        {
+          "colors": [
+            "GREEN",
+            "RED"
+          ],
+          "cursor": 11,
+          "source": "unknown"
+        }
+      ],
+      "queue_digest": "future-queue-3a7f05955d453f23311330a6",
+      "sample_id": "legacy-fixed-six-0",
+      "sample_index": 5,
+      "sampling": {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "fixed_representative_pairing",
+        "generator": "ama-representative-two-pair-cycle",
+        "mode": "legacy-fixed-six",
+        "repeat_policy": "two_pair_cycle",
+        "rollout_seed": null,
+        "rollout_seed_derivation": null,
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      "scenario_id": 0,
+      "schema_version": "puyo.long_horizon_scenario_sequence.v2",
+      "sequence_digest": "scenario-sequence-fd4e3ca8527d42a7c05081cd",
+      "unknown_boundary_cursor": 3
+    }
+  ],
+  "same_seed_first": {
+    "checks": {
+      "authoritative_generator_match": true,
+      "independent_queue_digests": true,
+      "known_prefix_preserved": true,
+      "no_two_pair_cycle": true,
+      "unique_rollout_seeds": true
+    },
+    "decision_seed": 17900,
+    "decision_seed_source": "explicit",
+    "hidden_pairs": [
+      [
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ]
+      ]
+    ],
+    "known_pair_count": 3,
+    "known_pairs": [
+      [
+        "BLUE",
+        "RED"
+      ],
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "GREEN",
+        "YELLOW"
+      ]
+    ],
+    "queue_digests": [
+      "future-queue-10e4d4d7a716141b4f378ef7",
+      "future-queue-a54e1c83474ee62b4e4be82a",
+      "future-queue-ab26afdc25a36d70a08325e3",
+      "future-queue-d1ea69129a41693831061146",
+      "future-queue-e2bc3c1a6adf0ae6db351959",
+      "future-queue-b2ef61654b066be5b7332325"
+    ],
+    "rollout_seeds": [
+      6803363256738674812,
+      1124518958570228201,
+      15803354598366600546,
+      14698863440602813067,
+      12925028788099705363,
+      18109020365967017851
+    ],
+    "sample_ids": [
+      "future-sample-bb19b65ec4b71603cf6121fe",
+      "future-sample-8a511d3d6a398ae7a3f4f97e",
+      "future-sample-7bdb0b480fa1853533fc8433",
+      "future-sample-f5ae338cdf28d451c7d80fc2",
+      "future-sample-579dc032e3c16436a2fba5e1",
+      "future-sample-d135af9c8c2d1e83e41cf262"
+    ],
+    "sampling_metadata": [
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 6803363256738674812,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 1124518958570228201,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 15803354598366600546,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 14698863440602813067,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 12925028788099705363,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 18109020365967017851,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      }
+    ],
+    "sequence_digests": [
+      "scenario-sequence-7d9b61cbb2f4549f240a291c",
+      "scenario-sequence-8bd38d463d51b1668237f9ac",
+      "scenario-sequence-d72374635e43ddd8731c4605",
+      "scenario-sequence-c2b74fb825221f9c8f80d497",
+      "scenario-sequence-dd5acc05dbdd295e6c1dec21",
+      "scenario-sequence-ee2bc3d2ef53eadd7901b104"
+    ],
+    "unknown_boundary_cursor": 3
+  },
+  "same_seed_second": {
+    "checks": {
+      "authoritative_generator_match": true,
+      "independent_queue_digests": true,
+      "known_prefix_preserved": true,
+      "no_two_pair_cycle": true,
+      "unique_rollout_seeds": true
+    },
+    "decision_seed": 17900,
+    "decision_seed_source": "explicit",
+    "hidden_pairs": [
+      [
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "RED"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "YELLOW",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ]
+      ],
+      [
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN"
+        ]
+      ],
+      [
+        [
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "YELLOW",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "GREEN"
+        ]
+      ]
+    ],
+    "known_pair_count": 3,
+    "known_pairs": [
+      [
+        "BLUE",
+        "RED"
+      ],
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "GREEN",
+        "YELLOW"
+      ]
+    ],
+    "queue_digests": [
+      "future-queue-10e4d4d7a716141b4f378ef7",
+      "future-queue-a54e1c83474ee62b4e4be82a",
+      "future-queue-ab26afdc25a36d70a08325e3",
+      "future-queue-d1ea69129a41693831061146",
+      "future-queue-e2bc3c1a6adf0ae6db351959",
+      "future-queue-b2ef61654b066be5b7332325"
+    ],
+    "rollout_seeds": [
+      6803363256738674812,
+      1124518958570228201,
+      15803354598366600546,
+      14698863440602813067,
+      12925028788099705363,
+      18109020365967017851
+    ],
+    "sample_ids": [
+      "future-sample-bb19b65ec4b71603cf6121fe",
+      "future-sample-8a511d3d6a398ae7a3f4f97e",
+      "future-sample-7bdb0b480fa1853533fc8433",
+      "future-sample-f5ae338cdf28d451c7d80fc2",
+      "future-sample-579dc032e3c16436a2fba5e1",
+      "future-sample-d135af9c8c2d1e83e41cf262"
+    ],
+    "sampling_metadata": [
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 6803363256738674812,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 1124518958570228201,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 15803354598366600546,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 14698863440602813067,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 12925028788099705363,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      },
+      {
+        "decision_seed": 17900,
+        "decision_seed_source": "explicit",
+        "distribution": "independent_uniform_normal_colors",
+        "generator": "src.core.tsumo.PuyoSequence",
+        "mode": "seeded-authoritative",
+        "repeat_policy": "none",
+        "rollout_seed": 18109020365967017851,
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "schema_version": "puyo.future_tsumo_sampling.v1"
+      }
+    ],
+    "sequence_digests": [
+      "scenario-sequence-7d9b61cbb2f4549f240a291c",
+      "scenario-sequence-8bd38d463d51b1668237f9ac",
+      "scenario-sequence-d72374635e43ddd8731c4605",
+      "scenario-sequence-c2b74fb825221f9c8f80d497",
+      "scenario-sequence-dd5acc05dbdd295e6c1dec21",
+      "scenario-sequence-ee2bc3d2ef53eadd7901b104"
+    ],
+    "unknown_boundary_cursor": 3
+  },
+  "schema_version": "puyo.v1_7_future_sampling_records.v1"
+}

@@ -38,17 +38,23 @@ tactics:
     planner:
       input_refs: [input.policy_deadline]
       search_profiles:
-        schema_version: puyo.long_horizon_profile.v2
+        schema_version: puyo.long_horizon_profile.v3
         default: runtime
         entries:
-          - identity: {name: runtime, version: "2.0"}
+          - identity: {name: runtime, version: "3.0"}
             backend: compact_long_horizon_v1
             ranking_rule: puyo.expected_chain_ranking.v2
-            depth: 3
+            depth: 4
             width: 24
-            scenarios: 1
+            scenarios: 2
             candidate_limit: 8
-            max_expanded_nodes: 2048
+            max_expanded_nodes: 4096
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 2
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
             terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
             fire_semantics:
               context: safe_build
@@ -60,14 +66,20 @@ tactics:
             transposition_table: true
             exact_build_potential_stage: final_k
             budget: {authority: external_runtime_deadline, wall_clock_mode: external_deadline_contract}
-          - identity: {name: quality-d12, version: "2.0"}
+          - identity: {name: smoke, version: "3.0"}
             backend: compact_long_horizon_v1
             ranking_rule: puyo.expected_chain_ranking.v2
-            depth: 12
-            width: 128
-            scenarios: 6
+            depth: 6
+            width: 48
+            scenarios: 3
             candidate_limit: 8
-            max_expanded_nodes: 200000
+            max_expanded_nodes: 30000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 3
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
             terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
             fire_semantics:
               context: safe_build
@@ -79,7 +91,32 @@ tactics:
             transposition_table: true
             exact_build_potential_stage: final_k
             budget: {authority: expanded_nodes, wall_clock_mode: observational}
-          - identity: {name: quality-d16, version: "2.0"}
+          - identity: {name: quality-d12, version: "3.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 12
+            width: 128
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 200000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: quality-d16, version: "3.0"}
             backend: compact_long_horizon_v1
             ranking_rule: puyo.expected_chain_ranking.v2
             depth: 16
@@ -87,6 +124,37 @@ tactics:
             scenarios: 6
             candidate_limit: 8
             max_expanded_nodes: 600000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: legacy-fixed-six, version: "1.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 16
+            width: 250
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 600000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: legacy-fixed-six
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: null
             terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
             fire_semantics:
               context: safe_build
@@ -120,6 +188,10 @@ tactics:
         - value_breakdown
         - expected_chain_evidence
         - scenario_sequence_digest
+        - future_sampling
+        - decision_seed
+        - rollout_seeds
+        - queue_digests
         - count_budget
 
   - identity: {id: prepare_response, name: prepare_response, version: "2.0", human_label: 対応準備}

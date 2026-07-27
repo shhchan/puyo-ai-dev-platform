@@ -3,6 +3,8 @@
 This module owns the PUYO-174 search semantics.  It deliberately has no
 dependency on the legacy simulator-backed beam implementation so the latter
 can remain a compatibility path while quality profiles use the compact kernel.
+PUYO-179 adds versioned, seeded hidden-future queues generated through the
+production ``PuyoSequence`` distribution; fixed six pairings are legacy-only.
 """
 
 from __future__ import annotations
@@ -28,12 +30,22 @@ from agents.compact_search import (
 )
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.tsumo import PuyoSequence
 
 
-LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v2"
+LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
 EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
-SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v1"
+SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
+FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
+FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
+FUTURE_SAMPLING_LEGACY_FIXED_SIX = "legacy-fixed-six"
+FUTURE_SAMPLING_MODES = {
+    FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+    FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+}
+FUTURE_ROLLOUT_SEED_DERIVATION = "sha256-decision-seed-sample-index-v1"
+FUTURE_QUEUE_GENERATOR = "src.core.tsumo.PuyoSequence"
 LONG_HORIZON_PROPOSAL_DIGEST_VERSION = "puyo.long_horizon_proposal_digest.v1"
 TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
 ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION = "puyo.root_survivor_coverage.v1"
@@ -82,8 +94,10 @@ FIRE_CLASS_PRIORITY = {
 }
 
 RUNTIME_PROFILE = "runtime"
+SMOKE_PROFILE = "smoke"
 QUALITY_D12_PROFILE = "quality-d12"
 QUALITY_D16_PROFILE = "quality-d16"
+LEGACY_FIXED_SIX_PROFILE = FUTURE_SAMPLING_LEGACY_FIXED_SIX
 
 # Ama-inspired representative color orderings.  Each ordering becomes two
 # unknown pairs and repeats only after current + NEXT2 have been consumed.
@@ -105,6 +119,16 @@ def _stable_digest(value: Any, *, prefix: str) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return f"{prefix}-{hashlib.sha256(encoded).hexdigest()[:24]}"
+
+
+def _stable_seed(value: Any) -> int:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return int.from_bytes(hashlib.sha256(encoded).digest()[:8], "big")
 
 
 def compact_state_fingerprint(state: CompactSearchState) -> str:
@@ -136,6 +160,7 @@ class LongHorizonSearchProfile:
     scenarios: int
     max_expanded_nodes: int
     candidate_limit: int = 8
+    future_sampling_mode: str = FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
     terminal_fire_rule: str = TERMINAL_FIRE_RECORD_AND_STOP
     terminal_fire_chain_count: int = 1
     root_survivor_quota: int = 1
@@ -168,7 +193,11 @@ class LongHorizonSearchProfile:
         ):
             raise ValueError("long-horizon profile budgets must be positive")
         if self.scenarios > len(REPRESENTATIVE_SCENARIO_BAGS):
-            raise ValueError("long-horizon profile requests too many scenarios")
+            raise ValueError("long-horizon profile requests too many future samples")
+        if self.future_sampling_mode not in FUTURE_SAMPLING_MODES:
+            raise ValueError(
+                f"unsupported future sampling mode: {self.future_sampling_mode}"
+            )
         if self.terminal_fire_rule not in TERMINAL_FIRE_RULES:
             raise ValueError(
                 f"unsupported terminal-fire rule: {self.terminal_fire_rule}"
@@ -215,6 +244,25 @@ class LongHorizonSearchProfile:
             "width": int(self.width),
             "scenarios": int(self.scenarios),
             "candidate_limit": int(self.candidate_limit),
+            "future_sampling": {
+                "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                "mode": self.future_sampling_mode,
+                "sample_count": int(self.scenarios),
+                "known_queue": "current_plus_next2",
+                "rollout_seed_derivation": (
+                    FUTURE_ROLLOUT_SEED_DERIVATION
+                    if self.future_sampling_mode
+                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    else None
+                ),
+                "generator": (
+                    FUTURE_QUEUE_GENERATOR
+                    if self.future_sampling_mode
+                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    else "ama-representative-two-pair-cycle"
+                ),
+                "unknown_pairs_per_sample": max(0, int(self.depth) - 3),
+            },
             "terminal_fire": {
                 "rule": self.terminal_fire_rule,
                 "minimum_chain_count": int(self.terminal_fire_chain_count),
@@ -241,17 +289,25 @@ class LongHorizonSearchProfile:
 LONG_HORIZON_SEARCH_PROFILES: Mapping[str, LongHorizonSearchProfile] = {
     RUNTIME_PROFILE: LongHorizonSearchProfile(
         name=RUNTIME_PROFILE,
-        version="2.0",
-        depth=3,
+        version="3.0",
+        depth=4,
         width=24,
-        scenarios=1,
-        max_expanded_nodes=2_048,
+        scenarios=2,
+        max_expanded_nodes=4_096,
         budget_authority="external_runtime_deadline",
         wall_clock_mode="external_deadline_contract",
     ),
+    SMOKE_PROFILE: LongHorizonSearchProfile(
+        name=SMOKE_PROFILE,
+        version="3.0",
+        depth=6,
+        width=48,
+        scenarios=3,
+        max_expanded_nodes=30_000,
+    ),
     QUALITY_D12_PROFILE: LongHorizonSearchProfile(
         name=QUALITY_D12_PROFILE,
-        version="2.0",
+        version="3.0",
         depth=12,
         width=128,
         scenarios=6,
@@ -259,11 +315,20 @@ LONG_HORIZON_SEARCH_PROFILES: Mapping[str, LongHorizonSearchProfile] = {
     ),
     QUALITY_D16_PROFILE: LongHorizonSearchProfile(
         name=QUALITY_D16_PROFILE,
-        version="2.0",
+        version="3.0",
         depth=16,
         width=250,
         scenarios=6,
         max_expanded_nodes=600_000,
+    ),
+    LEGACY_FIXED_SIX_PROFILE: LongHorizonSearchProfile(
+        name=LEGACY_FIXED_SIX_PROFILE,
+        version="1.0",
+        depth=16,
+        width=250,
+        scenarios=6,
+        max_expanded_nodes=600_000,
+        future_sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
     ),
 }
 
@@ -293,12 +358,19 @@ def _pair_payload(pair: Sequence[PuyoColor]) -> list[str]:
 
 @dataclass(frozen=True, slots=True)
 class ScenarioPairSequence:
-    """Known current/NEXT2 pairs followed by one representative future cycle."""
+    """Known current/NEXT2 followed by one versioned hidden-future sample."""
 
     scenario_id: int
     known_pairs: tuple[tuple[PuyoColor, PuyoColor], ...]
-    hidden_cycle: tuple[tuple[PuyoColor, PuyoColor], ...]
+    hidden_pairs: tuple[tuple[PuyoColor, PuyoColor], ...]
     depth: int
+    sampling_mode: str
+    sample_index: int
+    sample_id: str
+    decision_seed: int
+    decision_seed_source: str
+    rollout_seed: int | None
+    repeats_hidden_pairs: bool = False
     schema_version: str = SCENARIO_SEQUENCE_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -308,8 +380,27 @@ class ScenarioPairSequence:
             )
         if not 0 <= self.scenario_id < len(REPRESENTATIVE_SCENARIO_BAGS):
             raise ValueError("scenario id is outside the representative set")
-        if not self.known_pairs or not self.hidden_cycle or self.depth <= 0:
-            raise ValueError("scenario sequence requires known and hidden pairs")
+        if self.sample_index < 0 or self.depth <= 0:
+            raise ValueError("scenario sample index and depth must be non-negative")
+        if not self.known_pairs:
+            raise ValueError("scenario sequence requires the known current/NEXT queue")
+        if self.sampling_mode not in FUTURE_SAMPLING_MODES:
+            raise ValueError(
+                f"unsupported future sampling mode: {self.sampling_mode}"
+            )
+        if not self.sample_id or not self.decision_seed_source:
+            raise ValueError("scenario sequence requires sample and seed provenance")
+        if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
+            if self.rollout_seed is None:
+                raise ValueError("seeded future samples require a rollout seed")
+            if self.repeats_hidden_pairs:
+                raise ValueError("seeded future samples must not repeat a hidden cycle")
+            if self.depth > self.known_pair_count + len(self.hidden_pairs):
+                raise ValueError("seeded future sample is shorter than search depth")
+        elif not self.repeats_hidden_pairs or not self.hidden_pairs:
+            raise ValueError("legacy fixed-six samples require a repeating hidden cycle")
+        for pair in (*self.known_pairs, *self.hidden_pairs):
+            _pair_colors(pair)
 
     @property
     def known_pair_count(self) -> int:
@@ -321,11 +412,26 @@ class ScenarioPairSequence:
         if pair_cursor < self.known_pair_count:
             return self.known_pairs[pair_cursor]
         hidden_cursor = pair_cursor - self.known_pair_count
-        return self.hidden_cycle[hidden_cursor % len(self.hidden_cycle)]
+        if hidden_cursor < len(self.hidden_pairs):
+            return self.hidden_pairs[hidden_cursor]
+        if self.repeats_hidden_pairs:
+            return self.hidden_pairs[hidden_cursor % len(self.hidden_pairs)]
+        raise IndexError("scenario pair cursor exceeds the sampled future queue")
 
     @property
     def pairs(self) -> tuple[tuple[PuyoColor, PuyoColor], ...]:
         return tuple(self.pair_at(cursor) for cursor in range(self.depth))
+
+    @property
+    def queue_digest(self) -> str:
+        return _stable_digest(
+            {
+                "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                "known_pair_count": self.known_pair_count,
+                "pairs": [_pair_payload(pair) for pair in self.pairs],
+            },
+            prefix="future-queue",
+        )
 
     @property
     def sequence_digest(self) -> str:
@@ -333,19 +439,54 @@ class ScenarioPairSequence:
             {
                 "schema_version": self.schema_version,
                 "scenario_id": self.scenario_id,
+                "sampling_mode": self.sampling_mode,
+                "sample_index": self.sample_index,
+                "sample_id": self.sample_id,
+                "decision_seed": self.decision_seed,
+                "rollout_seed": self.rollout_seed,
                 "known_pair_count": self.known_pair_count,
-                "pairs": [_pair_payload(pair) for pair in self.pairs],
+                "queue_digest": self.queue_digest,
             },
             prefix="scenario-sequence",
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "schema_version": self.schema_version,
             "scenario_id": int(self.scenario_id),
+            "sample_id": self.sample_id,
+            "sample_index": int(self.sample_index),
+            "sampling": {
+                "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                "mode": self.sampling_mode,
+                "generator": (
+                    FUTURE_QUEUE_GENERATOR
+                    if self.sampling_mode
+                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    else "ama-representative-two-pair-cycle"
+                ),
+                "distribution": (
+                    "independent_uniform_normal_colors"
+                    if self.sampling_mode
+                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    else "fixed_representative_pairing"
+                ),
+                "decision_seed": int(self.decision_seed),
+                "decision_seed_source": self.decision_seed_source,
+                "rollout_seed": self.rollout_seed,
+                "rollout_seed_derivation": (
+                    FUTURE_ROLLOUT_SEED_DERIVATION
+                    if self.rollout_seed is not None
+                    else None
+                ),
+                "repeat_policy": (
+                    "two_pair_cycle" if self.repeats_hidden_pairs else "none"
+                ),
+            },
             "known_pair_count": int(self.known_pair_count),
             "unknown_boundary_cursor": int(self.known_pair_count),
-            "hidden_cycle": [_pair_payload(pair) for pair in self.hidden_cycle],
+            "hidden_pair_count": len(self.hidden_pairs),
+            "hidden_pairs": [_pair_payload(pair) for pair in self.hidden_pairs],
             "pairs": [
                 {
                     "cursor": cursor,
@@ -356,19 +497,19 @@ class ScenarioPairSequence:
                 }
                 for cursor in range(self.depth)
             ],
+            "queue_digest": self.queue_digest,
             "sequence_digest": self.sequence_digest,
         }
+        if self.repeats_hidden_pairs:
+            payload["hidden_cycle"] = [
+                _pair_payload(pair) for pair in self.hidden_pairs
+            ]
+        return payload
 
 
-def build_scenario_sequences(
+def _known_scenario_pairs(
     simulator: HeadlessPuyoSimulator,
-    *,
-    scenarios: int,
-    depth: int,
-    scenario_seed: int | None = None,
-) -> tuple[ScenarioPairSequence, ...]:
-    if not 1 <= scenarios <= len(REPRESENTATIVE_SCENARIO_BAGS):
-        raise ValueError("scenario count is outside the representative set")
+) -> tuple[tuple[PuyoColor, PuyoColor], ...]:
     game = simulator.game
     current = (game.current_puyo_1, game.current_puyo_2)
     if any(item is None for item in current):
@@ -378,22 +519,137 @@ def build_scenario_sequences(
     )
     if len(known_pairs) < 3:
         raise ValueError("long-horizon search requires current + NEXT2")
+    return known_pairs
+
+
+def _resolve_decision_seed(
+    simulator: HeadlessPuyoSimulator,
+    *,
+    decision_seed: int | None,
+    known_pairs: Sequence[Sequence[PuyoColor]],
+) -> tuple[int, str]:
+    if decision_seed is not None:
+        return int(decision_seed), "explicit"
+    sequence_seed = getattr(simulator.game.puyo_sequence, "seed", None)
+    if not isinstance(sequence_seed, (str, int, float, bool, type(None))):
+        sequence_seed = repr(sequence_seed)
+    return (
+        _stable_seed(
+            {
+                "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                "source": "simulator_decision_state",
+                "simulator_sequence_seed": sequence_seed,
+                "state_fingerprint": compact_state_fingerprint(
+                    CompactSearchState.from_simulator(simulator)
+                ),
+                "known_pairs": [_pair_payload(pair) for pair in known_pairs],
+            }
+        ),
+        "derived_from_simulator_decision_state",
+    )
+
+
+def _rollout_seed(decision_seed: int, sample_index: int) -> int:
+    return _stable_seed(
+        {
+            "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+            "derivation": FUTURE_ROLLOUT_SEED_DERIVATION,
+            "decision_seed": int(decision_seed),
+            "sample_index": int(sample_index),
+        }
+    )
+
+
+def _authoritative_hidden_pairs(
+    *,
+    rollout_seed: int,
+    count: int,
+) -> tuple[tuple[PuyoColor, PuyoColor], ...]:
+    sequence = PuyoSequence(seed=int(rollout_seed))
+    return tuple(_pair_colors(pair) for pair in sequence.next_pairs(int(count)))
+
+
+def build_scenario_sequences(
+    simulator: HeadlessPuyoSimulator,
+    *,
+    scenarios: int,
+    depth: int,
+    scenario_seed: int | None = None,
+    decision_seed: int | None = None,
+    sampling_mode: str = FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+) -> tuple[ScenarioPairSequence, ...]:
+    if not 1 <= scenarios <= len(REPRESENTATIVE_SCENARIO_BAGS):
+        raise ValueError("future sample count is outside the supported set")
+    if depth <= 0:
+        raise ValueError("future sample depth must be positive")
+    if sampling_mode not in FUTURE_SAMPLING_MODES:
+        raise ValueError(f"unsupported future sampling mode: {sampling_mode}")
+    if (
+        scenario_seed is not None
+        and decision_seed is not None
+        and int(scenario_seed) != int(decision_seed)
+    ):
+        raise ValueError("scenario_seed and decision_seed must agree when both are set")
+    configured_seed = (
+        decision_seed if decision_seed is not None else scenario_seed
+    )
+    known_pairs = _known_scenario_pairs(simulator)
+    resolved_seed, seed_source = _resolve_decision_seed(
+        simulator,
+        decision_seed=configured_seed,
+        known_pairs=known_pairs,
+    )
+    hidden_pair_count = max(0, int(depth) - len(known_pairs))
+
+    if sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
+        result = []
+        for sample_index in range(scenarios):
+            rollout_seed = _rollout_seed(resolved_seed, sample_index)
+            hidden_pairs = _authoritative_hidden_pairs(
+                rollout_seed=rollout_seed,
+                count=hidden_pair_count,
+            )
+            sample_id = _stable_digest(
+                {
+                    "schema_version": FUTURE_SAMPLING_SCHEMA_VERSION,
+                    "decision_seed": resolved_seed,
+                    "rollout_seed": rollout_seed,
+                    "sample_index": sample_index,
+                },
+                prefix="future-sample",
+            )
+            result.append(
+                ScenarioPairSequence(
+                    scenario_id=int(sample_index),
+                    known_pairs=known_pairs,
+                    hidden_pairs=hidden_pairs,
+                    depth=int(depth),
+                    sampling_mode=sampling_mode,
+                    sample_index=int(sample_index),
+                    sample_id=sample_id,
+                    decision_seed=int(resolved_seed),
+                    decision_seed_source=seed_source,
+                    rollout_seed=int(rollout_seed),
+                )
+            )
+        return tuple(result)
 
     scenario_ids = list(range(len(REPRESENTATIVE_SCENARIO_BAGS)))
     color_orders = [tuple(NORMAL_PUYO_COLORS)] * scenarios
-    if scenario_seed is not None:
-        rng = random.Random(int(scenario_seed))
+    if configured_seed is not None:
+        rng = random.Random(int(configured_seed))
         rng.shuffle(scenario_ids)
         color_orders = []
         for _ in range(scenarios):
             colors = list(NORMAL_PUYO_COLORS)
             rng.shuffle(colors)
             color_orders.append(tuple(colors))
-
     result = []
-    for scenario_id, colors in zip(scenario_ids[:scenarios], color_orders):
+    for sample_index, (scenario_id, colors) in enumerate(
+        zip(scenario_ids[:scenarios], color_orders)
+    ):
         bag = REPRESENTATIVE_SCENARIO_BAGS[scenario_id]
-        hidden_cycle = (
+        hidden_pairs = (
             (colors[bag[0]], colors[bag[1]]),
             (colors[bag[2]], colors[bag[3]]),
         )
@@ -401,8 +657,15 @@ def build_scenario_sequences(
             ScenarioPairSequence(
                 scenario_id=int(scenario_id),
                 known_pairs=known_pairs,
-                hidden_cycle=hidden_cycle,
+                hidden_pairs=hidden_pairs,
                 depth=int(depth),
+                sampling_mode=sampling_mode,
+                sample_index=int(sample_index),
+                sample_id=f"legacy-fixed-six-{int(scenario_id)}",
+                decision_seed=int(resolved_seed),
+                decision_seed_source=seed_source,
+                rollout_seed=None,
+                repeats_hidden_pairs=True,
             )
         )
     return tuple(result)
@@ -855,6 +1118,8 @@ class LongHorizonSearchConfig:
     minimum_chain_count: int
     max_expanded_nodes: int
     scenario_seed: int | None = None
+    decision_seed: int | None = None
+    future_sampling_mode: str = FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
     terminal_fire_rule: str = TERMINAL_FIRE_RECORD_AND_STOP
     terminal_fire_chain_count: int = 1
     root_survivor_quota: int = 1
@@ -878,7 +1143,19 @@ class LongHorizonSearchConfig:
         ):
             raise ValueError("long-horizon search values must be positive")
         if self.scenarios > len(REPRESENTATIVE_SCENARIO_BAGS):
-            raise ValueError("long-horizon search requests too many scenarios")
+            raise ValueError("long-horizon search requests too many future samples")
+        if self.future_sampling_mode not in FUTURE_SAMPLING_MODES:
+            raise ValueError(
+                f"unsupported future sampling mode: {self.future_sampling_mode}"
+            )
+        if (
+            self.scenario_seed is not None
+            and self.decision_seed is not None
+            and int(self.scenario_seed) != int(self.decision_seed)
+        ):
+            raise ValueError(
+                "scenario_seed and decision_seed must agree when both are set"
+            )
         if self.terminal_fire_rule not in TERMINAL_FIRE_RULES:
             raise ValueError(
                 f"unsupported terminal-fire rule: {self.terminal_fire_rule}"
@@ -895,6 +1172,14 @@ class LongHorizonSearchConfig:
             and self.winning_score_threshold <= 0
         ):
             raise ValueError("winning score threshold must be positive when configured")
+
+    @property
+    def resolved_decision_seed(self) -> int | None:
+        return (
+            self.decision_seed
+            if self.decision_seed is not None
+            else self.scenario_seed
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1553,7 +1838,8 @@ def run_long_horizon_search(
         simulator,
         scenarios=config.scenarios,
         depth=config.depth,
-        scenario_seed=config.scenario_seed,
+        decision_seed=config.resolved_decision_seed,
+        sampling_mode=config.future_sampling_mode,
     )
     roots = legal_action_indices(root_state)
     counters = LongHorizonSearchCounters()
@@ -1905,6 +2191,13 @@ __all__ = [
     "FIRE_CONTEXTS",
     "FIRE_CONTEXT_FORCED_SAFETY",
     "FIRE_CONTEXT_SAFE_BUILD",
+    "FUTURE_QUEUE_GENERATOR",
+    "FUTURE_ROLLOUT_SEED_DERIVATION",
+    "FUTURE_SAMPLING_LEGACY_FIXED_SIX",
+    "FUTURE_SAMPLING_MODES",
+    "FUTURE_SAMPLING_SCHEMA_VERSION",
+    "FUTURE_SAMPLING_SEEDED_AUTHORITATIVE",
+    "LEGACY_FIXED_SIX_PROFILE",
     "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_PROFILE_SCHEMA_VERSION",
     "LONG_HORIZON_SEARCH_PROFILES",
@@ -1915,6 +2208,7 @@ __all__ = [
     "SCENARIO_SEQUENCE_SCHEMA_VERSION",
     "ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION",
     "ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION",
+    "SMOKE_PROFILE",
     "TERMINAL_FIRE_CONTINUE",
     "TERMINAL_FIRE_RECORD_AND_STOP",
     "TERMINAL_FIRE_SCORE_VERSION",

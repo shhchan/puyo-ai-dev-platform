@@ -517,6 +517,19 @@ python3 -m eval.v1_7_build_main_fire_ranking_benchmark verify
 [PUYO-178 build-main fire ranking](docs/development/puyo-178-build-main-fire-ranking.md)
 を参照してください．
 
+PUYO-179 では current + NEXT 2 より後の未知ツモを production と同じ分布から
+decision seed／rollout seed 付きで sampling します．runtime／smoke／quality の sample 数と
+count budget、同一 seed の再現性、異なる seed の独立性、Proposal v2 の順序不変性は次で確認できます．
+
+```bash
+python3 -m eval.v1_7_future_sampling_benchmark run
+python3 -m eval.v1_7_future_sampling_benchmark verify
+```
+
+固定 6 pairing は `legacy-fixed-six` profile に限定されています．契約の詳細は
+[PUYO-179 seeded future sampling](docs/development/puyo-179-seeded-future-sampling.md)
+を参照してください．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

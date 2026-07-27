@@ -74,7 +74,7 @@ class TestV17TacticRegistry(unittest.TestCase):
         )
         self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
         profiles = build_main.planner["search_profiles"]
-        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v2")
+        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v3")
         self.assertEqual(profiles["default"], "runtime")
         runtime = next(
             profile
@@ -95,6 +95,23 @@ class TestV17TacticRegistry(unittest.TestCase):
             runtime["ranking_rule"],
             "puyo.expected_chain_ranking.v2",
         )
+        self.assertEqual(
+            (runtime["depth"], runtime["scenarios"], runtime["max_expanded_nodes"]),
+            (4, 2, 4096),
+        )
+        self.assertEqual(
+            runtime["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        smoke = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "smoke"
+        )
+        self.assertEqual(
+            (smoke["scenarios"], smoke["max_expanded_nodes"]),
+            (3, 30000),
+        )
         quality_d16 = next(
             profile
             for profile in profiles["entries"]
@@ -110,6 +127,19 @@ class TestV17TacticRegistry(unittest.TestCase):
         )
         self.assertEqual(quality_d16["budget"]["authority"], "expanded_nodes")
         self.assertEqual(quality_d16["budget"]["wall_clock_mode"], "observational")
+        self.assertEqual(
+            quality_d16["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        legacy = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "legacy-fixed-six"
+        )
+        self.assertEqual(
+            legacy["future_sampling"]["mode"],
+            "legacy-fixed-six",
+        )
         self.assertIn(
             "diagnostics.own.build_potential.predicted_chain_potential",
             build_main.applicability["feature_refs"],

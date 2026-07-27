@@ -1,0 +1,9 @@
+{
+  "schema_version": "puyo.future_tsumo_sampling_fixtures.v1",
+  "simulator_seed": 179,
+  "decision_seed": 17900,
+  "different_decision_seed": 17901,
+  "depth": 12,
+  "sample_count": 6,
+  "known_pair_contract": "current_plus_next2"
+}

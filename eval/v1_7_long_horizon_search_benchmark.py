@@ -16,6 +16,7 @@ from agents.chain_structure import ChainStructureEvaluator
 from agents.long_horizon_search import (
     EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION,
     EXPECTED_CHAIN_RANKING_RULE_VERSION,
+    FUTURE_SAMPLING_LEGACY_FIXED_SIX,
     LONG_HORIZON_SEARCH_PROFILES,
     SCENARIO_SEQUENCE_SCHEMA_VERSION,
     TERMINAL_FIRE_RECORD_AND_STOP,
@@ -221,6 +222,7 @@ def _compact_record(
             scenarios=config.scenarios,
             minimum_chain_count=10,
             max_expanded_nodes=config.max_expanded_nodes,
+            future_sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
             terminal_fire_rule=config.terminal_fire_rule,
             terminal_fire_chain_count=1,
             use_transposition_table=config.use_transposition_table,
@@ -303,6 +305,7 @@ def _legacy_record(
         simulator,
         scenarios=config.scenarios,
         depth=config.depth,
+        sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
     )
     deterministic = {
         "selected_action": selected.action,
