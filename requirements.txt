@@ -4,3 +4,4 @@ gymnasium>=0.29
 torch>=2.2
 tensorboard>=2.16
 PyYAML>=6.0
+Pillow>=10.0
