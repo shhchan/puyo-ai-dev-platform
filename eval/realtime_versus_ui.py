@@ -6,9 +6,10 @@ import argparse
 import json
 import sys
 from collections import deque
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Mapping
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -170,6 +171,7 @@ class RealtimeVersusUiConfig:
     qa_notes: str | None = None
     qa_profile: str | None = None
     max_frames: int | None = None
+    exit_after_finish_frames: int | None = None
     plan_overlay: bool = True
     collection_enabled: bool = False
     dataset_root: str = "human_datasets"
@@ -208,6 +210,11 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError(f"qa_profile must be one of: {GUI_QA_PROFILES}")
     if config.max_frames is not None and config.max_frames <= 0:
         raise ValueError("max_frames must be positive")
+    if (
+        config.exit_after_finish_frames is not None
+        and config.exit_after_finish_frames <= 0
+    ):
+        raise ValueError("exit_after_finish_frames must be positive")
     if config.replay_path is not None and not config.replay_path.strip():
         raise ValueError("replay_path must not be empty")
     if not config.dataset_root.strip():
@@ -1199,6 +1206,11 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         help="Enable a versioned playability, attack, stress, or deterministic QA gate.",
     )
     parser.add_argument("--max-frames", type=int, help="Stop after this many rendered frames.")
+    parser.add_argument(
+        "--exit-after-finish-frames",
+        type=int,
+        help="Exit automatically after rendering this many terminal frames.",
+    )
     parser.add_argument("--no-plan-overlay", dest="plan_overlay", action="store_false")
     parser.set_defaults(plan_overlay=True)
     parser.add_argument("--collect-human-data", dest="collection_enabled", action="store_true")
@@ -1252,6 +1264,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         qa_notes=args.qa_notes,
         qa_profile=args.qa_profile,
         max_frames=args.max_frames,
+        exit_after_finish_frames=args.exit_after_finish_frames,
         plan_overlay=args.plan_overlay,
         collection_enabled=args.collection_enabled,
         dataset_root=args.dataset_root,
@@ -1273,17 +1286,27 @@ def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
     )
 
 
-def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> dict:
+def run_ui(
+    config: RealtimeVersusUiConfig,
+    *,
+    max_frames: int | None = None,
+    policy_factory: Callable[..., Policy] = make_policy,
+    frame_callback: Callable[[Any, int], None] | None = None,
+) -> dict:
     if pygame is None:
         raise ImportError("realtime versus UI requires pygame; install requirements.txt")
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo AI Realtime Versus")
     clock = pygame.time.Clock()
-    controller = RealtimeVersusMatchController(config)
+    controller = RealtimeVersusMatchController(
+        config,
+        policy_factory=policy_factory,
+    )
     renderer = VersusRenderer(screen)
     running = True
     frames = 0
+    finish_frames = 0
     try:
         while running and (max_frames is None or frames < max_frames):
             delta_time = clock.tick(60) / 1000.0
@@ -1296,7 +1319,16 @@ def run_ui(config: RealtimeVersusUiConfig, *, max_frames: int | None = None) -> 
                     controller.handle_keyup(event.key)
             controller.update(delta_time)
             renderer.draw(controller)
+            if frame_callback is not None:
+                frame_callback(screen, frames)
             frames += 1
+            if not controller.env.agents:
+                finish_frames += 1
+                if (
+                    config.exit_after_finish_frames is not None
+                    and finish_frames >= config.exit_after_finish_frames
+                ):
+                    running = False
     except KeyboardInterrupt:
         pass
     finally:

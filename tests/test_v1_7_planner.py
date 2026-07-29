@@ -13,7 +13,9 @@ from agents.strategy_workers import (
     smoke_worker_profiles,
 )
 from agents.v1_7_planner import (
+    PLANNER_BUDGET_CAP_SCHEMA_VERSION,
     PLANNER_REQUEST_SCHEMA_VERSION,
+    PlannerBudgetCap,
     PlannerRequest,
     build_planner_request,
     resolve_preview_attack,
@@ -67,6 +69,47 @@ class TestV17Planner(unittest.TestCase):
             BUILD_POTENTIAL_SCHEMA_VERSION,
         )
         json.dumps(payload)
+
+    def test_runtime_budget_cap_preserves_request_and_records_effective_limits(self):
+        analyzer_input = scenario_input(self.scenarios[0])
+        diagnostics = StateAnalyzer().analyze(analyzer_input)
+        requested = build_planner_request(
+            self.registry.tactic("build_main"),
+            analyzer_input,
+            diagnostics,
+            parameter_overrides={
+                "planner": {
+                    "beam_depth": 5,
+                    "beam_width": 32,
+                    "candidate_count": 8,
+                    "latency_budget_ms": 500.0,
+                }
+            },
+        )
+        cap = PlannerBudgetCap(
+            profile="test-demo",
+            max_search_depth=1,
+            max_search_width=4,
+            max_candidate_count=2,
+            max_latency_budget_ms=250.0,
+        )
+
+        effective = cap.apply(requested)
+        application = cap.application(requested, effective)
+
+        self.assertEqual(cap.schema_version, PLANNER_BUDGET_CAP_SCHEMA_VERSION)
+        self.assertEqual(requested.search_depth, 5)
+        self.assertEqual(requested.search_width, 32)
+        self.assertEqual(requested.candidate_count, 8)
+        self.assertEqual(effective.search_depth, 1)
+        self.assertEqual(effective.search_width, 4)
+        self.assertEqual(effective.candidate_count, 2)
+        self.assertEqual(effective.latency_budget_ms, 250.0)
+        self.assertEqual(
+            application["clamped_fields"],
+            ["depth", "width", "candidate_count", "latency_budget_ms"],
+        )
+        json.dumps(application)
 
     def test_build_main_reuses_candidate_count_for_probe_and_candidate_set(self):
         analyzer_input = scenario_input(self.scenarios[0])

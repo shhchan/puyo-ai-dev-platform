@@ -11,6 +11,7 @@ except (ImportError, OSError):  # pragma: no cover - optional dependency guard
 from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.state_analyzer import AnalyzerConfig, StateAnalyzer
 from agents.strategy_workers import smoke_worker_profiles
+from agents.v1_7_planner import PlannerBudgetCap
 from agents.v1_7_strategy_manager import (
     PREVIEW_FEATURE_NAMES,
     STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
@@ -351,6 +352,47 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertIsNone(policy.current_profile_name)
         self.assertEqual(policy.tactical_diagnostics, {})
         self.assertIsNone(policy.last_plan)
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_budget_cap_is_applied_after_learned_parameter_decode(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+            for index, head in enumerate(model.proposal_heads):
+                head.bias[0] = 10.0 - index
+                head.bias[3:] = 20.0
+        env = VersusPuyoEnv(seed=17, max_steps=4)
+        observations, infos = env.reset(seed=17)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            planner_budget_cap=PlannerBudgetCap(
+                profile="test-demo",
+                max_search_depth=1,
+                max_search_width=4,
+                max_candidate_count=2,
+                max_latency_budget_ms=250.0,
+            ),
+        )
+
+        policy.select_action(observations["player_0"], infos["player_0"])
+        constraints = policy.tactical_diagnostics["runtime_constraints"]
+
+        self.assertEqual(constraints["preview_top_k"], 1)
+        self.assertEqual(constraints["effective_search_budget"]["depth"], 1)
+        self.assertEqual(constraints["effective_search_budget"]["width"], 4)
+        self.assertEqual(
+            constraints["effective_search_budget"]["candidate_count"],
+            2,
+        )
+        self.assertIn("depth", constraints["clamped_fields"])
         env.close()
 
     @unittest.skipIf(torch is None, "torch is required")
