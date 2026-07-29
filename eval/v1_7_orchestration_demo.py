@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -36,12 +38,7 @@ from train.artifacts import (
 DEMO_SCHEMA_VERSION = "puyo.puyo_181_orchestration_demo.v1"
 DEMO_RUN_ID = "puyo-181-friday-demo-seed126"
 DEMO_CHECKPOINT = (
-    ROOT
-    / "runs"
-    / "v1_7_manager"
-    / DEMO_RUN_ID
-    / "checkpoints"
-    / "bootstrap.pt"
+    ROOT / "runs" / "v1_7_manager" / DEMO_RUN_ID / "checkpoints" / "bootstrap.pt"
 )
 DEMO_TRAINING_MANIFEST = DEMO_CHECKPOINT.parents[1] / "artifact_manifest.json"
 DEMO_OUTPUT_ROOT = ROOT / "runs" / "puyo-181-demo"
@@ -53,6 +50,26 @@ DEMO_BUDGET_CAP = PlannerBudgetCap(
     max_candidate_count=2,
     max_latency_budget_ms=250.0,
 )
+DEMO_TACTIC_CHOICES = (
+    "build_main",
+    "prepare_response",
+    "counter_or_return",
+    "pressure",
+    "lethal_attack",
+    "all_clear",
+    "fire_main",
+    "survive",
+)
+DEMO_OPPONENT_CHOICES = (
+    "v1_7_analyzer_manager",
+    "manager_rule",
+    "worker_large",
+    "worker_quick",
+    "worker_fire",
+    "greedy",
+    "random",
+    "first",
+)
 DEMO_DISCLAIMERS = (
     "Demo-only behavior-cloning checkpoint; this is not PUYO-130 mixed PPO.",
     "The demo does not use a learned CandidateRanker.",
@@ -60,6 +77,47 @@ DEMO_DISCLAIMERS = (
     "The result is not PUYO-176 canonical GO or GO_WITH_LATENCY_WAIVER evidence.",
     "The result is not promotion, release, or formal strength evidence.",
 )
+
+
+@dataclass(frozen=True)
+class DemoRuntimeTuning:
+    """Auditable runtime-only adjustments for exploratory presentation runs."""
+
+    preview_top_k: int = DEMO_PREVIEW_TOP_K
+    planner_budget_cap: PlannerBudgetCap | None = DEMO_BUDGET_CAP
+    target_chain: int | None = None
+    forced_tactic_id: str | None = None
+    opponent: str | None = None
+
+    def parameter_overrides(
+        self,
+    ) -> dict[str, dict[str, dict[str, Any]]]:
+        if self.target_chain is None:
+            return {}
+        return {
+            "build_main": {
+                "objective": {
+                    "target_chain": int(self.target_chain),
+                }
+            }
+        }
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "preview_top_k": int(self.preview_top_k),
+            "planner_budget_cap": (
+                None
+                if self.planner_budget_cap is None
+                else self.planner_budget_cap.to_dict()
+            ),
+            "target_chain": self.target_chain,
+            "forced_tactic_id": self.forced_tactic_id,
+            "opponent": self.opponent,
+            "parameter_overrides": self.parameter_overrides(),
+        }
+
+
+DEFAULT_DEMO_TUNING = DemoRuntimeTuning()
 
 
 @dataclass(frozen=True)
@@ -166,22 +224,28 @@ def make_demo_policy(
     beam_scenarios: int = 1,
     beam_minimum_chain: int = 6,
     forced_tactic_id: str | None = None,
+    tuning: DemoRuntimeTuning = DEFAULT_DEMO_TUNING,
 ) -> Policy:
     """Build normal policies while bounding only the v1.7 demo orchestration."""
 
+    parameter_overrides = tuning.parameter_overrides()
     if policy_type == "v1_7_bootstrap_manager":
         if checkpoint_path is None:
             raise ValueError("demo bootstrap policy requires a checkpoint")
         return V17StrategyManagerPolicy.from_checkpoint(
             checkpoint_path,
-            preview_top_k=DEMO_PREVIEW_TOP_K,
+            preview_top_k=tuning.preview_top_k,
             device=device,
             deterministic=deterministic,
-            forced_tactic_id=forced_tactic_id,
-            planner_budget_cap=DEMO_BUDGET_CAP,
+            forced_tactic_id=tuning.forced_tactic_id or forced_tactic_id,
+            parameter_overrides=parameter_overrides,
+            planner_budget_cap=tuning.planner_budget_cap,
         )
     if policy_type == "v1_7_analyzer_manager":
-        return V17AnalyzerManagerPolicy(planner_budget_cap=DEMO_BUDGET_CAP)
+        return V17AnalyzerManagerPolicy(
+            parameter_overrides=parameter_overrides,
+            planner_budget_cap=tuning.planner_budget_cap,
+        )
     return make_policy(
         policy_type,
         seed=seed,
@@ -205,12 +269,13 @@ def build_demo_config(
     result_path: Path,
     replay_path: Path,
     qa_profile: str | None,
+    tuning: DemoRuntimeTuning = DEFAULT_DEMO_TUNING,
 ):
     from eval.realtime_versus_ui import RealtimeVersusUiConfig
 
     return RealtimeVersusUiConfig(
         policy_a=preset.policy_a,
-        policy_b=preset.policy_b,
+        policy_b=tuning.opponent or preset.policy_b,
         checkpoint_a=(
             str(DEMO_CHECKPOINT)
             if preset.policy_a == "v1_7_bootstrap_manager"
@@ -314,12 +379,63 @@ def prepare_checkpoint(*, force: bool) -> dict[str, Any]:
     subprocess.run(command, cwd=ROOT, check=True)
     status = checkpoint_status()
     if not status["valid"]:
-        raise RuntimeError("prepared demo checkpoint did not validate: " + "; ".join(status["errors"]))
+        raise RuntimeError(
+            "prepared demo checkpoint did not validate: " + "; ".join(status["errors"])
+        )
     status["reproduce_command"] = " ".join(command)
     status_path = DEMO_OUTPUT_ROOT / "checkpoint_status.json"
     _write_json(status_path, status)
     status["status_path"] = _display_path(status_path)
     return status
+
+
+def build_runtime_tuning(args: argparse.Namespace) -> DemoRuntimeTuning:
+    planner_budget_cap = None
+    if args.planner_cap:
+        planner_budget_cap = PlannerBudgetCap(
+            profile="puyo-181-gui-demo",
+            max_search_depth=args.planner_depth_cap,
+            max_search_width=args.planner_width_cap,
+            max_candidate_count=args.planner_candidate_cap,
+            max_latency_budget_ms=args.planner_latency_cap_ms,
+        )
+    return DemoRuntimeTuning(
+        preview_top_k=args.preview_top_k,
+        planner_budget_cap=planner_budget_cap,
+        target_chain=args.target_chain,
+        forced_tactic_id=args.force_tactic,
+        opponent=args.opponent,
+    )
+
+
+def default_output_dir(
+    *,
+    preset: DemoPreset,
+    seed: int,
+    max_ticks: int,
+    speed: float,
+    tuning: DemoRuntimeTuning,
+    qa: bool,
+) -> Path:
+    base = DEMO_OUTPUT_ROOT / f"{preset.name}-seed{seed}" / ("qa" if qa else "live")
+    if (
+        seed == preset.seed
+        and max_ticks == preset.max_ticks
+        and speed == preset.speed
+        and tuning == DEFAULT_DEMO_TUNING
+    ):
+        return base
+    payload = {
+        "preset": preset.name,
+        "seed": seed,
+        "max_ticks": max_ticks,
+        "speed": speed,
+        "tuning": tuning.to_dict(),
+    }
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:12]
+    return base / f"custom-{digest}"
 
 
 def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
@@ -340,10 +456,16 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
     seed = preset.seed if args.seed is None else args.seed
     max_ticks = preset.max_ticks if args.max_ticks is None else args.max_ticks
     speed = preset.speed if args.speed is None else args.speed
+    tuning = build_runtime_tuning(args)
     output_dir = (
-        DEMO_OUTPUT_ROOT
-        / f"{preset.name}-seed{seed}"
-        / ("qa" if qa else "live")
+        default_output_dir(
+            preset=preset,
+            seed=seed,
+            max_ticks=max_ticks,
+            speed=speed,
+            tuning=tuning,
+            qa=qa,
+        )
         if args.output_dir is None
         else _resolve_path(args.output_dir)
     )
@@ -360,6 +482,7 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
         result_path=result_path,
         replay_path=replay_path,
         qa_profile="playability" if qa else None,
+        tuning=tuning,
     )
     recorder = (
         GifRecorder(
@@ -372,7 +495,7 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
     )
     result = run_ui(
         config,
-        policy_factory=make_demo_policy,
+        policy_factory=partial(make_demo_policy, tuning=tuning),
         frame_callback=None if recorder is None else recorder.capture,
     )
     if recorder is not None:
@@ -388,6 +511,7 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
         gif_path=gif_path if gif_path.is_file() else None,
         replay_verification=replay_verification,
         qa=qa,
+        tuning=tuning,
     )
     manifest_path = output_dir / "demo_manifest.json"
     _write_json(manifest_path, manifest)
@@ -397,6 +521,7 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
         "quality_gate": result["quality_gate"],
         "replay": replay_verification,
         "recording": _artifact_record(gif_path) if gif_path.is_file() else None,
+        "tuning": tuning.to_dict(),
         "manifest": _display_path(manifest_path),
     }
     print(json.dumps(summary, indent=2, sort_keys=True))
@@ -415,6 +540,7 @@ def build_demo_manifest(
     gif_path: Path | None,
     replay_verification: Mapping[str, Any],
     qa: bool,
+    tuning: DemoRuntimeTuning = DEFAULT_DEMO_TUNING,
 ) -> dict[str, Any]:
     return {
         "schema_version": DEMO_SCHEMA_VERSION,
@@ -435,8 +561,13 @@ def build_demo_manifest(
             "speed": config.speed,
             "latency_mode": config.latency_mode,
             "qa_profile": config.qa_profile,
-            "planner_budget_cap": DEMO_BUDGET_CAP.to_dict(),
-            "preview_top_k": DEMO_PREVIEW_TOP_K,
+            "tuning": tuning.to_dict(),
+            "planner_budget_cap": (
+                None
+                if tuning.planner_budget_cap is None
+                else tuning.planner_budget_cap.to_dict()
+            ),
+            "preview_top_k": tuning.preview_top_k,
         },
         "checkpoint": checkpoint_status(),
         "result": dict(result["result"]),
@@ -521,14 +652,106 @@ def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
     )
 
 
+def _bounded_int(value: str, *, minimum: int, maximum: int, label: str) -> int:
+    parsed = int(value)
+    if not minimum <= parsed <= maximum:
+        raise argparse.ArgumentTypeError(f"{label} must be in [{minimum}, {maximum}]")
+    return parsed
+
+
+def _positive_int(value: str) -> int:
+    return _bounded_int(
+        value,
+        minimum=1,
+        maximum=sys.maxsize,
+        label="value",
+    )
+
+
+def _positive_float(value: str) -> float:
+    parsed = float(value)
+    if parsed <= 0.0:
+        raise argparse.ArgumentTypeError("value must be positive")
+    return parsed
+
+
 def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--preset", choices=tuple(DEMO_PRESETS), default="primary")
     parser.add_argument("--seed", type=int)
-    parser.add_argument("--max-ticks", type=int)
+    parser.add_argument(
+        "--max-ticks",
+        type=_positive_int,
+        help="Maximum match ticks; game over can still end the match earlier.",
+    )
     parser.add_argument("--speed", type=float, choices=(0.25, 0.5, 1.0, 2.0, 4.0))
     parser.add_argument("--output-dir")
-    parser.add_argument("--record-seconds", type=int, default=30)
-    parser.add_argument("--record-fps", type=int, default=5)
+    parser.add_argument("--record-seconds", type=_positive_int, default=30)
+    parser.add_argument("--record-fps", type=_positive_int, default=5)
+    parser.add_argument(
+        "--opponent",
+        choices=DEMO_OPPONENT_CHOICES,
+        help="Override player 2 while retaining the preset's player 1.",
+    )
+    parser.add_argument(
+        "--target-chain",
+        type=lambda value: _bounded_int(
+            value,
+            minimum=1,
+            maximum=19,
+            label="target chain",
+        ),
+        help="Override build_main objective.target_chain for v1.7 managers.",
+    )
+    parser.add_argument(
+        "--force-tactic",
+        choices=DEMO_TACTIC_CHOICES,
+        help=(
+            "Strictly force one learned-manager tactic for diagnostics; "
+            "the run fails if it becomes ineligible."
+        ),
+    )
+    parser.add_argument(
+        "--preview-top-k",
+        type=lambda value: _bounded_int(
+            value,
+            minimum=1,
+            maximum=len(DEMO_TACTIC_CHOICES),
+            label="preview top-k",
+        ),
+        default=DEMO_PREVIEW_TOP_K,
+        help="Number of learned-manager tactic proposals to preview.",
+    )
+    parser.add_argument(
+        "--planner-depth-cap",
+        type=_positive_int,
+        default=DEMO_BUDGET_CAP.max_search_depth,
+        help="Upper bound for effective planner search depth.",
+    )
+    parser.add_argument(
+        "--planner-width-cap",
+        type=_positive_int,
+        default=DEMO_BUDGET_CAP.max_search_width,
+        help="Upper bound for effective planner search width.",
+    )
+    parser.add_argument(
+        "--planner-candidate-cap",
+        type=_positive_int,
+        default=DEMO_BUDGET_CAP.max_candidate_count,
+        help="Upper bound for effective planner candidate count.",
+    )
+    parser.add_argument(
+        "--planner-latency-cap-ms",
+        type=_positive_float,
+        default=DEMO_BUDGET_CAP.max_latency_budget_ms,
+        help="Upper bound for the planner's requested latency budget.",
+    )
+    parser.add_argument(
+        "--no-planner-cap",
+        dest="planner_cap",
+        action="store_false",
+        help="Disable the presentation cap; decisions can take tens of seconds.",
+    )
+    parser.set_defaults(planner_cap=True)
     parser.add_argument(
         "--record-gif",
         dest="record_gif",
@@ -547,11 +770,15 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         description="Prepare, run, and verify the PUYO-181 GUI demonstration.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    prepare = subparsers.add_parser("prepare", help="Generate and validate the demo checkpoint.")
+    prepare = subparsers.add_parser(
+        "prepare", help="Generate and validate the demo checkpoint."
+    )
     prepare.add_argument("--force", action="store_true")
     live = subparsers.add_parser("live", help="Run the interactive GUI demo.")
     _add_run_arguments(live)
-    qa = subparsers.add_parser("qa", help="Run dummy-SDL playability QA and record a GIF.")
+    qa = subparsers.add_parser(
+        "qa", help="Run dummy-SDL playability QA and record a GIF."
+    )
     _add_run_arguments(qa)
     verify = subparsers.add_parser("verify", help="Verify a diagnostic replay hash.")
     verify.add_argument("--replay")
@@ -564,7 +791,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
     if args.command == "prepare":
-        print(json.dumps(prepare_checkpoint(force=args.force), indent=2, sort_keys=True))
+        print(
+            json.dumps(prepare_checkpoint(force=args.force), indent=2, sort_keys=True)
+        )
         return
     if args.command == "status":
         status = checkpoint_status()
@@ -576,10 +805,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         preset = DEMO_PRESETS[args.preset]
         seed = preset.seed if args.seed is None else args.seed
         replay_path = (
-            DEMO_OUTPUT_ROOT
-            / f"{preset.name}-seed{seed}"
-            / "qa"
-            / "replay.json"
+            DEMO_OUTPUT_ROOT / f"{preset.name}-seed{seed}" / "qa" / "replay.json"
             if args.replay is None
             else _resolve_path(args.replay)
         )

@@ -84,6 +84,88 @@ Use the one-command primary preset:
 The primary deterministic seed is `126`. The window records the first 30
 seconds to the same ignored `demo.gif` fallback while the live match runs.
 
+## Runtime tuning
+
+The checked primary preset remains the presentation default, but `live` and
+`qa` accept runtime-only adjustments. The default QA artifacts are preserved:
+any non-default configuration is written below a generated
+`qa/custom-<digest>/` or `live/custom-<digest>/` directory. The adjacent
+manifest records every effective tuning value.
+
+The already available controls are:
+
+```text
+--seed                 change the deterministic piece sequence
+--max-ticks            raise or lower the match tick ceiling
+--speed                change presentation playback speed
+--record-seconds       change GIF duration
+--record-fps           change GIF capture rate
+--output-dir           explicitly choose an artifact directory
+```
+
+`--max-ticks` is only an upper bound. A game over still ends the match earlier;
+press `R` in the live UI to restart immediately with the configured seed.
+
+The orchestration-specific controls are:
+
+```text
+--target-chain         override build_main objective.target_chain (1..19)
+--opponent             replace player 2 with a supported checkpoint-free policy
+--preview-top-k        preview more learned tactic proposals (1..8)
+--planner-depth-cap    raise/lower the demo search-depth ceiling
+--planner-width-cap    raise/lower the demo search-width ceiling
+--planner-candidate-cap
+--planner-latency-cap-ms
+--no-planner-cap       remove all presentation caps (very slow)
+--force-tactic         strict learned-manager diagnostic override
+```
+
+Start with a longer recording while retaining the validated responsive
+configuration:
+
+```bash
+.venv/bin/python -m eval.v1_7_orchestration_demo live \
+  --preset primary \
+  --max-ticks 14400 \
+  --record-seconds 60
+```
+
+For a larger-chain exploration, increase the build target and search budget
+gradually:
+
+```bash
+.venv/bin/python -m eval.v1_7_orchestration_demo live \
+  --preset primary \
+  --max-ticks 14400 \
+  --target-chain 8 \
+  --opponent worker_large \
+  --preview-top-k 2 \
+  --planner-depth-cap 2 \
+  --planner-width-cap 12 \
+  --planner-candidate-cap 4 \
+  --planner-latency-cap-ms 500 \
+  --record-seconds 60
+```
+
+This raises the objective and gives the planner more room, but it cannot
+guarantee an eight-chain result: the learned arbitration may respond to danger,
+incoming ojama, or a fire opportunity. Try another `--seed` if the match ends
+too early. Increase one search control at a time because CPU decision latency
+rises quickly.
+
+`--force-tactic build_main` is available for inspecting the build worker, but
+it is intentionally strict and aborts if `build_main` becomes ineligible (for
+example, when the incoming-response guard takes responsibility). It is not the
+recommended live-presentation default. `--no-planner-cap` restores the normal
+request but can make one decision take tens of seconds on the presentation CPU.
+The command prints the exact custom manifest path. Recheck its replay by
+passing that path explicitly, for example:
+
+```bash
+.venv/bin/python -m eval.v1_7_orchestration_demo verify \
+  --replay runs/puyo-181-demo/primary-seed126/live/custom-<digest>/replay.json
+```
+
 During the presentation, point out:
 
 1. the active pair moves, rotates, drops, and locks instead of jumping directly

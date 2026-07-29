@@ -1267,6 +1267,11 @@ class V17StrategyManagerPolicy:
         device: str = "cpu",
         deterministic: bool = True,
         forced_tactic_id: str | None = None,
+        parameter_overrides: Mapping[
+            str,
+            Mapping[str, Mapping[str, Any]],
+        ]
+        | None = None,
         planner_budget_cap: PlannerBudgetCap | None = None,
         checkpoint_path: str | Path | None = None,
         checkpoint_metadata: Mapping[str, Any] | None = None,
@@ -1294,6 +1299,20 @@ class V17StrategyManagerPolicy:
         self.preview_top_k = min(int(preview_top_k), len(self.registry.tactics))
         self.deterministic = bool(deterministic)
         self.planner_budget_cap = planner_budget_cap
+        unknown_override_tactics = set(parameter_overrides or {}).difference(
+            tactic.identity.tactic_id for tactic in self.registry.tactics
+        )
+        if unknown_override_tactics:
+            raise ValueError(
+                "parameter overrides contain unknown tactics: "
+                + ", ".join(sorted(unknown_override_tactics))
+            )
+        self.parameter_overrides = {
+            tactic_id: copy.deepcopy(dict(sections))
+            for tactic_id, sections in (parameter_overrides or {}).items()
+        }
+        for tactic_id, overrides in self.parameter_overrides.items():
+            self.registry.tactic(tactic_id).resolve_parameters(overrides)
         if forced_tactic_id is not None:
             try:
                 self.registry.tactic(forced_tactic_id)
@@ -1326,6 +1345,11 @@ class V17StrategyManagerPolicy:
         device: str = "cpu",
         deterministic: bool = True,
         forced_tactic_id: str | None = None,
+        parameter_overrides: Mapping[
+            str,
+            Mapping[str, Mapping[str, Any]],
+        ]
+        | None = None,
         planner_budget_cap: PlannerBudgetCap | None = None,
     ) -> "V17StrategyManagerPolicy":
         """Load one metadata-validated v1.7.2-compatible bootstrap checkpoint."""
@@ -1380,6 +1404,7 @@ class V17StrategyManagerPolicy:
             device=device,
             deterministic=deterministic,
             forced_tactic_id=forced_tactic_id,
+            parameter_overrides=parameter_overrides,
             planner_budget_cap=planner_budget_cap,
             checkpoint_path=target,
             checkpoint_metadata=runtime_metadata,
@@ -1437,13 +1462,19 @@ class V17StrategyManagerPolicy:
                 tactic_features,
                 eligibility_mask,
             )
-        parameters = [
-            decode_tactic_parameters(
+        parameters = []
+        for index, tactic in enumerate(self.registry.tactics):
+            decoded = decode_tactic_parameters(
                 tactic,
                 lightweight.parameter_logits[0, index].detach().cpu().tolist(),
             )
-            for index, tactic in enumerate(self.registry.tactics)
-        ]
+            overrides = self.parameter_overrides.get(tactic.identity.tactic_id)
+            if overrides is not None:
+                decoded = copy.deepcopy(decoded)
+                for section, values in overrides.items():
+                    decoded[section].update(values)
+                decoded = tactic.resolve_parameters(decoded)
+            parameters.append(decoded)
         eligible_count = sum(encoded.eligibility_mask)
         if eligible_count <= 0:
             raise RuntimeError("strategy manager has no eligible tactics")
@@ -1750,6 +1781,7 @@ class V17StrategyManagerPolicy:
             "runtime_constraints": {
                 **copy.deepcopy(self._runtime_constraints),
                 "preview_top_k": int(self.preview_top_k),
+                "parameter_overrides": copy.deepcopy(self.parameter_overrides),
             },
             "worker": {
                 "profile_id": int(proposal.profile_id),

@@ -396,6 +396,74 @@ class TestV17StrategyManager(unittest.TestCase):
         env.close()
 
     @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_parameter_override_replaces_learned_target_chain(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+        env = VersusPuyoEnv(seed=132, max_steps=4)
+        observations, infos = env.reset(seed=132)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            forced_tactic_id="build_main",
+            parameter_overrides={
+                "build_main": {
+                    "objective": {
+                        "target_chain": 12,
+                    }
+                }
+            },
+        )
+
+        policy.select_action(observations["player_0"], infos["player_0"])
+        diagnostics = policy.tactical_diagnostics
+
+        self.assertEqual(
+            diagnostics["selected_tactic"]["parameters"]["objective"][
+                "target_chain"
+            ],
+            12,
+        )
+        self.assertEqual(
+            diagnostics["planner_request"]["objective"]["target_chain"],
+            12,
+        )
+        self.assertEqual(
+            diagnostics["runtime_constraints"]["parameter_overrides"],
+            {
+                "build_main": {
+                    "objective": {
+                        "target_chain": 12,
+                    }
+                }
+            },
+        )
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_parameter_override_is_registry_validated(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+
+        with self.assertRaisesRegex(ValueError, "target_chain is above max"):
+            V17StrategyManagerPolicy(
+                model,
+                registry=self.registry,
+                parameter_overrides={
+                    "build_main": {
+                        "objective": {
+                            "target_chain": 20,
+                        }
+                    }
+                },
+            )
+
+    @unittest.skipIf(torch is None, "torch is required")
     def test_evaluation_override_forces_build_main_after_preview(self):
         model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
         with torch.no_grad():
