@@ -196,6 +196,30 @@ class TestV17OrchestrationDemo(unittest.TestCase):
         self.assertTrue(custom_path.name.startswith("custom-"))
         self.assertNotEqual(default_path, custom_path)
 
+    def test_recording_changes_do_not_overwrite_default_artifacts(self):
+        preset = DEMO_PRESETS["primary"]
+        common = {
+            "preset": preset,
+            "seed": preset.seed,
+            "max_ticks": preset.max_ticks,
+            "speed": preset.speed,
+            "tuning": DEFAULT_DEMO_TUNING,
+            "qa": False,
+        }
+
+        longer_recording = default_output_dir(
+            **common,
+            record_seconds=60,
+        )
+        disabled_recording = default_output_dir(
+            **common,
+            record_gif=False,
+        )
+
+        self.assertTrue(longer_recording.name.startswith("custom-"))
+        self.assertTrue(disabled_recording.name.startswith("custom-"))
+        self.assertNotEqual(longer_recording, disabled_recording)
+
     def test_cli_can_disable_the_presentation_planner_cap(self):
         tuning = build_runtime_tuning(parse_args(["live", "--no-planner-cap"]))
 

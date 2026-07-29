@@ -43,6 +43,8 @@ DEMO_CHECKPOINT = (
 DEMO_TRAINING_MANIFEST = DEMO_CHECKPOINT.parents[1] / "artifact_manifest.json"
 DEMO_OUTPUT_ROOT = ROOT / "runs" / "puyo-181-demo"
 DEMO_PREVIEW_TOP_K = 1
+DEMO_RECORD_SECONDS = 30
+DEMO_RECORD_FPS = 5
 DEMO_BUDGET_CAP = PlannerBudgetCap(
     profile="puyo-181-gui-demo",
     max_search_depth=1,
@@ -416,6 +418,9 @@ def default_output_dir(
     speed: float,
     tuning: DemoRuntimeTuning,
     qa: bool,
+    record_seconds: int = DEMO_RECORD_SECONDS,
+    record_fps: int = DEMO_RECORD_FPS,
+    record_gif: bool = True,
 ) -> Path:
     base = DEMO_OUTPUT_ROOT / f"{preset.name}-seed{seed}" / ("qa" if qa else "live")
     if (
@@ -423,6 +428,9 @@ def default_output_dir(
         and max_ticks == preset.max_ticks
         and speed == preset.speed
         and tuning == DEFAULT_DEMO_TUNING
+        and record_seconds == DEMO_RECORD_SECONDS
+        and record_fps == DEMO_RECORD_FPS
+        and record_gif
     ):
         return base
     payload = {
@@ -431,6 +439,11 @@ def default_output_dir(
         "max_ticks": max_ticks,
         "speed": speed,
         "tuning": tuning.to_dict(),
+        "recording": {
+            "enabled": record_gif,
+            "seconds": record_seconds,
+            "fps": record_fps,
+        },
     }
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -465,6 +478,9 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
             speed=speed,
             tuning=tuning,
             qa=qa,
+            record_seconds=args.record_seconds,
+            record_fps=args.record_fps,
+            record_gif=args.record_gif,
         )
         if args.output_dir is None
         else _resolve_path(args.output_dir)
@@ -512,6 +528,9 @@ def run_demo(args: argparse.Namespace, *, qa: bool) -> int:
         replay_verification=replay_verification,
         qa=qa,
         tuning=tuning,
+        record_seconds=args.record_seconds,
+        record_fps=args.record_fps,
+        record_gif=args.record_gif,
     )
     manifest_path = output_dir / "demo_manifest.json"
     _write_json(manifest_path, manifest)
@@ -541,6 +560,9 @@ def build_demo_manifest(
     replay_verification: Mapping[str, Any],
     qa: bool,
     tuning: DemoRuntimeTuning = DEFAULT_DEMO_TUNING,
+    record_seconds: int = DEMO_RECORD_SECONDS,
+    record_fps: int = DEMO_RECORD_FPS,
+    record_gif: bool = True,
 ) -> dict[str, Any]:
     return {
         "schema_version": DEMO_SCHEMA_VERSION,
@@ -568,6 +590,11 @@ def build_demo_manifest(
                 else tuning.planner_budget_cap.to_dict()
             ),
             "preview_top_k": tuning.preview_top_k,
+            "recording": {
+                "enabled": bool(record_gif),
+                "seconds": int(record_seconds),
+                "fps": int(record_fps),
+            },
         },
         "checkpoint": checkpoint_status(),
         "result": dict(result["result"]),
@@ -685,8 +712,16 @@ def _add_run_arguments(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument("--speed", type=float, choices=(0.25, 0.5, 1.0, 2.0, 4.0))
     parser.add_argument("--output-dir")
-    parser.add_argument("--record-seconds", type=_positive_int, default=30)
-    parser.add_argument("--record-fps", type=_positive_int, default=5)
+    parser.add_argument(
+        "--record-seconds",
+        type=_positive_int,
+        default=DEMO_RECORD_SECONDS,
+    )
+    parser.add_argument(
+        "--record-fps",
+        type=_positive_int,
+        default=DEMO_RECORD_FPS,
+    )
     parser.add_argument(
         "--opponent",
         choices=DEMO_OPPONENT_CHOICES,
