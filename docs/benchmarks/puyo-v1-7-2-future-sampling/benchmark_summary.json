@@ -1,0 +1,237 @@
+{
+  "checks": {
+    "authoritative_generator_match": true,
+    "canonical_has_no_two_pair_cycle": true,
+    "canonical_profiles_are_seeded": true,
+    "different_seed_changes_queue": true,
+    "independent_samples": true,
+    "known_prefix_preserved": true,
+    "legacy_fixed_six_is_explicit": true,
+    "passed": true,
+    "profile_sample_and_count_budgets_recorded": true,
+    "proposal_v2_k8_stable_ids_and_masks": true,
+    "same_seed_latency_free_proposal_digest": true,
+    "same_seed_queue_digest": true,
+    "sample_id_not_ranker_feature": true,
+    "sample_order_invariant_ranker_input": true
+  },
+  "decision_seed": 17900,
+  "generator": "src.core.tsumo.PuyoSequence",
+  "latency_free_proposal_digest": "long-horizon-proposal-f7e9e5f6d43c7178c1f6b4ad",
+  "permuted_ranker_input_digest": "ranker-input-e5383196b95ab406c374a4f8",
+  "profiles": {
+    "legacy-fixed-six": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "ama-representative-two-pair-cycle",
+        "known_queue": "current_plus_next2",
+        "mode": "legacy-fixed-six",
+        "rollout_seed_derivation": null,
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 13
+      },
+      "name": "legacy-fixed-six",
+      "profile_id": "legacy-fixed-six@1.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "1.0",
+      "width": 250
+    },
+    "quality-d12": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 200000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 12,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 9
+      },
+      "name": "quality-d12",
+      "profile_id": "quality-d12@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 128
+    },
+    "quality-d16": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 600000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 16,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 6,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 13
+      },
+      "name": "quality-d16",
+      "profile_id": "quality-d16@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 6,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 250
+    },
+    "runtime": {
+      "budget": {
+        "authority": "external_runtime_deadline",
+        "max_expanded_nodes": 4096,
+        "wall_clock_mode": "external_deadline_contract"
+      },
+      "candidate_limit": 8,
+      "depth": 4,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 2,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 1
+      },
+      "name": "runtime",
+      "profile_id": "runtime@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 2,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 24
+    },
+    "smoke": {
+      "budget": {
+        "authority": "expanded_nodes",
+        "max_expanded_nodes": 30000,
+        "wall_clock_mode": "observational"
+      },
+      "candidate_limit": 8,
+      "depth": 6,
+      "fire_semantics": {
+        "context": "safe_build",
+        "premature_target_gap_penalty": 1000.0,
+        "target_chain_source": "objective.target_chain",
+        "terminal_score_version": "puyo.build_main_terminal_score.v1",
+        "winning_score_threshold": null
+      },
+      "future_sampling": {
+        "generator": "src.core.tsumo.PuyoSequence",
+        "known_queue": "current_plus_next2",
+        "mode": "seeded-authoritative",
+        "rollout_seed_derivation": "sha256-decision-seed-sample-index-v1",
+        "sample_count": 3,
+        "schema_version": "puyo.future_tsumo_sampling.v1",
+        "unknown_pairs_per_sample": 3
+      },
+      "name": "smoke",
+      "profile_id": "smoke@3.0",
+      "root_survivor_quota": 1,
+      "scenarios": 3,
+      "schema_version": "puyo.long_horizon_profile.v3",
+      "terminal_fire": {
+        "minimum_chain_count": 1,
+        "rule": "record_and_stop"
+      },
+      "transposition_table": true,
+      "version": "3.0",
+      "width": 48
+    }
+  },
+  "queue_digests": [
+    "future-queue-10e4d4d7a716141b4f378ef7",
+    "future-queue-a54e1c83474ee62b4e4be82a",
+    "future-queue-ab26afdc25a36d70a08325e3",
+    "future-queue-d1ea69129a41693831061146",
+    "future-queue-e2bc3c1a6adf0ae6db351959",
+    "future-queue-b2ef61654b066be5b7332325"
+  ],
+  "ranker_input_digest": "ranker-input-e5383196b95ab406c374a4f8",
+  "rollout_seeds": [
+    6803363256738674812,
+    1124518958570228201,
+    15803354598366600546,
+    14698863440602813067,
+    12925028788099705363,
+    18109020365967017851
+  ],
+  "sample_ids": [
+    "future-sample-bb19b65ec4b71603cf6121fe",
+    "future-sample-8a511d3d6a398ae7a3f4f97e",
+    "future-sample-7bdb0b480fa1853533fc8433",
+    "future-sample-f5ae338cdf28d451c7d80fc2",
+    "future-sample-579dc032e3c16436a2fba5e1",
+    "future-sample-d135af9c8c2d1e83e41cf262"
+  ],
+  "sampling_schema_version": "puyo.future_tsumo_sampling.v1",
+  "schema_version": "puyo.v1_7_future_sampling_benchmark.v1",
+  "worker_proposal_digest": "proposal-contract-56257c63408f7478bc3eec88"
+}

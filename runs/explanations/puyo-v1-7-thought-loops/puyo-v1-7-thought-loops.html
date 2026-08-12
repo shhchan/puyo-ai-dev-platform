@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ぷよ AI v1.7.1 / v1.7.2 思考ループ監査</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #536170;
+      --line: #cbd3da;
+      --soft: #f4f6f7;
+      --paper: #ffffff;
+      --navy: #173b57;
+      --blue: #176b98;
+      --blue-soft: #e7f3f9;
+      --green: #207245;
+      --green-soft: #e8f5ed;
+      --amber: #8a5a00;
+      --amber-soft: #fff4d6;
+      --red: #a0372a;
+      --red-soft: #fbeae7;
+      --violet: #6a4a78;
+      --violet-soft: #f1ebf4;
+      --code: #25313d;
+      --shadow: 0 4px 18px rgba(23, 33, 43, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--soft);
+      font-family:
+        "Noto Sans JP",
+        "Yu Gothic UI",
+        "Hiragino Kaku Gothic ProN",
+        Meiryo,
+        sans-serif;
+      font-size: 16px;
+      line-height: 1.78;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    code,
+    .mono {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      color: var(--code);
+    }
+
+    code {
+      padding: 0.08em 0.3em;
+      background: #edf0f2;
+      border-radius: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    .page-header {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner,
+    .layout,
+    .footer-inner {
+      width: min(1460px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    .header-inner {
+      padding: 28px 0 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--blue);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin-top: 0;
+      color: var(--ink);
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin-bottom: 8px;
+      font-size: 3rem;
+    }
+
+    h2 {
+      margin-bottom: 18px;
+      font-size: 1.75rem;
+    }
+
+    h3 {
+      margin-bottom: 12px;
+      font-size: 1.28rem;
+    }
+
+    h4 {
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    p {
+      margin: 0 0 1em;
+    }
+
+    .lead {
+      max-width: 1040px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .audit-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .status strong {
+      margin-right: 0.35em;
+      color: var(--ink);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr);
+      gap: 30px;
+      padding: 26px 0 56px;
+    }
+
+    .toc {
+      align-self: start;
+      position: sticky;
+      top: 18px;
+      padding: 18px 16px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .toc h2 {
+      margin-bottom: 9px;
+      font-size: 0.88rem;
+    }
+
+    .toc ol {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding-left: 1.2em;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .toc a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .band {
+      margin-bottom: 24px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .band > :last-child {
+      margin-bottom: 0;
+    }
+
+    .section-rule {
+      margin: 28px 0 24px;
+      border: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .conclusion {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: 5px;
+      background: var(--blue-soft);
+    }
+
+    .conclusion.warn {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .conclusion.alert {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .conclusion h3 {
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .conclusion p {
+      color: #34414d;
+      font-size: 0.93rem;
+    }
+
+    .diagram-shell {
+      margin: 0 0 22px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafbfb;
+      overflow-x: auto;
+    }
+
+    .diagram-shell figcaption {
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 14px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 10px;
+      border: 2px solid var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .swatch.green {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .swatch.amber {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .swatch.violet {
+      border-color: var(--violet);
+      background: var(--violet-soft);
+    }
+
+    .flow {
+      display: flex;
+      align-items: stretch;
+      gap: 9px;
+      min-width: 1040px;
+    }
+
+    .flow.compact {
+      min-width: 880px;
+    }
+
+    .flow-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-node {
+      display: flex;
+      flex: 1 1 0;
+      min-width: 140px;
+      min-height: 118px;
+      flex-direction: column;
+      justify-content: center;
+      padding: 12px;
+      border: 2px solid var(--blue);
+      border-radius: 6px;
+      background: var(--blue-soft);
+    }
+
+    .flow-node.green {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .flow-node.amber {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .flow-node.red {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .flow-node.violet {
+      border-color: var(--violet);
+      background: var(--violet-soft);
+    }
+
+    .flow-node.dashed {
+      border-style: dashed;
+    }
+
+    .flow-node strong {
+      display: block;
+      margin-bottom: 5px;
+      line-height: 1.35;
+    }
+
+    .flow-node span {
+      color: #394652;
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .flow-arrow {
+      display: grid;
+      flex: 0 0 25px;
+      place-items: center;
+      color: var(--muted);
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+
+    .loop-note {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+      color: #31513f;
+      font-size: 0.9rem;
+    }
+
+    .split-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      min-width: 980px;
+    }
+
+    .lane {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+    }
+
+    .lane h3 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .lane-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .lane-box {
+      min-height: 105px;
+      padding: 11px;
+      border: 2px solid var(--blue);
+      border-radius: 5px;
+      background: var(--blue-soft);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .lane-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    .lane-box.green {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .lane-box.violet {
+      border-color: var(--violet);
+      background: var(--violet-soft);
+    }
+
+    .lane-box.dashed {
+      border-style: dashed;
+    }
+
+    .callout {
+      margin: 16px 0;
+      padding: 15px 17px;
+      border-left: 5px solid var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .callout.danger {
+      border-left-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .callout.success {
+      border-left-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .callout h3,
+    .callout h4 {
+      margin-bottom: 5px;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    .formula {
+      margin: 14px 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--soft);
+      color: var(--code);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-weight: 700;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .table-wrap {
+      width: 100%;
+      margin: 12px 0 22px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      background: var(--paper);
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #edf1f3;
+      color: #26323d;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .cell-good {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .cell-warn {
+      color: var(--amber);
+      font-weight: 800;
+    }
+
+    .cell-bad {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .numbered {
+      counter-reset: step;
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .numbered li {
+      counter-increment: step;
+      position: relative;
+      min-height: 38px;
+      padding-left: 46px;
+    }
+
+    .numbered li::before {
+      content: counter(step);
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border: 2px solid var(--blue);
+      border-radius: 50%;
+      color: var(--blue);
+      background: var(--paper);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    ul {
+      margin-top: 8px;
+      padding-left: 1.35em;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    details {
+      margin: 12px 0;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--paper);
+    }
+
+    summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    details > div {
+      padding: 0 14px 14px;
+    }
+
+    .source-list {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.9fr) minmax(0, 2fr);
+      gap: 8px 18px;
+      margin: 0;
+    }
+
+    .source-list dt {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.86rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .source-list dd {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .footer-inner {
+      padding: 20px 0 32px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 1040px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .toc {
+        position: static;
+      }
+
+      .toc ol {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .conclusion-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        font-size: 15px;
+      }
+
+      .header-inner,
+      .layout,
+      .footer-inner {
+        width: min(100% - 24px, 1460px);
+      }
+
+      .header-inner {
+        padding-top: 20px;
+      }
+
+      .band {
+        padding: 18px 14px;
+      }
+
+      .toc ol {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .source-list {
+        grid-template-columns: 1fr;
+      }
+
+      h2 {
+        font-size: 1.45rem;
+      }
+
+      .flow,
+      .flow.compact {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+      }
+
+      .flow-node {
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .flow-arrow {
+        min-height: 20px;
+        transform: rotate(90deg);
+      }
+
+      .split-diagram {
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+      }
+
+      .lane-flow {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media print {
+      body {
+        background: var(--paper);
+      }
+
+      .header-inner,
+      .layout,
+      .footer-inner {
+        width: 100%;
+      }
+
+      .layout {
+        display: block;
+        padding: 0;
+      }
+
+      .toc {
+        display: none;
+      }
+
+      .band {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+
+      .diagram-shell,
+      .table-wrap {
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-inner">
+      <p class="eyebrow">PUYO-176 設計監査資料</p>
+      <h1>ぷよ AI の思考ループ：v1.7.1 から v1.7.2 へ</h1>
+      <p class="lead">
+        「探索内で見つけた連鎖」と「AI が実際にプレイして発火した連鎖」を分離し，
+        現在の実装，v1.7.2 で目指す学習型オーケストレーション，および
+        <code>quality-d12</code> の評価上の課題を整理する．
+      </p>
+      <div class="audit-meta">
+        <span class="status"><strong>監査基準</strong> <span class="mono">fcb3e11d9810</span></span>
+        <span class="status"><strong>基準ブランチ</strong> <span class="mono">integration/puyo-113-v1-7-2</span></span>
+        <span class="status"><strong>作成日</strong> 2026-07-27</span>
+        <span class="status"><strong>重要</strong> 回収不能な PUYO-176 実装は監査対象外</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="目次">
+      <h2>目次</h2>
+      <ol>
+        <li><a href="#answer">最初の回答</a></li>
+        <li><a href="#quality-d12">quality-d12 の実態</a></li>
+        <li><a href="#v171">v1.7.1 の思考ループ</a></li>
+        <li><a href="#v172">v1.7.2 の目標ループ</a></li>
+        <li><a href="#comparison">差分の要約</a></li>
+        <li><a href="#redesign">評価方法の修正案</a></li>
+        <li><a href="#presentation">週末発表への進め方</a></li>
+        <li><a href="#glossary">用語集と根拠</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="answer" class="band">
+        <h2>最初の回答</h2>
+        <div class="conclusion-grid">
+          <article class="conclusion">
+            <h3>10 連鎖 gate は実プレイ結果を見ている</h3>
+            <p>
+              現行の capability 評価は，選択した 1 手をシミュレーターへ実行し，
+              各 seed の 40 手の間に実際に発火した最大連鎖を記録する．
+              K-best 内の予測値だけで 10 連鎖達成とは判定しない．
+            </p>
+          </article>
+          <article class="conclusion warn">
+            <h3>深さ 12 で初手から 10 連鎖は見えない</h3>
+            <p>
+              空盤面へ追加できるのは最大 24 個なので，ご指摘の通り，
+              連鎖を構成する通常ぷよ数だけで考えた発火連鎖数の上限は 6 である．
+              10 連鎖は 1 回の探索ではなく，複数ターンの実行ループで育てる必要がある．
+            </p>
+          </article>
+          <article class="conclusion alert">
+            <h3>ただし候補生成の目的がずれている</h3>
+            <p>
+              現行探索は 1 連鎖以上を見つけるとその枝を停止し，
+              探索範囲内の連鎖得点を静かな構築候補より先に順位付けする．
+              そのため K-best が小さな早期発火へ偏る可能性がある．
+            </p>
+          </article>
+        </div>
+
+        <div class="callout danger">
+          <h3>結論</h3>
+          <p>
+            「K-best の予測 10 連鎖を実績として数える」という直接の誤りは，監査した現行コードにはない．
+            しかし，「長期的に 10 連鎖本線を育てる候補を K-best へ残す」という前段の目的関数と枝刈りは
+            再設計が必要である．PUYO-176 の回収不能な作業ブランチについては，この結論と同じ実装だったかを確認できない．
+          </p>
+        </div>
+        <div class="callout warning">
+          <h3>「実発火 10 連鎖」と「10 連鎖本線」の差</h3>
+          <p>
+            現行 gate が authoritative に確認するのは，公式シミュレーター上で実際に発火した連鎖数である．
+            一方，その発火が構築中に <code>main_chain</code> と分類されていたか，
+            発火点を維持しながら複数ターンで育てた本線だったか，という来歴までは gate 値へ含めない．
+            要件を「実プレイで 10 連鎖以上の本線を完成・発火したこと」と厳密に定義する場合は，
+            発火前の本線予測，発火点，構築履歴，実発火結果を同じ trajectory ID で結ぶ必要がある．
+          </p>
+        </div>
+      </section>
+
+      <section id="quality-d12" class="band">
+        <h2><code>quality-d12</code> の実態</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 1．探索証拠から実プレイ gate までの全体経路</figcaption>
+          <div class="legend">
+            <span class="legend-item"><span class="swatch"></span> ビームサーチ内の予測・探索証拠</span>
+            <span class="legend-item"><span class="swatch amber"></span> 枝刈り・候補選抜</span>
+            <span class="legend-item"><span class="swatch green"></span> 実プレイで確定する値</span>
+          </div>
+          <div class="flow">
+            <div class="flow-node">
+              <strong>実局面</strong>
+              <span>盤面，現在ぷよ，NEXT 2，相手・おじゃま情報</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">
+              <strong>6 通りの未来ツモ列</strong>
+              <span>既知 3 組の後を代表色順で補う．各列を深さ 12 まで探索</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node amber">
+              <strong>幅 128 のビーム</strong>
+              <span>同じ深さの全初手候補を構造評価し，上位 128 状態だけ残す</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node red">
+              <strong>1 連鎖以上で停止</strong>
+              <span>発火連鎖数・得点を記録し，その枝の先は探索しない</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node amber">
+              <strong>初手ごとに集約</strong>
+              <span>scenario coverage，連鎖得点，連鎖数，最悪値，ばらつき，構造評価</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">
+              <strong>K-best，最大 8 手</strong>
+              <span>候補データ v2 として後段へ渡す．これは達成実績ではない</span>
+            </div>
+          </div>
+          <div class="flow compact" style="margin-top: 12px;">
+            <div class="flow-node green">
+              <strong>候補から 1 手を選ぶ</strong>
+              <span>評価用 selector または将来の学習型順位付け器</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>公式シミュレーターへ実行</strong>
+              <span>実際の配置，発火連鎖数，得点，盤面更新を確定</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>次ターンへ戻る</strong>
+              <span>更新済み実盤面から再度探索する．最大 40 手</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>実績を集計</strong>
+              <span>seed ごとの実発火最大連鎖，30 seed の平均を 10 と比較</span>
+            </div>
+          </div>
+          <div class="loop-note">
+            下段の「実行 → 更新済み局面 → 再探索」を繰り返すことで，深さ 12 より長い時間軸の本線構築が初めて可能になる．
+          </div>
+        </figure>
+
+        <h3>「連鎖数」と呼ばれている 3 種類の値</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>値</th>
+                <th>生成場所</th>
+                <th>意味</th>
+                <th>10 連鎖 gate に使うか</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>max_chain_count</code></td>
+                <td>長期ビームサーチ</td>
+                <td>1 つの仮想ツモ列を深さ 12 まで進めた範囲で，実際に発火した最大連鎖．探索証拠であり，現実の対局結果ではない．</td>
+                <td class="cell-bad">使わない</td>
+              </tr>
+              <tr>
+                <td><code>predicted_chain_potential</code></td>
+                <td>構造的連鎖可能性評価</td>
+                <td>盤面へ少数の仮想ぷよを補って推定した将来可能性．発火保証でも，実際の連鎖数でもない．</td>
+                <td class="cell-bad">使わない</td>
+              </tr>
+              <tr>
+                <td><code>actual_max_chain</code></td>
+                <td>capability 評価の実行ループ</td>
+                <td>AI が選んだ手を公式シミュレーターへ順に実行し，その seed の 40 手で本当に発火した最大連鎖．</td>
+                <td class="cell-good">使う</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>深さ 12 の理論上限について</h3>
+        <p>
+          盤面上に既に存在する通常ぷよ数を <code>N</code>，探索深さを <code>D</code> とすると，
+          連鎖グループ数について次の緩い上限を置ける．色配置，連結，おじゃま，発火順を無視した上限なので，
+          実際に到達可能な連鎖数は通常これより小さい．
+        </p>
+        <div class="formula">発火連鎖数の緩い上限 ≤ floor((N + 2 × D) / 4)</div>
+        <p>
+          空盤面では <code>N = 0</code>，<code>D = 12</code> なので上限は 6 である．
+          ただしゲーム中盤では盤面に既存ぷよがあるため，深さ 12 の探索内でも 7 連鎖以上を発火できる場合はある．
+          したがって「深さ 12 だから常に最大 6」ではなく，「空盤面からの最初の 12 手では最大 6」が正確である．
+        </p>
+
+        <h3>現行の枝刈り条件</h3>
+        <ol class="numbered">
+          <li>
+            <strong>合法な初手を全列挙する．</strong>
+            初手ごとに独立した候補数を確保するのではなく，同一シナリオ，同一深さの候補全体を後で比較する．
+          </li>
+          <li>
+            <strong>不正配置とゲームオーバーを除外する．</strong>
+            compact transition kernel で配置し，不正な状態は候補に残さない．
+          </li>
+          <li>
+            <strong>1 連鎖以上を発火した枝を記録して停止する．</strong>
+            <code>record_and_stop</code>，最小連鎖数 1 が runtime，<code>quality-d12</code>，
+            <code>quality-d16</code> のすべてで共通である．
+          </li>
+          <li>
+            <strong>発火しなかった局面を構造評価する．</strong>
+            連鎖可能性，連結，発火点，伸ばしやすさ，盤面高さ，凹凸，ちぎり，無駄消しなどの重み付き評価を使う．
+          </li>
+          <li>
+            <strong>同一状態を重複排除する．</strong>
+            初手，盤面・おじゃま等の compact state，シナリオ，ツモ位置，深さが同じ状態は 1 つだけ残す．
+          </li>
+          <li>
+            <strong>評価上位 128 状態だけ残す．</strong>
+            128 は各初手の割当ではなく，全初手が共有する幅である．ある初手の子孫がすべて消えることがある．
+          </li>
+          <li>
+            <strong>最大 200,000 展開で探索全体を止める．</strong>
+            6 シナリオを順番に処理し，同じ全体予算を共有するため，予算枯渇時は後のシナリオが未評価になり得る．
+          </li>
+          <li>
+            <strong>初手ごとの証拠を辞書式に順位付けする．</strong>
+            シナリオ網羅率，連鎖得点合計，連鎖数合計，発火シナリオ数，最悪値，ばらつき，
+            静かな枝の構造評価，初手番号の順で比較し，上位 8 初手を K-best とする．
+          </li>
+        </ol>
+
+        <div class="callout danger">
+          <h3>重要な実装上の不整合</h3>
+          <p>
+            構造評価器には「目標未達の早期発火」を罰する項目があるが，1 連鎖以上の枝は
+            構造評価器を呼ぶ前に停止し，評価値を <code>None</code> にしている．
+            そのため，terminal fire になった小連鎖へこの罰則は適用されない．
+            さらに初手集約では探索内の連鎖得点が構造評価より先に比較されるため，
+            小連鎖を出す初手が静かに本線を伸ばす初手を K-best から押し出し得る．
+          </p>
+        </div>
+
+        <h3>評価用 selector が行っている緩和</h3>
+        <p>
+          capability 評価専用の選択器は，10 連鎖へ未到達の間，K-best 内に
+          「初手で発火しない候補」があれば静かな候補へ限定する．これは早期発火を抑える正しい方向の処理である．
+          ただし静かな候補がビーム探索または K-best 選抜ですべて消えた後では救えない．
+          つまり現状の失敗は，後段 selector の問題だけではなく，候補生成段階の coverage 問題でもある．
+        </p>
+      </section>
+
+      <section id="v171" class="band">
+        <h2>v1.7.1 の思考ループ</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 2．1 ターンごとの v1.7.1 推論ループ</figcaption>
+          <div class="legend">
+            <span class="legend-item"><span class="swatch"></span> 決定論的な解析・探索</span>
+            <span class="legend-item"><span class="swatch violet"></span> 学習済みニューラルネットワーク</span>
+            <span class="legend-item"><span class="swatch green"></span> 公式状態更新</span>
+          </div>
+          <div class="flow">
+            <div class="flow-node green">
+              <strong>1．実局面を受け取る</strong>
+              <span>自分・相手の盤面，現在ぷよ，NEXT，おじゃま，得点，ターン，締切</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">
+              <strong>2．局面解析器</strong>
+              <span>危険度，短期攻撃，本線予測，連鎖可能性，相殺可能量を計算</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">
+              <strong>3．特徴量と候補 mask</strong>
+              <span>8 戦術の適用可否，前ターン計画，局面値を固定順ベクトル化</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node violet">
+              <strong>4．軽量戦術評価</strong>
+              <span>戦術候補点，価値，危険，戦術パラメーターをニューラルネットが出力</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">
+              <strong>5．上位 3 戦術を試し読み</strong>
+              <span>各専用探索器が 1 手と短期計画を返す</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node violet">
+              <strong>6．最終調停</strong>
+              <span>試し読み結果を加え，実行する戦術を 1 つ選ぶ</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>7．最初の 1 手だけ実行</strong>
+              <span>シミュレーターが連鎖・攻撃・次局面を確定</span>
+            </div>
+          </div>
+          <div class="loop-note">
+            短期計画をそのまま複数手実行するのではない．次ターンは更新済みの実局面を再解析し，戦術も配置も選び直す．
+          </div>
+        </figure>
+
+        <h3>段階ごとの入力と出力</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>段階</th>
+                <th>入力</th>
+                <th>処理・技術</th>
+                <th>出力</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>実行環境</td>
+                <td>
+                  自分・相手それぞれの 6 × 13 盤面，現在の 2 ぷよ，少なくとも NEXT 2，
+                  おじゃま到着量・期限，得点，端数得点，送信・相殺・受信累計，全消し状態，
+                  ターン，tick，方策締切
+                </td>
+                <td>対戦ランタイムの authoritative state</td>
+                <td><code>AnalyzerInput</code>，局面解析器入力</td>
+              </tr>
+              <tr>
+                <td>局面解析器</td>
+                <td><code>AnalyzerInput</code></td>
+                <td>
+                  最大 3 手，幅 24 の短期探索と限定的な構造評価．
+                  ここでは戦術や最終配置を選ばない
+                </td>
+                <td>
+                  自分・相手の危険度，脆弱性，攻撃候補，即時・短期攻撃，本線予測，
+                  連鎖可能性，おじゃま期限別の相殺・返し可能量
+                </td>
+              </tr>
+              <tr>
+                <td>特徴量符号化</td>
+                <td>
+                  解析結果，戦術台帳，前ターンの選択戦術，前ターンの短期計画
+                </td>
+                <td>固定順の浮動小数点ベクトル，戦術適用可否 mask</td>
+                <td>局面特徴，各戦術特徴，適用可否 mask</td>
+              </tr>
+              <tr>
+                <td>応答安全弁</td>
+                <td>おじゃま量，相殺・返し可能性，戦術適用可否</td>
+                <td>学習ではなく明示ルール</td>
+                <td>
+                  おじゃまがある場合，相殺可能なら「相殺・返し」，不可能なら「生存優先」へ候補を制約
+                </td>
+              </tr>
+              <tr>
+                <td>軽量戦術評価</td>
+                <td>局面特徴，各戦術特徴，mask</td>
+                <td>PyTorch の学習済みニューラルネットワーク</td>
+                <td>
+                  戦術候補点，戦術ごとの価値・危険，目標連鎖数・探索深さなどのパラメーター分布
+                </td>
+              </tr>
+              <tr>
+                <td>探索器の試し読み</td>
+                <td>上位 3 戦術，解析結果，戦術パラメーター，実局面</td>
+                <td>戦術別の限定ビームサーチ・ルール評価</td>
+                <td>
+                  各戦術につき，提案配置 1 手，予測連鎖・得点・攻撃・危険度，
+                  探索時間・展開数，短期計画，目的達成見込み
+                </td>
+              </tr>
+              <tr>
+                <td>最終調停</td>
+                <td>軽量戦術評価と試し読み特徴</td>
+                <td>学習済みニューラルネットワーク，通常は決定論的最大値選択</td>
+                <td>選択戦術，その探索器が提案した合法配置 1 手，診断情報</td>
+              </tr>
+              <tr>
+                <td>公式状態更新</td>
+                <td>選択した配置 1 手</td>
+                <td>ヘッドレスぷよシミュレーター</td>
+                <td>発火連鎖数，得点差，攻撃・相殺，ゲームオーバー，新しい実局面</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>8 種類の戦術方針</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>実装上の識別子</th>
+                <th>日本語での定義</th>
+                <th>主な専用探索器</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>build_main</code></td><td>本線構築．長い連鎖の土台，発火点，伸ばしやすさを維持しながら積む．</td><td>大連鎖構築探索</td></tr>
+              <tr><td><code>prepare_response</code></td><td>対応準備．相手の短期攻撃に対し，今すぐ発火せず，期限内に必要火力を出せる形を準備する．</td><td>対応準備探索</td></tr>
+              <tr><td><code>counter_or_return</code></td><td>相殺・返し．確定したおじゃまを期限内に消し，可能なら余剰攻撃を返す．</td><td>相殺探索</td></tr>
+              <tr><td><code>pressure</code></td><td>催促．相手の本線を撃たせる，または相手の形を崩すための短期攻撃を行う．</td><td>攻撃機会探索</td></tr>
+              <tr><td><code>lethal_attack</code></td><td>必殺攻撃．相手の受け容量を超える攻撃を期限内に発火する．</td><td>攻撃機会探索</td></tr>
+              <tr><td><code>all_clear</code></td><td>全消し運用．全消し達成・ボーナス待機・消費の状態を区別し，2100 点ボーナスを攻撃へ変換する．</td><td>最大発火探索</td></tr>
+              <tr><td><code>fire_main</code></td><td>本線発火．構築済みの本線を，攻撃・相殺・勝利のために起動する．</td><td>最大発火探索</td></tr>
+              <tr><td><code>survive</code></td><td>生存優先．窒息・ゲームオーバーを避け，盤面の危険を下げる．</td><td>生存探索</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout warning">
+          <h3>v1.7.1 の「学習済み」は何を意味するか</h3>
+          <p>
+            v1.7.1 Strategy Manager の再現可能な bootstrap trainer は，
+            教師が選んだ戦術・パラメーターを模倣する behavior cloning，すなわち教師あり模倣学習である．
+            戦術候補点と最終調停には交差エントロピー，価値には二値交差エントロピー，
+            危険度と連続パラメーターには Smooth L1 を使う．
+          </p>
+          <p>
+            したがって，この v1.7.1 checkpoint 自体を「対戦報酬から PPO で学習済み」と説明してはいけない．
+            リポジトリには別系統の PPO manager も存在するが，ここで図示した structured manager の bootstrap とは別物である．
+          </p>
+        </div>
+      </section>
+
+      <section id="v172" class="band">
+        <h2>v1.7.2 が目指す思考ループ</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 3．v1.7.2 の推論ループと学習ループ</figcaption>
+          <div class="legend">
+            <span class="legend-item"><span class="swatch"></span> 実装済みの解析・候補生成・データ契約</span>
+            <span class="legend-item"><span class="swatch violet"></span> PUYO-130 で学習する部分</span>
+            <span class="legend-item"><span class="swatch green"></span> 実プレイ結果</span>
+            <span class="legend-item"><span class="swatch amber"></span> offline 品質評価</span>
+          </div>
+          <div class="split-diagram">
+            <div class="lane">
+              <h3>実行時：1 ターンに 1 手を決める</h3>
+              <div class="lane-flow">
+                <div class="lane-box">
+                  <strong>1．局面解析</strong>
+                  自分・相手・おじゃま・前計画から，戦術候補と状態分類を作る
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>2．戦術と条件を選ぶ</strong>
+                  学習方策が戦術，目標連鎖数，危険許容度，探索条件を分布から選ぶ
+                </div>
+                <div class="lane-box">
+                  <strong>3．専用探索器</strong>
+                  ビームサーチ等で合法な配置候補を最大 K = 8 生成する
+                </div>
+                <div class="lane-box">
+                  <strong>4．候補データ v2</strong>
+                  mask，安定 ID，構造評価，6 シナリオ証拠，欠損状態を固定形式にする
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>5．候補順位付け器</strong>
+                  有効候補だけへ確率を割り当て，critic と共に最終配置を選ぶ
+                </div>
+                <div class="lane-box green">
+                  <strong>6．公式実行</strong>
+                  選択した 1 手を実行し，連鎖・攻撃・次局面を確定する
+                </div>
+              </div>
+            </div>
+            <div class="lane">
+              <h3>学習時：実行履歴から方策を更新する</h3>
+              <div class="lane-flow">
+                <div class="lane-box green">
+                  <strong>7．遷移を記録</strong>
+                  実局面，戦術，条件，K 候補，選択，実結果，相手種別を保存する
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>8．報酬を分解</strong>
+                  勝敗，本線成長，発火点維持，相殺，返し，生存，催促，遅延を状態別に評価
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>9．rollout 台帳</strong>
+                  報酬要素，相手，戦術，安全／脅威状態，確率，価値を再現可能に保存
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>10．PPO 更新</strong>
+                  結合 log 確率，clip 付き方策損失，価値損失，entropy で更新する
+                </div>
+                <div class="lane-box violet dashed">
+                  <strong>11．混合相手で反復</strong>
+                  固定基準，相手スタイル，過去 checkpoint 等を混ぜ，過適合を抑える
+                </div>
+                <div class="lane-box green">
+                  <strong>12．別枠で実績評価</strong>
+                  実プレイの勝敗・最大連鎖・安全性・遅延を promotion gate で判定する
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="loop-note">
+            強化学習が選ぶのは「戦術・条件」と「探索器が作った K 候補のどれを実行するか」である．
+            合法手の列挙や未来局面の展開はビームサーチが担当し，強化学習は探索外の手を新しく作らない．
+          </div>
+        </figure>
+
+        <h3>現在実装済みの部分と，まだ予定の部分</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>機能</th>
+                <th>現状</th>
+                <th>入力</th>
+                <th>出力</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>局面解析器，戦術台帳，Planner</td>
+                <td class="cell-good">実装済み</td>
+                <td>実局面，戦術定義，前計画</td>
+                <td>解析診断，戦術適用 mask，探索要求</td>
+              </tr>
+              <tr>
+                <td>長期 compact ビームサーチ</td>
+                <td class="cell-good">実装済み</td>
+                <td>局面，既知ツモ，代表未来ツモ列，深さ・幅・展開数予算</td>
+                <td>初手ごとの探索内連鎖証拠，静かな枝の構造評価，探索統計</td>
+              </tr>
+              <tr>
+                <td>Worker Proposal v2</td>
+                <td class="cell-good">実装済み</td>
+                <td>最大 8 候補と探索証拠</td>
+                <td>固定 K，候補 mask，合法手 mask，安定候補 ID，候補別・シナリオ別特徴，共通文脈</td>
+              </tr>
+              <tr>
+                <td>互換選択</td>
+                <td class="cell-good">実装済み</td>
+                <td>K-best</td>
+                <td>現在は原則 rank 0 の候補を実行可能</td>
+              </tr>
+              <tr>
+                <td>学習型候補順位付け器</td>
+                <td class="cell-warn">PUYO-130 予定</td>
+                <td>候補別特徴・欠損 mask，シナリオ証拠，共通局面文脈</td>
+                <td>mask 済み候補分布，選択候補，log 確率，entropy</td>
+              </tr>
+              <tr>
+                <td>critic，報酬，PPO trainer</td>
+                <td class="cell-warn">PUYO-130 予定</td>
+                <td>実プレイ遷移，選択確率，状態別報酬，相手種別</td>
+                <td>価値予測，advantage，更新済み checkpoint，rollout 台帳</td>
+              </tr>
+              <tr>
+                <td>quality-first 開始資格判定</td>
+                <td class="cell-bad">PUYO-176 未完了</td>
+                <td>canonical matrix，30 seed × 40 手，2 repeat，安全性・遅延</td>
+                <td><code>GO</code>，<code>GO_WITH_LATENCY_WAIVER</code>，または <code>BLOCKED</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>候補データ v2 が省略せず保持するもの</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>区分</th>
+                <th>内容</th>
+                <th>なぜ必要か</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>候補の同一性</td>
+                <td>初手配置，安定候補 ID，順位，行動列，合法手 mask，padding mask</td>
+                <td>学習時と再生時に同じ候補を指し，存在しない slot を損失計算から除外するため．</td>
+              </tr>
+              <tr>
+                <td>探索内の連鎖証拠</td>
+                <td>各シナリオの最大連鎖数・得点・到達深さ・terminal fire 理由</td>
+                <td>一部の未来ツモだけで強い候補と，複数シナリオで安定した候補を区別するため．</td>
+              </tr>
+              <tr>
+                <td>頑健性集約</td>
+                <td>平均，合計，support，最悪値，ばらつき，評価シナリオ数</td>
+                <td>未知ツモへの期待値と下振れを別々に学習できるようにするため．</td>
+              </tr>
+              <tr>
+                <td>構造評価</td>
+                <td>予測連鎖可能性，必要キー数，発火点高さ，連結，伸ばしやすさ，危険度，ちぎり，無駄消し</td>
+                <td>今は発火しないが，将来大連鎖へ育つ候補を識別するため．</td>
+              </tr>
+              <tr>
+                <td>欠損と打ち切り</td>
+                <td>評価済み flag，未評価，予算枯渇，打ち切り理由，値の存在 mask</td>
+                <td>「評価値 0」と「評価していない」を混同しないため．</td>
+              </tr>
+              <tr>
+                <td>決定共通文脈</td>
+                <td>探索 profile，深さ，幅，ツモ列 digest，展開・枝刈り数，経過時間，締切状態</td>
+                <td>候補固有値と探索全体コストを分離し，再現性と遅延診断を保つため．</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>強化学習とビームサーチの担当境界</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>技術</th>
+                <th>担当</th>
+                <th>担当しないこと</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ビームサーチ</strong></td>
+                <td>合法配置を展開し，深さごとに上位の中間局面だけを残し，最大 K 個の初手候補と予測証拠を作る．</td>
+                <td>対戦結果からニューラルネットの重みを学習すること．</td>
+              </tr>
+              <tr>
+                <td><strong>構造的連鎖可能性評価</strong></td>
+                <td>静かな盤面の連結，発火点，必要ぷよ，伸ばしやすさ，危険などを限定計算する．</td>
+                <td>実プレイで 10 連鎖が発火したと保証すること．</td>
+              </tr>
+              <tr>
+                <td><strong>候補順位付け器</strong></td>
+                <td>K-best 内で，現在の局面・戦術・探索証拠に対してどの配置が将来報酬を高めるかを学ぶ．</td>
+                <td>K-best に存在しない配置を選ぶこと．</td>
+              </tr>
+              <tr>
+                <td><strong>critic</strong></td>
+                <td>現在状態と選択の将来期待価値を推定し，方策更新の分散を抑える．</td>
+                <td>ゲーム規則や連鎖解決を置き換えること．</td>
+              </tr>
+              <tr>
+                <td><strong>PPO</strong></td>
+                <td>実プレイ rollout の報酬から，戦術・条件・候補選択の確率を安定的に更新する．</td>
+                <td>探索内予測を実プレイ実績へ読み替えること．</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout warning">
+          <h3><code>runtime</code> と <code>quality-d12</code> は用途が違う</h3>
+          <p>
+            実際の 1 手決定向け <code>runtime</code> は深さ 3，幅 24，未来シナリオ 1，
+            最大 2,048 展開で外部締切に従う．<code>quality-d12</code> は深さ 12，幅 128，
+            シナリオ 6，最大 200,000 展開の offline 品質検証であり，リアルタイム対局の各手に常用する設計ではない．
+          </p>
+        </div>
+
+        <h3>PUYO-130 が予定する報酬の状態別ルール</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>状態</th>
+                <th>正の学習信号</th>
+                <th>罰するもの</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>安全状態</td>
+                <td>本線可能性の増加，発火点維持，継続可能性，勝利へつながる盤面改善</td>
+                <td>目標未達の不要発火，不要な防御，発火点破壊，危険増加</td>
+              </tr>
+              <tr>
+                <td>脅威状態</td>
+                <td>期限内相殺，余剰返し，生存，適切な緊急発火</td>
+                <td>期限超過，自滅，必要な応答を無視した本線継続</td>
+              </tr>
+              <tr>
+                <td>対局全体</td>
+                <td>勝利，実際に成立した攻撃，全消し bonus の適切な消費</td>
+                <td>敗北，遅延超過，bonus 狙いの自滅</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          無条件の「1 連鎖ごとに加点」は禁止されている．小連鎖を繰り返すだけの局所解を避け，
+          状態に応じて本線構築と防御を切り替えるためである．
+        </p>
+      </section>
+
+      <section id="comparison" class="band">
+        <h2>v1.7.1 と v1.7.2 の差分</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 4．変更点の要約</figcaption>
+          <div class="flow compact">
+            <div class="flow-node violet">
+              <strong>v1.7.1</strong>
+              <span>教師あり模倣で戦術を選ぶ → 上位 3 戦術を探索 → 各探索器の先頭候補を比較 → 1 手実行</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node amber">
+              <strong>v1.7.2 の追加基盤</strong>
+              <span>長期探索，6 未来シナリオ，最大 8 候補，候補別構造証拠，mask と欠損契約</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node violet dashed">
+              <strong>v1.7.2 の学習目標</strong>
+              <span>対戦報酬から戦術・条件・K 候補内の選択を PPO で改善し，critic で価値を推定</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>共通の最終原則</strong>
+              <span>毎ターン 1 手だけ実行し，次の実局面から再判断する．成功判定は実プレイ結果で行う</span>
+            </div>
+          </div>
+        </figure>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>観点</th>
+                <th>v1.7.1</th>
+                <th>v1.7.2 の目標</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>戦術選択</td><td>教師あり模倣で学習済み</td><td>structured checkpoint を継承し，対戦報酬で追加学習</td></tr>
+              <tr><td>配置候補</td><td>戦術ごとの探索結果を 1 提案として試し読み</td><td>各 worker が固定 K の候補集合と証拠を返す</td></tr>
+              <tr><td>候補内選択</td><td>探索器の既定順位が中心</td><td>mask 済み学習型順位付け器が選ぶ</td></tr>
+              <tr><td>未来の不確実性</td><td>主に既知 NEXT と短期探索</td><td>最大 6 代表シナリオの頑健性を入力化</td></tr>
+              <tr><td>学習法</td><td>behavior cloning</td><td>混合対戦相手に対する actor-critic / PPO</td></tr>
+              <tr><td>主要な学習対象</td><td>戦術，危険・価値，戦術パラメーター</td><td>戦術，パラメーター，候補選択，価値</td></tr>
+              <tr><td>成功判定</td><td>実プレイ評価</td><td>実プレイ評価を維持し，探索証拠は診断に限定</td></tr>
+              <tr><td>現状</td><td class="cell-good">実行可能な基盤あり</td><td class="cell-warn">候補契約まで実装，学習本体は未開始</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="redesign" class="band">
+        <h2>評価方法と探索目的の修正案</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 5．分離すべき 4 つの評価チャンネル</figcaption>
+          <div class="flow compact">
+            <div class="flow-node">
+              <strong>A．探索範囲内の発火</strong>
+              <span>仮想ツモ列の深さ D 以内で何連鎖を出せたか．候補証拠に限定</span>
+            </div>
+            <div class="flow-arrow">＋</div>
+            <div class="flow-node amber">
+              <strong>B．静かな本線成長</strong>
+              <span>発火点，必要ぷよ，連結，伸ばしやすさ，危険の差分</span>
+            </div>
+            <div class="flow-arrow">＋</div>
+            <div class="flow-node violet">
+              <strong>C．戦術的必要性</strong>
+              <span>おじゃま期限，相手火力，勝利可能性により，今発火すべきかを判定</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>D．実プレイ実績</strong>
+              <span>複数ターンの実行で本当に何連鎖を発火したか．gate の唯一の達成値</span>
+            </div>
+          </div>
+        </figure>
+
+        <ol class="numbered">
+          <li>
+            <strong>10 連鎖 gate は現状通り実プレイ軌跡だけで判定する．</strong>
+            30 seed × 40 手を最後まで実行し，seed ごとの実発火最大連鎖を平均する．
+            探索内連鎖と構造予測は診断列へ分離し，gate の代替にしない．
+          </li>
+          <li>
+            <strong>本線としての来歴を別の必須診断にする．</strong>
+            発火直前の <code>main_chain</code> 予測，発火点セル，過去ターンからの発火点維持，
+            選択戦術，実発火連鎖を同じ trajectory ID へ保存する．
+            「実発火 10 連鎖」と「10 連鎖本線を構築・発火」を区別して報告する．
+          </li>
+          <li>
+            <strong>本線構築中の小連鎖を「成功証拠」から外す．</strong>
+            <code>build_main</code> では，目標未達の発火を terminal failure として記録し，
+            小連鎖得点を root ranking の主目的に加えない．脅威時または目標達成時だけ発火価値を上位に置く．
+          </li>
+          <li>
+            <strong>terminal fire にも早期発火 penalty を適用する．</strong>
+            発火枝を停止すること自体はよいが，停止前の結果を評価器へ渡し，
+            目標連鎖数，発火点破壊，盤面危険，戦術的必要性を反映した terminal score を持たせる．
+          </li>
+          <li>
+            <strong>各合法初手の探索 coverage を保証する．</strong>
+            まず各初手に少数の専用枠を与え，残りを全初手共有ビームにする．
+            これにより，ある初手の静かな有望枝が早い深さですべて消えることを防ぐ．
+          </li>
+          <li>
+            <strong>6 シナリオへ公平に予算を配る．</strong>
+            シナリオ別予算または round-robin 展開を使い，前のシナリオだけで 200,000 展開を使い切らないようにする．
+            未評価と評価値 0 は Proposal v2 の mask で区別する．
+          </li>
+          <li>
+            <strong>「10 まであと何個か」を中間診断する．</strong>
+            実現可能な緩い上限，構造評価の予測連鎖数，必要キー数，発火点代替数，
+            trigger recoverability，quiet candidate coverage をターンごとに記録する．
+            これは進捗診断であり，10 連鎖達成判定ではない．
+          </li>
+          <li>
+            <strong>小さい評価から段階的に回す．</strong>
+            まず 1 局面の全初手候補を可視化し，次に 3〜5 seed × 40 手で挙動を確認する．
+            目的関数が妥当になってから canonical 30 seed × 40 手と 2 repeat を実行する．
+          </li>
+        </ol>
+
+        <div class="callout success">
+          <h3>推奨する root ranking の原則</h3>
+          <p>
+            本線構築中は，安全性と評価 coverage を満たした上で，
+            「不要発火なし → 発火点維持 → 構造的進捗 → 6 シナリオの最悪値・平均 → 探索コスト」
+            の順に比較する．目標 10 連鎖へ到達した発火，脅威への必要発火，勝利確定発火だけを別の上位クラスとして扱う．
+          </p>
+        </div>
+
+        <div class="callout warning">
+          <h3>やってはいけない修正</h3>
+          <p>
+            深さ 12 の探索内で 10 連鎖が見えるまで単純に深さと幅だけを増やすことは，
+            未知ツモ仮定と計算量を増やす一方，複数ターンの構築方策を直接改善しない．
+            また，小連鎖後も同じ枝を継続して合計連鎖数を数えると，別々の発火を 1 本の本線として誤集計する危険がある．
+            早期発火は枝を終了し，失敗または戦術的発火として意味付けする方が明確である．
+          </p>
+        </div>
+      </section>
+
+      <section id="presentation" class="band">
+        <h2>今週末の発表へ向けた現実的な進め方</h2>
+
+        <figure class="diagram-shell">
+          <figcaption>図 6．発表価値を先に作り，canonical 長時間評価を後段へ置く</figcaption>
+          <div class="flow compact">
+            <div class="flow-node">
+              <strong>1．既存 loop を見せる</strong>
+              <span>局面解析 → 8 戦術 → 上位 3 preview → 1 手実行を診断付き replay で表示</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node amber">
+              <strong>2．候補偏りを直す</strong>
+              <span>小連鎖 terminal 評価，quiet coverage，初手 quota を最小修正</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              <strong>3．短い実プレイ確認</strong>
+              <span>3〜5 seed × 40 手で，本線可能性と実発火最大連鎖の時系列を見る</span>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node violet">
+              <strong>4．RL 設計を説明</strong>
+              <span>K-best 生成は探索，最終選択は将来 PPO，実績 gate は別枠という境界を示す</span>
+            </div>
+          </div>
+        </figure>
+
+        <p>
+          発表の主題を「10 連鎖達成済み」に置くのは現時点では危険である．
+          代わりに，「局面を解析し，戦術を選び，専用探索器の候補を比較し，実行結果から次ターンに再判断する」
+          という強化学習オーケストレーションの loop を動く replay で見せる方が，実装済み範囲と一致する．
+        </p>
+        <p>
+          その上で，候補生成器が小連鎖を優先する問題を可視化し，
+          v1.7.2 では Proposal v2 の構造証拠を候補順位付け器と critic へ渡して改善する，という流れを示せる．
+          これは「探索と強化学習をどう役割分担するか」という発表テーマとして成立する．
+        </p>
+        <div class="callout danger">
+          <h3>長時間計算を再開する条件</h3>
+          <p>
+            7.5 時間級の canonical matrix を再実行する前に，固定局面で
+            早期小連鎖が静かな本線候補より上位になる事例が消えたこと，
+            全合法初手と 6 シナリオの coverage が診断できること，
+            3〜5 seed の実プレイ最大連鎖が悪化していないことを確認する．
+            ここを満たさずに探索量だけ増やすと，同じ目的関数のずれを高い計算コストで再確認する可能性が高い．
+          </p>
+        </div>
+      </section>
+
+      <section id="glossary" class="band">
+        <h2>用語集と実装根拠</h2>
+
+        <h3>固有名詞の定義</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>用語</th>
+                <th>この資料での意味</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Analyzer</code></td><td>局面解析器．実局面を，危険度，攻撃候補，本線予測，おじゃま応答能力などの診断値へ変換する．配置は選ばない．</td></tr>
+              <tr><td><code>tactic</code></td><td>戦術方針．本線構築，相殺・返し，催促，本線発火など，このターンに追う目的の種類．</td></tr>
+              <tr><td><code>Planner</code></td><td>戦術方針とパラメーターを，目標，制約，探索深さ・幅・時間予算を含む探索要求へ変換する変換器．</td></tr>
+              <tr><td><code>worker</code></td><td>専用探索器．戦術ごとの目標に沿って合法配置を探索し，候補，予測値，短期計画を返す．</td></tr>
+              <tr><td>ビームサーチ</td><td>深さごとに全候補を残さず，評価上位の一定幅だけを次の展開へ残す幅制限探索．</td></tr>
+              <tr><td><code>K-best</code></td><td>worker が後段へ渡す最大 K 個の候補集合．本資料の長期探索では K = 8．K 個すべてが良いことや，目標達成を保証しない．</td></tr>
+              <tr><td><code>Worker Proposal v2</code></td><td>K-best の候補，mask，安定 ID，構造証拠，シナリオ証拠，共通探索文脈を保持する版管理済みデータ契約．</td></tr>
+              <tr><td><code>Candidate Ranker</code></td><td>候補順位付け器．K-best の有効候補へ点数・確率を付け，最終配置を選ぶ学習対象．</td></tr>
+              <tr><td><code>critic</code></td><td>価値評価器．現在状態と選択から，将来得られる累積報酬の期待値を推定するニューラルネットワーク．</td></tr>
+              <tr><td><code>PPO</code></td><td>Proximal Policy Optimization．古い方策から急激に変わらないよう更新幅を制限する，actor-critic 系の方策勾配法．</td></tr>
+              <tr><td><code>BuildPotential</code></td><td>構造的連鎖可能性．限定数の仮想ぷよ追加で，必要キー数，発火候補，予測連鎖数などを推定する．実連鎖数ではない．</td></tr>
+              <tr><td>軌跡，<code>trajectory</code></td><td>実局面，選択した手，公式シミュレーターの結果をターン順に連ねたもの．capability gate はこの実行軌跡を見る．</td></tr>
+              <tr><td>混合対戦相手</td><td>固定基準，異なる戦い方，過去 checkpoint など複数種類の相手を混ぜた学習環境．単一相手への過適合を抑える．</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <details open>
+          <summary>監査した主要ソース</summary>
+          <div>
+            <dl class="source-list">
+              <dt>agents/v1_7_strategy_manager.py:1391</dt>
+              <dd>局面解析，特徴量化，戦術上位 3 preview，最終調停，1 手返却の推論 loop．</dd>
+              <dt>agents/state_analyzer.py:41</dt>
+              <dd>局面解析器の入力・出力データ型と，短期攻撃・本線・おじゃま応答の診断．</dd>
+              <dt>train/train_v1_7_manager.py:1</dt>
+              <dd>v1.7.1 Strategy Manager が behavior cloning pipeline である根拠．</dd>
+              <dt>train/config/v1_7_tactic_registry.yaml:1</dt>
+              <dd>8 戦術の目的・制約・探索予算と，runtime / quality profile 定義．</dd>
+              <dt>agents/long_horizon_search.py:186</dt>
+              <dd><code>quality-d12</code> の深さ 12，幅 128，6 シナリオ，200,000 展開の定義．</dd>
+              <dt>agents/long_horizon_search.py:466</dt>
+              <dd>初手証拠の辞書式順位付け．探索内連鎖得点・連鎖数が構造継続評価より先．</dd>
+              <dt>agents/long_horizon_search.py:881</dt>
+              <dd>同じ深さの候補全体から幅上位だけを残す枝刈り．</dd>
+              <dt>agents/long_horizon_search.py:909</dt>
+              <dd>1 連鎖以上の terminal fire，重複排除，全体展開予算，シナリオ順次処理．</dd>
+              <dt>agents/worker_proposals.py:515</dt>
+              <dd>候補別 expected-chain・構造・欠損証拠のデータ契約．</dd>
+              <dt>agents/worker_proposals.py:1260</dt>
+              <dd>固定 K，mask，安定 ID，選択候補，共通探索文脈を持つ Proposal v2 batch．</dd>
+              <dt>eval/v1_7_safe_build_gates.py:548</dt>
+              <dd>選択した手を公式シミュレーターへ実行し，実発火最大連鎖を記録する capability seed loop．</dd>
+              <dt>eval/v1_7_safe_build_gates.py:694</dt>
+              <dd>seed ごとの <code>actual_max_chain</code> から実プレイ平均最大連鎖を集計．</dd>
+              <dt>PUYO-130</dt>
+              <dd>structured checkpoint，候補順位付け器，critic，状態別報酬，PPO，混合対戦相手，rollout 台帳の予定仕様．</dd>
+              <dt>PUYO-175</dt>
+              <dd>Proposal v2 のシナリオ証拠，構造証拠，missingness，mask，共通文脈の仕様．</dd>
+              <dt>PUYO-176</dt>
+              <dd>quality-first canonical matrix と PUYO-130 開始資格判定．回収不能な作業ブランチは本資料の監査対象外．</dd>
+            </dl>
+          </div>
+        </details>
+
+        <details>
+          <summary>監査上の留保</summary>
+          <div>
+            <ul>
+              <li>本資料は基準 commit <code>fcb3e11d981028bdaf89ee599f933316dde97024</code> と Jira 記載を根拠にしている．</li>
+              <li>以前 PUYO-176 で作成され，現在オンラインで回収できない実装・artifact の内容は推測していない．</li>
+              <li><code>quality-d12</code> の実行結果そのものではなく，探索・gate のコード semantics を監査した資料である．</li>
+              <li>再取得後の PUYO-176 ブランチに同名 profile や gate の変更がある場合は，差分監査が必要である．</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      PUYO-176 思考ループ監査資料．実プレイ実績，探索証拠，構造予測を混同しないことを最優先の設計原則とする．
+    </div>
+  </footer>
+</body>
+</html>

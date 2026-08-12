@@ -209,6 +209,11 @@ def _policy_diagnostics_snapshot(policy: Any) -> dict[str, Any]:
             {} if proposal is None else getattr(proposal, "objective_result_dict", {})
         ),
         "search_diagnostics": serialized_search,
+        "worker_proposal": (
+            {}
+            if proposal is None
+            else copy.deepcopy(getattr(proposal, "worker_proposal_dict", {}))
+        ),
         "plan": {} if plan is None else plan.to_dict(),
         "plan_id": "" if plan is None else plan.plan_id,
         "plan_update_reason": "" if plan is None else plan.update_reason,

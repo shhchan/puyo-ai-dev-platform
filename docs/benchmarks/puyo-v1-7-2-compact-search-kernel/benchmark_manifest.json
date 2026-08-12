@@ -1,0 +1,87 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "79d893ddf6ff789a8464be478f72073e63785bd93a19b26d80cc753796cdcf9e",
+      "size_bytes": 1023
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "a1487a232b999195051f9445af7efa08f9cda8889779ad12ddea54255b83b7a1",
+      "size_bytes": 4433
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "6a39b0bb17056bd484bd0f98dcbf5689dcc81ef296512747e13daa7d3d733929",
+      "size_bytes": 1286
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "fixture_results.json",
+      "required": true,
+      "role": "fixture_results",
+      "sha256": "aad346a5427053d8d4c1fbcf58da4c839da327ba4f8ef0bb1026801bc512ddfc",
+      "size_bytes": 3419
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "profile.json",
+      "required": true,
+      "role": "profile",
+      "sha256": "15df97c1999c79b6288db8a16e654c9aae416f8bdc91baddf050a9d85f903e71",
+      "size_bytes": 1583
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "seeded_trajectory_results.json",
+      "required": true,
+      "role": "seeded_trajectory_results",
+      "sha256": "261b4609f7bc2b22ded2b5a55b67777e0e42f7c9f4db78037628d170ec4a042c",
+      "size_bytes": 165119
+    }
+  ],
+  "command": "python -m eval.v1_7_compact_search_kernel_benchmark run --output-dir docs/benchmarks/puyo-v1-7-2-compact-search-kernel --fixture tests/fixtures/compact_search_kernel_cases.json --seed-start 123 --seed-count 8 --max-turns 8 --repetitions 2 --minimum-transitions 1000",
+  "config": {
+    "capture_visuals": true,
+    "max_turns": 8,
+    "minimum_transitions": 1000,
+    "repetitions": 2,
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130
+    ]
+  },
+  "created_at_utc": "2026-07-16T05:36:10Z",
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i7-14700F",
+    "implementation": "CPython",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3"
+  },
+  "evaluation_completed": true,
+  "git_commit": "48d795181619ed6c6add15bdc6a2f9aac5f6443f",
+  "name": "puyo-v1-7-2-compact-search-kernel",
+  "parity_passed": true,
+  "schema_version": "puyo.compact_search_kernel_benchmark.v1"
+}

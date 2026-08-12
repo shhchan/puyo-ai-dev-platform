@@ -2,9 +2,21 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
+from typing import Any
 
+from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+)
+from agents.chain_styles import (
+    ChainStyleProvider,
+    ChainStyleRegistry,
+    ChainStyleResolution,
+    ChainStyleSelection,
+    load_chain_style_registry,
+)
 from agents.state_analyzer import (
     ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
     ANALYZER_INPUT_SCHEMA_VERSION,
@@ -14,11 +26,11 @@ from agents.state_analyzer import (
 from agents.v1_7_tactics import TacticSpec
 from src.core.ojama import convert_score_to_ojama
 
-
-PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v1"
+PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v4"
+PLANNER_BUDGET_CAP_SCHEMA_VERSION = "puyo.planner_budget_cap.v1"
 _OBJECTIVE_KINDS = {
     "build_main": "build",
-    "prepare_response": "counter",
+    "prepare_response": "response_readiness",
     "counter_or_return": "counter",
     "pressure": "punish",
     "lethal_attack": "punish",
@@ -79,6 +91,16 @@ class PlannerRequest:
     all_clear_achieved: bool
     all_clear_bonus_pending: bool
     all_clear_bonus_consumed: bool
+    chain_style: ChainStyleResolution = ChainStyleResolution(
+        requested=ChainStyleSelection(),
+        selected=ChainStyleSelection(),
+        provider_id="builtin.unconstrained.v1",
+        status="unconstrained",
+        diagnostic_code="none",
+    )
+    required_response_attack: int = 0
+    response_source: str = "none"
+    build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
     analyzer_input_schema_version: str = ANALYZER_INPUT_SCHEMA_VERSION
     analyzer_diagnostics_schema_version: str = ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
     schema_version: str = PLANNER_REQUEST_SCHEMA_VERSION
@@ -88,7 +110,14 @@ class PlannerRequest:
             raise ValueError(f"unsupported planner request schema: {self.schema_version}")
         if not self.tactic_id or not self.tactic_version:
             raise ValueError("planner request tactic identity is required")
-        if self.objective_kind not in {"build", "counter", "punish", "fire_max", "survival"}:
+        if self.objective_kind not in {
+            "build",
+            "response_readiness",
+            "counter",
+            "punish",
+            "fire_max",
+            "survival",
+        }:
             raise ValueError(f"unsupported planner objective: {self.objective_kind}")
         if min(
             self.target_chain,
@@ -97,6 +126,7 @@ class PlannerRequest:
             self.deadline_ticks,
             self.score_carry,
             self.incoming_attack,
+            self.required_response_attack,
         ) < 0:
             raise ValueError("planner targets, deadlines, carry, and incoming must be non-negative")
         if not 0.0 <= self.danger_tolerance <= 1.0:
@@ -107,6 +137,18 @@ class PlannerRequest:
             raise ValueError("planner search budgets must be positive")
         if self.latency_budget_ms <= 0.0:
             raise ValueError("planner latency budget must be positive")
+        if self.response_source not in {"none", "incoming", "opponent_forecast", "combined"}:
+            raise ValueError(f"unsupported response source: {self.response_source}")
+        if self.build_potential_schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(
+                "unsupported build-potential schema: "
+                f"{self.build_potential_schema_version}"
+            )
+        if self.objective_kind == "response_readiness" and self.required_response_attack <= 0:
+            raise ValueError("response readiness requires positive response attack")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -117,6 +159,8 @@ class PlannerRequest:
                 "kind": self.objective_kind,
                 "target_chain": int(self.target_chain),
                 "target_attack": int(self.target_attack),
+                "required_response_attack": int(self.required_response_attack),
+                "response_source": self.response_source,
                 "deadline_turns": int(self.deadline_turns),
                 "deadline_ticks": int(self.deadline_ticks),
                 "weights": {key: float(value) for key, value in self.objective_weights.items()},
@@ -144,6 +188,75 @@ class PlannerRequest:
             },
             "analyzer_input_schema_version": self.analyzer_input_schema_version,
             "analyzer_diagnostics_schema_version": self.analyzer_diagnostics_schema_version,
+            "build_potential_schema_version": self.build_potential_schema_version,
+            "chain_style": self.chain_style.to_dict(),
+        }
+
+
+@dataclass(frozen=True)
+class PlannerBudgetCap:
+    """Explicit runtime-only upper bounds for an otherwise unchanged request."""
+
+    profile: str
+    max_search_depth: int
+    max_search_width: int
+    max_candidate_count: int
+    max_latency_budget_ms: float
+    schema_version: str = PLANNER_BUDGET_CAP_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version != PLANNER_BUDGET_CAP_SCHEMA_VERSION:
+            raise ValueError(f"unsupported planner budget cap schema: {self.schema_version}")
+        if not self.profile:
+            raise ValueError("planner budget cap profile must not be empty")
+        if min(
+            self.max_search_depth,
+            self.max_search_width,
+            self.max_candidate_count,
+        ) <= 0:
+            raise ValueError("planner budget cap search limits must be positive")
+        if self.max_latency_budget_ms <= 0.0:
+            raise ValueError("planner budget cap latency limit must be positive")
+
+    def apply(self, request: PlannerRequest) -> PlannerRequest:
+        return replace(
+            request,
+            search_depth=min(request.search_depth, self.max_search_depth),
+            search_width=min(request.search_width, self.max_search_width),
+            candidate_count=min(request.candidate_count, self.max_candidate_count),
+            latency_budget_ms=min(
+                request.latency_budget_ms,
+                self.max_latency_budget_ms,
+            ),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "profile": self.profile,
+            "max_search_depth": int(self.max_search_depth),
+            "max_search_width": int(self.max_search_width),
+            "max_candidate_count": int(self.max_candidate_count),
+            "max_latency_budget_ms": float(self.max_latency_budget_ms),
+        }
+
+    def application(
+        self,
+        requested: PlannerRequest,
+        effective: PlannerRequest,
+    ) -> dict[str, Any]:
+        requested_budget = requested.to_dict()["search_budget"]
+        effective_budget = effective.to_dict()["search_budget"]
+        return {
+            "enabled": True,
+            "cap": self.to_dict(),
+            "requested_search_budget": requested_budget,
+            "effective_search_budget": effective_budget,
+            "clamped_fields": [
+                field
+                for field in ("depth", "width", "candidate_count", "latency_budget_ms")
+                if requested_budget[field] != effective_budget[field]
+            ],
         }
 
 
@@ -174,6 +287,9 @@ def build_planner_request(
     analyzer_input: AnalyzerInput | Mapping[str, Any],
     analyzer_diagnostics: AnalyzerDiagnostics | Mapping[str, Any],
     parameter_overrides: Mapping[str, Mapping[str, Any]] | None = None,
+    chain_style: ChainStyleSelection | Mapping[str, Any] | None = None,
+    chain_style_registry: ChainStyleRegistry | None = None,
+    chain_style_providers: Mapping[str, ChainStyleProvider] | None = None,
 ) -> PlannerRequest:
     """Resolve one TacticSpec into an executable, versioned worker request."""
 
@@ -189,21 +305,54 @@ def build_planner_request(
     planner = parameters["planner"]
     own = _mapping(input_payload.get("own"), "Analyzer own input")
     incoming = int(_path(diagnostics_payload, "incoming.amount", 0))
+    opponent_threat = int(_path(diagnostics_payload, "opponent.forecast.short_attack", 0))
     target_attack = int(objective.get("target_attack", 0))
-    if tactic.identity.tactic_id in {"prepare_response", "counter_or_return", "all_clear"}:
+    required_response_attack = 0
+    response_source = "none"
+    if tactic.identity.tactic_id == "prepare_response":
+        margin = int(objective.get("target_attack_margin", 0))
+        required_response_attack = max(incoming, opponent_threat) + margin
+        if incoming > 0 and opponent_threat > 0:
+            response_source = "combined"
+        elif incoming > 0:
+            response_source = "incoming"
+        elif opponent_threat > 0:
+            response_source = "opponent_forecast"
+        if required_response_attack <= 0:
+            raise ValueError("prepare_response requires positive incoming or forecast attack")
+        # Firing is deliberately not part of this objective. The dedicated
+        # readiness worker evaluates whether this attack can be produced later.
+        target_attack = 0
+    elif tactic.identity.tactic_id in {"counter_or_return", "all_clear"}:
         margin_name = (
             "counter_margin"
             if tactic.identity.tactic_id == "counter_or_return"
             else "target_attack_margin"
         )
         target_attack = incoming + int(objective.get(margin_name, 0))
-    deadline = _first_int(
-        objective,
-        "deadline_turns",
-        "response_window",
-        "survival_horizon",
-        default=int(planner.get("beam_depth", 1)),
-    )
+    if tactic.identity.tactic_id == "prepare_response":
+        response_window = int(objective.get("response_window", planner.get("beam_depth", 1)))
+        incoming_deadline = int(_path(diagnostics_payload, "incoming.deadline", 0))
+        opponent_deadline = int(
+            _path(diagnostics_payload, "opponent.forecast.turns_to_best", 0)
+        )
+        threat_deadlines = [
+            value
+            for value, active in (
+                (incoming_deadline, incoming > 0),
+                (opponent_deadline, opponent_threat > 0),
+            )
+            if active and value > 0
+        ]
+        deadline = min([response_window, *threat_deadlines]) if threat_deadlines else response_window
+    else:
+        deadline = _first_int(
+            objective,
+            "deadline_turns",
+            "response_window",
+            "survival_horizon",
+            default=int(planner.get("beam_depth", 1)),
+        )
     weights = {
         name: float(value)
         for section in parameters.values()
@@ -211,6 +360,11 @@ def build_planner_request(
         if name.endswith("_weight")
     }
     fallback = str(tactic.fallback.get("tactic_id") or tactic.fallback.get("safety_behavior"))
+    style_registry = chain_style_registry or load_chain_style_registry()
+    style_resolution = style_registry.resolve(
+        tactic.chain_style if chain_style is None else chain_style,
+        chain_style_providers,
+    )
     return PlannerRequest(
         tactic_id=tactic.identity.tactic_id,
         tactic_version=tactic.identity.version,
@@ -233,6 +387,14 @@ def build_planner_request(
         all_clear_achieved=bool(own.get("all_clear_achieved", False)),
         all_clear_bonus_pending=bool(own.get("all_clear_bonus_pending", False)),
         all_clear_bonus_consumed=bool(own.get("all_clear_bonus_consumed", False)),
+        chain_style=style_resolution,
+        required_response_attack=max(0, required_response_attack),
+        response_source=response_source,
+        build_potential_schema_version=(
+            BUILD_POTENTIAL_SCHEMA_VERSION
+            if tactic.identity.tactic_id in {"build_main", "prepare_response"}
+            else BUILD_POTENTIAL_V1_SCHEMA_VERSION
+        ),
     )
 
 

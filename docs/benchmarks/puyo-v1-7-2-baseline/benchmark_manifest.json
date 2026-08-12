@@ -1,0 +1,210 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "analyzer_report.json",
+      "required": true,
+      "role": "analyzer_report",
+      "sha256": "bcb1f20e89826b99c844e12ba663eb5e70e9d74a2dcefd539ce928e9bc6e8d17",
+      "size_bytes": 462911
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "arena_existing_checkpoint_matches.csv",
+      "required": true,
+      "role": "arena_existing_checkpoint_matches",
+      "sha256": "0f3e80955673cb157f51ed4ab6c5c12eba4f726ff6533f378b50b8e775aac8bd",
+      "size_bytes": 20137
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "arena_existing_checkpoint_summary.json",
+      "required": true,
+      "role": "arena_existing_checkpoint_summary",
+      "sha256": "4609187a5c33b87af7804758dabaea5795a98e9f4a90f46214c3e8cc02b08189",
+      "size_bytes": 3047
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "arena_manager_rule_matches.csv",
+      "required": true,
+      "role": "arena_manager_rule_matches",
+      "sha256": "315f1d9ed447b2feaec3ef8c3a8d6bd29735062ebf76c040eb35afa86c002d93",
+      "size_bytes": 33282
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "arena_manager_rule_summary.json",
+      "required": true,
+      "role": "arena_manager_rule_summary",
+      "sha256": "2cf3d9b41f07925ed0c8d4ada2447f6173a3a9d5698e3b36000470b19ea4b025",
+      "size_bytes": 3017
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "arena_standard_beam_matches.csv",
+      "required": true,
+      "role": "arena_standard_beam_matches",
+      "sha256": "30f85a99d6dab8f1329afd19a2fceefa5d4579dad123f3ae0dcd31d998c6e2ed",
+      "size_bytes": 22814
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "arena_standard_beam_summary.json",
+      "required": true,
+      "role": "arena_standard_beam_summary",
+      "sha256": "7c4051227ebd952070ad48351413ac1270d43c16c5ed7a654b9e0f3c2ce067ca",
+      "size_bytes": 3024
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "arena_worker_large_matches.csv",
+      "required": true,
+      "role": "arena_worker_large_matches",
+      "sha256": "657bbf3e219ccb752ea2e3b0ecb87dc530ca15663dd7c6332feda95008a13d83",
+      "size_bytes": 33272
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "arena_worker_large_summary.json",
+      "required": true,
+      "role": "arena_worker_large_summary",
+      "sha256": "3f57c872d88c74ade6310be02d5497832e366cf8cbe5920d75a7ac52cbee40cf",
+      "size_bytes": 3018
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "54bd398d51660d58c91e0176022e7cb26414d8e0e0182c08cfb7be68062b92ad",
+      "size_bytes": 1892
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "6a38518623afe0876b41263b5fb9ca49e600ed7e08947ee19eef81cb73de6b3c",
+      "size_bytes": 294263
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "checkpoint_evidence.json",
+      "required": true,
+      "role": "checkpoint_evidence",
+      "sha256": "dddf154235afae1d6e069a823a011fa41d88f581f34b191be18ada32aebf1df0",
+      "size_bytes": 14903
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "existing_checkpoint_evidence.json",
+      "required": true,
+      "role": "existing_checkpoint_evidence",
+      "sha256": "89624587ec145771eaa7148d368e70dc6e887e2e0ccb80437b45523969cfa793",
+      "size_bytes": 583
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa.json",
+      "required": true,
+      "role": "gui_qa",
+      "sha256": "ba019b63962a7763d1a223dcf1a9df757dcbf63f0236c0a9361187cbb5e29044",
+      "size_bytes": 237563
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa_replay.json",
+      "required": true,
+      "role": "gui_qa_replay",
+      "sha256": "01d2056f83ba233d70b9090debeee555801d62ff8a46acd6151eb0af4a1a664f",
+      "size_bytes": 11519413
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_verification.json",
+      "required": true,
+      "role": "gui_verification",
+      "sha256": "0bdc4c0afc5bdbfca70871111bde01e20bb789c881d5619d2f338d5c79d77c09",
+      "size_bytes": 1123
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "lifecycle_report.json",
+      "required": true,
+      "role": "lifecycle_report",
+      "sha256": "82faeda8bd218020a6eb99f60306274196d42d39663e601d070119a25eea43d9",
+      "size_bytes": 1718
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "outcome_scenarios.json",
+      "required": true,
+      "role": "outcome_scenarios",
+      "sha256": "6badc3eae087d3b5bc942ac7ce607ea8cc3a1401f00cba7ed01a75e84ad5ed56",
+      "size_bytes": 3813
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "safe_build_games.csv",
+      "required": true,
+      "role": "safe_build_games",
+      "sha256": "082994c78731f8f6938bd60441ff77dd6f7cf335ee57b781c0b88d94694451f4",
+      "size_bytes": 9573
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "safe_build_summary.json",
+      "required": true,
+      "role": "safe_build_summary",
+      "sha256": "bb56e1f5e3ccf9da055e250e6bb6086c6b3d4af24e29f06a07b6acdde2eda92e",
+      "size_bytes": 3997
+    }
+  ],
+  "checkpoint": {
+    "path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt",
+    "sha256": "932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b"
+  },
+  "config": {
+    "arena_games": 20,
+    "beam_depth": 10,
+    "beam_width": 48,
+    "gui_max_frames": 1280,
+    "gui_max_ticks": 1200,
+    "gui_seed": 123,
+    "max_steps": 40,
+    "paired_matches_per_baseline": 40,
+    "safe_games": 30,
+    "seed": 123,
+    "workers": 8
+  },
+  "created_at_utc": "2026-07-13T18:51:45Z",
+  "evaluation_completed": true,
+  "existing_checkpoint": {
+    "path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/realtime_ppo/human-check-parent/checkpoints/latest.pt",
+    "sha256": "ecc9c4f1be836804dcd3f0483231c3734fbb267cb4767999d1b85587ac67ff79"
+  },
+  "name": "puyo-v1-7-2-baseline",
+  "schema_version": "puyo.v1_7_benchmark.v1",
+  "training_gate_passed": false
+}

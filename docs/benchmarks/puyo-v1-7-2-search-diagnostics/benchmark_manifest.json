@@ -1,0 +1,96 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "3df2c5de428daa778bdc0435339ad4cdf9cbbbab199764b96426c493d11d3f56",
+      "size_bytes": 3512
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "e7d15ec19fb680836ac8b8942d17d55c3d5e8e4096884df46c3182dd68436263",
+      "size_bytes": 3437
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "decision_records.json",
+      "required": true,
+      "role": "decision_records",
+      "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+      "size_bytes": 22485773
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "975dbb2e69c14d9f3ec199407165e5ba9f948582d43cafe1d490e04753a637e3",
+      "size_bytes": 492
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "seed_manifest.json",
+      "required": true,
+      "role": "seed_manifest",
+      "sha256": "12d45c920e960a062079830115311d8970a779986bf459cc1e5664064cd421c7",
+      "size_bytes": 584
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "seed_results.json",
+      "required": true,
+      "role": "seed_results",
+      "sha256": "4667a1b2fe59e7a762b426de9bd699ef00bb739c87dc07714f6c623034da54aa",
+      "size_bytes": 32332
+    }
+  ],
+  "config": {
+    "current": {
+      "config_id": "d6-w48-p16",
+      "depth": 6,
+      "minimum_chain_count": 10,
+      "probe_width": 16,
+      "scenarios": 1,
+      "trace_paths": true,
+      "trigger_preservation": "required",
+      "width": 48
+    },
+    "games": 30,
+    "max_steps": 40,
+    "reference": {
+      "config_id": "d8-w64-p32",
+      "depth": 8,
+      "minimum_chain_count": 10,
+      "probe_width": 32,
+      "scenarios": 1,
+      "trace_paths": true,
+      "trigger_preservation": "required",
+      "width": 64
+    },
+    "workers": 8
+  },
+  "created_at_utc": "2026-07-15T13:00:11Z",
+  "determinism_passed": true,
+  "evaluation_completed": true,
+  "git_commit": "f1746779741773842b133c4f5262e7745a8e7e6f",
+  "name": "puyo-v1-7-2-search-diagnostics",
+  "schema_version": "puyo.v1_7_search_diagnostics_benchmark.v1",
+  "seed_manifest": {
+    "games": 30,
+    "schema_version": "puyo.v1_7_safe_build_seed_manifest.v1",
+    "source": "docs/benchmarks/puyo-v1-7-2-build-main/seed_results.csv",
+    "source_config_id": "d6-w48-p16",
+    "source_sha256": "d5d05f0f374baa5129b04ba4d18fa86e39902688c677f008cf721ae01ac14c45"
+  }
+}

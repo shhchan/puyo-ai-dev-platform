@@ -57,7 +57,7 @@ class TestStrategyWorkers(unittest.TestCase):
             self.assertEqual(proposal.profile_id, profile.profile_id)
             self.assertGreaterEqual(proposal.expanded_nodes, 1)
             self.assertGreaterEqual(proposal.elapsed_seconds, 0.0)
-            self.assertEqual(proposal.objective_dict["schema_version"], "search-objective-v1")
+            self.assertEqual(proposal.objective_dict["schema_version"], "search-objective-v2")
             self.assertIn("achieved", proposal.objective_result_dict)
             self.assertIs(simulator, info["simulator"])
 
@@ -144,6 +144,7 @@ class TestStrategyWorkers(unittest.TestCase):
         self.assertGreaterEqual(effective.width, profile.width)
         self.assertEqual(diagnostics.to_dict()["schema_version"], "search-control-v1")
         self.assertIn("effective", diagnostics.to_dict())
+        self.assertEqual(default_search_controls()[0].scenarios, 2)
 
     def test_orchestrator_accepts_learned_search_control(self):
         _, observation, info = self._state(seed=21)

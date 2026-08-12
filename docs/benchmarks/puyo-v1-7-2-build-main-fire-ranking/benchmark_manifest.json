@@ -1,0 +1,39 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "summary",
+      "sha256": "d236b9ee012dafce67c1a57550f256d2c404d690dec6ee63c974355e2506e3d4",
+      "size_bytes": 7531
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "fixture_records.json",
+      "required": true,
+      "role": "records",
+      "sha256": "d6e83f044674cfafbd6902a0ab713954ba0b9cd761282a45e541a2ea972e301c",
+      "size_bytes": 19459
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "report",
+      "sha256": "2f3d880ea61e27f3c72d07684c5e12f43cc1a57db074de0623b6677e5fce015b",
+      "size_bytes": 721
+    }
+  ],
+  "benchmark_schema_version": "puyo.v1_7_build_main_fire_ranking_benchmark.v1",
+  "fixture": {
+    "path": "tests/fixtures/build_main_fire_cases.json",
+    "sha256": "9ef7f86548c1b0bceed813403b5d342280fb84a03fa9cf7b6549daddbb4e440a"
+  },
+  "generated_at": "2026-07-27T13:30:28Z",
+  "git_commit": "afc77947103a89c28f74568f22462ae65f592e79",
+  "schema_version": "puyo.v1_7_build_main_fire_ranking_manifest.v1"
+}

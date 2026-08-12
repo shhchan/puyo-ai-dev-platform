@@ -1,0 +1,35 @@
+{
+  "schema_version": "puyo.v1_7_response_scenarios.v1",
+  "scenarios": [
+    {
+      "name": "mild_threat",
+      "description": "Three-turn mild threat selects an explicit response tactic.",
+      "analyzer_scenario": "deadline_three_uses_second_next"
+    },
+    {
+      "name": "short_burst",
+      "description": "Two-turn burst selects a response and keeps the player alive.",
+      "analyzer_scenario": "deadline_two_uses_next_pair"
+    },
+    {
+      "name": "full_cancel",
+      "description": "A deadline-one attack is fully canceled with no received garbage.",
+      "analyzer_scenario": "deadline_one_exact_cancel"
+    },
+    {
+      "name": "surplus_counter",
+      "description": "A deadline-one counter cancels the threat and returns surplus attack.",
+      "analyzer_scenario": "deadline_one_counter_surplus"
+    },
+    {
+      "name": "survival",
+      "description": "An insufficient deadline-one response avoids immediate game over.",
+      "analyzer_scenario": "deadline_one_return_is_insufficient"
+    },
+    {
+      "name": "resume_build",
+      "description": "After a response turn with cleared incoming attack, the manager resumes build_main.",
+      "analyzer_scenario": "deadline_one_exact_cancel"
+    }
+  ]
+}

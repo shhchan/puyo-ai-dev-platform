@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import copy
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from typing import Any, Mapping
+from typing import Any
 
 from agents.state_analyzer import AnalyzerDiagnostics, AnalyzerInput, StateAnalyzer
 from agents.strategy_workers import (
@@ -13,7 +14,11 @@ from agents.strategy_workers import (
     default_worker_profiles,
     profile_id_by_name,
 )
-from agents.v1_7_planner import PlannerRequest, build_planner_request
+from agents.v1_7_planner import (
+    PlannerBudgetCap,
+    PlannerRequest,
+    build_planner_request,
+)
 from agents.v1_7_tactics import (
     TacticRegistry,
     TacticSpec,
@@ -22,9 +27,8 @@ from agents.v1_7_tactics import (
 )
 from src.core.constants import GRID_WIDTH, VISIBLE_HEIGHT
 
-
 ANALYZER_MANAGER_DIAGNOSTICS_SCHEMA_VERSION = (
-    "puyo.v1_7_analyzer_manager.diagnostics.v1"
+    "puyo.v1_7_analyzer_manager.diagnostics.v2"
 )
 MODEL_VERSION = "v1.7.0"
 MODEL_FAMILY = "Adaptive Chain Manager"
@@ -185,11 +189,13 @@ class V17AnalyzerManagerPolicy:
         registry: TacticRegistry | None = None,
         profiles: tuple[WorkerProfile, ...] | None = None,
         parameter_overrides: Mapping[str, Mapping[str, Mapping[str, Any]]] | None = None,
+        planner_budget_cap: PlannerBudgetCap | None = None,
     ):
         self.analyzer = analyzer or StateAnalyzer()
         self.registry = registry or load_tactic_registry()
         self.profiles = profiles or default_worker_profiles()
         self.parameter_overrides = parameter_overrides
+        self.planner_budget_cap = planner_budget_cap
         self.orchestrator = StrategyOrchestrator(self.profiles)
         self._last_step_count = -1
         self.last_analyzer_input: AnalyzerInput | None = None
@@ -198,6 +204,7 @@ class V17AnalyzerManagerPolicy:
         self.last_planner_request: PlannerRequest | None = None
         self.last_proposal = None
         self.last_plan = None
+        self._runtime_constraints: dict[str, Any] = {}
         self._tactical_diagnostics: dict[str, Any] = {}
 
     def reset(self) -> None:
@@ -209,6 +216,7 @@ class V17AnalyzerManagerPolicy:
         self.last_planner_request = None
         self.last_proposal = None
         self.last_plan = None
+        self._runtime_constraints = {}
         self._tactical_diagnostics = {}
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
@@ -230,12 +238,20 @@ class V17AnalyzerManagerPolicy:
             if self.parameter_overrides is None
             else self.parameter_overrides.get(selection.tactic_id)
         )
-        planner_request = build_planner_request(
+        requested_planner_request = build_planner_request(
             tactic,
             analyzer_input,
             analyzer_diagnostics,
             parameter_overrides=overrides,
         )
+        planner_request = requested_planner_request
+        self._runtime_constraints = {}
+        if self.planner_budget_cap is not None:
+            planner_request = self.planner_budget_cap.apply(requested_planner_request)
+            self._runtime_constraints = self.planner_budget_cap.application(
+                requested_planner_request,
+                planner_request,
+            )
         profile_id = profile_id_by_name(
             self.profiles,
             _TACTIC_TO_WORKER[selection.tactic_id],
@@ -301,6 +317,15 @@ class V17AnalyzerManagerPolicy:
             "danger": float(proposal.danger),
             "expanded_nodes": int(proposal.expanded_nodes),
             "candidate_value": float(proposal.candidate_value),
+            "response_capacity": int(proposal.response_capacity),
+            "incoming_coverage": float(proposal.incoming_coverage),
+            "trigger_preserved": bool(proposal.trigger_preserved),
+            "trigger_recoverability": proposal.trigger_recoverability.to_dict(),
+            "value_breakdown": {
+                key: float(value)
+                for key, value in (proposal.value_breakdown or {}).items()
+            },
+            "immediate_fire": bool(proposal.immediate_fire),
         }
         return {
             "schema_version": ANALYZER_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
@@ -323,12 +348,14 @@ class V17AnalyzerManagerPolicy:
             "tactic_candidates": [copy.deepcopy(item) for item in selection.candidates],
             "selected_tactic": selected,
             "planner_request": planner_request.to_dict(),
+            "runtime_constraints": copy.deepcopy(self._runtime_constraints),
             "worker": {
                 "profile_id": int(proposal.profile_id),
                 "profile_name": proposal.profile_name,
                 "strategy": proposal.strategy,
                 "objective": proposal.objective_dict,
                 "objective_result": proposal.objective_result_dict,
+                "build_potential": proposal.build_potential_dict,
                 "result": worker_result,
             },
             "plan": {} if plan is None else plan.to_dict(),

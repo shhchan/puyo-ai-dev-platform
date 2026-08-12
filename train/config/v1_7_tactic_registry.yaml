@@ -1,38 +1,207 @@
-schema_version: tactic-schema-v1
-registry_version: v1.7.0
+schema_version: tactic-schema-v3
+registry_version: v1.7.2
 compatible_analyzer_schemas:
   input: puyo.state_analyzer.input.v1
-  diagnostics: puyo.state_analyzer.diagnostics.v1
+  diagnostics: puyo.state_analyzer.diagnostics.v2
 
 tactics:
-  - identity: {id: build_main, name: build_main, version: "1.0", human_label: 本線構築}
+  - identity: {id: build_main, name: build_main, version: "2.0", human_label: 本線構築}
+    chain_style:
+      schema_version: puyo.chain_style.v1
+      style_id: unconstrained
+      style_version: "1.0"
+      constraint_mode: unconstrained
+      weight: 0.0
     applicability:
-      feature_refs: [diagnostics.own.danger, diagnostics.own.forecast.main_chain, diagnostics.incoming.amount]
+      feature_refs:
+        - diagnostics.own.danger
+        - diagnostics.own.forecast.main_chain
+        - diagnostics.own.build_potential.predicted_chain_potential
+        - diagnostics.own.build_potential.continuation_flexibility
+        - diagnostics.own.build_potential.danger_margin
+        - diagnostics.incoming.amount
     objective:
-      input_refs: [diagnostics.own.forecast.main_chain]
+      input_refs:
+        - diagnostics.own.forecast.main_chain
+        - diagnostics.own.build_potential.predicted_chain_potential
+        - diagnostics.own.build_potential.ignition_cost
+        - diagnostics.own.build_potential.trigger_alternatives
       parameters:
-        target_chain: {kind: integer, default: 6, min: 1, max: 19}
+        target_chain: {kind: integer, default: 10, min: 1, max: 19}
         future_potential_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
         chain_shape_weight: {kind: continuous, default: 1.0, min: 0.0, max: 3.0}
     constraints:
       input_refs: [diagnostics.own.danger]
       parameters:
         danger_tolerance: {kind: continuous, default: 0.65, min: 0.0, max: 1.0}
-        trigger_preservation: {kind: discrete, default: prefer, choices: [required, prefer, ignore]}
+        trigger_preservation: {kind: discrete, default: required, choices: [required, prefer, ignore]}
     planner:
       input_refs: [input.policy_deadline]
+      search_profiles:
+        schema_version: puyo.long_horizon_profile.v3
+        default: runtime
+        entries:
+          - identity: {name: runtime, version: "3.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 4
+            width: 24
+            scenarios: 2
+            candidate_limit: 8
+            max_expanded_nodes: 4096
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 2
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: external_runtime_deadline, wall_clock_mode: external_deadline_contract}
+          - identity: {name: smoke, version: "3.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 6
+            width: 48
+            scenarios: 3
+            candidate_limit: 8
+            max_expanded_nodes: 30000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 3
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: quality-d12, version: "3.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 12
+            width: 128
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 200000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: quality-d16, version: "3.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 16
+            width: 250
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 600000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: seeded-authoritative
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: sha256-decision-seed-sample-index-v1
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
+          - identity: {name: legacy-fixed-six, version: "1.0"}
+            backend: compact_long_horizon_v1
+            ranking_rule: puyo.expected_chain_ranking.v2
+            depth: 16
+            width: 250
+            scenarios: 6
+            candidate_limit: 8
+            max_expanded_nodes: 600000
+            future_sampling:
+              schema_version: puyo.future_tsumo_sampling.v1
+              mode: legacy-fixed-six
+              sample_count: 6
+              known_queue: current_plus_next2
+              rollout_seed_derivation: null
+            terminal_fire: {rule: record_and_stop, minimum_chain_count: 1}
+            fire_semantics:
+              context: safe_build
+              target_chain_source: objective.target_chain
+              winning_score_threshold: null
+              terminal_score_version: puyo.build_main_terminal_score.v1
+              premature_target_gap_penalty: 1000.0
+            root_survivor_quota: 1
+            transposition_table: true
+            exact_build_potential_stage: final_k
+            budget: {authority: expanded_nodes, wall_clock_mode: observational}
       parameters:
-        beam_depth: {kind: integer, default: 3, min: 1, max: 6}
+        beam_depth: {kind: integer, default: 3, min: 1, max: 10}
         beam_width: {kind: integer, default: 24, min: 1, max: 128}
         candidate_count: {kind: integer, default: 8, min: 1, max: 32}
         latency_budget_ms: {kind: continuous, default: 60.0, min: 1.0, max: 500.0}
     termination: {criteria: [objective_achieved, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
-    diagnostics: {fields: [target_chain, mean_chain, success_rate, trigger_preserved]}
+    diagnostics:
+      fields:
+        - target_chain
+        - mean_chain
+        - success_rate
+        - predicted_chain_potential
+        - ignition_cost
+        - trigger_alternatives
+        - trigger_recoverability
+        - continuation_flexibility
+        - danger_margin
+        - trigger_preserved
+        - value_breakdown
+        - expected_chain_evidence
+        - scenario_sequence_digest
+        - future_sampling
+        - decision_seed
+        - rollout_seeds
+        - queue_digests
+        - count_budget
 
-  - identity: {id: prepare_response, name: prepare_response, version: "1.0", human_label: 対応準備}
+  - identity: {id: prepare_response, name: prepare_response, version: "2.0", human_label: 対応準備}
     applicability:
       feature_refs: [diagnostics.opponent.attack_options, diagnostics.incoming.windows, diagnostics.own.danger]
+      candidate_when:
+        - all:
+            - {ref: diagnostics.incoming.amount, op: gt, value: 0}
+        - all:
+            - {ref: diagnostics.opponent.forecast.short_attack, op: gt, value: 0}
     objective:
       input_refs: [diagnostics.opponent.forecast, diagnostics.incoming]
       parameters:
@@ -52,7 +221,7 @@ tactics:
         latency_budget_ms: {kind: continuous, default: 50.0, min: 1.0, max: 500.0}
     termination: {criteria: [response_ready, timeout, danger_threshold, opponent_fired]}
     fallback: {tactic_id: survive}
-    diagnostics: {fields: [response_window, response_success, trigger_preserved, incoming_coverage]}
+    diagnostics: {fields: [required_response_attack, response_source, response_window, response_capacity, response_success, trigger_preserved, incoming_coverage, immediate_fire]}
 
   - identity: {id: counter_or_return, name: counter_or_return, version: "1.0", human_label: 相殺・返し}
     applicability:

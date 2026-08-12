@@ -1,0 +1,2575 @@
+{
+  "aggregate": {
+    "diverse-d6-w48-p16-k16": {
+      "budget_fallbacks": 0,
+      "decisions": 31,
+      "expanded_nodes_mean": 3278.516129032258,
+      "expanded_nodes_total": 101634,
+      "game_over_candidate_actions": 0,
+      "illegal_candidate_actions": 0,
+      "latency": {
+        "mode": "offline_wall_clock",
+        "p50_ms": 1718.843111069873,
+        "p95_ms": 4577.742624445818
+      },
+      "long_chain_action_coverage": 1.0,
+      "long_chain_opportunities": 31,
+      "max_candidate_chain_mean": 2.032258064516129,
+      "potential_budget_exhaustions": 0,
+      "potential_cache_hits": 49,
+      "reference_action_coverage": 1.0,
+      "reference_path_coverage": 0.12903225806451613,
+      "selected_chain_mean": 2.032258064516129,
+      "transposition_hits": 5029
+    },
+    "scalar-d6-w48-p16-k16": {
+      "budget_fallbacks": 0,
+      "decisions": 31,
+      "expanded_nodes_mean": 3306.8387096774195,
+      "expanded_nodes_total": 102512,
+      "game_over_candidate_actions": 0,
+      "illegal_candidate_actions": 0,
+      "latency": {
+        "mode": "offline_wall_clock",
+        "p50_ms": 1829.188015894033,
+        "p95_ms": 3240.4720139456913
+      },
+      "long_chain_action_coverage": 1.0,
+      "long_chain_opportunities": 31,
+      "max_candidate_chain_mean": 1.6774193548387097,
+      "potential_budget_exhaustions": 0,
+      "potential_cache_hits": 49,
+      "reference_action_coverage": 1.0,
+      "reference_path_coverage": 0.12903225806451613,
+      "selected_chain_mean": 1.6774193548387097,
+      "transposition_hits": 5200
+    },
+    "scalar-d8-w64-p32-k16": {
+      "budget_fallbacks": 0,
+      "decisions": 31,
+      "expanded_nodes_mean": 6124.806451612903,
+      "expanded_nodes_total": 189869,
+      "game_over_candidate_actions": 0,
+      "illegal_candidate_actions": 0,
+      "latency": {
+        "mode": "offline_wall_clock",
+        "p50_ms": 3222.556985914707,
+        "p95_ms": 6073.078817978967
+      },
+      "long_chain_action_coverage": 1.0,
+      "long_chain_opportunities": 31,
+      "max_candidate_chain_mean": 4.387096774193548,
+      "potential_budget_exhaustions": 0,
+      "potential_cache_hits": 50,
+      "reference_action_coverage": 1.0,
+      "reference_path_coverage": 0.16129032258064516,
+      "selected_chain_mean": 4.387096774193548,
+      "transposition_hits": 7659
+    }
+  },
+  "configurations": [
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "legacy",
+      "config_id": "scalar-d6-w48-p16-k16",
+      "depth": 6,
+      "probe_width": 16,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 48
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "diverse",
+      "config_id": "diverse-d6-w48-p16-k16",
+      "depth": 6,
+      "probe_width": 16,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 48
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "legacy",
+      "config_id": "scalar-d8-w64-p32-k16",
+      "depth": 8,
+      "probe_width": 32,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 64
+    }
+  ],
+  "created_at_utc": "2026-07-15T18:01:28Z",
+  "determinism": {
+    "digests": [
+      "3d65105519ae501bfd6cf322131ba68fa45fae426f41be2ee76c6df34f3510ad",
+      "3d65105519ae501bfd6cf322131ba68fa45fae426f41be2ee76c6df34f3510ad"
+    ],
+    "excluded_fields": [
+      "latency_ms",
+      "aggregate.latency"
+    ],
+    "passed": true,
+    "repetitions": 2,
+    "scope": [
+      "candidate set and rank",
+      "plans and BuildPotential-v2 summaries",
+      "generation, retention, and pruning reasons",
+      "cache, transposition, scenario, and budget diagnostics",
+      "latency-free seed and aggregate metrics"
+    ]
+  },
+  "evaluated_decisions": 31,
+  "evaluation_completed": true,
+  "git_commit": "fcaabda52a3eb12ef03f10436680c5a4c8f8f73b",
+  "latency_mode": "offline_wall_clock",
+  "pareto": [
+    {
+      "config_id": "scalar-d6-w48-p16-k16",
+      "cost": {
+        "expanded_nodes_mean": 3306.8387096774195,
+        "p50_ms": 1829.188015894033,
+        "p95_ms": 3240.4720139456913
+      },
+      "dominated_by": [],
+      "pareto_frontier": true,
+      "quality": {
+        "max_candidate_chain_mean": 1.6774193548387097,
+        "reference_action_coverage": 1.0,
+        "reference_path_coverage": 0.12903225806451613
+      }
+    },
+    {
+      "config_id": "diverse-d6-w48-p16-k16",
+      "cost": {
+        "expanded_nodes_mean": 3278.516129032258,
+        "p50_ms": 1718.843111069873,
+        "p95_ms": 4577.742624445818
+      },
+      "dominated_by": [],
+      "pareto_frontier": true,
+      "quality": {
+        "max_candidate_chain_mean": 2.032258064516129,
+        "reference_action_coverage": 1.0,
+        "reference_path_coverage": 0.12903225806451613
+      }
+    },
+    {
+      "config_id": "scalar-d8-w64-p32-k16",
+      "cost": {
+        "expanded_nodes_mean": 6124.806451612903,
+        "p50_ms": 3222.556985914707,
+        "p95_ms": 6073.078817978967
+      },
+      "dominated_by": [],
+      "pareto_frontier": true,
+      "quality": {
+        "max_candidate_chain_mean": 4.387096774193548,
+        "reference_action_coverage": 1.0,
+        "reference_path_coverage": 0.16129032258064516
+      }
+    }
+  ],
+  "quality_gate": {
+    "checks": {
+      "deterministic": true,
+      "long_chain_action_coverage_non_regression": true,
+      "max_candidate_chain_non_regression": true,
+      "no_game_over_candidates": true,
+      "no_illegal_candidates": true,
+      "reference_action_coverage_non_regression": true
+    },
+    "failure_artifact_persisted": true,
+    "passed": true,
+    "policy": "A failed gate remains in benchmark_summary.json and is not hidden by retuning fixed scalar weights."
+  },
+  "reference_semantics": "PUYO-165 frozen bounded-reference paths; paired states, not an oracle",
+  "schema_version": "puyo.v1_7_diverse_beam_benchmark.v1",
+  "scope": "long-chain",
+  "seed_comparisons": [
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 2834.0,
+          "expanded_nodes_total": 8502,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 784.6469439100474,
+            "p95_ms": 2892.4324170802715
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 3.3333333333333335,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.3333333333333335,
+          "transposition_hits": 134
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 2909.3333333333335,
+          "expanded_nodes_total": 8728,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 957.7457830309868,
+            "p95_ms": 2143.6952941236086
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 3.3333333333333335,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.3333333333333335,
+          "transposition_hits": 163
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 5412.666666666667,
+          "expanded_nodes_total": 16238,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1453.574644983746,
+            "p95_ms": 4838.61088794656
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 3.3333333333333335,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.3333333333333335,
+          "transposition_hits": 324
+        }
+      },
+      "decisions": 3,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 123
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3005.0,
+          "expanded_nodes_total": 3005,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1933.5634709568694,
+            "p95_ms": 1933.5634709568694
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 186
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 2745.0,
+          "expanded_nodes_total": 2745,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1547.5445199990645,
+            "p95_ms": 1547.5445199990645
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 198
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4804.0,
+          "expanded_nodes_total": 4804,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3643.9395650522783,
+            "p95_ms": 3643.9395650522783
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 273
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 124
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4314.0,
+          "expanded_nodes_total": 4314,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 4807.484125951305,
+            "p95_ms": 4807.484125951305
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 506
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4337.0,
+          "expanded_nodes_total": 4337,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3217.9276859387755,
+            "p95_ms": 3217.9276859387755
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 506
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 8333.0,
+          "expanded_nodes_total": 8333,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 6183.774890960194,
+            "p95_ms": 6183.774890960194
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 697
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 125
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 4125.333333333333,
+          "expanded_nodes_total": 12376,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1718.843111069873,
+            "p95_ms": 4023.877207364421
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.3333333333333333,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 205
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 4139.333333333333,
+          "expanded_nodes_total": 12418,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1926.6115500358865,
+            "p95_ms": 2763.9922842034134
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 221
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 7616.333333333333,
+          "expanded_nodes_total": 22849,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2962.788140051998,
+            "p95_ms": 5514.239306002854
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 6.666666666666667,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 6.666666666666667,
+          "transposition_hits": 280
+        }
+      },
+      "decisions": 3,
+      "diverse_vs_baseline": {
+        "explanation": "improved_coverage_or_candidate_quality",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.3333333333333333
+      },
+      "seed": 126
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 3154.0,
+          "expanded_nodes_total": 6308,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1670.9224005462602,
+            "p95_ms": 1705.5174029199407
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.5,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 479
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 3142.5,
+          "expanded_nodes_total": 6285,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1659.1657574754208,
+            "p95_ms": 1812.1857900521718
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 507
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 5379.5,
+          "expanded_nodes_total": 10759,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3100.873173971195,
+            "p95_ms": 3865.0425288651604
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 5.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 9,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.5,
+          "selected_chain_mean": 5.0,
+          "transposition_hits": 700
+        }
+      },
+      "decisions": 2,
+      "diverse_vs_baseline": {
+        "explanation": "improved_coverage_or_candidate_quality",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.5
+      },
+      "seed": 127
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 128
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 129
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3931.0,
+          "expanded_nodes_total": 3931,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3102.0357169909403,
+            "p95_ms": 3102.0357169909403
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 108
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3954.0,
+          "expanded_nodes_total": 3954,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2202.455929014832,
+            "p95_ms": 2202.455929014832
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 120
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 7338.0,
+          "expanded_nodes_total": 7338,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 5881.169448024593,
+            "p95_ms": 5881.169448024593
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 11.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 1.0,
+          "selected_chain_mean": 11.0,
+          "transposition_hits": 178
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 130
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 131
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 132
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 2926.5,
+          "expanded_nodes_total": 5853,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1783.0462924903259,
+            "p95_ms": 1966.2443340523168
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 2,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.5,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 254
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 2968.0,
+          "expanded_nodes_total": 5936,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1859.3433034839109,
+            "p95_ms": 2076.50793811772
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 2,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 1.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 259
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 5767.5,
+          "expanded_nodes_total": 11535,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3569.358367996756,
+            "p95_ms": 4482.096093165455
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 2,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 342
+        }
+      },
+      "decisions": 2,
+      "diverse_vs_baseline": {
+        "explanation": "coverage_regression",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": -0.5
+      },
+      "seed": 133
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 134
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3920.0,
+          "expanded_nodes_total": 3920,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3414.155986974947,
+            "p95_ms": 3414.155986974947
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 215
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4096.0,
+          "expanded_nodes_total": 4096,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2377.6406140532345,
+            "p95_ms": 2377.6406140532345
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 220
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 7372.0,
+          "expanded_nodes_total": 7372,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 5533.169058035128,
+            "p95_ms": 5533.169058035128
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 255
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 135
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 1403.0,
+          "expanded_nodes_total": 4209,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 916.7059790343046,
+            "p95_ms": 959.5866256509908
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 236
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 1373.6666666666667,
+          "expanded_nodes_total": 4121,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 798.788828891702,
+            "p95_ms": 957.5968575081788
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.3333333333333333,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 236
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 2438.6666666666665,
+          "expanded_nodes_total": 7316,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1635.5374309932813,
+            "p95_ms": 1783.7297614314593
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 7,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.6666666666666666,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 415
+        }
+      },
+      "decisions": 3,
+      "diverse_vs_baseline": {
+        "explanation": "coverage_regression",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": -0.3333333333333333
+      },
+      "seed": 136
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 137
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 1235.0,
+          "expanded_nodes_total": 1235,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 566.2758040707558,
+            "p95_ms": 566.2758040707558
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 4,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 1.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 145
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 1231.0,
+          "expanded_nodes_total": 1231,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 626.6427580267191,
+            "p95_ms": 626.6427580267191
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 4,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 1.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 145
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 2122.0,
+          "expanded_nodes_total": 2122,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1046.737483004108,
+            "p95_ms": 1046.737483004108
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 11.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 4,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 1.0,
+          "selected_chain_mean": 11.0,
+          "transposition_hits": 172
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 138
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3620.0,
+          "expanded_nodes_total": 3620,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2743.8479620032012,
+            "p95_ms": 2743.8479620032012
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 11.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 5,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 11.0,
+          "transposition_hits": 145
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3792.0,
+          "expanded_nodes_total": 3792,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2428.362793987617,
+            "p95_ms": 2428.362793987617
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 5,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 147
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 7254.0,
+          "expanded_nodes_total": 7254,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 4426.610371097922,
+            "p95_ms": 4426.610371097922
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 11.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 5,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 11.0,
+          "transposition_hits": 279
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "improved_coverage_or_candidate_quality",
+        "max_candidate_chain_delta": 1.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 139
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 4076.6666666666665,
+          "expanded_nodes_total": 12230,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1890.7407539663836,
+            "p95_ms": 3485.7320175739
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 3.3333333333333335,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.3333333333333335,
+          "transposition_hits": 758
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 4149.333333333333,
+          "expanded_nodes_total": 12448,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2136.8288720259443,
+            "p95_ms": 2473.0897538014688
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 800
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 3,
+          "expanded_nodes_mean": 7649.666666666667,
+          "expanded_nodes_total": 22949,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3222.556985914707,
+            "p95_ms": 5291.562337568029
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 3,
+          "max_candidate_chain_mean": 3.3333333333333335,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 8,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.3333333333333335,
+          "transposition_hits": 1150
+        }
+      },
+      "decisions": 3,
+      "diverse_vs_baseline": {
+        "explanation": "improved_coverage_or_candidate_quality",
+        "max_candidate_chain_delta": 3.3333333333333335,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 140
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 141
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 2977.0,
+          "expanded_nodes_total": 2977,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2339.9419490015134,
+            "p95_ms": 2339.9419490015134
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 273
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 3082.0,
+          "expanded_nodes_total": 3082,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1832.6429160078987,
+            "p95_ms": 1832.6429160078987
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 273
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 6842.0,
+          "expanded_nodes_total": 6842,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 6599.319359054789,
+            "p95_ms": 6599.319359054789
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 542
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 142
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 143
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 144
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 4,
+          "expanded_nodes_mean": 3403.75,
+          "expanded_nodes_total": 13615,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1217.0313404640183,
+            "p95_ms": 4133.39822164853
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 4,
+          "max_candidate_chain_mean": 3.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.0,
+          "transposition_hits": 598
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 4,
+          "expanded_nodes_mean": 3429.5,
+          "expanded_nodes_total": 13718,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1248.1404285063036,
+            "p95_ms": 2980.264370510121
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 4,
+          "max_candidate_chain_mean": 3.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.0,
+          "transposition_hits": 621
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 4,
+          "expanded_nodes_mean": 6420.75,
+          "expanded_nodes_total": 25683,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2105.7453899411485,
+            "p95_ms": 5379.749528190586
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 4,
+          "max_candidate_chain_mean": 3.25,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 3.25,
+          "transposition_hits": 902
+        }
+      },
+      "decisions": 4,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 145
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 146
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 147
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 4260.0,
+          "expanded_nodes_total": 8520,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3104.402084951289,
+            "p95_ms": 4046.053573768586
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 358
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 4264.5,
+          "expanded_nodes_total": 8529,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2432.4976089410484,
+            "p95_ms": 2438.3776374394074
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 361
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 2,
+          "expanded_nodes_mean": 7955.5,
+          "expanded_nodes_total": 15911,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 4619.613888498861,
+            "p95_ms": 5441.732353862608
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 2,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 524
+        }
+      },
+      "decisions": 2,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 148
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 149
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 0,
+          "expanded_nodes_mean": 0.0,
+          "expanded_nodes_total": 0,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 0.0,
+            "p95_ms": 0.0
+          },
+          "long_chain_action_coverage": null,
+          "long_chain_opportunities": 0,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 0.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 0
+        }
+      },
+      "decisions": 0,
+      "diverse_vs_baseline": {
+        "explanation": "no_reference_long_chain_opportunity",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 150
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4311.0,
+          "expanded_nodes_total": 4311,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 4532.5454459525645,
+            "p95_ms": 4532.5454459525645
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 92
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4321.0,
+          "expanded_nodes_total": 4321,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 3273.4244659077376,
+            "p95_ms": 3273.4244659077376
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 107
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 8340.0,
+          "expanded_nodes_total": 8340,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 5962.38274499774,
+            "p95_ms": 5962.38274499774
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 197
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 151
+    },
+    {
+      "configurations": {
+        "diverse-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 2708.0,
+          "expanded_nodes_total": 2708,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1163.716493989341,
+            "p95_ms": 1163.716493989341
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 337
+        },
+        "scalar-d6-w48-p16-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 2771.0,
+          "expanded_nodes_total": 2771,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 1200.867329025641,
+            "p95_ms": 1200.867329025641
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 10.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 10.0,
+          "transposition_hits": 316
+        },
+        "scalar-d8-w64-p32-k16": {
+          "budget_fallbacks": 0,
+          "decisions": 1,
+          "expanded_nodes_mean": 4224.0,
+          "expanded_nodes_total": 4224,
+          "game_over_candidate_actions": 0,
+          "illegal_candidate_actions": 0,
+          "latency": {
+            "mode": "offline_wall_clock",
+            "p50_ms": 2668.766797054559,
+            "p95_ms": 2668.766797054559
+          },
+          "long_chain_action_coverage": 1.0,
+          "long_chain_opportunities": 1,
+          "max_candidate_chain_mean": 0.0,
+          "potential_budget_exhaustions": 0,
+          "potential_cache_hits": 0,
+          "reference_action_coverage": 1.0,
+          "reference_path_coverage": 0.0,
+          "selected_chain_mean": 0.0,
+          "transposition_hits": 429
+        }
+      },
+      "decisions": 1,
+      "diverse_vs_baseline": {
+        "explanation": "unchanged_on_bounded_sample",
+        "max_candidate_chain_delta": 0.0,
+        "reference_action_coverage_delta": 0.0,
+        "reference_path_coverage_delta": 0.0
+      },
+      "seed": 152
+    }
+  ],
+  "source": {
+    "available_decisions": 1200,
+    "immutable_source": true,
+    "max_steps": 40,
+    "path": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+    "schema_version": "puyo.v1_7_search_diagnostics_decision.v1",
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152
+    ],
+    "selected_decisions": 1200,
+    "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6"
+  }
+}

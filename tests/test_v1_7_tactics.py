@@ -29,7 +29,7 @@ class TestV17TacticRegistry(unittest.TestCase):
 
     def test_default_registry_has_versioned_initial_intents_and_all_sections(self):
         self.assertEqual(self.registry.schema_version, TACTIC_SCHEMA_VERSION)
-        self.assertEqual(self.registry.registry_version, "v1.7.0")
+        self.assertEqual(self.registry.registry_version, "v1.7.2")
         self.assertEqual(
             [tactic.identity.tactic_id for tactic in self.registry.tactics],
             [
@@ -63,6 +63,102 @@ class TestV17TacticRegistry(unittest.TestCase):
                     "diagnostics",
                 }.issubset(tactic)
             )
+
+        build_main = self.registry.tactic("build_main")
+        defaults = build_main.resolve_parameters()
+        self.assertEqual(build_main.identity.version, "2.0")
+        self.assertEqual(defaults["objective"]["target_chain"], 10)
+        self.assertEqual(
+            defaults["constraints"]["trigger_preservation"],
+            "required",
+        )
+        self.assertEqual(build_main.parameters["planner"]["beam_depth"].maximum, 10)
+        profiles = build_main.planner["search_profiles"]
+        self.assertEqual(profiles["schema_version"], "puyo.long_horizon_profile.v3")
+        self.assertEqual(profiles["default"], "runtime")
+        runtime = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "runtime"
+        )
+        self.assertEqual(
+            runtime["budget"]["authority"],
+            "external_runtime_deadline",
+        )
+        self.assertEqual(
+            runtime["budget"]["wall_clock_mode"],
+            "external_deadline_contract",
+        )
+        self.assertEqual(runtime["root_survivor_quota"], 1)
+        self.assertEqual(runtime["fire_semantics"]["context"], "safe_build")
+        self.assertEqual(
+            runtime["ranking_rule"],
+            "puyo.expected_chain_ranking.v2",
+        )
+        self.assertEqual(
+            (runtime["depth"], runtime["scenarios"], runtime["max_expanded_nodes"]),
+            (4, 2, 4096),
+        )
+        self.assertEqual(
+            runtime["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        smoke = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "smoke"
+        )
+        self.assertEqual(
+            (smoke["scenarios"], smoke["max_expanded_nodes"]),
+            (3, 30000),
+        )
+        quality_d16 = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "quality-d16"
+        )
+        self.assertEqual(
+            (
+                quality_d16["depth"],
+                quality_d16["width"],
+                quality_d16["scenarios"],
+            ),
+            (16, 250, 6),
+        )
+        self.assertEqual(quality_d16["budget"]["authority"], "expanded_nodes")
+        self.assertEqual(quality_d16["budget"]["wall_clock_mode"], "observational")
+        self.assertEqual(
+            quality_d16["future_sampling"]["mode"],
+            "seeded-authoritative",
+        )
+        legacy = next(
+            profile
+            for profile in profiles["entries"]
+            if profile["identity"]["name"] == "legacy-fixed-six"
+        )
+        self.assertEqual(
+            legacy["future_sampling"]["mode"],
+            "legacy-fixed-six",
+        )
+        self.assertIn(
+            "diagnostics.own.build_potential.predicted_chain_potential",
+            build_main.applicability["feature_refs"],
+        )
+        self.assertIn("value_breakdown", build_main.diagnostics["fields"])
+        prepare = self.registry.tactic("prepare_response")
+        self.assertEqual(prepare.identity.version, "2.0")
+
+        diagnostics = build_tactic_diagnostics(
+            self.registry,
+            self.base_input,
+            StateAnalyzer().analyze(self.base_input),
+        )
+        prepare_candidate = next(
+            item for item in diagnostics["candidates"]
+            if item["tactic_id"] == "prepare_response"
+        )
+        self.assertFalse(prepare_candidate["eligible"])
+        self.assertEqual(len(prepare_candidate["candidate_condition_groups"]), 2)
 
     def test_registry_rejects_unsupported_schema_version(self):
         payload = yaml.safe_load(DEFAULT_TACTIC_REGISTRY_PATH.read_text(encoding="utf-8"))

@@ -1,0 +1,720 @@
+{
+  "candidate_local": {
+    "lossless_namespaces": [
+      "expected_chain",
+      "structural_chain",
+      "trajectory",
+      "build_potential_status",
+      "scenario_vector"
+    ],
+    "optional_numeric": [
+      "value",
+      "is_present",
+      "evaluated",
+      "status"
+    ],
+    "ranker": {
+      "dtype": "float32",
+      "feature_mask": true,
+      "feature_names": [
+        "root_action",
+        "candidate_value",
+        "predicted_chain_count",
+        "predicted_score",
+        "predicted_attack.generated",
+        "predicted_attack.outgoing",
+        "expected_chain.score.sum",
+        "expected_chain.score.mean",
+        "expected_chain.score.worst",
+        "expected_chain.score.dispersion",
+        "expected_chain.score.maximum",
+        "expected_chain.count.sum",
+        "expected_chain.count.mean",
+        "expected_chain.count.worst",
+        "expected_chain.count.dispersion",
+        "expected_chain.count.maximum",
+        "expected_chain.support",
+        "expected_chain.coverage",
+        "trajectory.max_chain_depth",
+        "trajectory.terminal_fire",
+        "trajectory.premature_fire",
+        "trajectory.target_fire",
+        "structural.score",
+        "structural.potential_chain_count",
+        "structural.required_key_count",
+        "structural.trigger_height",
+        "structural.connectivity_edges",
+        "structural.connection_candidates",
+        "structural.growth_sites",
+        "structural.remaining_connection_edges",
+        "structural.danger",
+        "structural.tear",
+        "structural.waste",
+        "structural.trigger_damage",
+        "build_potential.predicted_chain_count",
+        "build_potential.predicted_chain_potential",
+        "build_potential.required_puyos",
+        "build_potential.evaluated",
+        "build_potential.budget_exhausted",
+        "trigger_recoverability.recoverable",
+        "continuation_flexibility",
+        "danger",
+        "scenario_uncertainty.coverage"
+      ],
+      "normalization": [
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "root_action",
+          "scale": 21.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            -1.0,
+            1.0
+          ],
+          "name": "candidate_value",
+          "scale": 1000000.0,
+          "signed": true
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_chain_count",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_score",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_attack.generated",
+          "scale": 180.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_attack.outgoing",
+          "scale": 180.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.score.sum",
+          "scale": 600000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.score.mean",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.score.worst",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.score.dispersion",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.score.maximum",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.count.sum",
+          "scale": 114.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.count.mean",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.count.worst",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.count.dispersion",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.count.maximum",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.support",
+          "scale": 6.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expected_chain.coverage",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trajectory.max_chain_depth",
+          "scale": 32.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trajectory.terminal_fire",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trajectory.premature_fire",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trajectory.target_fire",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            -1.0,
+            1.0
+          ],
+          "name": "structural.score",
+          "scale": 1000000.0,
+          "signed": true
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.potential_chain_count",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.required_key_count",
+          "scale": 8.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.trigger_height",
+          "scale": 14.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.connectivity_edges",
+          "scale": 128.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.connection_candidates",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.growth_sites",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.remaining_connection_edges",
+          "scale": 128.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.danger",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.tear",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.waste",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "structural.trigger_damage",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.predicted_chain_count",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.predicted_chain_potential",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.required_puyos",
+          "scale": 4.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.evaluated",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.budget_exhausted",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trigger_recoverability.recoverable",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "continuation_flexibility",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "danger",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "scenario_uncertainty.coverage",
+          "scale": 1.0,
+          "signed": false
+        }
+      ],
+      "scenario_feature_names": [
+        "max_chain_count",
+        "max_chain_score",
+        "reached_depth",
+        "evaluated",
+        "search_complete",
+        "terminal_fire_count",
+        "expanded_nodes",
+        "pruned_nodes",
+        "transposition_hits"
+      ],
+      "scenario_limit": 6,
+      "scenario_normalization": [
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "max_chain_count",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "max_chain_score",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "reached_depth",
+          "scale": 32.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "evaluated",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "search_complete",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "terminal_fire_count",
+          "scale": 64.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expanded_nodes",
+          "scale": 600000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "pruned_nodes",
+          "scale": 600000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "transposition_hits",
+          "scale": 600000.0,
+          "signed": false
+        }
+      ],
+      "schema_hash": "candidate-ranker-schema-fda82d38a455d78d5749b260",
+      "schema_version": "puyo.worker_candidate_ranker_input.v2",
+      "shared_context": "separate_object"
+    },
+    "status_enum": [
+      "evaluated",
+      "not_evaluated",
+      "budget_exhausted",
+      "legacy_missing"
+    ]
+  },
+  "compatibility_projection": {
+    "feature_mask_semantics": "true means present",
+    "lossless": false,
+    "missing_feature_mask_semantics": "true means absent",
+    "target": {
+      "dtype": "float32",
+      "feature_mask": false,
+      "feature_names": [
+        "candidate_value",
+        "predicted_chain_count",
+        "predicted_score",
+        "predicted_attack.generated",
+        "predicted_attack.outgoing",
+        "build_potential.predicted_chain_potential",
+        "ignition_cost.normalized",
+        "trigger_recoverability.recoverable",
+        "continuation_flexibility",
+        "danger",
+        "scenario_uncertainty.coverage",
+        "search_latency_ms",
+        "expanded_nodes"
+      ],
+      "normalization": [
+        {
+          "clamp": [
+            -1.0,
+            1.0
+          ],
+          "name": "candidate_value",
+          "scale": 1000000.0,
+          "signed": true
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_chain_count",
+          "scale": 19.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_score",
+          "scale": 100000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_attack.generated",
+          "scale": 180.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "predicted_attack.outgoing",
+          "scale": 180.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "build_potential.predicted_chain_potential",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "ignition_cost.normalized",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "trigger_recoverability.recoverable",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "continuation_flexibility",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "danger",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "scenario_uncertainty.coverage",
+          "scale": 1.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "search_latency_ms",
+          "scale": 2000.0,
+          "signed": false
+        },
+        {
+          "clamp": [
+            0.0,
+            1.0
+          ],
+          "name": "expanded_nodes",
+          "scale": 8192.0,
+          "signed": false
+        }
+      ],
+      "scenario_feature_names": [],
+      "scenario_limit": 0,
+      "schema_hash": "candidate-ranker-schema-3e5d9cf893b1cd065b153395",
+      "schema_version": "puyo.worker_candidate_ranker_input.v1",
+      "shared_context": "candidate_rows_include_decision_search_cost"
+    }
+  },
+  "decision_shared": {
+    "candidate_row_replication": false,
+    "namespaces": [
+      "profile",
+      "known_queue_length",
+      "scenarios",
+      "search_config",
+      "search_totals",
+      "latency",
+      "worker_deadline"
+    ]
+  },
+  "schema_version": "puyo.worker_proposal_v2_field_dictionary.v1"
+}

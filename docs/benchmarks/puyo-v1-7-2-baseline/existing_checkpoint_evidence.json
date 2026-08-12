@@ -1,0 +1,10 @@
+{
+  "declared_sha256": "ecc9c4f1be836804dcd3f0483231c3734fbb267cb4767999d1b85587ac67ff79",
+  "hash_matches_registry": true,
+  "path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/realtime_ppo/human-check-parent/checkpoints/latest.pt",
+  "registry_path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/model_registry.json",
+  "registry_schema_version": "puyo.model_role_registry.v1",
+  "schema_version": "puyo.v1_7_existing_checkpoint_evidence.v1",
+  "sha256": "ecc9c4f1be836804dcd3f0483231c3734fbb267cb4767999d1b85587ac67ff79",
+  "size_bytes": 16754641
+}

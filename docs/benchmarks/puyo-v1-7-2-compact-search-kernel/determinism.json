@@ -1,0 +1,35 @@
+{
+  "excluded_fields": [
+    "profile.authoritative_clone_seconds",
+    "profile.authoritative_transition_seconds",
+    "profile.compact_transition_seconds",
+    "profile.*_transitions_per_second",
+    "profile.compact_speedup_vs_clone_plus_transition"
+  ],
+  "fingerprints": [
+    {
+      "corpus_digest": "279760f72357990736f882e724e3d0d920952032534207f8adc1bd58e9858395",
+      "corpus_mismatch_count": 0,
+      "corpus_mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fixture_digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+      "fixture_mismatch_count": 0,
+      "transition_count": 1408
+    },
+    {
+      "corpus_digest": "279760f72357990736f882e724e3d0d920952032534207f8adc1bd58e9858395",
+      "corpus_mismatch_count": 0,
+      "corpus_mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "fixture_digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+      "fixture_mismatch_count": 0,
+      "transition_count": 1408
+    }
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "scope": [
+    "fixture digest and mismatch summary",
+    "seed/turn/action transition result digests",
+    "legal-action mismatch count",
+    "hash collision count"
+  ]
+}

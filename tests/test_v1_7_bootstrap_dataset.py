@@ -1,5 +1,6 @@
 import copy
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -17,6 +18,7 @@ from train.v1_7_bootstrap_dataset import (
 
 ROOT = Path(__file__).resolve().parents[1]
 GUI_REPLAY = ROOT / "docs/benchmarks/puyo-v1-7-0-smoke/gui_qa_replay.json"
+LEGACY_DATASET = ROOT / "docs/benchmarks/puyo-v1-7-1-bootstrap-dataset-smoke"
 
 
 def _first_diagnostics():
@@ -33,6 +35,47 @@ def _read_jsonl(path):
 
 
 class TestV17BootstrapDataset(unittest.TestCase):
+    def test_shape_compatible_legacy_validation_is_opt_in_and_strict(self):
+        strict_errors = validate_bootstrap_dataset(LEGACY_DATASET)
+        self.assertTrue(
+            any("registry_version" in error for error in strict_errors)
+        )
+        self.assertEqual(
+            validate_bootstrap_dataset(
+                LEGACY_DATASET,
+                allow_shape_compatible_legacy=True,
+            ),
+            [],
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            tampered = Path(temp_dir) / "dataset"
+            shutil.copytree(LEGACY_DATASET, tampered)
+            train_path = tampered / "train.jsonl"
+            samples = _read_jsonl(train_path)
+            sample = samples[0]
+            sample["features"]["context"].append(0.0)
+            sample["features"]["tactics"][0].append(0.0)
+            selected_index = int(sample["teacher"]["tactic_index"])
+            sample["features"]["eligibility_mask"][selected_index] = False
+            sample["teacher"]["action"] = NUM_ACTIONS
+            train_path.write_text(
+                "".join(json.dumps(value, sort_keys=True) + "\n" for value in samples),
+                encoding="utf-8",
+            )
+
+            errors = validate_bootstrap_dataset(
+                tampered,
+                allow_shape_compatible_legacy=True,
+            )
+            joined = "\n".join(errors)
+            self.assertIn("train split checksum mismatch", joined)
+            self.assertIn("digest mismatch", joined)
+            self.assertIn("features.context length mismatch", joined)
+            self.assertIn("features.tactics[0] length mismatch", joined)
+            self.assertIn("teacher tactic is ineligible", joined)
+            self.assertIn("teacher action is out of range", joined)
+
     def test_replay_decisions_are_deduplicated_and_build_is_reproducible(self):
         diagnostics = _first_diagnostics()
         replay = {

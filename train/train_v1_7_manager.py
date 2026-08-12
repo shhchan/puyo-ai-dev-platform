@@ -6,7 +6,7 @@ import argparse
 import json
 import math
 import random
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -23,7 +23,12 @@ except ImportError:  # pragma: no cover - dependency guard
     optim = None
     F = None
 
-from agents.state_analyzer import ANALYZER_INPUT_SCHEMA_VERSION
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.chain_styles import CHAIN_STYLE_SCHEMA_VERSION, ChainStyleSelection
+from agents.state_analyzer import (
+    ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+    ANALYZER_INPUT_SCHEMA_VERSION,
+)
 from agents.v1_7_strategy_manager import (
     BOOTSTRAP_TRAINER_NAME,
     FEATURE_SCHEMA_VERSION,
@@ -39,7 +44,12 @@ from agents.v1_7_strategy_manager import (
     decode_tactic_parameters,
     validate_v1_7_strategy_manager_checkpoint_payload,
 )
-from agents.v1_7_tactics import ParameterSpec, TacticRegistry, load_tactic_registry
+from agents.v1_7_tactics import (
+    TACTIC_SCHEMA_VERSION,
+    ParameterSpec,
+    TacticRegistry,
+    load_tactic_registry,
+)
 from eval.analyzer_scenarios import (
     SCENARIO_SCHEMA_VERSION,
     build_report as build_analyzer_scenario_report,
@@ -68,6 +78,10 @@ METRICS_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.metrics.v1"
 CONFUSION_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.confusion.v1"
 PARAMETER_REPORT_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.parameters.v1"
 SCENARIO_REPORT_SCHEMA_VERSION = "puyo.v1_7_manager_bootstrap.scenarios.v1"
+DATASET_METADATA_MIGRATION_SCHEMA_VERSION = (
+    "puyo.build_potential_v2_dataset_metadata_migration.v1"
+)
+LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION = "puyo.state_analyzer.diagnostics.v1"
 DEFAULT_CONFIG_PATH = Path(__file__).with_name("config") / "v1_7_manager_bootstrap.yaml"
 DEFAULT_DATASET_DIR = "docs/benchmarks/puyo-v1-7-1-bootstrap-dataset-smoke"
 DEFAULT_SCENARIO_DATASET = "eval/scenarios/v1_7_analyzer.json"
@@ -106,6 +120,68 @@ class _LoadedDataset:
     manifest_sha256: str
     train: tuple[Mapping[str, Any], ...]
     validation: tuple[Mapping[str, Any], ...]
+
+
+def _migrate_v1_7_1_dataset_metadata(
+    dataset: _LoadedDataset,
+    encoder: V17StrategyFeatureEncoder,
+) -> _LoadedDataset:
+    """Normalize shape-compatible v1.7.1 dataset metadata for v1.7.2 training."""
+
+    migrated_manifest = dict(dataset.manifest)
+    feature_contract = dict(migrated_manifest.get("feature_contract", {}))
+    source_registry_version = feature_contract.get("registry_version")
+    if source_registry_version == encoder.contract.registry_version:
+        encoder.contract.validate_metadata(feature_contract)
+    elif source_registry_version != "v1.7.0":
+        encoder.contract.validate_metadata(feature_contract)
+    target_contract = encoder.contract.to_metadata()
+    if source_registry_version == "v1.7.0":
+        for field, value in target_contract.items():
+            if field == "registry_version":
+                continue
+            if feature_contract.get(field) != value:
+                raise ValueError(
+                    "v1.7.1 dataset cannot migrate without changing feature shape: "
+                    f"feature_contract.{field} differs"
+                )
+        migrated_manifest["feature_contract"] = target_contract
+
+    schemas = dict(migrated_manifest.get("schemas", {}))
+    analyzer_diagnostics_schema = schemas.get("analyzer_diagnostics")
+    if analyzer_diagnostics_schema not in {
+        LEGACY_ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+    }:
+        raise ValueError(
+            "dataset Analyzer diagnostics schema cannot migrate to BuildPotential v2: "
+            f"{analyzer_diagnostics_schema!r}"
+        )
+    build_potential_schema = schemas.get("build_potential")
+    if build_potential_schema not in {None, BUILD_POTENTIAL_SCHEMA_VERSION}:
+        raise ValueError(
+            "dataset BuildPotential schema is unsupported: "
+            f"{build_potential_schema!r}"
+        )
+    schemas.update(
+        {
+            "analyzer_diagnostics": ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+            "build_potential": BUILD_POTENTIAL_SCHEMA_VERSION,
+            "chain_style": CHAIN_STYLE_SCHEMA_VERSION,
+            "tactic_registry": TACTIC_SCHEMA_VERSION,
+            "tactic_registry_version": encoder.contract.registry_version,
+        }
+    )
+    migrated_manifest["schemas"] = schemas
+    migrated_manifest["chain_style"] = ChainStyleSelection().to_dict()
+    if migrated_manifest == dataset.manifest:
+        return dataset
+    compatibility = dict(migrated_manifest.get("compatibility", {}))
+    migration_sources = dict(compatibility.get("migration_sources", {}))
+    migration_sources[DATASET_METADATA_MIGRATION_SCHEMA_VERSION] = 1
+    compatibility["migration_sources"] = migration_sources
+    migrated_manifest["compatibility"] = compatibility
+    return replace(dataset, manifest=migrated_manifest)
 
 
 @dataclass(frozen=True)
@@ -214,7 +290,10 @@ def _read_jsonl(path: Path) -> tuple[Mapping[str, Any], ...]:
 
 def _load_and_validate_dataset(config: V17ManagerBootstrapConfig) -> _LoadedDataset:
     root = Path(config.dataset_dir)
-    errors = validate_bootstrap_dataset(root)
+    errors = validate_bootstrap_dataset(
+        root,
+        allow_shape_compatible_legacy=True,
+    )
     if errors:
         raise ValueError("invalid bootstrap dataset: " + "; ".join(errors))
     manifest_path = root / "dataset_manifest.json"
@@ -755,7 +834,7 @@ def _lifecycle_carry_contract(dataset: _LoadedDataset) -> dict[str, Any]:
 def train_v1_7_manager(
     config: V17ManagerBootstrapConfig | None = None,
 ) -> dict[str, Any]:
-    """Train and persist one schema-checked v1.7.1 bootstrap checkpoint."""
+    """Train and persist one schema-checked v1.7.2 bootstrap checkpoint."""
 
     _require_deps()
     cfg = config or V17ManagerBootstrapConfig()
@@ -764,9 +843,15 @@ def train_v1_7_manager(
     _, analyzer_scenario_report = _validate_scenarios(cfg, dataset)
     registry = load_tactic_registry()
     encoder = V17StrategyFeatureEncoder(registry)
+    dataset = _migrate_v1_7_1_dataset_metadata(dataset, encoder)
     encoder.contract.validate_metadata(dataset.manifest.get("feature_contract", {}))
-    if dataset.manifest.get("schemas", {}).get("analyzer_input") != ANALYZER_INPUT_SCHEMA_VERSION:
+    dataset_schemas = dataset.manifest.get("schemas", {})
+    if dataset_schemas.get("analyzer_input") != ANALYZER_INPUT_SCHEMA_VERSION:
         raise ValueError("dataset Analyzer input schema does not match the current model")
+    if dataset_schemas.get("analyzer_diagnostics") != ANALYZER_DIAGNOSTICS_SCHEMA_VERSION:
+        raise ValueError("dataset Analyzer diagnostics schema does not match the current model")
+    if dataset_schemas.get("build_potential") != BUILD_POTENTIAL_SCHEMA_VERSION:
+        raise ValueError("dataset BuildPotential schema does not match the current model")
     _seed_everything(cfg)
     device = _device(cfg)
     model = V17StrategyManagerNetwork(encoder.contract, hidden_dim=cfg.hidden_dim).to(device)
@@ -871,6 +956,12 @@ def train_v1_7_manager(
                 "schemas": dict(dataset.manifest.get("schemas", {})),
                 "counts": dict(dataset.manifest.get("counts", {})),
                 "compatibility": dict(dataset.manifest.get("compatibility", {})),
+                "chain_style": dict(
+                    dataset.manifest.get(
+                        "chain_style",
+                        ChainStyleSelection().to_dict(),
+                    )
+                ),
             },
             "lifecycle_carry_contract": _lifecycle_carry_contract(dataset),
             "scenario_validation": {

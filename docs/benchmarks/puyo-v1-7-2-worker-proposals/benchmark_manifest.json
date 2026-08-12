@@ -1,0 +1,35 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "summary",
+      "sha256": "352501b5412410cf1970e2d6f7063aa5ecad2a1859628e324b41c8b4f471f442",
+      "size_bytes": 5538
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_records.json",
+      "required": true,
+      "role": "records",
+      "sha256": "a031d975529fa9dcc7b82f7cf6cdaff24d54d17470e2f73b17374be30a1f576e",
+      "size_bytes": 69074
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "report",
+      "sha256": "e306d47e583742d76c26369587ab913b525c2c0b9effe3d7778c8f44b2076f7c",
+      "size_bytes": 1103
+    }
+  ],
+  "benchmark_schema_version": "puyo.v1_7_worker_proposal_benchmark.v1",
+  "generated_at": "2026-07-15T18:57:56Z",
+  "git_commit": "b9abf66c13b7b0ee7db30516f70980fecdf6f6ea",
+  "schema_version": "puyo.v1_7_worker_proposal_benchmark_manifest.v1"
+}

@@ -1,0 +1,41 @@
+{
+  "performance_is_go_condition": false,
+  "repetitions": [
+    {
+      "authoritative_clone_plus_transition_seconds": 0.11885556788183749,
+      "authoritative_clone_seconds": 0.031121838721446693,
+      "authoritative_transition_seconds": 0.0877337291603908,
+      "authoritative_transitions_per_second": 11846.31082154931,
+      "capture_visuals": true,
+      "compact_speedup_vs_clone_plus_transition": 0.7232086061511798,
+      "compact_transition_seconds": 0.16434479190502316,
+      "compact_transitions_per_second": 8567.353937286314,
+      "state_size": {
+        "authoritative_pickle_bytes": 6297,
+        "compact_canonical_bytes": 87,
+        "compact_pickle_bytes": 105,
+        "compact_python_deep_bytes": 292
+      },
+      "transition_count": 1408
+    },
+    {
+      "authoritative_clone_plus_transition_seconds": 0.11899348185397685,
+      "authoritative_clone_seconds": 0.031170172384008765,
+      "authoritative_transition_seconds": 0.08782330946996808,
+      "authoritative_transitions_per_second": 11832.58089487482,
+      "capture_visuals": true,
+      "compact_speedup_vs_clone_plus_transition": 0.7235412238237131,
+      "compact_transition_seconds": 0.1644598509883508,
+      "compact_transitions_per_second": 8561.360061670814,
+      "state_size": {
+        "authoritative_pickle_bytes": 6297,
+        "compact_canonical_bytes": 87,
+        "compact_pickle_bytes": 105,
+        "compact_python_deep_bytes": 292
+      },
+      "transition_count": 1408
+    }
+  ],
+  "schema_version": "puyo.compact_search_kernel_benchmark.v1",
+  "selected_repetition": 0
+}

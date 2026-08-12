@@ -1,0 +1,41 @@
+schema_version: puyo.chain_structure_weights.v1
+feature_version: puyo.chain_structure_features.v1
+weight_version: v1.0
+
+quiescence:
+  max_added_puyos: 3
+  max_pattern_nodes: 512
+  max_resolution_nodes: 96
+  max_candidates: 12
+
+# Values are expressed directly on the beam candidate score scale. Positive
+# weights reward construction capacity; negative weights are costs.
+weights:
+  potential_chain_count: 45000.0
+  potential_chain_score: 0.05
+  required_key_count: -9000.0
+  trigger_height: -180.0
+  trigger_protection: 600.0
+  remaining_link_2: 140.0
+  remaining_link_3: 440.0
+  connectivity_edge: 90.0
+  connection_candidate: 550.0
+  reachable_ignition: 700.0
+  growth_site: 75.0
+  foundation_cell: 25.0
+  fold_space: 20.0
+  adjacent_roughness: -35.0
+  height_spread: -25.0
+  well_depth: -55.0
+  bump_height: -70.0
+  danger_ratio: -20000.0
+  nuisance_puyo: -240.0
+  hidden_row_puyo: -1500.0
+  tear: -4000.0
+  waste: -2000.0
+  trigger_damage: -30000.0
+  premature_fire: -10000.0
+
+# Death, an unreachable trigger on a non-empty compact field, and a proven
+# structural dead end use this floor instead of an additive penalty.
+fatal_score: -1000000000000.0

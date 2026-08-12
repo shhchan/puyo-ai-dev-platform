@@ -1,0 +1,231 @@
+{
+  "schema_version": "puyo.compact_search_fixtures.v1",
+  "row_order": "bottom_to_top",
+  "cases": [
+    {
+      "id": "empty_quiet",
+      "board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "BLUE"],
+      "action": 7,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 0,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_count": 0,
+        "vanished_count": 0,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["..R...", "..B...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": []
+      }
+    },
+    {
+      "id": "equal_pair_symmetry",
+      "board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "RED"],
+      "action": 7,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 3, 4, 7, 8, 11, 12, 15, 16, 19],
+        "axis_y": 0,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_count": 0,
+        "vanished_count": 0,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["..R...", "..R...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": []
+      }
+    },
+    {
+      "id": "left_right_asymmetric",
+      "board": ["B.....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "YELLOW"],
+      "action": 4,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 0,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_count": 0,
+        "vanished_count": 0,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["BRY...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": []
+      }
+    },
+    {
+      "id": "one_chain_all_clear",
+      "board": [".R....", ".R....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "RED"],
+      "action": 7,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 11, 12, 15, 16, 19],
+        "axis_y": 0,
+        "score_delta": 40,
+        "attack_score_delta": 40,
+        "chain_count": 1,
+        "vanished_count": 4,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": true,
+        "all_clear_bonus_pending": true,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": [
+          {"chain_index": 1, "vanished_count": 4, "garbage_cleared_count": 0, "score": 40, "base": 40, "bonus": 1, "all_clear_bonus_score": 0}
+        ]
+      }
+    },
+    {
+      "id": "two_chain",
+      "board": ["BBBRR.", "...BR.", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "YELLOW"],
+      "action": 19,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 0,
+        "score_delta": 360,
+        "attack_score_delta": 360,
+        "chain_count": 2,
+        "vanished_count": 8,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": [".....Y", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": [
+          {"chain_index": 1, "vanished_count": 4, "garbage_cleared_count": 0, "score": 40, "base": 40, "bonus": 1, "all_clear_bonus_score": 0},
+          {"chain_index": 2, "vanished_count": 4, "garbage_cleared_count": 0, "score": 320, "base": 40, "bonus": 8, "all_clear_bonus_score": 0}
+        ]
+      }
+    },
+    {
+      "id": "adjacent_ojama",
+      "board": ["RRR...", "..O...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "YELLOW"],
+      "action": 12,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 0,
+        "score_delta": 40,
+        "attack_score_delta": 40,
+        "chain_count": 1,
+        "vanished_count": 4,
+        "garbage_cleared_count": 1,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["....Y.", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": [
+          {"chain_index": 1, "vanished_count": 4, "garbage_cleared_count": 1, "score": 40, "base": 40, "bonus": 1, "all_clear_bonus_score": 0}
+        ]
+      }
+    },
+    {
+      "id": "hidden_rows_preserved",
+      "board": [".....G", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "B.....", "RO...."],
+      "pair": ["YELLOW", "BLUE"],
+      "action": 7,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 0,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_count": 0,
+        "vanished_count": 0,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["B.Y..G", "..B...", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "RO...."],
+        "chains": []
+      }
+    },
+    {
+      "id": "death_at_choke",
+      "board": ["..R...", "..B...", "..G...", "..Y...", "..R...", "..B...", "..G...", "..Y...", "..R...", "..B...", "..G...", "......", "......", "......"],
+      "pair": ["RED", "BLUE"],
+      "action": 8,
+      "all_clear_bonus_pending": false,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "axis_y": 11,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_count": 0,
+        "vanished_count": 0,
+        "garbage_cleared_count": 0,
+        "game_over": true,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "final_board": ["..RB..", "..B...", "..G...", "..Y...", "..R...", "..B...", "..G...", "..Y...", "..R...", "..B...", "..G...", "..R...", "......", "......"],
+        "chains": []
+      }
+    },
+    {
+      "id": "pending_all_clear_bonus",
+      "board": [".R...B", ".R....", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+      "pair": ["RED", "RED"],
+      "action": 7,
+      "all_clear_bonus_pending": true,
+      "expected": {
+        "legal_actions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+        "symmetry_reduced_actions": [0, 11, 12, 15, 16, 19],
+        "axis_y": 0,
+        "score_delta": 2140,
+        "attack_score_delta": 2140,
+        "chain_count": 1,
+        "vanished_count": 4,
+        "garbage_cleared_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": true,
+        "all_clear_bonus_score": 2100,
+        "final_board": [".....B", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......", "......"],
+        "chains": [
+          {"chain_index": 1, "vanished_count": 4, "garbage_cleared_count": 0, "score": 2140, "base": 40, "bonus": 1, "all_clear_bonus_score": 2100}
+        ]
+      }
+    }
+  ]
+}

@@ -174,6 +174,23 @@ latent option 段階では，option の振る舞いをクラスタ分析や診�
 初期段階では人間が `build_main` などの `TacticSpec` を定義し，manager がそのパラメータを学習する。
 次段階では `TacticSpec` の embedding や parameter distribution を学習し，似た戦術の分岐・統合・改良を可能にする。
 
+v1.7.2 の named chain style 拡張は [PUYO-168 contract](puyo-168-named-chain-style.md) に従う。
+`unconstrained` を既定とし，GTR 等の style adherence は generic BuildPotential / capability gate と
+別 namespace で明示指定時だけ評価する。
+
+v1.7.2 の ranker-facing beam candidate 集合、diversity slot、budget fallback、診断 schema は
+[PUYO-167 contract](puyo-167-diverse-beam-candidates.md) に従う。既存 single-best API は candidate
+rank 0 を返す compatibility adapter として維持する。
+
+worker candidate を fixed-length mask、stable ID、structured preview、rollout serialization、
+learned candidate distribution へ接続する境界は
+[PUYO-169 contract](puyo-169-worker-proposals.md) に従う。named chain style は optional metadata として
+保持するが generic candidate ranker feature には暗黙追加しない。
+
+safe-build の学習開始可否と学習後の昇格可否は
+[PUYO-170 two-stage gate](puyo-170-safe-build-gates.md) に従う。K-best 集合の capability と learned policy の
+selected action を別 schema で保存し、bounded reference を promotion 成績として扱わない。
+
 ```text
 TacticSpec
   identity:

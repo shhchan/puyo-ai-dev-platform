@@ -1,0 +1,707 @@
+{
+  "configurations": [
+    {
+      "config_id": "d6-w24-p8",
+      "decision_p50_ms": 617.082818003837,
+      "decision_p95_ms": 804.6545030956622,
+      "depth": 6,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 5.533333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 18,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w24-p8",
+      "max_chain_max": 12,
+      "max_chain_p50": 5.0,
+      "max_chain_p90": 10.100000000000001,
+      "mean_max_chain": 5.533333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 18,
+      "premature_fire_rate": 0.015012510425354461,
+      "probe_width": 8,
+      "trigger_loss_count": 321,
+      "trigger_loss_rate": 0.34929270946681173,
+      "trigger_opportunities": 919,
+      "width": 24
+    },
+    {
+      "config_id": "d6-w24-p16",
+      "decision_p50_ms": 660.1371054712217,
+      "decision_p95_ms": 896.8649329995969,
+      "depth": 6,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 3.6333333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 19,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w24-p16",
+      "max_chain_max": 11,
+      "max_chain_p50": 2.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 3.6333333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 19,
+      "premature_fire_rate": 0.015833333333333335,
+      "probe_width": 16,
+      "trigger_loss_count": 357,
+      "trigger_loss_rate": 0.3918770581778266,
+      "trigger_opportunities": 911,
+      "width": 24
+    },
+    {
+      "config_id": "d6-w32-p8",
+      "decision_p50_ms": 742.2775159939192,
+      "decision_p95_ms": 979.2450295237356,
+      "depth": 6,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 5.733333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 16,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w32-p8",
+      "max_chain_max": 13,
+      "max_chain_p50": 4.5,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 5.733333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 16,
+      "premature_fire_rate": 0.013344453711426188,
+      "probe_width": 8,
+      "trigger_loss_count": 321,
+      "trigger_loss_rate": 0.34891304347826085,
+      "trigger_opportunities": 920,
+      "width": 32
+    },
+    {
+      "config_id": "d6-w32-p16",
+      "decision_p50_ms": 839.1569569939747,
+      "decision_p95_ms": 1111.5324894431976,
+      "depth": 6,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 7.333333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 15,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w32-p16",
+      "max_chain_max": 13,
+      "max_chain_p50": 10.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 7.333333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 15,
+      "premature_fire_rate": 0.012510425354462052,
+      "probe_width": 16,
+      "trigger_loss_count": 309,
+      "trigger_loss_rate": 0.34030837004405284,
+      "trigger_opportunities": 908,
+      "width": 32
+    },
+    {
+      "config_id": "d6-w48-p8",
+      "decision_p50_ms": 1022.0378040103242,
+      "decision_p95_ms": 1379.7703980817457,
+      "depth": 6,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 6.033333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 20,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w48-p8",
+      "max_chain_max": 13,
+      "max_chain_p50": 5.5,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 6.033333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 20,
+      "premature_fire_rate": 0.016680567139282735,
+      "probe_width": 8,
+      "trigger_loss_count": 320,
+      "trigger_loss_rate": 0.3583426651735722,
+      "trigger_opportunities": 893,
+      "width": 48
+    },
+    {
+      "config_id": "d6-w48-p16",
+      "decision_p50_ms": 1116.211918008048,
+      "decision_p95_ms": 1475.8078246202786,
+      "depth": 6,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 7.533333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 9,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d6-w48-p16",
+      "max_chain_max": 12,
+      "max_chain_p50": 10.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 7.533333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 9,
+      "premature_fire_rate": 0.0075,
+      "probe_width": 16,
+      "trigger_loss_count": 310,
+      "trigger_loss_rate": 0.34949267192784667,
+      "trigger_opportunities": 887,
+      "width": 48
+    },
+    {
+      "config_id": "d8-w24-p8",
+      "decision_p50_ms": 851.0439820238389,
+      "decision_p95_ms": 1111.9209066266194,
+      "depth": 8,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 5.733333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 17,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w24-p8",
+      "max_chain_max": 13,
+      "max_chain_p50": 5.5,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 5.733333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 17,
+      "premature_fire_rate": 0.014178482068390326,
+      "probe_width": 8,
+      "trigger_loss_count": 315,
+      "trigger_loss_rate": 0.34961154273029965,
+      "trigger_opportunities": 901,
+      "width": 24
+    },
+    {
+      "config_id": "d8-w24-p16",
+      "decision_p50_ms": 925.4670120135415,
+      "decision_p95_ms": 1236.88958469138,
+      "depth": 8,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 4.1,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 20,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w24-p16",
+      "max_chain_max": 12,
+      "max_chain_p50": 2.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 4.1,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 20,
+      "premature_fire_rate": 0.016666666666666666,
+      "probe_width": 16,
+      "trigger_loss_count": 319,
+      "trigger_loss_rate": 0.3524861878453039,
+      "trigger_opportunities": 905,
+      "width": 24
+    },
+    {
+      "config_id": "d8-w32-p8",
+      "decision_p50_ms": 1075.2568375028204,
+      "decision_p95_ms": 1395.101463195169,
+      "depth": 8,
+      "game_over_before_limit": 2,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 2,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 5.166666666666667,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 20,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w32-p8",
+      "max_chain_max": 11,
+      "max_chain_p50": 3.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 5.166666666666667,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 20,
+      "premature_fire_rate": 0.01669449081803005,
+      "probe_width": 8,
+      "trigger_loss_count": 334,
+      "trigger_loss_rate": 0.3595263724434876,
+      "trigger_opportunities": 929,
+      "width": 32
+    },
+    {
+      "config_id": "d8-w32-p16",
+      "decision_p50_ms": 1161.1944140167907,
+      "decision_p95_ms": 1522.8865656768903,
+      "depth": 8,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 6.1,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 19,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w32-p16",
+      "max_chain_max": 13,
+      "max_chain_p50": 5.0,
+      "max_chain_p90": 12.0,
+      "mean_max_chain": 6.1,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 19,
+      "premature_fire_rate": 0.0158465387823186,
+      "probe_width": 16,
+      "trigger_loss_count": 326,
+      "trigger_loss_rate": 0.35667396061269147,
+      "trigger_opportunities": 914,
+      "width": 32
+    },
+    {
+      "config_id": "d8-w48-p8",
+      "decision_p50_ms": 1486.039985989919,
+      "decision_p95_ms": 1932.4084580439376,
+      "depth": 8,
+      "game_over_before_limit": 4,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 4,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 3.3333333333333335,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 18,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w48-p8",
+      "max_chain_max": 11,
+      "max_chain_p50": 1.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 3.3333333333333335,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 18,
+      "premature_fire_rate": 0.015050167224080268,
+      "probe_width": 8,
+      "trigger_loss_count": 338,
+      "trigger_loss_rate": 0.37102085620197583,
+      "trigger_opportunities": 911,
+      "width": 48
+    },
+    {
+      "config_id": "d8-w48-p16",
+      "decision_p50_ms": 1585.3030779981054,
+      "decision_p95_ms": 2100.1206020242535,
+      "depth": 8,
+      "game_over_before_limit": 3,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 3,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 6.4,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 8,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d8-w48-p16",
+      "max_chain_max": 12,
+      "max_chain_p50": 10.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 6.4,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 8,
+      "premature_fire_rate": 0.006683375104427736,
+      "probe_width": 16,
+      "trigger_loss_count": 318,
+      "trigger_loss_rate": 0.3502202643171806,
+      "trigger_opportunities": 908,
+      "width": 48
+    },
+    {
+      "config_id": "d10-w24-p8",
+      "decision_p50_ms": 1096.4998829877004,
+      "decision_p95_ms": 1413.0100259033497,
+      "depth": 10,
+      "game_over_before_limit": 1,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 1,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 6.433333333333334,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 12,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w24-p8",
+      "max_chain_max": 13,
+      "max_chain_p50": 8.5,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 6.433333333333334,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 12,
+      "premature_fire_rate": 0.010008340283569641,
+      "probe_width": 8,
+      "trigger_loss_count": 323,
+      "trigger_loss_rate": 0.35611907386990077,
+      "trigger_opportunities": 907,
+      "width": 24
+    },
+    {
+      "config_id": "d10-w24-p16",
+      "decision_p50_ms": 1231.4979279763065,
+      "decision_p95_ms": 1559.2494975135196,
+      "depth": 10,
+      "game_over_before_limit": 2,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 2,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 4.3,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 14,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w24-p16",
+      "max_chain_max": 10,
+      "max_chain_p50": 2.0,
+      "max_chain_p90": 10.0,
+      "mean_max_chain": 4.3,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 14,
+      "premature_fire_rate": 0.011686143572621035,
+      "probe_width": 16,
+      "trigger_loss_count": 332,
+      "trigger_loss_rate": 0.3593073593073593,
+      "trigger_opportunities": 924,
+      "width": 24
+    },
+    {
+      "config_id": "d10-w32-p8",
+      "decision_p50_ms": 1374.3084809975699,
+      "decision_p95_ms": 1747.1427248645339,
+      "depth": 10,
+      "game_over_before_limit": 0,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 0,
+          "expected": "0 before 40 moves",
+          "passed": true
+        },
+        "mean_max_chain": {
+          "actual": 4.9,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 22,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w32-p8",
+      "max_chain_max": 13,
+      "max_chain_p50": 3.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 4.9,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 22,
+      "premature_fire_rate": 0.018333333333333333,
+      "probe_width": 8,
+      "trigger_loss_count": 327,
+      "trigger_loss_rate": 0.3504823151125402,
+      "trigger_opportunities": 933,
+      "width": 32
+    },
+    {
+      "config_id": "d10-w32-p16",
+      "decision_p50_ms": 1494.8212590243202,
+      "decision_p95_ms": 1928.3248977997573,
+      "depth": 10,
+      "game_over_before_limit": 2,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 2,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 4.966666666666667,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 15,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w32-p16",
+      "max_chain_max": 11,
+      "max_chain_p50": 2.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 4.966666666666667,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 15,
+      "premature_fire_rate": 0.012520868113522538,
+      "probe_width": 16,
+      "trigger_loss_count": 331,
+      "trigger_loss_rate": 0.3645374449339207,
+      "trigger_opportunities": 908,
+      "width": 32
+    },
+    {
+      "config_id": "d10-w48-p8",
+      "decision_p50_ms": 1958.441804512404,
+      "decision_p95_ms": 2511.149667936842,
+      "depth": 10,
+      "game_over_before_limit": 2,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 2,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 4.566666666666666,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 22,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w48-p8",
+      "max_chain_max": 12,
+      "max_chain_p50": 2.0,
+      "max_chain_p90": 11.0,
+      "mean_max_chain": 4.566666666666666,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 22,
+      "premature_fire_rate": 0.018363939899833055,
+      "probe_width": 8,
+      "trigger_loss_count": 330,
+      "trigger_loss_rate": 0.3687150837988827,
+      "trigger_opportunities": 895,
+      "width": 48
+    },
+    {
+      "config_id": "d10-w48-p16",
+      "decision_p50_ms": 2068.084405036643,
+      "decision_p95_ms": 2657.308693008963,
+      "depth": 10,
+      "game_over_before_limit": 3,
+      "games": 30,
+      "gates": {
+        "game_over": {
+          "actual": 3,
+          "expected": "0 before 40 moves",
+          "passed": false
+        },
+        "mean_max_chain": {
+          "actual": 5.333333333333333,
+          "expected": ">= 10.0",
+          "passed": false
+        },
+        "premature_fire": {
+          "actual": 17,
+          "expected": "0 safe/no-threat fires of chain length 1-9",
+          "passed": false
+        }
+      },
+      "label": "d10-w48-p16",
+      "max_chain_max": 13,
+      "max_chain_p50": 4.0,
+      "max_chain_p90": 10.100000000000001,
+      "mean_max_chain": 5.333333333333333,
+      "moves_per_game": 40,
+      "passed": false,
+      "premature_fire_count": 17,
+      "premature_fire_rate": 0.014202172096908938,
+      "probe_width": 16,
+      "trigger_loss_count": 314,
+      "trigger_loss_rate": 0.3465783664459161,
+      "trigger_opportunities": 906,
+      "width": 48
+    }
+  ],
+  "schema_version": "puyo.v1_7_build_main_benchmark.v1"
+}

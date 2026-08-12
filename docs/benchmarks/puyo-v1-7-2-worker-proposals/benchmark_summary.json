@@ -1,0 +1,221 @@
+{
+  "checks": {
+    "all_candidates_legal": true,
+    "compatibility_rank_0": true,
+    "deterministic_repetitions": true,
+    "fixed_shape": true,
+    "passed": true,
+    "round_trip": true,
+    "selected_action_legal": true
+  },
+  "configurations": [
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_count": {
+        "maximum": 1,
+        "mean": 1.0,
+        "minimum": 1
+      },
+      "candidate_limit": 1,
+      "candidate_mode": "diverse",
+      "config_id": "k1-n96",
+      "depth": 2,
+      "expanded_nodes": {
+        "mean": 96.0,
+        "p50": 96.0,
+        "p95": 96.0
+      },
+      "latency_ms": {
+        "mean": 156.8119201256195,
+        "p50": 157.52447547856718,
+        "p95": 160.11682731332257
+      },
+      "peak_memory_bytes": {
+        "mean": 938453.5,
+        "p50": 941488.0,
+        "p95": 1023915.7
+      },
+      "preview_budget_kind": "max_expanded_nodes",
+      "preview_node_budget": 96,
+      "samples": 8,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "serialized_bytes": {
+        "mean": 6924.125,
+        "p50": 6927.5,
+        "p95": 6935.6
+      },
+      "width": 12
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_count": {
+        "maximum": 4,
+        "mean": 4.0,
+        "minimum": 4
+      },
+      "candidate_limit": 4,
+      "candidate_mode": "diverse",
+      "config_id": "k4-n96",
+      "depth": 2,
+      "expanded_nodes": {
+        "mean": 96.0,
+        "p50": 96.0,
+        "p95": 96.0
+      },
+      "latency_ms": {
+        "mean": 328.763488389086,
+        "p50": 325.1122175133787,
+        "p95": 357.53609519451857
+      },
+      "peak_memory_bytes": {
+        "mean": 1193012.5,
+        "p50": 1192880.0,
+        "p95": 1284923.2
+      },
+      "preview_budget_kind": "max_expanded_nodes",
+      "preview_node_budget": 96,
+      "samples": 8,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "serialized_bytes": {
+        "mean": 21069.5,
+        "p50": 21065.5,
+        "p95": 21250.6
+      },
+      "width": 12
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_count": {
+        "maximum": 8,
+        "mean": 8.0,
+        "minimum": 8
+      },
+      "candidate_limit": 8,
+      "candidate_mode": "diverse",
+      "config_id": "k8-n96",
+      "depth": 2,
+      "expanded_nodes": {
+        "mean": 96.0,
+        "p50": 96.0,
+        "p95": 96.0
+      },
+      "latency_ms": {
+        "mean": 569.3441152689047,
+        "p50": 565.2078749844804,
+        "p95": 614.8018676380161
+      },
+      "peak_memory_bytes": {
+        "mean": 1333371.25,
+        "p50": 1332387.5,
+        "p95": 1396302.8
+      },
+      "preview_budget_kind": "max_expanded_nodes",
+      "preview_node_budget": 96,
+      "samples": 8,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "serialized_bytes": {
+        "mean": 39492.25,
+        "p50": 39489.0,
+        "p95": 39897.0
+      },
+      "width": 12
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_count": {
+        "maximum": 4,
+        "mean": 4.0,
+        "minimum": 4
+      },
+      "candidate_limit": 4,
+      "candidate_mode": "diverse",
+      "config_id": "k4-n48",
+      "depth": 2,
+      "expanded_nodes": {
+        "mean": 48.0,
+        "p50": 48.0,
+        "p95": 48.0
+      },
+      "latency_ms": {
+        "mean": 301.68415351363365,
+        "p50": 297.8584294905886,
+        "p95": 327.25230990326963
+      },
+      "peak_memory_bytes": {
+        "mean": 893334.0,
+        "p50": 892754.0,
+        "p95": 902156.0
+      },
+      "preview_budget_kind": "max_expanded_nodes",
+      "preview_node_budget": 48,
+      "samples": 8,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "serialized_bytes": {
+        "mean": 20905.5,
+        "p50": 20903.0,
+        "p95": 21147.5
+      },
+      "width": 12
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_count": {
+        "maximum": 4,
+        "mean": 4.0,
+        "minimum": 4
+      },
+      "candidate_limit": 4,
+      "candidate_mode": "diverse",
+      "config_id": "k4-n192",
+      "depth": 2,
+      "expanded_nodes": {
+        "mean": 192.0,
+        "p50": 192.0,
+        "p95": 192.0
+      },
+      "latency_ms": {
+        "mean": 382.9212264972739,
+        "p50": 380.4129245108925,
+        "p95": 402.620909322286
+      },
+      "peak_memory_bytes": {
+        "mean": 1715848.0,
+        "p50": 1689072.0,
+        "p95": 1994482.0
+      },
+      "preview_budget_kind": "max_expanded_nodes",
+      "preview_node_budget": 192,
+      "samples": 8,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "serialized_bytes": {
+        "mean": 21107.5,
+        "p50": 21115.0,
+        "p95": 21271.9
+      },
+      "width": 12
+    }
+  ],
+  "generated_at": "2026-07-15T18:57:56Z",
+  "git_commit": "b9abf66c13b7b0ee7db30516f70980fecdf6f6ea",
+  "measurement": {
+    "determinism_projection": "wall-clock latency fields neutralized",
+    "latency": "observational_wall_clock_including_serialization",
+    "memory": "tracemalloc_peak_bytes_including_serialization",
+    "preview_budget": "deterministic max_expanded_nodes"
+  },
+  "records": 40,
+  "repetitions": 2,
+  "schema_version": "puyo.v1_7_worker_proposal_benchmark.v1",
+  "seeds": [
+    169,
+    170,
+    171,
+    172
+  ],
+  "worker_proposal_schema_version": "puyo.worker_proposal_batch.v1"
+}

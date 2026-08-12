@@ -1,0 +1,12 @@
+{
+  "available_decisions": 1200,
+  "expected_sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+  "hash_guard_passed": true,
+  "immutable_source": true,
+  "path": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+  "schema_version": "puyo.v1_7_search_diagnostics_decision.v1",
+  "selected_decisions": 1200,
+  "selection_rule": "all records in source order",
+  "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+  "size_bytes": 22485773
+}

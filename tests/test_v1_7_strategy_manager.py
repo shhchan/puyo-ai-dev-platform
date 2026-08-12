@@ -8,19 +8,29 @@ try:
 except (ImportError, OSError):  # pragma: no cover - optional dependency guard
     torch = None
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
 from agents.state_analyzer import AnalyzerConfig, StateAnalyzer
 from agents.strategy_workers import smoke_worker_profiles
+from agents.v1_7_planner import PlannerBudgetCap
 from agents.v1_7_strategy_manager import (
     PREVIEW_FEATURE_NAMES,
     STRATEGY_MANAGER_DIAGNOSTICS_SCHEMA_VERSION,
     V17StrategyFeatureEncoder,
     V17StrategyManagerNetwork,
     V17StrategyManagerPolicy,
+    _response_guard_eligibility,
+    build_v1_7_checkpoint_metadata,
     decode_tactic_parameters,
     encode_preview_features,
 )
 from agents.v1_7_tactics import load_tactic_registry
+from agents.worker_proposals import (
+    CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION,
+    CANDIDATE_RANKER_V1_SCHEMA_HASH,
+    WORKER_PROPOSAL_SCHEMA_VERSION,
+)
 from eval.analyzer_scenarios import load_scenarios, scenario_input
+from eval.v1_7_benchmark import load_response_scenarios
 from puyo_env.versus_env import VersusPuyoEnv
 
 
@@ -81,6 +91,31 @@ class TestV17StrategyManager(unittest.TestCase):
         ):
             self.encoder.contract.validate_metadata(metadata)
 
+    def test_checkpoint_metadata_adds_build_potential_without_feature_growth(self):
+        metadata = build_v1_7_checkpoint_metadata(self.registry, run_id="metadata-test")
+
+        self.assertEqual(
+            metadata["schemas"]["build_potential"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_proposal"],
+            WORKER_PROPOSAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_candidate_ranker_input"],
+            CANDIDATE_RANKER_INPUT_V1_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            metadata["schemas"]["worker_candidate_ranker_schema_hash"],
+            CANDIDATE_RANKER_V1_SCHEMA_HASH,
+        )
+        self.assertEqual(self.encoder.contract.context_dim, 77)
+        self.assertNotIn(
+            "build_potential",
+            self.encoder.contract.context_feature_names,
+        )
+
     @unittest.skipIf(torch is None, "torch is required")
     def test_network_masks_ineligible_tactics_and_arbitrates_previews(self):
         encoded = self.encode(
@@ -133,8 +168,40 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(low_values["planner"]["beam_depth"], 1)
         self.assertEqual(low_values["planner"]["beam_width"], 1)
         self.assertEqual(high_values["objective"]["target_chain"], 19)
-        self.assertEqual(high_values["planner"]["beam_depth"], 6)
+        self.assertEqual(high_values["planner"]["beam_depth"], 10)
         self.assertEqual(high_values["planner"]["beam_width"], 128)
+
+    def test_response_guard_keeps_all_six_threat_fixtures_out_of_build_main(self):
+        results = []
+        for definition in load_response_scenarios():
+            analyzer_input = self.scenario_input(definition["analyzer_scenario"])
+            diagnostics = self.analyzer.analyze(analyzer_input)
+            encoded = self.encoder.encode(analyzer_input, diagnostics)
+            guarded = _response_guard_eligibility(
+                self.encoder.contract,
+                encoded.eligibility_mask,
+                diagnostics,
+            )
+            selected = [
+                tactic_id
+                for tactic_id, allowed in zip(
+                    self.encoder.contract.tactic_ids,
+                    guarded,
+                )
+                if allowed
+            ]
+            expected = (
+                "counter_or_return"
+                if diagnostics.incoming.can_cancel
+                else "survive"
+            )
+            results.append((definition["name"], selected, expected))
+
+        self.assertEqual(len(results), 6)
+        for name, selected, expected in results:
+            with self.subTest(name=name):
+                self.assertEqual(selected, [expected])
+                self.assertNotIn("build_main", selected)
 
     def test_preview_features_include_bonus_aware_attack_fields(self):
         objective = SimpleNamespace(
@@ -232,6 +299,53 @@ class TestV17StrategyManager(unittest.TestCase):
             diagnostics["plan_id"],
             diagnostics["plan"]["plan_id"],
         )
+        build_potential = diagnostics["worker"]["result"]["build_potential"]
+        self.assertEqual(
+            build_potential["schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            diagnostics["worker"]["result"]["value_breakdown"],
+            build_potential["value_breakdown"],
+        )
+        self.assertEqual(
+            diagnostics["worker"]["result"]["trigger_recoverability"],
+            build_potential["trigger_recoverability"],
+        )
+        worker_proposal = diagnostics["worker"]["proposal_batch"]
+        self.assertEqual(
+            worker_proposal["selection"]["selected_action"],
+            action,
+        )
+        self.assertEqual(
+            worker_proposal["candidate_count"],
+            sum(worker_proposal["masks"]["candidate"]),
+        )
+        self.assertEqual(
+            worker_proposal["ranker_input"]["selected_index"],
+            worker_proposal["selection"]["selected_index"],
+        )
+        selected_preview = next(
+            candidate["preview"]
+            for candidate in candidates
+            if candidate["selected"]
+        )
+        self.assertEqual(
+            selected_preview["worker"]["build_potential"]["schema_version"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            selected_preview["worker"]["proposal_batch"],
+            worker_proposal,
+        )
+        self.assertIn("shared_context", worker_proposal)
+        self.assertTrue(
+            all(
+                "search_cost" not in candidate["preview"]
+                for candidate in worker_proposal["candidates"]
+                if candidate is not None
+            )
+        )
         json.dumps(diagnostics)
 
         policy.reset()
@@ -239,6 +353,175 @@ class TestV17StrategyManager(unittest.TestCase):
         self.assertEqual(policy.tactical_diagnostics, {})
         self.assertIsNone(policy.last_plan)
         env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_budget_cap_is_applied_after_learned_parameter_decode(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+            for index, head in enumerate(model.proposal_heads):
+                head.bias[0] = 10.0 - index
+                head.bias[3:] = 20.0
+        env = VersusPuyoEnv(seed=17, max_steps=4)
+        observations, infos = env.reset(seed=17)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            planner_budget_cap=PlannerBudgetCap(
+                profile="test-demo",
+                max_search_depth=1,
+                max_search_width=4,
+                max_candidate_count=2,
+                max_latency_budget_ms=250.0,
+            ),
+        )
+
+        policy.select_action(observations["player_0"], infos["player_0"])
+        constraints = policy.tactical_diagnostics["runtime_constraints"]
+
+        self.assertEqual(constraints["preview_top_k"], 1)
+        self.assertEqual(constraints["effective_search_budget"]["depth"], 1)
+        self.assertEqual(constraints["effective_search_budget"]["width"], 4)
+        self.assertEqual(
+            constraints["effective_search_budget"]["candidate_count"],
+            2,
+        )
+        self.assertIn("depth", constraints["clamped_fields"])
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_parameter_override_replaces_learned_target_chain(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+        env = VersusPuyoEnv(seed=132, max_steps=4)
+        observations, infos = env.reset(seed=132)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            forced_tactic_id="build_main",
+            parameter_overrides={
+                "build_main": {
+                    "objective": {
+                        "target_chain": 12,
+                    }
+                }
+            },
+        )
+
+        policy.select_action(observations["player_0"], infos["player_0"])
+        diagnostics = policy.tactical_diagnostics
+
+        self.assertEqual(
+            diagnostics["selected_tactic"]["parameters"]["objective"][
+                "target_chain"
+            ],
+            12,
+        )
+        self.assertEqual(
+            diagnostics["planner_request"]["objective"]["target_chain"],
+            12,
+        )
+        self.assertEqual(
+            diagnostics["runtime_constraints"]["parameter_overrides"],
+            {
+                "build_main": {
+                    "objective": {
+                        "target_chain": 12,
+                    }
+                }
+            },
+        )
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_runtime_parameter_override_is_registry_validated(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+
+        with self.assertRaisesRegex(ValueError, "target_chain is above max"):
+            V17StrategyManagerPolicy(
+                model,
+                registry=self.registry,
+                parameter_overrides={
+                    "build_main": {
+                        "objective": {
+                            "target_chain": 20,
+                        }
+                    }
+                },
+            )
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_evaluation_override_forces_build_main_after_preview(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+        with torch.no_grad():
+            for parameter in model.parameters():
+                parameter.zero_()
+            build_main_index = self.encoder.contract.tactic_ids.index("build_main")
+            model.proposal_heads[build_main_index].bias[0] = -100.0
+        env = VersusPuyoEnv(seed=132, max_steps=4)
+        observations, infos = env.reset(seed=132)
+        policy = V17StrategyManagerPolicy(
+            model,
+            registry=self.registry,
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            preview_top_k=1,
+            forced_tactic_id="build_main",
+        )
+
+        action = policy.select_action(observations["player_0"], infos["player_0"])
+        diagnostics = policy.tactical_diagnostics
+        selected = diagnostics["selected_tactic"]
+
+        self.assertTrue(bool(infos["player_0"]["action_mask"][action]))
+        self.assertEqual(policy.current_profile_name, "build_main")
+        self.assertEqual(diagnostics["reason_code"], "evaluation_forced_tactic")
+        self.assertEqual(
+            diagnostics["evaluation_override"],
+            {"enabled": True, "forced_tactic_id": "build_main"},
+        )
+        self.assertEqual(selected["tactic_id"], "build_main")
+        self.assertTrue(
+            next(
+                candidate
+                for candidate in diagnostics["tactic_candidates"]
+                if candidate["tactic_id"] == "build_main"
+            )["previewed"]
+        )
+        self.assertEqual(
+            selected["parameters"],
+            decode_tactic_parameters(
+                self.registry.tactic("build_main"),
+                [0.0] * self.encoder.contract.max_parameter_logits,
+            ),
+        )
+        env.close()
+
+    @unittest.skipIf(torch is None, "torch is required")
+    def test_evaluation_override_rejects_unknown_tactic(self):
+        model = V17StrategyManagerNetwork(self.encoder.contract, hidden_dim=32)
+
+        with self.assertRaisesRegex(ValueError, "unknown forced tactic"):
+            V17StrategyManagerPolicy(
+                model,
+                registry=self.registry,
+                forced_tactic_id="missing",
+            )
 
 
 if __name__ == "__main__":

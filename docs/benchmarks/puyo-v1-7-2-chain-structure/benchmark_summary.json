@@ -1,0 +1,867 @@
+{
+  "checks": {
+    "budget_bounds": true,
+    "deterministic_corpus_repeat": true,
+    "deterministic_re_evaluation": true,
+    "evaluated_zero_is_explicit": true,
+    "extendable_above_unreachable": true,
+    "fixed_and_tuning_corpora": true,
+    "mirror_symmetry": true
+  },
+  "config": {
+    "fatal_score": -1000000000000.0,
+    "feature_version": "puyo.chain_structure_features.v1",
+    "quiescence": {
+      "max_added_puyos": 3,
+      "max_candidates": 12,
+      "max_pattern_nodes": 512,
+      "max_resolution_nodes": 96
+    },
+    "schema_version": "puyo.chain_structure_weights.v1",
+    "weight_version": "v1.0",
+    "weights": {
+      "adjacent_roughness": -35.0,
+      "bump_height": -70.0,
+      "connection_candidate": 550.0,
+      "connectivity_edge": 90.0,
+      "danger_ratio": -20000.0,
+      "fold_space": 20.0,
+      "foundation_cell": 25.0,
+      "growth_site": 75.0,
+      "height_spread": -25.0,
+      "hidden_row_puyo": -1500.0,
+      "nuisance_puyo": -240.0,
+      "potential_chain_count": 45000.0,
+      "potential_chain_score": 0.05,
+      "premature_fire": -10000.0,
+      "reachable_ignition": 700.0,
+      "remaining_link_2": 140.0,
+      "remaining_link_3": 440.0,
+      "required_key_count": -9000.0,
+      "tear": -4000.0,
+      "trigger_damage": -30000.0,
+      "trigger_height": -180.0,
+      "trigger_protection": 600.0,
+      "waste": -2000.0,
+      "well_depth": -55.0
+    }
+  },
+  "corpus_counts": {
+    "fixed": 4,
+    "tuning": 4
+  },
+  "created_at_utc": "2026-07-16T07:15:36Z",
+  "determinism": {
+    "digest": "cb18afae1f03bff5c4960922d0a494025ca85e09fc57c3158b2adf03d2a74f52",
+    "excluded_fields": [
+      "created_at_utc",
+      "profile.elapsed_seconds",
+      "profile.node_throughput_per_second"
+    ],
+    "mismatches": [],
+    "passed": true,
+    "repeat_digest": "cb18afae1f03bff5c4960922d0a494025ca85e09fc57c3158b2adf03d2a74f52"
+  },
+  "feature_version": "puyo.chain_structure_features.v1",
+  "fixture_path": "tests/fixtures/chain_structure_cases.json",
+  "fixture_sha256": "572e93046e7cf6d5a4cb5b644ff6e0eefa30a31512cd62b8f7b974b16a844841",
+  "git_commit": "e9fd4e190a8e7bfcd76bb993c2a69acd5fbf6466",
+  "name": "puyo-v1-7-2-chain-structure",
+  "passed": true,
+  "profile": {
+    "elapsed_seconds": 1.378033816930838,
+    "evaluation_count": 400,
+    "node_throughput_per_second": 290.26863861068483,
+    "pattern_nodes": 126000,
+    "profile_repetitions": 50,
+    "resolution_nodes": 2450,
+    "wall_clock_excluded_from_deterministic_digest": true
+  },
+  "rank_changes": [
+    {
+      "baseline_rank": 2,
+      "case_id": "fixed-extendable-high",
+      "chain_structure_rank": 1,
+      "rank_change": 1,
+      "rank_group": "growth-vs-dead-end"
+    },
+    {
+      "baseline_rank": 1,
+      "case_id": "fixed-unreachable-high",
+      "chain_structure_rank": 2,
+      "rank_change": -1,
+      "rank_group": "growth-vs-dead-end"
+    }
+  ],
+  "records": [
+    {
+      "ablation_scores": {
+        "baseline": 0.0,
+        "chain_structure": 0.0,
+        "cheap_quiescence": 0.0
+      },
+      "case_id": "fixed-empty",
+      "corpus": "fixed",
+      "evaluation_status": "not_found",
+      "features": {
+        "column_heights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 0,
+          "count": 0,
+          "isolated": 0,
+          "link_2": 0,
+          "link_3": 0,
+          "reachable_ignitions": 0
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 0,
+          "ratio": 0.0
+        },
+        "normal_puyo_count": 0,
+        "shape": {
+          "adjacent_roughness": 0,
+          "bump_height": 0,
+          "fold_space": 0,
+          "foundation_cells": 0,
+          "growth_sites": 0,
+          "height_spread": 0,
+          "well_depth": 0
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": null,
+          "height": null,
+          "potential_chain_count": 0,
+          "potential_chain_score": 0,
+          "protection": 0.0,
+          "reachable": false,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": null,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 0,
+        "chain_score": 0,
+        "pattern_nodes": 415,
+        "required_key_count": null,
+        "resolution_nodes": 0,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "zero-contract",
+      "ranks": {
+        "baseline": 1,
+        "chain_structure": 1,
+        "cheap_quiescence": 1
+      },
+      "score": 0.0,
+      "score_breakdown": {
+        "component_connectivity": 0.0,
+        "connection_potential": 0.0,
+        "danger": -0.0,
+        "fatal": 0.0,
+        "key_cost": -0.0,
+        "nuisance": -0.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 0.0,
+        "remaining_links": 0.0,
+        "shape": 0.0,
+        "tear": -0.0,
+        "total": 0.0,
+        "trigger_damage": -0.0,
+        "trigger_position": 0.0,
+        "waste": -0.0
+      },
+      "tie_break_digest": "98500d84dd21387af315e5baf3e72439f9daf0e2fab03b21c1b72bed1a4f1f8c"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -35088.33333333333,
+        "chain_structure": 313.6666666666679,
+        "cheap_quiescence": -566.3333333333285
+      },
+      "case_id": "fixed-extendable-high",
+      "corpus": "fixed",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          12,
+          12,
+          11,
+          11,
+          12,
+          12
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 2,
+          "count": 1,
+          "isolated": 0,
+          "link_2": 0,
+          "link_3": 1,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 67,
+          "ratio": 0.9541666666666666
+        },
+        "normal_puyo_count": 3,
+        "shape": {
+          "adjacent_roughness": 2,
+          "bump_height": 0,
+          "fold_space": 1,
+          "foundation_cells": 0,
+          "growth_sites": 2,
+          "height_spread": 1,
+          "well_depth": 0
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 2,
+          "height": 11,
+          "potential_chain_count": 1,
+          "potential_chain_score": 40,
+          "protection": 0.8333333333333334,
+          "reachable": true,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 40,
+        "pattern_nodes": 15,
+        "required_key_count": 1,
+        "resolution_nodes": 2,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 1,
+      "rank_group": "growth-vs-dead-end",
+      "ranks": {
+        "baseline": 2,
+        "chain_structure": 1,
+        "cheap_quiescence": 1
+      },
+      "score": 313.6666666666679,
+      "score_breakdown": {
+        "component_connectivity": 180.0,
+        "connection_potential": 700.0,
+        "danger": -19083.333333333332,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -16080.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45002.0,
+        "remaining_links": 0.0,
+        "shape": 75.0,
+        "tear": -0.0,
+        "total": 313.6666666666679,
+        "trigger_damage": -0.0,
+        "trigger_position": -1480.0,
+        "waste": -0.0
+      },
+      "tie_break_digest": "28de17c68981097520312b9460bd797a6118ef5a7077f2bc06d81f88f96a846f"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -34848.33333333333,
+        "chain_structure": -1000000000000.0,
+        "cheap_quiescence": -34848.33333333333
+      },
+      "case_id": "fixed-unreachable-high",
+      "corpus": "fixed",
+      "evaluation_status": "not_found",
+      "features": {
+        "column_heights": [
+          12,
+          12,
+          11,
+          11,
+          12,
+          12
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 0,
+          "count": 4,
+          "isolated": 4,
+          "link_2": 0,
+          "link_3": 0,
+          "reachable_ignitions": 0
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 66,
+          "ratio": 0.9541666666666666
+        },
+        "normal_puyo_count": 4,
+        "shape": {
+          "adjacent_roughness": 2,
+          "bump_height": 0,
+          "fold_space": 1,
+          "foundation_cells": 0,
+          "growth_sites": 2,
+          "height_spread": 1,
+          "well_depth": 0
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": null,
+          "height": null,
+          "potential_chain_count": 0,
+          "potential_chain_score": 0,
+          "protection": 0.0,
+          "reachable": false,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": null,
+          "unreachable": true
+        }
+      },
+      "quiescence": {
+        "chain_count": 0,
+        "chain_score": 0,
+        "pattern_nodes": 15,
+        "required_key_count": null,
+        "resolution_nodes": 0,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": -1,
+      "rank_group": "growth-vs-dead-end",
+      "ranks": {
+        "baseline": 1,
+        "chain_structure": 2,
+        "cheap_quiescence": 2
+      },
+      "score": -1000000000000.0,
+      "score_breakdown": {
+        "component_connectivity": 0.0,
+        "connection_potential": 0.0,
+        "danger": -19083.333333333332,
+        "fatal": -1000000000000.0,
+        "key_cost": -0.0,
+        "nuisance": -15840.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 0.0,
+        "remaining_links": 0.0,
+        "shape": 75.0,
+        "tear": -0.0,
+        "total": -1000000000000.0,
+        "trigger_damage": -0.0,
+        "trigger_position": 0.0,
+        "waste": -0.0
+      },
+      "tie_break_digest": "35f5a955afd3629c88593267dde7b1b1355eef62205193345d84009f1ce81097"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -45.0,
+        "chain_structure": 37137.0,
+        "cheap_quiescence": 36257.0
+      },
+      "case_id": "fixed-trigger-root",
+      "corpus": "fixed",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 2,
+          "count": 1,
+          "isolated": 0,
+          "link_2": 0,
+          "link_3": 1,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 0,
+          "ratio": 0.075
+        },
+        "normal_puyo_count": 3,
+        "shape": {
+          "adjacent_roughness": 1,
+          "bump_height": 0,
+          "fold_space": 57,
+          "foundation_cells": 3,
+          "growth_sites": 4,
+          "height_spread": 1,
+          "well_depth": 0
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 2,
+          "height": 0,
+          "potential_chain_count": 1,
+          "potential_chain_score": 40,
+          "protection": 0.5,
+          "reachable": true,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 40,
+        "pattern_nodes": 415,
+        "required_key_count": 1,
+        "resolution_nodes": 4,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "trigger-preservation",
+      "ranks": {
+        "baseline": 1,
+        "chain_structure": 1,
+        "cheap_quiescence": 1
+      },
+      "score": 37137.0,
+      "score_breakdown": {
+        "component_connectivity": 180.0,
+        "connection_potential": 700.0,
+        "danger": -1500.0,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -0.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45002.0,
+        "remaining_links": 0.0,
+        "shape": 1455.0,
+        "tear": -0.0,
+        "total": 37137.0,
+        "trigger_damage": -0.0,
+        "trigger_position": 300.0,
+        "waste": -0.0
+      },
+      "tie_break_digest": "0d23e3fab680bfac0b20ac8fb13a5a1727856023094951c861d9d34a5e58fc3e"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -2935.0,
+        "chain_structure": 35237.5,
+        "cheap_quiescence": 33367.5
+      },
+      "case_id": "tuning-connected-platform",
+      "corpus": "tuning",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          1,
+          2,
+          2,
+          3,
+          3,
+          3
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 13,
+          "count": 3,
+          "isolated": 0,
+          "link_2": 0,
+          "link_3": 1,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 0,
+          "ratio": 0.225
+        },
+        "normal_puyo_count": 14,
+        "shape": {
+          "adjacent_roughness": 2,
+          "bump_height": 0,
+          "fold_space": 47,
+          "foundation_cells": 14,
+          "growth_sites": 6,
+          "height_spread": 2,
+          "well_depth": 1
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 0,
+          "height": 1,
+          "potential_chain_count": 1,
+          "potential_chain_score": 1650,
+          "protection": 0.6666666666666666,
+          "reachable": true,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 1650,
+        "pattern_nodes": 415,
+        "required_key_count": 1,
+        "resolution_nodes": 6,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "non-canonical",
+      "ranks": {
+        "baseline": 1,
+        "chain_structure": 1,
+        "cheap_quiescence": 1
+      },
+      "score": 35237.5,
+      "score_breakdown": {
+        "component_connectivity": 1170.0,
+        "connection_potential": 700.0,
+        "danger": -4500.0,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -0.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45082.5,
+        "remaining_links": 0.0,
+        "shape": 1565.0,
+        "tear": -0.0,
+        "total": 35237.5,
+        "trigger_damage": -0.0,
+        "trigger_position": 220.0,
+        "waste": -0.0
+      },
+      "tie_break_digest": "611311202c78e85cc00a2d3e0ff635f995be9e04331ea93ede9ebddce6c0a622"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -5233.333333333334,
+        "chain_structure": 33231.57575757576,
+        "cheap_quiescence": 31271.575757575756
+      },
+      "case_id": "tuning-mixed-staircase",
+      "corpus": "tuning",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          5
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 14,
+          "count": 6,
+          "isolated": 1,
+          "link_2": 1,
+          "link_3": 1,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 0,
+          "ratio": 0.3291666666666667
+        },
+        "normal_puyo_count": 20,
+        "shape": {
+          "adjacent_roughness": 4,
+          "bump_height": 0,
+          "fold_space": 41,
+          "foundation_cells": 15,
+          "growth_sites": 6,
+          "height_spread": 4,
+          "well_depth": 1
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 1,
+          "height": 2,
+          "potential_chain_count": 1,
+          "potential_chain_score": 2880,
+          "protection": 0.8181818181818182,
+          "reachable": true,
+          "remaining_connection_edges": 1,
+          "remaining_link_2": 1,
+          "remaining_link_3": 0,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 2880,
+        "pattern_nodes": 415,
+        "required_key_count": 1,
+        "resolution_nodes": 12,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "non-canonical",
+      "ranks": {
+        "baseline": 3,
+        "chain_structure": 3,
+        "cheap_quiescence": 3
+      },
+      "score": 33231.57575757576,
+      "score_breakdown": {
+        "component_connectivity": 1260.0,
+        "connection_potential": 700.0,
+        "danger": -6583.333333333334,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -0.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45144.0,
+        "remaining_links": 230.0,
+        "shape": 1350.0,
+        "tear": -0.0,
+        "total": 33231.57575757576,
+        "trigger_damage": -0.0,
+        "trigger_position": 130.90909090909093,
+        "waste": -0.0
+      },
+      "tie_break_digest": "349c70a790ada3c7fdd0d639e842e39716bfe2162047586ca5d58f0da8eae15d"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -6418.333333333333,
+        "chain_structure": 31990.530303030304,
+        "cheap_quiescence": 30480.5303030303
+      },
+      "case_id": "tuning-nuisance-split",
+      "corpus": "tuning",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          1,
+          3,
+          3,
+          4,
+          3,
+          3
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 9,
+          "count": 4,
+          "isolated": 1,
+          "link_2": 0,
+          "link_3": 2,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 5,
+          "ratio": 0.31666666666666665
+        },
+        "normal_puyo_count": 12,
+        "shape": {
+          "adjacent_roughness": 4,
+          "bump_height": 1,
+          "fold_space": 43,
+          "foundation_cells": 11,
+          "growth_sites": 5,
+          "height_spread": 3,
+          "well_depth": 2
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 0,
+          "height": 1,
+          "potential_chain_count": 1,
+          "potential_chain_score": 450,
+          "protection": 0.7272727272727273,
+          "reachable": true,
+          "remaining_connection_edges": 2,
+          "remaining_link_2": 0,
+          "remaining_link_3": 1,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 450,
+        "pattern_nodes": 415,
+        "required_key_count": 1,
+        "resolution_nodes": 17,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "non-canonical",
+      "ranks": {
+        "baseline": 4,
+        "chain_structure": 4,
+        "cheap_quiescence": 4
+      },
+      "score": 31990.530303030304,
+      "score_breakdown": {
+        "component_connectivity": 810.0,
+        "connection_potential": 700.0,
+        "danger": -6333.333333333333,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -1200.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45022.5,
+        "remaining_links": 620.0,
+        "shape": 1115.0,
+        "tear": -0.0,
+        "total": 31990.530303030304,
+        "trigger_damage": -0.0,
+        "trigger_position": 256.3636363636364,
+        "waste": -0.0
+      },
+      "tie_break_digest": "20ebf11349715083f2cecf84e73de8d568dc962434c96d95bdfc50b173f33907"
+    },
+    {
+      "ablation_scores": {
+        "baseline": -3595.0,
+        "chain_structure": 34014.333333333336,
+        "cheap_quiescence": 32594.333333333332
+      },
+      "case_id": "tuning-fold-space",
+      "corpus": "tuning",
+      "evaluation_status": "available",
+      "features": {
+        "column_heights": [
+          1,
+          2,
+          1,
+          3,
+          1,
+          3
+        ],
+        "components": {
+          "connection_candidates": 0,
+          "connectivity_edges": 8,
+          "count": 3,
+          "isolated": 0,
+          "link_2": 0,
+          "link_3": 1,
+          "reachable_ignitions": 1
+        },
+        "danger": {
+          "death": false,
+          "hidden_row_count": 0,
+          "nuisance_count": 0,
+          "ratio": 0.225
+        },
+        "normal_puyo_count": 11,
+        "shape": {
+          "adjacent_roughness": 8,
+          "bump_height": 3,
+          "fold_space": 47,
+          "foundation_cells": 11,
+          "growth_sites": 6,
+          "height_spread": 2,
+          "well_depth": 4
+        },
+        "structural_dead_end": false,
+        "trigger": {
+          "column": 0,
+          "height": 1,
+          "potential_chain_count": 1,
+          "potential_chain_score": 720,
+          "protection": 0.5555555555555556,
+          "reachable": true,
+          "remaining_connection_edges": 0,
+          "remaining_link_2": 0,
+          "remaining_link_3": 0,
+          "required_key_count": 1,
+          "unreachable": false
+        }
+      },
+      "quiescence": {
+        "chain_count": 1,
+        "chain_score": 720,
+        "pattern_nodes": 415,
+        "required_key_count": 1,
+        "resolution_nodes": 8,
+        "search_complete": true,
+        "truncation_reason": null
+      },
+      "rank_change": 0,
+      "rank_group": "non-canonical",
+      "ranks": {
+        "baseline": 2,
+        "chain_structure": 2,
+        "cheap_quiescence": 2
+      },
+      "score": 34014.333333333336,
+      "score_breakdown": {
+        "component_connectivity": 720.0,
+        "connection_potential": 700.0,
+        "danger": -4500.0,
+        "fatal": 0.0,
+        "key_cost": -9000.0,
+        "nuisance": -0.0,
+        "premature_fire": 0.0,
+        "quiescence_chain": 45036.0,
+        "remaining_links": 0.0,
+        "shape": 905.0,
+        "tear": -0.0,
+        "total": 34014.333333333336,
+        "trigger_damage": -0.0,
+        "trigger_position": 153.33333333333337,
+        "waste": -0.0
+      },
+      "tie_break_digest": "b4d79083b61cbf4afcaf3133013666cbe539edf87f3c99ea4da8a249fbcbd503"
+    }
+  ],
+  "references": {
+    "ama_commit": "dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "ama_files": [
+      "ai/search/beam/quiet.cpp",
+      "ai/search/beam/eval.cpp",
+      "config.json"
+    ],
+    "copied_code": "none",
+    "copied_weights": "none"
+  },
+  "schema_version": "puyo.chain_structure_benchmark.v1",
+  "seed": 173,
+  "symmetry": {
+    "mismatches": [],
+    "passed": true
+  },
+  "weight_version": "v1.0"
+}

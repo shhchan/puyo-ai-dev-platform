@@ -1,0 +1,27 @@
+{
+  "cache_evidence": [
+    {
+      "enabled": true,
+      "hits": 1863,
+      "probe_count": 1198,
+      "unique_evaluations": 16141
+    },
+    {
+      "enabled": false,
+      "hits": 0,
+      "probe_count": 1198,
+      "unique_evaluations": 16141
+    }
+  ],
+  "cache_modes": [
+    "enabled",
+    "disabled"
+  ],
+  "digests": [
+    "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6",
+    "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6"
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "scope": "all compact feature records; no wall-clock fields"
+}

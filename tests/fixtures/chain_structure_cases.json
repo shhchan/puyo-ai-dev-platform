@@ -1,0 +1,78 @@
+{
+  "schema_version": "puyo.chain_structure_fixtures.v1",
+  "seed": 173,
+  "cases": [
+    {
+      "id": "fixed-empty",
+      "corpus": "fixed",
+      "rank_group": "zero-contract",
+      "rows_bottom_up": [
+        "......", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    },
+    {
+      "id": "fixed-extendable-high",
+      "corpus": "fixed",
+      "rank_group": "growth-vs-dead-end",
+      "rows_bottom_up": [
+        "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO",
+        "OOOOOO", "OOOOOO", "OOOOOO", "ORRROO", "OO..OO", "......", "......"
+      ]
+    },
+    {
+      "id": "fixed-unreachable-high",
+      "corpus": "fixed",
+      "rank_group": "growth-vs-dead-end",
+      "rows_bottom_up": [
+        "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO", "OOOOOO",
+        "OOOOOO", "OOOOOO", "OOOOOO", "ORBGYO", "OO..OO", "......", "......"
+      ]
+    },
+    {
+      "id": "fixed-trigger-root",
+      "corpus": "fixed",
+      "rank_group": "trigger-preservation",
+      "rows_bottom_up": [
+        "RRR...", "......", "......", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    },
+    {
+      "id": "tuning-connected-platform",
+      "corpus": "tuning",
+      "rank_group": "non-canonical",
+      "rows_bottom_up": [
+        "RRBBGG", "RRBBG.", "RBB...", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    },
+    {
+      "id": "tuning-mixed-staircase",
+      "corpus": "tuning",
+      "rank_group": "non-canonical",
+      "rows_bottom_up": [
+        "RBGYPR", "RBGYP.", "RBGY..", "RBG...", "RB....", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    },
+    {
+      "id": "tuning-nuisance-split",
+      "corpus": "tuning",
+      "rank_group": "non-canonical",
+      "rows_bottom_up": [
+        "ROBOGO", "RRBBG.", "OOBBG.", "..G...", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    },
+    {
+      "id": "tuning-fold-space",
+      "corpus": "tuning",
+      "rank_group": "non-canonical",
+      "rows_bottom_up": [
+        "RRGGBB", "R.G.B.", "R.G...", "......", "......", "......", "......",
+        "......", "......", "......", "......", "......", "......", "......"
+      ]
+    }
+  ]
+}

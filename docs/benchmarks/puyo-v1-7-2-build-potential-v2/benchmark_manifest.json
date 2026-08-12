@@ -1,0 +1,114 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "add146e8375e512ac9bfe9638fdba57171416dae560bccd2751a21ac8ba29724",
+      "size_bytes": 2804
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "7cbf73b4c5fe4a8db1f9398ba47cf82aa03cf29da55b479806200710228c6516",
+      "size_bytes": 21188
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "fa2a6147588d732a28af9b6502ec90f7e4e508099ad20cfbdbe3dd79246cc9f9",
+      "size_bytes": 580
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "feature_records.json",
+      "required": true,
+      "role": "feature_records",
+      "sha256": "f2c57a7d0cefff261f931c2e7143aaaeb144e8093f344e8c54b6988981433ab2",
+      "size_bytes": 12341734
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "source_evidence.json",
+      "required": true,
+      "role": "source_evidence",
+      "sha256": "e7c445fd007ebeaf1f0d0cb4584634fbe74f47a2441b274aff28c640dfd1340a",
+      "size_bytes": 513
+    }
+  ],
+  "config": {
+    "budget": {
+      "max_added_puyos": 4,
+      "max_alternatives": 8,
+      "max_continuation_actions": 8,
+      "max_pattern_nodes": 1024,
+      "max_recovery_puyos": 2,
+      "max_resolution_nodes": 48
+    },
+    "cache_modes": [
+      "enabled",
+      "disabled"
+    ],
+    "decision_limit": null,
+    "repetitions": 2,
+    "workers": 8
+  },
+  "coverage": {
+    "candidate_eligibility_rate": 0.698648929536479,
+    "eligible_candidate_records": 16806,
+    "evaluation_status_counts": {
+      "available": 11009,
+      "budget_exhausted": 3150,
+      "not_found": 2647
+    },
+    "excluded_candidate_records": 7249,
+    "positive_potential_records": 14159,
+    "predicted_feature_available_records": 16806,
+    "predicted_feature_coverage_rate": 1.0,
+    "search_complete_rate": 0.8125669403784362,
+    "search_complete_records": 13656,
+    "source_candidate_records": 24055
+  },
+  "created_at_utc": "2026-07-15T14:40:59Z",
+  "evaluation_completed": true,
+  "feature_records_sha256": "b9d9142f97190bac447af83f4457a60fb032e8323c9221b9d4e710aa009a3bb6",
+  "git_commit": "5b82400e6f65547629ec268ac853e00364001dad",
+  "implementation_files": [
+    {
+      "path": "agents/beam_search.py",
+      "sha256": "06dc0b1ee42ee5e2dca9d7c6bfb12145f18bb5e1bd400b1f72aaf6e486419458",
+      "size_bytes": 76090
+    },
+    {
+      "path": "eval/v1_7_build_potential_benchmark.py",
+      "sha256": "2ce3e91da894a961fa9480b63455819194ae99ff3573de8e8433836a43c685fc",
+      "size_bytes": 48694
+    }
+  ],
+  "name": "puyo-v1-7-2-build-potential-v2",
+  "quality_gate": null,
+  "schema_version": "puyo.v1_7_build_potential_benchmark.v1",
+  "selection_rule": "all records in source order",
+  "source": {
+    "available_decisions": 1200,
+    "expected_sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+    "hash_guard_passed": true,
+    "immutable_source": true,
+    "path": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+    "schema_version": "puyo.v1_7_search_diagnostics_decision.v1",
+    "selected_decisions": 1200,
+    "selection_rule": "all records in source order",
+    "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6",
+    "size_bytes": 22485773
+  }
+}

@@ -170,6 +170,7 @@ def make_policy(
     beam_width: int = 48,
     beam_scenarios: int = 1,
     beam_minimum_chain: int = 6,
+    forced_tactic_id: str | None = None,
 ) -> Policy:
     if policy_type == "first":
         return FirstLegalPolicy()
@@ -218,6 +219,7 @@ def make_policy(
             checkpoint_path,
             device=device,
             deterministic=deterministic,
+            forced_tactic_id=forced_tactic_id,
         )
     if policy_type == "manager":
         if checkpoint_path is None:

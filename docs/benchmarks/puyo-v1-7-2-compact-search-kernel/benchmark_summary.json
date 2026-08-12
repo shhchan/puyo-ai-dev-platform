@@ -1,0 +1,129 @@
+{
+  "checks": {
+    "deterministic_repeat": true,
+    "fixed_fixture_parity": true,
+    "hash_collision_free": true,
+    "legal_action_parity": true,
+    "minimum_transition_count": true,
+    "seeded_transition_parity": true
+  },
+  "command": "python -m eval.v1_7_compact_search_kernel_benchmark run --output-dir docs/benchmarks/puyo-v1-7-2-compact-search-kernel --fixture tests/fixtures/compact_search_kernel_cases.json --seed-start 123 --seed-count 8 --max-turns 8 --repetitions 2 --minimum-transitions 1000",
+  "config": {
+    "capture_visuals": true,
+    "max_turns": 8,
+    "minimum_transitions": 1000,
+    "repetitions": 2,
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130
+    ]
+  },
+  "contracts": {
+    "authoritative_oracle": "src.core.headless.HeadlessPuyoSimulator",
+    "compact_state": "puyo.compact_search_state.v1",
+    "fixture": "puyo.compact_search_fixtures.v1",
+    "future_tsumo_cursor": "external CompactTranspositionKey fields"
+  },
+  "corpus": {
+    "digest": "279760f72357990736f882e724e3d0d920952032534207f8adc1bd58e9858395",
+    "hash_collision_count": 0,
+    "legal_mismatch_count": 0,
+    "max_turns": 8,
+    "mismatch_count": 0,
+    "mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130
+    ],
+    "state_count": 1175,
+    "transition_count": 1408
+  },
+  "created_at_utc": "2026-07-16T05:36:10Z",
+  "determinism": {
+    "excluded_fields": [
+      "profile.authoritative_clone_seconds",
+      "profile.authoritative_transition_seconds",
+      "profile.compact_transition_seconds",
+      "profile.*_transitions_per_second",
+      "profile.compact_speedup_vs_clone_plus_transition"
+    ],
+    "fingerprints": [
+      {
+        "corpus_digest": "279760f72357990736f882e724e3d0d920952032534207f8adc1bd58e9858395",
+        "corpus_mismatch_count": 0,
+        "corpus_mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fixture_digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+        "fixture_mismatch_count": 0,
+        "transition_count": 1408
+      },
+      {
+        "corpus_digest": "279760f72357990736f882e724e3d0d920952032534207f8adc1bd58e9858395",
+        "corpus_mismatch_count": 0,
+        "corpus_mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "fixture_digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+        "fixture_mismatch_count": 0,
+        "transition_count": 1408
+      }
+    ],
+    "passed": true,
+    "repetitions": 2,
+    "scope": [
+      "fixture digest and mismatch summary",
+      "seed/turn/action transition result digests",
+      "legal-action mismatch count",
+      "hash collision count"
+    ]
+  },
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i7-14700F",
+    "implementation": "CPython",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3"
+  },
+  "fixture": {
+    "case_count": 9,
+    "digest": "c3e97d993c5e69f01723c274ac4ddd23ecdb4451db13e9fa8300bc39e54c16fc",
+    "fixture_path": "tests/fixtures/compact_search_kernel_cases.json",
+    "fixture_sha256": "7d41f90c82c9232febbe06ebf83c3b7601fdf138ca41137d0f695a7b80804a19",
+    "mismatch_count": 0
+  },
+  "git_commit": "48d795181619ed6c6add15bdc6a2f9aac5f6443f",
+  "passed": true,
+  "performance_is_go_condition": false,
+  "profile": {
+    "authoritative_clone_plus_transition_seconds": 0.11885556788183749,
+    "authoritative_clone_seconds": 0.031121838721446693,
+    "authoritative_transition_seconds": 0.0877337291603908,
+    "authoritative_transitions_per_second": 11846.31082154931,
+    "capture_visuals": true,
+    "compact_speedup_vs_clone_plus_transition": 0.7232086061511798,
+    "compact_transition_seconds": 0.16434479190502316,
+    "compact_transitions_per_second": 8567.353937286314,
+    "state_size": {
+      "authoritative_pickle_bytes": 6297,
+      "compact_canonical_bytes": 87,
+      "compact_pickle_bytes": 105,
+      "compact_python_deep_bytes": 292
+    },
+    "transition_count": 1408
+  },
+  "references": {
+    "ama_commit": "dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "ama_license": "MIT",
+    "ama_version": "v2.0.1",
+    "copied_code": false
+  },
+  "schema_version": "puyo.compact_search_kernel_benchmark.v1"
+}

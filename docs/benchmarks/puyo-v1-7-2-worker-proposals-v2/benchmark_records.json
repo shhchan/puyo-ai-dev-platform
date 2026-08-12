@@ -1,0 +1,141 @@
+{
+  "records": [
+    {
+      "candidate_count": 8,
+      "checks": {
+        "candidate_ids_preserved_in_v1_projection": true,
+        "candidate_mask_preserved_in_v1_projection": true,
+        "fixed_k8": true,
+        "projection_is_explicitly_lossy": true,
+        "rank_zero_compatibility": true,
+        "round_trip": true,
+        "selected_action_preserved_in_v1_projection": true,
+        "shared_cost_not_in_v2_candidate_features": true,
+        "six_scenario_mask": true,
+        "status_masks_invalid_candidates": true
+      },
+      "compatibility_projection_digest": "ranker-compat-projection-0217d8897e10558314c306aa",
+      "feature_coverage": 0.936046511627907,
+      "projection_ms": 1.7424380639567971,
+      "ranker_input_digest": "ranker-input-00a6a82178a030de4f3e91b5",
+      "repetition": 0,
+      "scenario_count": 6,
+      "scenario_feature_coverage": 1.0,
+      "schema_version": "puyo.v1_7_worker_proposal_v2_record.v1",
+      "seed": 175,
+      "serialization_ms": 20.445688045583665,
+      "serialized_bytes": 181201,
+      "serialized_digest": "proposal-contract-b7111e419ea5df51420f4402",
+      "status_counts": {
+        "budget_exhausted": 1,
+        "evaluated": 5,
+        "legacy_missing": 1,
+        "not_evaluated": 1
+      },
+      "v1_zero_missingness_confusion_count": 3
+    },
+    {
+      "candidate_count": 8,
+      "checks": {
+        "candidate_ids_preserved_in_v1_projection": true,
+        "candidate_mask_preserved_in_v1_projection": true,
+        "fixed_k8": true,
+        "projection_is_explicitly_lossy": true,
+        "rank_zero_compatibility": true,
+        "round_trip": true,
+        "selected_action_preserved_in_v1_projection": true,
+        "shared_cost_not_in_v2_candidate_features": true,
+        "six_scenario_mask": true,
+        "status_masks_invalid_candidates": true
+      },
+      "compatibility_projection_digest": "ranker-compat-projection-5425a743fb27aacc15dd93af",
+      "feature_coverage": 0.936046511627907,
+      "projection_ms": 1.7046090215444565,
+      "ranker_input_digest": "ranker-input-00a6a82178a030de4f3e91b5",
+      "repetition": 1,
+      "scenario_count": 6,
+      "scenario_feature_coverage": 1.0,
+      "schema_version": "puyo.v1_7_worker_proposal_v2_record.v1",
+      "seed": 175,
+      "serialization_ms": 20.94734797719866,
+      "serialized_bytes": 181193,
+      "serialized_digest": "proposal-contract-b7111e419ea5df51420f4402",
+      "status_counts": {
+        "budget_exhausted": 1,
+        "evaluated": 5,
+        "legacy_missing": 1,
+        "not_evaluated": 1
+      },
+      "v1_zero_missingness_confusion_count": 3
+    },
+    {
+      "candidate_count": 8,
+      "checks": {
+        "candidate_ids_preserved_in_v1_projection": true,
+        "candidate_mask_preserved_in_v1_projection": true,
+        "fixed_k8": true,
+        "projection_is_explicitly_lossy": true,
+        "rank_zero_compatibility": true,
+        "round_trip": true,
+        "selected_action_preserved_in_v1_projection": true,
+        "shared_cost_not_in_v2_candidate_features": true,
+        "six_scenario_mask": true,
+        "status_masks_invalid_candidates": true
+      },
+      "compatibility_projection_digest": "ranker-compat-projection-1b736ad2e920739573e1e286",
+      "feature_coverage": 0.936046511627907,
+      "projection_ms": 2.2328828927129507,
+      "ranker_input_digest": "ranker-input-8abbcc47bc619e3472f856c7",
+      "repetition": 0,
+      "scenario_count": 6,
+      "scenario_feature_coverage": 1.0,
+      "schema_version": "puyo.v1_7_worker_proposal_v2_record.v1",
+      "seed": 176,
+      "serialization_ms": 16.768477973528206,
+      "serialized_bytes": 163265,
+      "serialized_digest": "proposal-contract-30be083d60e88d452650a5a1",
+      "status_counts": {
+        "budget_exhausted": 1,
+        "evaluated": 5,
+        "legacy_missing": 1,
+        "not_evaluated": 1
+      },
+      "v1_zero_missingness_confusion_count": 3
+    },
+    {
+      "candidate_count": 8,
+      "checks": {
+        "candidate_ids_preserved_in_v1_projection": true,
+        "candidate_mask_preserved_in_v1_projection": true,
+        "fixed_k8": true,
+        "projection_is_explicitly_lossy": true,
+        "rank_zero_compatibility": true,
+        "round_trip": true,
+        "selected_action_preserved_in_v1_projection": true,
+        "shared_cost_not_in_v2_candidate_features": true,
+        "six_scenario_mask": true,
+        "status_masks_invalid_candidates": true
+      },
+      "compatibility_projection_digest": "ranker-compat-projection-b087b4886d615e981a1a99b3",
+      "feature_coverage": 0.936046511627907,
+      "projection_ms": 1.9725279416888952,
+      "ranker_input_digest": "ranker-input-8abbcc47bc619e3472f856c7",
+      "repetition": 1,
+      "scenario_count": 6,
+      "scenario_feature_coverage": 1.0,
+      "schema_version": "puyo.v1_7_worker_proposal_v2_record.v1",
+      "seed": 176,
+      "serialization_ms": 16.64323196746409,
+      "serialized_bytes": 163272,
+      "serialized_digest": "proposal-contract-30be083d60e88d452650a5a1",
+      "status_counts": {
+        "budget_exhausted": 1,
+        "evaluated": 5,
+        "legacy_missing": 1,
+        "not_evaluated": 1
+      },
+      "v1_zero_missingness_confusion_count": 3
+    }
+  ],
+  "schema_version": "puyo.v1_7_worker_proposal_v2_record.v1"
+}

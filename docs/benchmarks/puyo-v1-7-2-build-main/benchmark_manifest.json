@@ -1,0 +1,92 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "6e5bd34420e709e0ff0718627f24d9309fbb378c9eb7583aa4e62c67206d0fd4",
+      "size_bytes": 1334
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "620241ce89edd16e55be419c895455fdc5d83ff3881678ad97eb4590faa0c48b",
+      "size_bytes": 21108
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "checkpoint_evidence.json",
+      "required": true,
+      "role": "checkpoint_evidence",
+      "sha256": "b890977fa553f7c4f28bebc1d3ef41342f57b349fbf447ca79452812ceee9eab",
+      "size_bytes": 340
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "configuration_results.json",
+      "required": true,
+      "role": "configuration_results",
+      "sha256": "c51445892cf435acf5bf3b3976cbdfb843e146cbf5f47357b9d116871aa49ad3",
+      "size_bytes": 19808
+    },
+    {
+      "artifact_type": "csv",
+      "exists": true,
+      "path": "seed_results.csv",
+      "required": true,
+      "role": "seed_results",
+      "sha256": "d5d05f0f374baa5129b04ba4d18fa86e39902688c677f008cf721ae01ac14c45",
+      "size_bytes": 45912
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "selection.json",
+      "required": true,
+      "role": "selection",
+      "sha256": "7e5804a76f47b4da20685e86d2981fa5ddca0330f2ee92ddc7db79456f98e788",
+      "size_bytes": 461
+    }
+  ],
+  "checkpoint": {
+    "build_main_version": "1.1",
+    "path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt",
+    "registry_version": "v1.7.0",
+    "sha256": "932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+    "size_bytes": 1079499,
+    "strict_load": true
+  },
+  "config": {
+    "depths": [
+      6,
+      8,
+      10
+    ],
+    "games": 30,
+    "max_steps": 40,
+    "probe_widths": [
+      8,
+      16
+    ],
+    "seed": 123,
+    "widths": [
+      24,
+      32,
+      48
+    ],
+    "workers": 8
+  },
+  "created_at_utc": "2026-07-14T01:20:57Z",
+  "evaluation_completed": true,
+  "git_commit": "91cf95265bdee1c52b3c81e75e2ef43b17e0632d",
+  "name": "puyo-v1-7-2-build-main",
+  "quality_gate_passed": false,
+  "schema_version": "puyo.v1_7_build_main_benchmark.v1"
+}

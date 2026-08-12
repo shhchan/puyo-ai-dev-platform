@@ -1,0 +1,96 @@
+{
+  "config": {
+    "configuration": {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 8,
+      "candidate_mode": "diverse",
+      "config_id": "registry-d3-w24-p8-k8",
+      "depth": 3,
+      "minimum_chain_count": 10,
+      "probe_width": 8,
+      "scoring_mode": "build_potential_v2",
+      "trigger_preservation": "required",
+      "width": 24
+    },
+    "games": 30,
+    "latency_mode": "observational_wall_clock_including_proposal_projection",
+    "moves_per_game": 40,
+    "reference": {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 32,
+      "candidate_mode": "diverse",
+      "config_id": "d8-w64-p32",
+      "depth": 8,
+      "minimum_chain_count": 10,
+      "probe_width": 32,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "trace_paths": true,
+      "trigger_preservation": "required",
+      "width": 64
+    },
+    "repetitions": 2,
+    "workers": 12
+  },
+  "reference": {
+    "semantics": "PUYO-165 bounded reference; not an oracle",
+    "source_artifact": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+    "source_artifact_sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6"
+  },
+  "responsibility": "candidate-generator capability before PUYO-130 long-run training",
+  "schema_version": "puyo.v1_7_training_capability_gate_input.v1",
+  "schemas": {
+    "build_potential": "puyo.build_potential.v2",
+    "tactic_registry": "tactic-schema-v3",
+    "tactic_registry_version": "v1.7.2",
+    "worker_proposal": "puyo.worker_proposal_batch.v1"
+  },
+  "seed_manifest": {
+    "games": 30,
+    "moves_per_seed": 40,
+    "schema_version": "puyo.v1_7_safe_build_seed_manifest.v1",
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152
+    ],
+    "source": "docs/benchmarks/puyo-v1-7-2-build-main/seed_results.csv",
+    "source_config_id": "d6-w48-p16",
+    "source_sha256": "d5d05f0f374baa5129b04ba4d18fa86e39902688c677f008cf721ae01ac14c45"
+  },
+  "thresholds": {
+    "maximum_avoidable_candidate_gaps": 0,
+    "maximum_forced_game_over_gaps": 0,
+    "maximum_p95_latency_ms": 60.0,
+    "minimum_games": 30,
+    "minimum_mean_max_chain": 10.0,
+    "moves_per_game": 40
+  }
+}

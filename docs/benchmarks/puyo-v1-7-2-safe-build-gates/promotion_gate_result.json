@@ -1,0 +1,60 @@
+{
+  "checks": {
+    "fixed_safe_build_suite": {
+      "actual": {
+        "games": 30,
+        "moves_per_game": 40
+      },
+      "expected": ">= 30 games x 40 moves",
+      "passed": true
+    },
+    "fixed_training_seeds": {
+      "actual": [],
+      "expected": ">= 5 version-controlled seeds",
+      "passed": false
+    },
+    "gui_replay_qa": {
+      "actual": false,
+      "expected": "true",
+      "passed": false
+    },
+    "lineage": {
+      "actual": true,
+      "expected": "complete",
+      "passed": true
+    },
+    "post_training_candidate": {
+      "actual": "pretraining_reference",
+      "expected": "post_training_candidate",
+      "passed": false
+    },
+    "selected_policy_early_game_over": {
+      "actual": 0,
+      "expected": "<= 0",
+      "passed": true
+    },
+    "selected_policy_mean_max_chain": {
+      "actual": 4.133333333333334,
+      "expected": ">= 10.0",
+      "passed": false
+    },
+    "selected_policy_safe_premature_fire": {
+      "actual": 86,
+      "expected": "<= 0",
+      "passed": false
+    },
+    "threat_scenarios": {
+      "actual": {
+        "passed": 6,
+        "scenarios": 6
+      },
+      "expected": "6/6",
+      "passed": true
+    }
+  },
+  "promotion_gate_passed": false,
+  "registry_registration": "BLOCKED",
+  "responsibility": "post-training learned selected-policy promotion; candidate-set capability alone cannot satisfy this gate",
+  "schema_version": "puyo.v1_7_promotion_gate_result.v1",
+  "status": "PENDING_POST_TRAINING"
+}

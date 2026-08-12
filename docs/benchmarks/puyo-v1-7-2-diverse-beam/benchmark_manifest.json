@@ -1,0 +1,131 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "7af09bedbfb5e6569bec23e3f74a2dbf46d425baf2b6062ecfee5766212a68c9",
+      "size_bytes": 3586
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "20580a5a3b0e4fd23d02c0493526c190d771a432132545e013df3a1b0c4ef1a2",
+      "size_bytes": 87787
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "decision_records.json",
+      "required": true,
+      "role": "decision_records",
+      "sha256": "762f041883602a536c0113c2b87fd74d0ea1c99ca2cf18393e5c4e2e3b4be6a1",
+      "size_bytes": 1739841
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "determinism.json",
+      "required": true,
+      "role": "determinism",
+      "sha256": "0150236c77015050af5b6efb3e6bc763f1c757677fdb5af75c6166e53e7e75e6",
+      "size_bytes": 525
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "seed_results.json",
+      "required": true,
+      "role": "seed_results",
+      "sha256": "88961e958ced515156c1c160309114676ee0f012fb35cd6c42e3c0042b7f1a80",
+      "size_bytes": 80995
+    }
+  ],
+  "configurations": [
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "legacy",
+      "config_id": "scalar-d6-w48-p16-k16",
+      "depth": 6,
+      "probe_width": 16,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 48
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "diverse",
+      "config_id": "diverse-d6-w48-p16-k16",
+      "depth": 6,
+      "probe_width": 16,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 48
+    },
+    {
+      "build_potential_schema_version": "puyo.build_potential.v2",
+      "candidate_limit": 16,
+      "candidate_mode": "legacy",
+      "config_id": "scalar-d8-w64-p32-k16",
+      "depth": 8,
+      "probe_width": 32,
+      "scenarios": 1,
+      "scoring_mode": "build_potential_v2",
+      "width": 64
+    }
+  ],
+  "created_at_utc": "2026-07-15T18:01:28Z",
+  "evaluation_completed": true,
+  "git_commit": "fcaabda52a3eb12ef03f10436680c5a4c8f8f73b",
+  "name": "puyo-v1-7-2-diverse-beam",
+  "quality_gate_passed": true,
+  "schema_version": "puyo.v1_7_diverse_beam_benchmark.v1",
+  "source": {
+    "available_decisions": 1200,
+    "immutable_source": true,
+    "max_steps": 40,
+    "path": "docs/benchmarks/puyo-v1-7-2-search-diagnostics/decision_records.json",
+    "schema_version": "puyo.v1_7_search_diagnostics_decision.v1",
+    "seeds": [
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152
+    ],
+    "selected_decisions": 1200,
+    "sha256": "460f5fb26890d50117107269c342002750ecc84e0ab2d263044fe923502222c6"
+  }
+}

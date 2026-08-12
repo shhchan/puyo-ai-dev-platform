@@ -1,3 +1,4 @@
+import copy
 import json
 import shutil
 import tempfile
@@ -7,17 +8,26 @@ from unittest import mock
 
 import torch
 
+from agents.beam_search import BUILD_POTENTIAL_SCHEMA_VERSION
+from agents.state_analyzer import ANALYZER_DIAGNOSTICS_SCHEMA_VERSION
 from agents.v1_7_strategy_manager import (
+    BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION,
     CHECKPOINT_METADATA_SCHEMA_VERSION,
     PARENT_LINEAGE_NODE_ID,
     POLICY_TYPE,
+    V17StrategyFeatureEncoder,
+    migrate_build_potential_v2_checkpoint_payload,
     validate_v1_7_strategy_manager_checkpoint_payload,
 )
+from agents.v1_7_tactics import load_tactic_registry
 from eval.analyzer_scenarios import evaluate_scenarios, load_scenarios
 from train.artifacts import validate_artifact_manifest, validate_checkpoint_payload
+from train.restore import checkpoint_state_hash
 from train.train_v1_7_manager import (
     TRAINER_NAME,
     V17ManagerBootstrapConfig,
+    _load_and_validate_dataset,
+    _migrate_v1_7_1_dataset_metadata,
     load_config,
     train_v1_7_manager,
 )
@@ -72,6 +82,34 @@ class TestTrainV17Manager(unittest.TestCase):
                 ["unknown=1"],
             )
 
+    def test_real_legacy_dataset_loads_and_migrates_metadata_only(self):
+        config = self.config(Path("unused"), "legacy-dataset-load")
+        loaded = _load_and_validate_dataset(config)
+        stored_features = tuple(
+            copy.deepcopy(sample["features"])
+            for sample in (*loaded.train, *loaded.validation)
+        )
+        encoder = V17StrategyFeatureEncoder(load_tactic_registry())
+
+        migrated = _migrate_v1_7_1_dataset_metadata(loaded, encoder)
+
+        self.assertEqual(
+            migrated.manifest["schemas"]["analyzer_diagnostics"],
+            ANALYZER_DIAGNOSTICS_SCHEMA_VERSION,
+        )
+        self.assertEqual(
+            migrated.manifest["schemas"]["build_potential"],
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        self.assertEqual(migrated.manifest["feature_contract"]["context_dim"], 77)
+        self.assertEqual(
+            tuple(
+                sample["features"]
+                for sample in (*migrated.train, *migrated.validation)
+            ),
+            stored_features,
+        )
+
     def test_training_writes_reproducible_checkpoint_metrics_and_manifest(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -101,6 +139,14 @@ class TestTrainV17Manager(unittest.TestCase):
             )
             self.assertEqual(checkpoint["feature_contract"]["context_dim"], 77)
             self.assertEqual(checkpoint["feature_contract"]["preview_dim"], 23)
+            self.assertEqual(
+                checkpoint["checkpoint_metadata"]["schemas"]["build_potential"],
+                BUILD_POTENTIAL_SCHEMA_VERSION,
+            )
+            self.assertEqual(
+                checkpoint["dataset"]["schemas"]["build_potential"],
+                BUILD_POTENTIAL_SCHEMA_VERSION,
+            )
             self.assertEqual(checkpoint["scenario_validation"]["passed"], 24)
             self.assertEqual(checkpoint["scenario_validation"]["failed"], 0)
             self.assertFalse(
@@ -135,6 +181,53 @@ class TestTrainV17Manager(unittest.TestCase):
             )
             self.assertEqual(
                 validate_artifact_manifest(manifest, run_dir=manifest_path.parent),
+                [],
+            )
+
+            previous = copy.deepcopy(checkpoint)
+            previous_metadata = previous["checkpoint_metadata"]
+            previous_metadata["schema_version"] = (
+                "puyo.v1_7_strategy_manager.checkpoint_metadata.v1"
+            )
+            previous_metadata["schemas"].update(
+                {
+                    "analyzer_diagnostics": "puyo.state_analyzer.diagnostics.v1",
+                    "planner_request": "planner-schema-v2",
+                    "strategy_diagnostics": (
+                        "puyo.v1_7_strategy_manager.diagnostics.v1"
+                    ),
+                }
+            )
+            previous_metadata["schemas"].pop("build_potential")
+            previous["dataset"]["schemas"]["analyzer_diagnostics"] = (
+                "puyo.state_analyzer.diagnostics.v1"
+            )
+            previous["dataset"]["schemas"].pop("build_potential")
+            previous["state_hash"] = checkpoint_state_hash(previous)
+            source_state_hash = previous["state_hash"]
+            migrated = migrate_build_potential_v2_checkpoint_payload(previous)
+
+            self.assertEqual(
+                migrated["schema_migration"]["schema_version"],
+                BUILD_POTENTIAL_CHECKPOINT_MIGRATION_SCHEMA_VERSION,
+            )
+            self.assertEqual(
+                migrated["schema_migration"]["source_state_hash"],
+                source_state_hash,
+            )
+            self.assertFalse(migrated["schema_migration"]["weights_changed"])
+            self.assertFalse(
+                migrated["schema_migration"]["feature_shape_changed"]
+            )
+            self.assertEqual(migrated["feature_contract"]["context_dim"], 77)
+            self.assertTrue(
+                all(
+                    torch.equal(value, migrated["model_state_dict"][name])
+                    for name, value in previous["model_state_dict"].items()
+                )
+            )
+            self.assertEqual(
+                validate_v1_7_strategy_manager_checkpoint_payload(migrated),
                 [],
             )
 

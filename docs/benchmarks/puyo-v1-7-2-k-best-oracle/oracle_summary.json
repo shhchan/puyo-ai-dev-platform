@@ -1,0 +1,93 @@
+{
+  "comparisons": [
+    {
+      "classification": "candidate_generator_failure",
+      "generator_capability": {
+        "oracle_failure_class": "premature_fire",
+        "oracle_target_achieved": false
+      },
+      "seed": 123,
+      "selection_capability": {
+        "failed_selectors": [
+          "compatibility_rank_0",
+          "legacy_capability_selector"
+        ],
+        "selector_results": {
+          "compatibility_rank_0": {
+            "actual_max_chain_count": 3,
+            "primary_failure_class": "premature_fire",
+            "target_achieved": false
+          },
+          "legacy_capability_selector": {
+            "actual_max_chain_count": 1,
+            "primary_failure_class": "game_over",
+            "target_achieved": false
+          },
+          "offline_oracle": {
+            "actual_max_chain_count": 3,
+            "primary_failure_class": "premature_fire",
+            "target_achieved": false
+          }
+        }
+      }
+    }
+  ],
+  "config": {
+    "config_id": "puyo-180-contract-d1-w22-s1-n100-k8",
+    "future_scope": "authoritative seed future is visible only to the offline oracle evaluator",
+    "profile": "runtime",
+    "responsibility": "offline candidate-set upper bound; not a runtime policy or learned-policy promotion result",
+    "schema_version": "puyo.k_best_offline_oracle_config.v1",
+    "search": {
+      "build_potential_budget": {
+        "max_added_puyos": 1,
+        "max_alternatives": 1,
+        "max_continuation_actions": 1,
+        "max_pattern_nodes": 1,
+        "max_recovery_puyos": 0,
+        "max_resolution_nodes": 1
+      },
+      "candidate_limit": 8,
+      "depth": 1,
+      "max_expanded_nodes": 100,
+      "scenarios": 1,
+      "width": 22
+    },
+    "selection_constraint": "executed actions must be legal roots in the current Proposal v2 K-best",
+    "trajectory": {
+      "maximum_build_steps": 40,
+      "maximum_fire_steps": 6,
+      "oracle_preview_steps": 6,
+      "target_chain_count": 10
+    }
+  },
+  "counts": {
+    "candidate_generator_failure": 1
+  },
+  "determinism": {
+    "digests": [
+      "oracle-suite-828a357649a49a19ee163e45",
+      "oracle-suite-828a357649a49a19ee163e45"
+    ],
+    "excluded_fields": [
+      "*latency*"
+    ],
+    "passed": true,
+    "repetitions": 2,
+    "schema_version": "puyo.k_best_offline_oracle_determinism.v1"
+  },
+  "executed_roots_in_k_best": true,
+  "future_isolation_passed": true,
+  "latency_free_digest": "oracle-suite-828a357649a49a19ee163e45",
+  "oracle_successes": 0,
+  "phase_limits_respected": true,
+  "schema_version": "puyo.k_best_offline_oracle_suite.v1",
+  "seeds": [
+    123
+  ],
+  "selectors": [
+    "offline_oracle",
+    "compatibility_rank_0",
+    "legacy_capability_selector"
+  ]
+}

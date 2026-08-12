@@ -1,0 +1,6773 @@
+[
+  {
+    "budget_exhausted": false,
+    "config_id": "baseline",
+    "dead_end": 0,
+    "deterministic_digest": "legacy-search-33957081726e548d15061827",
+    "elapsed_seconds": 0.12060907389968634,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 0,
+    "reached_depth": 3,
+    "root_evidence": null,
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-13862674fabb5d8e54ef8a5f"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-13862674fabb5d8e54ef8a5f",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 1,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 2,
+    "stage": "baseline",
+    "survival": 1,
+    "transposition_hits": 213,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "baseline",
+    "dead_end": 0,
+    "deterministic_digest": "legacy-search-1fa6c28091624bd5c45edbe9",
+    "elapsed_seconds": 0.11693081096746027,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 0,
+    "reached_depth": 3,
+    "root_evidence": null,
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-00686851dffdd1e01ca99be6"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-00686851dffdd1e01ca99be6",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 1,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "baseline",
+    "survival": 1,
+    "transposition_hits": 258,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "baseline",
+    "dead_end": 0,
+    "deterministic_digest": "legacy-search-97a42040f70ec2401c0ec9bc",
+    "elapsed_seconds": 0.12109834607690573,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 0,
+    "reached_depth": 3,
+    "root_evidence": null,
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-b1ac89feb6567ddd7b28169d"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b1ac89feb6567ddd7b28169d",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 1,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 0,
+    "stage": "baseline",
+    "survival": 1,
+    "transposition_hits": 251,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "compact",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-25774f131cfe9c65f3935e7d",
+    "elapsed_seconds": 0.0895739069674164,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 18.0,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 140,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 18.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-13862674fabb5d8e54ef8a5f"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-13862674fabb5d8e54ef8a5f",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 1,
+    "stage": "compact_kernel",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "compact",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-40de020b0072e0c0ad32a03d",
+    "elapsed_seconds": 0.08962228894233704,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 18.0,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 140,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 18.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-00686851dffdd1e01ca99be6"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-00686851dffdd1e01ca99be6",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "compact_kernel",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "compact",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-631cb488671cf2818f44b0bb",
+    "elapsed_seconds": 0.08862598601263016,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 18.0,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 140,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 18.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-b1ac89feb6567ddd7b28169d"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b1ac89feb6567ddd7b28169d",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 1,
+    "stage": "compact_kernel",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "lightweight",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-1cef9e5ceff2c3ed3599394d",
+    "elapsed_seconds": 5.2967669169884175,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 37108.818181818184,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 6,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 89,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 83,
+          "reached_depth": 3,
+          "root_action": 6,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 37108.818181818184,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-13862674fabb5d8e54ef8a5f"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-13862674fabb5d8e54ef8a5f",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 6,
+    "stage": "lightweight_evaluator",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "lightweight",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-edc08404e2afb0faa3048020",
+    "elapsed_seconds": 5.529283383977599,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 37690.333333333336,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 111,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 100,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-00686851dffdd1e01ca99be6"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-00686851dffdd1e01ca99be6",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "lightweight_evaluator",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "lightweight",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-d90a71887284b9b2c8a1e675",
+    "elapsed_seconds": 5.4938636620063335,
+    "expanded_nodes": 1034,
+    "expected_chain_score": 0,
+    "generated_nodes": 1034,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 964,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 28323.666666666668,
+      "coverage": 1.0,
+      "evaluated_scenarios": 1,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 1,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 137,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-b1ac89feb6567ddd7b28169d"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b1ac89feb6567ddd7b28169d",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 1,
+    "stage": "lightweight_evaluator",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "six-scenario",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-105ae80ce67307e318bc9f6f",
+    "elapsed_seconds": 11.242731719976291,
+    "expanded_nodes": 2244,
+    "expected_chain_score": 0,
+    "generated_nodes": 2244,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 2100,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 36948.666666666664,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 0,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 45,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 41,
+          "reached_depth": 3,
+          "root_action": 0,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 36948.666666666664,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-13862674fabb5d8e54ef8a5f",
+      "scenario-sequence-d9d20bf7ed31456b005ffb69",
+      "scenario-sequence-49cb8e3295c221af2b9411ae",
+      "scenario-sequence-e262e5afe1c9f889d6df4aa8",
+      "scenario-sequence-84a5f9e408efb82ab763604e",
+      "scenario-sequence-e6b3ee3b25b293eeea8274da"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-13862674fabb5d8e54ef8a5f",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-d9d20bf7ed31456b005ffb69",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-49cb8e3295c221af2b9411ae",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-e262e5afe1c9f889d6df4aa8",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-84a5f9e408efb82ab763604e",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-e6b3ee3b25b293eeea8274da",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 0,
+    "stage": "six_scenario",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "six-scenario",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-8d15a204b9fb2a29466d3510",
+    "elapsed_seconds": 11.747743082931265,
+    "expanded_nodes": 2244,
+    "expected_chain_score": 0,
+    "generated_nodes": 2244,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 2100,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 37690.333333333336,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 62,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 37690.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-00686851dffdd1e01ca99be6",
+      "scenario-sequence-a9bf1d56c5ac8a27124b6dc7",
+      "scenario-sequence-3a68b1f633b8b7e0029f4fc9",
+      "scenario-sequence-904d8748cd6a4cd1b84fcb6f",
+      "scenario-sequence-ba66952ca0f5bf7e9d455b6e",
+      "scenario-sequence-0bd2d2d961ff76f093997af1"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-00686851dffdd1e01ca99be6",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-a9bf1d56c5ac8a27124b6dc7",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-3a68b1f633b8b7e0029f4fc9",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-904d8748cd6a4cd1b84fcb6f",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-ba66952ca0f5bf7e9d455b6e",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-0bd2d2d961ff76f093997af1",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "six_scenario",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "six-scenario",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-6a89ebc0cc02dcd0cae29d7d",
+    "elapsed_seconds": 12.13410342100542,
+    "expanded_nodes": 2244,
+    "expected_chain_score": 0,
+    "generated_nodes": 2244,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 0,
+    "mean_max_chain": 0.0,
+    "pruned_nodes": 2100,
+    "reached_depth": 3,
+    "root_evidence": {
+      "best_fire": null,
+      "candidate_value": 0.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 0.0,
+        "maximum": 0,
+        "mean": 0.0,
+        "sum": 0,
+        "worst": 0
+      },
+      "continuation_score_mean": 28323.666666666668,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 67,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 59,
+          "reached_depth": 3,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 28323.666666666668,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 0
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-b1ac89feb6567ddd7b28169d",
+      "scenario-sequence-9ac2616654dfe46cbbf3a934",
+      "scenario-sequence-78b368a11dbf26cb72f12304",
+      "scenario-sequence-5f37e58c6c603295f0297423",
+      "scenario-sequence-8578887a831276292621d90c",
+      "scenario-sequence-b8251f1aefaa91ea056caf27"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b1ac89feb6567ddd7b28169d",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-9ac2616654dfe46cbbf3a934",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-78b368a11dbf26cb72f12304",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-5f37e58c6c603295f0297423",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-8578887a831276292621d90c",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b8251f1aefaa91ea056caf27",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 0,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 1,
+    "stage": "six_scenario",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-322af505c3962cabd68dd171",
+    "elapsed_seconds": 28.791270297020674,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 1380,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 2,
+    "mean_max_chain": 1.5,
+    "pruned_nodes": 4794,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 2,
+        "depth": 6,
+        "official_chain_score": 540,
+        "path": [
+          0,
+          3,
+          14,
+          1,
+          21,
+          1
+        ],
+        "root_action": 0,
+        "scenario_id": 2,
+        "state_fingerprint": "compact-87bdaf5de3fb136fc735efe6",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 1
+      },
+      "candidate_value": 1380.0,
+      "chain_count": {
+        "dispersion": 0.5,
+        "maximum": 2,
+        "mean": 1.5,
+        "sum": 9,
+        "worst": 1
+      },
+      "chain_score": {
+        "dispersion": 199.24858845171275,
+        "maximum": 540,
+        "mean": 230.0,
+        "sum": 1380,
+        "worst": 40
+      },
+      "continuation_score_mean": 83552.50505050505,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 0,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              14,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-56fc6b6a432c2d775e48bc71",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 18,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 231,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 81388.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 18,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              18,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-dea3c69156c42e0fbf4fa3f7",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 243,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 216,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 80621.0303030303,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 540,
+            "path": [
+              0,
+              3,
+              14,
+              1,
+              21,
+              1
+            ],
+            "root_action": 0,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-87bdaf5de3fb136fc735efe6",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 1
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 38,
+          "max_chain_count": 2,
+          "max_chain_score": 540,
+          "pruned_nodes": 211,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 82356.33333333333,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 38,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              14,
+              21,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-fdaf79980050431bbe2d08d4",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 237,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 83806.33333333333,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              0,
+              3,
+              14,
+              6,
+              0,
+              4
+            ],
+            "root_action": 0,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-f0e0acfb07b5e5f81a8cdae0",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 4
+          },
+          "evaluated": true,
+          "expanded_nodes": 221,
+          "fire_count": 20,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 187,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 86571.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 20,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              0,
+              3,
+              14,
+              1,
+              3,
+              4
+            ],
+            "root_action": 0,
+            "scenario_id": 5,
+            "state_fingerprint": "compact-7f56e79323760d6d66bd209e",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 4
+          },
+          "evaluated": true,
+          "expanded_nodes": 221,
+          "fire_count": 20,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 187,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 86571.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 20,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 6
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-e16292753e5a2e3e56047dc8",
+      "scenario-sequence-0355f726a16ce832f96eba7c",
+      "scenario-sequence-c7150dac5d143bfee57e8e2e",
+      "scenario-sequence-75cadf9c348488ad83b58f77",
+      "scenario-sequence-7511dda4e73cf734c73cbfd2",
+      "scenario-sequence-7c6721314c4ad2823293eba7"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-e16292753e5a2e3e56047dc8",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-0355f726a16ce832f96eba7c",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-c7150dac5d143bfee57e8e2e",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-75cadf9c348488ad83b58f77",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-7511dda4e73cf734c73cbfd2",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-7c6721314c4ad2823293eba7",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 6,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 0,
+    "stage": "long_horizon",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-3d5b51c5be7b549987877364",
+    "elapsed_seconds": 30.454565356951207,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 300,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 1,
+    "mean_max_chain": 1.0,
+    "pruned_nodes": 4836,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 1,
+        "depth": 6,
+        "official_chain_score": 100,
+        "path": [
+          1,
+          16,
+          21,
+          12,
+          4,
+          16
+        ],
+        "root_action": 1,
+        "scenario_id": 1,
+        "state_fingerprint": "compact-7a8764f1e19fc2f52a5fce6f",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 16
+      },
+      "candidate_value": 300.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 1,
+        "mean": 1.0,
+        "sum": 6,
+        "worst": 1
+      },
+      "chain_score": {
+        "dispersion": 22.360679774997898,
+        "maximum": 100,
+        "mean": 50.0,
+        "sum": 300,
+        "worst": 40
+      },
+      "continuation_score_mean": 63996.50144300144,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              6,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-6456c5a2e20745aaea8733a9",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 287,
+          "fire_count": 10,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 260,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 73434.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 10,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 100,
+            "path": [
+              1,
+              16,
+              21,
+              12,
+              4,
+              16
+            ],
+            "root_action": 1,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-7a8764f1e19fc2f52a5fce6f",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 16
+          },
+          "evaluated": true,
+          "expanded_nodes": 199,
+          "fire_count": 14,
+          "max_chain_count": 1,
+          "max_chain_score": 100,
+          "pruned_nodes": 174,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 81501.48484848485,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 14,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-f6fce42995c54a30aa4ce039",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 243,
+          "fire_count": 10,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 222,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 37985.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 10,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-e9483ba9e462e8dbc6662d15",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 10,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 138,
+          "reached_depth": 5,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 37985.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 10,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-8ecca0a82024de6068cea0db",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 199,
+          "fire_count": 10,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 178,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 75864.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 10,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 5,
+            "state_fingerprint": "compact-027ceac6f14c5025693e6081",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 287,
+          "fire_count": 18,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 252,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 77208.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 18,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 6
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-4076df56c47389ff482cac45",
+      "scenario-sequence-5fd6e2103429cd6d54fa4248",
+      "scenario-sequence-ccf7f25f5f947fc9e928dcd6",
+      "scenario-sequence-778cf74fe009d729b01f863b",
+      "scenario-sequence-808bd9f3bb3d983559ef3750",
+      "scenario-sequence-1e45545f62032c3d79dd408d"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-4076df56c47389ff482cac45",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-5fd6e2103429cd6d54fa4248",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-ccf7f25f5f947fc9e928dcd6",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-778cf74fe009d729b01f863b",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-808bd9f3bb3d983559ef3750",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-1e45545f62032c3d79dd408d",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 6,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "long_horizon",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-8fd6c334ea84d1ca8d0dc26c",
+    "elapsed_seconds": 29.655512774945237,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 520,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 2,
+    "mean_max_chain": 1.0,
+    "pruned_nodes": 4852,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 2,
+        "depth": 6,
+        "official_chain_score": 360,
+        "path": [
+          1,
+          16,
+          21,
+          8,
+          1,
+          7
+        ],
+        "root_action": 1,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-50d83ad51002f4f9911bdb8f",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 7
+      },
+      "candidate_value": 520.0,
+      "chain_count": {
+        "dispersion": 0.5773502691896257,
+        "maximum": 2,
+        "mean": 1.0,
+        "sum": 6,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 123.10790208412924,
+        "maximum": 360,
+        "mean": 86.66666666666667,
+        "sum": 520,
+        "worst": 0
+      },
+      "continuation_score_mean": 55647.61904761905,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              1,
+              16,
+              21,
+              8,
+              1,
+              7
+            ],
+            "root_action": 1,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-50d83ad51002f4f9911bdb8f",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 16,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 235,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 81096.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 16,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              16,
+              0
+            ],
+            "root_action": 1,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-1a1748c6ff2138f7dd082f46",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 0
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 239,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 44364.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              16,
+              0
+            ],
+            "root_action": 1,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-fb4319fa430246962767c378",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 0
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 239,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 44684.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              16,
+              6,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-cf94c0d32c4def2c5c603608",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 14,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 237,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 82644.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 14,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              16,
+              1,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-c2b249f7c8e4d99128fe0063",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 14,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 237,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 42821.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 14,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 441,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 415,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 38275.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 5
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-f0f516e34f788ed0815e2a70",
+      "scenario-sequence-33ef13f480baababac4c81bf",
+      "scenario-sequence-8c174f60e3a3b52ea890c014",
+      "scenario-sequence-a54aa5c7e23f2673a848f0b3",
+      "scenario-sequence-fbbe296546a3b4ac7beba20c",
+      "scenario-sequence-b3efeed8498af496a1986a67"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-f0f516e34f788ed0815e2a70",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-33ef13f480baababac4c81bf",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-8c174f60e3a3b52ea890c014",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-a54aa5c7e23f2673a848f0b3",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-fbbe296546a3b4ac7beba20c",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b3efeed8498af496a1986a67",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 5,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 1,
+    "stage": "long_horizon",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon-tt",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-322af505c3962cabd68dd171",
+    "elapsed_seconds": 28.5726678770734,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 1380,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 2,
+    "mean_max_chain": 1.5,
+    "pruned_nodes": 4794,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 2,
+        "depth": 6,
+        "official_chain_score": 540,
+        "path": [
+          0,
+          3,
+          14,
+          1,
+          21,
+          1
+        ],
+        "root_action": 0,
+        "scenario_id": 2,
+        "state_fingerprint": "compact-87bdaf5de3fb136fc735efe6",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 1
+      },
+      "candidate_value": 1380.0,
+      "chain_count": {
+        "dispersion": 0.5,
+        "maximum": 2,
+        "mean": 1.5,
+        "sum": 9,
+        "worst": 1
+      },
+      "chain_score": {
+        "dispersion": 199.24858845171275,
+        "maximum": 540,
+        "mean": 230.0,
+        "sum": 1380,
+        "worst": 40
+      },
+      "continuation_score_mean": 83552.50505050505,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 0,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              14,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-56fc6b6a432c2d775e48bc71",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 18,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 231,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 81388.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 18,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              18,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-dea3c69156c42e0fbf4fa3f7",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 243,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 216,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 80621.0303030303,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 540,
+            "path": [
+              0,
+              3,
+              14,
+              1,
+              21,
+              1
+            ],
+            "root_action": 0,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-87bdaf5de3fb136fc735efe6",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 1
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 38,
+          "max_chain_count": 2,
+          "max_chain_score": 540,
+          "pruned_nodes": 211,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 82356.33333333333,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 38,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              0,
+              3,
+              14,
+              21,
+              7
+            ],
+            "root_action": 0,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-fdaf79980050431bbe2d08d4",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 237,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 83806.33333333333,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              0,
+              3,
+              14,
+              6,
+              0,
+              4
+            ],
+            "root_action": 0,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-f0e0acfb07b5e5f81a8cdae0",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 4
+          },
+          "evaluated": true,
+          "expanded_nodes": 221,
+          "fire_count": 20,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 187,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 86571.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 20,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              0,
+              3,
+              14,
+              1,
+              3,
+              4
+            ],
+            "root_action": 0,
+            "scenario_id": 5,
+            "state_fingerprint": "compact-7f56e79323760d6d66bd209e",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 4
+          },
+          "evaluated": true,
+          "expanded_nodes": 221,
+          "fire_count": 20,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 187,
+          "reached_depth": 6,
+          "root_action": 0,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 86571.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 20,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 6
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-e16292753e5a2e3e56047dc8",
+      "scenario-sequence-0355f726a16ce832f96eba7c",
+      "scenario-sequence-c7150dac5d143bfee57e8e2e",
+      "scenario-sequence-75cadf9c348488ad83b58f77",
+      "scenario-sequence-7511dda4e73cf734c73cbfd2",
+      "scenario-sequence-7c6721314c4ad2823293eba7"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-e16292753e5a2e3e56047dc8",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-0355f726a16ce832f96eba7c",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-c7150dac5d143bfee57e8e2e",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-75cadf9c348488ad83b58f77",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-7511dda4e73cf734c73cbfd2",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-7c6721314c4ad2823293eba7",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 6,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 174,
+    "selected_action": 0,
+    "stage": "transposition_table",
+    "survival": 1,
+    "transposition_hits": 0,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon-tt",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-93135aaf7446dec0abfc2970",
+    "elapsed_seconds": 29.180705754086375,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 300,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "RED"
+      ]
+    ],
+    "max_chain": 1,
+    "mean_max_chain": 1.0,
+    "pruned_nodes": 4236,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 1,
+        "depth": 6,
+        "official_chain_score": 100,
+        "path": [
+          1,
+          19,
+          15,
+          12,
+          1,
+          16
+        ],
+        "root_action": 1,
+        "scenario_id": 1,
+        "state_fingerprint": "compact-f5acfa444f21cf0526ffc987",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 16
+      },
+      "candidate_value": 300.0,
+      "chain_count": {
+        "dispersion": 0.0,
+        "maximum": 1,
+        "mean": 1.0,
+        "sum": 6,
+        "worst": 1
+      },
+      "chain_score": {
+        "dispersion": 22.360679774997898,
+        "maximum": 100,
+        "mean": 50.0,
+        "sum": 300,
+        "worst": 40
+      },
+      "continuation_score_mean": 64948.14285714286,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              16,
+              6,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-abd9f7616617541b04f2bfb6",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 243,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 203,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 73434.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 100,
+            "path": [
+              1,
+              19,
+              15,
+              12,
+              1,
+              16
+            ],
+            "root_action": 1,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-f5acfa444f21cf0526ffc987",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 16
+          },
+          "evaluated": true,
+          "expanded_nodes": 199,
+          "fire_count": 16,
+          "max_chain_count": 1,
+          "max_chain_score": 100,
+          "pruned_nodes": 159,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 82481.33333333333,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 16,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              19,
+              15,
+              1,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-f6fce42995c54a30aa4ce039",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 221,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 186,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 37985.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              19,
+              15,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-e9483ba9e462e8dbc6662d15",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 155,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 123,
+          "reached_depth": 5,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 37985.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 5,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              16,
+              1,
+              8
+            ],
+            "root_action": 1,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-f5b9c833b93306d75b138402",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 8
+          },
+          "evaluated": true,
+          "expanded_nodes": 199,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 163,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 75864.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 4,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              16,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 5,
+            "state_fingerprint": "compact-cf87e249f813aef3ca974da0",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 20,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 216,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 81938.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 20,
+          "transposition_hits": 13,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 6
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-4076df56c47389ff482cac45",
+      "scenario-sequence-5fd6e2103429cd6d54fa4248",
+      "scenario-sequence-ccf7f25f5f947fc9e928dcd6",
+      "scenario-sequence-778cf74fe009d729b01f863b",
+      "scenario-sequence-808bd9f3bb3d983559ef3750",
+      "scenario-sequence-1e45545f62032c3d79dd408d"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-4076df56c47389ff482cac45",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-5fd6e2103429cd6d54fa4248",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-ccf7f25f5f947fc9e928dcd6",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-778cf74fe009d729b01f863b",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-808bd9f3bb3d983559ef3750",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "GREEN"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "RED"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-1e45545f62032c3d79dd408d",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 6,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 1174,
+    "selected_action": 1,
+    "stage": "transposition_table",
+    "survival": 1,
+    "transposition_hits": 552,
+    "truncation_reason": null
+  },
+  {
+    "budget_exhausted": false,
+    "config_id": "long-horizon-tt",
+    "dead_end": 0,
+    "deterministic_digest": "long-horizon-search-b0199435ed8a361cbb5dba63",
+    "elapsed_seconds": 30.038298749015667,
+    "expanded_nodes": 5412,
+    "expected_chain_score": 520,
+    "generated_nodes": 5412,
+    "known_pair_count": 3,
+    "known_queue": [
+      [
+        "RED",
+        "RED"
+      ],
+      [
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE"
+      ]
+    ],
+    "max_chain": 2,
+    "mean_max_chain": 1.0,
+    "pruned_nodes": 4850,
+    "reached_depth": 6,
+    "root_evidence": {
+      "best_fire": {
+        "chain_count": 2,
+        "depth": 6,
+        "official_chain_score": 360,
+        "path": [
+          1,
+          16,
+          21,
+          8,
+          1,
+          7
+        ],
+        "root_action": 1,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-50d83ad51002f4f9911bdb8f",
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "trigger_action": 7
+      },
+      "candidate_value": 520.0,
+      "chain_count": {
+        "dispersion": 0.5773502691896257,
+        "maximum": 2,
+        "mean": 1.0,
+        "sum": 6,
+        "worst": 0
+      },
+      "chain_score": {
+        "dispersion": 123.10790208412924,
+        "maximum": 360,
+        "mean": 86.66666666666667,
+        "sum": 520,
+        "worst": 0
+      },
+      "continuation_score_mean": 55647.61904761905,
+      "coverage": 1.0,
+      "evaluated_scenarios": 6,
+      "ranking_rule_version": "puyo.expected_chain_ranking.v1",
+      "requested_scenarios": 6,
+      "root_action": 1,
+      "scenario_values": [
+        {
+          "best_fire": {
+            "chain_count": 2,
+            "depth": 6,
+            "official_chain_score": 360,
+            "path": [
+              1,
+              16,
+              21,
+              8,
+              1,
+              7
+            ],
+            "root_action": 1,
+            "scenario_id": 0,
+            "state_fingerprint": "compact-50d83ad51002f4f9911bdb8f",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 7
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 16,
+          "max_chain_count": 2,
+          "max_chain_score": 360,
+          "pruned_nodes": 235,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 0,
+          "search_complete": true,
+          "survivor_evaluator_score": 81096.0,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 16,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              16,
+              0
+            ],
+            "root_action": 1,
+            "scenario_id": 1,
+            "state_fingerprint": "compact-1a1748c6ff2138f7dd082f46",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 0
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 239,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 1,
+          "search_complete": true,
+          "survivor_evaluator_score": 44364.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              1,
+              16,
+              0
+            ],
+            "root_action": 1,
+            "scenario_id": 2,
+            "state_fingerprint": "compact-fb4319fa430246962767c378",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 0
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 12,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 239,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 2,
+          "search_complete": true,
+          "survivor_evaluator_score": 44684.19047619047,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 12,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              16,
+              6,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 3,
+            "state_fingerprint": "compact-cf94c0d32c4def2c5c603608",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 14,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 235,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 3,
+          "search_complete": true,
+          "survivor_evaluator_score": 82644.66666666667,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 14,
+          "transposition_hits": 2,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": {
+            "chain_count": 1,
+            "depth": 6,
+            "official_chain_score": 40,
+            "path": [
+              1,
+              16,
+              21,
+              16,
+              1,
+              11
+            ],
+            "root_action": 1,
+            "scenario_id": 4,
+            "state_fingerprint": "compact-c2b249f7c8e4d99128fe0063",
+            "terminal": true,
+            "terminal_reason": "chain_count_gte_1",
+            "trigger_action": 11
+          },
+          "evaluated": true,
+          "expanded_nodes": 265,
+          "fire_count": 14,
+          "max_chain_count": 1,
+          "max_chain_score": 40,
+          "pruned_nodes": 237,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 4,
+          "search_complete": true,
+          "survivor_evaluator_score": 42821.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 14,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        },
+        {
+          "best_fire": null,
+          "evaluated": true,
+          "expanded_nodes": 441,
+          "fire_count": 0,
+          "max_chain_count": 0,
+          "max_chain_score": 0,
+          "pruned_nodes": 415,
+          "reached_depth": 6,
+          "root_action": 1,
+          "scenario_id": 5,
+          "search_complete": true,
+          "survivor_evaluator_score": 38275.333333333336,
+          "terminal_fire": {
+            "minimum_chain_count": 1,
+            "rule": "record_and_stop"
+          },
+          "terminal_fire_count": 0,
+          "transposition_hits": 0,
+          "truncation_reason": null
+        }
+      ],
+      "schema_version": "puyo.expected_chain_evidence.v1",
+      "support": 5
+    },
+    "scenario_coverage": 1.0,
+    "scenario_sequence_digests": [
+      "scenario-sequence-f0f516e34f788ed0815e2a70",
+      "scenario-sequence-33ef13f480baababac4c81bf",
+      "scenario-sequence-8c174f60e3a3b52ea890c014",
+      "scenario-sequence-a54aa5c7e23f2673a848f0b3",
+      "scenario-sequence-fbbe296546a3b4ac7beba20c",
+      "scenario-sequence-b3efeed8498af496a1986a67"
+    ],
+    "scenario_sequences": [
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "BLUE"
+          ],
+          [
+            "GREEN",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 0,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-f0f516e34f788ed0815e2a70",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "GREEN"
+          ],
+          [
+            "BLUE",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 1,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-33ef13f480baababac4c81bf",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "RED",
+            "YELLOW"
+          ],
+          [
+            "BLUE",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 2,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-8c174f60e3a3b52ea890c014",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "RED",
+            "YELLOW"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "YELLOW"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "GREEN"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 3,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-a54aa5c7e23f2673a848f0b3",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "BLUE",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "GREEN"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "GREEN"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 4,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-fbbe296546a3b4ac7beba20c",
+        "unknown_boundary_cursor": 3
+      },
+      {
+        "hidden_cycle": [
+          [
+            "GREEN",
+            "YELLOW"
+          ],
+          [
+            "RED",
+            "BLUE"
+          ]
+        ],
+        "known_pair_count": 3,
+        "pairs": [
+          {
+            "colors": [
+              "RED",
+              "RED"
+            ],
+            "cursor": 0,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "BLUE",
+              "YELLOW"
+            ],
+            "cursor": 1,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "BLUE"
+            ],
+            "cursor": 2,
+            "source": "known"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 3,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "RED",
+              "BLUE"
+            ],
+            "cursor": 4,
+            "source": "unknown"
+          },
+          {
+            "colors": [
+              "GREEN",
+              "YELLOW"
+            ],
+            "cursor": 5,
+            "source": "unknown"
+          }
+        ],
+        "scenario_id": 5,
+        "schema_version": "puyo.long_horizon_scenario_sequence.v1",
+        "sequence_digest": "scenario-sequence-b3efeed8498af496a1986a67",
+        "unknown_boundary_cursor": 3
+      }
+    ],
+    "scenario_support": 5,
+    "schema_version": "puyo.v1_7_long_horizon_search_benchmark.v1",
+    "seed": 2174,
+    "selected_action": 1,
+    "stage": "transposition_table",
+    "survival": 1,
+    "transposition_hits": 2,
+    "truncation_reason": null
+  }
+]

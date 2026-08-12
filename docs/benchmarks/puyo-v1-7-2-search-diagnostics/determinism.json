@@ -1,0 +1,19 @@
+{
+  "digests": [
+    "76ad61e5201eedcc913c7aa51f93563a56df03251e717cc4e91686eed92cf2c4",
+    "76ad61e5201eedcc913c7aa51f93563a56df03251e717cc4e91686eed92cf2c4"
+  ],
+  "excluded_fields": [
+    "current.latency_ms",
+    "reference.latency_ms"
+  ],
+  "passed": true,
+  "repetitions": 2,
+  "scope": [
+    "selected actions",
+    "candidate survival stages",
+    "predicted chains and fire cost",
+    "regret and failure classification",
+    "latency-free seed and configuration aggregates"
+  ]
+}

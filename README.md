@@ -456,6 +456,97 @@ python3 -m eval.model_viewer \
   --lineage-root docs/benchmarks/puyo-v1-7-1-smoke/lineage_manifest.json
 ```
 
+### v1.7.2 学習前 benchmark / scenario QA
+
+PUYO-132 は v1.7.2 の学習開始前に、v1.7.1、強制 `build_main`、large worker、標準 beam を
+30 fixed seed・40手で比較します．さらに v1.7.1 を `manager_rule`、標準 beam、large worker、
+既存 champion checkpoint と paired side で評価し、短期攻撃対応率、相殺率、自滅率、latency を
+保存します．24 Analyzer scenario、6 outcome scenario、carry/cancel/lifecycle、attack-profile GUI replay
+も同じ artifact に含めます．
+
+```bash
+python3 -m eval.v1_7_benchmark run \
+  --checkpoint runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt \
+  --model-registry runs/model_registry.json \
+  --output-dir docs/benchmarks/puyo-v1-7-2-baseline \
+  --safe-games 30 --arena-games 20 --seed 123 --max-steps 40 --workers 8
+
+python3 -m eval.v1_7_benchmark verify \
+  --checkpoint runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt \
+  --model-registry runs/model_registry.json \
+  --artifact-dir docs/benchmarks/puyo-v1-7-2-baseline
+```
+
+`verify` は既定で evaluator の完走、checkpoint identity、artifact hash、GUI replay を検証します．
+`training_gate_passed` はこれと独立しており、v1.7.1 baseline が大連鎖・premature fire・固定 outcome
+の gate を満たさない場合でも PUYO-132 の evaluator は完成扱いにできます．学習開始可否まで CI で
+要求する場合だけ `--require-training-gate` を追加してください．training gate が false の間は
+PUYO-130 を開始しません．
+
+### v1.7.2 safe-build capability / promotion gate
+
+PUYO-170 以降は、学習前の K-best candidate generator を測る capability gate と、学習後に learned
+policy が実際に選ぶ手を測る promotion gate を別 schema で判定します．capability gate が fail の間は
+PUYO-130 long-run training を明示的に block し、pretraining checkpoint を promotion 成功として扱いません．
+
+```bash
+python3 -m eval.v1_7_safe_build_gates run \
+  --workers 12 --repetitions 2 \
+  --promotion-checkpoint \
+    runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap-v1-7-2-migrated.pt \
+  --checkpoint-role pretraining_reference
+
+python3 -m eval.v1_7_safe_build_gates verify
+```
+
+固定30 seed x 40手、候補/参照 coverage、premature 分類、forced game-over、latency、決定論、
+selected-policy の 10/0/0、PUYO-158 後の threat scenario 6/6 を同じ manifest で追跡します．
+契約と artifact の読み方は
+[PUYO-170 safe-build two-stage gate](docs/development/puyo-170-safe-build-gates.md) を参照してください．
+
+PUYO-178 では `build_main` の発火を premature / quiet / target / forced-safety に分離し、
+各 legal root の survivor quota を確保してから共有 beam を配ります．Proposal v2 の K=8 と
+mask/ID 契約を維持した検証は次で再現できます．
+
+```bash
+python3 -m eval.v1_7_build_main_fire_ranking_benchmark run
+python3 -m eval.v1_7_build_main_fire_ranking_benchmark verify
+```
+
+設計は
+[PUYO-178 build-main fire ranking](docs/development/puyo-178-build-main-fire-ranking.md)
+を参照してください．
+
+PUYO-179 では current + NEXT 2 より後の未知ツモを production と同じ分布から
+decision seed／rollout seed 付きで sampling します．runtime／smoke／quality の sample 数と
+count budget、同一 seed の再現性、異なる seed の独立性、Proposal v2 の順序不変性は次で確認できます．
+
+```bash
+python3 -m eval.v1_7_future_sampling_benchmark run
+python3 -m eval.v1_7_future_sampling_benchmark verify
+```
+
+固定 6 pairing は `legacy-fixed-six` profile に限定されています．契約の詳細は
+[PUYO-179 seeded future sampling](docs/development/puyo-179-seeded-future-sampling.md)
+を参照してください．
+
+PUYO-180 では実 seed の未来ツモを評価時だけ参照する offline oracle を使い、Proposal v2 の
+K-best root だけから最大40手の構築と最大6手の発火を同一 trajectory で評価します．rank 0／
+旧 capability selector との regret、trigger 維持、候補不足・評価過大・早期発火・dead-end・
+game-over・発火 timeout の分類も同じ artifact に保存します．
+
+```bash
+python3 -m eval.v1_7_k_best_oracle run \
+  --seeds 123 --profile runtime \
+  --build-steps 40 --fire-steps 6 --target-chain 10
+python3 -m eval.v1_7_k_best_oracle verify
+```
+
+実未来情報が Candidate Ranker／PPO observation に混入しない isolation check と、latency を除く
+2 repeat の trajectory digest を verify します．詳細は
+[PUYO-180 K-best offline oracle](docs/development/puyo-180-k-best-offline-oracle.md)
+を参照してください．canonical 30 seed matrix と PUYO-130 の Go 判定は後続 PUYO-176 で行います．
+
 ## 開発ワークフロー（VSCode x Codex x Jira）
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)

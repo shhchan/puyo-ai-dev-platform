@@ -1,0 +1,93 @@
+{
+  "all_clear_lifecycle": [
+    {
+      "name": "initial_empty_board_has_no_all_clear_event",
+      "passed": true
+    },
+    {
+      "name": "own_all_clear_state_is_independent",
+      "passed": true
+    },
+    {
+      "name": "pending_bonus_survives_non_clearing_turn",
+      "passed": true
+    },
+    {
+      "name": "pending_bonus_is_consumed_by_next_chain",
+      "passed": true
+    },
+    {
+      "name": "consumed_bonus_is_not_applied_again",
+      "passed": true
+    }
+  ],
+  "cancel_boundaries": [
+    {
+      "actual": {
+        "canceled": 5,
+        "generated": 5,
+        "outgoing": 0,
+        "received": 0
+      },
+      "expected": {
+        "canceled": 5,
+        "outgoing": 0,
+        "received": 0
+      },
+      "name": "exact_cancel",
+      "passed": true
+    },
+    {
+      "actual": {
+        "canceled": 3,
+        "generated": 5,
+        "outgoing": 2,
+        "received": 0
+      },
+      "expected": {
+        "canceled": 3,
+        "outgoing": 2,
+        "received": 0
+      },
+      "name": "surplus_counter",
+      "passed": true
+    },
+    {
+      "actual": {
+        "canceled": 5,
+        "generated": 5,
+        "outgoing": 0,
+        "received": 1
+      },
+      "expected": {
+        "canceled": 5,
+        "outgoing": 0,
+        "received": 1
+      },
+      "name": "deficit",
+      "passed": true
+    }
+  ],
+  "carry_boundaries": [
+    {
+      "carry": 69,
+      "passed": true,
+      "score": 69,
+      "units": 0
+    },
+    {
+      "carry": 0,
+      "passed": true,
+      "score": 70,
+      "units": 1
+    },
+    {
+      "carry": 1,
+      "passed": true,
+      "score": 71,
+      "units": 1
+    }
+  ],
+  "passed": true,
+  "schema_version": "puyo.v1_7_lifecycle_parity.v1"
+}

@@ -1,0 +1,8 @@
+{
+  "build_main_version": "1.1",
+  "path": "/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/runs/v1_7_manager/puyo-128-bootstrap-round-1-seed1129/checkpoints/bootstrap.pt",
+  "registry_version": "v1.7.0",
+  "sha256": "932730916ee4a17e0ea41babbe0638c332c3efe365264b81682456d70b5ef60b",
+  "size_bytes": 1079499,
+  "strict_load": true
+}

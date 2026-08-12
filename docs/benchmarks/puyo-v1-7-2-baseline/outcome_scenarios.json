@@ -1,0 +1,138 @@
+{
+  "results": [
+    {
+      "actual": {
+        "action": 15,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": null,
+        "generated": 0,
+        "incoming": 1,
+        "outgoing": 0,
+        "received": 0,
+        "response_selected": false,
+        "selected_tactic": "build_main",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_three_uses_second_next",
+      "description": "Three-turn mild threat selects an explicit response tactic.",
+      "failures": [
+        "response tactic was not selected"
+      ],
+      "name": "mild_threat",
+      "passed": false
+    },
+    {
+      "actual": {
+        "action": 15,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": null,
+        "generated": 0,
+        "incoming": 10,
+        "outgoing": 0,
+        "received": 0,
+        "response_selected": true,
+        "selected_tactic": "prepare_response",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_two_uses_next_pair",
+      "description": "Two-turn burst selects a response and keeps the player alive.",
+      "failures": [],
+      "name": "short_burst",
+      "passed": true
+    },
+    {
+      "actual": {
+        "action": 19,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": null,
+        "generated": 0,
+        "incoming": 5,
+        "outgoing": 0,
+        "received": 5,
+        "response_selected": false,
+        "selected_tactic": "build_main",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_one_exact_cancel",
+      "description": "A deadline-one attack is fully canceled with no received garbage.",
+      "failures": [
+        "incoming attack was not fully canceled",
+        "garbage was received after full-cancel scenario"
+      ],
+      "name": "full_cancel",
+      "passed": false
+    },
+    {
+      "actual": {
+        "action": 19,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": null,
+        "generated": 0,
+        "incoming": 3,
+        "outgoing": 0,
+        "received": 3,
+        "response_selected": false,
+        "selected_tactic": "build_main",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_one_counter_surplus",
+      "description": "A deadline-one counter cancels the threat and returns surplus attack.",
+      "failures": [
+        "counter produced no outgoing surplus",
+        "surplus counter still received garbage"
+      ],
+      "name": "surplus_counter",
+      "passed": false
+    },
+    {
+      "actual": {
+        "action": 19,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": null,
+        "generated": 0,
+        "incoming": 6,
+        "outgoing": 0,
+        "received": 6,
+        "response_selected": false,
+        "selected_tactic": "build_main",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_one_return_is_insufficient",
+      "description": "An insufficient deadline-one response avoids immediate game over.",
+      "failures": [],
+      "name": "survival",
+      "passed": true
+    },
+    {
+      "actual": {
+        "action": 19,
+        "canceled": 0,
+        "chain_count": 0,
+        "followup_tactic": "build_main",
+        "generated": 0,
+        "incoming": 5,
+        "outgoing": 0,
+        "received": 5,
+        "response_selected": false,
+        "selected_tactic": "build_main",
+        "survived": true
+      },
+      "analyzer_scenario": "deadline_one_exact_cancel",
+      "description": "After a response turn with cleared incoming attack, the manager resumes build_main.",
+      "failures": [],
+      "name": "resume_build",
+      "passed": true
+    }
+  ],
+  "schema_version": "puyo.v1_7_response_scenarios.v1",
+  "summary": {
+    "failed": 3,
+    "passed": 3,
+    "scenarios": 6
+  }
+}

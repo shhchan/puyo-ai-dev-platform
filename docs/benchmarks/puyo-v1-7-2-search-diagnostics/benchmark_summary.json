@@ -1,0 +1,107 @@
+{
+  "aggregate": {
+    "best_reachable_chain_max": 13,
+    "best_reachable_chain_mean": 1.3575,
+    "candidate_coverage_count": 933,
+    "candidate_coverage_rate": 0.7775,
+    "chain_regret_max": 11,
+    "chain_regret_mean": 0.12416666666666666,
+    "decisions": 1200,
+    "failure_class_counts": {
+      "candidate_coverage": 62,
+      "horizon_or_uncertainty": 1058,
+      "none": 76,
+      "ranking": 4,
+      "safety_constraint": 0
+    },
+    "game_over_before_limit": 0,
+    "games": 30,
+    "latency": {
+      "current_p50_ms": 1058.7555050151423,
+      "current_p95_ms": 1402.3889311472883,
+      "mode": "offline_wall_clock",
+      "reference_p50_ms": 2151.3433204963803,
+      "reference_p95_ms": 2807.2180620511062
+    },
+    "mean_game_max_chain": 7.533333333333333,
+    "original_build_main_gate": {
+      "game_over": true,
+      "mean_max_chain": false,
+      "passed": false,
+      "premature_fire": false
+    },
+    "premature_classification_counts": {
+      "avoidable": 0,
+      "candidate_limited": 9,
+      "none": 1191
+    },
+    "root_action_coverage_count": 1198,
+    "root_action_coverage_rate": 0.9983333333333333,
+    "selected_chain_max": 13,
+    "selected_chain_mean": 1.145,
+    "value_regret_mean": 21767.181135225375
+  },
+  "config": {
+    "current": {
+      "config_id": "d6-w48-p16",
+      "depth": 6,
+      "minimum_chain_count": 10,
+      "probe_width": 16,
+      "scenarios": 1,
+      "trace_paths": true,
+      "trigger_preservation": "required",
+      "width": 48
+    },
+    "games": 30,
+    "max_steps": 40,
+    "reference": {
+      "config_id": "d8-w64-p32",
+      "depth": 8,
+      "minimum_chain_count": 10,
+      "probe_width": 32,
+      "scenarios": 1,
+      "trace_paths": true,
+      "trigger_preservation": "required",
+      "width": 64
+    },
+    "workers": 8
+  },
+  "created_at_utc": "2026-07-15T13:00:11Z",
+  "determinism": {
+    "digests": [
+      "76ad61e5201eedcc913c7aa51f93563a56df03251e717cc4e91686eed92cf2c4",
+      "76ad61e5201eedcc913c7aa51f93563a56df03251e717cc4e91686eed92cf2c4"
+    ],
+    "excluded_fields": [
+      "current.latency_ms",
+      "reference.latency_ms"
+    ],
+    "passed": true,
+    "repetitions": 2,
+    "scope": [
+      "selected actions",
+      "candidate survival stages",
+      "predicted chains and fire cost",
+      "regret and failure classification",
+      "latency-free seed and configuration aggregates"
+    ]
+  },
+  "evaluation_completed": true,
+  "git_commit": "f1746779741773842b133c4f5262e7745a8e7e6f",
+  "latency_mode": "offline_wall_clock",
+  "metric_definitions": {
+    "avoidable_premature_fire": "a valid non-game-over no-fire legal root action existed",
+    "candidate_coverage": "the bounded-reference best action-path prefix through the current depth survives the current final prune",
+    "candidate_limited_premature_fire": "no valid non-game-over no-fire legal root action existed",
+    "root_action_coverage": "the bounded-reference best root action reaches any current final beam"
+  },
+  "reference_semantics": "deterministic bounded reference; not an oracle",
+  "schema_version": "puyo.v1_7_search_diagnostics_benchmark.v1",
+  "seed_manifest": {
+    "games": 30,
+    "schema_version": "puyo.v1_7_safe_build_seed_manifest.v1",
+    "source": "docs/benchmarks/puyo-v1-7-2-build-main/seed_results.csv",
+    "source_config_id": "d6-w48-p16",
+    "source_sha256": "d5d05f0f374baa5129b04ba4d18fa86e39902688c677f008cf721ae01ac14c45"
+  }
+}

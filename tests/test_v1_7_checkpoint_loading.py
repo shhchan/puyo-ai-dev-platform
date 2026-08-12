@@ -19,6 +19,7 @@ from agents.v1_7_strategy_manager import (
     V17StrategyManagerNetwork,
     V17StrategyManagerPolicy,
     build_v1_7_checkpoint_metadata,
+    migrate_v1_7_1_checkpoint_payload,
     validate_v1_7_strategy_manager_checkpoint_payload,
 )
 from agents.v1_7_tactics import load_tactic_registry
@@ -59,6 +60,8 @@ def build_checkpoint_payload() -> dict:
                 "schemas": {
                     "analyzer_input": schemas["analyzer_input"],
                     "analyzer_diagnostics": schemas["analyzer_diagnostics"],
+                    "build_potential": schemas["build_potential"],
+                    "chain_style": schemas["chain_style"],
                     "feature": schemas["strategy_features"],
                     "preview_feature": schemas["planner_preview_features"],
                     "tactic_registry": schemas["tactic_registry"],
@@ -66,6 +69,7 @@ def build_checkpoint_payload() -> dict:
                 },
                 "counts": {"train": 3, "validation": 26},
                 "compatibility": {},
+                "chain_style": dict(metadata["chain_style"]),
             },
             "lifecycle_carry_contract": {
                 "analyzer_input_schema_version": schemas["analyzer_input"],
@@ -83,6 +87,33 @@ def build_checkpoint_payload() -> dict:
         seed=127,
     )
     checkpoint["state_hash"] = checkpoint_state_hash(checkpoint)
+    return checkpoint
+
+
+def build_legacy_checkpoint_payload() -> dict:
+    checkpoint = build_checkpoint_payload()
+    checkpoint["model_version"] = "v1.7.1"
+    metadata = checkpoint["checkpoint_metadata"]
+    metadata["model_version"] = "v1.7.1"
+    metadata["lineage"] = {
+        "node_id": "model_version:v1.7.1",
+        "parent_node_id": "model_version:v1.7.0",
+        "training_run_id": checkpoint["run_id"],
+    }
+    metadata["schemas"].update(
+        {
+            "tactic_registry": "tactic-schema-v1",
+            "tactic_registry_version": "v1.7.0",
+            "planner_request": "planner-schema-v1",
+        }
+    )
+    checkpoint["feature_contract"]["registry_version"] = "v1.7.0"
+    checkpoint["dataset"]["schemas"].update(
+        {
+            "tactic_registry": "tactic-schema-v1",
+            "tactic_registry_version": "v1.7.0",
+        }
+    )
     return checkpoint
 
 
@@ -121,7 +152,7 @@ class TestV17CheckpointLoading(unittest.TestCase):
             )
             self.assertEqual(
                 policy.tactical_diagnostics["lineage"]["parent_node_id"],
-                "model_version:v1.7.0",
+                "model_version:v1.7.1",
             )
             env.close()
 
@@ -134,6 +165,34 @@ class TestV17CheckpointLoading(unittest.TestCase):
             policy = make_policy(POLICY_TYPE, checkpoint_path=path)
 
         self.assertIsInstance(policy, V17StrategyManagerPolicy)
+
+    def test_v1_7_1_checkpoint_migration_is_explicit_recorded_and_loadable(self):
+        legacy = build_legacy_checkpoint_payload()
+        original = copy.deepcopy(legacy)
+
+        migrated = migrate_v1_7_1_checkpoint_payload(legacy)
+
+        self.assertEqual(legacy["model_version"], original["model_version"])
+        self.assertEqual(migrated["model_version"], MODEL_VERSION)
+        self.assertEqual(
+            migrated["schema_migration"]["source_model_version"],
+            "v1.7.1",
+        )
+        self.assertFalse(migrated["schema_migration"]["weights_changed"])
+        self.assertFalse(migrated["schema_migration"]["feature_shape_changed"])
+        self.assertEqual(validate_v1_7_strategy_manager_checkpoint_payload(migrated), [])
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.save_checkpoint(directory, migrated)
+            policy = V17StrategyManagerPolicy.from_checkpoint(path)
+
+        self.assertIsInstance(policy, V17StrategyManagerPolicy)
+
+    def test_v1_7_1_checkpoint_is_not_implicitly_reinterpreted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.save_checkpoint(directory, build_legacy_checkpoint_payload())
+            with self.assertRaisesRegex(ValueError, "incompatible v1.7 bootstrap"):
+                V17StrategyManagerPolicy.from_checkpoint(path)
 
     def test_incompatible_metadata_fails_before_weights_are_applied(self):
         payload = build_checkpoint_payload()
@@ -235,7 +294,7 @@ class TestV17CheckpointLoading(unittest.TestCase):
             self.assertTrue(
                 any(
                     "checkpoint_a: checkpoint_metadata.model_version: "
-                    "expected 'v1.7.1', got 'v9.9.9'" in error
+                    "expected 'v1.7.2', got 'v9.9.9'" in error
                     for error in errors
                 )
             )

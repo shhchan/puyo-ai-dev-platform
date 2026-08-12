@@ -5,12 +5,52 @@ from __future__ import annotations
 import time
 import hashlib
 from dataclasses import dataclass, replace
-from typing import Any, Protocol
+from typing import Any, Mapping, Protocol
 
-from agents.beam_search import BeamSearchConfig, BeamSearchPolicy, clone_simulator, evaluate_board
+from agents.beam_search import (
+    BUILD_POTENTIAL_SCHEMA_VERSION,
+    BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+    BUILD_SCORING_V2,
+    DIVERSE_CANDIDATE_MODE,
+    LEGACY_BUILD_SCORING,
+    LEGACY_CANDIDATE_MODE,
+    BeamSearchConfig,
+    BeamSearchPolicy,
+    BuildPotential,
+    BuildPotentialBudget,
+    BuildPotentialSession,
+    DiverseBeamCandidate,
+    TriggerRecoverability,
+    clone_simulator,
+    compare_build_potential_triggers,
+    evaluate_board,
+)
+from agents.chain_styles import (
+    ChainStyleEvaluator,
+    ChainStyleProvider,
+    ChainStyleRegistry,
+    load_chain_style_registry,
+)
+from agents.long_horizon_search import RUNTIME_PROFILE, long_horizon_profile
 from agents.v1_7_planner import PlannerRequest, resolve_preview_attack
-from puyo_env.actions import action_to_placement, legal_action_indices
-from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor, VISIBLE_HEIGHT
+from agents.worker_proposals import (
+    WorkerProposalBatch,
+    build_worker_proposal_batch,
+    compatibility_action,
+)
+from puyo_env.actions import (
+    NUM_ACTIONS,
+    action_to_placement,
+    legal_action_indices,
+    legal_action_mask,
+)
+from src.core.constants import (
+    GRID_HEIGHT,
+    GRID_WIDTH,
+    NORMAL_PUYO_COLORS,
+    PuyoColor,
+    VISIBLE_HEIGHT,
+)
 
 
 STRATEGY_NAMES = (
@@ -45,12 +85,47 @@ class WorkerProfile:
     safety_margin: int = 2
     danger_tolerance: float = 0.75
     fire_threshold: float = 1.0
+    trigger_preservation: str = "ignore"
+    potential_probe_width: int = 0
+    scoring_mode: str = LEGACY_BUILD_SCORING
+    future_potential_weight: float = 1.0
+    chain_shape_weight: float = 1.0
+    danger_weight: float = 1.0
+    build_potential_schema_version: str = BUILD_POTENTIAL_V1_SCHEMA_VERSION
+    potential_probe_budget: int = 64
+    search_profile: str | None = None
 
     def __post_init__(self) -> None:
         if self.strategy not in STRATEGY_NAMES:
             raise ValueError(f"unknown strategy: {self.strategy}")
         if self.profile_id < 0:
             raise ValueError("profile_id must be non-negative")
+        if self.trigger_preservation not in {"required", "prefer", "ignore"}:
+            raise ValueError(
+                f"unsupported trigger preservation: {self.trigger_preservation}"
+            )
+        if self.potential_probe_width < 0:
+            raise ValueError("potential probe width must be non-negative")
+        if self.scoring_mode not in {LEGACY_BUILD_SCORING, BUILD_SCORING_V2}:
+            raise ValueError(f"unsupported worker scoring mode: {self.scoring_mode}")
+        if min(
+            self.future_potential_weight,
+            self.chain_shape_weight,
+            self.danger_weight,
+        ) < 0.0:
+            raise ValueError("worker scoring weights must be non-negative")
+        if self.build_potential_schema_version not in {
+            BUILD_POTENTIAL_V1_SCHEMA_VERSION,
+            BUILD_POTENTIAL_SCHEMA_VERSION,
+        }:
+            raise ValueError(
+                "unsupported worker build-potential schema: "
+                f"{self.build_potential_schema_version}"
+            )
+        if self.potential_probe_budget <= 0:
+            raise ValueError("worker potential probe budget must be positive")
+        if self.search_profile is not None and not self.search_profile:
+            raise ValueError("worker search profile must be non-empty when set")
 
 
 @dataclass(frozen=True)
@@ -196,6 +271,8 @@ class TacticalObjective:
     target_attack: int = 0
     target_score: int = 0
     target_chain: int = 0
+    required_response_attack: int = 0
+    trigger_preservation: str = "ignore"
     deadline: int = 0
     deadline_ticks: int = 0
     safety_margin: int = 0
@@ -211,11 +288,13 @@ class TacticalObjective:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "schema_version": "search-objective-v1",
+            "schema_version": "search-objective-v2",
             "kind": self.kind,
             "target_attack": int(self.target_attack),
             "target_score": int(self.target_score),
             "target_chain": int(self.target_chain),
+            "required_response_attack": int(self.required_response_attack),
+            "trigger_preservation": self.trigger_preservation,
             "deadline": int(self.deadline),
             "deadline_ticks": int(self.deadline_ticks),
             "safety_margin": int(self.safety_margin),
@@ -240,6 +319,10 @@ class ObjectiveResult:
     deadline_missed: bool = False
     danger_excess: float = 0.0
     time_overrun_ticks: int = 0
+    response_capacity: int = 0
+    incoming_coverage: float = 0.0
+    trigger_preserved: bool = False
+    immediate_fire: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -252,6 +335,10 @@ class ObjectiveResult:
             "deadline_missed": bool(self.deadline_missed),
             "danger_excess": float(self.danger_excess),
             "time_overrun_ticks": int(self.time_overrun_ticks),
+            "response_capacity": int(self.response_capacity),
+            "incoming_coverage": float(self.incoming_coverage),
+            "trigger_preserved": bool(self.trigger_preserved),
+            "immediate_fire": bool(self.immediate_fire),
         }
 
 
@@ -441,6 +528,26 @@ class SearchProposal:
     search_control: SearchControlDiagnostics | None = None
     tactical_option: TacticalOptionDiagnostics | None = None
     planner_request: PlannerRequest | None = None
+    trigger_preservation: str = "ignore"
+    potential_probe_width: int = 0
+    root_build_potential: BuildPotential = BuildPotential(
+        schema_version=BUILD_POTENTIAL_V1_SCHEMA_VERSION
+    )
+    selected_build_potential: BuildPotential = BuildPotential(
+        schema_version=BUILD_POTENTIAL_V1_SCHEMA_VERSION
+    )
+    trigger_preserved: bool = False
+    potential_probe_count: int = 0
+    potential_cache_hits: int = 0
+    trigger_recoverability: TriggerRecoverability = TriggerRecoverability()
+    value_breakdown: Mapping[str, float] | None = None
+    response_capacity: int = 0
+    incoming_coverage: float = 0.0
+    immediate_fire: bool = False
+    chain_style_evaluation: Mapping[str, Any] | None = None
+    beam_candidates: tuple[DiverseBeamCandidate, ...] = ()
+    scenario_budget: Mapping[str, Any] | None = None
+    worker_proposal: WorkerProposalBatch | None = None
 
     @property
     def objective_dict(self) -> dict[str, Any]:
@@ -458,12 +565,51 @@ class SearchProposal:
     def tactical_option_dict(self) -> dict[str, Any]:
         return {} if self.tactical_option is None else self.tactical_option.to_dict()
 
+    @property
+    def build_potential_dict(self) -> dict[str, Any]:
+        value_breakdown = {
+            key: float(value)
+            for key, value in (self.value_breakdown or {}).items()
+        }
+        return {
+            "schema_version": self.selected_build_potential.schema_version,
+            "preserve_mode": self.trigger_preservation,
+            "probe_width": int(self.potential_probe_width),
+            "root": self.root_build_potential.to_dict(),
+            "selected": self.selected_build_potential.to_dict(),
+            "trigger_preserved": bool(self.trigger_preserved),
+            "trigger_recoverability": self.trigger_recoverability.to_dict(),
+            "probe_count": int(self.potential_probe_count),
+            "cache_hits": int(self.potential_cache_hits),
+            "value_breakdown": value_breakdown,
+            "metric_namespaces": {
+                "generic_capability": {
+                    "build_potential": self.selected_build_potential.to_dict(),
+                    "score_contribution": sum(
+                        value
+                        for key, value in value_breakdown.items()
+                        if key not in {"style_adherence", "total"}
+                    ),
+                },
+                "style_adherence": dict(self.chain_style_evaluation or {}),
+            },
+        }
+
+    @property
+    def beam_candidate_dicts(self) -> tuple[dict[str, Any], ...]:
+        return tuple(candidate.to_dict() for candidate in self.beam_candidates)
+
+    @property
+    def worker_proposal_dict(self) -> dict[str, Any]:
+        return {} if self.worker_proposal is None else self.worker_proposal.to_dict()
+
 
 @dataclass(frozen=True)
 class SearchContext:
     observation: dict[str, Any]
     info: dict[str, Any]
     tactical: TacticalContext
+    chain_style_evaluator: ChainStyleEvaluator | None = None
 
     @property
     def simulator(self):
@@ -523,6 +669,7 @@ def default_search_controls() -> tuple[SearchControl, ...]:
             0,
             "baseline",
             "discrete_profile",
+            scenarios=2,
             latency_budget_ms=40.0,
             parameter_vector=(0.5, 0.5, 0.5),
         ),
@@ -702,6 +849,17 @@ def _profile_budget_dict(profile: WorkerProfile) -> dict[str, Any]:
         "premature_chain_penalty": float(profile.premature_chain_penalty),
         "danger_tolerance": float(profile.danger_tolerance),
         "fire_threshold": float(profile.fire_threshold),
+        "trigger_preservation": profile.trigger_preservation,
+        "potential_probe_width": int(profile.potential_probe_width),
+        "scoring_mode": profile.scoring_mode,
+        "future_potential_weight": float(profile.future_potential_weight),
+        "chain_shape_weight": float(profile.chain_shape_weight),
+        "danger_weight": float(profile.danger_weight),
+        "build_potential_schema_version": (
+            profile.build_potential_schema_version
+        ),
+        "potential_probe_budget": int(profile.potential_probe_budget),
+        "search_profile": profile.search_profile,
     }
 
 
@@ -714,7 +872,12 @@ def apply_search_control(
     if control is None:
         return profile, None
     clamped_fields: list[str] = []
-    depth, clamped = _clamp_int(profile.depth * control.depth_scale, 1, 8)
+    depth_upper = 10 if profile.trigger_preservation != "ignore" else 8
+    depth, clamped = _clamp_int(
+        profile.depth * control.depth_scale,
+        1,
+        depth_upper,
+    )
     if clamped:
         clamped_fields.append("depth")
     width, clamped = _clamp_int(profile.width * control.width_scale, 4, 64)
@@ -857,6 +1020,23 @@ def board_danger(game) -> float:
     peak = max(heights) / float(GRID_HEIGHT)
     nuisance = min(ojama / 30.0, 1.0)
     return min(1.0, center * 0.55 + peak * 0.35 + nuisance * 0.10)
+
+
+def _supports_long_horizon_scenarios(simulator: Any) -> bool:
+    """Return whether current/NEXT2 satisfy the compact four-color contract."""
+
+    if simulator is None:
+        return False
+    game = simulator.game
+    pairs = [
+        (game.current_puyo_1, game.current_puyo_2),
+        *tuple(game.next_puyo_queue)[:2],
+    ]
+    return all(
+        puyo is not None and getattr(puyo, "color", None) in NORMAL_PUYO_COLORS
+        for pair in pairs
+        for puyo in pair
+    )
 
 
 def estimate_attack_forecast(
@@ -1097,17 +1277,75 @@ class BeamStrategyWorker:
         search_control: SearchControlDiagnostics | None = None,
     ) -> SearchProposal:
         started = time.perf_counter()
-        policy = BeamSearchPolicy(
-            BeamSearchConfig(
+        config_values = {
+            "depth": profile.depth,
+            "width": profile.width,
+            "scenarios": profile.scenarios,
+            "minimum_chain_count": profile.minimum_chain_count,
+            "chain_weight": profile.chain_weight,
+            "score_weight": profile.score_weight,
+            "premature_chain_penalty": profile.premature_chain_penalty,
+            "trigger_preservation": profile.trigger_preservation,
+            "probe_width": profile.potential_probe_width,
+            "scoring_mode": profile.scoring_mode,
+            "future_potential_weight": profile.future_potential_weight,
+            "chain_shape_weight": profile.chain_shape_weight,
+            "danger_weight": profile.danger_weight,
+            "danger_tolerance": profile.danger_tolerance,
+            "build_potential_schema_version": (
+                profile.build_potential_schema_version
+            ),
+            "potential_probe_budget": profile.potential_probe_budget,
+            "chain_style_evaluator": context.chain_style_evaluator,
+            "candidate_mode": (
+                DIVERSE_CANDIDATE_MODE
+                if profile.scoring_mode == BUILD_SCORING_V2
+                else LEGACY_CANDIDATE_MODE
+            ),
+            "candidate_limit": (
+                max(1, profile.potential_probe_width)
+                if profile.scoring_mode == BUILD_SCORING_V2
+                else 1
+            ),
+        }
+        requested_long_horizon = (
+            profile.search_profile is not None
+            and context.chain_style_evaluator is None
+        )
+        if requested_long_horizon and _supports_long_horizon_scenarios(
+            context.simulator
+        ):
+            beam_config = BeamSearchConfig.for_profile(
+                profile.search_profile,
                 depth=profile.depth,
                 width=profile.width,
                 scenarios=profile.scenarios,
                 minimum_chain_count=profile.minimum_chain_count,
-                chain_weight=profile.chain_weight,
-                score_weight=profile.score_weight,
-                premature_chain_penalty=profile.premature_chain_penalty,
+                trigger_preservation=profile.trigger_preservation,
+                danger_weight=profile.danger_weight,
+                danger_tolerance=profile.danger_tolerance,
+                build_potential_schema_version=(
+                    profile.build_potential_schema_version
+                ),
+                potential_probe_budget=profile.potential_probe_budget,
+                candidate_limit=(
+                    max(1, profile.potential_probe_width)
+                    if profile.scoring_mode == BUILD_SCORING_V2
+                    else 1
+                ),
             )
-        )
+        else:
+            if requested_long_horizon:
+                config_values.update(
+                    {
+                        "search_profile": (
+                            f"{profile.search_profile}-fallback-legacy"
+                        ),
+                        "search_profile_version": None,
+                    }
+                )
+            beam_config = BeamSearchConfig(**config_values)
+        policy = BeamSearchPolicy(beam_config)
         action = policy.select_action(context.observation, context.info)
         diagnostics = policy.last_diagnostics
         result, danger = _preview_action(context.simulator, action)
@@ -1121,7 +1359,7 @@ class BeamStrategyWorker:
             if result is not None
             else 0
         )
-        return _proposal(
+        proposal = _proposal(
             profile,
             objective,
             context.tactical,
@@ -1135,6 +1373,234 @@ class BeamStrategyWorker:
             value=float(values.get(action, 0.0)),
             search_control=search_control,
         )
+        if diagnostics is None:
+            return proposal
+        selected_candidate = next(
+            (
+                candidate
+                for candidate in diagnostics.candidates
+                if candidate.action == action
+            ),
+            None,
+        )
+        return replace(
+            proposal,
+            trigger_preservation=diagnostics.trigger_preservation,
+            potential_probe_width=diagnostics.probe_width,
+            root_build_potential=diagnostics.root_potential,
+            selected_build_potential=diagnostics.selected_potential,
+            trigger_preserved=diagnostics.trigger_preserved,
+            trigger_recoverability=diagnostics.trigger_recoverability,
+            potential_probe_count=diagnostics.potential_probe_count,
+            potential_cache_hits=diagnostics.potential_cache_hits,
+            value_breakdown=(
+                None
+                if selected_candidate is None
+                else selected_candidate.value_breakdown
+            ),
+            chain_style_evaluation=(
+                None
+                if selected_candidate is None
+                or not selected_candidate.chain_style_evaluation
+                else selected_candidate.chain_style_evaluation
+            ),
+            beam_candidates=diagnostics.proposals,
+            scenario_budget=dict(diagnostics.scenario_budget),
+        )
+
+
+@dataclass(frozen=True)
+class _ResponseCandidate:
+    simulator: Any
+    action: int
+    chain: int
+    score: int
+    attack: int
+    danger: float
+    capacity: int
+    coverage: float
+    immediate_fire: bool
+    selected_potential: BuildPotential
+    trigger_preserved: bool
+    trigger_recoverability: TriggerRecoverability
+    value: float
+
+
+class ResponseReadinessWorker:
+    """Prepare a deadline-bounded response without firing the prepared chain."""
+
+    def propose(
+        self,
+        context: SearchContext,
+        profile: WorkerProfile,
+        objective: TacticalObjective,
+        search_control: SearchControlDiagnostics | None = None,
+    ) -> SearchProposal:
+        started = time.perf_counter()
+        simulator = context.simulator
+        legal = legal_action_indices(simulator) if simulator is not None else _legal_from_info(context.info)
+        if simulator is None or not legal:
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=legal[0] if legal else 0,
+                danger=1.0,
+                search_control=search_control,
+            )
+
+        preserve_trigger = objective.trigger_preservation != "ignore"
+        probe_width = (
+            min(len(legal), max(0, int(profile.potential_probe_width)))
+            if preserve_trigger
+            else 0
+        )
+        potential_budget = BuildPotentialBudget()
+        potential_session = BuildPotentialSession(
+            schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+            budget=potential_budget,
+            max_evaluations=max(1, int(profile.potential_probe_budget)),
+        )
+        unknown_potential = BuildPotential(
+            evaluation_status="not_evaluated",
+            budget=potential_budget,
+            schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+        )
+        root_potential = (
+            potential_session.evaluate(simulator)
+            if preserve_trigger
+            else unknown_potential
+        )
+        forecast_depth = max(1, min(3, int(objective.deadline) - 1))
+        candidates: list[_ResponseCandidate] = []
+        for action in legal:
+            child = clone_simulator(simulator)
+            result = child.step(action_to_placement(action))
+            if not result.valid or result.game_over:
+                continue
+            preview = resolve_preview_attack(
+                result.attack_score_delta,
+                context.tactical.score_carry,
+                context.tactical.incoming_attack,
+            )
+            immediate_fire = result.chain_count > 0 or preview.generated > 0
+            forecast = estimate_attack_forecast(
+                child,
+                max_depth=forecast_depth,
+                width=max(1, min(int(profile.width), 8)),
+                score_carry=preview.score_carry_after,
+            )
+            capacity = max(0, int(forecast.medium_attack))
+            required = max(1, int(objective.required_response_attack))
+            coverage = min(1.0, capacity / required)
+            danger = board_danger(child.game)
+            value = (
+                coverage * 1_000_000.0
+                + capacity * 20_000.0
+                + evaluate_board(child.game)
+                - danger * 50_000.0
+                - (10_000_000.0 if immediate_fire else 0.0)
+            )
+            candidates.append(
+                _ResponseCandidate(
+                    simulator=child,
+                    action=action,
+                    chain=int(result.chain_count),
+                    score=max(0, int(result.score_delta)),
+                    attack=int(preview.generated),
+                    danger=float(danger),
+                    capacity=capacity,
+                    coverage=coverage,
+                    immediate_fire=immediate_fire,
+                    selected_potential=unknown_potential,
+                    trigger_preserved=False,
+                    trigger_recoverability=TriggerRecoverability(),
+                    value=value,
+                )
+            )
+        if not candidates:
+            return _proposal(
+                profile,
+                objective,
+                context.tactical,
+                action=legal[0],
+                danger=1.0,
+                search_control=search_control,
+            )
+        probed_actions = {
+            candidate.action
+            for candidate in sorted(
+                candidates,
+                key=lambda item: (item.value, -item.action),
+                reverse=True,
+            )[:probe_width]
+        }
+        evaluated_candidates = []
+        for candidate in candidates:
+            selected_potential = (
+                potential_session.evaluate(candidate.simulator)
+                if candidate.action in probed_actions
+                else unknown_potential
+            )
+            recoverability = compare_build_potential_triggers(
+                root_potential,
+                selected_potential,
+            )
+            trigger_preserved = (
+                preserve_trigger and recoverability.policy_preserved
+            )
+            preserve_value = (
+                (1.0 if trigger_preserved else -1.0)
+                if preserve_trigger
+                else 0.0
+            )
+            evaluated_candidates.append(
+                replace(
+                    candidate,
+                    selected_potential=selected_potential,
+                    trigger_preserved=trigger_preserved,
+                    trigger_recoverability=recoverability,
+                    value=candidate.value + preserve_value * 120_000.0,
+                )
+            )
+        candidates = evaluated_candidates
+        best = max(candidates, key=lambda item: (item.value, -item.action))
+        proposal = _proposal(
+            profile,
+            objective,
+            context.tactical,
+            action=best.action,
+            chain=best.chain,
+            score=best.score,
+            attack=best.attack,
+            danger=best.danger,
+            elapsed=time.perf_counter() - started,
+            expanded=len(candidates),
+            value=best.value,
+            response_capacity=best.capacity,
+            incoming_coverage=best.coverage,
+            trigger_preserved=best.trigger_preserved,
+            immediate_fire=best.immediate_fire,
+            search_control=search_control,
+        )
+        return replace(
+            proposal,
+            trigger_preservation=objective.trigger_preservation,
+            potential_probe_width=probe_width,
+            root_build_potential=root_potential,
+            selected_build_potential=best.selected_potential,
+            trigger_recoverability=best.trigger_recoverability,
+            potential_probe_count=(
+                potential_session.evaluation_count if preserve_trigger else 0
+            ),
+            potential_cache_hits=(
+                potential_session.cache_hits if preserve_trigger else 0
+            ),
+        )
+
+
+def _same_build_trigger(left: BuildPotential, right: BuildPotential) -> bool:
+    return compare_build_potential_triggers(left, right).policy_preserved
 
 
 @dataclass
@@ -1290,6 +1756,10 @@ def _proposal(
     expanded: int = 0,
     value: float = 0.0,
     depth: int = 1,
+    response_capacity: int = 0,
+    incoming_coverage: float = 0.0,
+    trigger_preserved: bool = False,
+    immediate_fire: bool = False,
     search_control: SearchControlDiagnostics | None = None,
     tactical_option: TacticalOptionDiagnostics | None = None,
 ) -> SearchProposal:
@@ -1307,6 +1777,10 @@ def _proposal(
         chain=int(chain),
         danger=float(danger),
         depth=int(depth),
+        response_capacity=int(response_capacity),
+        incoming_coverage=float(incoming_coverage),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
     return SearchProposal(
         action=action,
@@ -1320,7 +1794,11 @@ def _proposal(
         elapsed_seconds=elapsed_seconds,
         expanded_nodes=int(expanded),
         candidate_value=float(value),
-        target_attack=objective.target_attack,
+        target_attack=(
+            objective.required_response_attack
+            if objective.kind == "response_readiness"
+            else objective.target_attack
+        ),
         incoming_attack=tactical.incoming_attack,
         deadline=objective.deadline,
         max_return_attack=tactical.max_return_by_deadline,
@@ -1329,6 +1807,10 @@ def _proposal(
         objective_result=result,
         search_control=search_control,
         tactical_option=tactical_option,
+        response_capacity=int(response_capacity),
+        incoming_coverage=float(incoming_coverage),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
 
 
@@ -1349,6 +1831,19 @@ def build_n_turn_plan(
     incoming_remaining = max(0, int(tactical.incoming_attack))
     cursor = clone_simulator(simulator) if simulator is not None else None
     objective = proposal.objective
+    potential_session = BuildPotentialSession(
+        schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+        budget=BuildPotentialBudget(),
+        max_evaluations=max(8, int(max_steps) * 24),
+    )
+    response_root_potential = (
+        potential_session.evaluate(simulator)
+        if simulator is not None
+        and objective is not None
+        and objective.kind == "response_readiness"
+        and objective.trigger_preservation != "ignore"
+        else BuildPotential()
+    )
     for step_index in range(max(0, int(max_steps))):
         if cursor is None or objective is None:
             break
@@ -1360,6 +1855,7 @@ def build_n_turn_plan(
                 objective,
                 score_carry=score_carry,
                 incoming_attack=incoming_remaining,
+                potential_session=potential_session,
             )
         )
         if action is None:
@@ -1426,6 +1922,30 @@ def build_n_turn_plan(
         cumulative_score += score
         cumulative_attack += attack
         danger = board_danger(cursor.game)
+        response_capacity = 0
+        incoming_coverage = 0.0
+        trigger_preserved = False
+        immediate_fire = False
+        if objective.kind == "response_readiness":
+            remaining_depth = max(1, min(3, objective.deadline - step_index - 1))
+            response_capacity = estimate_attack_forecast(
+                cursor,
+                max_depth=remaining_depth,
+                width=8,
+                score_carry=score_carry,
+            ).medium_attack
+            required = max(1, objective.required_response_attack)
+            incoming_coverage = min(1.0, response_capacity / required)
+            selected_potential = (
+                potential_session.evaluate(cursor)
+                if objective.trigger_preservation != "ignore"
+                else BuildPotential()
+            )
+            trigger_preserved = (
+                objective.trigger_preservation == "ignore"
+                or _same_build_trigger(response_root_potential, selected_potential)
+            )
+            immediate_fire = result.chain_count > 0 or attack > 0
         objective_result = _evaluate_objective(
             objective,
             tactical,
@@ -1434,6 +1954,10 @@ def build_n_turn_plan(
             chain=int(result.chain_count),
             danger=danger,
             depth=step_index + 1,
+            response_capacity=response_capacity,
+            incoming_coverage=incoming_coverage,
+            trigger_preserved=trigger_preserved,
+            immediate_fire=immediate_fire,
         )
         steps.append(
             PlanStep(
@@ -1528,12 +2052,24 @@ def _choose_plan_continuation(
     *,
     score_carry: int = 0,
     incoming_attack: int = 0,
+    potential_session: BuildPotentialSession | None = None,
 ) -> int | None:
     legal = legal_action_indices(simulator)
     if not legal:
         return None
     best_action = None
     best_value = float("-inf")
+    selected_session = potential_session or BuildPotentialSession(
+        schema_version=BUILD_POTENTIAL_SCHEMA_VERSION,
+        budget=BuildPotentialBudget(),
+        max_evaluations=len(legal) + 1,
+    )
+    response_root_potential = (
+        selected_session.evaluate(simulator)
+        if objective.kind == "response_readiness"
+        and objective.trigger_preservation != "ignore"
+        else BuildPotential()
+    )
     for action in legal:
         child = clone_simulator(simulator)
         result = child.step(action_to_placement(action))
@@ -1547,7 +2083,34 @@ def _choose_plan_continuation(
         score = max(0, int(result.score_delta))
         chain = int(result.chain_count)
         danger = board_danger(child.game)
-        value = _tactical_value(objective, attack, score, chain, danger, 1, child.game)
+        if objective.kind == "response_readiness":
+            capacity = estimate_attack_forecast(
+                child,
+                max_depth=max(1, min(3, objective.deadline - 1)),
+                width=8,
+                score_carry=score_carry,
+            ).medium_attack
+            required = max(1, objective.required_response_attack)
+            coverage = min(1.0, capacity / required)
+            selected_potential = (
+                selected_session.evaluate(child)
+                if objective.trigger_preservation != "ignore"
+                else BuildPotential()
+            )
+            preserved = (
+                objective.trigger_preservation == "ignore"
+                or _same_build_trigger(response_root_potential, selected_potential)
+            )
+            value = (
+                coverage * 1_000_000.0
+                + capacity * 20_000.0
+                + (120_000.0 if preserved else -120_000.0)
+                + evaluate_board(child.game)
+                - danger * 50_000.0
+                - (10_000_000.0 if chain > 0 or attack > 0 else 0.0)
+            )
+        else:
+            value = _tactical_value(objective, attack, score, chain, danger, 1, child.game)
         if value > best_value:
             best_action = action
             best_value = value
@@ -1606,10 +2169,27 @@ def _evaluate_objective(
     chain: int,
     danger: float,
     depth: int,
+    response_capacity: int = 0,
+    incoming_coverage: float = 0.0,
+    trigger_preserved: bool = False,
+    immediate_fire: bool = False,
 ) -> ObjectiveResult:
     miss_reasons: list[str] = []
     deadline_missed = objective.deadline > 0 and depth > objective.deadline
-    if objective.target_attack > 0 and attack < objective.target_attack:
+    if (
+        objective.kind == "response_readiness"
+        and response_capacity < objective.required_response_attack
+    ):
+        miss_reasons.append("response_capacity")
+    if objective.kind == "response_readiness" and immediate_fire:
+        miss_reasons.append("immediate_fire")
+    if (
+        objective.kind == "response_readiness"
+        and objective.trigger_preservation == "required"
+        and not trigger_preserved
+    ):
+        miss_reasons.append("trigger_preservation")
+    if objective.kind != "response_readiness" and objective.target_attack > 0 and attack < objective.target_attack:
         miss_reasons.append("target_attack")
     if objective.target_score > 0 and score < objective.target_score:
         miss_reasons.append("target_score")
@@ -1622,7 +2202,11 @@ def _evaluate_objective(
         miss_reasons.append("deadline")
 
     possible_by_deadline = True
-    if objective.deadline > 0 and objective.target_attack > 0:
+    if objective.kind == "response_readiness":
+        possible_by_deadline = response_capacity >= objective.required_response_attack
+        if not possible_by_deadline:
+            miss_reasons.append("impossible_by_deadline")
+    elif objective.deadline > 0 and objective.target_attack > 0:
         if objective.deadline <= max(1, tactical.incoming_deadline or objective.deadline):
             possible_by_deadline = objective.target_attack <= tactical.max_return_by_deadline
         else:
@@ -1639,6 +2223,10 @@ def _evaluate_objective(
         chain_delta=int(chain) - int(objective.target_chain),
         deadline_missed=deadline_missed,
         danger_excess=danger_excess,
+        response_capacity=max(0, int(response_capacity)),
+        incoming_coverage=max(0.0, min(1.0, float(incoming_coverage))),
+        trigger_preserved=bool(trigger_preserved),
+        immediate_fire=bool(immediate_fire),
     )
 
 
@@ -1650,25 +2238,126 @@ def _profile_for_planner_request(
     trigger_scale = {"required": 1.5, "prefer": 1.2, "ignore": 1.0}[
         request.trigger_preservation
     ]
-    chain_scale = max(0.1, float(weights.get("chain_shape_weight", 1.0)))
-    score_scale = max(
-        0.1,
-        float(weights.get("future_potential_weight", 1.0))
-        + float(weights.get("harass_weight", 0.0)),
+    build_potential_v2 = request.tactic_id == "build_main"
+    uses_build_potential_v2 = request.tactic_id in {
+        "build_main",
+        "prepare_response",
+    }
+    if (
+        request.tactic_id in {"build_main", "prepare_response"}
+        and request.build_potential_schema_version
+        != BUILD_POTENTIAL_SCHEMA_VERSION
+    ):
+        raise ValueError(
+            f"{request.tactic_id} requires the BuildPotential v2 schema"
+        )
+    chain_shape_weight = max(
+        0.0,
+        float(weights.get("chain_shape_weight", 1.0)),
+    )
+    future_potential_weight = max(
+        0.0,
+        float(weights.get("future_potential_weight", 1.0)),
+    )
+    planner_parameters = request.parameters.get("planner", {})
+    requested_search_profile = (
+        planner_parameters.get("search_profile", "runtime")
+        if isinstance(planner_parameters, Mapping)
+        else "runtime"
+    )
+    if requested_search_profile not in {"runtime", "legacy"}:
+        raise ValueError(
+            "build_main planner search_profile must be runtime or legacy"
+        )
+    requested_scenarios = (
+        long_horizon_profile(RUNTIME_PROFILE).scenarios
+        if request.tactic_id == "build_main"
+        and requested_search_profile == RUNTIME_PROFILE
+        else profile.scenarios
     )
     return replace(
         profile,
         depth=max(1, int(request.search_depth)),
         width=max(1, int(request.search_width)),
+        scenarios=int(requested_scenarios),
         minimum_chain_count=(
             max(1, int(request.target_chain))
             if request.target_chain > 0
             else profile.minimum_chain_count
         ),
-        chain_weight=profile.chain_weight * chain_scale,
-        score_weight=profile.score_weight * score_scale,
+        chain_weight=profile.chain_weight,
+        score_weight=profile.score_weight,
         premature_chain_penalty=profile.premature_chain_penalty * trigger_scale,
         danger_tolerance=float(request.danger_tolerance),
+        trigger_preservation=request.trigger_preservation,
+        scoring_mode=(BUILD_SCORING_V2 if build_potential_v2 else profile.scoring_mode),
+        future_potential_weight=(
+            future_potential_weight
+            if build_potential_v2
+            else profile.future_potential_weight
+        ),
+        chain_shape_weight=(
+            chain_shape_weight
+            if build_potential_v2
+            else profile.chain_shape_weight
+        ),
+        build_potential_schema_version=(
+            request.build_potential_schema_version
+            if uses_build_potential_v2
+            else profile.build_potential_schema_version
+        ),
+        potential_probe_budget=max(
+            1,
+            int(request.candidate_count)
+            * (
+                1
+                if request.tactic_id == "prepare_response"
+                else max(1, int(request.search_depth))
+                * max(1, int(requested_scenarios))
+            )
+            + int(request.trigger_preservation != "ignore"),
+        ),
+        potential_probe_width=(
+            int(request.candidate_count)
+            if request.tactic_id == "build_main"
+            or (
+                request.tactic_id == "prepare_response"
+                and request.trigger_preservation != "ignore"
+            )
+            else 0
+        ),
+        search_profile=(
+            None
+            if request.tactic_id == "build_main"
+            and requested_search_profile == "legacy"
+            else "runtime"
+            if request.tactic_id == "build_main"
+            else profile.search_profile
+        ),
+    )
+
+
+def _with_decision_probe_budget(
+    profile: WorkerProfile,
+    *,
+    objective_kind: str,
+) -> WorkerProfile:
+    """Size planner-owned probe budgets after search-control scaling."""
+
+    if profile.potential_probe_width <= 0:
+        return profile
+    search_positions = (
+        1
+        if objective_kind == "response_readiness"
+        else max(1, profile.depth) * max(1, profile.scenarios)
+    )
+    return replace(
+        profile,
+        potential_probe_budget=max(
+            1,
+            profile.potential_probe_width * search_positions
+            + int(profile.trigger_preservation != "ignore"),
+        ),
     )
 
 
@@ -1679,6 +2368,8 @@ def _objective_for_planner_request(
     return TacticalObjective(
         kind=request.objective_kind,
         target_attack=max(0, int(request.target_attack)),
+        required_response_attack=max(0, int(request.required_response_attack)),
+        trigger_preservation=request.trigger_preservation,
         target_chain=max(0, int(request.target_chain)),
         deadline=max(0, int(request.deadline_turns)),
         deadline_ticks=max(0, int(request.deadline_ticks)),
@@ -1700,6 +2391,8 @@ class StrategyOrchestrator:
         self,
         profiles: tuple[WorkerProfile, ...] | None = None,
         tactical_options: tuple[TacticalOption, ...] | None = None,
+        chain_style_registry: ChainStyleRegistry | None = None,
+        chain_style_providers: Mapping[str, ChainStyleProvider] | None = None,
     ):
         self.profiles = profiles or default_worker_profiles()
         expected = tuple(range(len(self.profiles)))
@@ -1707,7 +2400,10 @@ class StrategyOrchestrator:
         if actual != expected:
             raise ValueError(f"profile ids must be contiguous from zero: {actual}")
         self.option_controller = TacticalOptionController(self.profiles, tactical_options)
+        self.chain_style_registry = chain_style_registry or load_chain_style_registry()
+        self.chain_style_providers = chain_style_providers
         self._beam_worker = BeamStrategyWorker()
+        self._response_worker = ResponseReadinessWorker()
         self._tactical_worker = TacticalStrategyWorker()
         self.last_proposal: SearchProposal | None = None
         self.last_plan: NTurnPlan | None = None
@@ -1748,18 +2444,42 @@ class StrategyOrchestrator:
                 tactical,
             )
         profile, control_diagnostics = apply_search_control(profile, search_control)
+        if planner_request is not None:
+            profile = _with_decision_probe_budget(
+                profile,
+                objective_kind=objective.kind,
+            )
+            if control_diagnostics is not None:
+                control_diagnostics = replace(
+                    control_diagnostics,
+                    effective_profile=profile,
+                )
         if tactical_option_id is not None:
             objective = replace(
                 objective,
                 source_profile_name=profile.name,
                 max_danger=profile.danger_tolerance,
             )
-        context = SearchContext(observation=observation, info=info, tactical=tactical)
-        worker = (
-            self._beam_worker
-            if objective.kind == "build" and profile.strategy in BUILD_STRATEGIES
-            else self._tactical_worker
+        style_evaluator = None
+        if planner_request is not None and planner_request.chain_style.enabled:
+            style_evaluator = ChainStyleEvaluator(
+                self.chain_style_registry,
+                planner_request.chain_style.selected,
+                providers=self.chain_style_providers,
+                contribution_scale=profile.chain_weight,
+            )
+        context = SearchContext(
+            observation=observation,
+            info=info,
+            tactical=tactical,
+            chain_style_evaluator=style_evaluator,
         )
+        if objective.kind == "response_readiness":
+            worker = self._response_worker
+        elif objective.kind == "build" and profile.strategy in BUILD_STRATEGIES:
+            worker = self._beam_worker
+        else:
+            worker = self._tactical_worker
         self.last_proposal = worker.propose(context, profile, objective, control_diagnostics)
         if option_diagnostics is not None:
             self.last_proposal = replace(self.last_proposal, tactical_option=option_diagnostics)
@@ -1768,6 +2488,77 @@ class StrategyOrchestrator:
                 self.last_proposal,
                 planner_request=planner_request,
             )
+        candidate_limit = (
+            int(planner_request.candidate_count)
+            if planner_request is not None
+            else max(1, len(self.last_proposal.beam_candidates))
+        )
+        proposal_batch = build_worker_proposal_batch(
+            self.last_proposal.beam_candidates,
+            selected_action=self.last_proposal.action,
+            candidate_limit=candidate_limit,
+            legal_action_mask=_proposal_legal_action_mask(info, context.simulator),
+            profile_id=self.last_proposal.profile_id,
+            profile_name=self.last_proposal.profile_name,
+            strategy=self.last_proposal.strategy,
+            simulator=context.simulator,
+            score_carry=tactical.score_carry,
+            incoming_attack=tactical.incoming_attack,
+            search_latency_ms=self.last_proposal.elapsed_seconds * 1_000.0,
+            expanded_nodes=self.last_proposal.expanded_nodes,
+            scenario_budget=self.last_proposal.scenario_budget,
+            fallback_preview={
+                "predicted_chain_count": self.last_proposal.predicted_chain_count,
+                "predicted_score": self.last_proposal.predicted_score,
+                "candidate_value": self.last_proposal.candidate_value,
+                "danger": self.last_proposal.danger,
+                "build_potential": self.last_proposal.selected_build_potential.to_dict(),
+                "trigger_recoverability": (
+                    self.last_proposal.trigger_recoverability.to_dict()
+                ),
+                "continuation_flexibility": (
+                    self.last_proposal.selected_build_potential.continuation_flexibility
+                    or 0.0
+                ),
+                "value_breakdown": dict(self.last_proposal.value_breakdown or {}),
+                "chain_style": dict(self.last_proposal.chain_style_evaluation or {}),
+            },
+            worker_deadline_status=(
+                {
+                    "status": (
+                        "overrun"
+                        if self.last_proposal.elapsed_seconds * 1_000.0
+                        > planner_request.latency_budget_ms
+                        else "within_budget"
+                    ),
+                    "budget_ms": float(planner_request.latency_budget_ms),
+                    "overrun": bool(
+                        self.last_proposal.elapsed_seconds * 1_000.0
+                        > planner_request.latency_budget_ms
+                    ),
+                    "source": "planner_request",
+                }
+                if planner_request is not None
+                else {
+                    "status": "not_configured",
+                    "budget_ms": None,
+                    "overrun": False,
+                    "source": "worker_profile",
+                }
+            ),
+        )
+        adapted_action = compatibility_action(
+            proposal_batch,
+            empty_action=self.last_proposal.action,
+        )
+        if adapted_action != self.last_proposal.action:
+            raise RuntimeError(
+                "worker proposal compatibility adapter changed the selected action"
+            )
+        self.last_proposal = replace(
+            self.last_proposal,
+            worker_proposal=proposal_batch,
+        )
         self.last_plan = build_n_turn_plan(self.last_proposal, context.simulator, tactical)
         return self.last_proposal
 
@@ -1802,6 +2593,17 @@ def _preview_action(simulator, action: int):
     if not result.valid:
         return None, 1.0
     return result, board_danger(child.game)
+
+
+def _proposal_legal_action_mask(info: Mapping[str, Any], simulator) -> tuple[bool, ...]:
+    raw = info.get("action_mask")
+    if raw is not None:
+        values = tuple(bool(value) for value in raw)
+        if len(values) == NUM_ACTIONS:
+            return values
+    if simulator is not None:
+        return tuple(legal_action_mask(simulator))
+    return tuple(False for _ in range(NUM_ACTIONS))
 
 
 def _legal_from_info(info: dict[str, Any]) -> list[int]:

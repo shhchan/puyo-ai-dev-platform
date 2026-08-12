@@ -1,0 +1,23 @@
+{
+  "adopted_budget": {
+    "depth": 3,
+    "probe_width": 8,
+    "width": 24
+  },
+  "all_configurations_failed": true,
+  "puyo_130_blockers": [
+    "PUYO-158",
+    "PUYO-129"
+  ],
+  "puyo_130_may_start": false,
+  "quality_gate_passed": false,
+  "schema_version": "puyo.v1_7_build_main_selection.v1",
+  "selected_config_id": null,
+  "selected_configuration": null,
+  "selection_order": [
+    "decision_p95_ms",
+    "depth",
+    "width",
+    "probe_width"
+  ]
+}
