@@ -9,7 +9,7 @@ from agents.v1_7_analyzer_manager import (
     V17AnalyzerManagerPolicy,
     select_tactic,
 )
-from agents.v1_7_planner import build_planner_request
+from agents.v1_7_planner import PlannerBudgetCap, build_planner_request
 from agents.v1_7_tactics import load_tactic_registry
 from eval.analyzer_scenarios import load_scenarios, scenario_input
 from eval.arena import parse_args as parse_arena_args
@@ -226,6 +226,42 @@ class TestV17AnalyzerManager(unittest.TestCase):
         self.assertEqual(policy.tactical_diagnostics, {})
         self.assertIsNone(policy.last_proposal)
         self.assertIsNone(policy.last_plan)
+        env.close()
+
+    def test_runtime_budget_cap_is_visible_in_policy_diagnostics(self):
+        env = VersusPuyoEnv(seed=17, max_steps=4)
+        observations, infos = env.reset(seed=17)
+        policy = V17AnalyzerManagerPolicy(
+            analyzer=StateAnalyzer(
+                AnalyzerConfig(max_depth=1, beam_width=6, max_attack_options=4)
+            ),
+            profiles=smoke_worker_profiles(),
+            planner_budget_cap=PlannerBudgetCap(
+                profile="test-demo",
+                max_search_depth=1,
+                max_search_width=4,
+                max_candidate_count=2,
+                max_latency_budget_ms=250.0,
+            ),
+        )
+
+        policy.select_action(observations["player_0"], infos["player_0"])
+        constraints = policy.tactical_diagnostics["runtime_constraints"]
+
+        self.assertTrue(constraints["enabled"])
+        self.assertEqual(
+            constraints["effective_search_budget"]["depth"],
+            1,
+        )
+        self.assertEqual(
+            constraints["effective_search_budget"]["width"],
+            4,
+        )
+        self.assertEqual(
+            constraints["effective_search_budget"]["candidate_count"],
+            2,
+        )
+        self.assertIn("depth", constraints["clamped_fields"])
         env.close()
 
     def test_pending_lifecycle_carry_budget_and_request_reach_worker_plan(self):

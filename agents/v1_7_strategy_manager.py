@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import copy
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 try:
     import torch
@@ -37,6 +38,7 @@ from agents.strategy_workers import (
 )
 from agents.v1_7_planner import (
     PLANNER_REQUEST_SCHEMA_VERSION,
+    PlannerBudgetCap,
     PlannerRequest,
     build_planner_request,
 )
@@ -61,7 +63,6 @@ from train.artifacts import (
     validate_checkpoint_payload,
 )
 from train.restore import checkpoint_state_hash
-
 
 FEATURE_SCHEMA_VERSION = "puyo.v1_7_strategy_manager.features.v1"
 PREVIEW_FEATURE_SCHEMA_VERSION = "puyo.v1_7_strategy_manager.preview.v1"
@@ -1226,6 +1227,7 @@ class _PreviewResult:
     tactic_index: int
     parameters: Mapping[str, Mapping[str, Any]]
     planner_request: PlannerRequest
+    runtime_constraints: Mapping[str, Any]
     proposal: SearchProposal
     plan: NTurnPlan
     features: tuple[float, ...]
@@ -1265,6 +1267,12 @@ class V17StrategyManagerPolicy:
         device: str = "cpu",
         deterministic: bool = True,
         forced_tactic_id: str | None = None,
+        parameter_overrides: Mapping[
+            str,
+            Mapping[str, Mapping[str, Any]],
+        ]
+        | None = None,
+        planner_budget_cap: PlannerBudgetCap | None = None,
         checkpoint_path: str | Path | None = None,
         checkpoint_metadata: Mapping[str, Any] | None = None,
     ):
@@ -1290,6 +1298,21 @@ class V17StrategyManagerPolicy:
         self.model.eval()
         self.preview_top_k = min(int(preview_top_k), len(self.registry.tactics))
         self.deterministic = bool(deterministic)
+        self.planner_budget_cap = planner_budget_cap
+        unknown_override_tactics = set(parameter_overrides or {}).difference(
+            tactic.identity.tactic_id for tactic in self.registry.tactics
+        )
+        if unknown_override_tactics:
+            raise ValueError(
+                "parameter overrides contain unknown tactics: "
+                + ", ".join(sorted(unknown_override_tactics))
+            )
+        self.parameter_overrides = {
+            tactic_id: copy.deepcopy(dict(sections))
+            for tactic_id, sections in (parameter_overrides or {}).items()
+        }
+        for tactic_id, overrides in self.parameter_overrides.items():
+            self.registry.tactic(tactic_id).resolve_parameters(overrides)
         if forced_tactic_id is not None:
             try:
                 self.registry.tactic(forced_tactic_id)
@@ -1307,6 +1330,7 @@ class V17StrategyManagerPolicy:
         self.last_planner_request: PlannerRequest | None = None
         self.last_proposal: SearchProposal | None = None
         self.last_plan: NTurnPlan | None = None
+        self._runtime_constraints: dict[str, Any] = {}
         self._tactical_diagnostics: dict[str, Any] = {}
 
     @classmethod
@@ -1321,6 +1345,12 @@ class V17StrategyManagerPolicy:
         device: str = "cpu",
         deterministic: bool = True,
         forced_tactic_id: str | None = None,
+        parameter_overrides: Mapping[
+            str,
+            Mapping[str, Mapping[str, Any]],
+        ]
+        | None = None,
+        planner_budget_cap: PlannerBudgetCap | None = None,
     ) -> "V17StrategyManagerPolicy":
         """Load one metadata-validated v1.7.2-compatible bootstrap checkpoint."""
 
@@ -1374,6 +1404,8 @@ class V17StrategyManagerPolicy:
             device=device,
             deterministic=deterministic,
             forced_tactic_id=forced_tactic_id,
+            parameter_overrides=parameter_overrides,
+            planner_budget_cap=planner_budget_cap,
             checkpoint_path=target,
             checkpoint_metadata=runtime_metadata,
         )
@@ -1386,6 +1418,7 @@ class V17StrategyManagerPolicy:
         self.last_planner_request = None
         self.last_proposal = None
         self.last_plan = None
+        self._runtime_constraints = {}
         self._tactical_diagnostics = {}
 
     def select_action(self, observation: dict[str, Any], info: dict[str, Any]) -> int:
@@ -1429,13 +1462,19 @@ class V17StrategyManagerPolicy:
                 tactic_features,
                 eligibility_mask,
             )
-        parameters = [
-            decode_tactic_parameters(
+        parameters = []
+        for index, tactic in enumerate(self.registry.tactics):
+            decoded = decode_tactic_parameters(
                 tactic,
                 lightweight.parameter_logits[0, index].detach().cpu().tolist(),
             )
-            for index, tactic in enumerate(self.registry.tactics)
-        ]
+            overrides = self.parameter_overrides.get(tactic.identity.tactic_id)
+            if overrides is not None:
+                decoded = copy.deepcopy(decoded)
+                for section, values in overrides.items():
+                    decoded[section].update(values)
+                decoded = tactic.resolve_parameters(decoded)
+            parameters.append(decoded)
         eligible_count = sum(encoded.eligibility_mask)
         if eligible_count <= 0:
             raise RuntimeError("strategy manager has no eligible tactics")
@@ -1530,6 +1569,9 @@ class V17StrategyManagerPolicy:
         self.last_planner_request = selected_preview.planner_request
         self.last_proposal = proposal
         self.last_plan = plan
+        self._runtime_constraints = copy.deepcopy(
+            dict(selected_preview.runtime_constraints)
+        )
         self._tactical_diagnostics = self._build_diagnostics(
             encoded,
             lightweight,
@@ -1563,12 +1605,20 @@ class V17StrategyManagerPolicy:
         info: dict[str, Any],
     ) -> _PreviewResult:
         tactic = self.registry.tactics[tactic_index]
-        request = build_planner_request(
+        requested_request = build_planner_request(
             tactic,
             analyzer_input,
             analyzer_diagnostics,
             parameter_overrides=parameters,
         )
+        request = requested_request
+        runtime_constraints: dict[str, Any] = {}
+        if self.planner_budget_cap is not None:
+            request = self.planner_budget_cap.apply(requested_request)
+            runtime_constraints = self.planner_budget_cap.application(
+                requested_request,
+                request,
+            )
         profile_id = profile_id_by_name(
             self.profiles,
             _TACTIC_TO_WORKER[tactic.identity.tactic_id],
@@ -1587,6 +1637,7 @@ class V17StrategyManagerPolicy:
             tactic_index=tactic_index,
             parameters=parameters,
             planner_request=request,
+            runtime_constraints=runtime_constraints,
             proposal=proposal,
             plan=plan,
             features=encode_preview_features(proposal, plan, request),
@@ -1727,6 +1778,11 @@ class V17StrategyManagerPolicy:
                 "worker_strategy": proposal.strategy,
             },
             "planner_request": request.to_dict(),
+            "runtime_constraints": {
+                **copy.deepcopy(self._runtime_constraints),
+                "preview_top_k": int(self.preview_top_k),
+                "parameter_overrides": copy.deepcopy(self.parameter_overrides),
+            },
             "worker": {
                 "profile_id": int(proposal.profile_id),
                 "profile_name": proposal.profile_name,

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any, Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass, replace
+from typing import Any
 
 from agents.beam_search import (
     BUILD_POTENTIAL_SCHEMA_VERSION,
@@ -25,8 +26,8 @@ from agents.state_analyzer import (
 from agents.v1_7_tactics import TacticSpec
 from src.core.ojama import convert_score_to_ojama
 
-
 PLANNER_REQUEST_SCHEMA_VERSION = "planner-schema-v4"
+PLANNER_BUDGET_CAP_SCHEMA_VERSION = "puyo.planner_budget_cap.v1"
 _OBJECTIVE_KINDS = {
     "build_main": "build",
     "prepare_response": "response_readiness",
@@ -189,6 +190,73 @@ class PlannerRequest:
             "analyzer_diagnostics_schema_version": self.analyzer_diagnostics_schema_version,
             "build_potential_schema_version": self.build_potential_schema_version,
             "chain_style": self.chain_style.to_dict(),
+        }
+
+
+@dataclass(frozen=True)
+class PlannerBudgetCap:
+    """Explicit runtime-only upper bounds for an otherwise unchanged request."""
+
+    profile: str
+    max_search_depth: int
+    max_search_width: int
+    max_candidate_count: int
+    max_latency_budget_ms: float
+    schema_version: str = PLANNER_BUDGET_CAP_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version != PLANNER_BUDGET_CAP_SCHEMA_VERSION:
+            raise ValueError(f"unsupported planner budget cap schema: {self.schema_version}")
+        if not self.profile:
+            raise ValueError("planner budget cap profile must not be empty")
+        if min(
+            self.max_search_depth,
+            self.max_search_width,
+            self.max_candidate_count,
+        ) <= 0:
+            raise ValueError("planner budget cap search limits must be positive")
+        if self.max_latency_budget_ms <= 0.0:
+            raise ValueError("planner budget cap latency limit must be positive")
+
+    def apply(self, request: PlannerRequest) -> PlannerRequest:
+        return replace(
+            request,
+            search_depth=min(request.search_depth, self.max_search_depth),
+            search_width=min(request.search_width, self.max_search_width),
+            candidate_count=min(request.candidate_count, self.max_candidate_count),
+            latency_budget_ms=min(
+                request.latency_budget_ms,
+                self.max_latency_budget_ms,
+            ),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "profile": self.profile,
+            "max_search_depth": int(self.max_search_depth),
+            "max_search_width": int(self.max_search_width),
+            "max_candidate_count": int(self.max_candidate_count),
+            "max_latency_budget_ms": float(self.max_latency_budget_ms),
+        }
+
+    def application(
+        self,
+        requested: PlannerRequest,
+        effective: PlannerRequest,
+    ) -> dict[str, Any]:
+        requested_budget = requested.to_dict()["search_budget"]
+        effective_budget = effective.to_dict()["search_budget"]
+        return {
+            "enabled": True,
+            "cap": self.to_dict(),
+            "requested_search_budget": requested_budget,
+            "effective_search_budget": effective_budget,
+            "clamped_fields": [
+                field
+                for field in ("depth", "width", "candidate_count", "latency_budget_ms")
+                if requested_budget[field] != effective_budget[field]
+            ],
         }
 
 

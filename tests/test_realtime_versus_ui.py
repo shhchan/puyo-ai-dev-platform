@@ -1,13 +1,12 @@
-import os
 import json
 import multiprocessing
+import os
 import tempfile
 import time
 import unittest
 from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
-
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
@@ -70,7 +69,7 @@ class FastTestPolicy:
         return legal_indices(info)[0]
 
 try:
-    import pygame  # noqa: F401
+    import pygame
 
     PYGAME_AVAILABLE = ENV_AVAILABLE
 except (ImportError, OSError):
@@ -138,6 +137,13 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertIsNone(config.checkpoint_a)
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
+
+    def test_terminal_frame_auto_exit_is_parsed_and_validated(self):
+        config = parse_config(["--exit-after-finish-frames", "30"])
+
+        self.assertEqual(config.exit_after_finish_frames, 30)
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parse_config(["--exit-after-finish-frames", "0"])
 
     def test_v1_7_bootstrap_checkpoint_policy_is_async_and_requires_a_path(self):
         config = parse_config(
@@ -690,6 +696,26 @@ class TestRealtimeVersusUiSmoke(unittest.TestCase):
                 "puyo.all_clear_diagnostics.v1",
             )
             self.assertIn("attack_diagnostics", replay["ticks"][0])
+
+    def test_terminal_frame_auto_exit_and_frame_callback(self):
+        rendered_frames = []
+        result = run_ui(
+            RealtimeVersusUiConfig(
+                policy_a="first",
+                policy_b="random",
+                seed=54,
+                max_ticks=1,
+                speed=4.0,
+                exit_after_finish_frames=2,
+            ),
+            frame_callback=lambda _screen, frame_index: rendered_frames.append(
+                frame_index
+            ),
+        )
+
+        self.assertFalse(result["result"]["interrupted"])
+        self.assertEqual(result["result"]["termination_reason"], "tick_limit")
+        self.assertGreaterEqual(len(rendered_frames), 2)
 
 
 if __name__ == "__main__":
