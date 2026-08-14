@@ -1,0 +1,43 @@
+{
+  "schema_version": "puyo.deep_chain_builder.observation_boundary_fixture.v1",
+  "observation": {
+    "own_board": [
+      [
+        [0, 0, 0, 0, 0, 0]
+      ]
+    ],
+    "next_pairs": [
+      ["RED", "BLUE"],
+      ["GREEN", "YELLOW"],
+      ["BLUE", "GREEN"]
+    ],
+    "scalars": [0.0, 0.0, 0.0, 0.0],
+    "schema_version": "realtime-placement-v1"
+  },
+  "info": {
+    "action_mask": [true, false, true, false],
+    "action_mask_source": "placement_legal",
+    "action_contract_version": "placement-index-to-tick-input-v1",
+    "score": 0,
+    "step_count": 12
+  },
+  "private_authoritative_state": {
+    "future_queue": [
+      ["YELLOW", "YELLOW"],
+      ["RED", "RED"]
+    ],
+    "sentinel": "PRIVATE-FUTURE-MUST-NOT-CROSS-RUNTIME-BOUNDARY"
+  },
+  "forbidden_info_keys": [
+    "simulator",
+    "realtime_simulator",
+    "private_future_queue",
+    "puyo_sequence"
+  ],
+  "expected": {
+    "visible_pair_count": 3,
+    "legal_action_count": 2,
+    "score": 0,
+    "step_count": 12
+  }
+}

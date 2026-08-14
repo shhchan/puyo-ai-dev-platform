@@ -1,0 +1,41 @@
+schema_version: puyo.deep_chain_builder.config.v1
+config_version: v1.0
+policy_id: deep_chain_builder
+
+profiles:
+  reference:
+    schema_version: puyo.deep_chain_builder.profile.v1
+    version: "1.0"
+    purpose: canonical quality and benchmark execution
+    # Maximum number of pairs explored, including the current pair.
+    depth: 16
+    # Maximum number of board states retained at each search depth.
+    width: 250
+    # Deterministic representative completions of the unknown queue.
+    scenarios: 6
+    max_expanded_nodes: 600000
+
+  smoke:
+    schema_version: puyo.deep_chain_builder.profile.v1
+    version: "1.0"
+    purpose: bounded unit and integration smoke validation
+    depth: 4
+    width: 8
+    scenarios: 2
+    max_expanded_nodes: 2048
+
+benchmark:
+  schema_version: puyo.deep_chain_builder.benchmark.v1
+  environment: safe_no_threat
+  # Reuse the canonical contiguous safe-build seed range; do not select seeds
+  # after observing policy results.
+  seed_start: 123
+  seed_count: 30
+  repeats_per_seed: 2
+  minimum_mean_actual_fire_chain_count: 10.0
+  maximum_premature_fires: 0
+  maximum_game_overs: 0
+  maximum_simulator_parity_mismatches: 0
+  maximum_private_future_leaks: 0
+  require_repeat_digest_match: true
+  maximum_decision_p95_seconds: 1.0
