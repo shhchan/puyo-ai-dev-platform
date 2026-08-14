@@ -17,10 +17,15 @@ from agents.deep_chain_builder import (
     SELECTED_ACTION_ARTIFACT,
     VISIBLE_INFO_FIELDS,
     VISIBLE_OBSERVATION_FIELDS,
+    AggregateScenarioScoresStep,
+    CompleteVisibleQueueScenariosStep,
     DeepChainBuilderConfig,
     DeepChainBuilderPolicy,
+    DeepChainBuilderProfile,
     DeepChainBuildFlow,
+    EnumerateRootPlacementsStep,
     NormalizeObservationStep,
+    RunLongRangeSearchStep,
     VisibleRuntimeInput,
     build_visible_runtime_input,
     load_deep_chain_builder_config,
@@ -318,6 +323,73 @@ class TestDeepChainBuilder(unittest.TestCase):
         self.assertIsNot(visible.board, observation["board"])
         self.assertEqual(visible.visible_pair_count, 3)
         self.assertGreater(visible.legal_action_count, 0)
+
+    def test_visible_queue_completion_preserves_known_pairs(self):
+        visible = build_visible_runtime_input(
+            self.fixture["observation"], self.fixture["info"]
+        )
+        context = DecisionContext(
+            decision_id="scenario-fixture",
+            profile=self.config.profile("smoke"),
+            artifacts={"normalized_observation": visible},
+        )
+        result = CompleteVisibleQueueScenariosStep().run(context)
+        scenarios = result.outputs["scenario_sequences"]
+
+        self.assertEqual(len(scenarios), 2)
+        self.assertEqual(
+            scenarios[0].to_dict()["pairs"][:3],
+            [
+                {"cursor": 0, "source": "known", "colors": ["RED", "BLUE"]},
+                {"cursor": 1, "source": "known", "colors": ["GREEN", "YELLOW"]},
+                {"cursor": 2, "source": "known", "colors": ["BLUE", "GREEN"]},
+            ],
+        )
+
+    def test_search_core_enumerates_and_aggregates_deterministically(self):
+        simulator = HeadlessPuyoSimulator(seed=186)
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        visible = build_visible_runtime_input(
+            observation,
+            {
+                "action_mask": legal_action_mask(simulator),
+                "score": simulator.game.score,
+                "step_count": 0,
+            },
+        )
+        profile = DeepChainBuilderProfile(
+            name="test",
+            version="1",
+            purpose="unit test",
+            depth=2,
+            width=2,
+            scenarios=2,
+            max_expanded_nodes=128,
+        )
+        context = DecisionContext(
+            decision_id="search-core-fixture",
+            profile=profile,
+            artifacts={"normalized_observation": visible},
+        )
+        result = DecisionFlow(
+            (
+                CompleteVisibleQueueScenariosStep(),
+                EnumerateRootPlacementsStep(),
+                RunLongRangeSearchStep(),
+                AggregateScenarioScoresStep(),
+            )
+        ).execute(context)
+        values = result.require("aggregated_root_scores")
+
+        self.assertEqual(len(values), len(result.require("root_placements")))
+        self.assertEqual(
+            [item["root_action"] for item in values],
+            [item["root_action"] for item in values],
+        )
+        self.assertEqual(
+            result.require("scenario_search_results")["result"].counters.expanded_nodes,
+            128,
+        )
 
     def test_policy_adapter_accepts_an_injected_complete_flow(self):
         flow = DecisionFlow((NormalizeObservationStep(), _SelectFirstLegalStep()))

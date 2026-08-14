@@ -14,8 +14,9 @@ import json
 import math
 import random
 from collections import Counter
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from agents.chain_structure import (
     ChainStructureAction,
@@ -31,7 +32,6 @@ from agents.compact_search import (
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.tsumo import PuyoSequence
-
 
 LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
@@ -208,7 +208,9 @@ class LongHorizonSearchProfile:
             not math.isfinite(self.premature_target_gap_penalty)
             or self.premature_target_gap_penalty < 0.0
         ):
-            raise ValueError("premature target-gap penalty must be finite and non-negative")
+            raise ValueError(
+                "premature target-gap penalty must be finite and non-negative"
+            )
         if (
             self.winning_score_threshold is not None
             and self.winning_score_threshold <= 0
@@ -251,14 +253,12 @@ class LongHorizonSearchProfile:
                 "known_queue": "current_plus_next2",
                 "rollout_seed_derivation": (
                     FUTURE_ROLLOUT_SEED_DERIVATION
-                    if self.future_sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.future_sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else None
                 ),
                 "generator": (
                     FUTURE_QUEUE_GENERATOR
-                    if self.future_sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.future_sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "ama-representative-two-pair-cycle"
                 ),
                 "unknown_pairs_per_sample": max(0, int(self.depth) - 3),
@@ -385,9 +385,7 @@ class ScenarioPairSequence:
         if not self.known_pairs:
             raise ValueError("scenario sequence requires the known current/NEXT queue")
         if self.sampling_mode not in FUTURE_SAMPLING_MODES:
-            raise ValueError(
-                f"unsupported future sampling mode: {self.sampling_mode}"
-            )
+            raise ValueError(f"unsupported future sampling mode: {self.sampling_mode}")
         if not self.sample_id or not self.decision_seed_source:
             raise ValueError("scenario sequence requires sample and seed provenance")
         if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
@@ -398,7 +396,9 @@ class ScenarioPairSequence:
             if self.depth > self.known_pair_count + len(self.hidden_pairs):
                 raise ValueError("seeded future sample is shorter than search depth")
         elif not self.repeats_hidden_pairs or not self.hidden_pairs:
-            raise ValueError("legacy fixed-six samples require a repeating hidden cycle")
+            raise ValueError(
+                "legacy fixed-six samples require a repeating hidden cycle"
+            )
         for pair in (*self.known_pairs, *self.hidden_pairs):
             _pair_colors(pair)
 
@@ -461,14 +461,12 @@ class ScenarioPairSequence:
                 "mode": self.sampling_mode,
                 "generator": (
                     FUTURE_QUEUE_GENERATOR
-                    if self.sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "ama-representative-two-pair-cycle"
                 ),
                 "distribution": (
                     "independent_uniform_normal_colors"
-                    if self.sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "fixed_representative_pairing"
                 ),
                 "decision_seed": int(self.decision_seed),
@@ -590,24 +588,63 @@ def build_scenario_sequences(
         and int(scenario_seed) != int(decision_seed)
     ):
         raise ValueError("scenario_seed and decision_seed must agree when both are set")
-    configured_seed = (
-        decision_seed if decision_seed is not None else scenario_seed
-    )
     known_pairs = _known_scenario_pairs(simulator)
+    configured_seed = decision_seed if decision_seed is not None else scenario_seed
     resolved_seed, seed_source = _resolve_decision_seed(
         simulator,
         decision_seed=configured_seed,
         known_pairs=known_pairs,
     )
-    hidden_pair_count = max(0, int(depth) - len(known_pairs))
+    return build_scenario_sequences_from_known_pairs(
+        known_pairs,
+        scenarios=scenarios,
+        depth=depth,
+        decision_seed=resolved_seed,
+        sampling_mode=sampling_mode,
+        decision_seed_source=seed_source,
+    )
+
+
+def build_scenario_sequences_from_known_pairs(
+    known_pairs: Sequence[Sequence[Any]],
+    *,
+    scenarios: int,
+    depth: int,
+    scenario_seed: int | None = None,
+    decision_seed: int | None = None,
+    sampling_mode: str = FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+    decision_seed_source: str | None = None,
+) -> tuple[ScenarioPairSequence, ...]:
+    """Complete a visible queue without requiring a simulator or private queue."""
+
+    if not 1 <= scenarios <= len(REPRESENTATIVE_SCENARIO_BAGS):
+        raise ValueError("future sample count is outside the supported set")
+    if depth <= 0:
+        raise ValueError("future sample depth must be positive")
+    if sampling_mode not in FUTURE_SAMPLING_MODES:
+        raise ValueError(f"unsupported future sampling mode: {sampling_mode}")
+    if (
+        scenario_seed is not None
+        and decision_seed is not None
+        and int(scenario_seed) != int(decision_seed)
+    ):
+        raise ValueError("scenario_seed and decision_seed must agree when both are set")
+    known = tuple(_pair_colors(pair) for pair in known_pairs)
+    if not known:
+        raise ValueError("known queue must contain at least one pair")
+    configured_seed = decision_seed if decision_seed is not None else scenario_seed
+    resolved_seed = 0 if configured_seed is None else int(configured_seed)
+    seed_source = decision_seed_source or (
+        "explicit" if configured_seed is not None else "visible_observation_default"
+    )
+    hidden_pair_count = max(0, int(depth) - len(known))
 
     if sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
         result = []
         for sample_index in range(scenarios):
             rollout_seed = _rollout_seed(resolved_seed, sample_index)
             hidden_pairs = _authoritative_hidden_pairs(
-                rollout_seed=rollout_seed,
-                count=hidden_pair_count,
+                rollout_seed=rollout_seed, count=hidden_pair_count
             )
             sample_id = _stable_digest(
                 {
@@ -620,16 +657,16 @@ def build_scenario_sequences(
             )
             result.append(
                 ScenarioPairSequence(
-                    scenario_id=int(sample_index),
-                    known_pairs=known_pairs,
+                    scenario_id=sample_index,
+                    known_pairs=known,
                     hidden_pairs=hidden_pairs,
-                    depth=int(depth),
+                    depth=depth,
                     sampling_mode=sampling_mode,
-                    sample_index=int(sample_index),
+                    sample_index=sample_index,
                     sample_id=sample_id,
-                    decision_seed=int(resolved_seed),
+                    decision_seed=resolved_seed,
                     decision_seed_source=seed_source,
-                    rollout_seed=int(rollout_seed),
+                    rollout_seed=rollout_seed,
                 )
             )
         return tuple(result)
@@ -655,14 +692,14 @@ def build_scenario_sequences(
         )
         result.append(
             ScenarioPairSequence(
-                scenario_id=int(scenario_id),
-                known_pairs=known_pairs,
+                scenario_id=scenario_id,
+                known_pairs=known,
                 hidden_pairs=hidden_pairs,
-                depth=int(depth),
+                depth=depth,
                 sampling_mode=sampling_mode,
-                sample_index=int(sample_index),
-                sample_id=f"legacy-fixed-six-{int(scenario_id)}",
-                decision_seed=int(resolved_seed),
+                sample_index=sample_index,
+                sample_id=f"legacy-fixed-six-{scenario_id}",
+                decision_seed=resolved_seed,
                 decision_seed_source=seed_source,
                 rollout_seed=None,
                 repeats_hidden_pairs=True,
@@ -685,9 +722,8 @@ def classify_build_main_fire(
         raise ValueError(f"unsupported fire context: {fire_context}")
     if chain_count <= 0:
         return FIRE_CLASS_QUIET
-    if (
-        winning_score_threshold is not None
-        and int(chain_score) >= int(winning_score_threshold)
+    if winning_score_threshold is not None and int(chain_score) >= int(
+        winning_score_threshold
     ):
         return FIRE_CLASS_WINNING
     if int(chain_count) >= int(target_chain_count):
@@ -711,7 +747,7 @@ def _terminal_fire_score(
     result: Any,
     evaluation: Any,
     fire_class: str,
-    config: "LongHorizonSearchConfig",
+    config: LongHorizonSearchConfig,
 ) -> tuple[float, dict[str, float]]:
     structural_score = _evaluation_score(evaluation)
     if not math.isfinite(structural_score):
@@ -741,9 +777,7 @@ def _evaluation_fire_details(evaluation: Any) -> dict[str, Any]:
     score_breakdown = _mapping_from(getattr(evaluation, "score_breakdown", None))
     trigger_damage = max(0, int(getattr(action, "trigger_damage", 0)))
     return {
-        "evaluation_status": str(
-            getattr(evaluation, "evaluation_status", "available")
-        ),
+        "evaluation_status": str(getattr(evaluation, "evaluation_status", "available")),
         "danger": float(getattr(evaluation, "danger", 1.0)),
         "trigger_damage": trigger_damage,
         "trigger_preserved": bool(trigger_damage == 0),
@@ -759,7 +793,9 @@ def _evaluation_fire_details(evaluation: Any) -> dict[str, Any]:
                 else int(getattr(features, "potential_chain_score", 0))
             ),
             "required_key_count": (
-                None if features is None else getattr(features, "required_key_count", None)
+                None
+                if features is None
+                else getattr(features, "required_key_count", None)
             ),
         },
         "score_breakdown": {
@@ -878,15 +914,12 @@ class ScenarioRootEvidence:
 
     def to_dict(self) -> dict[str, Any]:
         candidate_counts = {
-            str(depth): int(count)
-            for depth, count in self.survivor_candidate_counts
+            str(depth): int(count) for depth, count in self.survivor_candidate_counts
         }
         retained_counts = {
             str(depth): int(count) for depth, count in self.survivor_counts
         }
-        shortfalls = {
-            str(depth): reason for depth, reason in self.survivor_shortfalls
-        }
+        shortfalls = {str(depth): reason for depth, reason in self.survivor_shortfalls}
         attempted_depths = sorted(
             {
                 *candidate_counts,
@@ -1027,26 +1060,20 @@ class ExpectedChainRootEvidence:
             "expected_chain_support": float(self.support),
             "expected_chain_worst_score": float(self.worst_chain_score),
             "expected_chain_score_dispersion": -float(self.chain_score_dispersion),
-            "fire_class_priority": float(
-                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
-            ),
+            "fire_class_priority": float(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             "fire_class_support": float(
                 self.fire_class_support.get(self.fire_class, 0)
             ),
             "terminal_score_sum": float(self.terminal_score_sum),
             "terminal_score_mean": float(
-                0.0
-                if self.terminal_score_mean is None
-                else self.terminal_score_mean
+                0.0 if self.terminal_score_mean is None else self.terminal_score_mean
             ),
             "quiet_candidate_coverage": (
                 0.0
                 if self.requested_scenarios <= 0
                 else self.quiet_support / float(self.requested_scenarios)
             ),
-            "target_not_reached_fire_count": float(
-                self.target_not_reached_fire_count
-            ),
+            "target_not_reached_fire_count": float(self.target_not_reached_fire_count),
             "continuation_evaluator": float(
                 0.0
                 if self.continuation_score_mean is None
@@ -1061,9 +1088,7 @@ class ExpectedChainRootEvidence:
             "ranking_rule_version": self.ranking_rule_version,
             "root_action": int(self.root_action),
             "fire_class": self.fire_class,
-            "fire_class_priority": int(
-                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
-            ),
+            "fire_class_priority": int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             "fire_class_support": {
                 fire_class: int(self.fire_class_support.get(fire_class, 0))
                 for fire_class in sorted(FIRE_CLASSES)
@@ -1093,9 +1118,7 @@ class ExpectedChainRootEvidence:
                 else self.quiet_support / float(self.requested_scenarios)
             ),
             "quiet_support": int(self.quiet_support),
-            "target_not_reached_fire_count": int(
-                self.target_not_reached_fire_count
-            ),
+            "target_not_reached_fire_count": int(self.target_not_reached_fire_count),
             "terminal_score": {
                 "schema_version": TERMINAL_FIRE_SCORE_VERSION,
                 "sum": float(self.terminal_score_sum),
@@ -1166,7 +1189,9 @@ class LongHorizonSearchConfig:
             not math.isfinite(self.premature_target_gap_penalty)
             or self.premature_target_gap_penalty < 0.0
         ):
-            raise ValueError("premature target-gap penalty must be finite and non-negative")
+            raise ValueError(
+                "premature target-gap penalty must be finite and non-negative"
+            )
         if (
             self.winning_score_threshold is not None
             and self.winning_score_threshold <= 0
@@ -1176,9 +1201,7 @@ class LongHorizonSearchConfig:
     @property
     def resolved_decision_seed(self) -> int | None:
         return (
-            self.decision_seed
-            if self.decision_seed is not None
-            else self.scenario_seed
+            self.decision_seed if self.decision_seed is not None else self.scenario_seed
         )
 
 
@@ -1427,8 +1450,7 @@ class _ScenarioTracker:
         if self.selected_fire_class == FIRE_CLASS_QUIET:
             return self.best_survivor
         return (
-            self.terminals_by_class.get(self.selected_fire_class)
-            or self.best_survivor
+            self.terminals_by_class.get(self.selected_fire_class) or self.best_survivor
         )
 
     def finish(self, *, budget_exhausted: bool, target_depth: int) -> None:
@@ -1601,12 +1623,8 @@ def aggregate_expected_chain_evidence(
             for candidate_class in FIRE_CLASSES
         },
         terminal_score_sum=float(sum(terminal_scores)),
-        terminal_score_mean=(
-            None if not terminal_scores else _mean(terminal_scores)
-        ),
-        terminal_score_worst=(
-            None if not terminal_scores else min(terminal_scores)
-        ),
+        terminal_score_mean=(None if not terminal_scores else _mean(terminal_scores)),
+        terminal_score_worst=(None if not terminal_scores else min(terminal_scores)),
         terminal_score_dispersion=_dispersion(terminal_scores),
         quiet_support=quiet_support,
         target_not_reached_fire_count=int(target_not_reached_fire_count),
@@ -1775,8 +1793,7 @@ def _root_build_diagnostics(
         return right - left
 
     scenario_coverage = [
-        value.to_dict()["survivor_coverage"]
-        for value in evidence.scenario_values
+        value.to_dict()["survivor_coverage"] for value in evidence.scenario_values
     ]
     trigger_damage = (
         None if action is None else max(0, int(getattr(action, "trigger_damage", 0)))
@@ -1791,9 +1808,7 @@ def _root_build_diagnostics(
             if evidence.requested_scenarios <= 0
             else evidence.quiet_support / float(evidence.requested_scenarios)
         ),
-        "target_not_reached_fire_count": int(
-            evidence.target_not_reached_fire_count
-        ),
+        "target_not_reached_fire_count": int(evidence.target_not_reached_fire_count),
         "survivor_coverage": {
             "quota": int(evidence.root_survivor_quota),
             "scenarios": scenario_coverage,
@@ -1828,14 +1843,47 @@ def run_long_horizon_search(
 ) -> LongHorizonSearchResult:
     """Run compact expected-chain search without simulator clones."""
 
+    return _run_long_horizon_search(
+        CompactSearchState.from_simulator(simulator),
+        _known_scenario_pairs(simulator),
+        config,
+        evaluator=evaluator,
+    )
+
+
+def run_compact_long_horizon_search(
+    root_state: CompactSearchState,
+    known_pairs: Sequence[Sequence[Any]],
+    config: LongHorizonSearchConfig,
+    *,
+    evaluator: CompactNodeEvaluator | None = None,
+) -> LongHorizonSearchResult:
+    """Run the search from an allowlisted observation snapshot."""
+
+    return _run_long_horizon_search(
+        root_state,
+        known_pairs,
+        config,
+        evaluator=evaluator,
+    )
+
+
+def _run_long_horizon_search(
+    root_state: CompactSearchState,
+    known_pairs: Sequence[Sequence[Any]],
+    config: LongHorizonSearchConfig,
+    *,
+    evaluator: CompactNodeEvaluator | None = None,
+) -> LongHorizonSearchResult:
+    """Shared search implementation for simulator and visible-input callers."""
+
     selected_evaluator = evaluator or ChainStructureEvaluator()
-    root_state = CompactSearchState.from_simulator(simulator)
     root_evaluation = selected_evaluator.evaluate(
         root_state,
         target_chain_count=config.minimum_chain_count,
     )
-    sequences = build_scenario_sequences(
-        simulator,
+    sequences = build_scenario_sequences_from_known_pairs(
+        known_pairs,
         scenarios=config.scenarios,
         depth=config.depth,
         decision_seed=config.resolved_decision_seed,
@@ -2198,16 +2246,16 @@ __all__ = [
     "FUTURE_SAMPLING_SCHEMA_VERSION",
     "FUTURE_SAMPLING_SEEDED_AUTHORITATIVE",
     "LEGACY_FIXED_SIX_PROFILE",
-    "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_PROFILE_SCHEMA_VERSION",
+    "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_SEARCH_PROFILES",
     "QUALITY_D12_PROFILE",
     "QUALITY_D16_PROFILE",
     "REPRESENTATIVE_SCENARIO_BAGS",
-    "RUNTIME_PROFILE",
-    "SCENARIO_SEQUENCE_SCHEMA_VERSION",
     "ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION",
     "ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION",
+    "RUNTIME_PROFILE",
+    "SCENARIO_SEQUENCE_SCHEMA_VERSION",
     "SMOKE_PROFILE",
     "TERMINAL_FIRE_CONTINUE",
     "TERMINAL_FIRE_RECORD_AND_STOP",
@@ -2222,9 +2270,11 @@ __all__ = [
     "ScenarioRootEvidence",
     "aggregate_expected_chain_evidence",
     "build_scenario_sequences",
+    "build_scenario_sequences_from_known_pairs",
     "classify_build_main_fire",
     "compact_state_fingerprint",
-    "long_horizon_proposal_digest",
     "long_horizon_profile",
+    "long_horizon_proposal_digest",
+    "run_compact_long_horizon_search",
     "run_long_horizon_search",
 ]

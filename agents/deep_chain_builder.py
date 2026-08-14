@@ -7,6 +7,8 @@ deferred to the dependent implementation tasks.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,12 +16,29 @@ from typing import Any
 
 import yaml
 
+from agents.chain_structure import ChainStructureEvaluator
+from agents.compact_search import CompactSearchState, legal_action_indices, transition
 from agents.decision_flow import (
     DecisionContext,
     DecisionFlow,
     DecisionStep,
     DecisionStepContract,
     StepResult,
+)
+from agents.long_horizon_search import (
+    FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+    LongHorizonSearchConfig,
+    build_scenario_sequences_from_known_pairs,
+    run_compact_long_horizon_search,
+)
+from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
+
+VISIBLE_PAIR_COLORS = (
+    PuyoColor.RED,
+    PuyoColor.BLUE,
+    PuyoColor.GREEN,
+    PuyoColor.YELLOW,
+    PuyoColor.PURPLE,
 )
 
 DEEP_CHAIN_BUILDER_POLICY_ID = "deep_chain_builder"
@@ -443,6 +462,27 @@ class CompleteVisibleQueueScenariosStep(_DeferredDeepChainStep):
         ),
     )
 
+    def run(self, context: DecisionContext) -> StepResult:
+        observation = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
+        if not isinstance(observation, VisibleRuntimeInput):
+            raise TypeError("normalized observation has an unsupported type")
+        profile = context.profile
+        seed = _visible_decision_seed(observation)
+        pairs = _decode_visible_pairs(observation.next_pairs)
+        sequences = build_scenario_sequences_from_known_pairs(
+            pairs,
+            scenarios=profile.scenarios,
+            depth=profile.depth,
+            decision_seed=seed,
+            sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+            decision_seed_source="visible_observation_digest",
+        )
+        return StepResult(
+            outputs={SCENARIO_SEQUENCES_ARTIFACT: sequences},
+            candidate_count=len(sequences),
+            selection_reason="visible_pairs_preserved_and_unknown_suffix_completed",
+        )
+
 
 class EnumerateRootPlacementsStep(_DeferredDeepChainStep):
     contract = DecisionStepContract(
@@ -451,6 +491,22 @@ class EnumerateRootPlacementsStep(_DeferredDeepChainStep):
         provides=(ROOT_PLACEMENTS_ARTIFACT,),
         purpose="Enumerate all legal first placements with stable root identities.",
     )
+
+    def run(self, context: DecisionContext) -> StepResult:
+        observation = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
+        state = _compact_state_from_board(observation.board)
+        roots = tuple(
+            {
+                "action": int(action),
+                "root_id": f"root-{int(action):02d}",
+            }
+            for action in legal_action_indices(state)
+        )
+        return StepResult(
+            outputs={ROOT_PLACEMENTS_ARTIFACT: roots},
+            candidate_count=len(roots),
+            selection_reason="compact_kernel_legal_root_enumeration",
+        )
 
 
 class RunLongRangeSearchStep(_DeferredDeepChainStep):
@@ -468,6 +524,46 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
         ),
     )
 
+    def run(self, context: DecisionContext) -> StepResult:
+        observation = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
+        sequences = context.require(SCENARIO_SEQUENCES_ARTIFACT)
+        roots = context.require(ROOT_PLACEMENTS_ARTIFACT)
+        if not isinstance(observation, VisibleRuntimeInput):
+            raise TypeError("normalized observation has an unsupported type")
+        if not sequences or not roots:
+            raise ValueError("long-range search requires scenarios and roots")
+        profile = context.profile
+        config = LongHorizonSearchConfig(
+            depth=int(profile.depth),
+            width=int(profile.width),
+            scenarios=int(profile.scenarios),
+            minimum_chain_count=6,
+            max_expanded_nodes=int(profile.max_expanded_nodes),
+            decision_seed=_visible_decision_seed(observation),
+            future_sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+        )
+        result = run_compact_long_horizon_search(
+            _compact_state_from_board(observation.board),
+            _decode_visible_pairs(observation.next_pairs),
+            config,
+            evaluator=ChainStructureEvaluator(),
+        )
+        return StepResult(
+            outputs={
+                SCENARIO_SEARCH_RESULTS_ARTIFACT: {
+                    "schema_version": "puyo.deep_chain_builder.search_results.v1",
+                    "result": result,
+                    "root_state": _compact_state_from_board(observation.board),
+                    "scenario_ids": tuple(
+                        sequence.scenario_id for sequence in sequences
+                    ),
+                    "root_ids": tuple(int(root["action"]) for root in roots),
+                }
+            },
+            candidate_count=len(result.root_evidence),
+            selection_reason="count_bounded_compact_long_range_search",
+        )
+
 
 class AggregateScenarioScoresStep(_DeferredDeepChainStep):
     contract = DecisionStepContract(
@@ -479,6 +575,31 @@ class AggregateScenarioScoresStep(_DeferredDeepChainStep):
             "the score evidence used for ranking."
         ),
     )
+
+    def run(self, context: DecisionContext) -> StepResult:
+        payload = context.require(SCENARIO_SEARCH_RESULTS_ARTIFACT)
+        result = payload["result"]
+        aggregates = tuple(
+            {
+                "root_action": int(evidence.root_action),
+                "ranking_key": tuple(evidence.ranking_key),
+                "score_breakdown": evidence.value_breakdown(),
+                "evidence": evidence,
+                "representative": _representative_payload(
+                    result, int(evidence.root_action), payload["root_state"]
+                ),
+            }
+            for evidence in sorted(
+                result.root_evidence,
+                key=lambda item: item.ranking_key,
+                reverse=True,
+            )
+        )
+        return StepResult(
+            outputs={AGGREGATED_ROOT_SCORES_ARTIFACT: aggregates},
+            candidate_count=len(aggregates),
+            selection_reason="all_scenarios_aggregated_once_by_root_action",
+        )
 
 
 class SelectPlacementStep(_DeferredDeepChainStep):
@@ -653,6 +774,126 @@ def _shape(value: Any) -> tuple[int, ...]:
             break
         current = current[0]
     return tuple(dimensions)
+
+
+def _visible_decision_seed(observation: VisibleRuntimeInput) -> int:
+    """Derive a stable seed from visible state only."""
+
+    payload = {
+        "board": _plain_nested(observation.board),
+        "next_pairs": _plain_nested(observation.next_pairs),
+        "score": int(observation.score),
+        "step_count": int(observation.step_count),
+    }
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).digest()
+    return int.from_bytes(digest[:8], "big")
+
+
+def _plain_nested(value: Any) -> Any:
+    if hasattr(value, "tolist"):
+        return _plain_nested(value.tolist())
+    if isinstance(value, (list, tuple)):
+        return [_plain_nested(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return repr(value)
+
+
+def _decode_visible_pairs(value: Any) -> tuple[tuple[PuyoColor, PuyoColor], ...]:
+    pairs = []
+    for pair in value:
+        decoded = []
+        for encoded in pair:
+            if isinstance(encoded, str):
+                try:
+                    decoded.append(PuyoColor[encoded])
+                except KeyError as exc:
+                    raise ValueError(
+                        f"unsupported visible pair color: {encoded}"
+                    ) from exc
+                continue
+            if hasattr(encoded, "tolist"):
+                encoded = encoded.tolist()
+            if len(encoded) != len(VISIBLE_PAIR_COLORS):
+                raise ValueError("visible pair has an unsupported color encoding")
+            indices = [index for index, item in enumerate(encoded) if float(item) > 0.5]
+            if len(indices) != 1:
+                raise ValueError("visible pair must contain exactly one color")
+            if indices[0] >= len(NORMAL_PUYO_COLORS):
+                raise ValueError(
+                    "visible pair contains a color unsupported by the simulator"
+                )
+            decoded.append(NORMAL_PUYO_COLORS[indices[0]])
+        pairs.append((decoded[0], decoded[1]))
+    if not pairs:
+        raise ValueError("visible queue must contain at least one pair")
+    return tuple(pairs)
+
+
+def _compact_state_from_board(board: Any) -> CompactSearchState:
+    """Convert the public top-down one-hot board into the compact kernel."""
+
+    shape = _shape(board)
+    expected = (6, GRID_HEIGHT - 1, GRID_WIDTH)
+    if shape != expected:
+        raise ValueError(f"visible board must have shape {expected}, got {shape}")
+    planes = [0] * 6
+    for channel in range(6):
+        for encoded_row in range(GRID_HEIGHT - 1):
+            y = (GRID_HEIGHT - 2) - encoded_row
+            for x in range(GRID_WIDTH):
+                if float(board[channel][encoded_row][x]) > 0.5:
+                    bit = 1 << (y * GRID_WIDTH + x)
+                    if any(plane & bit for plane in planes):
+                        raise ValueError("visible board contains overlapping colors")
+                    planes[channel] |= bit
+    return CompactSearchState(planes=tuple(planes))
+
+
+def _representative_payload(
+    result: Any, root_action: int, root_state: CompactSearchState
+) -> dict[str, Any] | None:
+    node = result.representatives.get(int(root_action))
+    if node is None:
+        return None
+    sequence = next(
+        (
+            item
+            for item in result.scenario_sequences
+            if item.scenario_id == node.scenario_id
+        ),
+        None,
+    )
+    if sequence is None:
+        return {"scenario_id": int(node.scenario_id), "actions": list(node.path)}
+    state = root_state
+    predicted_boards = []
+    state_fingerprints = []
+    for cursor, action in enumerate(node.path):
+        step = transition(
+            state,
+            sequence.pair_at(cursor),
+            int(action),
+            capture_visuals=True,
+        )
+        if not step.valid:
+            break
+        state = step.state
+        state_fingerprints.append(hashlib.sha256(state.to_bytes()).hexdigest()[:24])
+        predicted_boards.append(
+            [[cell.name for cell in row] for row in step.placement_board]
+        )
+    return {
+        "scenario_id": int(node.scenario_id),
+        "sample_id": sequence.sample_id,
+        "actions": [int(action) for action in node.path],
+        "queue_digest": sequence.queue_digest,
+        "predicted_boards": predicted_boards,
+        "state_fingerprints": state_fingerprints,
+        "final_state_fingerprint": node.state_fingerprint,
+    }
 
 
 __all__ = [
