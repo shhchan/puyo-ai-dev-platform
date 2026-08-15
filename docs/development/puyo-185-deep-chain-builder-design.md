@@ -92,7 +92,7 @@ step rather than surfacing as an unexplained policy fallback.
 | 4 | `RunLongRangeSearchStep` | normalized observation, scenarios, roots | `scenario_search_results` | Apply the configured depth and width per scenario, retaining root identity, score evidence, and representative trajectories. |
 | 5 | `AggregateScenarioScoresStep` | scenario search results | `aggregated_root_scores` | Account for every configured scenario exactly once and aggregate by first placement. |
 | 6 | `SelectPlacementStep` | aggregated root scores | `selected_action`, `selected_plan`, `selection_evidence` | Choose one legal root using deterministic tie-breaking and retain the reason and N-turn plan. |
-| 7 | `EmitDecisionTraceStep` | selected action and evidence | `decision_output` | Expose action, plan, evidence, and trace through policy diagnostics and later replay output. |
+| 7 | `EmitDecisionTraceStep` | selected action, selected plan, and evidence | `decision_output` | Expose action, plan, evidence, and trace through policy diagnostics and later replay output. |
 
 The step contracts are defined now so PUYO-186 and PUYO-187 can implement them
 without inferring artifact names or flow order.
@@ -194,7 +194,8 @@ PASS/FAIL emission are owned by PUYO-189.
 - PUYO-186 implements scenario completion, the generic evaluator, root
   enumeration, long-range search, and scenario aggregation.
 - PUYO-187 completes selection, policy fallback, decision output, and
-  `n-turn-plan-v1` generation.
+  `n-turn-plan-v1` generation. It also makes the selected-plan dependency of
+  `EmitDecisionTraceStep` explicit so the typed contract matches its output.
 - PUYO-188 registers the policy in `main.py` and connects existing diagnostics
   and N-turn ghost rendering.
 - PUYO-189 runs the locked benchmark and records baseline acceptance evidence.

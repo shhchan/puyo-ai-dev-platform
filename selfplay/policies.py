@@ -17,13 +17,20 @@ try:
 except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
 
-from agents.networks import PuyoActorCritic, VECTOR_FEATURE_DIM
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
+from agents.deep_chain_builder import DeepChainBuilderPolicy
+from agents.networks import VECTOR_FEATURE_DIM, PuyoActorCritic
 from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
-from agents.strategy_workers import FixedProfilePolicy, default_worker_profiles, profile_id_by_name
+from agents.strategy_workers import (
+    FixedProfilePolicy,
+    default_worker_profiles,
+    profile_id_by_name,
+)
 from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
 from agents.v1_7_strategy_manager import (
     POLICY_TYPE as V17_BOOTSTRAP_POLICY_TYPE,
+)
+from agents.v1_7_strategy_manager import (
     V17StrategyManagerPolicy,
 )
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
@@ -170,6 +177,7 @@ def make_policy(
     beam_width: int = 48,
     beam_scenarios: int = 1,
     beam_minimum_chain: int = 6,
+    deep_chain_profile: str = "reference",
     forced_tactic_id: str | None = None,
 ) -> Policy:
     if policy_type == "first":
@@ -188,6 +196,8 @@ def make_policy(
                 scenario_seed=seed,
             )
         )
+    if policy_type == "deep_chain_builder":
+        return DeepChainBuilderPolicy(profile=deep_chain_profile)
     if policy_type == "worker_large":
         profiles = default_worker_profiles()
         return FixedProfilePolicy(profile_id_by_name(profiles, "build_large", "large_chain"), profiles)
