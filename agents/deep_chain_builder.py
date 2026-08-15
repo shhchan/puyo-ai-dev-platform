@@ -1,14 +1,16 @@
-"""Public contracts for the configurable deep-chain builder policy.
+"""Configurable, visible-input-only deep-chain builder policy.
 
-PUYO-185 defines the visible-input boundary and the replaceable decision-flow
-surface.  Search, evaluation, scenario completion, and plan generation remain
-deferred to the dependent implementation tasks.
+PUYO-185 defines the replaceable decision-flow surface, PUYO-186 supplies the
+search core, and PUYO-187 connects selection, plans, diagnostics, and fallback
+into the headless placement-policy interface.
 """
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
+import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +25,7 @@ from agents.decision_flow import (
     DecisionFlow,
     DecisionStep,
     DecisionStepContract,
+    DecisionTraceEntry,
     StepResult,
 )
 from agents.long_horizon_search import (
@@ -31,6 +34,7 @@ from agents.long_horizon_search import (
     build_scenario_sequences_from_known_pairs,
     run_compact_long_horizon_search,
 )
+from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
 
 VISIBLE_PAIR_COLORS = (
@@ -45,6 +49,9 @@ DEEP_CHAIN_BUILDER_POLICY_ID = "deep_chain_builder"
 DEEP_CHAIN_BUILDER_CONFIG_SCHEMA_VERSION = "puyo.deep_chain_builder.config.v1"
 DEEP_CHAIN_BUILDER_PROFILE_SCHEMA_VERSION = "puyo.deep_chain_builder.profile.v1"
 DEEP_CHAIN_BENCHMARK_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark.v1"
+DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
+DEEP_CHAIN_SELECTION_SCHEMA_VERSION = "puyo.deep_chain_builder.selection.v1"
+N_TURN_PLAN_SCHEMA_VERSION = "n-turn-plan-v1"
 DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH = (
     Path(__file__).resolve().parents[1] / "train" / "config" / "deep_chain_builder.yaml"
 )
@@ -59,6 +66,7 @@ SELECTED_ACTION_ARTIFACT = "selected_action"
 SELECTED_PLAN_ARTIFACT = "selected_plan"
 SELECTION_EVIDENCE_ARTIFACT = "selection_evidence"
 DECISION_OUTPUT_ARTIFACT = "decision_output"
+PREVIOUS_PLAN_ARTIFACT = "previous_plan"
 
 # Only these fields cross the runtime-to-policy boundary.  In particular, the
 # simulator objects in environment info are deliberately not retained.
@@ -542,8 +550,9 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
             decision_seed=_visible_decision_seed(observation),
             future_sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
         )
+        root_state = _compact_state_from_observation(observation)
         result = run_compact_long_horizon_search(
-            _compact_state_from_board(observation.board),
+            root_state,
             _decode_visible_pairs(observation.next_pairs),
             config,
             evaluator=ChainStructureEvaluator(),
@@ -553,7 +562,7 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
                 SCENARIO_SEARCH_RESULTS_ARTIFACT: {
                     "schema_version": "puyo.deep_chain_builder.search_results.v1",
                     "result": result,
-                    "root_state": _compact_state_from_board(observation.board),
+                    "root_state": root_state,
                     "scenario_ids": tuple(
                         sequence.scenario_id for sequence in sequences
                     ),
@@ -588,6 +597,9 @@ class AggregateScenarioScoresStep(_DeferredDeepChainStep):
                 "representative": _representative_payload(
                     result, int(evidence.root_action), payload["root_state"]
                 ),
+                "search_diagnostics": result.root_diagnostics.get(
+                    int(evidence.root_action), {}
+                ),
             }
             for evidence in sorted(
                 result.root_evidence,
@@ -617,18 +629,86 @@ class SelectPlacementStep(_DeferredDeepChainStep):
         ),
     )
 
+    def summarize_inputs(self, context: DecisionContext) -> Mapping[str, Any]:
+        values = context.require(AGGREGATED_ROOT_SCORES_ARTIFACT)
+        return {
+            "aggregated_root_count": len(values),
+            "root_actions": [int(value["root_action"]) for value in values],
+        }
+
+    def run(self, context: DecisionContext) -> StepResult:
+        values = context.require(AGGREGATED_ROOT_SCORES_ARTIFACT)
+        if not isinstance(values, Sequence) or not values:
+            raise ValueError("deep-chain selection requires aggregated root scores")
+        ranked = sorted(
+            values,
+            key=lambda value: (
+                tuple(value["ranking_key"]),
+                -int(value["root_action"]),
+            ),
+            reverse=True,
+        )
+        selected = ranked[0]
+        action = int(selected["root_action"])
+        representative = selected.get("representative")
+        if not isinstance(representative, Mapping):
+            raise TypeError("selected deep-chain root has no representative trajectory")
+        actions = representative.get("actions")
+        if not isinstance(actions, Sequence) or not actions:
+            raise ValueError("selected deep-chain trajectory has no actions")
+        if int(actions[0]) != action:
+            raise ValueError("selected root and representative first action disagree")
+
+        plan = _selected_plan(
+            context.profile,
+            selected,
+            previous_plan=context.artifacts.get(PREVIOUS_PLAN_ARTIFACT),
+        )
+        evidence = _selection_evidence(ranked, selected, plan)
+        reason = "highest_aggregated_root_ranking"
+        return StepResult(
+            outputs={
+                SELECTED_ACTION_ARTIFACT: action,
+                SELECTED_PLAN_ARTIFACT: plan,
+                SELECTION_EVIDENCE_ARTIFACT: evidence,
+            },
+            candidate_count=len(ranked),
+            selection_reason=reason,
+        )
+
 
 class EmitDecisionTraceStep(_DeferredDeepChainStep):
     implementation_ticket = "PUYO-187"
     contract = DecisionStepContract(
         step_id="emit_decision_trace",
-        requires=(SELECTED_ACTION_ARTIFACT, SELECTION_EVIDENCE_ARTIFACT),
+        requires=(
+            SELECTED_ACTION_ARTIFACT,
+            SELECTED_PLAN_ARTIFACT,
+            SELECTION_EVIDENCE_ARTIFACT,
+        ),
         provides=(DECISION_OUTPUT_ARTIFACT,),
         purpose=(
             "Serialize the selected action, plan, evidence, and flow trace for "
             "policy diagnostics and replay output."
         ),
     )
+
+    def run(self, context: DecisionContext) -> StepResult:
+        action = int(context.require(SELECTED_ACTION_ARTIFACT))
+        plan = context.require(SELECTED_PLAN_ARTIFACT)
+        evidence = context.require(SELECTION_EVIDENCE_ARTIFACT)
+        return StepResult(
+            outputs={
+                DECISION_OUTPUT_ARTIFACT: _decision_output(
+                    action=action,
+                    plan=plan,
+                    evidence=evidence,
+                    decision_trace=context.trace.to_dict(),
+                )
+            },
+            candidate_count=1,
+            selection_reason="decision_payload_serialized",
+        )
 
 
 class DeepChainBuildFlow(DecisionFlow):
@@ -647,12 +727,7 @@ class DeepChainBuildFlow(DecisionFlow):
 
 
 class DeepChainBuilderPolicy:
-    """Policy adapter around an injectable ``DeepChainBuildFlow``.
-
-    The default flow intentionally stops at the first search contract until the
-    dependent implementation tasks land.  Tests and future policies may inject
-    a complete flow without changing the placement-policy interface.
-    """
+    """Headless placement policy around an injectable ``DeepChainBuildFlow``."""
 
     policy_id = DEEP_CHAIN_BUILDER_POLICY_ID
 
@@ -673,10 +748,12 @@ class DeepChainBuilderPolicy:
         self.flow = flow or DeepChainBuildFlow()
         self.last_context: DecisionContext | None = None
         self._decision_count = 0
+        self._last_plan: dict[str, Any] | None = None
 
     def reset(self) -> None:
         self.last_context = None
         self._decision_count = 0
+        self._last_plan = None
 
     def decide(
         self,
@@ -684,18 +761,27 @@ class DeepChainBuilderPolicy:
         info: Mapping[str, Any],
     ) -> DecisionContext:
         self._decision_count += 1
+        visible_input = build_visible_runtime_input(observation, info)
+        artifacts: dict[str, Any] = {RUNTIME_INPUT_ARTIFACT: visible_input}
+        if self._last_plan is not None:
+            artifacts[PREVIOUS_PLAN_ARTIFACT] = copy.deepcopy(self._last_plan)
         context = DecisionContext(
             decision_id=f"{self.policy_id}-decision-{self._decision_count:08d}",
             profile=self.profile,
-            artifacts={
-                RUNTIME_INPUT_ARTIFACT: build_visible_runtime_input(
-                    observation,
-                    info,
-                )
-            },
+            artifacts=artifacts,
         )
-        result = self.flow.execute(context)
+        try:
+            result = self.flow.execute(context)
+            _require_legal_selected_action(result, visible_input)
+        # A policy boundary must convert evaluator/plugin failures into the
+        # deterministic legal fallback required by the public contract.
+        except Exception as exc:  # noqa: BLE001
+            result = _fallback_context(context, visible_input, exc)
+        result = _finalize_decision_output(result)
         self.last_context = result
+        plan = result.artifacts.get(SELECTED_PLAN_ARTIFACT)
+        if isinstance(plan, Mapping):
+            self._last_plan = copy.deepcopy(dict(plan))
         return result
 
     def select_action(
@@ -704,32 +790,492 @@ class DeepChainBuilderPolicy:
         info: Mapping[str, Any],
     ) -> int:
         result = self.decide(observation, info)
-        action = int(result.require(SELECTED_ACTION_ARTIFACT))
-        runtime_input = result.require(RUNTIME_INPUT_ARTIFACT)
-        if (
-            isinstance(runtime_input, VisibleRuntimeInput)
-            and runtime_input.action_mask
-            and (
-                not 0 <= action < len(runtime_input.action_mask)
-                or not runtime_input.action_mask[action]
-            )
-        ):
-            raise ValueError("deep-chain flow selected an illegal placement action")
-        return action
+        return int(result.require(SELECTED_ACTION_ARTIFACT))
 
     @property
     def tactical_diagnostics(self) -> dict[str, Any]:
         context = self.last_context
+        if context is None:
+            return {
+                "schema_version": DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION,
+                "policy_id": self.policy_id,
+                "profile": self.profile.to_dict(),
+                "decision_trace": {},
+                "selected_action": None,
+                "plan_id": "",
+                "plan": {},
+                "replan_reason": "",
+                "fallback": {"used": False, "reason": None, "detail": ""},
+            }
+        return copy.deepcopy(_policy_diagnostics(context, self.profile))
+
+
+def _selection_evidence(
+    ranked: Sequence[Mapping[str, Any]],
+    selected: Mapping[str, Any],
+    plan: Mapping[str, Any],
+) -> dict[str, Any]:
+    scenario_aggregates = []
+    for value in ranked:
+        evidence = value.get("evidence")
+        evidence_payload = (
+            evidence.to_dict() if hasattr(evidence, "to_dict") else evidence
+        )
+        scenario_aggregates.append(
+            {
+                "root_action": int(value["root_action"]),
+                "ranking_key": _json_ready(value.get("ranking_key", ())),
+                "score_breakdown": _json_ready(value.get("score_breakdown", {})),
+                "evidence": _json_ready(evidence_payload),
+                "search_diagnostics": _json_ready(value.get("search_diagnostics", {})),
+            }
+        )
+    representative = selected.get("representative", {})
+    representative_summary = {
+        key: _json_ready(representative.get(key))
+        for key in (
+            "scenario_id",
+            "sample_id",
+            "actions",
+            "queue_digest",
+            "root_state_fingerprint",
+            "final_state_fingerprint",
+            "trajectory_source",
+        )
+        if isinstance(representative, Mapping) and key in representative
+    }
+    return {
+        "schema_version": DEEP_CHAIN_SELECTION_SCHEMA_VERSION,
+        "candidate_count": len(ranked),
+        "selection_reason": "highest_aggregated_root_ranking",
+        "selected_root_action": int(selected["root_action"]),
+        "selected_ranking_key": _json_ready(selected.get("ranking_key", ())),
+        "selected_score_breakdown": _json_ready(selected.get("score_breakdown", {})),
+        "selected_representative": representative_summary,
+        "scenario_aggregation": scenario_aggregates,
+        "plan_id": str(plan.get("plan_id", "")),
+        "fallback": {"used": False, "reason": None, "detail": ""},
+    }
+
+
+def _selected_plan(
+    profile: Any,
+    selected: Mapping[str, Any],
+    *,
+    previous_plan: Any = None,
+) -> dict[str, Any]:
+    representative = selected.get("representative")
+    if not isinstance(representative, Mapping):
+        raise TypeError("selected root requires a representative mapping")
+    raw_steps = representative.get("steps")
+    if not isinstance(raw_steps, Sequence) or not raw_steps:
+        raise ValueError("selected representative requires at least one plan step")
+    steps = [_json_ready(step) for step in raw_steps]
+    action = int(selected["root_action"])
+    if not isinstance(steps[0], Mapping) or int(steps[0]["action"]) != action:
+        raise ValueError("plan step 1 must match the selected policy action")
+
+    profile_key = str(getattr(profile, "profile_id", DEEP_CHAIN_BUILDER_POLICY_ID))
+    profile_name = str(getattr(profile, "name", "deep_chain_builder"))
+    profile_id = int(hashlib.sha256(profile_key.encode("utf-8")).hexdigest()[:8], 16)
+    plan_basis = {
+        "schema_version": N_TURN_PLAN_SCHEMA_VERSION,
+        "profile_id": profile_key,
+        "selected_root_action": action,
+        "scenario_id": representative.get("scenario_id"),
+        "queue_digest": representative.get("queue_digest"),
+        "root_state_fingerprint": representative.get("root_state_fingerprint"),
+        "steps": [
+            {
+                "action": step.get("action"),
+                "known_tsumo": step.get("known_tsumo"),
+                "scenario_id": step.get("scenario_id"),
+                "tsumo": step.get("tsumo"),
+                "state_fingerprint": step.get("state_fingerprint"),
+            }
+            for step in steps
+        ],
+    }
+    plan_id = _stable_payload_digest(plan_basis, prefix="deep-chain-plan-v1")[:16]
+    previous_id = (
+        str(previous_plan.get("plan_id", ""))
+        if isinstance(previous_plan, Mapping)
+        else ""
+    )
+    if not previous_id:
+        replan_reason = "initial_plan"
+    elif previous_id == plan_id:
+        replan_reason = "plan_unchanged"
+    else:
+        replan_reason = "new_observation"
+
+    known_steps = sum(bool(step.get("known_tsumo")) for step in steps)
+    predicted_chain_counts = [
+        int(step.get("predicted_chain_count", 0)) for step in steps
+    ]
+    predicted_scores = [int(step.get("predicted_score", 0)) for step in steps]
+    predicted_attacks = [int(step.get("predicted_attack", 0)) for step in steps]
+    profile_payload = (
+        profile.to_dict()
+        if hasattr(profile, "to_dict")
+        else {"profile_id": profile_key}
+    )
+    return {
+        "schema_version": N_TURN_PLAN_SCHEMA_VERSION,
+        "plan_id": plan_id,
+        "profile_id": profile_id,
+        "profile_key": profile_key,
+        "profile_name": profile_name,
+        "strategy": DEEP_CHAIN_BUILDER_POLICY_ID,
+        "max_steps": int(getattr(profile, "depth", len(steps))),
+        "visible_steps": int(known_steps),
+        "update_reason": replan_reason,
+        "replan_reason": replan_reason,
+        "replan_conditions": [
+            {
+                "reason": "opponent_event",
+                "detail": "opponent score, chain, or incoming attack changed",
+            },
+            {
+                "reason": "incoming_attack_landed",
+                "detail": "reserved ojama landed before the plan was consumed",
+            },
+            {
+                "reason": "new_observation",
+                "detail": "a fresh public observation always triggers a new search",
+            },
+            {
+                "reason": "search_result_changed",
+                "detail": "the selected trajectory changed its deterministic plan id",
+            },
+            {
+                "reason": "input_failure",
+                "detail": "the selected placement is no longer legal",
+            },
+        ],
+        "objective": {
+            "kind": "deep_chain_construction",
+            "minimum_chain_count": 6,
+        },
+        "search_control": _json_ready(profile_payload),
+        "planner_request": {},
+        "planner_latency_overrun": False,
+        "scenario_id": representative.get("scenario_id"),
+        "sample_id": representative.get("sample_id"),
+        "queue_digest": representative.get("queue_digest"),
+        "root_state_fingerprint": representative.get("root_state_fingerprint"),
+        "selected_root_action": action,
+        "selection_reason": "highest_aggregated_root_ranking",
+        "prediction_summary": {
+            "maximum_chain_count": max(predicted_chain_counts, default=0),
+            "cumulative_score": sum(predicted_scores),
+            "cumulative_attack": sum(predicted_attacks),
+            "final_state_fingerprint": representative.get("final_state_fingerprint"),
+        },
+        "attack_summary": {
+            "initial_score_carry": 0,
+            "final_score_carry": 0,
+            "initial_incoming_attack": 0,
+            "incoming_remaining": 0,
+            "generated": sum(predicted_attacks),
+            "canceled": 0,
+            "outgoing": sum(predicted_attacks),
+        },
+        "steps": steps,
+    }
+
+
+def _decision_output(
+    *,
+    action: int,
+    plan: Any,
+    evidence: Any,
+    decision_trace: Mapping[str, Any],
+) -> dict[str, Any]:
+    plan_payload = _json_ready(plan) if isinstance(plan, Mapping) else {}
+    evidence_payload = _json_ready(evidence) if isinstance(evidence, Mapping) else {}
+    return {
+        "schema_version": DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION,
+        "policy_id": DEEP_CHAIN_BUILDER_POLICY_ID,
+        "action": int(action),
+        "plan_id": str(plan_payload.get("plan_id", "")),
+        "plan": plan_payload,
+        "selection_evidence": evidence_payload,
+        "decision_trace": _json_ready(decision_trace),
+        "fallback": evidence_payload.get(
+            "fallback", {"used": False, "reason": None, "detail": ""}
+        ),
+    }
+
+
+def _finalize_decision_output(context: DecisionContext) -> DecisionContext:
+    action = int(context.require(SELECTED_ACTION_ARTIFACT))
+    plan = context.artifacts.get(SELECTED_PLAN_ARTIFACT, {})
+    evidence = context.artifacts.get(SELECTION_EVIDENCE_ARTIFACT, {})
+    artifacts = dict(context.artifacts)
+    artifacts[DECISION_OUTPUT_ARTIFACT] = _decision_output(
+        action=action,
+        plan=plan,
+        evidence=evidence,
+        decision_trace=context.trace.to_dict(),
+    )
+    return DecisionContext(
+        decision_id=context.decision_id,
+        profile=context.profile,
+        artifacts=artifacts,
+        trace_entries=context.trace_entries,
+    )
+
+
+def _require_legal_selected_action(
+    context: DecisionContext,
+    visible_input: VisibleRuntimeInput,
+) -> None:
+    action = int(context.require(SELECTED_ACTION_ARTIFACT))
+    if visible_input.action_mask:
+        if (
+            not 0 <= action < len(visible_input.action_mask)
+            or not visible_input.action_mask[action]
+        ):
+            raise ValueError("deep-chain flow selected an illegal placement action")
+        return
+    legal = legal_action_indices(_compact_state_from_observation(visible_input))
+    if action not in legal:
+        raise ValueError("deep-chain flow selected an illegal placement action")
+
+
+def _fallback_context(
+    context: DecisionContext,
+    visible_input: VisibleRuntimeInput,
+    error: Exception,
+) -> DecisionContext:
+    reason = _fallback_reason(error)
+    action = _deterministic_fallback_action(visible_input)
+    representative = _fallback_representative(visible_input, action)
+    selected = {
+        "root_action": action,
+        "representative": representative,
+    }
+    plan = _selected_plan(
+        context.profile,
+        selected,
+        previous_plan=context.artifacts.get(PREVIOUS_PLAN_ARTIFACT),
+    )
+    plan["selection_reason"] = f"deterministic_fallback:{reason}"
+    detail = f"{type(error).__name__}: {error}".strip()
+    fallback = {"used": True, "reason": reason, "detail": detail}
+    evidence = {
+        "schema_version": DEEP_CHAIN_SELECTION_SCHEMA_VERSION,
+        "candidate_count": int(visible_input.legal_action_count),
+        "selection_reason": f"deterministic_fallback:{reason}",
+        "selected_root_action": action,
+        "selected_ranking_key": [],
+        "selected_score_breakdown": {},
+        "selected_representative": {
+            key: _json_ready(representative.get(key))
+            for key in (
+                "scenario_id",
+                "actions",
+                "root_state_fingerprint",
+                "final_state_fingerprint",
+                "trajectory_source",
+            )
+        },
+        "scenario_aggregation": [],
+        "plan_id": plan["plan_id"],
+        "fallback": fallback,
+    }
+    output = _decision_output(
+        action=action,
+        plan=plan,
+        evidence=evidence,
+        decision_trace={},
+    )
+    outputs = {
+        SELECTED_ACTION_ARTIFACT: action,
+        SELECTED_PLAN_ARTIFACT: plan,
+        SELECTION_EVIDENCE_ARTIFACT: evidence,
+        DECISION_OUTPUT_ARTIFACT: output,
+    }
+    trace_entry = DecisionTraceEntry(
+        index=0,
+        step_id="deterministic_fallback",
+        step_type="DeterministicFallback",
+        input_summary=visible_input.summary(),
+        output_keys=tuple(outputs),
+        candidate_count=visible_input.legal_action_count,
+        selection_reason=f"deterministic_fallback:{reason}",
+        elapsed_seconds=0.0,
+    )
+    return context.with_step_result(StepResult(outputs=outputs), trace_entry)
+
+
+def _fallback_reason(error: Exception) -> str:
+    if isinstance(error, TimeoutError):
+        return "search_timeout"
+    if isinstance(error, NotImplementedError):
+        return "search_unavailable"
+    if isinstance(error, (KeyError, TypeError, ValueError)):
+        return "invalid_search_result"
+    return "search_failure"
+
+
+def _deterministic_fallback_action(visible_input: VisibleRuntimeInput) -> int:
+    if visible_input.action_mask:
+        for action, allowed in enumerate(visible_input.action_mask):
+            if allowed:
+                try:
+                    action_to_placement(action)
+                except ValueError:
+                    continue
+                return int(action)
+    try:
+        legal = legal_action_indices(_compact_state_from_observation(visible_input))
+    except (TypeError, ValueError):
+        legal = ()
+    return 0 if not legal else int(legal[0])
+
+
+def _fallback_representative(
+    visible_input: VisibleRuntimeInput,
+    action: int,
+) -> dict[str, Any]:
+    try:
+        state = _compact_state_from_observation(visible_input)
+        pair = _decode_visible_pairs(visible_input.next_pairs)[0]
+        result = transition(state, pair, action, capture_visuals=True)
+        if not result.valid:
+            raise ValueError("fallback action has no compact transition")
+        step = _transition_plan_step(
+            state,
+            result,
+            pair,
+            cursor=0,
+            known_tsumo=True,
+            scenario_id=-1,
+            reason="deterministic_fallback",
+            cumulative_score=0,
+            cumulative_attack=0,
+        )
+        root_fingerprint = _state_fingerprint(state)
         return {
-            "policy_id": self.policy_id,
-            "profile": self.profile.to_dict(),
-            "decision_trace": {} if context is None else context.trace.to_dict(),
-            "selected_action": (
-                None
-                if context is None
-                else context.artifacts.get(SELECTED_ACTION_ARTIFACT)
+            "scenario_id": -1,
+            "sample_id": "deterministic-fallback",
+            "actions": [int(action)],
+            "queue_digest": _stable_payload_digest(
+                [[pair[0].name, pair[1].name]], prefix="fallback-visible-pair"
             ),
+            "root_state_fingerprint": root_fingerprint,
+            "predicted_boards": [step["predicted_board"]],
+            "state_fingerprints": [step["state_fingerprint"]],
+            "final_state_fingerprint": step["state_fingerprint"],
+            "trajectory_source": "deterministic_fallback",
+            "steps": [step],
         }
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError):
+        placement = action_to_placement(action)
+        return {
+            "scenario_id": -1,
+            "sample_id": "deterministic-fallback",
+            "actions": [int(action)],
+            "queue_digest": "",
+            "root_state_fingerprint": "",
+            "predicted_boards": [],
+            "state_fingerprints": [],
+            "final_state_fingerprint": "",
+            "trajectory_source": "deterministic_fallback_prediction_unavailable",
+            "steps": [
+                {
+                    "step_index": 0,
+                    "action": int(action),
+                    "axis_x": int(placement.axis_x),
+                    "rotation": placement.rotation.name,
+                    "known_tsumo": True,
+                    "scenario": "fallback",
+                    "scenario_id": -1,
+                    "tsumo": [],
+                    "valid": True,
+                    "predicted_chain_count": 0,
+                    "predicted_score": 0,
+                    "predicted_attack": 0,
+                    "cumulative_score": 0,
+                    "cumulative_attack": 0,
+                    "danger": 0.0,
+                    "predicted_board": [],
+                    "placement_cells": [],
+                    "state_fingerprint": "",
+                    "chains": [],
+                    "reason": "deterministic_fallback_prediction_unavailable",
+                }
+            ],
+        }
+
+
+def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any]:
+    plan = context.artifacts.get(SELECTED_PLAN_ARTIFACT, {})
+    evidence = context.artifacts.get(SELECTION_EVIDENCE_ARTIFACT, {})
+    evidence_payload = _json_ready(evidence) if isinstance(evidence, Mapping) else {}
+    plan_payload = _json_ready(plan) if isinstance(plan, Mapping) else {}
+    search_payload = context.artifacts.get(SCENARIO_SEARCH_RESULTS_ARTIFACT)
+    search_diagnostics: dict[str, Any] = {}
+    if isinstance(search_payload, Mapping):
+        result = search_payload.get("result")
+        counters = getattr(result, "counters", None)
+        search_diagnostics = {
+            "schema_version": search_payload.get("schema_version"),
+            "scenario_ids": _json_ready(search_payload.get("scenario_ids", ())),
+            "root_ids": _json_ready(search_payload.get("root_ids", ())),
+            "deterministic_digest": getattr(result, "deterministic_digest", ""),
+            "counters": (counters.to_dict() if hasattr(counters, "to_dict") else {}),
+        }
+    fallback = evidence_payload.get(
+        "fallback", {"used": False, "reason": None, "detail": ""}
+    )
+    return {
+        "schema_version": DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION,
+        "policy_id": DEEP_CHAIN_BUILDER_POLICY_ID,
+        "profile": _json_ready(profile.to_dict()),
+        "decision_trace": context.trace.to_dict(),
+        "selected_action": int(context.require(SELECTED_ACTION_ARTIFACT)),
+        "candidate_count": evidence_payload.get("candidate_count"),
+        "selection_reason": evidence_payload.get("selection_reason"),
+        "scenario_aggregation": evidence_payload.get("scenario_aggregation", []),
+        "selection_evidence": evidence_payload,
+        "search": _json_ready(search_diagnostics),
+        "plan_id": str(plan_payload.get("plan_id", "")),
+        "plan": plan_payload,
+        "replan_reason": str(plan_payload.get("replan_reason", "")),
+        "fallback": fallback,
+        "decision_output": _json_ready(
+            context.artifacts.get(DECISION_OUTPUT_ARTIFACT, {})
+        ),
+    }
+
+
+def _json_ready(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_ready(item) for item in value]
+    if hasattr(value, "to_dict"):
+        return _json_ready(value.to_dict())
+    if isinstance(value, float) and not math.isfinite(value):
+        if math.isnan(value):
+            return "NaN"
+        return "Infinity" if value > 0 else "-Infinity"
+    if isinstance(value, (str, int, float, bool, type(None))):
+        return value
+    return repr(value)
+
+
+def _stable_payload_digest(value: Any, *, prefix: str) -> str:
+    payload = json.dumps(
+        _json_ready(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(prefix.encode("utf-8") + b":" + payload).hexdigest()
 
 
 def _snapshot_value(value: Any) -> Any:
@@ -794,6 +1340,11 @@ def _visible_decision_seed(observation: VisibleRuntimeInput) -> int:
 def _plain_nested(value: Any) -> Any:
     if hasattr(value, "tolist"):
         return _plain_nested(value.tolist())
+    if isinstance(value, Mapping):
+        return {
+            str(key): _plain_nested(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
     if isinstance(value, (list, tuple)):
         return [_plain_nested(item) for item in value]
     if isinstance(value, (str, int, float, bool)) or value is None:
@@ -832,7 +1383,27 @@ def _decode_visible_pairs(value: Any) -> tuple[tuple[PuyoColor, PuyoColor], ...]
     return tuple(pairs)
 
 
-def _compact_state_from_board(board: Any) -> CompactSearchState:
+def _compact_state_from_observation(
+    observation: VisibleRuntimeInput,
+) -> CompactSearchState:
+    score = max(0, int(observation.score))
+    last_chain_end_score = max(
+        0,
+        min(score, int(observation.last_chain_end_score)),
+    )
+    return _compact_state_from_board(
+        observation.board,
+        score=score,
+        last_chain_end_score=last_chain_end_score,
+    )
+
+
+def _compact_state_from_board(
+    board: Any,
+    *,
+    score: int = 0,
+    last_chain_end_score: int = 0,
+) -> CompactSearchState:
     """Convert the public top-down one-hot board into the compact kernel."""
 
     shape = _shape(board)
@@ -849,50 +1420,175 @@ def _compact_state_from_board(board: Any) -> CompactSearchState:
                     if any(plane & bit for plane in planes):
                         raise ValueError("visible board contains overlapping colors")
                     planes[channel] |= bit
-    return CompactSearchState(planes=tuple(planes))
+    return CompactSearchState(
+        planes=tuple(planes),
+        score=max(0, int(score)),
+        last_chain_end_score=max(
+            0,
+            min(int(score), int(last_chain_end_score)),
+        ),
+    )
+
+
+def _state_fingerprint(state: CompactSearchState) -> str:
+    return hashlib.sha256(state.to_bytes()).hexdigest()[:24]
+
+
+def _transition_plan_step(
+    state: CompactSearchState,
+    result: Any,
+    pair: Sequence[PuyoColor],
+    *,
+    cursor: int,
+    known_tsumo: bool,
+    scenario_id: int,
+    reason: str,
+    cumulative_score: int,
+    cumulative_attack: int,
+) -> dict[str, Any]:
+    placement_cells = []
+    for y, row in enumerate(result.placement_board):
+        for x, color in enumerate(row):
+            if color != PuyoColor.EMPTY and state.color_at(x, y) == PuyoColor.EMPTY:
+                placement_cells.append({"x": int(x), "y": int(y), "color": color.name})
+    predicted_attack = max(0, int(result.attack_score_delta) // 70)
+    next_cumulative_score = cumulative_score + int(result.score_delta)
+    next_cumulative_attack = cumulative_attack + predicted_attack
+    predicted_board = [
+        [cell.name for cell in row] for row in result.state.to_color_grid()
+    ]
+    maximum_height = max(result.state.column_heights, default=0)
+    danger = min(1.0, maximum_height / float(max(1, GRID_HEIGHT - 1)))
+    return {
+        "step_index": int(cursor),
+        "action": int(result.action_id),
+        "axis_x": int(result.action.axis_x),
+        "axis_y": None if result.axis_y is None else int(result.axis_y),
+        "rotation": result.action.rotation.name,
+        "known_tsumo": bool(known_tsumo),
+        "scenario": "visible" if known_tsumo else "unknown_scenario",
+        "scenario_id": int(scenario_id),
+        "scenario_label": f"scenario-{scenario_id}",
+        "tsumo": [pair[0].name, pair[1].name],
+        "valid": bool(result.valid),
+        "predicted_chain_count": int(result.chain_count),
+        "predicted_score": int(result.score_delta),
+        "predicted_attack": predicted_attack,
+        "cumulative_score": int(next_cumulative_score),
+        "cumulative_attack": int(next_cumulative_attack),
+        "attack_score_delta": int(result.attack_score_delta),
+        "score_carry_before": 0,
+        "score_carry_after": 0,
+        "attack_generated": predicted_attack,
+        "attack_canceled": 0,
+        "attack_outgoing": predicted_attack,
+        "incoming_remaining": 0,
+        "all_clear_achieved": bool(result.all_clear_achieved),
+        "all_clear_bonus_pending": bool(result.all_clear_bonus_pending),
+        "all_clear_bonus_consumed": bool(result.all_clear_bonus_consumed),
+        "all_clear_bonus_score": int(result.all_clear_bonus_score),
+        "danger": float(danger),
+        "objective_result": {
+            "achieved": int(result.chain_count) >= 6,
+            "possible_by_deadline": not bool(result.game_over),
+            "miss_reasons": (
+                [] if int(result.chain_count) >= 6 else ["target_chain_not_fired"]
+            ),
+            "surplus_attack": 0,
+            "score_delta": int(result.score_delta),
+            "chain_delta": int(result.chain_count) - 6,
+            "deadline_missed": False,
+            "danger_excess": 0.0,
+            "time_overrun_ticks": 0,
+            "response_capacity": 0,
+            "incoming_coverage": 0.0,
+            "trigger_preserved": True,
+            "immediate_fire": int(result.chain_count) > 0,
+        },
+        "predicted_board": predicted_board,
+        "placement_cells": placement_cells,
+        "state_fingerprint": _state_fingerprint(result.state),
+        "chains": [
+            {
+                "chain_index": int(chain.chain_index),
+                "vanished_count": int(chain.vanished_count),
+                "score": int(chain.score),
+            }
+            for chain in result.chains
+        ],
+        "game_over": bool(result.game_over),
+        "reason": reason,
+    }
 
 
 def _representative_payload(
     result: Any, root_action: int, root_state: CompactSearchState
 ) -> dict[str, Any] | None:
     node = result.representatives.get(int(root_action))
-    if node is None:
-        return None
+    scenario_id = (
+        int(node.scenario_id)
+        if node is not None
+        else int(result.scenario_sequences[0].scenario_id)
+    )
     sequence = next(
-        (
-            item
-            for item in result.scenario_sequences
-            if item.scenario_id == node.scenario_id
-        ),
+        (item for item in result.scenario_sequences if item.scenario_id == scenario_id),
         None,
     )
     if sequence is None:
-        return {"scenario_id": int(node.scenario_id), "actions": list(node.path)}
+        return None
+    path = tuple(node.path) if node is not None else (int(root_action),)
+    trajectory_source = (
+        "representative_search_trajectory"
+        if node is not None
+        else "root_only_recovery_trajectory"
+    )
     state = root_state
-    predicted_boards = []
-    state_fingerprints = []
-    for cursor, action in enumerate(node.path):
-        step = transition(
+    steps = []
+    cumulative_score = 0
+    cumulative_attack = 0
+    for cursor, action in enumerate(path):
+        pair = sequence.pair_at(cursor)
+        transition_result = transition(
             state,
-            sequence.pair_at(cursor),
+            pair,
             int(action),
             capture_visuals=True,
         )
-        if not step.valid:
+        if not transition_result.valid:
             break
-        state = step.state
-        state_fingerprints.append(hashlib.sha256(state.to_bytes()).hexdigest()[:24])
-        predicted_boards.append(
-            [[cell.name for cell in row] for row in step.placement_board]
+        plan_step = _transition_plan_step(
+            state,
+            transition_result,
+            pair,
+            cursor=cursor,
+            known_tsumo=cursor < sequence.known_pair_count,
+            scenario_id=int(sequence.scenario_id),
+            reason=trajectory_source,
+            cumulative_score=cumulative_score,
+            cumulative_attack=cumulative_attack,
         )
+        steps.append(plan_step)
+        cumulative_score = int(plan_step["cumulative_score"])
+        cumulative_attack = int(plan_step["cumulative_attack"])
+        state = transition_result.state
+    if not steps:
+        return None
     return {
-        "scenario_id": int(node.scenario_id),
+        "scenario_id": int(sequence.scenario_id),
         "sample_id": sequence.sample_id,
-        "actions": [int(action) for action in node.path],
+        "actions": [int(step["action"]) for step in steps],
         "queue_digest": sequence.queue_digest,
-        "predicted_boards": predicted_boards,
-        "state_fingerprints": state_fingerprints,
-        "final_state_fingerprint": node.state_fingerprint,
+        "known_pair_count": int(sequence.known_pair_count),
+        "unknown_boundary_cursor": int(sequence.known_pair_count),
+        "root_state_fingerprint": _state_fingerprint(root_state),
+        "predicted_boards": [step["predicted_board"] for step in steps],
+        "state_fingerprints": [step["state_fingerprint"] for step in steps],
+        "final_state_fingerprint": steps[-1]["state_fingerprint"],
+        "search_final_state_fingerprint": (
+            None if node is None else node.state_fingerprint
+        ),
+        "trajectory_source": trajectory_source,
+        "steps": steps,
     }
 
 

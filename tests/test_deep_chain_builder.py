@@ -11,7 +11,9 @@ from agents.decision_flow import (
     StepResult,
 )
 from agents.deep_chain_builder import (
+    AGGREGATED_ROOT_SCORES_ARTIFACT,
     DEEP_CHAIN_BUILDER_POLICY_ID,
+    N_TURN_PLAN_SCHEMA_VERSION,
     NORMALIZED_OBSERVATION_ARTIFACT,
     RUNTIME_INPUT_ARTIFACT,
     SELECTED_ACTION_ARTIFACT,
@@ -23,15 +25,18 @@ from agents.deep_chain_builder import (
     DeepChainBuilderPolicy,
     DeepChainBuilderProfile,
     DeepChainBuildFlow,
+    EmitDecisionTraceStep,
     EnumerateRootPlacementsStep,
     NormalizeObservationStep,
     RunLongRangeSearchStep,
+    SelectPlacementStep,
     VisibleRuntimeInput,
     build_visible_runtime_input,
     load_deep_chain_builder_config,
 )
 from puyo_env.actions import legal_action_mask
 from puyo_env.obs import encode_observation
+from selfplay.policies import make_policy
 from src.core.headless import HeadlessPuyoSimulator
 
 BOUNDARY_FIXTURE_PATH = (
@@ -93,6 +98,98 @@ class _SelectFirstLegalStep(DecisionStep):
             outputs={SELECTED_ACTION_ARTIFACT: action},
             candidate_count=visible.legal_action_count,
             selection_reason="first_legal_fixture",
+        )
+
+
+class _TimeoutStep(DecisionStep):
+    contract = DecisionStepContract(
+        step_id="timeout_fixture",
+        requires=(NORMALIZED_OBSERVATION_ARTIFACT,),
+        provides=(SELECTED_ACTION_ARTIFACT,),
+        purpose="test-only timeout",
+    )
+
+    def run(self, context):
+        _ = context
+        raise TimeoutError("fixture deadline")
+
+
+class _IllegalSelectionStep(DecisionStep):
+    contract = DecisionStepContract(
+        step_id="illegal_selection_fixture",
+        requires=(NORMALIZED_OBSERVATION_ARTIFACT,),
+        provides=(SELECTED_ACTION_ARTIFACT,),
+        purpose="test-only invalid result",
+    )
+
+    def run(self, context):
+        _ = context
+        return StepResult(
+            outputs={SELECTED_ACTION_ARTIFACT: 999},
+            candidate_count=1,
+            selection_reason="illegal_fixture",
+        )
+
+
+class _AggregatedRootFixtureStep(DecisionStep):
+    contract = DecisionStepContract(
+        step_id="aggregated_root_fixture",
+        requires=(NORMALIZED_OBSERVATION_ARTIFACT,),
+        provides=(AGGREGATED_ROOT_SCORES_ARTIFACT,),
+        purpose="test-only deterministic representative",
+    )
+
+    def run(self, context):
+        visible = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
+        action = next(
+            index for index, allowed in enumerate(visible.action_mask) if allowed
+        )
+        state_id = f"fixture-state-{visible.step_count}"
+        step = {
+            "step_index": 0,
+            "action": action,
+            "axis_x": 0,
+            "rotation": "UP",
+            "known_tsumo": True,
+            "scenario": "visible",
+            "scenario_id": 0,
+            "tsumo": ["RED", "BLUE"],
+            "valid": True,
+            "predicted_chain_count": 0,
+            "predicted_score": 0,
+            "predicted_attack": 0,
+            "cumulative_score": 0,
+            "cumulative_attack": 0,
+            "danger": 0.0,
+            "predicted_board": [],
+            "placement_cells": [],
+            "state_fingerprint": state_id,
+            "chains": [],
+            "reason": "fixture",
+        }
+        aggregates = (
+            {
+                "root_action": action,
+                "ranking_key": (1.0, -action),
+                "score_breakdown": {"total": 1.0},
+                "evidence": {"scenario_values": [{"scenario_id": 0}]},
+                "representative": {
+                    "scenario_id": 0,
+                    "sample_id": "fixture",
+                    "actions": [action],
+                    "queue_digest": state_id,
+                    "root_state_fingerprint": state_id,
+                    "final_state_fingerprint": state_id,
+                    "trajectory_source": "fixture",
+                    "steps": [step],
+                },
+                "search_diagnostics": {},
+            },
+        )
+        return StepResult(
+            outputs={AGGREGATED_ROOT_SCORES_ARTIFACT: aggregates},
+            candidate_count=1,
+            selection_reason="fixture_aggregation",
         )
 
 
@@ -184,6 +281,10 @@ class TestDeepChainBuilder(unittest.TestCase):
         self.assertEqual(
             flow.contracts()[0].provides,
             (NORMALIZED_OBSERVATION_ARTIFACT,),
+        )
+        self.assertEqual(
+            flow.contracts()[-1].requires,
+            ("selected_action", "selected_plan", "selection_evidence"),
         )
 
     def test_flow_supports_reorder_insertion_and_replacement(self):
@@ -407,6 +508,124 @@ class TestDeepChainBuilder(unittest.TestCase):
             diagnostics["decision_trace"]["steps"][1]["selection_reason"],
             "first_legal_fixture",
         )
+
+    def test_default_policy_emits_replayable_plan_and_complete_trace(self):
+        simulator = HeadlessPuyoSimulator(seed=187)
+        observation = encode_observation(simulator, step_count=0, max_steps=4)
+        info = {
+            "action_mask": legal_action_mask(simulator),
+            "score": simulator.game.score,
+            "step_count": 0,
+            "max_steps": 4,
+            "last_chain_end_score": simulator.game.last_chain_end_score,
+        }
+        policy = DeepChainBuilderPolicy(profile="smoke", config=self.config)
+
+        action = policy.select_action(observation, info)
+        diagnostics = policy.tactical_diagnostics
+        plan = diagnostics["plan"]
+
+        self.assertTrue(info["action_mask"][action])
+        self.assertEqual(plan["schema_version"], N_TURN_PLAN_SCHEMA_VERSION)
+        self.assertIsInstance(plan["profile_id"], int)
+        self.assertEqual(plan["steps"][0]["action"], action)
+        self.assertEqual(
+            [step["known_tsumo"] for step in plan["steps"]],
+            [True, True, True, False],
+        )
+        self.assertEqual(plan["steps"][-1]["scenario"], "unknown_scenario")
+        self.assertTrue(all("scenario_id" in step for step in plan["steps"]))
+        self.assertTrue(all(step["predicted_board"] for step in plan["steps"]))
+        self.assertTrue(all("predicted_chain_count" in step for step in plan["steps"]))
+        self.assertEqual(diagnostics["candidate_count"], 22)
+        self.assertEqual(len(diagnostics["scenario_aggregation"]), 22)
+        self.assertEqual(diagnostics["decision_trace"]["step_count"], 7)
+        self.assertTrue(
+            all(
+                step["candidate_count"] is not None
+                and step["selection_reason"]
+                and step["elapsed_seconds"] >= 0.0
+                and step["input_summary"]
+                for step in diagnostics["decision_trace"]["steps"]
+            )
+        )
+        self.assertEqual(
+            diagnostics["decision_output"]["decision_trace"]["step_count"],
+            7,
+        )
+        self.assertFalse(diagnostics["fallback"]["used"])
+        json.dumps(diagnostics, allow_nan=False)
+
+    def test_policy_researches_and_reports_plan_change_reason(self):
+        flow = DecisionFlow(
+            (
+                NormalizeObservationStep(),
+                _AggregatedRootFixtureStep(),
+                SelectPlacementStep(),
+                EmitDecisionTraceStep(),
+            )
+        )
+        policy = DeepChainBuilderPolicy(profile="smoke", flow=flow, config=self.config)
+        fixture = self.fixture
+
+        policy.select_action(fixture["observation"], fixture["info"])
+        initial = policy.tactical_diagnostics
+        policy.select_action(fixture["observation"], fixture["info"])
+        unchanged = policy.tactical_diagnostics
+        changed_info = {
+            **fixture["info"],
+            "step_count": fixture["info"]["step_count"] + 1,
+        }
+        policy.select_action(fixture["observation"], changed_info)
+        changed = policy.tactical_diagnostics
+
+        self.assertEqual(initial["replan_reason"], "initial_plan")
+        self.assertEqual(initial["plan_id"], unchanged["plan_id"])
+        self.assertEqual(unchanged["replan_reason"], "plan_unchanged")
+        self.assertNotEqual(initial["plan_id"], changed["plan_id"])
+        self.assertEqual(changed["replan_reason"], "new_observation")
+
+    def test_timeout_and_invalid_results_use_legal_deterministic_fallback(self):
+        fixture = self.fixture
+        first_legal = next(
+            index
+            for index, allowed in enumerate(fixture["info"]["action_mask"])
+            if allowed
+        )
+        cases = (
+            (_TimeoutStep(), "search_timeout"),
+            (_IllegalSelectionStep(), "invalid_search_result"),
+        )
+        for failing_step, expected_reason in cases:
+            with self.subTest(reason=expected_reason):
+                policy = DeepChainBuilderPolicy(
+                    profile="smoke",
+                    flow=DecisionFlow((NormalizeObservationStep(), failing_step)),
+                    config=self.config,
+                )
+
+                action = policy.select_action(fixture["observation"], fixture["info"])
+                diagnostics = policy.tactical_diagnostics
+
+                self.assertEqual(action, first_legal)
+                self.assertEqual(diagnostics["plan"]["steps"][0]["action"], action)
+                self.assertTrue(diagnostics["fallback"]["used"])
+                self.assertEqual(diagnostics["fallback"]["reason"], expected_reason)
+                self.assertTrue(diagnostics["fallback"]["detail"])
+                self.assertEqual(
+                    diagnostics["decision_trace"]["steps"][0]["step_id"],
+                    "deterministic_fallback",
+                )
+
+    def test_factory_builds_deep_chain_policy_without_checkpoint(self):
+        policy = make_policy("deep_chain_builder")
+        smoke_policy = make_policy(
+            "deep_chain_builder", deep_chain_profile="smoke"
+        )
+
+        self.assertIsInstance(policy, DeepChainBuilderPolicy)
+        self.assertEqual(policy.profile.name, "reference")
+        self.assertEqual(smoke_policy.profile.name, "smoke")
 
 
 if __name__ == "__main__":
