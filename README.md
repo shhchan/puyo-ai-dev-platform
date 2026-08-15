@@ -388,6 +388,59 @@ python3 -m eval.realtime_versus_ui \
 opponent / result / notes が保存されます．replay は policy / controller / all-clear / attack
 diagnostics と各 tick の hash を保持し，`eval.model_viewer` から確認できます．
 
+### PUYO-188 Deep Chain Builder GUI QA
+
+`deep_chain_builder` は launcher の「対戦」または「観戦」で選択できます．この policy は探索が
+重いため realtime UI では非同期 executor で実行されます．HUD には candidate 数、scenario 数、
+探索 node 数、予測最大 chain、selection reason、plan ID / replan reason、flow step の経過時間を
+表示し、盤面には最大 4 手の ghost を表示します．ghost 上の `1`〜`4` は plan step、`?` 付きは
+未知 tsumo scenario です．
+
+まず CLI で起動する場合:
+
+```bash
+python3 -m eval.realtime_versus_ui \
+  --policy-a deep_chain_builder \
+  --policy-b random \
+  --seed 123 \
+  --deep-chain-profile smoke \
+  --start-paused \
+  --result-json /tmp/puyo-188-gui-qa.json \
+  --replay /tmp/puyo-188-gui-qa-replay.json
+```
+
+`python3 main.py` から確認する場合は、次の順で操作します．
+
+1. 「対戦」または「観戦」を選び、1P 方策または 2P 方策を `deep_chain_builder` に変更する．
+2. 初回は「一時停止開始」を ON にして起動し、`step` キーで 1 tick ずつ進める．
+3. 対象盤面の右側 HUD に candidate / scenario / max-chain / nodes、selection reason、plan ID、
+   replan reason、flow の表示が出ることを確認する．
+4. 盤面上で step 1 の ghost が現在の次ツモと対応し、step 2 以降で透明度と数字が変わることを確認する．
+   未知 tsumo の step は `?` と青系の表示になる．
+5. `O` キーで overlay を OFF / ON し、ghost だけが消え、policy の選択や plan ID が変わらないことを確認する．
+6. 数手進めて plan ID が更新されたら、前の plan の ghost が残らず、新しい plan の step だけが表示されることを確認する．
+7. 終了後、replay JSON の `policy_diagnostics.player_0` または `player_1` と GUI の plan ID / step を照合する．
+
+ダミー SDL で画面ループと artifact 出力だけを確認する場合:
+
+```bash
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m eval.realtime_versus_ui \
+  --policy-a deep_chain_builder \
+  --policy-b random \
+  --seed 123 \
+  --deep-chain-profile smoke \
+  --max-frames 120 \
+  --result-json /tmp/puyo-188-dummy-result.json \
+  --replay /tmp/puyo-188-dummy-replay.json
+```
+
+この確認では `puyo.gui_qa.v1` と `puyo-realtime-match-v1` が生成され、replay の各 decision の
+plan ID、`steps[0].action`、`decision_trace` が保存されていることを確認します．最終的な色・
+透明度・未知 tsumo の見え方は、dummy SDL ではなく通常のウィンドウで上記の手動確認を行います．
+
+探索品質を確認する場合は `--deep-chain-profile reference` に切り替えます．reference は探索量が
+大きいため、GUI の操作確認では既定の smoke profile を使います．
+
 ### v1.7.1 Bootstrap Manager checkpoint
 
 v1.7.1 の学習済み Strategy Manager は、次のコマンドで再現可能な bootstrap checkpoint を

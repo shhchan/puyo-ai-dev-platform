@@ -138,6 +138,15 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
 
+    def test_deep_chain_builder_is_a_realtime_policy_and_async(self):
+        config = parse_config(
+            ["--policy-a", "deep_chain_builder", "--deep-chain-profile", "smoke"]
+        )
+
+        self.assertEqual(config.policy_a, "deep_chain_builder")
+        self.assertEqual(config.deep_chain_profile, "smoke")
+        self.assertIn("deep_chain_builder", ASYNC_POLICY_TYPES)
+
     def test_terminal_frame_auto_exit_is_parsed_and_validated(self):
         config = parse_config(["--exit-after-finish-frames", "30"])
 

@@ -354,7 +354,8 @@ class VersusRenderer:
                     previous_board = predicted
                 continue
             step_number = int(step.get("step_index", index)) + 1
-            alpha = max(120, 230 - index * 25)
+            known_tsumo = bool(step.get("known_tsumo", True))
+            alpha = max(95 if not known_tsumo else 120, 230 - index * 25)
             for x, y, color_name in cells:
                 self._draw_plan_cell(
                     field,
@@ -363,7 +364,12 @@ class VersusRenderer:
                     color_name,
                     alpha=alpha,
                 )
-            step_counts.append((step_number, len(cells)))
+            label_color = (255, 245, 175) if known_tsumo else (185, 225, 255)
+            label = f"{step_number}{'' if known_tsumo else '?'}"
+            first_x, first_y, _ = cells[0]
+            sx, sy = self._grid_position(field, first_x, first_y)
+            self._draw_text(label, self.tiny_font, label_color, (sx + 3, sy + 1))
+            step_counts.append((step_number, len(cells), known_tsumo))
             predicted = step.get("predicted_board")
             if isinstance(predicted, list):
                 previous_board = predicted
@@ -382,6 +388,13 @@ class VersusRenderer:
                     self.tiny_font,
                     (190, 205, 230),
                     (field.x + 8, field.y + 26),
+                )
+            if any(not known for _, _, known in step_counts):
+                self._draw_text(
+                    "? = unknown tsumo scenario",
+                    self.tiny_font,
+                    (185, 225, 255),
+                    (field.x + 8, field.y + 44),
                 )
 
     def _draw_active_pair(self, field: pygame.Rect, pair, action: int) -> None:
@@ -620,7 +633,36 @@ class VersusRenderer:
             ),
             (lifecycle, (255, 232, 145)),
         )
-        if summary.get("own_danger") is not None:
+        if summary.get("deep_chain"):
+            flow_steps = summary.get("flow_steps", ())
+            flow_label = ",".join(
+                f"{str(item.get('step_id', ''))[:8]}:{float(item.get('elapsed_seconds', 0.0)) * 1000:.0f}ms"
+                for item in flow_steps[:2]
+                if isinstance(item, dict)
+            )
+            stats = common_stats + (
+                (
+                    f"deep candidates {summary.get('candidate_count', 0)} "
+                    f"scenarios {summary.get('scenario_count', 0)}",
+                    (160, 210, 255),
+                ),
+                (
+                    f"deep max-chain {summary.get('max_chain', 0)} "
+                    f"nodes {summary.get('expanded_nodes', 0)}",
+                    (190, 198, 215),
+                ),
+                (
+                    f"deep why {str(summary.get('selection_reason') or '-')[:18]}",
+                    (180, 188, 205),
+                ),
+                (
+                    f"deep plan {str(summary.get('plan_id') or '-')[:8]} "
+                    f"{str(summary.get('replan_reason') or '-')[:12]}",
+                    (255, 232, 145),
+                ),
+                (f"flow {flow_label or '-'}", (190, 198, 215)),
+            )
+        elif summary.get("own_danger") is not None:
             stats = common_stats + (
                 (
                     f"tactic {str(summary.get('tactic_id') or '-')[:12]}",
