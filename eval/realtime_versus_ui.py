@@ -409,19 +409,62 @@ class RealtimeVersusMatchController:
         search = diagnostics.get("search", {})
         search_counters = search.get("counters", {}) if isinstance(search, Mapping) else {}
         trace = diagnostics.get("decision_trace", {})
-        trace_entries = trace.get("entries", []) if isinstance(trace, Mapping) else []
+        trace_entries = trace.get("steps", []) if isinstance(trace, Mapping) else []
         if diagnostics.get("policy_id") == "deep_chain_builder":
+            plan = diagnostics.get("plan", {})
+            profile = diagnostics.get("profile", {})
+            selected_action = diagnostics.get("selected_action")
+            max_chain = None
+            aggregates = diagnostics.get("scenario_aggregation", ())
+            if isinstance(aggregates, (list, tuple)):
+                for aggregate in aggregates:
+                    if not isinstance(aggregate, Mapping):
+                        continue
+                    try:
+                        is_selected = int(aggregate.get("root_action")) == int(selected_action)
+                    except (TypeError, ValueError):
+                        is_selected = False
+                    if not is_selected:
+                        continue
+                    evidence = aggregate.get("evidence", {})
+                    chain_count = (
+                        evidence.get("chain_count", {})
+                        if isinstance(evidence, Mapping)
+                        else {}
+                    )
+                    if isinstance(chain_count, Mapping):
+                        try:
+                            max_chain = int(chain_count.get("maximum"))
+                        except (TypeError, ValueError):
+                            pass
+                    break
+            if max_chain is None:
+                prediction = (
+                    plan.get("prediction_summary", {})
+                    if isinstance(plan, Mapping)
+                    else {}
+                )
+                try:
+                    max_chain = int(prediction.get("maximum_chain_count"))
+                except (AttributeError, TypeError, ValueError):
+                    max_chain = max(
+                        (
+                            int(step.get("predicted_chain_count", 0))
+                            for step in (
+                                plan.get("steps", ())
+                                if isinstance(plan, Mapping)
+                                else ()
+                            )
+                            if isinstance(step, Mapping)
+                        ),
+                        default=0,
+                    )
             return {
                 "deep_chain": True,
                 "candidate_count": diagnostics.get("candidate_count"),
                 "selection_reason": diagnostics.get("selection_reason", ""),
                 "scenario_count": len(search.get("scenario_ids", ())) if isinstance(search, Mapping) else 0,
-                "max_chain": max(
-                    (int(step.get("predicted_chain_count", 0))
-                     for step in diagnostics.get("plan", {}).get("steps", ())
-                     if isinstance(step, Mapping)),
-                    default=0,
-                ),
+                "max_chain": max_chain,
                 "expanded_nodes": search_counters.get("expanded_nodes", search_counters.get("nodes_expanded", 0)),
                 "flow_steps": tuple(
                     {
@@ -431,6 +474,11 @@ class RealtimeVersusMatchController:
                     for entry in trace_entries
                     if isinstance(entry, Mapping)
                 ),
+                "flow_step_count": trace.get("step_count", len(trace_entries)) if isinstance(trace, Mapping) else 0,
+                "flow_elapsed_seconds": trace.get("elapsed_seconds", 0.0) if isinstance(trace, Mapping) else 0.0,
+                "profile_name": profile.get("name", "") if isinstance(profile, Mapping) else "",
+                "profile_depth": profile.get("depth") if isinstance(profile, Mapping) else None,
+                "profile_width": profile.get("width") if isinstance(profile, Mapping) else None,
                 "plan_id": diagnostics.get("plan_id", ""),
                 "replan_reason": diagnostics.get("replan_reason", ""),
             }
@@ -1207,10 +1255,30 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--start-paused", action="store_true")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--stochastic", action="store_true")
-    parser.add_argument("--beam-depth", type=int, default=10)
-    parser.add_argument("--beam-width", type=int, default=48)
-    parser.add_argument("--beam-scenarios", type=int, default=1)
-    parser.add_argument("--beam-minimum-chain", type=int, default=6)
+    parser.add_argument(
+        "--beam-depth",
+        type=int,
+        default=10,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-width",
+        type=int,
+        default=48,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-scenarios",
+        type=int,
+        default=1,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-minimum-chain",
+        type=int,
+        default=6,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
     parser.add_argument(
         "--deep-chain-profile",
         choices=DEEP_CHAIN_PROFILE_CHOICES,

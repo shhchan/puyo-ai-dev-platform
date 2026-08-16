@@ -170,7 +170,7 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "beam_scenarios_b": LauncherFieldSpec("beam_scenarios_b", "2P scenarios", "--beam-scenarios-b", "2P 側だけ beam scenario 数を上書きします。auto の場合は共通値を使います。"),
     "beam_minimum_chain_a": LauncherFieldSpec("beam_minimum_chain_a", "1P 最小連鎖", "--beam-minimum-chain-a", "1P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "beam_minimum_chain_b": LauncherFieldSpec("beam_minimum_chain_b", "2P 最小連鎖", "--beam-minimum-chain-b", "2P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
-    "deep_chain_profile": LauncherFieldSpec("deep_chain_profile", "deep-chain profile", "--deep-chain-profile", "deep_chain_builder の探索 profile です。GUI 確認は smoke、品質評価は reference を使います。"),
+    "deep_chain_profile": LauncherFieldSpec("deep_chain_profile", "deep-chain profile", "--deep-chain-profile", "deep_chain_builder の探索設定です。GUI 確認は smoke、品質評価は reference を使います。beam 系の値はこの policy では使用しません。"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
     "latency_mode": LauncherFieldSpec("latency_mode", "latency mode", "--latency-mode", "measured は実測完了 tick、configured は設定 tick だけで action の反映時刻を決めます。"),
     "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),

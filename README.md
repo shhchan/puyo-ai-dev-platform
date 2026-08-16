@@ -396,6 +396,19 @@ diagnostics と各 tick の hash を保持し，`eval.model_viewer` から確認
 表示し、盤面には最大 4 手の ghost を表示します．ghost 上の `1`〜`4` は plan step、`?` 付きは
 未知 tsumo scenario です．
 
+`--beam-depth`、`--beam-width`、`--beam-scenarios`、`--beam-minimum-chain`（および `-a` / `-b`
+の個別指定）は `beam` policy 専用で、`deep_chain_builder` では使用されません．そのため
+deep-chain の GUI 確認時には beam 系の値を既定値から変更する必要はありません．探索量は
+`--deep-chain-profile` で次のどちらかを選びます．最小 chain 数は両 profile とも 6 固定です．
+
+| profile | depth | width | scenarios | 最大展開 node | 用途 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `smoke` | 4 | 8 | 2 | 2,048 | GUI 表示・操作・artifact の確認 |
+| `reference` | 16 | 250 | 6 | 600,000 | 探索品質・benchmark の評価 |
+
+`reference` は一手の計算量が非常に大きく、realtime の操作確認には向きません．まず `smoke` を
+使用し、通常再生する場合も `0.25x` にすると decision 完了前に現在の組が固定されにくくなります．
+
 まず CLI で起動する場合:
 
 ```bash
@@ -404,6 +417,7 @@ python3 -m eval.realtime_versus_ui \
   --policy-b random \
   --seed 123 \
   --deep-chain-profile smoke \
+  --speed 0.25 \
   --start-paused \
   --result-json /tmp/puyo-188-gui-qa.json \
   --replay /tmp/puyo-188-gui-qa-replay.json
@@ -412,14 +426,17 @@ python3 -m eval.realtime_versus_ui \
 `python3 main.py` から確認する場合は、次の順で操作します．
 
 1. 「対戦」または「観戦」を選び、1P 方策または 2P 方策を `deep_chain_builder` に変更する．
-2. 初回は「一時停止開始」を ON にして起動し、`step` キーで 1 tick ずつ進める．
-3. 対象盤面の右側 HUD に candidate / scenario / max-chain / nodes、selection reason、plan ID、
+2. `deep-chain profile` は `smoke`、再生速度は `0.25x`、「一時停止開始」は ON にする．beam 系の
+   項目は `deep_chain_builder` に影響しないため、既定値のままにする．
+3. 画面を起動して `step` キーを 1 回押し、非同期探索を開始する．HUD が `thinking` の間は数秒待ち、
+   もう一度 `step` キーを押して完了結果を取り込む．
+4. 対象盤面の右側 HUD に profile / candidate / scenario / max-chain / nodes、selection reason、plan ID、
    replan reason、flow の表示が出ることを確認する．
-4. 盤面上で step 1 の ghost が現在の次ツモと対応し、step 2 以降で透明度と数字が変わることを確認する．
+5. 盤面上で step 1 の ghost が現在の次ツモと対応し、step 2 以降で透明度と数字が変わることを確認する．
    未知 tsumo の step は `?` と青系の表示になる．
-5. `O` キーで overlay を OFF / ON し、ghost だけが消え、policy の選択や plan ID が変わらないことを確認する．
-6. 数手進めて plan ID が更新されたら、前の plan の ghost が残らず、新しい plan の step だけが表示されることを確認する．
-7. 終了後、replay JSON の `policy_diagnostics.player_0` または `player_1` と GUI の plan ID / step を照合する．
+6. `O` キーで overlay を OFF / ON し、ghost だけが消え、policy の選択や plan ID が変わらないことを確認する．
+7. 数手進めて plan ID が更新されたら、前の plan の ghost が残らず、新しい plan の step だけが表示されることを確認する．
+8. 終了後、replay JSON の `policy_diagnostics.player_0` または `player_1` と GUI の plan ID / step を照合する．
 
 ダミー SDL で画面ループと artifact 出力だけを確認する場合:
 
@@ -434,9 +451,22 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy python3 -m eval.realtime_versus_ui \
   --replay /tmp/puyo-188-dummy-replay.json
 ```
 
-この確認では `puyo.gui_qa.v1` と `puyo-realtime-match-v1` が生成され、replay の各 decision の
-plan ID、`steps[0].action`、`decision_trace` が保存されていることを確認します．最終的な色・
-透明度・未知 tsumo の見え方は、dummy SDL ではなく通常のウィンドウで上記の手動確認を行います．
+この確認は画面 loop と `puyo.gui_qa.v1` / `puyo-realtime-match-v1` の schema 出力を検査するものです．
+探索は非同期なので、固定 frame 数の終了までに decision が完了するとは限りません．完了した decision
+の plan ID、`steps[0].action`、`decision_trace` を自動確認する場合は、出力先を明示して headless smoke
+を実行します．
+
+```bash
+python3 -m eval.deep_chain_builder_smoke \
+  --seed 123 \
+  --turns 2 \
+  --repeats 1 \
+  --profile smoke \
+  --output /tmp/puyo-188-deep-chain-smoke.json
+```
+
+最終的な色・透明度・未知 tsumo の見え方は、dummy SDL ではなく通常のウィンドウで上記の手動確認を
+行います．
 
 探索品質を確認する場合は `--deep-chain-profile reference` に切り替えます．reference は探索量が
 大きいため、GUI の操作確認では既定の smoke profile を使います．
