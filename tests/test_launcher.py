@@ -139,6 +139,19 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.policy_a, "v1_7_analyzer_manager")
         self.assertIsNone(config.checkpoint_a)
 
+    def test_deep_chain_builder_round_trips_without_checkpoint(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "deep_chain_builder")
+
+        self.assertEqual(service.validate_action("spectate"), [])
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.policy_a, "deep_chain_builder")
+        self.assertIsNone(config.checkpoint_a)
+
+        service.update_setting("spectate", "deep_chain_profile", "reference")
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.deep_chain_profile, "reference")
+
     def test_v1_7_bootstrap_manager_requires_and_round_trips_checkpoint(self):
         service = self.make_service()
         service.update_setting("spectate", "policy_a", "v1_7_bootstrap_manager")

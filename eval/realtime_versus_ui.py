@@ -60,9 +60,11 @@ else:  # pragma: no cover - used only for dependency-light config imports
 REALTIME_POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
     "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
+    "deep_chain_builder",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
+DEEP_CHAIN_PROFILE_CHOICES = ("smoke", "reference")
 ASYNC_POLICY_TYPES = frozenset(
     {
         "beam",
@@ -71,6 +73,7 @@ ASYNC_POLICY_TYPES = frozenset(
         "manager_rule",
         "v1_7_analyzer_manager",
         "v1_7_bootstrap_manager",
+        "deep_chain_builder",
     }
 )
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
@@ -156,6 +159,7 @@ class RealtimeVersusUiConfig:
     beam_scenarios_b: int | None = None
     beam_minimum_chain_a: int | None = None
     beam_minimum_chain_b: int | None = None
+    deep_chain_profile: str = "smoke"
     device_a: str | None = None
     device_b: str | None = None
     deterministic_a: bool | None = None
@@ -196,6 +200,10 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError(f"--checkpoint-b is required when --policy-b={config.policy_b}")
     if config.speed not in SPEED_CHOICES:
         raise ValueError(f"speed must be one of: {SPEED_CHOICES}")
+    if config.deep_chain_profile not in DEEP_CHAIN_PROFILE_CHOICES:
+        raise ValueError(
+            f"deep_chain_profile must be one of: {DEEP_CHAIN_PROFILE_CHOICES}"
+        )
     if config.max_ticks is not None and config.max_ticks <= 0:
         raise ValueError("max_ticks must be positive")
     if config.inference_latency_ticks < 0:
@@ -398,6 +406,82 @@ class RealtimeVersusMatchController:
         )
         planner_objective = planner.get("objective", {}) if isinstance(planner, Mapping) else {}
         worker_result = worker.get("result", {}) if isinstance(worker, Mapping) else {}
+        search = diagnostics.get("search", {})
+        search_counters = search.get("counters", {}) if isinstance(search, Mapping) else {}
+        trace = diagnostics.get("decision_trace", {})
+        trace_entries = trace.get("steps", []) if isinstance(trace, Mapping) else []
+        if diagnostics.get("policy_id") == "deep_chain_builder":
+            plan = diagnostics.get("plan", {})
+            profile = diagnostics.get("profile", {})
+            selected_action = diagnostics.get("selected_action")
+            max_chain = None
+            aggregates = diagnostics.get("scenario_aggregation", ())
+            if isinstance(aggregates, (list, tuple)):
+                for aggregate in aggregates:
+                    if not isinstance(aggregate, Mapping):
+                        continue
+                    try:
+                        is_selected = int(aggregate.get("root_action")) == int(selected_action)
+                    except (TypeError, ValueError):
+                        is_selected = False
+                    if not is_selected:
+                        continue
+                    evidence = aggregate.get("evidence", {})
+                    chain_count = (
+                        evidence.get("chain_count", {})
+                        if isinstance(evidence, Mapping)
+                        else {}
+                    )
+                    if isinstance(chain_count, Mapping):
+                        try:
+                            max_chain = int(chain_count.get("maximum"))
+                        except (TypeError, ValueError):
+                            pass
+                    break
+            if max_chain is None:
+                prediction = (
+                    plan.get("prediction_summary", {})
+                    if isinstance(plan, Mapping)
+                    else {}
+                )
+                try:
+                    max_chain = int(prediction.get("maximum_chain_count"))
+                except (AttributeError, TypeError, ValueError):
+                    max_chain = max(
+                        (
+                            int(step.get("predicted_chain_count", 0))
+                            for step in (
+                                plan.get("steps", ())
+                                if isinstance(plan, Mapping)
+                                else ()
+                            )
+                            if isinstance(step, Mapping)
+                        ),
+                        default=0,
+                    )
+            return {
+                "deep_chain": True,
+                "candidate_count": diagnostics.get("candidate_count"),
+                "selection_reason": diagnostics.get("selection_reason", ""),
+                "scenario_count": len(search.get("scenario_ids", ())) if isinstance(search, Mapping) else 0,
+                "max_chain": max_chain,
+                "expanded_nodes": search_counters.get("expanded_nodes", search_counters.get("nodes_expanded", 0)),
+                "flow_steps": tuple(
+                    {
+                        "step_id": entry.get("step_id", ""),
+                        "elapsed_seconds": entry.get("elapsed_seconds", 0.0),
+                    }
+                    for entry in trace_entries
+                    if isinstance(entry, Mapping)
+                ),
+                "flow_step_count": trace.get("step_count", len(trace_entries)) if isinstance(trace, Mapping) else 0,
+                "flow_elapsed_seconds": trace.get("elapsed_seconds", 0.0) if isinstance(trace, Mapping) else 0.0,
+                "profile_name": profile.get("name", "") if isinstance(profile, Mapping) else "",
+                "profile_depth": profile.get("depth") if isinstance(profile, Mapping) else None,
+                "profile_width": profile.get("width") if isinstance(profile, Mapping) else None,
+                "plan_id": diagnostics.get("plan_id", ""),
+                "replan_reason": diagnostics.get("replan_reason", ""),
+            }
         own_forecast = own.get("forecast", {}) if isinstance(own, Mapping) else {}
         opponent_forecast = opponent.get("forecast", {}) if isinstance(opponent, Mapping) else {}
         return {
@@ -937,6 +1021,7 @@ class RealtimeVersusMatchController:
             beam_width=side_value("beam_width"),
             beam_scenarios=side_value("beam_scenarios"),
             beam_minimum_chain=side_value("beam_minimum_chain"),
+            deep_chain_profile=self.config.deep_chain_profile,
         )
 
     def _current_board(self, agent: str) -> tuple:
@@ -1170,10 +1255,36 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--start-paused", action="store_true")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--stochastic", action="store_true")
-    parser.add_argument("--beam-depth", type=int, default=10)
-    parser.add_argument("--beam-width", type=int, default=48)
-    parser.add_argument("--beam-scenarios", type=int, default=1)
-    parser.add_argument("--beam-minimum-chain", type=int, default=6)
+    parser.add_argument(
+        "--beam-depth",
+        type=int,
+        default=10,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-width",
+        type=int,
+        default=48,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-scenarios",
+        type=int,
+        default=1,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--beam-minimum-chain",
+        type=int,
+        default=6,
+        help="beam policy 専用。deep_chain_builder では使用しません。",
+    )
+    parser.add_argument(
+        "--deep-chain-profile",
+        choices=DEEP_CHAIN_PROFILE_CHOICES,
+        default="smoke",
+        help="deep_chain_builder の探索 profile。GUI 確認は smoke、品質評価は reference。",
+    )
     for side in ("a", "b"):
         parser.add_argument(f"--beam-depth-{side}", type=int)
         parser.add_argument(f"--beam-width-{side}", type=int)
@@ -1241,6 +1352,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
         beam_minimum_chain=args.beam_minimum_chain,
+        deep_chain_profile=args.deep_chain_profile,
         beam_depth_a=args.beam_depth_a,
         beam_depth_b=args.beam_depth_b,
         beam_width_a=args.beam_width_a,

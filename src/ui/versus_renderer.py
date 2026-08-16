@@ -30,6 +30,28 @@ SETTLE_BOUNCE_SECONDS = 0.20
 OJAMA_FALL_SECONDS = 0.35
 ACTIVE_GHOST_SCALE = 0.5
 
+DEEP_CHAIN_SELECTION_LABELS = {
+    "highest_aggregated_root_ranking": "root rank",
+}
+DEEP_CHAIN_REPLAN_LABELS = {
+    "initial_plan": "initial",
+    "new_observation": "new obs",
+    "search_result_changed": "search chg",
+    "opponent_event": "opponent",
+    "incoming_attack_landed": "ojama landed",
+    "input_failure": "input fail",
+}
+DEEP_CHAIN_FLOW_LABELS = {
+    "normalize_observation": "normalize",
+    "complete_visible_queue_scenarios": "scenarios",
+    "enumerate_root_placements": "roots",
+    "run_long_range_search": "search",
+    "aggregate_scenario_scores": "aggregate",
+    "select_placement": "select",
+    "emit_decision_trace": "emit",
+    "deterministic_fallback": "fallback",
+}
+
 
 def animation_progress(elapsed: float, duration: float) -> float:
     if duration <= 0:
@@ -163,6 +185,13 @@ def winner_banner_label(winner: str | None) -> str:
     except (IndexError, ValueError):
         return f"{winner.replace('_', ' ').upper()} WINS"
     return f"PLAYER {player_number} WINS"
+
+
+def _duration_label(seconds: float) -> str:
+    seconds = max(0.0, float(seconds))
+    if seconds >= 1.0:
+        return f"{seconds:.1f}s"
+    return f"{seconds * 1000:.0f}ms"
 
 
 class VersusRenderer:
@@ -342,7 +371,6 @@ class VersusRenderer:
         steps = plan.get("steps", ())
         if not isinstance(steps, list) or not steps:
             return
-        step_counts = []
         previous_board = base_board
         for index, step in enumerate(steps[:4]):
             if not isinstance(step, dict):
@@ -354,7 +382,8 @@ class VersusRenderer:
                     previous_board = predicted
                 continue
             step_number = int(step.get("step_index", index)) + 1
-            alpha = max(120, 230 - index * 25)
+            known_tsumo = bool(step.get("known_tsumo", True))
+            alpha = max(95 if not known_tsumo else 120, 230 - index * 25)
             for x, y, color_name in cells:
                 self._draw_plan_cell(
                     field,
@@ -363,26 +392,14 @@ class VersusRenderer:
                     color_name,
                     alpha=alpha,
                 )
-            step_counts.append((step_number, len(cells)))
+            label_color = (255, 245, 175) if known_tsumo else (185, 225, 255)
+            label = f"{step_number}{'' if known_tsumo else '?'}"
+            first_x, first_y, _ = cells[0]
+            sx, sy = self._grid_position(field, first_x, first_y)
+            self._draw_text(label, self.tiny_font, label_color, (sx + 3, sy + 1))
             predicted = step.get("predicted_board")
             if isinstance(predicted, list):
                 previous_board = predicted
-        if step_counts:
-            plan_label = str(plan.get("plan_id", ""))[:10] or "plan"
-            reason = str(plan.get("update_reason", ""))[:16]
-            self._draw_text(
-                f"PLAN {plan_label}",
-                self.tiny_font,
-                (255, 232, 145),
-                (field.x + 8, field.y + 8),
-            )
-            if reason:
-                self._draw_text(
-                    reason,
-                    self.tiny_font,
-                    (190, 205, 230),
-                    (field.x + 8, field.y + 26),
-                )
 
     def _draw_active_pair(self, field: pygame.Rect, pair, action: int) -> None:
         if pair is None:
@@ -620,7 +637,65 @@ class VersusRenderer:
             ),
             (lifecycle, (255, 232, 145)),
         )
-        if summary.get("own_danger") is not None:
+        if summary.get("deep_chain"):
+            flow_steps = tuple(
+                item
+                for item in summary.get("flow_steps", ())
+                if isinstance(item, dict)
+            )
+            slowest = max(
+                flow_steps,
+                key=lambda item: float(item.get("elapsed_seconds", 0.0)),
+                default={},
+            )
+            profile_name = str(summary.get("profile_name") or "deep")
+            candidate_count = summary.get("candidate_count")
+            candidate_label = "-" if candidate_count is None else str(candidate_count)
+            selection_reason = str(summary.get("selection_reason") or "-")
+            selection_label = DEEP_CHAIN_SELECTION_LABELS.get(
+                selection_reason,
+                selection_reason.replace("_", " ")[:11],
+            )
+            replan_reason = str(summary.get("replan_reason") or "-")
+            replan_label = DEEP_CHAIN_REPLAN_LABELS.get(
+                replan_reason,
+                replan_reason.replace("_", " ")[:10],
+            )
+            slowest_step_id = str(slowest.get("step_id", ""))
+            slowest_label = DEEP_CHAIN_FLOW_LABELS.get(
+                slowest_step_id,
+                slowest_step_id.replace("_", " ")[:8] or "slow",
+            )
+            stats = common_stats + (
+                (
+                    f"{profile_name} c{candidate_label} s{summary.get('scenario_count', 0)}",
+                    (160, 210, 255),
+                ),
+                (
+                    f"max c{summary.get('max_chain', 0)} n{summary.get('expanded_nodes', 0)}",
+                    (190, 198, 215),
+                ),
+                (
+                    f"why {selection_label}",
+                    (180, 188, 205),
+                ),
+                (
+                    f"plan {str(summary.get('plan_id') or '-')[:8]}",
+                    (255, 232, 145),
+                ),
+                (f"replan {replan_label}", (255, 232, 145)),
+                (
+                    f"flow {summary.get('flow_step_count', len(flow_steps))} "
+                    f"{_duration_label(summary.get('flow_elapsed_seconds', 0.0))}",
+                    (190, 198, 215),
+                ),
+                (
+                    f"{slowest_label} "
+                    f"{_duration_label(slowest.get('elapsed_seconds', 0.0))}",
+                    (190, 198, 215),
+                ),
+            )
+        elif summary.get("own_danger") is not None:
             stats = common_stats + (
                 (
                     f"tactic {str(summary.get('tactic_id') or '-')[:12]}",
@@ -669,8 +744,14 @@ class VersusRenderer:
                     (190, 198, 215),
                 ),
             )
+        stats_spacing = 18 if summary.get("deep_chain") else 20
         for offset, (text, color) in enumerate(stats):
-            self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 225 + offset * 20))
+            self._draw_text(
+                text,
+                self.tiny_font,
+                color,
+                (side_x, FIELD_TOP + 225 + offset * stats_spacing),
+            )
 
         realtime_diagnostics = getattr(controller, "realtime_diagnostics", None)
         if callable(realtime_diagnostics):
@@ -687,7 +768,12 @@ class VersusRenderer:
                     (deadline_label, (190, 198, 215)),
                 )
             ):
-                self._draw_text(text, self.tiny_font, color, (side_x, FIELD_TOP + 432 + offset * 18))
+                self._draw_text(
+                    text,
+                    self.tiny_font,
+                    color,
+                    (side_x, FIELD_TOP + 426 + offset * 16),
+                )
 
         if event is not None:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)
