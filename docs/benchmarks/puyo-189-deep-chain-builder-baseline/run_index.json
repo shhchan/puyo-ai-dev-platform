@@ -1,0 +1,488 @@
+{
+  "all_identities_accounted_for": true,
+  "executed_run_count": 0,
+  "expected_run_count": 60,
+  "records": [
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-123-repeat-01",
+      "seed": 123,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-123-repeat-02",
+      "seed": 123,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-124-repeat-01",
+      "seed": 124,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-124-repeat-02",
+      "seed": 124,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-125-repeat-01",
+      "seed": 125,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-125-repeat-02",
+      "seed": 125,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-126-repeat-01",
+      "seed": 126,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-126-repeat-02",
+      "seed": 126,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-127-repeat-01",
+      "seed": 127,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-127-repeat-02",
+      "seed": 127,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-128-repeat-01",
+      "seed": 128,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-128-repeat-02",
+      "seed": 128,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-129-repeat-01",
+      "seed": 129,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-129-repeat-02",
+      "seed": 129,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-130-repeat-01",
+      "seed": 130,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-130-repeat-02",
+      "seed": 130,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-131-repeat-01",
+      "seed": 131,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-131-repeat-02",
+      "seed": 131,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-132-repeat-01",
+      "seed": 132,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-132-repeat-02",
+      "seed": 132,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-133-repeat-01",
+      "seed": 133,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-133-repeat-02",
+      "seed": 133,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-134-repeat-01",
+      "seed": 134,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-134-repeat-02",
+      "seed": 134,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-135-repeat-01",
+      "seed": 135,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-135-repeat-02",
+      "seed": 135,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-136-repeat-01",
+      "seed": 136,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-136-repeat-02",
+      "seed": 136,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-137-repeat-01",
+      "seed": 137,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-137-repeat-02",
+      "seed": 137,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-138-repeat-01",
+      "seed": 138,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-138-repeat-02",
+      "seed": 138,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-139-repeat-01",
+      "seed": 139,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-139-repeat-02",
+      "seed": 139,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-140-repeat-01",
+      "seed": 140,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-140-repeat-02",
+      "seed": 140,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-141-repeat-01",
+      "seed": 141,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-141-repeat-02",
+      "seed": 141,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-142-repeat-01",
+      "seed": 142,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-142-repeat-02",
+      "seed": 142,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-143-repeat-01",
+      "seed": 143,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-143-repeat-02",
+      "seed": 143,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-144-repeat-01",
+      "seed": 144,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-144-repeat-02",
+      "seed": 144,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-145-repeat-01",
+      "seed": 145,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-145-repeat-02",
+      "seed": 145,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-146-repeat-01",
+      "seed": 146,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-146-repeat-02",
+      "seed": 146,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-147-repeat-01",
+      "seed": 147,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-147-repeat-02",
+      "seed": 147,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-148-repeat-01",
+      "seed": 148,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-148-repeat-02",
+      "seed": 148,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-149-repeat-01",
+      "seed": 149,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-149-repeat-02",
+      "seed": 149,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-150-repeat-01",
+      "seed": 150,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-150-repeat-02",
+      "seed": 150,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-151-repeat-01",
+      "seed": 151,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-151-repeat-02",
+      "seed": 151,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 1,
+      "run_id": "seed-152-repeat-01",
+      "seed": 152,
+      "status": "not_executed"
+    },
+    {
+      "path": null,
+      "reason": "preflight_reference_decision_timeout",
+      "repeat": 2,
+      "run_id": "seed-152-repeat-02",
+      "seed": 152,
+      "status": "not_executed"
+    }
+  ],
+  "schema_version": "puyo.deep_chain_builder.run_index.v1"
+}

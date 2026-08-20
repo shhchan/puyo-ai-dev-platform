@@ -120,6 +120,32 @@ formal model version, Git tag, stable/champion promotion, or corrective Jira tas
 reviews the saved `search` / `evaluator` / `flow` / `simulator` / `performance` classification and decides
 whether a separately scoped task is warranted.
 
+## Recorded result (2026-08-20)
+
+Evaluated implementation commit: `76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67`.
+
+The seed 123 reference preflight did not complete its first decision within 300 seconds. This is more than
+300 times the locked one-decision limit, so the performance gate is a confirmed FAIL. A separate 30-second
+sampled stack was inside `RunLongRangeSearchStep`, specifically `ChainStructureEvaluator.evaluate` /
+`bounded_quiescence`; `performance_hotspot.json` records the complete sampled path without claiming it is a
+statistical profile.
+
+The canonical 60-run quality execution was not launched after that result. It therefore has no actual-fire,
+parity, repeat-determinism, node-count, cache-hit, or flow-timing samples; those values are represented as
+`null` / not evaluable rather than zero-success evidence. `run_index.json` still accounts for all 60 locked
+identities and marks each one `not_executed` with the preflight reason. Consequently coverage, quality,
+parity, determinism, and performance all FAIL.
+
+The counterfactual visible-boundary audit covered all 30 seeds and found zero private-future leaks. The 77
+focused automated tests passed. Dummy SDL additionally produced `puyo.gui_qa.v1` and
+`puyo-realtime-match-v1`; player 0's selected action matched plan step 1, the trace contained all seven flow
+steps, and plan overlay was enabled. A normal-window review of ghost appearance, replan replacement, and
+the `O` toggle remains pending, so GUI human QA also FAILs.
+
+Final decision: **FAIL — do not accept or promote `deep_chain_builder` as an experimental baseline.** A
+person must review the performance/search-evaluator evidence before deciding whether to create a corrective
+task. No version, tag, stable/champion promotion, or corrective Jira issue was created.
+
 ## Attribution
 
 The design uses the public source pinned at

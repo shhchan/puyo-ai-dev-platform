@@ -1,0 +1,45 @@
+{
+  "configuration": {
+    "config_version": "v1.0",
+    "path": "train/config/deep_chain_builder.yaml",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d"
+  },
+  "evaluated_commit": "76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67",
+  "policy": {
+    "environment": "safe_no_threat",
+    "policy_id": "deep_chain_builder",
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    }
+  },
+  "promotion_constraints": {
+    "champion_promoted": false,
+    "formal_version_created": false,
+    "git_tag_created": false,
+    "stable_promoted": false
+  },
+  "reference_attribution": {
+    "copyright": "Copyright (c) 2023 citrus610",
+    "license": "MIT License",
+    "source_commit": "dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "source_url": "https://github.com/citrus610/ama/tree/dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "usage": "architectural input; no reference implementation code copied"
+  },
+  "reproduction": {
+    "canonical_run": ".venv/bin/python -m eval.deep_chain_builder_benchmark run --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline",
+    "resume_one_run": ".venv/bin/python -m eval.deep_chain_builder_benchmark run --max-runs 1 --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline",
+    "verify": ".venv/bin/python -m eval.deep_chain_builder_benchmark verify --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline"
+  },
+  "schema_version": "puyo.deep_chain_builder.lineage.v1",
+  "ticket": "PUYO-189",
+  "tracked_worktree_clean_at_finalize": true
+}
