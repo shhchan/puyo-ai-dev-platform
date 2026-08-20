@@ -164,6 +164,7 @@ class DeepChainBenchmarkContract:
     seed_start: int
     seed_count: int
     repeats_per_seed: int
+    max_steps: int
     minimum_mean_actual_fire_chain_count: float
     maximum_premature_fires: int
     maximum_game_overs: int
@@ -181,8 +182,10 @@ class DeepChainBenchmarkContract:
             )
         if self.seed_start < 0:
             raise ValueError("benchmark seed start must be non-negative")
-        if min(self.seed_count, self.repeats_per_seed) <= 0:
-            raise ValueError("benchmark seed and repeat counts must be positive")
+        if min(self.seed_count, self.repeats_per_seed, self.max_steps) <= 0:
+            raise ValueError(
+                "benchmark seed, repeat, and placement counts must be positive"
+            )
         if self.minimum_mean_actual_fire_chain_count <= 0.0:
             raise ValueError("benchmark chain target must be positive")
         if (
@@ -204,6 +207,7 @@ class DeepChainBenchmarkContract:
             seed_start=int(value.get("seed_start", -1)),
             seed_count=int(value.get("seed_count", 0)),
             repeats_per_seed=int(value.get("repeats_per_seed", 0)),
+            max_steps=int(value.get("max_steps", 0)),
             minimum_mean_actual_fire_chain_count=float(
                 value.get("minimum_mean_actual_fire_chain_count", 0.0)
             ),
@@ -238,6 +242,7 @@ class DeepChainBenchmarkContract:
             "seeds": list(range(self.seed_start, self.seed_start + self.seed_count)),
             "repeats_per_seed": int(self.repeats_per_seed),
             "run_count": int(self.seed_count * self.repeats_per_seed),
+            "max_steps": int(self.max_steps),
             "environment": self.environment,
             "minimum_mean_actual_fire_chain_count": float(
                 self.minimum_mean_actual_fire_chain_count

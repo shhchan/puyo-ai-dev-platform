@@ -177,6 +177,8 @@ later runner cannot silently reinterpret the gate.  PUYO-189 must evaluate the
 
 - the predeclared contiguous seed range 123 through 152 and 2 deterministic
   repeats per seed (60 runs);
+- the canonical PUYO-157 / PUYO-176 safe-build horizon of 40 placements per
+  run;
 - mean maximum actual fired chain count at least 10;
 - zero premature fires and zero game overs;
 - zero authoritative simulator parity mismatches;

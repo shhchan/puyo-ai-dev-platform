@@ -32,6 +32,8 @@ benchmark:
   seed_start: 123
   seed_count: 30
   repeats_per_seed: 2
+  # Canonical safe-build placement horizon reused from PUYO-157 / PUYO-176.
+  max_steps: 40
   minimum_mean_actual_fire_chain_count: 10.0
   maximum_premature_fires: 0
   maximum_game_overs: 0
