@@ -1,0 +1,118 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "25ae1a77a1be409a11e6cac54a1d7a7b2c86566a7961dee4144bb889fe091f8c",
+      "size_bytes": 2991
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "dbe9db8732c8fdf5e30a64f489d8a7947824c3e467339d4954a449acdc401c25",
+      "size_bytes": 14549
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "configuration.json",
+      "required": true,
+      "role": "configuration",
+      "sha256": "818daa122834ac0e6d5c1fa7107f17c94c4e21fc49bce57f4e692a7b83ae6372",
+      "size_bytes": 1797
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "future_isolation.json",
+      "required": true,
+      "role": "future_isolation",
+      "sha256": "260ebd5b7cf52104c918593dded7ba715cbd409f780ef6063aa4e4e91b6aa05d",
+      "size_bytes": 9629
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_dummy_replay.json",
+      "required": true,
+      "role": "gui_dummy_replay",
+      "sha256": "a42078089e8c3fa15746160028d0ac0c163812ac293de2cd79902c918016939d",
+      "size_bytes": 1587801
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_dummy_result.json",
+      "required": true,
+      "role": "gui_dummy_result",
+      "sha256": "0b8dce4544f3a98a2a8790770c648e7f98fb16ce16de38b87915a22cf337d04f",
+      "size_bytes": 743540
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa.json",
+      "required": true,
+      "role": "gui_qa",
+      "sha256": "0a0da071620b67e8e6cb2a86e571cdb0430b292000039c65fcf2c1bbda0fd0cc",
+      "size_bytes": 1536
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "lineage.json",
+      "required": true,
+      "role": "lineage",
+      "sha256": "541717d20b7e68424c03f3e179be26ab5e2af8b3e7e77049c7132623d9574520",
+      "size_bytes": 1879
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "performance_hotspot.json",
+      "required": true,
+      "role": "performance_hotspot",
+      "sha256": "86c6ab7bfbe2732d3de03606e13c7033178988f3a80ad313a720a6268b271c07",
+      "size_bytes": 1420
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "preflight.json",
+      "required": true,
+      "role": "preflight",
+      "sha256": "1d8867de6742b325c396077f589d899948a16cf9154635b116adab9c8d345c91",
+      "size_bytes": 1190
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "run_index.json",
+      "required": true,
+      "role": "run_index",
+      "sha256": "8bf34c2c6b63d6cca866078d3a56e754ff469ea3d75fa320f3a8d24f966b4e02",
+      "size_bytes": 11937
+    }
+  ],
+  "baseline_decision": {
+    "accepted_as_experimental_baseline": false,
+    "decision": "FAIL",
+    "next_human_decision": "review failure evidence before creating any corrective task",
+    "promotion_performed": false
+  },
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "created_at_utc": "2026-08-20T09:15:53Z",
+  "evaluated_commit": "76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67",
+  "executed_run_count": 0,
+  "expected_run_count": 60,
+  "manifest_digest": "a6f8c1ba75fcc3fd2707ba2e71cdf935b32dc934dfbb15a292bbfd7582836172",
+  "schema_version": "puyo.deep_chain_builder.benchmark_manifest.v1",
+  "summary_digest": "5f3c0118c0a1d225c3d26a34e53d42a1b67738288d1a2c651515bacb1c063ec5",
+  "ticket": "PUYO-189"
+}

@@ -1,0 +1,31 @@
+{
+  "canonical_quality_evidence": false,
+  "child_exit_code": -15,
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "created_at_utc": "2026-08-20T09:11:45Z",
+  "decision_elapsed_seconds": null,
+  "decision_latency_lower_bound_seconds": 300.0,
+  "evaluated_commit": "76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67",
+  "interpretation": "reference decision exceeded the diagnostic budget; quality was not inferred from the terminated process",
+  "locked_maximum_decision_p95_seconds": 1.0,
+  "performance_gate_passed": false,
+  "profile": {
+    "depth": 16,
+    "max_expanded_nodes": 600000,
+    "name": "reference",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "purpose": "canonical quality and benchmark execution",
+    "scenarios": 6,
+    "schema_version": "puyo.deep_chain_builder.profile.v1",
+    "version": "1.0",
+    "width": 250
+  },
+  "purpose": "bounded latency diagnosis before the canonical resumable run",
+  "result": null,
+  "schema_version": "puyo.deep_chain_builder.preflight.v1",
+  "seed": 123,
+  "supervisor_elapsed_seconds": 300.11050492899994,
+  "ticket": "PUYO-189",
+  "timed_out": true,
+  "timeout_seconds": 300.0
+}

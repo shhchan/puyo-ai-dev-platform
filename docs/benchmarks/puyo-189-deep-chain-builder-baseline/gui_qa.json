@@ -1,0 +1,35 @@
+{
+  "automated": {
+    "command": ".venv/bin/python -m unittest tests.test_deep_chain_builder_benchmark tests.test_deep_chain_builder tests.test_deep_chain_builder_smoke tests.test_realtime_versus_ui tests.test_launcher",
+    "notes": "77 automated tests passed. Dummy SDL produced puyo.gui_qa.v1 and puyo-realtime-match-v1 at 163 ticks; player_0 selected_action=6 matched plan step 1, decision trace had 7 steps, and plan overlay was enabled. Normal-window visual review of ghost appearance, replan replacement, and O toggle remains pending.",
+    "passed": true,
+    "status": "passed"
+  },
+  "manual": {
+    "checks": [
+      {
+        "name": "n_turn_ghost_matches_selected_action",
+        "passed": null
+      },
+      {
+        "name": "selection_reason_and_decision_trace_visible",
+        "passed": null
+      },
+      {
+        "name": "replan_replaces_stale_ghosts",
+        "passed": null
+      },
+      {
+        "name": "overlay_toggle_preserves_policy_decision",
+        "passed": null
+      }
+    ],
+    "notes": "77 automated tests passed. Dummy SDL produced puyo.gui_qa.v1 and puyo-realtime-match-v1 at 163 ticks; player_0 selected_action=6 matched plan step 1, decision trace had 7 steps, and plan overlay was enabled. Normal-window visual review of ghost appearance, replan replacement, and O toggle remains pending.",
+    "reviewer": null,
+    "status": "pending"
+  },
+  "passed": false,
+  "recorded_at_utc": "2026-08-20T09:12:48Z",
+  "schema_version": "puyo.deep_chain_builder.gui_qa.v1",
+  "ticket": "PUYO-189"
+}

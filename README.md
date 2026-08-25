@@ -471,6 +471,39 @@ python3 -m eval.deep_chain_builder_smoke \
 探索品質を確認する場合は `--deep-chain-profile reference` に切り替えます．reference は探索量が
 大きいため、GUI の操作確認では既定の smoke profile を使います．
 
+### PUYO-189 Deep Chain Builder baseline benchmark
+
+固定済みの 30 seeds × 2 repeats、40 placements、`reference` profile を評価する runner は、run ごとに
+結果を保存して再開できます。canonical run は node 数を基準とする探索契約を保つため、wall-clock
+timeout で探索結果を置き換えません。
+
+```bash
+.venv/bin/python -m eval.deep_chain_builder_benchmark run \
+  --max-runs 1 \
+  --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
+```
+
+`--max-runs` を省略すると未実行の全 run を継続します。reference の開始前に latency gate だけを
+有界に診断する場合は、品質証跡には数えない `preflight` を使用します。
+
+```bash
+.venv/bin/python -m eval.deep_chain_builder_benchmark preflight \
+  --timeout-seconds 5 \
+  --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
+```
+
+途中状態を含めて gate と manifest を再生成し、checksum と schema を検証する場合:
+
+```bash
+.venv/bin/python -m eval.deep_chain_builder_benchmark finalize
+.venv/bin/python -m eval.deep_chain_builder_benchmark verify
+```
+
+未実行 run、未完了 repeat、未確認の GUI 人間 QA はゼロ値へ読み替えず、対応する gate を明示的に
+FAIL にします。結果と人間確認手順は
+[PUYO-189 baseline evaluation](docs/development/puyo-189-deep-chain-builder-baseline.md)
+を参照してください。
+
 ### v1.7.1 Bootstrap Manager checkpoint
 
 v1.7.1 の学習済み Strategy Manager は、次のコマンドで再現可能な bootstrap checkpoint を
