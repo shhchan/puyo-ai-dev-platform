@@ -32,6 +32,17 @@ ADR review when a component misses its allocation. Therefore PUYO-201 must not
 start, and PUYO-203 must not hide this miss with fallback or policy-level
 timing.
 
+PUYO-205 completed that ADR review without changing this implementation's
+No-Go status.  Its release-wheel reprofile measured mixed p95 at 80.633 ns and
+quiet p95 at 54.305 ns.  The accepted
+[PUYO-205 ADR delta](puyo-205-native-transition-adr-delta.md) replaces the
+historical transition-only allocation with a fixed 100.0 ns mixed target, a
+50.0 ns quiet target, and an 820.625 ms combined transition plus
+evaluator/quiescence authority.  This kernel passes the mixed target but still
+misses the quiet target, so PUYO-201 remains blocked through PUYO-206 and the
+independent PUYO-207 decision.  The generated PUYO-205 evidence is in
+[`benchmark_report.md`](../benchmarks/puyo-205-native-compact-profile/benchmark_report.md).
+
 ## Internal representation
 
 The wire contract remains the exact 87-byte `CSK1` payload owned by

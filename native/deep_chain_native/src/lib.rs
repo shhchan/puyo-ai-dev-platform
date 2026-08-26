@@ -926,6 +926,18 @@ fn _compact_transition_batch(py: Python<'_>, request: &[u8]) -> Py<PyBytes> {
     PyBytes::new(py, &response).unbind()
 }
 
+#[pyfunction]
+fn _compact_transition_profile(
+    py: Python<'_>,
+    request: &[u8],
+    mode: u16,
+    repeats: u32,
+) -> Py<PyBytes> {
+    let owned = request.to_vec();
+    let response = py.detach(move || compact_batch::guarded_profile_execute(&owned, mode, repeats));
+    PyBytes::new(py, &response).unbind()
+}
+
 #[pymodule]
 fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(capabilities, module)?)?;
@@ -933,12 +945,14 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(_round_trip_request, module)?)?;
     module.add_function(wrap_pyfunction!(_gil_probe, module)?)?;
     module.add_function(wrap_pyfunction!(_compact_transition_batch, module)?)?;
+    module.add_function(wrap_pyfunction!(_compact_transition_profile, module)?)?;
     module.add("ABI_VERSION", ABI_VERSION)?;
     module.add("SCHEMA_MAJOR", SCHEMA_MAJOR)?;
     module.add("SCHEMA_MINOR", SCHEMA_MINOR)?;
     module.add("COMPACT_TRANSITION_ABI_VERSION", compact_batch::ABI_VERSION)?;
     module.add("COMPACT_TRANSITION_SCHEMA", compact_batch::SCHEMA_NAME)?;
     module.add("COMPACT_KERNEL_PATH", compact_batch::KERNEL_PATH)?;
+    module.add("COMPACT_PROFILE_SCHEMA", "puyo.native_compact_profile.v1")?;
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

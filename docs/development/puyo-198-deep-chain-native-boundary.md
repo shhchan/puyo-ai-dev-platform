@@ -3,7 +3,7 @@
 - Status: Accepted for native implementation, production adoption remains blocked
 - Date: 2026-08-26
 - Decision owners: PUYO-198 / PUYO-184
-- Applies to: PUYO-199, PUYO-200, PUYO-201, PUYO-202, PUYO-203, PUYO-204
+- Applies to: PUYO-199 through PUYO-207
 - Supersedes: none
 
 ## Decision
@@ -266,6 +266,15 @@ exclusive shares:
 | adapter/integration safety margin | 100.000 ms | per decision |
 | end-to-end total | 1,000.000 ms | per decision |
 
+The transition and evaluator rows above preserve the original PUYO-198
+allocation and its provenance.  After PUYO-200 missed the isolated transition
+share, [the PUYO-205 ADR delta](puyo-205-native-transition-adr-delta.md)
+replaced those two rows as separate downstream pass authorities with their
+unchanged 820.625 ms sum.  PUYO-206 must meet fixed mixed/quiet transition
+targets of 100.0/50.0 ns, and PUYO-207 must enforce the combined transition
+plus evaluator/quiescence budget.  The 900 ms native and 1,000 ms end-to-end
+gates are unchanged.
+
 Rules for all downstream measurements:
 
 1. Use a release wheel and record cold/warm p50/p95, machine, thread count,
@@ -522,8 +531,11 @@ review.  Parallelism never justifies changing search semantics.
 | Ticket | Required handoff and stop condition |
 | --- | --- |
 | PUYO-199 | Scaffold pinned wheel/build, implement capability/envelope codec and one-call Python adapter, GIL detach/error tests; stop if release wheel cannot build on Linux x86_64 |
-| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; meet the 10.596 ms decision allocation |
-| PUYO-201 | Port component extraction/evaluator/quiescence with all 24 weights and frozen evidence parity; meet 810.029 ms |
+| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; return to ADR review if the historical 10.596 ms allocation is missed |
+| PUYO-205 | Profile transition stages and alternatives, confirm the call model, and fix the successor measurement and budget contract |
+| PUYO-206 | Implement the selected three-slice local-update/hot-result redesign; meet mixed p95 <= 100.0 ns and quiet p95 <= 50.0 ns |
+| PUYO-207 | Independently verify transition plus evaluator/quiescence at <= 820.625 ms and all unchanged outer/semantic gates; unblock PUYO-201 only on Go |
+| PUYO-201 | Port component extraction/evaluator/quiescence with all 24 weights and frozen evidence parity after PUYO-207 Go; share the 820.625 ms combined authority |
 | PUYO-202 | Port the complete beam/TT/aggregation loop, oracle and deterministic six-worker modes; meet 29.375 ms search plus 30 ms aggregation |
 | PUYO-203 | Integrate one call per decision and explicit backend/provenance/fallback; do not make native the default or mask a missed native budget |
 | PUYO-204 | Run locked 30-seed quality/performance/future-isolation evidence; promote only at p95 <= 1.0 s with zero parity/digest/leak failures |

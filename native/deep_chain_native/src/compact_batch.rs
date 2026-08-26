@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 use crate::compact::{
     ACTION_COUNT, CompactError, CompactErrorKind, CompactState, PLANE_BYTES, PLANE_COUNT, Pair,
     STATE_BYTES, TransitionSummary, TransitionTrace, legal_actions_mask, planes_to_wire,
-    symmetry_reduced_actions_mask, transition_into,
+    profile_compact_records, symmetry_reduced_actions_mask, transition_into,
 };
 
 pub(crate) const ABI_VERSION: u16 = 1;
@@ -24,6 +24,7 @@ const SCHEMA_MINOR: u16 = 0;
 const REQUEST_MAGIC: &[u8; 4] = b"PCTB";
 const SUCCESS_MAGIC: &[u8; 4] = b"PCTS";
 const ERROR_MAGIC: &[u8; 4] = b"PCTE";
+const PROFILE_SUCCESS_MAGIC: &[u8; 4] = b"PCPS";
 const REQUEST_HEADER_BYTES: usize = 24;
 const REQUEST_RECORD_BYTES: usize = STATE_BYTES + 3;
 const SUCCESS_HEADER_BYTES: usize = 48;
@@ -469,6 +470,48 @@ pub(crate) fn guarded_execute(data: &[u8]) -> Vec<u8> {
         Ok(Err(error)) => encode_error(&error),
         Err(_) => encode_error(&BatchError::internal(
             "panic caught at the compact transition batch boundary",
+        )),
+    }
+}
+
+fn profile_execute(data: &[u8], mode: u16, repeats: u32) -> BatchResult<Vec<u8>> {
+    let request = parse_request(data)?;
+    let inputs = request
+        .records
+        .iter()
+        .map(|record| (record.state, record.pair, record.action_id))
+        .collect::<Vec<_>>();
+    let measurement = profile_compact_records(&inputs, mode, repeats)
+        .map_err(|error| BatchError::from_compact(0, error))?;
+    let mut result = Vec::with_capacity(80);
+    result.extend_from_slice(PROFILE_SUCCESS_MAGIC);
+    write_u16(&mut result, ABI_VERSION);
+    write_u16(&mut result, SCHEMA_MINOR);
+    write_u16(&mut result, measurement.mode);
+    write_u16(&mut result, measurement.flags);
+    write_u32(&mut result, measurement.record_count);
+    write_u32(&mut result, measurement.repeats);
+    write_u64(&mut result, measurement.operations);
+    write_u64(&mut result, measurement.elapsed_ns);
+    write_u64(&mut result, measurement.cycles);
+    write_u64(&mut result, measurement.checksum);
+    write_u32(&mut result, measurement.mismatch_count);
+    write_u32(&mut result, measurement.state_bytes);
+    write_u32(&mut result, measurement.result_bytes);
+    write_u32(&mut result, measurement.copy_bytes_per_record);
+    write_u32(&mut result, measurement.update_bytes_per_record);
+    write_u32(&mut result, measurement.reusable_metadata_bytes);
+    write_u32(&mut result, 0);
+    debug_assert_eq!(result.len(), 80);
+    Ok(result)
+}
+
+pub(crate) fn guarded_profile_execute(data: &[u8], mode: u16, repeats: u32) -> Vec<u8> {
+    match catch_unwind(AssertUnwindSafe(|| profile_execute(data, mode, repeats))) {
+        Ok(Ok(response)) => response,
+        Ok(Err(error)) => encode_error(&error),
+        Err(_) => encode_error(&BatchError::internal(
+            "panic caught at the compact transition profile boundary",
         )),
     }
 }
