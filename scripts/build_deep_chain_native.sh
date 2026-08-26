@@ -25,7 +25,9 @@ if [[ "$python_version" != "3.12" ]]; then
 fi
 
 user_directory="$(getent passwd "$(id -u)" | cut -d: -f6)"
-rust_bin_directory="${CARGO_HOME:-$user_directory/.cargo}/bin"
+cargo_home_directory="${CARGO_HOME:-$user_directory/.cargo}"
+rustup_home_directory="${RUSTUP_HOME:-$user_directory/.rustup}"
+rust_bin_directory="$cargo_home_directory/bin"
 if [[ -x "$rust_bin_directory/rustup" ]]; then
     PATH="$rust_bin_directory:$PATH"
     export PATH
@@ -56,6 +58,7 @@ elif [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then
 fi
 PUYO_NATIVE_SOURCE_REVISION="$source_revision"
 export PUYO_NATIVE_SOURCE_REVISION
+source_date_epoch="$(git show -s --format=%ct HEAD 2>/dev/null || printf '0')"
 "$python_bin" -m pip install \
     --disable-pip-version-check \
     --requirement requirements-native.txt
@@ -68,7 +71,12 @@ export PATH
 
 wheel_directory="$project_root/dist/native"
 mkdir -p -- "$wheel_directory"
-"$python_bin" -m maturin build \
+rustflag_separator=$'\x1f'
+release_rustflags="--remap-path-prefix=$project_root=/workspace/puyo_ai_dev_platform"
+release_rustflags+="$rustflag_separator--remap-path-prefix=$cargo_home_directory=/toolchains/cargo"
+release_rustflags+="$rustflag_separator--remap-path-prefix=$rustup_home_directory=/toolchains/rustup"
+CARGO_ENCODED_RUSTFLAGS="$release_rustflags" SOURCE_DATE_EPOCH="$source_date_epoch" \
+    "$python_bin" -m maturin build \
     --release \
     --locked \
     --zig \

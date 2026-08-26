@@ -45,6 +45,11 @@ unwind panics, and line tables. It never sets `target-cpu=native`.
 Zig supplies the glibc 2.28 link baseline. A native build on a newer host is
 not relabeled without verification: maturin audits the resulting library and
 fails the command if the requested manylinux contract is not met.
+The build command remaps Rust-owned checkout, Cargo, and rustup paths and fixes
+`SOURCE_DATE_EPOCH` to the source commit time. Zig's retained libunwind and libc
+line tables can still encode the local Zig installation path, so the wheel
+SHA-256 is recorded as per-build provenance rather than asserted to be
+bit-for-bit identical across checkout roots.
 
 ## Clean build and install
 
