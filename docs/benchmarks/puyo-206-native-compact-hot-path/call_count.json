@@ -1,0 +1,46 @@
+{
+  "actual_search_digest": "long-horizon-search-de7a005aef42310f30c07a46",
+  "assumption_600k_is_one_transition_each": true,
+  "config": {
+    "decision_seed": 123,
+    "depth": 3,
+    "future_sampling_mode": "legacy-fixed-six",
+    "max_expanded_nodes": 512,
+    "minimum_chain_count": 6,
+    "scenarios": 2,
+    "width": 4
+  },
+  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+  "corpus_path": "eval/deep_chain_native_corpus.json",
+  "corpus_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
+  "expected_search_digest": "long-horizon-search-de7a005aef42310f30c07a46",
+  "expected_search_matches": true,
+  "planned_native_search": {
+    "canonical_evaluated_call_projection": 600000,
+    "canonical_transition_call_ceiling": 600000,
+    "non_root_evaluator_calls_per_evaluated_node": 1.0,
+    "semantic_loop": "one transition per budget-consumed candidate",
+    "transition_calls_per_expanded_node": 1.0
+  },
+  "python_search": {
+    "counters": {
+      "budget_exhausted": false,
+      "evaluated_nodes": 396,
+      "expanded_nodes": 396,
+      "game_over_nodes": 0,
+      "generated_nodes": 396,
+      "invalid_nodes": 0,
+      "pruned_nodes": 372,
+      "reached_depth": 3,
+      "terminal_fire_nodes": 0,
+      "transposition_hits": 0
+    },
+    "evaluator_calls_including_root": 397,
+    "non_root_evaluator_calls_per_evaluated_node": 1.0,
+    "root_evaluator_calls": 1,
+    "transition_calls": 396,
+    "transition_calls_per_expanded_node": 1.0,
+    "transition_calls_per_generated_node": 1.0
+  },
+  "schema_version": "puyo.native_compact_call_count.v1"
+}

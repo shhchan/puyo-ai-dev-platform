@@ -9,7 +9,9 @@ from agents.deep_chain_native_transition import (
 from eval.deep_chain_native_transition_profile import (
     _PROFILE_RESPONSE,
     COMBINED_TRANSITION_EVALUATOR_BUDGET_MS,
+    DEFAULT_OPTIMIZATION_OUTPUT_DIR,
     DEFAULT_OUTPUT_DIR,
+    OPTIMIZATION_TICKET,
     PROFILE_MODES,
     QUIET_TARGET_NS,
     TRANSITION_TARGET_NS,
@@ -117,6 +119,18 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
     @unittest.skipUnless(DEFAULT_OUTPUT_DIR.exists(), "PUYO-205 evidence is not checked in")
     def test_checked_in_profile_evidence_is_integral(self):
         result = verify_benchmark()
+
+        self.assertTrue(result["passed"], result["issues"])
+
+    @unittest.skipUnless(
+        DEFAULT_OPTIMIZATION_OUTPUT_DIR.exists(),
+        "PUYO-206 evidence is not checked in",
+    )
+    def test_checked_in_optimization_evidence_is_integral(self):
+        result = verify_benchmark(
+            DEFAULT_OPTIMIZATION_OUTPUT_DIR,
+            ticket=OPTIMIZATION_TICKET,
+        )
 
         self.assertTrue(result["passed"], result["issues"])
 

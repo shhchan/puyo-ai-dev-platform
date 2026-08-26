@@ -1,0 +1,66 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "alternative_contracts.json",
+      "required": true,
+      "role": "alternative_contracts",
+      "sha256": "54e54deed2afd108bb17f0c396fca0dd6979b010ffc94414812a7eba7d8e8454",
+      "size_bytes": 4960
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "b3aa73acd277e7876b096c639bdbeba5bd3a3ebd949f72e0f72b1ecbbc36e141",
+      "size_bytes": 2858
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "d610b86e4dbf4c4c3815ab6c159d01fffbddd86aa6ff9bfd014ae20b99b8cd49",
+      "size_bytes": 52907
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "cachegrind.json",
+      "required": true,
+      "role": "cachegrind",
+      "sha256": "42793937b74e68c1c5aaf5bd739410e08261f25843e916dc6dca7de13f95efdb",
+      "size_bytes": 19019
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_count.json",
+      "required": true,
+      "role": "call_count",
+      "sha256": "a980f486bfe9e6fff341dfba790b905cf77b498d43b1a92017679e5ce272d69b",
+      "size_bytes": 1629
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "5bbdd7db1cef5be1a80301e636a13688534c8c243f265d695a4523c263fc966f",
+      "size_bytes": 1058097
+    }
+  ],
+  "command": "python -m eval.deep_chain_native_transition_profile run --ticket PUYO-206 --corpus eval/deep_chain_native_transition_corpus.json --search-corpus eval/deep_chain_native_corpus.json --output-dir docs/benchmarks/puyo-206-native-compact-hot-path --mixed-samples 120 --outcome-samples 40 --stage-samples 30 --alternative-samples 40 --warmup 5 --mixed-batch-size 10000 --outcome-batch-size 4096 --cachegrind-records 256 --cachegrind-repeats 512 --cpu 0",
+  "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+  "created_at_utc": "2026-08-26T17:06:47Z",
+  "evaluated_commit": "a015bbf3f0e03c7ec0afb747e5df389ec668d6a9",
+  "passed": true,
+  "schema_version": "puyo.native_compact_profile_benchmark.v1",
+  "ticket": "PUYO-206",
+  "wheel_sha256": "e1b837f932463906b13ce86d12d3187f1c115d2e9c7a2dbf1c089a672ffa1938"
+}

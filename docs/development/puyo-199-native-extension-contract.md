@@ -28,6 +28,12 @@ allocation does not; see
 production `deep_chain_builder` therefore remains on its existing Python path,
 with no backend selector or action-semantic change.
 
+PUYO-206 keeps the one-call decision envelope and adds an optional capability
+TLV for the in-crate 80-byte child-state / 24-byte hot-result ABI. The 0.3.0
+adapter requires and validates that section, while older envelope readers can
+skip it as an unknown optional tag. See
+[the PUYO-206 hot-path contract](puyo-206-native-compact-hot-path.md).
+
 ## Supported build
 
 | Item | Locked value |
@@ -168,7 +174,9 @@ The machine-readable adapter result includes:
 - crate version, Git source revision, rustc version, build profile, target,
   and Python ABI;
 - detected CPU features, selected SIMD path, and scalar fallback availability;
-- GIL detach support, thread modes, parallel capability, and maximum threads.
+- GIL detach support, thread modes, parallel capability, and maximum threads;
+- compact hot-result ABI/schema, child-state/result sizes, and lifecycle flag
+  mask;
 - an external wheel SHA-256 provenance hook populated by build/evidence tooling.
 
 The selected path remains `scalar`, even when AVX2 or other features are
