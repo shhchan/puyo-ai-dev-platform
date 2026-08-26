@@ -1733,16 +1733,29 @@ def _run_isolated_profile(
     queue = context.Queue()
     process = context.Process(
         target=_profile_worker,
-        args=(profile_name, float(sample_interval_seconds)),
+        args=(queue, profile_name, float(sample_interval_seconds)),
     )
     process.start()
-    try:
-        message = queue.get(timeout=900.0)
-    except Empty as exc:
-        if process.is_alive():
+    message = None
+    deadline = time.perf_counter() + 900.0
+    while process.is_alive() and time.perf_counter() < deadline:
+        try:
+            message = queue.get(timeout=0.25)
+            break
+        except Empty:
+            continue
+    if message is None:
+        try:
+            message = queue.get_nowait()
+        except Empty:
+            message = None
+    if message is None:
+        timed_out = process.is_alive()
+        if timed_out:
             process.terminate()
         process.join(timeout=5.0)
-        raise TimeoutError(f"isolated {profile_name} profile did not finish") from exc
+        reason = "timed out" if timed_out else f"exited with {process.exitcode}"
+        raise RuntimeError(f"isolated {profile_name} profile {reason}")
     process.join(timeout=10.0)
     if process.is_alive():
         process.terminate()
