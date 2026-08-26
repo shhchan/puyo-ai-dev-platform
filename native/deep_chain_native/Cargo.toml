@@ -1,0 +1,24 @@
+[package]
+name = "puyo-deep-chain-native"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+license = "MIT"
+description = "Decision-level native boundary for puyo_ai_dev_platform"
+publish = false
+
+[lib]
+name = "_puyo_deep_chain_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "=0.29.0", features = ["extension-module"] }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+incremental = false
+overflow-checks = true
+panic = "unwind"
+debug = 1

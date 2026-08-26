@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {
+      "case_id": "empty_quiet",
+      "request_bytes": 880,
+      "request_id": 1,
+      "request_sha256": "7f36f3e02971cbf8328f3c5186007a97507676d98eeb94bf00c77662b8467b7d"
+    },
+    {
+      "case_id": "two_chain",
+      "request_bytes": 880,
+      "request_id": 2,
+      "request_sha256": "abe48396ffd3f58ef5a5efde7c44b87a0a4a9e861507a4a651ebef3b8f2ba33d"
+    },
+    {
+      "case_id": "hidden_rows_preserved",
+      "request_bytes": 880,
+      "request_id": 3,
+      "request_sha256": "803232bf525fab78188611018679a3f407620401aa64263fe2e69dd06a131188"
+    }
+  ],
+  "native_round_trip_required": true,
+  "schema_version": "puyo.deep_chain_native.round_trip_manifest.v1",
+  "source_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "source_corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+  "source_ticket": "PUYO-198",
+  "ticket": "PUYO-199",
+  "wire_name": "puyo.deep_chain_native.envelope.v1"
+}
