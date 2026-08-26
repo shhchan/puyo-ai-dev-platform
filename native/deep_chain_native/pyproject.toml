@@ -4,11 +4,11 @@ build-backend = "maturin"
 
 [project]
 name = "puyo-deep-chain-native"
-version = "0.1.0"
+version = "0.2.0"
 description = "Decision-level native boundary for puyo_ai_dev_platform"
 requires-python = "==3.12.*"
 license = "MIT"
-license-files = ["LICENSE-MIT"]
+license-files = ["LICENSE-MIT", "LICENSE-AMA-MIT", "NOTICE"]
 
 [tool.maturin]
 bindings = "pyo3"

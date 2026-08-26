@@ -5,20 +5,32 @@ on:
     paths:
       - ".github/workflows/native-extension.yml"
       - "agents/deep_chain_native.py"
+      - "agents/deep_chain_native_transition.py"
+      - "docs/benchmarks/puyo-200-native-compact-transition/**"
+      - "eval/deep_chain_native_transition_benchmark.py"
+      - "eval/deep_chain_native_transition_corpus.json"
       - "native/deep_chain_native/**"
       - "requirements-native.txt"
       - "rust-toolchain.toml"
       - "scripts/build_deep_chain_native.sh"
       - "tests/test_deep_chain_native.py"
+      - "tests/test_deep_chain_native_transition.py"
+      - "tests/test_deep_chain_native_transition_benchmark.py"
   push:
     paths:
       - ".github/workflows/native-extension.yml"
       - "agents/deep_chain_native.py"
+      - "agents/deep_chain_native_transition.py"
+      - "docs/benchmarks/puyo-200-native-compact-transition/**"
+      - "eval/deep_chain_native_transition_benchmark.py"
+      - "eval/deep_chain_native_transition_corpus.json"
       - "native/deep_chain_native/**"
       - "requirements-native.txt"
       - "rust-toolchain.toml"
       - "scripts/build_deep_chain_native.sh"
       - "tests/test_deep_chain_native.py"
+      - "tests/test_deep_chain_native_transition.py"
+      - "tests/test_deep_chain_native_transition_benchmark.py"
   workflow_dispatch:
 
 permissions:
@@ -49,4 +61,6 @@ jobs:
           cargo clippy --locked --manifest-path native/deep_chain_native/Cargo.toml -- -D warnings
           cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml
       - name: Run Python boundary tests
-        run: .venv/bin/python -m unittest tests.test_deep_chain_native
+        run: |
+          .venv/bin/ruff check agents/deep_chain_native_transition.py eval/deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py
+          .venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark
