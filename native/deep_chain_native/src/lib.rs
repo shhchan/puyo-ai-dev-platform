@@ -1,3 +1,6 @@
+mod compact;
+mod compact_batch;
+
 use std::collections::BTreeMap;
 use std::hint::black_box;
 use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -6,6 +9,69 @@ use std::time::{Duration, Instant};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyModule};
+
+#[cfg(test)]
+mod allocation_probe {
+    use std::alloc::{GlobalAlloc, Layout, System};
+    use std::cell::Cell;
+
+    thread_local! {
+        static ENABLED: Cell<bool> = const { Cell::new(false) };
+        static ALLOCATIONS: Cell<usize> = const { Cell::new(0) };
+    }
+
+    struct CountingAllocator;
+
+    impl CountingAllocator {
+        fn record() {
+            ENABLED.with(|enabled| {
+                if enabled.get() {
+                    ALLOCATIONS.with(|count| count.set(count.get() + 1));
+                }
+            });
+        }
+    }
+
+    // SAFETY: every operation delegates unchanged pointers/layouts to the
+    // process `System` allocator.  The thread-local counter has no ownership
+    // role and is initialized before a measured operation begins.
+    unsafe impl GlobalAlloc for CountingAllocator {
+        unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+            Self::record();
+            // SAFETY: delegated with the caller-provided valid layout.
+            unsafe { System.alloc(layout) }
+        }
+
+        unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
+            Self::record();
+            // SAFETY: delegated with the caller-provided valid layout.
+            unsafe { System.alloc_zeroed(layout) }
+        }
+
+        unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {
+            // SAFETY: delegated with the original allocation layout.
+            unsafe { System.dealloc(pointer, layout) }
+        }
+
+        unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+            Self::record();
+            // SAFETY: delegated with the original layout and requested size.
+            unsafe { System.realloc(pointer, layout, new_size) }
+        }
+    }
+
+    #[global_allocator]
+    static ALLOCATOR: CountingAllocator = CountingAllocator;
+
+    pub(crate) fn count_allocations<T>(operation: impl FnOnce() -> T) -> (T, usize) {
+        ALLOCATIONS.with(|count| count.set(0));
+        ENABLED.with(|enabled| enabled.set(true));
+        let result = operation();
+        ENABLED.with(|enabled| enabled.set(false));
+        let allocations = ALLOCATIONS.with(Cell::get);
+        (result, allocations)
+    }
+}
 
 const MAGIC: &[u8; 4] = b"PDCN";
 const ABI_VERSION: u16 = 1;
@@ -853,15 +919,26 @@ fn _gil_probe(py: Python<'_>, milliseconds: u64) -> PyResult<u64> {
     Ok(iterations)
 }
 
+#[pyfunction]
+fn _compact_transition_batch(py: Python<'_>, request: &[u8]) -> Py<PyBytes> {
+    let owned = request.to_vec();
+    let response = py.detach(move || compact_batch::guarded_execute(&owned));
+    PyBytes::new(py, &response).unbind()
+}
+
 #[pymodule]
 fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(capabilities, module)?)?;
     module.add_function(wrap_pyfunction!(decide, module)?)?;
     module.add_function(wrap_pyfunction!(_round_trip_request, module)?)?;
     module.add_function(wrap_pyfunction!(_gil_probe, module)?)?;
+    module.add_function(wrap_pyfunction!(_compact_transition_batch, module)?)?;
     module.add("ABI_VERSION", ABI_VERSION)?;
     module.add("SCHEMA_MAJOR", SCHEMA_MAJOR)?;
     module.add("SCHEMA_MINOR", SCHEMA_MINOR)?;
+    module.add("COMPACT_TRANSITION_ABI_VERSION", compact_batch::ABI_VERSION)?;
+    module.add("COMPACT_TRANSITION_SCHEMA", compact_batch::SCHEMA_NAME)?;
+    module.add("COMPACT_KERNEL_PATH", compact_batch::KERNEL_PATH)?;
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

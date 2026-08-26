@@ -1,0 +1,1734 @@
+//! Allocation-free scalar compact-state transition kernel.
+//!
+//! The canonical wire representation remains the 87-byte `CSK1` payload
+//! defined by `agents.compact_search.CompactSearchState`.  The hot transition
+//! path works only with fixed-size values.  Optional trace capture is owned by
+//! the QA batch boundary and is never required by native evaluator/search
+//! callers.
+
+use std::fmt;
+use std::mem::MaybeUninit;
+
+pub(crate) const WIDTH: usize = 6;
+pub(crate) const HEIGHT: usize = 14;
+pub(crate) const VISIBLE_HEIGHT: usize = 12;
+pub(crate) const PLANE_COUNT: usize = 6;
+pub(crate) const NORMAL_COLOR_COUNT: usize = 5;
+pub(crate) const ACTION_COUNT: usize = 22;
+pub(crate) const STATE_BYTES: usize = 87;
+pub(crate) const PLANE_BYTES: usize = 11;
+const COLOR_BIT_COUNT: usize = 3;
+const COLUMN_LANE_BITS: usize = 16;
+const WIRE_BOARD_MASK: u128 = (1_u128 << (WIDTH * HEIGHT)) - 1;
+pub(crate) const BOARD_MASK: u128 = lane_mask(HEIGHT);
+const VISIBLE_MASK: u128 = lane_mask(VISIBLE_HEIGHT);
+const ROW_14_MASK: u128 = row_mask(HEIGHT - 1);
+const CELL_FINGERPRINTS: [[[u64; 2]; WIDTH * HEIGHT]; PLANE_COUNT] = fingerprint_table();
+const ALL_CLEAR_BONUS_SCORE: u64 = 2_100;
+
+const CHAIN_BONUS: [u16; 20] = [
+    0, 0, 8, 16, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512,
+];
+const COLOR_BONUS: [u16; 6] = [0, 0, 3, 6, 12, 24];
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum CompactErrorKind {
+    InvalidInput,
+    ArithmeticOverflow,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct CompactError {
+    pub(crate) kind: CompactErrorKind,
+    pub(crate) message: String,
+}
+
+impl CompactError {
+    fn invalid(message: impl Into<String>) -> Self {
+        Self {
+            kind: CompactErrorKind::InvalidInput,
+            message: message.into(),
+        }
+    }
+
+    fn overflow(message: impl Into<String>) -> Self {
+        Self {
+            kind: CompactErrorKind::ArithmeticOverflow,
+            message: message.into(),
+        }
+    }
+}
+
+impl fmt::Display for CompactError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(&self.message)
+    }
+}
+
+type CompactResult<T> = Result<T, CompactError>;
+
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum Color {
+    Red = 1,
+    Blue = 2,
+    Green = 3,
+    Yellow = 4,
+    Purple = 5,
+}
+
+impl TryFrom<u8> for Color {
+    type Error = CompactError;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(Self::Red),
+            2 => Ok(Self::Blue),
+            3 => Ok(Self::Green),
+            4 => Ok(Self::Yellow),
+            5 => Ok(Self::Purple),
+            _ => Err(CompactError::invalid("pair contains an invalid color ID")),
+        }
+    }
+}
+
+impl Color {
+    const fn plane_index(self) -> usize {
+        self as usize - 1
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct Pair {
+    pub(crate) axis: Color,
+    pub(crate) child: Color,
+}
+
+impl Pair {
+    pub(crate) fn from_ids(axis: u8, child: u8) -> CompactResult<Self> {
+        Ok(Self {
+            axis: Color::try_from(axis)?,
+            child: Color::try_from(child)?,
+        })
+    }
+}
+
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum Direction {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+impl Direction {
+    const fn offset(self) -> (i8, i8) {
+        match self {
+            Self::Up => (0, 1),
+            Self::Right => (1, 0),
+            Self::Down => (0, -1),
+            Self::Left => (-1, 0),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct PlacementAction {
+    axis_x: u8,
+    direction: Direction,
+}
+
+const ACTIONS: [PlacementAction; ACTION_COUNT] = [
+    PlacementAction {
+        axis_x: 0,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 0,
+        direction: Direction::Right,
+    },
+    PlacementAction {
+        axis_x: 0,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 1,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 1,
+        direction: Direction::Right,
+    },
+    PlacementAction {
+        axis_x: 1,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 1,
+        direction: Direction::Left,
+    },
+    PlacementAction {
+        axis_x: 2,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 2,
+        direction: Direction::Right,
+    },
+    PlacementAction {
+        axis_x: 2,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 2,
+        direction: Direction::Left,
+    },
+    PlacementAction {
+        axis_x: 3,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 3,
+        direction: Direction::Right,
+    },
+    PlacementAction {
+        axis_x: 3,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 3,
+        direction: Direction::Left,
+    },
+    PlacementAction {
+        axis_x: 4,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 4,
+        direction: Direction::Right,
+    },
+    PlacementAction {
+        axis_x: 4,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 4,
+        direction: Direction::Left,
+    },
+    PlacementAction {
+        axis_x: 5,
+        direction: Direction::Up,
+    },
+    PlacementAction {
+        axis_x: 5,
+        direction: Direction::Down,
+    },
+    PlacementAction {
+        axis_x: 5,
+        direction: Direction::Left,
+    },
+];
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub(crate) struct BoardKey {
+    color_bits: [u128; COLOR_BIT_COUNT],
+}
+
+impl BoardKey {
+    #[allow(dead_code)]
+    pub(crate) const fn color_bits(&self) -> &[u128; COLOR_BIT_COUNT] {
+        &self.color_bits
+    }
+}
+
+/// Complete native search identity.  Search coordinates deliberately cannot
+/// be constructed from a board fingerprint alone.
+#[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub(crate) struct SearchStateKey {
+    board: BoardKey,
+    all_clear_bonus_pending: bool,
+    game_over: bool,
+    score: u64,
+    last_chain_end_score: u64,
+    root_action: u8,
+    scenario_id: u8,
+    pair_cursor: u16,
+    depth: u16,
+}
+
+#[allow(dead_code)]
+impl SearchStateKey {
+    pub(crate) fn new(
+        state: &CompactState,
+        root_action: u8,
+        scenario_id: u8,
+        pair_cursor: u16,
+        depth: u16,
+    ) -> CompactResult<Self> {
+        if usize::from(root_action) >= ACTION_COUNT {
+            return Err(CompactError::invalid(
+                "root action is outside the v1 layout",
+            ));
+        }
+        Ok(Self {
+            board: state.board_key(),
+            all_clear_bonus_pending: state.all_clear_bonus_pending,
+            game_over: state.game_over,
+            score: state.score,
+            last_chain_end_score: state.last_chain_end_score,
+            root_action,
+            scenario_id,
+            pair_cursor,
+            depth,
+        })
+    }
+}
+
+#[repr(C, align(16))]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct CompactState {
+    color_bits: [u128; COLOR_BIT_COUNT],
+    drop_heights: [u8; WIDTH],
+    lower_compact: bool,
+    settled: bool,
+    all_clear_bonus_pending: bool,
+    game_over: bool,
+    score: u64,
+    last_chain_end_score: u64,
+}
+
+impl CompactState {
+    pub(crate) fn from_bytes(data: &[u8]) -> CompactResult<Self> {
+        if data.len() != STATE_BYTES || data.get(..4) != Some(b"CSK1") {
+            return Err(CompactError::invalid("invalid compact state framing"));
+        }
+        let mut planes = [0_u128; PLANE_COUNT];
+        let mut offset = 4;
+        for plane in &mut planes {
+            let mut bytes = [0_u8; 16];
+            bytes[..PLANE_BYTES].copy_from_slice(&data[offset..offset + PLANE_BYTES]);
+            *plane = u128::from_le_bytes(bytes);
+            offset += PLANE_BYTES;
+        }
+        let flags = data[offset];
+        offset += 1;
+        if flags & !0x3 != 0 {
+            return Err(CompactError::invalid(
+                "compact state contains unknown lifecycle flags",
+            ));
+        }
+        let score = u64::from_le_bytes(
+            data[offset..offset + 8]
+                .try_into()
+                .expect("validated state score slice"),
+        );
+        offset += 8;
+        let last_chain_end_score = u64::from_le_bytes(
+            data[offset..offset + 8]
+                .try_into()
+                .expect("validated state lifecycle slice"),
+        );
+        Self::from_parts(
+            planes,
+            flags & 0x1 != 0,
+            flags & 0x2 != 0,
+            score,
+            last_chain_end_score,
+        )
+    }
+
+    pub(crate) fn from_parts(
+        planes: [u128; PLANE_COUNT],
+        all_clear_bonus_pending: bool,
+        game_over: bool,
+        score: u64,
+        last_chain_end_score: u64,
+    ) -> CompactResult<Self> {
+        let mut occupied = 0_u128;
+        for plane in planes {
+            if plane & !WIRE_BOARD_MASK != 0 {
+                return Err(CompactError::invalid(
+                    "compact plane contains a cell outside the 6x14 board",
+                ));
+            }
+            if occupied & plane != 0 {
+                return Err(CompactError::invalid("compact color planes overlap"));
+            }
+            occupied |= plane;
+        }
+        if last_chain_end_score > score {
+            return Err(CompactError::invalid(
+                "last chain end score exceeds total score",
+            ));
+        }
+        let color_bits = color_bits_from_wire_planes(&planes);
+        let internal_occupied = occupied_from_color_bits(&color_bits);
+        let (drop_heights, lower_compact) = board_geometry(internal_occupied);
+        let settled = find_vanish(&color_bits).vanished_mask == 0;
+        Ok(Self {
+            color_bits,
+            drop_heights,
+            lower_compact,
+            settled,
+            all_clear_bonus_pending,
+            game_over,
+            score,
+            last_chain_end_score,
+        })
+    }
+
+    pub(crate) fn to_bytes(self) -> [u8; STATE_BYTES] {
+        let mut result = [0_u8; STATE_BYTES];
+        result[..4].copy_from_slice(b"CSK1");
+        let mut offset = 4;
+        for plane_index in 0..PLANE_COUNT {
+            let plane = internal_plane_to_wire(color_plane(&self.color_bits, plane_index));
+            let bytes = plane.to_le_bytes();
+            result[offset..offset + PLANE_BYTES].copy_from_slice(&bytes[..PLANE_BYTES]);
+            offset += PLANE_BYTES;
+        }
+        result[offset] = u8::from(self.all_clear_bonus_pending) | (u8::from(self.game_over) << 1);
+        offset += 1;
+        result[offset..offset + 8].copy_from_slice(&self.score.to_le_bytes());
+        offset += 8;
+        result[offset..offset + 8].copy_from_slice(&self.last_chain_end_score.to_le_bytes());
+        result
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn wire_planes(&self) -> [u128; PLANE_COUNT] {
+        wire_planes_from_color_bits(&self.color_bits)
+    }
+
+    pub(crate) fn occupied(&self) -> u128 {
+        internal_plane_to_wire(self.internal_occupied())
+    }
+
+    fn internal_occupied(&self) -> u128 {
+        occupied_from_color_bits(&self.color_bits)
+    }
+
+    pub(crate) fn board_fingerprint(&self) -> [u64; 2] {
+        fingerprint_color_bits(&self.color_bits)
+    }
+
+    pub(crate) fn column_heights(&self) -> [u8; WIDTH] {
+        let occupied = self.internal_occupied();
+        let mut heights = self.drop_heights;
+        for (x, height) in heights.iter_mut().enumerate() {
+            if occupied & cell_bit(x, HEIGHT - 1) != 0 {
+                *height = HEIGHT as u8;
+            }
+        }
+        heights
+    }
+
+    pub(crate) const fn board_key(&self) -> BoardKey {
+        BoardKey {
+            color_bits: self.color_bits,
+        }
+    }
+
+    pub(crate) const fn all_clear_bonus_pending(&self) -> bool {
+        self.all_clear_bonus_pending
+    }
+
+    pub(crate) const fn game_over(&self) -> bool {
+        self.game_over
+    }
+
+    #[allow(dead_code)]
+    pub(crate) const fn score(&self) -> u64 {
+        self.score
+    }
+
+    #[allow(dead_code)]
+    pub(crate) const fn last_chain_end_score(&self) -> u64 {
+        self.last_chain_end_score
+    }
+
+    fn from_quiet_direct(placement: DirectPlacement, previous: &Self, game_over: bool) -> Self {
+        Self {
+            color_bits: placement.color_bits,
+            drop_heights: placement.drop_heights,
+            lower_compact: true,
+            settled: true,
+            all_clear_bonus_pending: previous.all_clear_bonus_pending,
+            game_over,
+            score: previous.score,
+            last_chain_end_score: previous.last_chain_end_score,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct TransitionSummary {
+    pub(crate) state: CompactState,
+    pub(crate) action_id: u8,
+    pub(crate) valid: bool,
+    pub(crate) axis_y: Option<u8>,
+    pub(crate) score_delta: u64,
+    pub(crate) attack_score_delta: u64,
+    pub(crate) chain_count: u8,
+    pub(crate) vanished_count: u16,
+    pub(crate) garbage_cleared_count: u16,
+    pub(crate) all_clear_achieved: bool,
+    pub(crate) all_clear_bonus_consumed: bool,
+    pub(crate) all_clear_bonus_score: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct ChainStepTrace {
+    pub(crate) chain_index: u8,
+    pub(crate) vanished_count: u8,
+    pub(crate) garbage_cleared_count: u8,
+    pub(crate) base: u16,
+    pub(crate) bonus: u16,
+    pub(crate) score: u64,
+    pub(crate) all_clear_bonus_score: u64,
+    pub(crate) board_planes: [u128; PLANE_COUNT],
+    pub(crate) vanished_mask: u128,
+    pub(crate) garbage_mask: u128,
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub(crate) struct TransitionTrace {
+    pub(crate) placement_planes: Option<[u128; PLANE_COUNT]>,
+    pub(crate) chains: Vec<ChainStepTrace>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct VanishInfo {
+    vanished_mask: u128,
+    vanished_count: u8,
+    connection_bonus: u16,
+    color_count: u8,
+}
+
+#[derive(Clone, Copy)]
+struct DirectPlacement {
+    color_bits: [u128; COLOR_BIT_COUNT],
+    occupied: u128,
+    drop_heights: [u8; WIDTH],
+    landing_y: u8,
+    inserted_indices: [u8; 2],
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+struct OutcomeSignature {
+    state: CompactState,
+    chain_count: u8,
+    score_delta: u64,
+    garbage_cleared_count: u16,
+    game_over: bool,
+}
+
+#[inline]
+const fn cell_bit(x: usize, y: usize) -> u128 {
+    1_u128 << (x * COLUMN_LANE_BITS + y)
+}
+
+#[inline]
+const fn wire_cell_bit(x: usize, y: usize) -> u128 {
+    1_u128 << (y * WIDTH + x)
+}
+
+const fn lane_mask(height: usize) -> u128 {
+    let mut result = 0_u128;
+    let mut x = 0_usize;
+    while x < WIDTH {
+        result |= ((1_u128 << height) - 1) << (x * COLUMN_LANE_BITS);
+        x += 1;
+    }
+    result
+}
+
+const fn row_mask(y: usize) -> u128 {
+    let mut result = 0_u128;
+    let mut x = 0_usize;
+    while x < WIDTH {
+        result |= cell_bit(x, y);
+        x += 1;
+    }
+    result
+}
+
+#[inline]
+fn occupied_from_color_bits(color_bits: &[u128; COLOR_BIT_COUNT]) -> u128 {
+    color_bits[0] | color_bits[1] | color_bits[2]
+}
+
+#[inline]
+fn color_plane(color_bits: &[u128; COLOR_BIT_COUNT], plane_index: usize) -> u128 {
+    let low = color_bits[0];
+    let middle = color_bits[1];
+    let high = color_bits[2];
+    (match plane_index {
+        0 => low & !middle & !high,
+        1 => !low & middle & !high,
+        2 => low & middle & !high,
+        3 => !low & !middle & high,
+        4 => low & !middle & high,
+        5 => !low & middle & high,
+        _ => 0,
+    }) & BOARD_MASK
+}
+
+#[inline]
+fn set_color_bit(color_bits: &mut [u128; COLOR_BIT_COUNT], bit: u128, color_id: usize) {
+    debug_assert!((1..=PLANE_COUNT).contains(&color_id));
+    for (index, slice) in color_bits.iter_mut().enumerate() {
+        if color_id & (1 << index) != 0 {
+            *slice |= bit;
+        }
+    }
+}
+
+fn color_bits_from_wire_planes(planes: &[u128; PLANE_COUNT]) -> [u128; COLOR_BIT_COUNT] {
+    let mut result = [0_u128; COLOR_BIT_COUNT];
+    for (plane_index, plane) in planes.iter().copied().enumerate() {
+        let mut remaining = plane;
+        while remaining != 0 {
+            let index = remaining.trailing_zeros() as usize;
+            let x = index % WIDTH;
+            let y = index / WIDTH;
+            set_color_bit(&mut result, cell_bit(x, y), plane_index + 1);
+            remaining &= remaining - 1;
+        }
+    }
+    result
+}
+
+fn internal_plane_to_wire(plane: u128) -> u128 {
+    let mut result = 0_u128;
+    let mut remaining = plane;
+    while remaining != 0 {
+        let index = remaining.trailing_zeros() as usize;
+        let x = index / COLUMN_LANE_BITS;
+        let y = index % COLUMN_LANE_BITS;
+        debug_assert!(x < WIDTH && y < HEIGHT);
+        result |= wire_cell_bit(x, y);
+        remaining &= remaining - 1;
+    }
+    result
+}
+
+fn wire_planes_from_color_bits(color_bits: &[u128; COLOR_BIT_COUNT]) -> [u128; PLANE_COUNT] {
+    std::array::from_fn(|index| internal_plane_to_wire(color_plane(color_bits, index)))
+}
+
+fn board_geometry(occupied: u128) -> ([u8; WIDTH], bool) {
+    let mut drop_heights = [0_u8; WIDTH];
+    let mut lower_compact = true;
+    for (x, height) in drop_heights.iter_mut().enumerate() {
+        let mut seen_empty = false;
+        for y in 0..(HEIGHT - 1) {
+            if occupied & cell_bit(x, y) != 0 {
+                *height += 1;
+                if seen_empty {
+                    lower_compact = false;
+                }
+            } else {
+                seen_empty = true;
+            }
+        }
+    }
+    (drop_heights, lower_compact)
+}
+
+#[inline]
+const fn splitmix64(value: u64) -> u64 {
+    let mut mixed = value.wrapping_add(0x9e37_79b9_7f4a_7c15);
+    mixed = (mixed ^ (mixed >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+    mixed = (mixed ^ (mixed >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+    mixed ^ (mixed >> 31)
+}
+
+const fn fingerprint_table() -> [[[u64; 2]; WIDTH * HEIGHT]; PLANE_COUNT] {
+    let mut result = [[[0_u64; 2]; WIDTH * HEIGHT]; PLANE_COUNT];
+    let mut plane_index = 0_usize;
+    while plane_index < PLANE_COUNT {
+        let mut bit_index = 0_usize;
+        while bit_index < WIDTH * HEIGHT {
+            let identity = (plane_index * WIDTH * HEIGHT + bit_index + 1) as u64;
+            result[plane_index][bit_index] = [
+                splitmix64(0x243f_6a88_85a3_08d3 ^ identity),
+                splitmix64(0x1319_8a2e_0370_7344 ^ identity.rotate_left(29)),
+            ];
+            bit_index += 1;
+        }
+        plane_index += 1;
+    }
+    result
+}
+
+fn fingerprint_color_bits(color_bits: &[u128; COLOR_BIT_COUNT]) -> [u64; 2] {
+    let mut result = [0_u64; 2];
+    for plane_index in 0..PLANE_COUNT {
+        let plane = color_plane(color_bits, plane_index);
+        let mut remaining = plane;
+        while remaining != 0 {
+            let internal_index = remaining.trailing_zeros() as usize;
+            let x = internal_index / COLUMN_LANE_BITS;
+            let y = internal_index % COLUMN_LANE_BITS;
+            let contribution = cell_fingerprint(plane_index, y * WIDTH + x);
+            result[0] ^= contribution[0];
+            result[1] ^= contribution[1];
+            remaining &= remaining - 1;
+        }
+    }
+    result
+}
+
+#[inline]
+fn cell_fingerprint(plane_index: usize, bit_index: usize) -> [u64; 2] {
+    CELL_FINGERPRINTS[plane_index][bit_index]
+}
+
+fn placement(action_id: u8) -> CompactResult<PlacementAction> {
+    ACTIONS
+        .get(usize::from(action_id))
+        .copied()
+        .ok_or_else(|| CompactError::invalid("action ID is outside the v1 layout"))
+}
+
+#[inline]
+fn can_place_pair(occupied: u128, axis_x: i8, axis_y: i8, direction: Direction) -> bool {
+    if axis_x < 0 || axis_x >= WIDTH as i8 || axis_y < 0 || axis_y >= HEIGHT as i8 {
+        return false;
+    }
+    let axis_bit = cell_bit(axis_x as usize, axis_y as usize);
+    if occupied & axis_bit != 0 {
+        return false;
+    }
+    let (offset_x, offset_y) = direction.offset();
+    let child_x = axis_x + offset_x;
+    let child_y = axis_y + offset_y;
+    if child_x < 0 || child_x >= WIDTH as i8 || child_y < 0 || child_y >= HEIGHT as i8 {
+        return false;
+    }
+    occupied & cell_bit(child_x as usize, child_y as usize) == 0
+}
+
+fn find_landing_y(state: &CompactState, action: PlacementAction) -> Option<u8> {
+    if state.game_over {
+        return None;
+    }
+    let axis_x = action.axis_x as i8;
+    let mut landing_y = 12_i8;
+    let occupied = state.internal_occupied();
+    if !can_place_pair(occupied, axis_x, landing_y, action.direction) {
+        return None;
+    }
+    while can_place_pair(occupied, axis_x, landing_y - 1, action.direction) {
+        landing_y -= 1;
+    }
+    Some(landing_y as u8)
+}
+
+pub(crate) fn legal_actions_mask(state: &CompactState) -> u32 {
+    if state.game_over {
+        return 0;
+    }
+    ACTIONS
+        .iter()
+        .enumerate()
+        .fold(0_u32, |mask, (index, action)| {
+            if find_landing_y(state, *action).is_some() {
+                mask | (1_u32 << index)
+            } else {
+                mask
+            }
+        })
+}
+
+pub(crate) fn symmetry_reduced_actions_mask(
+    state: &CompactState,
+    pair: Pair,
+) -> CompactResult<u32> {
+    let legal = legal_actions_mask(state);
+    if pair.axis != pair.child {
+        return Ok(legal);
+    }
+    let mut selected = [None; ACTION_COUNT];
+    let mut selected_count = 0_usize;
+    let mut result_mask = 0_u32;
+    for action_id in 0..ACTION_COUNT {
+        if legal & (1_u32 << action_id) == 0 {
+            continue;
+        }
+        let outcome = transition(
+            state,
+            pair,
+            u8::try_from(action_id).expect("action ID fits u8"),
+            None,
+        )?;
+        let signature = OutcomeSignature {
+            state: outcome.state,
+            chain_count: outcome.chain_count,
+            score_delta: outcome.score_delta,
+            garbage_cleared_count: outcome.garbage_cleared_count,
+            game_over: outcome.state.game_over,
+        };
+        if selected[..selected_count]
+            .iter()
+            .flatten()
+            .any(|existing| *existing == signature)
+        {
+            continue;
+        }
+        selected[selected_count] = Some(signature);
+        selected_count += 1;
+        result_mask |= 1_u32 << action_id;
+    }
+    Ok(result_mask)
+}
+
+#[inline]
+fn set_plane_cell(
+    color_bits: &mut [u128; COLOR_BIT_COUNT],
+    occupied: &mut u128,
+    x: usize,
+    y: usize,
+    color: Color,
+) -> CompactResult<()> {
+    let bit = cell_bit(x, y);
+    if *occupied & bit != 0 {
+        return Err(CompactError::invalid(
+            "cannot place a compact puyo into an occupied cell",
+        ));
+    }
+    set_color_bit(color_bits, bit, color.plane_index() + 1);
+    *occupied |= bit;
+    Ok(())
+}
+
+#[inline]
+fn add_direct_cell(
+    color_bits: &mut [u128; COLOR_BIT_COUNT],
+    occupied: &mut u128,
+    x: usize,
+    y: usize,
+    color: Color,
+) {
+    let bit = cell_bit(x, y);
+    debug_assert_eq!(*occupied & bit, 0);
+    set_color_bit(color_bits, bit, color.plane_index() + 1);
+    *occupied |= bit;
+}
+
+#[inline(always)]
+fn direct_placement(
+    state: &CompactState,
+    pair: Pair,
+    action: PlacementAction,
+) -> Option<DirectPlacement> {
+    if state.game_over || !state.lower_compact {
+        return None;
+    }
+    let axis_x = usize::from(action.axis_x);
+    let mut color_bits = state.color_bits;
+    let mut occupied = state.internal_occupied();
+    let mut drop_heights = state.drop_heights;
+    let landing_y;
+    let inserted;
+    match action.direction {
+        Direction::Up => {
+            let height = usize::from(drop_heights[axis_x]);
+            if height > HEIGHT - 2
+                || (height == HEIGHT - 2 && occupied & cell_bit(axis_x, HEIGHT - 1) != 0)
+            {
+                return None;
+            }
+            landing_y = height as u8;
+            add_direct_cell(&mut color_bits, &mut occupied, axis_x, height, pair.axis);
+            add_direct_cell(
+                &mut color_bits,
+                &mut occupied,
+                axis_x,
+                height + 1,
+                pair.child,
+            );
+            inserted = [
+                (axis_x * COLUMN_LANE_BITS + height) as u8,
+                (axis_x * COLUMN_LANE_BITS + height + 1) as u8,
+            ];
+            drop_heights[axis_x] += 1;
+            if height + 1 < HEIGHT - 1 {
+                drop_heights[axis_x] += 1;
+            }
+        }
+        Direction::Down => {
+            let height = usize::from(drop_heights[axis_x]);
+            if height > HEIGHT - 3 {
+                return None;
+            }
+            landing_y = (height + 1) as u8;
+            add_direct_cell(&mut color_bits, &mut occupied, axis_x, height, pair.child);
+            add_direct_cell(
+                &mut color_bits,
+                &mut occupied,
+                axis_x,
+                height + 1,
+                pair.axis,
+            );
+            inserted = [
+                (axis_x * COLUMN_LANE_BITS + height + 1) as u8,
+                (axis_x * COLUMN_LANE_BITS + height) as u8,
+            ];
+            drop_heights[axis_x] += 2;
+        }
+        Direction::Right | Direction::Left => {
+            let child_x = if action.direction == Direction::Right {
+                axis_x + 1
+            } else {
+                axis_x - 1
+            };
+            let axis_height = usize::from(drop_heights[axis_x]);
+            let child_height = usize::from(drop_heights[child_x]);
+            if axis_height > HEIGHT - 2 || child_height > HEIGHT - 2 {
+                return None;
+            }
+            landing_y = axis_height.max(child_height) as u8;
+            add_direct_cell(
+                &mut color_bits,
+                &mut occupied,
+                axis_x,
+                axis_height,
+                pair.axis,
+            );
+            add_direct_cell(
+                &mut color_bits,
+                &mut occupied,
+                child_x,
+                child_height,
+                pair.child,
+            );
+            inserted = [
+                (axis_x * COLUMN_LANE_BITS + axis_height) as u8,
+                (child_x * COLUMN_LANE_BITS + child_height) as u8,
+            ];
+            drop_heights[axis_x] += 1;
+            drop_heights[child_x] += 1;
+        }
+    }
+    Some(DirectPlacement {
+        color_bits,
+        occupied,
+        drop_heights,
+        landing_y,
+        inserted_indices: inserted,
+    })
+}
+
+fn parallel_extract_13(value: u16, mut mask: u16) -> u16 {
+    let mut result = 0_u16;
+    let mut destination = 1_u16;
+    while mask != 0 {
+        let source = mask.isolate_lowest_one();
+        if value & source != 0 {
+            result |= destination;
+        }
+        mask &= mask - 1;
+        destination <<= 1;
+    }
+    result
+}
+
+fn apply_gravity(color_bits: &[u128; COLOR_BIT_COUNT]) -> [u128; COLOR_BIT_COUNT] {
+    let mut result = std::array::from_fn(|index| color_bits[index] & ROW_14_MASK);
+    let occupied = occupied_from_color_bits(color_bits);
+    for x in 0..WIDTH {
+        let shift = x * COLUMN_LANE_BITS;
+        let occupied_column = ((occupied >> shift) as u16) & 0x1fff;
+        for (index, slice) in color_bits.iter().copied().enumerate() {
+            let column = ((slice >> shift) as u16) & 0x1fff;
+            result[index] |= u128::from(parallel_extract_13(column, occupied_column)) << shift;
+        }
+    }
+    result
+}
+
+#[inline(always)]
+fn visible_neighbors(mask: u128) -> u128 {
+    ((mask >> COLUMN_LANE_BITS) | (mask << COLUMN_LANE_BITS) | (mask >> 1) | (mask << 1))
+        & VISIBLE_MASK
+}
+
+fn connection_bonus(group_size: u32) -> u16 {
+    match group_size {
+        0..=4 => 0,
+        5 => 2,
+        6 => 3,
+        7 => 4,
+        8 => 5,
+        9 => 6,
+        10 => 7,
+        _ => 10,
+    }
+}
+
+#[inline]
+fn has_at_least_four_bits(value: u128) -> bool {
+    let without_one = value & value.wrapping_sub(1);
+    let without_two = without_one & without_one.wrapping_sub(1);
+    let without_three = without_two & without_two.wrapping_sub(1);
+    without_three != 0
+}
+
+#[inline]
+fn shift_west(mask: u128) -> u128 {
+    mask >> COLUMN_LANE_BITS
+}
+
+#[inline]
+fn shift_east(mask: u128) -> u128 {
+    (mask << COLUMN_LANE_BITS) & VISIBLE_MASK
+}
+
+#[inline]
+fn shift_down(mask: u128) -> u128 {
+    mask >> 1
+}
+
+#[inline]
+fn shift_up(mask: u128) -> u128 {
+    (mask << 1) & VISIBLE_MASK
+}
+
+/// Return cells belonging to a visible four-connected component of size at
+/// least four.  The degree pattern is an allocation-free scalar translation
+/// of the standard bitboard connectivity identity; component flood-fill is
+/// only needed after this filter reports a candidate.
+#[inline]
+fn poppable_mask(plane: u128) -> u128 {
+    let visible = plane & VISIBLE_MASK;
+    let west = shift_west(visible) & visible;
+    let east = shift_east(visible) & visible;
+    let down = shift_down(visible) & visible;
+    let up = shift_up(visible) & visible;
+    let vertical_both = up & down;
+    let horizontal_both = west & east;
+    let vertical_either = up | down;
+    let horizontal_either = west | east;
+    let degree_three = (vertical_both & horizontal_either) | (horizontal_both & vertical_either);
+    let degree_two = vertical_both | horizontal_both | (vertical_either & horizontal_either);
+    let connected_degree_two = (shift_west(degree_two) & degree_two)
+        | (shift_east(degree_two) & degree_two)
+        | (shift_down(degree_two) & degree_two)
+        | (shift_up(degree_two) & degree_two);
+    let seeds = degree_three | connected_degree_two;
+    (seeds | visible_neighbors(seeds)) & visible
+}
+
+fn find_vanish(color_bits: &[u128; COLOR_BIT_COUNT]) -> VanishInfo {
+    let mut vanished_mask = 0_u128;
+    let mut vanished_count = 0_u8;
+    let mut total_connection_bonus = 0_u16;
+    let mut color_count = 0_u8;
+    for plane_index in 0..NORMAL_COLOR_COUNT {
+        let visible_plane = color_plane(color_bits, plane_index) & VISIBLE_MASK;
+        let mut remaining = poppable_mask(visible_plane);
+        if remaining == 0 {
+            continue;
+        }
+        let mut color_vanished = false;
+        while remaining != 0 {
+            let seed = 1_u128 << remaining.trailing_zeros();
+            let mut group = seed;
+            loop {
+                let expanded = group | (visible_neighbors(group) & visible_plane);
+                if expanded == group {
+                    break;
+                }
+                group = expanded;
+            }
+            remaining &= !group;
+            let count = group.count_ones();
+            if count < 4 {
+                continue;
+            }
+            vanished_mask |= group;
+            vanished_count += u8::try_from(count).expect("visible board count fits u8");
+            total_connection_bonus += connection_bonus(count);
+            color_vanished = true;
+        }
+        color_count += u8::from(color_vanished);
+    }
+    VanishInfo {
+        vanished_mask,
+        vanished_count,
+        connection_bonus: total_connection_bonus,
+        color_count,
+    }
+}
+
+/// Stable compact states cannot gain a new group except through one of the
+/// two cells placed by the current action.  Restricting the first-chain scan
+/// to those components preserves arbitrary-state semantics through the full
+/// scanner while making the normal reachable-state path constant work.
+#[inline(always)]
+fn find_inserted_vanish(
+    color_bits: &[u128; COLOR_BIT_COUNT],
+    pair: Pair,
+    inserted_indices: [u8; 2],
+) -> VanishInfo {
+    let mut vanished_mask = 0_u128;
+    let mut vanished_count = 0_u8;
+    let mut total_connection_bonus = 0_u16;
+    let mut vanished_colors = 0_u8;
+    let inserted = [
+        (pair.axis.plane_index(), inserted_indices[0]),
+        (pair.child.plane_index(), inserted_indices[1]),
+    ];
+    for (plane_index, bit_index) in inserted {
+        let seed = 1_u128 << bit_index;
+        if seed & VISIBLE_MASK == 0 || vanished_mask & seed != 0 {
+            continue;
+        }
+        let visible_plane = color_plane(color_bits, plane_index) & VISIBLE_MASK;
+        let mut group = seed;
+        // Four cells connected to a seed are all reachable within three
+        // expansions.  Avoid the unbounded convergence loop for quiet moves.
+        for _ in 0..3 {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        if !has_at_least_four_bits(group) {
+            continue;
+        }
+        loop {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        if vanished_mask & group != 0 {
+            continue;
+        }
+        let count = group.count_ones();
+        vanished_mask |= group;
+        vanished_count += u8::try_from(count).expect("visible board count fits u8");
+        total_connection_bonus += connection_bonus(count);
+        vanished_colors |= 1_u8 << plane_index;
+    }
+    VanishInfo {
+        vanished_mask,
+        vanished_count,
+        connection_bonus: total_connection_bonus,
+        color_count: vanished_colors.count_ones() as u8,
+    }
+}
+
+fn clear_and_drop(
+    color_bits: &[u128; COLOR_BIT_COUNT],
+    vanished_mask: u128,
+    garbage_mask: u128,
+) -> [u128; COLOR_BIT_COUNT] {
+    let cleared_mask = vanished_mask | garbage_mask;
+    let mut cleared = *color_bits;
+    for slice in &mut cleared {
+        *slice &= !cleared_mask;
+    }
+    apply_gravity(&cleared)
+}
+
+fn invalid_transition(state: &CompactState, action_id: u8) -> TransitionSummary {
+    TransitionSummary {
+        state: *state,
+        action_id,
+        valid: false,
+        axis_y: None,
+        score_delta: 0,
+        attack_score_delta: 0,
+        chain_count: 0,
+        vanished_count: 0,
+        garbage_cleared_count: 0,
+        all_clear_achieved: false,
+        all_clear_bonus_consumed: false,
+        all_clear_bonus_score: 0,
+    }
+}
+
+pub(crate) fn transition(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+    trace: Option<&mut TransitionTrace>,
+) -> CompactResult<TransitionSummary> {
+    let mut output = MaybeUninit::uninit();
+    transition_into(state, pair, action_id, trace, &mut output)?;
+    // SAFETY: `transition_into` returns `Ok` only after writing one summary.
+    Ok(unsafe { output.assume_init() })
+}
+
+pub(crate) fn transition_into(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+    trace: Option<&mut TransitionTrace>,
+    output: &mut MaybeUninit<TransitionSummary>,
+) -> CompactResult<()> {
+    let action = placement(action_id)?;
+    if state.lower_compact && state.settled {
+        let Some(value) = direct_placement(state, pair, action) else {
+            output.write(invalid_transition(state, action_id));
+            return Ok(());
+        };
+        return transition_reachable_into(state, pair, action_id, value, trace, output);
+    }
+    output.write(transition_general(state, pair, action_id, action, trace)?);
+    Ok(())
+}
+
+#[inline]
+fn transition_reachable_into(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+    placement: DirectPlacement,
+    mut trace: Option<&mut TransitionTrace>,
+    output: &mut MaybeUninit<TransitionSummary>,
+) -> CompactResult<()> {
+    if let Some(output) = trace.as_deref_mut() {
+        output.placement_planes = Some(wire_planes_from_color_bits(&placement.color_bits));
+    }
+    let vanish = find_inserted_vanish(&placement.color_bits, pair, placement.inserted_indices);
+    if vanish.vanished_mask == 0 {
+        let game_over = placement.occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
+        output.write(quiet_transition(
+            action_id,
+            placement.landing_y,
+            CompactState::from_quiet_direct(placement, state, game_over),
+        ));
+        return Ok(());
+    }
+    output.write(resolve_chains(
+        state,
+        action_id,
+        placement.landing_y,
+        placement.color_bits,
+        vanish,
+        trace,
+    )?);
+    Ok(())
+}
+
+#[cold]
+#[inline(never)]
+fn transition_general(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+    action: PlacementAction,
+    mut trace: Option<&mut TransitionTrace>,
+) -> CompactResult<TransitionSummary> {
+    let direct = if state.lower_compact {
+        let Some(value) = direct_placement(state, pair, action) else {
+            return Ok(invalid_transition(state, action_id));
+        };
+        Some(value)
+    } else {
+        None
+    };
+    let (current_color_bits, landing_y) = if let Some(value) = direct {
+        (value.color_bits, value.landing_y)
+    } else {
+        let Some(landing_y) = find_landing_y(state, action) else {
+            return Ok(invalid_transition(state, action_id));
+        };
+        let mut color_bits = state.color_bits;
+        let mut occupied = state.internal_occupied();
+        set_plane_cell(
+            &mut color_bits,
+            &mut occupied,
+            usize::from(action.axis_x),
+            usize::from(landing_y),
+            pair.axis,
+        )?;
+        let (offset_x, offset_y) = action.direction.offset();
+        let child_x = (action.axis_x as i8 + offset_x) as usize;
+        let child_y = (landing_y as i8 + offset_y) as usize;
+        set_plane_cell(&mut color_bits, &mut occupied, child_x, child_y, pair.child)?;
+        (apply_gravity(&color_bits), landing_y)
+    };
+    if let Some(output) = trace.as_deref_mut() {
+        output.placement_planes = Some(wire_planes_from_color_bits(&current_color_bits));
+    }
+    let vanish = find_vanish(&current_color_bits);
+    if vanish.vanished_mask == 0 {
+        let final_occupied = direct.map_or_else(
+            || occupied_from_color_bits(&current_color_bits),
+            |value| value.occupied,
+        );
+        let game_over = final_occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
+        let next_state = if let Some(value) = direct {
+            CompactState::from_quiet_direct(value, state, game_over)
+        } else {
+            CompactState::from_parts(
+                wire_planes_from_color_bits(&current_color_bits),
+                state.all_clear_bonus_pending,
+                game_over,
+                state.score,
+                state.last_chain_end_score,
+            )?
+        };
+        return Ok(quiet_transition(action_id, landing_y, next_state));
+    }
+    resolve_chains(
+        state,
+        action_id,
+        landing_y,
+        current_color_bits,
+        vanish,
+        trace,
+    )
+}
+
+#[inline]
+fn quiet_transition(action_id: u8, landing_y: u8, state: CompactState) -> TransitionSummary {
+    TransitionSummary {
+        state,
+        action_id,
+        valid: true,
+        axis_y: Some(landing_y),
+        score_delta: 0,
+        attack_score_delta: 0,
+        chain_count: 0,
+        vanished_count: 0,
+        garbage_cleared_count: 0,
+        all_clear_achieved: false,
+        all_clear_bonus_consumed: false,
+        all_clear_bonus_score: 0,
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn resolve_chains(
+    state: &CompactState,
+    action_id: u8,
+    landing_y: u8,
+    mut current_color_bits: [u128; COLOR_BIT_COUNT],
+    mut vanish: VanishInfo,
+    mut trace: Option<&mut TransitionTrace>,
+) -> CompactResult<TransitionSummary> {
+    let mut pending = state.all_clear_bonus_pending;
+    let mut all_clear_bonus_consumed = false;
+    let mut all_clear_bonus_score = 0_u64;
+    let mut score = state.score;
+    let mut chain_count = 0_u8;
+    let mut vanished_total = 0_u16;
+    let mut garbage_total = 0_u16;
+
+    loop {
+        chain_count = chain_count
+            .checked_add(1)
+            .ok_or_else(|| CompactError::overflow("chain count overflow"))?;
+        let garbage_mask = visible_neighbors(vanish.vanished_mask)
+            & color_plane(&current_color_bits, PLANE_COUNT - 1)
+            & VISIBLE_MASK;
+        let garbage_count =
+            u8::try_from(garbage_mask.count_ones()).expect("visible garbage count fits u8");
+        let chain_bonus = CHAIN_BONUS[usize::from(chain_count).min(CHAIN_BONUS.len() - 1)];
+        let color_bonus = COLOR_BONUS[usize::from(vanish.color_count)];
+        let bonus = (chain_bonus + vanish.connection_bonus + color_bonus).max(1);
+        let base = u16::from(vanish.vanished_count) * 10;
+        let step_all_clear_bonus = if chain_count == 1 && pending {
+            pending = false;
+            all_clear_bonus_consumed = true;
+            all_clear_bonus_score = ALL_CLEAR_BONUS_SCORE;
+            ALL_CLEAR_BONUS_SCORE
+        } else {
+            0
+        };
+        let step_score = u64::from(base)
+            .checked_mul(u64::from(bonus))
+            .and_then(|value| value.checked_add(step_all_clear_bonus))
+            .ok_or_else(|| CompactError::overflow("chain step score overflow"))?;
+        score = score
+            .checked_add(step_score)
+            .ok_or_else(|| CompactError::overflow("total score exceeds u64"))?;
+        vanished_total = vanished_total
+            .checked_add(u16::from(vanish.vanished_count))
+            .ok_or_else(|| CompactError::overflow("vanished count overflow"))?;
+        garbage_total = garbage_total
+            .checked_add(u16::from(garbage_count))
+            .ok_or_else(|| CompactError::overflow("garbage count overflow"))?;
+        if let Some(output) = trace.as_deref_mut() {
+            output.chains.push(ChainStepTrace {
+                chain_index: chain_count,
+                vanished_count: vanish.vanished_count,
+                garbage_cleared_count: garbage_count,
+                base,
+                bonus,
+                score: step_score,
+                all_clear_bonus_score: step_all_clear_bonus,
+                board_planes: wire_planes_from_color_bits(&current_color_bits),
+                vanished_mask: internal_plane_to_wire(vanish.vanished_mask),
+                garbage_mask: internal_plane_to_wire(garbage_mask),
+            });
+        }
+        current_color_bits =
+            clear_and_drop(&current_color_bits, vanish.vanished_mask, garbage_mask);
+        vanish = find_vanish(&current_color_bits);
+        if vanish.vanished_mask == 0 {
+            break;
+        }
+    }
+
+    let final_occupied = occupied_from_color_bits(&current_color_bits);
+    let all_clear_achieved = chain_count > 0 && final_occupied == 0;
+    if all_clear_achieved {
+        pending = true;
+    }
+    let mut last_chain_end_score = state.last_chain_end_score;
+    let attack_score_delta = if chain_count > 0 {
+        let delta = score
+            .checked_sub(last_chain_end_score)
+            .ok_or_else(|| CompactError::overflow("attack score lifecycle underflow"))?;
+        last_chain_end_score = score;
+        delta
+    } else {
+        0
+    };
+    let game_over = final_occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
+    let next_state = CompactState::from_parts(
+        wire_planes_from_color_bits(&current_color_bits),
+        pending,
+        game_over,
+        score,
+        last_chain_end_score,
+    )?;
+    Ok(TransitionSummary {
+        state: next_state,
+        action_id,
+        valid: true,
+        axis_y: Some(landing_y),
+        score_delta: score - state.score,
+        attack_score_delta,
+        chain_count,
+        vanished_count: vanished_total,
+        garbage_cleared_count: garbage_total,
+        all_clear_achieved,
+        all_clear_bonus_consumed,
+        all_clear_bonus_score,
+    })
+}
+
+pub(crate) fn planes_to_wire(planes: &[u128; PLANE_COUNT]) -> [u8; PLANE_COUNT * PLANE_BYTES] {
+    let mut result = [0_u8; PLANE_COUNT * PLANE_BYTES];
+    for (index, plane) in planes.iter().copied().enumerate() {
+        let bytes = plane.to_le_bytes();
+        let offset = index * PLANE_BYTES;
+        result[offset..offset + PLANE_BYTES].copy_from_slice(&bytes[..PLANE_BYTES]);
+    }
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    fn reference_poppable_mask(plane: u128) -> u128 {
+        let visible = plane & VISIBLE_MASK;
+        let mut remaining = visible;
+        let mut result = 0_u128;
+        while remaining != 0 {
+            let mut group = 1_u128 << remaining.trailing_zeros();
+            loop {
+                let expanded = group | (visible_neighbors(group) & visible);
+                if expanded == group {
+                    break;
+                }
+                group = expanded;
+            }
+            remaining &= !group;
+            if group.count_ones() >= 4 {
+                result |= group;
+            }
+        }
+        result
+    }
+
+    fn state_with_cells(cells: &[(usize, usize, usize)]) -> CompactState {
+        let mut planes = [0_u128; PLANE_COUNT];
+        for &(plane, x, y) in cells {
+            planes[plane] |= wire_cell_bit(x, y);
+        }
+        CompactState::from_parts(planes, false, false, 0, 0).expect("valid test state")
+    }
+
+    #[test]
+    fn state_round_trip_and_derived_values_include_hidden_ojama() {
+        let hidden = state_with_cells(&[(0, 0, 13)]);
+        let ojama = state_with_cells(&[(5, 0, 13)]);
+
+        assert_eq!(CompactState::from_bytes(&hidden.to_bytes()), Ok(hidden));
+        assert_eq!(hidden.column_heights(), [14, 0, 0, 0, 0, 0]);
+        assert_ne!(hidden.board_key(), ojama.board_key());
+        assert_ne!(hidden.board_fingerprint(), ojama.board_fingerprint());
+    }
+
+    #[test]
+    fn poppable_prefilter_matches_reference_components() {
+        let mut random = 0x9e37_79b9_7f4a_7c15_u64;
+        for _ in 0..20_000 {
+            random ^= random << 13;
+            random ^= random >> 7;
+            random ^= random << 17;
+            let lower = u128::from(random);
+            random = random.rotate_left(23).wrapping_add(0xa076_1d64_78bd_642f);
+            let plane = (lower | (u128::from(random) << 64)) & VISIBLE_MASK;
+            assert_eq!(poppable_mask(plane), reference_poppable_mask(plane));
+        }
+    }
+
+    #[test]
+    fn inserted_component_fast_path_matches_full_scanner() {
+        let mut random = 0xd1b5_4a32_d192_ed03_u64;
+        let mut checked = 0_usize;
+        for _ in 0..300 {
+            let mut planes = [0_u128; PLANE_COUNT];
+            for x in 0..WIDTH {
+                random ^= random << 13;
+                random ^= random >> 7;
+                random ^= random << 17;
+                let height = (random as usize) % 7;
+                for y in 0..height {
+                    random = random.rotate_left(19).wrapping_add(0x9e37_79b9_7f4a_7c15);
+                    let plane = (random as usize) % PLANE_COUNT;
+                    planes[plane] |= wire_cell_bit(x, y);
+                }
+            }
+            let state = CompactState::from_parts(planes, false, false, 0, 0)
+                .expect("generated compact state is valid");
+            if !state.settled {
+                continue;
+            }
+            for axis in 1..=NORMAL_COLOR_COUNT as u8 {
+                for child in 1..=NORMAL_COLOR_COUNT as u8 {
+                    let pair = Pair::from_ids(axis, child).expect("generated pair is valid");
+                    for action in ACTIONS {
+                        let Some(placed) = direct_placement(&state, pair, action) else {
+                            continue;
+                        };
+                        assert_eq!(
+                            find_inserted_vanish(&placed.color_bits, pair, placed.inserted_indices,),
+                            find_vanish(&placed.color_bits),
+                        );
+                        checked += 1;
+                    }
+                }
+            }
+        }
+        assert!(
+            checked > 100_000,
+            "insufficient fast-path differential cases"
+        );
+    }
+
+    #[test]
+    fn empty_legal_and_equal_pair_reduction_preserve_action_ids() {
+        let state = state_with_cells(&[]);
+        let pair = Pair::from_ids(1, 1).expect("valid pair");
+
+        assert_eq!(legal_actions_mask(&state), (1_u32 << ACTION_COUNT) - 1);
+        assert_eq!(
+            symmetry_reduced_actions_mask(&state, pair).expect("reduction succeeds"),
+            [0, 1, 3, 4, 7, 8, 11, 12, 15, 16, 19]
+                .into_iter()
+                .fold(0, |mask, action| mask | (1_u32 << action))
+        );
+    }
+
+    #[test]
+    fn one_chain_all_clear_matches_python_lifecycle() {
+        let state = state_with_cells(&[(0, 1, 0), (0, 1, 1)]);
+        let pair = Pair::from_ids(1, 1).expect("valid pair");
+        let mut trace = TransitionTrace::default();
+
+        let result = transition(&state, pair, 7, Some(&mut trace)).expect("transition succeeds");
+
+        assert!(result.valid);
+        assert_eq!(result.axis_y, Some(0));
+        assert_eq!(result.score_delta, 40);
+        assert_eq!(result.attack_score_delta, 40);
+        assert_eq!(result.chain_count, 1);
+        assert_eq!(result.vanished_count, 4);
+        assert!(result.all_clear_achieved);
+        assert!(result.state.all_clear_bonus_pending());
+        assert_eq!(trace.chains.len(), 1);
+        assert_eq!(trace.chains[0].base, 40);
+        assert_eq!(trace.chains[0].bonus, 1);
+    }
+
+    #[test]
+    fn adjacent_ojama_is_cleared_without_scoring() {
+        let state = state_with_cells(&[(0, 0, 0), (0, 1, 0), (0, 2, 0), (5, 2, 1)]);
+        let pair = Pair::from_ids(1, 4).expect("valid pair");
+        let result = transition(&state, pair, 12, None).expect("transition succeeds");
+
+        assert_eq!(result.score_delta, 40);
+        assert_eq!(result.vanished_count, 4);
+        assert_eq!(result.garbage_cleared_count, 1);
+        assert_eq!(result.state.wire_planes()[5], 0);
+    }
+
+    #[test]
+    fn score_overflow_is_typed_and_does_not_wrap() {
+        let mut planes = [0_u128; PLANE_COUNT];
+        planes[0] = wire_cell_bit(1, 0) | wire_cell_bit(1, 1);
+        let state = CompactState::from_parts(planes, false, false, u64::MAX - 39, 0)
+            .expect("valid near-overflow state");
+        let pair = Pair::from_ids(1, 1).expect("valid pair");
+
+        let error = transition(&state, pair, 7, None).expect_err("overflow must fail");
+
+        assert_eq!(error.kind, CompactErrorKind::ArithmeticOverflow);
+    }
+
+    #[test]
+    fn normal_hot_transition_performs_no_heap_allocation() {
+        let state = state_with_cells(&[
+            (0, 0, 0),
+            (1, 1, 0),
+            (2, 2, 0),
+            (3, 3, 0),
+            (4, 4, 0),
+            (5, 5, 0),
+        ]);
+        let pair = Pair::from_ids(1, 2).expect("valid pair");
+
+        let (result, allocation_count) =
+            crate::allocation_probe::count_allocations(|| transition(&state, pair, 7, None));
+
+        assert!(result.expect("transition succeeds").valid);
+        assert_eq!(allocation_count, 0);
+    }
+
+    #[test]
+    fn search_key_requires_external_coordinates_and_exact_board() {
+        let hidden = state_with_cells(&[(0, 0, 13)]);
+        let ojama = state_with_cells(&[(5, 0, 13)]);
+        let first = SearchStateKey::new(&hidden, 0, 1, 2, 3).expect("valid key");
+        let second = SearchStateKey::new(&ojama, 0, 1, 2, 3).expect("valid key");
+        let different_depth = SearchStateKey::new(&hidden, 0, 1, 2, 4).expect("valid key");
+
+        assert_ne!(first, second);
+        assert_ne!(first, different_depth);
+        assert_ne!(first.board.color_bits(), second.board.color_bits());
+    }
+
+    #[test]
+    #[ignore = "manual release-only component profile"]
+    fn profile_quiet_transition_components() {
+        const ITERATIONS: u32 = 2_000_000;
+        let state = state_with_cells(&[
+            (0, 0, 0),
+            (1, 1, 0),
+            (2, 2, 0),
+            (3, 3, 0),
+            (4, 4, 0),
+            (5, 5, 0),
+        ]);
+        let pair = Pair::from_ids(1, 2).expect("valid pair");
+        let action = placement(7).expect("valid action");
+        let direct = direct_placement(&state, pair, action).expect("valid placement");
+
+        let baseline_started = Instant::now();
+        for index in 0..ITERATIONS {
+            black_box(index);
+        }
+        let baseline = baseline_started.elapsed();
+
+        let placement_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(direct_placement(black_box(&state), pair, action));
+        }
+        let placement_duration = placement_started.elapsed();
+
+        let vanish_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(find_inserted_vanish(
+                black_box(&direct.color_bits),
+                pair,
+                direct.inserted_indices,
+            ));
+        }
+        let vanish_duration = vanish_started.elapsed();
+
+        let combined_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            let placed =
+                direct_placement(black_box(&state), pair, action).expect("valid placement");
+            black_box(find_inserted_vanish(
+                &placed.color_bits,
+                pair,
+                placed.inserted_indices,
+            ));
+        }
+        let combined_duration = combined_started.elapsed();
+
+        let materialize_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(CompactState::from_quiet_direct(
+                direct,
+                black_box(&state),
+                false,
+            ));
+        }
+        let materialize_duration = materialize_started.elapsed();
+
+        let manual_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            let placed =
+                direct_placement(black_box(&state), pair, action).expect("valid placement");
+            let vanish = find_inserted_vanish(&placed.color_bits, pair, placed.inserted_indices);
+            black_box(vanish.vanished_mask);
+            let next = CompactState::from_quiet_direct(placed, &state, false);
+            black_box(quiet_transition(7, placed.landing_y, next));
+        }
+        let manual_duration = manual_started.elapsed();
+
+        let transition_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(transition(black_box(&state), pair, 7, None).expect("valid transition"));
+        }
+        let transition_duration = transition_started.elapsed();
+
+        let into_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            let mut summary = MaybeUninit::uninit();
+            transition_into(black_box(&state), pair, 7, None, &mut summary)
+                .expect("valid transition");
+            // SAFETY: the successful transition initialized the output slot.
+            black_box(unsafe { summary.assume_init_ref() });
+        }
+        let into_duration = into_started.elapsed();
+
+        let per_iteration =
+            |duration: std::time::Duration| duration.as_nanos() as f64 / f64::from(ITERATIONS);
+        println!(
+            "state_bytes={} summary_bytes={} baseline_ns={:.3} placement_ns={:.3} inserted_vanish_ns={:.3} combined_ns={:.3} materialize_ns={:.3} manual_ns={:.3} transition_ns={:.3} into_ns={:.3}",
+            std::mem::size_of::<CompactState>(),
+            std::mem::size_of::<TransitionSummary>(),
+            per_iteration(baseline),
+            per_iteration(placement_duration),
+            per_iteration(vanish_duration),
+            per_iteration(combined_duration),
+            per_iteration(materialize_duration),
+            per_iteration(manual_duration),
+            per_iteration(transition_duration),
+            per_iteration(into_duration),
+        );
+    }
+}

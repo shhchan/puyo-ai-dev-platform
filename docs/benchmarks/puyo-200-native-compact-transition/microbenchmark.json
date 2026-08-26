@@ -1,0 +1,112 @@
+{
+  "allocation": {
+    "batch_boundary_allocations_included_in_wall_latency": true,
+    "evidence": "compact::tests::normal_hot_transition_performs_no_heap_allocation",
+    "normal_hot_transition_heap_allocations": 0
+  },
+  "budget": {
+    "canonical_max_expanded_nodes": 600000,
+    "decision_p95_budget_ms": 10.596,
+    "passed": false,
+    "per_expanded_node_budget_ns": 17.66,
+    "projected_decision_p95_ms": 78.20676000000002
+  },
+  "cold_single": {
+    "kernel_ns": 749,
+    "response_bytes": 216,
+    "wall_us": 96.009
+  },
+  "internal_profile": {
+    "categories": {
+      "invalid": {
+        "measurement": null,
+        "record_count": 0,
+        "record_fraction": 0.0
+      },
+      "multi_chain": {
+        "measurement": {
+          "kernel_p50_transitions_per_second": 2296738.631143776,
+          "kernel_p95_transitions_per_second": 802246.2896109106,
+          "kernel_per_transition_p50_ns": 435.4,
+          "kernel_per_transition_p95_ns": 1246.5,
+          "records_per_call": 20,
+          "samples": 8,
+          "wall_p50_transitions_per_second": 54259.065333340564,
+          "wall_p50_us": 368.602,
+          "wall_p95_transitions_per_second": 29341.646799926646,
+          "wall_p95_us": 681.625
+        },
+        "record_count": 20,
+        "record_fraction": 0.002
+      },
+      "one_chain": {
+        "measurement": {
+          "kernel_p50_transitions_per_second": 2946010.4815951874,
+          "kernel_p95_transitions_per_second": 1678613.2887273757,
+          "kernel_per_transition_p50_ns": 339.4421052631579,
+          "kernel_per_transition_p95_ns": 595.7298245614035,
+          "records_per_call": 570,
+          "samples": 8,
+          "wall_p50_transitions_per_second": 59986.60720064499,
+          "wall_p50_us": 9502.121,
+          "wall_p95_transitions_per_second": 55758.012573138374,
+          "wall_p95_us": 10222.746
+        },
+        "record_count": 570,
+        "record_fraction": 0.057
+      },
+      "quiet": {
+        "measurement": {
+          "kernel_p50_transitions_per_second": 17243843.709570423,
+          "kernel_p95_transitions_per_second": 15319196.043382142,
+          "kernel_per_transition_p50_ns": 57.99171094580234,
+          "kernel_per_transition_p95_ns": 65.27757704569606,
+          "records_per_call": 9410,
+          "samples": 8,
+          "wall_p50_transitions_per_second": 59281.704315357805,
+          "wall_p50_us": 158733.628,
+          "wall_p95_transitions_per_second": 52062.07246374358,
+          "wall_p95_us": 180745.782
+        },
+        "record_count": 9410,
+        "record_fraction": 0.941
+      }
+    },
+    "cause": "The allocation-free scalar transition itself exceeds the 17.66 ns/node allocation on quiet records; chain resolution adds gravity and repeated component scans. Python/FFI result materialization is outside the reported kernel timer.",
+    "kernel_timing_excludes_binary_parse_and_result_encoding": true,
+    "required_follow_up": "Return the native boundary and representation to ADR review; do not start PUYO-201 or mask the miss with fallback timing.",
+    "samples_per_category": 8,
+    "schema_version": "puyo.native_compact_transition_internal_profile.v1",
+    "selected_record_count": 10000
+  },
+  "memory": {
+    "peak_rss_delta_kib": 23692,
+    "peak_rss_kib_after": 55460,
+    "peak_rss_kib_before": 31768
+  },
+  "timed_response_digest_count": 212,
+  "warm_batch": {
+    "kernel_p50_transitions_per_second": 12812628.126281263,
+    "kernel_p95_transitions_per_second": 7671971.06746271,
+    "kernel_per_transition_p50_ns": 78.048,
+    "kernel_per_transition_p95_ns": 130.3446,
+    "records_per_call": 10000,
+    "samples": 12,
+    "wall_p50_transitions_per_second": 60087.0783140669,
+    "wall_p50_us": 166425.133,
+    "wall_p95_transitions_per_second": 51770.93457139589,
+    "wall_p95_us": 193158.576
+  },
+  "warm_single": {
+    "kernel_p50_transitions_per_second": 12195121.951219512,
+    "kernel_p95_transitions_per_second": 8928571.42857143,
+    "kernel_per_transition_p50_ns": 82.0,
+    "kernel_per_transition_p95_ns": 112.0,
+    "records_per_call": 1,
+    "samples": 200,
+    "wall_p50_transitions_per_second": 59573.454068866915,
+    "wall_p50_us": 16.786,
+    "wall_p95_transitions_per_second": 29839.16689046042,
+    "wall_p95_us": 33.513
+  }
+}

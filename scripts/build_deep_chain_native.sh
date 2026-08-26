@@ -71,6 +71,14 @@ export PATH
 
 wheel_directory="$project_root/dist/native"
 mkdir -p -- "$wheel_directory"
+shopt -s nullglob
+previous_wheels=(
+    "$wheel_directory"/puyo_deep_chain_native-*-cp312-*-manylinux_2_28_x86_64.whl
+)
+if (( ${#previous_wheels[@]} )); then
+    rm -f -- "${previous_wheels[@]}"
+fi
+shopt -u nullglob
 rustflag_separator=$'\x1f'
 release_rustflags="--remap-path-prefix=$project_root=/workspace/puyo_ai_dev_platform"
 release_rustflags+="$rustflag_separator--remap-path-prefix=$cargo_home_directory=/toolchains/cargo"

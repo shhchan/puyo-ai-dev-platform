@@ -1,0 +1,55 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "4527f7cff7d95c2d97d9a7695ab0a415e1648b99aa2785ccad17401d3157140b",
+      "size_bytes": 1690
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "75579578af44d78904ef9682b620646ed44b9fa0106d74afc525ead0774c0a44",
+      "size_bytes": 7964
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "corpus_verification.json",
+      "required": true,
+      "role": "corpus_verification",
+      "sha256": "499f9ddafd4d3cd805368686ae2e699caa69567ca23f048181edd6805d14b699",
+      "size_bytes": 581
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "internal_profile.json",
+      "required": true,
+      "role": "internal_profile",
+      "sha256": "9b7fa3035a9fb937ce77bca9ee4cfc7b236599139b8465bc99025b885ea5625b",
+      "size_bytes": 2533
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "microbenchmark.json",
+      "required": true,
+      "role": "microbenchmark",
+      "sha256": "0dcb7a17f1417c285845c38789e559c750e918539567de23a6112c68f1ed1002",
+      "size_bytes": 4275
+    }
+  ],
+  "command": "python -m eval.deep_chain_native_transition_benchmark run --corpus eval/deep_chain_native_transition_corpus.json --output-dir docs/benchmarks/puyo-200-native-compact-transition --single-samples 200 --batch-samples 12 --batch-size 10000",
+  "created_at_utc": "2026-08-26T09:38:13Z",
+  "evaluated_commit": "183721c54d61c7247cc36b0eef28c4cb6149e7c8",
+  "passed": false,
+  "schema_version": "puyo.native_compact_transition_benchmark.v1",
+  "ticket": "PUYO-200"
+}
