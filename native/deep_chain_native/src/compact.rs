@@ -7,7 +7,9 @@
 //! callers.
 
 use std::fmt;
+use std::hint::black_box;
 use std::mem::MaybeUninit;
+use std::time::Instant;
 
 pub(crate) const WIDTH: usize = 6;
 pub(crate) const HEIGHT: usize = 14;
@@ -25,6 +27,23 @@ const VISIBLE_MASK: u128 = lane_mask(VISIBLE_HEIGHT);
 const ROW_14_MASK: u128 = row_mask(HEIGHT - 1);
 const CELL_FINGERPRINTS: [[[u64; 2]; WIDTH * HEIGHT]; PLANE_COUNT] = fingerprint_table();
 const ALL_CLEAR_BONUS_SCORE: u64 = 2_100;
+
+pub(crate) const PROFILE_MODE_BASELINE: u16 = 0;
+pub(crate) const PROFILE_MODE_FULL_TRANSITION: u16 = 1;
+pub(crate) const PROFILE_MODE_DIRECT_PLACEMENT: u16 = 2;
+pub(crate) const PROFILE_MODE_COLOR_PLANE_EXTRACTION: u16 = 3;
+pub(crate) const PROFILE_MODE_INSERTED_CONNECTIVITY: u16 = 4;
+pub(crate) const PROFILE_MODE_STATE_RESULT_MATERIALIZATION: u16 = 5;
+pub(crate) const PROFILE_MODE_CHAIN_SCAN: u16 = 6;
+pub(crate) const PROFILE_MODE_GRAVITY: u16 = 7;
+pub(crate) const PROFILE_MODE_SCORE_LIFECYCLE: u16 = 8;
+pub(crate) const PROFILE_MODE_LAYOUT_THREE_BIT: u16 = 101;
+pub(crate) const PROFILE_MODE_LAYOUT_SIX_PLANE: u16 = 102;
+pub(crate) const PROFILE_MODE_LAYOUT_COLUMN_LOCAL: u16 = 103;
+pub(crate) const PROFILE_MODE_LAYOUT_LOCAL_METADATA: u16 = 104;
+pub(crate) const PROFILE_MODE_RESULT_FULL_SUMMARY: u16 = 201;
+pub(crate) const PROFILE_MODE_RESULT_MINIMAL_HOT: u16 = 202;
+pub(crate) const PROFILE_MODE_RESULT_HOT_METADATA: u16 = 203;
 
 const CHAIN_BONUS: [u16; 20] = [
     0, 0, 8, 16, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512,
@@ -1422,6 +1441,862 @@ fn resolve_chains(
     })
 }
 
+/// QA-only measurement returned by the PUYO-205 profile boundary.  The
+/// production transition/search path never constructs this value.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct CompactProfileMeasurement {
+    pub(crate) mode: u16,
+    pub(crate) flags: u16,
+    pub(crate) record_count: u32,
+    pub(crate) repeats: u32,
+    pub(crate) operations: u64,
+    pub(crate) elapsed_ns: u64,
+    pub(crate) cycles: u64,
+    pub(crate) checksum: u64,
+    pub(crate) mismatch_count: u32,
+    pub(crate) state_bytes: u32,
+    pub(crate) result_bytes: u32,
+    pub(crate) copy_bytes_per_record: u32,
+    pub(crate) update_bytes_per_record: u32,
+    pub(crate) reusable_metadata_bytes: u32,
+}
+
+#[repr(C, align(16))]
+#[derive(Clone, Copy)]
+struct SixPlaneProfileState {
+    planes: [u128; PLANE_COUNT],
+    drop_heights: [u8; WIDTH],
+    all_clear_bonus_pending: bool,
+    game_over: bool,
+    score: u64,
+    last_chain_end_score: u64,
+}
+
+impl SixPlaneProfileState {
+    fn from_state(state: &CompactState) -> Self {
+        Self {
+            planes: std::array::from_fn(|index| color_plane(&state.color_bits, index)),
+            drop_heights: state.drop_heights,
+            all_clear_bonus_pending: state.all_clear_bonus_pending,
+            game_over: state.game_over,
+            score: state.score,
+            last_chain_end_score: state.last_chain_end_score,
+        }
+    }
+}
+
+#[repr(C, align(8))]
+#[derive(Clone, Copy)]
+struct ColumnLocalProfileState {
+    columns: [u64; WIDTH],
+    drop_heights: [u8; WIDTH],
+    all_clear_bonus_pending: bool,
+    game_over: bool,
+    score: u64,
+    last_chain_end_score: u64,
+}
+
+impl ColumnLocalProfileState {
+    fn from_state(state: &CompactState) -> Self {
+        let mut columns = [0_u64; WIDTH];
+        for plane_index in 0..PLANE_COUNT {
+            let mut remaining = color_plane(&state.color_bits, plane_index);
+            while remaining != 0 {
+                let index = remaining.trailing_zeros() as usize;
+                let x = index / COLUMN_LANE_BITS;
+                let y = index % COLUMN_LANE_BITS;
+                columns[x] |= ((plane_index + 1) as u64) << (y * COLOR_BIT_COUNT);
+                remaining &= remaining - 1;
+            }
+        }
+        Self {
+            columns,
+            drop_heights: state.drop_heights,
+            all_clear_bonus_pending: state.all_clear_bonus_pending,
+            game_over: state.game_over,
+            score: state.score,
+            last_chain_end_score: state.last_chain_end_score,
+        }
+    }
+
+    fn color_bits(&self) -> [u128; COLOR_BIT_COUNT] {
+        let mut result = [0_u128; COLOR_BIT_COUNT];
+        for x in 0..WIDTH {
+            for y in 0..HEIGHT {
+                let color = ((self.columns[x] >> (y * COLOR_BIT_COUNT)) & 0x7) as usize;
+                if color != 0 {
+                    set_color_bit(&mut result, cell_bit(x, y), color);
+                }
+            }
+        }
+        result
+    }
+}
+
+#[repr(C, align(16))]
+#[derive(Clone, Copy)]
+struct LocalMetadataProfileState {
+    core: CompactState,
+    occupied: u128,
+    normal_planes: [u128; NORMAL_COLOR_COUNT],
+    trigger_masks: [u128; NORMAL_COLOR_COUNT],
+}
+
+impl LocalMetadataProfileState {
+    fn from_state(state: &CompactState) -> Self {
+        let normal_planes = std::array::from_fn(|index| color_plane(&state.color_bits, index));
+        let trigger_masks = std::array::from_fn(|index| poppable_mask(normal_planes[index]));
+        Self {
+            core: *state,
+            occupied: state.internal_occupied(),
+            normal_planes,
+            trigger_masks,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+struct MinimalHotProfileResult {
+    score_delta: u64,
+    attack_score_delta: u64,
+    vanished_count: u16,
+    garbage_cleared_count: u16,
+    action_id: u8,
+    axis_y: u8,
+    chain_count: u8,
+    flags: u8,
+}
+
+#[repr(C, align(16))]
+#[derive(Clone, Copy)]
+struct MetadataHotProfileResult {
+    hot: MinimalHotProfileResult,
+    occupied: u128,
+    inserted_component_mask: u128,
+}
+
+#[derive(Clone, Copy)]
+struct CompactProfileRecord {
+    state: CompactState,
+    pair: Pair,
+    action_id: u8,
+    action: PlacementAction,
+    direct: DirectPlacement,
+    inserted_planes: [u128; 2],
+    first_vanish: VanishInfo,
+    final_color_bits: [u128; COLOR_BIT_COUNT],
+    summary: TransitionSummary,
+    six_plane: SixPlaneProfileState,
+    column_local: ColumnLocalProfileState,
+    local_metadata: LocalMetadataProfileState,
+}
+
+#[derive(Clone, Copy)]
+struct GravityProfileInput {
+    color_bits: [u128; COLOR_BIT_COUNT],
+    vanished_mask: u128,
+    garbage_mask: u128,
+}
+
+#[derive(Clone, Copy)]
+struct ScoreProfileInput {
+    chain_index: u8,
+    vanish: VanishInfo,
+    garbage_count: u8,
+    pending: bool,
+    score: u64,
+}
+
+struct CompactProfileWorkload {
+    records: Vec<CompactProfileRecord>,
+    chain_scan_inputs: Vec<[u128; COLOR_BIT_COUNT]>,
+    gravity_inputs: Vec<GravityProfileInput>,
+    score_inputs: Vec<ScoreProfileInput>,
+    layout_mismatches: [u32; 4],
+    semantic_mismatches: u32,
+}
+
+fn preextracted_inserted_vanish(
+    pair: Pair,
+    inserted_indices: [u8; 2],
+    inserted_planes: [u128; 2],
+) -> VanishInfo {
+    let mut vanished_mask = 0_u128;
+    let mut vanished_count = 0_u8;
+    let mut total_connection_bonus = 0_u16;
+    let mut vanished_colors = 0_u8;
+    let plane_indices = [pair.axis.plane_index(), pair.child.plane_index()];
+    for index in 0..2 {
+        let plane_index = plane_indices[index];
+        let seed = 1_u128 << inserted_indices[index];
+        if seed & VISIBLE_MASK == 0 || vanished_mask & seed != 0 {
+            continue;
+        }
+        let visible_plane = inserted_planes[index] & VISIBLE_MASK;
+        let mut group = seed;
+        for _ in 0..3 {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        if !has_at_least_four_bits(group) {
+            continue;
+        }
+        loop {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        if vanished_mask & group != 0 {
+            continue;
+        }
+        let count = group.count_ones();
+        vanished_mask |= group;
+        vanished_count += u8::try_from(count).expect("visible board count fits u8");
+        total_connection_bonus += connection_bonus(count);
+        vanished_colors |= 1_u8 << plane_index;
+    }
+    VanishInfo {
+        vanished_mask,
+        vanished_count,
+        connection_bonus: total_connection_bonus,
+        color_count: vanished_colors.count_ones() as u8,
+    }
+}
+
+fn score_profile_step(input: ScoreProfileInput) -> (u64, bool, u64) {
+    let chain_bonus = CHAIN_BONUS[usize::from(input.chain_index).min(CHAIN_BONUS.len() - 1)];
+    let color_bonus = COLOR_BONUS[usize::from(input.vanish.color_count)];
+    let bonus = (chain_bonus + input.vanish.connection_bonus + color_bonus).max(1);
+    let base = u16::from(input.vanish.vanished_count) * 10;
+    let all_clear_bonus = if input.chain_index == 1 && input.pending {
+        ALL_CLEAR_BONUS_SCORE
+    } else {
+        0
+    };
+    let step_score = u64::from(base)
+        .checked_mul(u64::from(bonus))
+        .and_then(|value| value.checked_add(all_clear_bonus))
+        .expect("profile corpus score fits u64");
+    let score = input
+        .score
+        .checked_add(step_score)
+        .expect("profile corpus total score fits u64");
+    black_box(input.garbage_count);
+    (
+        score,
+        input.pending && input.chain_index != 1,
+        all_clear_bonus,
+    )
+}
+
+fn profile_checksum(value: u128) -> u64 {
+    value as u64 ^ (value >> 64) as u64
+}
+
+fn update_three_bit_layout(record: &CompactProfileRecord) -> CompactState {
+    let mut result = record.state;
+    let colors = [record.pair.axis, record.pair.child];
+    for (index, color) in colors.into_iter().enumerate() {
+        let bit = 1_u128 << record.direct.inserted_indices[index];
+        set_color_bit(&mut result.color_bits, bit, color.plane_index() + 1);
+    }
+    result.drop_heights = record.direct.drop_heights;
+    result.lower_compact = true;
+    result.settled = record.first_vanish.vanished_mask == 0;
+    result
+}
+
+fn update_six_plane_layout(record: &CompactProfileRecord) -> SixPlaneProfileState {
+    let mut result = record.six_plane;
+    let colors = [record.pair.axis, record.pair.child];
+    for (index, color) in colors.into_iter().enumerate() {
+        result.planes[color.plane_index()] |= 1_u128 << record.direct.inserted_indices[index];
+    }
+    result.drop_heights = record.direct.drop_heights;
+    result
+}
+
+fn update_column_local_layout(record: &CompactProfileRecord) -> ColumnLocalProfileState {
+    let mut result = record.column_local;
+    let colors = [record.pair.axis, record.pair.child];
+    for (index, color) in colors.into_iter().enumerate() {
+        let bit_index = usize::from(record.direct.inserted_indices[index]);
+        let x = bit_index / COLUMN_LANE_BITS;
+        let y = bit_index % COLUMN_LANE_BITS;
+        result.columns[x] |= (color as u64) << (y * COLOR_BIT_COUNT);
+    }
+    result.drop_heights = record.direct.drop_heights;
+    result
+}
+
+fn update_local_metadata_layout(record: &CompactProfileRecord) -> LocalMetadataProfileState {
+    let mut result = record.local_metadata;
+    let colors = [record.pair.axis, record.pair.child];
+    let mut touched = 0_u8;
+    for (index, color) in colors.into_iter().enumerate() {
+        let bit = 1_u128 << record.direct.inserted_indices[index];
+        let plane_index = color.plane_index();
+        set_color_bit(&mut result.core.color_bits, bit, plane_index + 1);
+        result.occupied |= bit;
+        result.normal_planes[plane_index] |= bit;
+        touched |= 1_u8 << plane_index;
+    }
+    for (index, plane) in result.normal_planes.iter().copied().enumerate() {
+        if touched & (1_u8 << index) != 0 {
+            result.trigger_masks[index] = poppable_mask(plane);
+        }
+    }
+    result.core.drop_heights = record.direct.drop_heights;
+    result.core.lower_compact = true;
+    result.core.settled = record.first_vanish.vanished_mask == 0;
+    result
+}
+
+fn minimal_hot_result(summary: TransitionSummary) -> MinimalHotProfileResult {
+    MinimalHotProfileResult {
+        score_delta: summary.score_delta,
+        attack_score_delta: summary.attack_score_delta,
+        vanished_count: summary.vanished_count,
+        garbage_cleared_count: summary.garbage_cleared_count,
+        action_id: summary.action_id,
+        axis_y: summary.axis_y.unwrap_or(u8::MAX),
+        chain_count: summary.chain_count,
+        flags: u8::from(summary.valid)
+            | (u8::from(summary.state.game_over) << 1)
+            | (u8::from(summary.all_clear_achieved) << 2)
+            | (u8::from(summary.all_clear_bonus_consumed) << 3),
+    }
+}
+
+impl CompactProfileWorkload {
+    fn new(inputs: &[(CompactState, Pair, u8)]) -> CompactResult<Self> {
+        let mut records = Vec::with_capacity(inputs.len());
+        let mut chain_scan_inputs = Vec::new();
+        let mut gravity_inputs = Vec::new();
+        let mut score_inputs = Vec::new();
+        let mut semantic_mismatches = 0_u32;
+
+        for &(state, pair, action_id) in inputs {
+            let action = placement(action_id)?;
+            let direct = direct_placement(&state, pair, action).ok_or_else(|| {
+                CompactError::invalid("profile input is not a reachable direct placement")
+            })?;
+            let inserted_planes = [
+                color_plane(&direct.color_bits, pair.axis.plane_index()),
+                color_plane(&direct.color_bits, pair.child.plane_index()),
+            ];
+            let first_vanish =
+                find_inserted_vanish(&direct.color_bits, pair, direct.inserted_indices);
+            if first_vanish
+                != preextracted_inserted_vanish(pair, direct.inserted_indices, inserted_planes)
+            {
+                semantic_mismatches += 1;
+            }
+            let summary = transition(&state, pair, action_id, None)?;
+            let mut current_color_bits = direct.color_bits;
+            let mut vanish = first_vanish;
+            let mut chain_index = 0_u8;
+            let mut pending = state.all_clear_bonus_pending;
+            let mut score = state.score;
+            while vanish.vanished_mask != 0 {
+                chain_index += 1;
+                let garbage_mask = visible_neighbors(vanish.vanished_mask)
+                    & color_plane(&current_color_bits, PLANE_COUNT - 1)
+                    & VISIBLE_MASK;
+                let garbage_count =
+                    u8::try_from(garbage_mask.count_ones()).expect("visible garbage count fits u8");
+                score_inputs.push(ScoreProfileInput {
+                    chain_index,
+                    vanish,
+                    garbage_count,
+                    pending,
+                    score,
+                });
+                (score, pending, _) = score_profile_step(*score_inputs.last().expect("pushed"));
+                gravity_inputs.push(GravityProfileInput {
+                    color_bits: current_color_bits,
+                    vanished_mask: vanish.vanished_mask,
+                    garbage_mask,
+                });
+                current_color_bits =
+                    clear_and_drop(&current_color_bits, vanish.vanished_mask, garbage_mask);
+                chain_scan_inputs.push(current_color_bits);
+                vanish = find_vanish(&current_color_bits);
+            }
+            if current_color_bits != summary.state.color_bits || chain_index != summary.chain_count
+            {
+                semantic_mismatches += 1;
+            }
+            records.push(CompactProfileRecord {
+                state,
+                pair,
+                action_id,
+                action,
+                direct,
+                inserted_planes,
+                first_vanish,
+                final_color_bits: current_color_bits,
+                summary,
+                six_plane: SixPlaneProfileState::from_state(&state),
+                column_local: ColumnLocalProfileState::from_state(&state),
+                local_metadata: LocalMetadataProfileState::from_state(&state),
+            });
+        }
+
+        let mut layout_mismatches = [0_u32; 4];
+        for record in &records {
+            if update_three_bit_layout(record).color_bits != record.direct.color_bits {
+                layout_mismatches[0] += 1;
+            }
+            let six = update_six_plane_layout(record);
+            let six_bits = color_bits_from_wire_planes(&std::array::from_fn(|index| {
+                internal_plane_to_wire(six.planes[index])
+            }));
+            if six_bits != record.direct.color_bits {
+                layout_mismatches[1] += 1;
+            }
+            if update_column_local_layout(record).color_bits() != record.direct.color_bits {
+                layout_mismatches[2] += 1;
+            }
+            let metadata = update_local_metadata_layout(record);
+            if metadata.core.color_bits != record.direct.color_bits
+                || metadata.occupied != record.direct.occupied
+                || metadata
+                    .normal_planes
+                    .iter()
+                    .copied()
+                    .enumerate()
+                    .any(|(index, plane)| plane != color_plane(&record.direct.color_bits, index))
+            {
+                layout_mismatches[3] += 1;
+            }
+        }
+        Ok(Self {
+            records,
+            chain_scan_inputs,
+            gravity_inputs,
+            score_inputs,
+            layout_mismatches,
+            semantic_mismatches,
+        })
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+fn profile_cycle_counter() -> u64 {
+    // SAFETY: LFENCE/RDTSC are available on the supported x86_64 target and
+    // only read the invariant timestamp counter.
+    unsafe {
+        std::arch::x86_64::_mm_lfence();
+        let value = std::arch::x86_64::_rdtsc();
+        std::arch::x86_64::_mm_lfence();
+        value
+    }
+}
+
+#[cfg(not(target_arch = "x86_64"))]
+fn profile_cycle_counter() -> u64 {
+    0
+}
+
+fn measured_profile_loop(
+    workload: &CompactProfileWorkload,
+    repeats: u32,
+    mut operation: impl FnMut(&CompactProfileWorkload, &mut u64),
+) -> (u64, u64, u64) {
+    let started = Instant::now();
+    let started_cycles = profile_cycle_counter();
+    let mut checksum = 0_u64;
+    for _ in 0..repeats {
+        operation(workload, &mut checksum);
+    }
+    black_box(checksum);
+    let cycles = profile_cycle_counter().wrapping_sub(started_cycles);
+    let elapsed_ns = u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+    (elapsed_ns, cycles, checksum)
+}
+
+pub(crate) fn profile_compact_records(
+    inputs: &[(CompactState, Pair, u8)],
+    mode: u16,
+    repeats: u32,
+) -> CompactResult<CompactProfileMeasurement> {
+    if inputs.is_empty() || repeats == 0 || repeats > 10_000 {
+        return Err(CompactError::invalid(
+            "profile records/repeats are outside the supported range",
+        ));
+    }
+    let workload = CompactProfileWorkload::new(inputs)?;
+    let record_operations = (workload.records.len() as u64) * u64::from(repeats);
+    let (operations, mismatch_count, state_bytes, result_bytes, copy_bytes, update_bytes, reuse) =
+        match mode {
+            PROFILE_MODE_BASELINE
+            | PROFILE_MODE_FULL_TRANSITION
+            | PROFILE_MODE_DIRECT_PLACEMENT
+            | PROFILE_MODE_COLOR_PLANE_EXTRACTION
+            | PROFILE_MODE_INSERTED_CONNECTIVITY
+            | PROFILE_MODE_STATE_RESULT_MATERIALIZATION => (
+                record_operations,
+                workload.semantic_mismatches,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            PROFILE_MODE_CHAIN_SCAN => (
+                (workload.chain_scan_inputs.len() as u64) * u64::from(repeats),
+                workload.semantic_mismatches,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            PROFILE_MODE_GRAVITY => (
+                (workload.gravity_inputs.len() as u64) * u64::from(repeats),
+                workload.semantic_mismatches,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            PROFILE_MODE_SCORE_LIFECYCLE => (
+                ((workload.score_inputs.len() + workload.records.len()) as u64)
+                    * u64::from(repeats),
+                workload.semantic_mismatches,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ),
+            PROFILE_MODE_LAYOUT_THREE_BIT => (
+                record_operations,
+                workload.layout_mismatches[0],
+                std::mem::size_of::<CompactState>() as u32,
+                0,
+                std::mem::size_of::<CompactState>() as u32,
+                54,
+                8,
+            ),
+            PROFILE_MODE_LAYOUT_SIX_PLANE => (
+                record_operations,
+                workload.layout_mismatches[1],
+                std::mem::size_of::<SixPlaneProfileState>() as u32,
+                0,
+                std::mem::size_of::<SixPlaneProfileState>() as u32,
+                38,
+                102,
+            ),
+            PROFILE_MODE_LAYOUT_COLUMN_LOCAL => (
+                record_operations,
+                workload.layout_mismatches[2],
+                std::mem::size_of::<ColumnLocalProfileState>() as u32,
+                0,
+                std::mem::size_of::<ColumnLocalProfileState>() as u32,
+                22,
+                6,
+            ),
+            PROFILE_MODE_LAYOUT_LOCAL_METADATA => (
+                record_operations,
+                workload.layout_mismatches[3],
+                std::mem::size_of::<LocalMetadataProfileState>() as u32,
+                0,
+                std::mem::size_of::<LocalMetadataProfileState>() as u32,
+                134,
+                182,
+            ),
+            PROFILE_MODE_RESULT_FULL_SUMMARY => (
+                record_operations,
+                workload.semantic_mismatches,
+                0,
+                std::mem::size_of::<TransitionSummary>() as u32,
+                std::mem::size_of::<TransitionSummary>() as u32,
+                0,
+                0,
+            ),
+            PROFILE_MODE_RESULT_MINIMAL_HOT => (
+                record_operations,
+                workload.semantic_mismatches,
+                std::mem::size_of::<CompactState>() as u32,
+                std::mem::size_of::<MinimalHotProfileResult>() as u32,
+                (std::mem::size_of::<CompactState>()
+                    + std::mem::size_of::<MinimalHotProfileResult>()) as u32,
+                0,
+                0,
+            ),
+            PROFILE_MODE_RESULT_HOT_METADATA => (
+                record_operations,
+                workload.semantic_mismatches,
+                std::mem::size_of::<CompactState>() as u32,
+                std::mem::size_of::<MetadataHotProfileResult>() as u32,
+                (std::mem::size_of::<CompactState>()
+                    + std::mem::size_of::<MetadataHotProfileResult>()) as u32,
+                0,
+                32,
+            ),
+            _ => return Err(CompactError::invalid("unknown compact profile mode")),
+        };
+
+    let (elapsed_ns, cycles, checksum) = match mode {
+        PROFILE_MODE_BASELINE => measured_profile_loop(&workload, repeats, |value, checksum| {
+            for record in &value.records {
+                *checksum ^= u64::from(black_box(record.action_id));
+            }
+        }),
+        PROFILE_MODE_FULL_TRANSITION => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let mut output = MaybeUninit::uninit();
+                    transition_into(
+                        black_box(&record.state),
+                        record.pair,
+                        record.action_id,
+                        None,
+                        &mut output,
+                    )
+                    .expect("validated profile transition succeeds");
+                    // SAFETY: the successful transition initialized the output slot.
+                    let summary = unsafe { output.assume_init() };
+                    *checksum ^= summary.score_delta ^ u64::from(summary.chain_count);
+                    black_box(summary);
+                }
+            })
+        }
+        PROFILE_MODE_DIRECT_PLACEMENT => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let direct =
+                        direct_placement(black_box(&record.state), record.pair, record.action)
+                            .expect("validated direct placement");
+                    *checksum ^= profile_checksum(direct.color_bits[0]);
+                    black_box(direct);
+                }
+            })
+        }
+        PROFILE_MODE_COLOR_PLANE_EXTRACTION => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let axis = color_plane(
+                        black_box(&record.direct.color_bits),
+                        record.pair.axis.plane_index(),
+                    );
+                    let child = color_plane(
+                        black_box(&record.direct.color_bits),
+                        record.pair.child.plane_index(),
+                    );
+                    *checksum ^= profile_checksum(axis ^ child.rotate_left(17));
+                    black_box((axis, child));
+                }
+            })
+        }
+        PROFILE_MODE_INSERTED_CONNECTIVITY => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let vanish = preextracted_inserted_vanish(
+                        record.pair,
+                        record.direct.inserted_indices,
+                        black_box(record.inserted_planes),
+                    );
+                    *checksum ^=
+                        profile_checksum(vanish.vanished_mask) ^ u64::from(vanish.vanished_count);
+                    black_box(vanish);
+                }
+            })
+        }
+        PROFILE_MODE_STATE_RESULT_MATERIALIZATION => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let summary = if record.first_vanish.vanished_mask == 0 {
+                        let game_over =
+                            record.direct.occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
+                        quiet_transition(
+                            record.action_id,
+                            record.direct.landing_y,
+                            CompactState::from_quiet_direct(
+                                record.direct,
+                                &record.state,
+                                game_over,
+                            ),
+                        )
+                    } else {
+                        let state = CompactState::from_parts(
+                            wire_planes_from_color_bits(&record.final_color_bits),
+                            record.summary.state.all_clear_bonus_pending,
+                            record.summary.state.game_over,
+                            record.summary.state.score,
+                            record.summary.state.last_chain_end_score,
+                        )
+                        .expect("validated final profile state");
+                        TransitionSummary {
+                            state,
+                            ..record.summary
+                        }
+                    };
+                    *checksum ^= summary.score_delta ^ u64::from(summary.chain_count);
+                    black_box(summary);
+                }
+            })
+        }
+        PROFILE_MODE_CHAIN_SCAN => measured_profile_loop(&workload, repeats, |value, checksum| {
+            for color_bits in &value.chain_scan_inputs {
+                let vanish = find_vanish(black_box(color_bits));
+                *checksum ^= profile_checksum(vanish.vanished_mask);
+                black_box(vanish);
+            }
+        }),
+        PROFILE_MODE_GRAVITY => measured_profile_loop(&workload, repeats, |value, checksum| {
+            for input in &value.gravity_inputs {
+                let dropped = clear_and_drop(
+                    black_box(&input.color_bits),
+                    input.vanished_mask,
+                    input.garbage_mask,
+                );
+                *checksum ^= profile_checksum(dropped[0]);
+                black_box(dropped);
+            }
+        }),
+        PROFILE_MODE_SCORE_LIFECYCLE => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for input in &value.score_inputs {
+                    let output = score_profile_step(black_box(*input));
+                    *checksum ^= output.0 ^ output.2;
+                    black_box(output);
+                }
+                for record in &value.records {
+                    let occupied = occupied_from_color_bits(&record.final_color_bits);
+                    let all_clear = record.summary.chain_count > 0 && occupied == 0;
+                    let attack = if record.summary.chain_count > 0 {
+                        record
+                            .summary
+                            .state
+                            .score
+                            .checked_sub(record.state.last_chain_end_score)
+                            .expect("validated attack lifecycle")
+                    } else {
+                        0
+                    };
+                    *checksum ^= attack ^ u64::from(all_clear);
+                    black_box((attack, all_clear));
+                }
+            })
+        }
+        PROFILE_MODE_LAYOUT_THREE_BIT => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let output = update_three_bit_layout(black_box(record));
+                    *checksum ^= profile_checksum(output.color_bits[0]);
+                    black_box(output);
+                }
+            })
+        }
+        PROFILE_MODE_LAYOUT_SIX_PLANE => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let output = update_six_plane_layout(black_box(record));
+                    *checksum ^= profile_checksum(output.planes[0]);
+                    black_box(output);
+                }
+            })
+        }
+        PROFILE_MODE_LAYOUT_COLUMN_LOCAL => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let output = update_column_local_layout(black_box(record));
+                    *checksum ^= output.columns[0];
+                    black_box(output);
+                }
+            })
+        }
+        PROFILE_MODE_LAYOUT_LOCAL_METADATA => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let output = update_local_metadata_layout(black_box(record));
+                    *checksum ^= profile_checksum(output.occupied ^ output.trigger_masks[0]);
+                    black_box(output);
+                }
+            })
+        }
+        PROFILE_MODE_RESULT_FULL_SUMMARY => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let mut output = MaybeUninit::uninit();
+                    output.write(record.summary);
+                    // SAFETY: the output slot was initialized immediately above.
+                    let result = unsafe { output.assume_init() };
+                    *checksum ^= result.score_delta ^ u64::from(result.chain_count);
+                    black_box(result);
+                }
+            })
+        }
+        PROFILE_MODE_RESULT_MINIMAL_HOT => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let mut state_output = MaybeUninit::uninit();
+                    let mut hot_output = MaybeUninit::uninit();
+                    state_output.write(record.summary.state);
+                    hot_output.write(minimal_hot_result(record.summary));
+                    // SAFETY: both output slots were initialized immediately above.
+                    let state = unsafe { state_output.assume_init() };
+                    // SAFETY: both output slots were initialized immediately above.
+                    let hot = unsafe { hot_output.assume_init() };
+                    *checksum ^= hot.score_delta ^ profile_checksum(state.color_bits[0]);
+                    black_box((state, hot));
+                }
+            })
+        }
+        PROFILE_MODE_RESULT_HOT_METADATA => {
+            measured_profile_loop(&workload, repeats, |value, checksum| {
+                for record in &value.records {
+                    let mut state_output = MaybeUninit::uninit();
+                    let mut hot_output = MaybeUninit::uninit();
+                    state_output.write(record.summary.state);
+                    hot_output.write(MetadataHotProfileResult {
+                        hot: minimal_hot_result(record.summary),
+                        occupied: record.summary.state.internal_occupied(),
+                        inserted_component_mask: record.first_vanish.vanished_mask,
+                    });
+                    // SAFETY: both output slots were initialized immediately above.
+                    let state = unsafe { state_output.assume_init() };
+                    // SAFETY: both output slots were initialized immediately above.
+                    let hot = unsafe { hot_output.assume_init() };
+                    *checksum ^= hot.hot.score_delta
+                        ^ profile_checksum(hot.occupied ^ hot.inserted_component_mask)
+                        ^ profile_checksum(state.color_bits[0]);
+                    black_box((state, hot));
+                }
+            })
+        }
+        _ => unreachable!("profile mode validated above"),
+    };
+
+    Ok(CompactProfileMeasurement {
+        mode,
+        flags: if cfg!(target_arch = "x86_64") { 0x1 } else { 0 },
+        record_count: u32::try_from(workload.records.len())
+            .expect("profile request record count fits u32"),
+        repeats,
+        operations,
+        elapsed_ns,
+        cycles,
+        checksum,
+        mismatch_count,
+        state_bytes,
+        result_bytes,
+        copy_bytes_per_record: copy_bytes,
+        update_bytes_per_record: update_bytes,
+        reusable_metadata_bytes: reuse,
+    })
+}
+
 pub(crate) fn planes_to_wire(planes: &[u128; PLANE_COUNT]) -> [u8; PLANE_COUNT * PLANE_BYTES] {
     let mut result = [0_u8; PLANE_COUNT * PLANE_BYTES];
     for (index, plane) in planes.iter().copied().enumerate() {
@@ -1626,6 +2501,49 @@ mod tests {
         assert_ne!(first, second);
         assert_ne!(first, different_depth);
         assert_ne!(first.board.color_bits(), second.board.color_bits());
+    }
+
+    #[test]
+    fn qa_profile_modes_preserve_semantics_and_publish_fixed_sizes() {
+        let state = state_with_cells(&[
+            (0, 0, 0),
+            (1, 1, 0),
+            (2, 2, 0),
+            (3, 3, 0),
+            (4, 4, 0),
+            (5, 5, 0),
+        ]);
+        let pair = Pair::from_ids(1, 2).expect("valid pair");
+        let inputs = [(state, pair, 7)];
+        for mode in [
+            PROFILE_MODE_FULL_TRANSITION,
+            PROFILE_MODE_DIRECT_PLACEMENT,
+            PROFILE_MODE_COLOR_PLANE_EXTRACTION,
+            PROFILE_MODE_INSERTED_CONNECTIVITY,
+            PROFILE_MODE_STATE_RESULT_MATERIALIZATION,
+            PROFILE_MODE_LAYOUT_THREE_BIT,
+            PROFILE_MODE_LAYOUT_SIX_PLANE,
+            PROFILE_MODE_LAYOUT_COLUMN_LOCAL,
+            PROFILE_MODE_LAYOUT_LOCAL_METADATA,
+            PROFILE_MODE_RESULT_FULL_SUMMARY,
+            PROFILE_MODE_RESULT_MINIMAL_HOT,
+            PROFILE_MODE_RESULT_HOT_METADATA,
+        ] {
+            let measurement =
+                profile_compact_records(&inputs, mode, 3).expect("profile mode succeeds");
+            assert_eq!(measurement.record_count, 1);
+            assert_eq!(measurement.repeats, 3);
+            assert_eq!(measurement.mismatch_count, 0);
+            assert!(measurement.cycles > 0);
+        }
+        let full = profile_compact_records(&inputs, PROFILE_MODE_RESULT_FULL_SUMMARY, 1)
+            .expect("full result profile succeeds");
+        let minimal = profile_compact_records(&inputs, PROFILE_MODE_RESULT_MINIMAL_HOT, 1)
+            .expect("minimal result profile succeeds");
+        assert_eq!(full.result_bytes, 128);
+        assert_eq!(minimal.state_bytes, 80);
+        assert_eq!(minimal.result_bytes, 24);
+        assert_eq!(minimal.copy_bytes_per_record, 104);
     }
 
     #[test]
