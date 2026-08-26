@@ -435,6 +435,13 @@ def run_cachegrind(
     )
     if valgrind_lib:
         environment["VALGRIND_LIB"] = valgrind_lib
+    version = subprocess.run(
+        [valgrind, "--version"],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
     raw: dict[str, dict[str, Any]] = {}
     with tempfile.TemporaryDirectory(prefix="puyo-205-cachegrind-") as directory:
         root = Path(directory)
@@ -501,6 +508,7 @@ def run_cachegrind(
     return {
         "schema_version": "puyo.native_compact_cachegrind.v1",
         "tool": "Valgrind Cachegrind simulated counters",
+        "tool_version": version,
         "command_shape": (
             "valgrind --tool=cachegrind --cache-sim=yes --branch-sim=yes "
             "python -m eval.deep_chain_native_transition_profile cachegrind-child ..."
