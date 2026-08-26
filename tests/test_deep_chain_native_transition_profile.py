@@ -1,5 +1,6 @@
 import importlib
 import unittest
+from unittest.mock import patch
 
 from agents.compact_search import CompactSearchState
 from agents.deep_chain_native_transition import (
@@ -11,16 +12,21 @@ from eval.deep_chain_native_transition_profile import (
     COMBINED_TRANSITION_EVALUATOR_BUDGET_MS,
     DEFAULT_OPTIMIZATION_OUTPUT_DIR,
     DEFAULT_OUTPUT_DIR,
+    DEFAULT_VERIFICATION_OUTPUT_DIR,
     OPTIMIZATION_TICKET,
     PROFILE_MODES,
     QUIET_TARGET_NS,
     TRANSITION_TARGET_NS,
+    VERIFICATION_TICKET,
     NativeCompactProfiler,
+    _default_output_dir,
     _percentile,
     decode_profile_measurement,
     derive_budget_decision,
+    derive_verification_decision,
     measure_call_count_model,
     parse_args,
+    run_source_verification,
     verify_benchmark,
 )
 from src.core.constants import PuyoColor
@@ -44,6 +50,14 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
 
         self.assertEqual(args.ticket, "PUYO-206")
         self.assertIsNone(args.output_dir)
+
+    def test_verification_ticket_has_an_independent_evidence_directory(self):
+        args = parse_args(["run", "--ticket", VERIFICATION_TICKET])
+
+        self.assertEqual(args.ticket, VERIFICATION_TICKET)
+        self.assertEqual(
+            _default_output_dir(args.ticket), DEFAULT_VERIFICATION_OUTPUT_DIR
+        )
 
     def test_nearest_rank_percentile_keeps_all_samples(self):
         values = list(range(1, 101))
@@ -105,6 +119,65 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
             result["decision"]["transition_p95_target_ns_per_call"], 100.0
         )
 
+    def test_verification_decision_assigns_actual_residual_to_evaluator(self):
+        call_count = {
+            "planned_native_search": {
+                "canonical_transition_call_ceiling": 600_000,
+                "canonical_evaluated_call_projection": 600_000,
+            }
+        }
+
+        result = derive_verification_decision(
+            mixed_p95_ns=66.0,
+            quiet_p95_ns=34.0,
+            call_count=call_count,
+            gate_checks={"semantic": True},
+        )
+
+        self.assertEqual(result["decision"], "GO")
+        self.assertIsNone(result["observed_combined_p95_ms"])
+        self.assertAlmostEqual(
+            result["remaining_budget"]["transition_projection_p95_ms"], 39.6
+        )
+        self.assertAlmostEqual(
+            result["remaining_budget"]["evaluator_quiescence_p95_ms"],
+            781.025,
+        )
+        self.assertEqual(
+            result["remaining_budget"]["native_envelope_p95_ms"], 900.0
+        )
+        self.assertEqual(
+            result["remaining_budget"]["end_to_end_envelope_p95_ms"], 1_000.0
+        )
+
+    def test_source_verification_requires_every_named_release_test(self):
+        output = "\n".join(
+            f"test compact::tests::{name} ... ok"
+            for name in (
+                "inserted_component_fast_path_matches_full_scanner",
+                "normal_hot_transition_performs_no_heap_allocation",
+                "search_key_requires_external_coordinates_and_exact_board",
+                "fixed_hot_result_materializes_the_same_detailed_trace_summary",
+                "qa_profile_modes_preserve_semantics_and_publish_fixed_sizes",
+            )
+        )
+        completed = type(
+            "Completed",
+            (),
+            {"returncode": 0, "stdout": output, "stderr": ""},
+        )()
+        with patch(
+            "eval.deep_chain_native_transition_profile.subprocess.run",
+            return_value=completed,
+        ):
+            result = run_source_verification()
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(
+            result["allocation"]["normal_hot_path_heap_allocations"], 0
+        )
+        self.assertEqual(result["property_corpus"]["mismatch_count"], 0)
+
     def test_frozen_search_measures_one_transition_per_expanded_node(self):
         result = measure_call_count_model()
 
@@ -130,6 +203,18 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
         result = verify_benchmark(
             DEFAULT_OPTIMIZATION_OUTPUT_DIR,
             ticket=OPTIMIZATION_TICKET,
+        )
+
+        self.assertTrue(result["passed"], result["issues"])
+
+    @unittest.skipUnless(
+        DEFAULT_VERIFICATION_OUTPUT_DIR.exists(),
+        "PUYO-207 evidence is not checked in",
+    )
+    def test_checked_in_verification_evidence_is_integral(self):
+        result = verify_benchmark(
+            DEFAULT_VERIFICATION_OUTPUT_DIR,
+            ticket=VERIFICATION_TICKET,
         )
 
         self.assertTrue(result["passed"], result["issues"])

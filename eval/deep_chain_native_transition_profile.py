@@ -1,4 +1,4 @@
-"""PUYO-205/206 compact-transition profiling and acceptance evidence."""
+"""PUYO-205 through PUYO-207 compact-transition evidence and verification."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import json
 import math
 import os
 import platform
+import resource
 import shutil
 import struct
 import subprocess
@@ -41,24 +42,30 @@ from eval.deep_chain_native_profile import (
 from eval.deep_chain_native_transition_benchmark import (
     DEFAULT_CORPUS_PATH,
     _digest,
+    _fixture_parity,
     _flatten_inputs,
     _installed_wheel_sha256,
     _read_json,
     _write_json,
     evaluate_native_parity,
+    run_microbenchmark,
     verify_frozen_corpus,
 )
 from train.artifacts import describe_artifact, file_sha256, git_commit, utc_timestamp
 
 TICKET = "PUYO-205"
 OPTIMIZATION_TICKET = "PUYO-206"
-SUPPORTED_TICKETS = (TICKET, OPTIMIZATION_TICKET)
+VERIFICATION_TICKET = "PUYO-207"
+SUPPORTED_TICKETS = (TICKET, OPTIMIZATION_TICKET, VERIFICATION_TICKET)
 PROFILE_SCHEMA_VERSION = "puyo.native_compact_profile.v1"
 BENCHMARK_SCHEMA_VERSION = "puyo.native_compact_profile_benchmark.v1"
 DEFAULT_SEARCH_CORPUS_PATH = Path("eval/deep_chain_native_corpus.json")
 DEFAULT_OUTPUT_DIR = Path("docs/benchmarks/puyo-205-native-compact-profile")
 DEFAULT_OPTIMIZATION_OUTPUT_DIR = Path(
     "docs/benchmarks/puyo-206-native-compact-hot-path"
+)
+DEFAULT_VERIFICATION_OUTPUT_DIR = Path(
+    "docs/benchmarks/puyo-207-native-transition-verification"
 )
 CANONICAL_MAX_EXPANDED_NODES = 600_000
 END_TO_END_BUDGET_MS = 1_000.0
@@ -77,6 +84,30 @@ TRANSITION_TARGET_MS = (
 EVALUATOR_REMAINING_BUDGET_MS = (
     COMBINED_TRANSITION_EVALUATOR_BUDGET_MS - TRANSITION_TARGET_MS
 )
+SEARCH_CONTROL_BUDGET_MS = 29.375
+SERIALIZATION_BUDGET_MS = 20.0
+AGGREGATION_BUDGET_MS = 30.0
+ADAPTER_MARGIN_MS = 100.0
+PYTHON_REFERENCE_LOWER_BOUND_MS = 300_000.0
+NATIVE_BOUNDARY_SHARE = 0.998626728
+PYTHON_TRANSITION_REFERENCE_NS = 137_479.0
+PYTHON_EVALUATOR_REFERENCE_NS = 2_412_458.0
+PROPERTY_TRANSITION_MINIMUM = 100_000
+SOURCE_TEST_NAMES = (
+    "inserted_component_fast_path_matches_full_scanner",
+    "normal_hot_transition_performs_no_heap_allocation",
+    "search_key_requires_external_coordinates_and_exact_board",
+    "fixed_hot_result_materializes_the_same_detailed_trace_summary",
+    "qa_profile_modes_preserve_semantics_and_publish_fixed_sizes",
+)
+
+
+def _default_output_dir(ticket: str) -> Path:
+    if ticket == VERIFICATION_TICKET:
+        return DEFAULT_VERIFICATION_OUTPUT_DIR
+    if ticket == OPTIMIZATION_TICKET:
+        return DEFAULT_OPTIMIZATION_OUTPUT_DIR
+    return DEFAULT_OUTPUT_DIR
 
 PROFILE_MODES = {
     "baseline": 0,
@@ -556,6 +587,79 @@ def _compiler_version() -> str:
     return completed.stdout.strip()
 
 
+def _git_tree(commit: str) -> str:
+    completed = subprocess.run(
+        ["git", "rev-parse", f"{commit}^{{tree}}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.strip() if completed.returncode == 0 else "unknown"
+
+
+def run_source_verification() -> dict[str, Any]:
+    """Run the source-bound invariants not exposed through the release wheel."""
+
+    command = [
+        "cargo",
+        "test",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "native/deep_chain_native/Cargo.toml",
+        "compact::tests::",
+        "--",
+        "--nocapture",
+    ]
+    completed = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    output = f"{completed.stdout}\n{completed.stderr}"
+    tests = {
+        name: f"test compact::tests::{name} ... ok" in output
+        for name in SOURCE_TEST_NAMES
+    }
+    return {
+        "schema_version": "puyo.native_compact_source_verification.v1",
+        "command": " ".join(command),
+        "return_code": completed.returncode,
+        "release_profile": True,
+        "required_tests": tests,
+        "property_corpus": {
+            "test": "inserted_component_fast_path_matches_full_scanner",
+            "minimum_checked_transitions_exclusive": PROPERTY_TRANSITION_MINIMUM,
+            "optimized_path": "reachable inserted-component local update",
+            "reference_path": "forced full-board scalar scanner",
+            "mismatch_count": 0 if tests[SOURCE_TEST_NAMES[0]] else None,
+        },
+        "allocation": {
+            "test": "normal_hot_transition_performs_no_heap_allocation",
+            "normal_hot_path_heap_allocations": (
+                0 if tests["normal_hot_transition_performs_no_heap_allocation"] else None
+            ),
+        },
+        "exact_key_mismatch_count": (
+            0
+            if tests["search_key_requires_external_coordinates_and_exact_board"]
+            else None
+        ),
+        "hot_and_detailed_result_mismatch_count": (
+            0
+            if tests[
+                "fixed_hot_result_materializes_the_same_detailed_trace_summary"
+            ]
+            else None
+        ),
+        "stdout": completed.stdout,
+        "stderr": completed.stderr,
+        "output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
+        "passed": completed.returncode == 0 and all(tests.values()),
+    }
+
+
 def _pin_process(cpu: int | None) -> tuple[int, list[int]]:
     available = sorted(os.sched_getaffinity(0))
     selected = available[0] if cpu is None else int(cpu)
@@ -702,7 +806,391 @@ def derive_budget_decision(
     }
 
 
+def derive_verification_decision(
+    *,
+    mixed_p95_ns: float,
+    quiet_p95_ns: float,
+    call_count: Mapping[str, Any],
+    gate_checks: Mapping[str, bool],
+) -> dict[str, Any]:
+    """Derive the pre-evaluator Go/No-Go without claiming unimplemented timing."""
+
+    planned = call_count["planned_native_search"]
+    transition_calls = int(planned["canonical_transition_call_ceiling"])
+    evaluator_calls = int(planned["canonical_evaluated_call_projection"])
+    transition_projection_ms = (
+        float(mixed_p95_ns) * transition_calls / 1_000_000.0
+    )
+    evaluator_remaining_ms = (
+        COMBINED_TRANSITION_EVALUATOR_BUDGET_MS - transition_projection_ms
+    )
+    evaluator_remaining_ns = (
+        evaluator_remaining_ms * 1_000_000.0 / evaluator_calls
+        if evaluator_calls > 0
+        else 0.0
+    )
+    other_native_ms = (
+        SEARCH_CONTROL_BUDGET_MS
+        + SERIALIZATION_BUDGET_MS
+        + AGGREGATION_BUDGET_MS
+    )
+    native_envelope_ms = COMBINED_TRANSITION_EVALUATOR_BUDGET_MS + other_native_ms
+    end_to_end_envelope_ms = native_envelope_ms + ADAPTER_MARGIN_MS
+    serial_share = 1.0 - NATIVE_BOUNDARY_SHARE
+    required_boundary_speedup = NATIVE_BOUNDARY_SHARE / (
+        END_TO_END_BUDGET_MS / PYTHON_REFERENCE_LOWER_BOUND_MS - serial_share
+    )
+    component_passed = (
+        mixed_p95_ns <= TRANSITION_TARGET_NS and quiet_p95_ns <= QUIET_TARGET_NS
+    )
+    budget_feasible = (
+        evaluator_remaining_ms > 0.0
+        and native_envelope_ms <= NATIVE_TOTAL_BUDGET_MS
+        and end_to_end_envelope_ms <= END_TO_END_BUDGET_MS
+    )
+    passed = component_passed and budget_feasible and all(gate_checks.values())
+    return {
+        "schema_version": "puyo.native_compact_go_no_go.v1",
+        "decision": "GO" if passed else "NO_GO",
+        "decision_scope": (
+            "permission to implement PUYO-201 inside the residual combined budget; "
+            "not production promotion"
+        ),
+        "combined_gate_phase": "pre-evaluator residual-budget verification",
+        "observed_combined_p95_ms": None,
+        "observed_combined_p95_reason": (
+            "PUYO-201 evaluator/quiescence does not exist yet; its implementation must "
+            "measure transition plus evaluator at this shared native boundary"
+        ),
+        "component": {
+            "mixed_p95_ns_per_transition": mixed_p95_ns,
+            "mixed_target_ns_per_transition": TRANSITION_TARGET_NS,
+            "quiet_p95_ns_per_transition": quiet_p95_ns,
+            "quiet_target_ns_per_transition": QUIET_TARGET_NS,
+            "passed": component_passed,
+        },
+        "remaining_budget": {
+            "transition_calls": transition_calls,
+            "evaluator_calls": evaluator_calls,
+            "transition_projection_p95_ms": transition_projection_ms,
+            "combined_transition_evaluator_p95_ms": (
+                COMBINED_TRANSITION_EVALUATOR_BUDGET_MS
+            ),
+            "evaluator_quiescence_p95_ms": evaluator_remaining_ms,
+            "evaluator_quiescence_ns_per_evaluated_node": evaluator_remaining_ns,
+            "search_control_p95_ms": SEARCH_CONTROL_BUDGET_MS,
+            "serialization_p95_ms": SERIALIZATION_BUDGET_MS,
+            "aggregation_p95_ms": AGGREGATION_BUDGET_MS,
+            "native_envelope_p95_ms": native_envelope_ms,
+            "adapter_margin_p95_ms": ADAPTER_MARGIN_MS,
+            "end_to_end_envelope_p95_ms": end_to_end_envelope_ms,
+        },
+        "amdahl_recalculation": {
+            "python_reference_lower_bound_ms": PYTHON_REFERENCE_LOWER_BOUND_MS,
+            "required_end_to_end_speedup": (
+                PYTHON_REFERENCE_LOWER_BOUND_MS / END_TO_END_BUDGET_MS
+            ),
+            "native_boundary_share": NATIVE_BOUNDARY_SHARE,
+            "required_native_boundary_speedup": required_boundary_speedup,
+            "python_transition_reference_ns": PYTHON_TRANSITION_REFERENCE_NS,
+            "observed_transition_p95_speedup": (
+                PYTHON_TRANSITION_REFERENCE_NS / mixed_p95_ns
+            ),
+            "python_evaluator_reference_ns": PYTHON_EVALUATOR_REFERENCE_NS,
+            "required_evaluator_speedup_at_residual_budget": (
+                PYTHON_EVALUATOR_REFERENCE_NS / evaluator_remaining_ns
+                if evaluator_remaining_ns > 0.0
+                else None
+            ),
+            "interpretation": (
+                "The outer Amdahl headroom remains positive, but PUYO-201 must "
+                "demonstrate the recorded evaluator speedup and shared-boundary p95."
+            ),
+        },
+        "gate_checks": dict(gate_checks),
+        "puyo_201": {
+            "status": "unblocked_for_implementation" if passed else "blocked",
+            "shared_state_contract": (
+                "80-byte exact three-slice child state with drop heights and "
+                "settled/lifecycle flags; 24-byte transition hot result; derive "
+                "occupied/components in native code without a persisted full cache"
+            ),
+            "binding_p95_budget_ms": max(0.0, evaluator_remaining_ms),
+            "binding_ns_per_evaluated_node": max(0.0, evaluator_remaining_ns),
+            "stop_condition": (
+                "Stop before PUYO-202 if transition+evaluator exceeds 820.625 ms, "
+                "native total exceeds 900 ms, end-to-end exceeds 1,000 ms, or any "
+                "semantic/deterministic/allocation contract fails."
+            ),
+        },
+        "production_backend_remains_blocked": True,
+        "passed": passed,
+    }
+
+
+def _memory_evidence(
+    *,
+    cold_warm: Mapping[str, Any],
+    alternatives: Mapping[str, Mapping[str, Any]],
+    source_verification: Mapping[str, Any],
+) -> dict[str, Any]:
+    selected_layout = alternatives["layout_three_bit_slices"]
+    selected_result = alternatives["result_minimal_hot"]
+    process_peak = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    per_transition_bytes = (
+        NATIVE_COMPACT_HOT_CHILD_STATE_BYTES + NATIVE_COMPACT_HOT_RESULT_BYTES
+    )
+    return {
+        "schema_version": "puyo.native_compact_memory_verification.v1",
+        "limits": {
+            "normal_hot_path_heap_allocations": 0,
+            "child_state_bytes": NATIVE_COMPACT_HOT_CHILD_STATE_BYTES,
+            "hot_result_bytes": NATIVE_COMPACT_HOT_RESULT_BYTES,
+            "per_transition_write_bytes": per_transition_bytes,
+            "selected_reusable_metadata_bytes": 8,
+        },
+        "observed": {
+            "normal_hot_path_heap_allocations": source_verification["allocation"][
+                "normal_hot_path_heap_allocations"
+            ],
+            "child_state_bytes": selected_result["state_bytes"],
+            "hot_result_bytes": selected_result["result_bytes"],
+            "per_transition_write_bytes": selected_result["copy_bytes_per_record"],
+            "selected_reusable_metadata_bytes": selected_layout[
+                "reusable_metadata_bytes"
+            ],
+            "selected_layout_update_bytes_per_record": selected_layout[
+                "update_bytes_per_record"
+            ],
+            "selected_layout_p50_ns": selected_layout["p50_ns_per_record"],
+            "selected_layout_p95_ns": selected_layout["p95_ns_per_record"],
+            "process_peak_rss_kib": process_peak,
+            "cold_warm_peak_rss_kib_before": cold_warm["memory"][
+                "peak_rss_kib_before"
+            ],
+            "cold_warm_peak_rss_kib_after": cold_warm["memory"][
+                "peak_rss_kib_after"
+            ],
+            "cold_warm_peak_rss_delta_kib": cold_warm["memory"][
+                "peak_rss_delta_kib"
+            ],
+            "canonical_retained_upper_bound_bytes": (
+                per_transition_bytes * CANONICAL_MAX_EXPANDED_NODES
+            ),
+        },
+    }
+
+
+def _render_verification_report(summary: Mapping[str, Any]) -> str:
+    profile = summary["profiles"]
+    verification = summary["verification"]
+    decision = summary["final_decision"]
+    remaining = decision["remaining_budget"]
+    memory = verification["memory"]
+    observed_memory = memory["observed"]
+    lines = [
+        "# PUYO-207 independent transition Go/No-Go verification",
+        "",
+        f"- Decision: **{decision['decision']}**",
+        f"- Evaluated commit: `{summary['evaluated_commit']}`",
+        f"- Source tree: `{summary['source_tree']}`",
+        f"- Wheel SHA-256: `{summary['environment']['wheel_sha256']}`",
+        f"- Transition corpus digest: `{summary['corpus']['digest']}`",
+        f"- Search corpus digest: `{summary['call_count']['corpus_digest']}`",
+        f"- CPU affinity: `{summary['environment']['selected_cpu']}` (one thread)",
+        (
+            f"- CPU / platform: `{summary['environment']['cpu']}` / "
+            f"`{summary['environment']['platform']}`"
+        ),
+        f"- Compiler: `{summary['environment']['compiler']}`",
+        (
+            f"- Executed ISA path: `{summary['capabilities']['simd_path']}`; "
+            "reachable local-update and forced full-scanner results are identical"
+        ),
+        "- Outliers: none removed; p50/p95 use nearest rank",
+        "",
+        "## Independent semantic verification",
+        "",
+        "| Gate | Coverage | Mismatches |",
+        "| --- | ---: | ---: |",
+        (
+            f"| fixed fixtures | {verification['fixtures']['case_count']} | "
+            f"{verification['fixtures']['mismatch_count']} |"
+        ),
+        (
+            f"| authoritative/Python frozen transitions | "
+            f"{summary['oracle']['checked_transition_count']} | "
+            f"{summary['oracle']['mismatch_count']} |"
+        ),
+        (
+            f"| native frozen transitions | "
+            f"{summary['native_parity']['transition_count']} | "
+            f"{summary['native_parity']['mismatch_count']} |"
+        ),
+        (
+            f"| legal/reduced action results | {summary['oracle']['state_count']} | "
+            f"{summary['native_parity']['action_mismatch_count']} |"
+        ),
+        (
+            f"| optimized local path vs forced scanner property corpus | "
+            f"> {PROPERTY_TRANSITION_MINIMUM:,} | "
+            f"{verification['source']['property_corpus']['mismatch_count']} |"
+        ),
+        "",
+        (
+            "Deterministic response, exact-key, search result, and ranking digest "
+            f"mismatches are `{verification['determinism']['total_mismatch_count']}`."
+        ),
+        "",
+        "## Locked outcome latency",
+        "",
+        "| Outcome | Samples | Records/sample | p50 ns | p95 ns | Target |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for name in ("mixed", *OUTCOME_NAMES):
+        row = profile[name]["full_transition"]
+        target = "-"
+        if name == "mixed":
+            target = f"<= {TRANSITION_TARGET_NS:.1f}"
+        elif name == "quiet":
+            target = f"<= {QUIET_TARGET_NS:.1f}"
+        lines.append(
+            f"| {name} | {row['sample_count']} | {row['record_count']} | "
+            f"{row['p50_ns_per_record']:.3f} | {row['p95_ns_per_record']:.3f} | "
+            f"{target} |"
+        )
+    cold_warm = verification["cold_warm"]
+    lines.extend(
+        [
+            "",
+            (
+                "The auxiliary first-call/warm measurements do not replace the "
+                "locked PUYO-205 sample contract:"
+            ),
+            "",
+            "| Scope | Wall p50 us | Wall p95 us | Kernel p50 ns/transition | Kernel p95 ns/transition |",
+            "| --- | ---: | ---: | ---: | ---: |",
+            (
+                f"| warm single | {cold_warm['warm_single']['wall_p50_us']:.3f} | "
+                f"{cold_warm['warm_single']['wall_p95_us']:.3f} | "
+                f"{cold_warm['warm_single']['kernel_per_transition_p50_ns']:.3f} | "
+                f"{cold_warm['warm_single']['kernel_per_transition_p95_ns']:.3f} |"
+            ),
+            (
+                f"| warm batch | {cold_warm['warm_batch']['wall_p50_us']:.3f} | "
+                f"{cold_warm['warm_batch']['wall_p95_us']:.3f} | "
+                f"{cold_warm['warm_batch']['kernel_per_transition_p50_ns']:.3f} | "
+                f"{cold_warm['warm_batch']['kernel_per_transition_p95_ns']:.3f} |"
+            ),
+            "",
+            (
+                f"First single call: `{cold_warm['cold_single']['wall_us']:.3f} us` "
+                f"wall / `{cold_warm['cold_single']['kernel_ns']} ns` kernel."
+            ),
+            "",
+            "## Memory and shared-state contract",
+            "",
+            "| Item | Observed | Limit |",
+            "| --- | ---: | ---: |",
+            (
+                f"| normal hot-path heap allocations | "
+                f"{observed_memory['normal_hot_path_heap_allocations']} | 0 |"
+            ),
+            (
+                f"| child state bytes | {observed_memory['child_state_bytes']} | "
+                f"{memory['limits']['child_state_bytes']} |"
+            ),
+            (
+                f"| hot result bytes | {observed_memory['hot_result_bytes']} | "
+                f"{memory['limits']['hot_result_bytes']} |"
+            ),
+            (
+                f"| total write bytes/transition | "
+                f"{observed_memory['per_transition_write_bytes']} | "
+                f"{memory['limits']['per_transition_write_bytes']} |"
+            ),
+            (
+                f"| reusable state metadata bytes | "
+                f"{observed_memory['selected_reusable_metadata_bytes']} | "
+                f"{memory['limits']['selected_reusable_metadata_bytes']} |"
+            ),
+            "",
+            (
+                f"Process peak RSS was `{observed_memory['process_peak_rss_kib']:,} KiB`; "
+                f"the selected three-slice local update measured "
+                f"`{observed_memory['selected_layout_p95_ns']:.3f} ns` p95 and "
+                f"`{observed_memory['selected_layout_update_bytes_per_record']}` updated "
+                "bytes per record."
+            ),
+            "",
+            "## Combined budget and Amdahl result",
+            "",
+            "| Category | p95 envelope | Per evaluated node |",
+            "| --- | ---: | ---: |",
+            (
+                f"| measured transition projection | "
+                f"{remaining['transition_projection_p95_ms']:.3f} ms | "
+                f"{decision['component']['mixed_p95_ns_per_transition']:.3f} ns |"
+            ),
+            (
+                f"| PUYO-201 evaluator/quiescence residual | "
+                f"{remaining['evaluator_quiescence_p95_ms']:.3f} ms | "
+                f"{remaining['evaluator_quiescence_ns_per_evaluated_node']:.3f} ns |"
+            ),
+            (
+                f"| combined transition + evaluator | "
+                f"{remaining['combined_transition_evaluator_p95_ms']:.3f} ms | - |"
+            ),
+            f"| native total | {remaining['native_envelope_p95_ms']:.3f} ms | - |",
+            (
+                f"| end-to-end including adapter margin | "
+                f"{remaining['end_to_end_envelope_p95_ms']:.3f} ms | - |"
+            ),
+            "",
+            (
+                f"The transition demonstrates "
+                f"`{decision['amdahl_recalculation']['observed_transition_p95_speedup']:.3f}x` "
+                "against the frozen Python transition reference. PUYO-201 must "
+                f"demonstrate at least approximately "
+                f"`{decision['amdahl_recalculation']['required_evaluator_speedup_at_residual_budget']:.3f}x` "
+                "against the frozen Python evaluator reference and then measure the "
+                "real shared-boundary p95."
+            ),
+            "",
+            "## Decision",
+            "",
+            (
+                f"**{decision['decision']} for PUYO-201 implementation.** "
+                f"The binding evaluator/quiescence allowance is "
+                f"`{decision['puyo_201']['binding_p95_budget_ms']:.3f} ms` p95, or "
+                f"`{decision['puyo_201']['binding_ns_per_evaluated_node']:.3f} ns` "
+                "per evaluated node."
+            ),
+            "",
+            decision["observed_combined_p95_reason"] + ".",
+            "Production backend promotion remains blocked. "
+            + decision["puyo_201"]["stop_condition"],
+            "",
+            "## Reproduction",
+            "",
+            "```bash",
+            "./scripts/build_deep_chain_native.sh",
+            summary["command"],
+            (
+                "python -m eval.deep_chain_native_transition_profile verify "
+                f"--ticket {VERIFICATION_TICKET} --artifact-dir "
+                f"{summary['artifact_dir']}"
+            ),
+            "```",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def _render_report(summary: Mapping[str, Any]) -> str:
+    if summary["ticket"] == VERIFICATION_TICKET:
+        return _render_verification_report(summary)
     profile = summary["profiles"]
     decision = summary["budget_decision"]
     ticket = str(summary["ticket"])
@@ -815,14 +1303,8 @@ def _render_report(summary: Mapping[str, Any]) -> str:
 
 def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     ticket = str(args.ticket)
-    output_dir = Path(
-        args.output_dir
-        or (
-            DEFAULT_OPTIMIZATION_OUTPUT_DIR
-            if ticket == OPTIMIZATION_TICKET
-            else DEFAULT_OUTPUT_DIR
-        )
-    )
+    output_dir = Path(args.output_dir or _default_output_dir(ticket))
+    verification_mode = ticket == VERIFICATION_TICKET
     selected_cpu, available_cpus = _pin_process(args.cpu)
     for name in (
         "OMP_NUM_THREADS",
@@ -835,7 +1317,20 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     corpus = _read_json(args.corpus)
     oracle = verify_frozen_corpus(args.corpus)
     batch_client = NativeCompactBatchClient()
+    verification_inputs = _flatten_inputs(corpus)
+    cold_warm = (
+        run_microbenchmark(
+            batch_client,
+            verification_inputs,
+            single_samples=200,
+            batch_samples=12,
+            batch_size=10_000,
+        )
+        if verification_mode
+        else None
+    )
     native_parity = evaluate_native_parity(batch_client, corpus)
+    fixtures = _fixture_parity(batch_client) if verification_mode else None
     selected, selection_metadata = _profile_inputs(
         corpus,
         mixed_batch_size=args.mixed_batch_size,
@@ -909,6 +1404,9 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         cpu=selected_cpu,
     )
     call_count = measure_call_count_model(args.search_corpus)
+    repeat_call_count = (
+        measure_call_count_model(args.search_corpus) if verification_mode else None
+    )
     decomposition = _stage_decomposition(profiles, cachegrind)
     budget = derive_budget_decision(
         profiles["mixed"]["full_transition"]["p95_ns_per_record"],
@@ -916,6 +1414,50 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         decomposition,
     )
     capabilities = batch_client.capabilities.to_dict()
+    evaluated_commit = git_commit()
+    source_tree = _git_tree(evaluated_commit)
+    source_verification = run_source_verification() if verification_mode else None
+    memory = (
+        _memory_evidence(
+            cold_warm=cold_warm,
+            alternatives=alternatives,
+            source_verification=source_verification,
+        )
+        if verification_mode
+        else None
+    )
+    determinism = None
+    if verification_mode:
+        response_mismatches = int(not native_parity["deterministic_response"])
+        exact_key_mismatches = int(
+            source_verification["exact_key_mismatch_count"] != 0
+        )
+        search_result_mismatches = int(
+            call_count["actual_search_digest"]
+            != call_count["expected_search_digest"]
+        )
+        ranking_repeat_mismatches = int(
+            call_count["actual_search_digest"]
+            != repeat_call_count["actual_search_digest"]
+            or call_count["python_search"]["counters"]
+            != repeat_call_count["python_search"]["counters"]
+        )
+        determinism = {
+            "schema_version": "puyo.native_compact_determinism_verification.v1",
+            "response_sha256": native_parity["response_sha256"],
+            "response_mismatch_count": response_mismatches,
+            "exact_key_mismatch_count": exact_key_mismatches,
+            "search_result_digest": call_count["actual_search_digest"],
+            "expected_search_result_digest": call_count["expected_search_digest"],
+            "search_result_digest_mismatch_count": search_result_mismatches,
+            "ranking_repeat_digest_mismatch_count": ranking_repeat_mismatches,
+            "total_mismatch_count": (
+                response_mismatches
+                + exact_key_mismatches
+                + search_result_mismatches
+                + ranking_repeat_mismatches
+            ),
+        }
     command = (
         "python -m eval.deep_chain_native_transition_profile run "
         f"--ticket {ticket} "
@@ -928,6 +1470,42 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         f"--cachegrind-records {args.cachegrind_records} "
         f"--cachegrind-repeats {args.cachegrind_repeats} --cpu {selected_cpu}"
     )
+    measurement_contract = {
+        "warmup_samples_per_mode": args.warmup,
+        "mixed_samples": args.mixed_samples,
+        "outcome_samples": args.outcome_samples,
+        "stage_samples": args.stage_samples,
+        "alternative_samples": args.alternative_samples,
+        "mixed_batch_size": args.mixed_batch_size,
+        "outcome_batch_size": args.outcome_batch_size,
+        "cachegrind_records": args.cachegrind_records,
+        "cachegrind_repeats": args.cachegrind_repeats,
+        "outlier_exclusion": "none",
+        "percentile_method": "nearest-rank: sorted[ceil(p/100*N)-1]",
+        "release_wheel_required": True,
+        "fixed_cpu": selected_cpu,
+        "threads": 1,
+        "targets": {
+            "mixed_p95_ns_per_transition": TRANSITION_TARGET_NS,
+            "quiet_p95_ns_per_transition": QUIET_TARGET_NS,
+            "combined_transition_evaluator_p95_ms": (
+                COMBINED_TRANSITION_EVALUATOR_BUDGET_MS
+            ),
+            "native_total_p95_ms": NATIVE_TOTAL_BUDGET_MS,
+            "end_to_end_p95_ms": END_TO_END_BUDGET_MS,
+            "max_expanded_nodes": CANONICAL_MAX_EXPANDED_NODES,
+        },
+    }
+    if verification_mode:
+        measurement_contract["auxiliary_cold_warm"] = {
+            "single_samples": 200,
+            "single_warmup": 20,
+            "batch_samples": 12,
+            "batch_warmup": 2,
+            "batch_size": 10_000,
+            "authority": "observational; does not replace locked outcome samples",
+        }
+    measurement_contract["contract_digest"] = _digest(measurement_contract)
     checks = {
         "release_wheel": capabilities["build_profile"] == "release",
         "frozen_corpus_oracle_parity": oracle["passed"],
@@ -983,7 +1561,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             }
         ),
     }
-    if ticket == OPTIMIZATION_TICKET:
+    if ticket in (OPTIMIZATION_TICKET, VERIFICATION_TICKET):
         checks.update(
             {
                 "mixed_p95_target_met": (
@@ -1002,11 +1580,69 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
                 ),
             }
         )
+    final_decision = None
+    if verification_mode:
+        checks.update(
+            {
+                "fixed_fixture_parity": fixtures["mismatch_count"] == 0,
+                "source_revision_matches_evaluated_commit": (
+                    capabilities["source_revision"] == evaluated_commit
+                ),
+                "source_tree_recorded": source_tree != "unknown",
+                "release_source_verification": source_verification["passed"],
+                "property_corpus_exceeds_100k": (
+                    source_verification["property_corpus"]["mismatch_count"] == 0
+                    and source_verification["property_corpus"][
+                        "minimum_checked_transitions_exclusive"
+                    ]
+                    >= PROPERTY_TRANSITION_MINIMUM
+                ),
+                "allocation_free_hot_path": (
+                    memory["observed"]["normal_hot_path_heap_allocations"] == 0
+                ),
+                "memory_contract_fixed": (
+                    memory["observed"]["child_state_bytes"]
+                    == memory["limits"]["child_state_bytes"]
+                    and memory["observed"]["hot_result_bytes"]
+                    == memory["limits"]["hot_result_bytes"]
+                    and memory["observed"]["per_transition_write_bytes"]
+                    == memory["limits"]["per_transition_write_bytes"]
+                    and memory["observed"]["selected_reusable_metadata_bytes"]
+                    == memory["limits"]["selected_reusable_metadata_bytes"]
+                ),
+                "peak_rss_recorded": memory["observed"]["process_peak_rss_kib"] > 0,
+                "scalar_and_optimized_path_equivalent": (
+                    capabilities["simd_path"] == "scalar"
+                    and capabilities["scalar_fallback"]
+                    and source_verification["property_corpus"]["mismatch_count"]
+                    == 0
+                ),
+                "deterministic_response_key_and_ranking": (
+                    determinism["total_mismatch_count"] == 0
+                ),
+                "search_repeat_call_model_identical": (
+                    call_count["planned_native_search"]
+                    == repeat_call_count["planned_native_search"]
+                ),
+            }
+        )
+        final_decision = derive_verification_decision(
+            mixed_p95_ns=profiles["mixed"]["full_transition"][
+                "p95_ns_per_record"
+            ],
+            quiet_p95_ns=profiles["quiet"]["full_transition"][
+                "p95_ns_per_record"
+            ],
+            call_count=call_count,
+            gate_checks=checks,
+        )
+        checks["combined_and_outer_budget_feasible"] = final_decision["passed"]
     summary = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
         "ticket": ticket,
         "created_at_utc": utc_timestamp(),
-        "evaluated_commit": git_commit(),
+        "evaluated_commit": evaluated_commit,
+        "source_tree": source_tree,
         "command": command,
         "artifact_dir": str(output_dir),
         "environment": {
@@ -1032,18 +1668,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             "cycle_counter": f"{CYCLE_COUNTER_METHOD} on one pinned CPU",
             "instruction_branch_cache_counter": "Valgrind Cachegrind simulated",
         },
-        "measurement_contract": {
-            "warmup_samples_per_mode": args.warmup,
-            "mixed_samples": args.mixed_samples,
-            "outcome_samples": args.outcome_samples,
-            "stage_samples": args.stage_samples,
-            "alternative_samples": args.alternative_samples,
-            "outlier_exclusion": "none",
-            "percentile_method": "nearest-rank: sorted[ceil(p/100*N)-1]",
-            "release_wheel_required": True,
-            "fixed_cpu": selected_cpu,
-            "threads": 1,
-        },
+        "measurement_contract": measurement_contract,
         "corpus": {
             "path": str(args.corpus),
             "sha256": file_sha256(args.corpus),
@@ -1065,6 +1690,19 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         },
         "call_count": call_count,
         "budget_decision": budget,
+        "verification": (
+            {
+                "fixtures": fixtures,
+                "cold_warm": cold_warm,
+                "source": source_verification,
+                "determinism": determinism,
+                "memory": memory,
+                "repeat_call_count": repeat_call_count,
+            }
+            if verification_mode
+            else None
+        ),
+        "final_decision": final_decision,
         "checks": checks,
         "passed": all(checks.values()),
     }
@@ -1076,6 +1714,9 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             "corpus": summary["corpus"],
             "call_count": summary["call_count"],
             "budget_decision": summary["budget_decision"],
+            "measurement_contract": summary["measurement_contract"],
+            "verification": summary["verification"],
+            "final_decision": summary["final_decision"],
             "checks": summary["checks"],
         }
     )
@@ -1092,6 +1733,21 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     _write_json(output_dir / "cachegrind.json", cachegrind)
     _write_json(output_dir / "call_count.json", call_count)
     _write_json(output_dir / "alternative_contracts.json", alternatives)
+    if verification_mode:
+        _write_json(output_dir / "measurement_contract.json", measurement_contract)
+        _write_json(
+            output_dir / "semantic_verification.json",
+            {
+                "schema_version": "puyo.native_compact_semantic_verification.v1",
+                "fixtures": fixtures,
+                "oracle": oracle,
+                "native_parity": native_parity,
+                "source": source_verification,
+                "determinism": determinism,
+            },
+        )
+        _write_json(output_dir / "memory_verification.json", memory)
+        _write_json(output_dir / "go_no_go_decision.json", final_decision)
     _write_json(output_dir / "benchmark_summary.json", summary)
     (output_dir / "benchmark_report.md").write_text(
         _render_report(summary), encoding="utf-8"
@@ -1106,10 +1762,28 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "ticket": ticket,
         "created_at_utc": summary["created_at_utc"],
         "evaluated_commit": summary["evaluated_commit"],
+        "source_tree": summary["source_tree"],
         "wheel_sha256": summary["environment"]["wheel_sha256"],
         "corpus_digest": summary["corpus"]["digest"],
+        "measurement_contract_digest": summary["measurement_contract"][
+            "contract_digest"
+        ],
         "command": command,
         "passed": summary["passed"],
+        "inputs": [
+            {
+                "role": "transition_corpus",
+                "path": str(args.corpus),
+                "sha256": file_sha256(args.corpus),
+                "logical_digest": corpus["corpus_digest"],
+            },
+            {
+                "role": "search_corpus",
+                "path": str(args.search_corpus),
+                "sha256": file_sha256(args.search_corpus),
+                "logical_digest": call_count["corpus_digest"],
+            },
+        ],
         "artifacts": [
             describe_artifact(path, run_dir=output_dir, role=path.stem)
             for path in artifacts
@@ -1131,12 +1805,36 @@ def verify_benchmark(
         issues.append(f"unexpected {ticket} manifest schema")
     if manifest.get("ticket") != ticket:
         issues.append(f"unexpected {ticket} manifest ticket")
-    for artifact in manifest.get("artifacts", []):
-        path = root / artifact["path"]
+    artifacts = manifest.get("artifacts", [])
+    artifact_paths = [artifact.get("path") for artifact in artifacts]
+    if len(artifact_paths) != len(set(artifact_paths)):
+        issues.append("manifest contains duplicate artifact paths")
+    if ticket == VERIFICATION_TICKET:
+        required_artifacts = {
+            "alternative_contracts.json",
+            "benchmark_report.md",
+            "benchmark_summary.json",
+            "cachegrind.json",
+            "call_count.json",
+            "go_no_go_decision.json",
+            "measurement_contract.json",
+            "memory_verification.json",
+            "raw_profile.json",
+            "semantic_verification.json",
+        }
+        missing = sorted(required_artifacts - set(artifact_paths))
+        if missing:
+            issues.append(f"manifest omits required artifacts: {missing}")
+    for artifact in artifacts:
+        artifact_path = artifact.get("path")
+        if not isinstance(artifact_path, str):
+            issues.append("manifest artifact is missing its path")
+            continue
+        path = root / artifact_path
         if not path.exists():
-            issues.append(f"missing artifact: {artifact['path']}")
-        elif file_sha256(path) != artifact["sha256"]:
-            issues.append(f"artifact digest mismatch: {artifact['path']}")
+            issues.append(f"missing artifact: {artifact_path}")
+        elif file_sha256(path) != artifact.get("sha256"):
+            issues.append(f"artifact digest mismatch: {artifact_path}")
     summary = _read_json(root / "benchmark_summary.json")
     if summary.get("schema_version") != BENCHMARK_SCHEMA_VERSION:
         issues.append(f"unexpected {ticket} summary schema")
@@ -1150,6 +1848,69 @@ def verify_benchmark(
         "wheel_sha256"
     ):
         issues.append("wheel hash differs between summary and manifest")
+    if ticket == VERIFICATION_TICKET:
+        if not manifest.get("passed"):
+            issues.append("verification manifest records a failed decision")
+        if summary.get("final_decision", {}).get("decision") != "GO":
+            issues.append("PUYO-207 final decision is not GO")
+        if not summary.get("final_decision", {}).get("passed"):
+            issues.append("PUYO-207 final decision checks did not pass")
+        if summary.get("evaluated_commit") != manifest.get("evaluated_commit"):
+            issues.append("evaluated commit differs between summary and manifest")
+        if summary.get("source_tree") != manifest.get("source_tree"):
+            issues.append("source tree differs between summary and manifest")
+        if _git_tree(str(manifest.get("evaluated_commit"))) != manifest.get(
+            "source_tree"
+        ):
+            issues.append("evaluated commit tree cannot be verified")
+        if summary.get("capabilities", {}).get("source_revision") != summary.get(
+            "evaluated_commit"
+        ):
+            issues.append("release wheel source revision differs from evaluated commit")
+        for source in manifest.get("inputs", []):
+            source_path = source.get("path")
+            if not isinstance(source_path, str):
+                issues.append("manifest source input is missing its path")
+                continue
+            path = Path(source_path)
+            if not path.exists():
+                issues.append(f"missing source input: {source_path}")
+            elif file_sha256(path) != source.get("sha256"):
+                issues.append(f"source input digest mismatch: {source_path}")
+        if len(manifest.get("inputs", [])) != 2:
+            issues.append("verification manifest must record both frozen corpora")
+        contract_path = root / "measurement_contract.json"
+        if contract_path.exists():
+            contract = _read_json(contract_path)
+            contract_payload = dict(contract)
+            contract_digest = contract_payload.pop("contract_digest", None)
+            if _digest(contract_payload) != contract_digest:
+                issues.append("measurement contract digest mismatch")
+            if contract != summary.get("measurement_contract"):
+                issues.append("measurement contract differs from summary")
+            if contract_digest != manifest.get("measurement_contract_digest"):
+                issues.append("measurement contract differs from manifest")
+        decision_path = root / "go_no_go_decision.json"
+        if decision_path.exists():
+            decision = _read_json(decision_path)
+            if decision != summary.get("final_decision"):
+                issues.append("Go/No-Go decision differs from summary")
+        expected_summary_digest = _digest(
+            {
+                "schema_version": summary.get("schema_version"),
+                "ticket": summary.get("ticket"),
+                "evaluated_commit": summary.get("evaluated_commit"),
+                "corpus": summary.get("corpus"),
+                "call_count": summary.get("call_count"),
+                "budget_decision": summary.get("budget_decision"),
+                "measurement_contract": summary.get("measurement_contract"),
+                "verification": summary.get("verification"),
+                "final_decision": summary.get("final_decision"),
+                "checks": summary.get("checks"),
+            }
+        )
+        if expected_summary_digest != summary.get("summary_digest"):
+            issues.append("benchmark summary digest mismatch")
     return {"passed": not issues, "issues": issues}
 
 
@@ -1204,11 +1965,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0 if summary["passed"] else 1
     if args.command == "cachegrind-child":
         return _cachegrind_child(args)
-    artifact_dir = args.artifact_dir or (
-        DEFAULT_OPTIMIZATION_OUTPUT_DIR
-        if args.ticket == OPTIMIZATION_TICKET
-        else DEFAULT_OUTPUT_DIR
-    )
+    artifact_dir = args.artifact_dir or _default_output_dir(args.ticket)
     result = verify_benchmark(artifact_dir, ticket=args.ticket)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["passed"] else 1
