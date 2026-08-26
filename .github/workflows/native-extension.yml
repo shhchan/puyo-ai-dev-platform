@@ -1,0 +1,52 @@
+name: deep-chain native extension
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/native-extension.yml"
+      - "agents/deep_chain_native.py"
+      - "native/deep_chain_native/**"
+      - "requirements-native.txt"
+      - "rust-toolchain.toml"
+      - "scripts/build_deep_chain_native.sh"
+      - "tests/test_deep_chain_native.py"
+  push:
+    paths:
+      - ".github/workflows/native-extension.yml"
+      - "agents/deep_chain_native.py"
+      - "native/deep_chain_native/**"
+      - "requirements-native.txt"
+      - "rust-toolchain.toml"
+      - "scripts/build_deep_chain_native.sh"
+      - "tests/test_deep_chain_native.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-cp312-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-native.txt
+      - name: Create test environment
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --requirement requirements.txt
+      - name: Build and install release wheel
+        run: ./scripts/build_deep_chain_native.sh
+      - name: Check Rust format, lint, and units
+        run: |
+          cargo fmt --manifest-path native/deep_chain_native/Cargo.toml -- --check
+          cargo clippy --locked --manifest-path native/deep_chain_native/Cargo.toml -- -D warnings
+          cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml
+      - name: Run Python boundary tests
+        run: .venv/bin/python -m unittest tests.test_deep_chain_native
