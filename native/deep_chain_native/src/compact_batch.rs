@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 use crate::compact::{
     ACTION_COUNT, CompactError, CompactErrorKind, CompactState, PLANE_BYTES, PLANE_COUNT, Pair,
     STATE_BYTES, TransitionSummary, TransitionTrace, legal_actions_mask, planes_to_wire,
-    profile_compact_records, symmetry_reduced_actions_mask, transition_into,
+    profile_compact_records, symmetry_reduced_actions_mask, transition_hot_into, transition_into,
 };
 
 pub(crate) const ABI_VERSION: u16 = 1;
@@ -416,17 +416,18 @@ fn execute(data: &[u8]) -> BatchResult<Vec<u8>> {
     let kernel_duration = if request.options.measure_timing {
         let kernel_started = Instant::now();
         for (index, record) in request.records.iter().copied().enumerate() {
-            let mut summary = MaybeUninit::uninit();
-            transition_into(
+            let mut child = MaybeUninit::uninit();
+            let mut hot = MaybeUninit::uninit();
+            transition_hot_into(
                 &record.state,
                 record.pair,
                 record.action_id,
-                None,
-                &mut summary,
+                &mut child,
+                &mut hot,
             )
             .map_err(|error| BatchError::from_compact(index, error))?;
-            // SAFETY: a successful native transition always initializes the slot.
-            black_box(unsafe { summary.assume_init_ref() });
+            // SAFETY: a successful native transition initializes both slots.
+            black_box(unsafe { (child.assume_init_ref(), hot.assume_init_ref()) });
         }
         kernel_started.elapsed()
     } else {

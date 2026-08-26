@@ -342,6 +342,16 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
         self.assertTrue(payload["gil_detach"])
         self.assertFalse(payload["parallel"])
         self.assertTrue(payload["wheel_hash_hook"])
+        self.assertEqual(
+            payload["compact_hot_result"],
+            {
+                "abi_version": 1,
+                "schema": "puyo.native_compact_hot_result.v1",
+                "child_state_bytes": 80,
+                "result_bytes": 24,
+                "flags_mask": 0x0F,
+            },
+        )
 
     def test_native_codec_round_trips_the_full_frozen_corpus(self):
         for index, case in enumerate(self.corpus["cases"], start=1):

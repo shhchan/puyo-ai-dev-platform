@@ -1,6 +1,6 @@
 # PUYO-205 compact transition ADR delta
 
-- Status: Accepted for PUYO-206 implementation and PUYO-207 verification
+- Status: Accepted; implemented by PUYO-206 and retained for PUYO-207 verification
 - Date: 2026-08-27
 - Amends: [PUYO-198 deep-chain native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Inputs: PUYO-200 No-Go evidence and the frozen PUYO-198/PUYO-200 corpora
@@ -194,10 +194,20 @@ following occurs:
 4. native total exceeds 900 ms or end-to-end p95 exceeds 1,000 ms;
 5. parity, determinism, exact-key, or allocation-free requirements fail.
 
-The current PUYO-200 implementation remains No-Go for PUYO-201 because its
-quiet p95 is 54.305 ns, above the newly fixed 50.0 ns target. PUYO-206 may not
-change these targets, sample counts, warm-up, percentile rule, call conversion,
-or locked outer gates. PUYO-207 performs the independent final judgment.
+At PUYO-205 acceptance time, the PUYO-200 implementation remained No-Go for
+PUYO-201 because its quiet p95 was 54.305 ns, above the newly fixed 50.0 ns
+target. PUYO-206 could not change these targets, sample counts, warm-up,
+percentile rule, call conversion, or locked outer gates. PUYO-207 performs the
+independent final judgment.
+
+PUYO-206 subsequently met the unchanged component contract at 66.497 ns mixed
+p95 and 33.904 ns quiet p95, with zero mismatches across all 11,264 frozen
+transitions. Its source-bound evidence is
+[`benchmark_manifest.json`](../benchmarks/puyo-206-native-compact-hot-path/benchmark_manifest.json)
+and its implementation contract is documented in
+[the PUYO-206 hot-path report](puyo-206-native-compact-hot-path.md). PUYO-201
+remains blocked because this component pass does not replace PUYO-207's
+independent combined-gate decision.
 
 ## Consequences
 

@@ -6,6 +6,10 @@ from pathlib import Path
 from agents.compact_search import CompactSearchState, transition
 from agents.deep_chain_native import InvalidNativeInputError
 from agents.deep_chain_native_transition import (
+    NATIVE_COMPACT_HOT_CHILD_STATE_BYTES,
+    NATIVE_COMPACT_HOT_RESULT_ABI_VERSION,
+    NATIVE_COMPACT_HOT_RESULT_BYTES,
+    NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION,
     NativeCompactArithmeticOverflowError,
     NativeCompactBatchClient,
     NativeCompactTransitionInput,
@@ -110,6 +114,18 @@ class TestNativeCompactExtension(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.client = NativeCompactBatchClient(NATIVE_MODULE)
+
+    def test_hot_result_contract_is_fixed_and_versioned(self):
+        self.assertEqual(NATIVE_COMPACT_HOT_RESULT_ABI_VERSION, 1)
+        self.assertEqual(
+            NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION,
+            "puyo.native_compact_hot_result.v1",
+        )
+        self.assertEqual(NATIVE_COMPACT_HOT_CHILD_STATE_BYTES, 80)
+        self.assertEqual(NATIVE_COMPACT_HOT_RESULT_BYTES, 24)
+        self.assertEqual(NATIVE_MODULE.COMPACT_HOT_RESULT_ABI_VERSION, 1)
+        self.assertEqual(NATIVE_MODULE.COMPACT_HOT_CHILD_STATE_BYTES, 80)
+        self.assertEqual(NATIVE_MODULE.COMPACT_HOT_RESULT_BYTES, 24)
 
     def test_fixed_fixtures_match_summary_and_diagnostic_trace(self):
         fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))

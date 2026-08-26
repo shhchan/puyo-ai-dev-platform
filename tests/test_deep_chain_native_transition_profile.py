@@ -9,7 +9,9 @@ from agents.deep_chain_native_transition import (
 from eval.deep_chain_native_transition_profile import (
     _PROFILE_RESPONSE,
     COMBINED_TRANSITION_EVALUATOR_BUDGET_MS,
+    DEFAULT_OPTIMIZATION_OUTPUT_DIR,
     DEFAULT_OUTPUT_DIR,
+    OPTIMIZATION_TICKET,
     PROFILE_MODES,
     QUIET_TARGET_NS,
     TRANSITION_TARGET_NS,
@@ -28,6 +30,7 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
     def test_defaults_lock_samples_and_follow_up_targets(self):
         args = parse_args(["run"])
 
+        self.assertEqual(args.ticket, "PUYO-205")
         self.assertEqual(args.mixed_samples, 120)
         self.assertEqual(args.outcome_samples, 40)
         self.assertEqual(args.stage_samples, 30)
@@ -35,6 +38,12 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
         self.assertEqual(TRANSITION_TARGET_NS, 100.0)
         self.assertEqual(QUIET_TARGET_NS, 50.0)
         self.assertEqual(COMBINED_TRANSITION_EVALUATOR_BUDGET_MS, 820.625)
+
+    def test_optimization_ticket_can_use_its_own_evidence_directory(self):
+        args = parse_args(["run", "--ticket", "PUYO-206"])
+
+        self.assertEqual(args.ticket, "PUYO-206")
+        self.assertIsNone(args.output_dir)
 
     def test_nearest_rank_percentile_keeps_all_samples(self):
         values = list(range(1, 101))
@@ -110,6 +119,18 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
     @unittest.skipUnless(DEFAULT_OUTPUT_DIR.exists(), "PUYO-205 evidence is not checked in")
     def test_checked_in_profile_evidence_is_integral(self):
         result = verify_benchmark()
+
+        self.assertTrue(result["passed"], result["issues"])
+
+    @unittest.skipUnless(
+        DEFAULT_OPTIMIZATION_OUTPUT_DIR.exists(),
+        "PUYO-206 evidence is not checked in",
+    )
+    def test_checked_in_optimization_evidence_is_integral(self):
+        result = verify_benchmark(
+            DEFAULT_OPTIMIZATION_OUTPUT_DIR,
+            ticket=OPTIMIZATION_TICKET,
+        )
 
         self.assertTrue(result["passed"], result["issues"])
 
