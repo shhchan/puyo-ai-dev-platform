@@ -19,6 +19,11 @@ pub(crate) const NORMAL_COLOR_COUNT: usize = 5;
 pub(crate) const ACTION_COUNT: usize = 22;
 pub(crate) const STATE_BYTES: usize = 87;
 pub(crate) const PLANE_BYTES: usize = 11;
+pub(crate) const HOT_RESULT_ABI_VERSION: u16 = 1;
+pub(crate) const HOT_RESULT_SCHEMA: &str = "puyo.native_compact_hot_result.v1";
+pub(crate) const HOT_CHILD_STATE_BYTES: usize = 80;
+pub(crate) const HOT_RESULT_BYTES: usize = 24;
+pub(crate) const HOT_RESULT_FLAGS_MASK: u8 = 0x0f;
 const COLOR_BIT_COUNT: usize = 3;
 const COLUMN_LANE_BITS: usize = 16;
 const WIRE_BOARD_MASK: u128 = (1_u128 << (WIDTH * HEIGHT)) - 1;
@@ -27,6 +32,10 @@ const VISIBLE_MASK: u128 = lane_mask(VISIBLE_HEIGHT);
 const ROW_14_MASK: u128 = row_mask(HEIGHT - 1);
 const CELL_FINGERPRINTS: [[[u64; 2]; WIDTH * HEIGHT]; PLANE_COUNT] = fingerprint_table();
 const ALL_CLEAR_BONUS_SCORE: u64 = 2_100;
+const HOT_FLAG_VALID: u8 = 0x01;
+const HOT_FLAG_GAME_OVER: u8 = 0x02;
+const HOT_FLAG_ALL_CLEAR_ACHIEVED: u8 = 0x04;
+const HOT_FLAG_ALL_CLEAR_BONUS_CONSUMED: u8 = 0x08;
 
 pub(crate) const PROFILE_MODE_BASELINE: u16 = 0;
 pub(crate) const PROFILE_MODE_FULL_TRANSITION: u16 = 1;
@@ -468,19 +477,104 @@ impl CompactState {
         self.last_chain_end_score
     }
 
-    fn from_quiet_direct(placement: DirectPlacement, previous: &Self, game_over: bool) -> Self {
+    fn from_settled_color_bits(
+        color_bits: [u128; COLOR_BIT_COUNT],
+        all_clear_bonus_pending: bool,
+        game_over: bool,
+        score: u64,
+        last_chain_end_score: u64,
+    ) -> Self {
+        debug_assert!(last_chain_end_score <= score);
+        let (drop_heights, lower_compact) = board_geometry(occupied_from_color_bits(&color_bits));
         Self {
-            color_bits: placement.color_bits,
-            drop_heights: placement.drop_heights,
-            lower_compact: true,
+            color_bits,
+            drop_heights,
+            lower_compact,
             settled: true,
-            all_clear_bonus_pending: previous.all_clear_bonus_pending,
+            all_clear_bonus_pending,
             game_over,
-            score: previous.score,
-            last_chain_end_score: previous.last_chain_end_score,
+            score,
+            last_chain_end_score,
         }
     }
 }
+
+const _: () = assert!(std::mem::size_of::<CompactState>() == HOT_CHILD_STATE_BYTES);
+
+/// Versioned fixed-width result consumed by the native search/evaluator loop.
+/// Persistent lifecycle state belongs to the caller-owned `CompactState`;
+/// these flags describe only the transition event and duplicate game-over for
+/// branch-local access.  QA-only planes, fingerprints, and trace evidence are
+/// deliberately absent.
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct TransitionHotResult {
+    pub(crate) score_delta: u64,
+    pub(crate) attack_score_delta: u64,
+    pub(crate) vanished_count: u16,
+    pub(crate) garbage_cleared_count: u16,
+    pub(crate) action_id: u8,
+    pub(crate) axis_y: u8,
+    pub(crate) chain_count: u8,
+    pub(crate) flags: u8,
+}
+
+impl TransitionHotResult {
+    #[allow(clippy::too_many_arguments)]
+    fn new(
+        state: &CompactState,
+        action_id: u8,
+        axis_y: Option<u8>,
+        score_delta: u64,
+        attack_score_delta: u64,
+        chain_count: u8,
+        vanished_count: u16,
+        garbage_cleared_count: u16,
+        valid: bool,
+        all_clear_achieved: bool,
+        all_clear_bonus_consumed: bool,
+    ) -> Self {
+        Self {
+            score_delta,
+            attack_score_delta,
+            vanished_count,
+            garbage_cleared_count,
+            action_id,
+            axis_y: axis_y.unwrap_or(u8::MAX),
+            chain_count,
+            flags: (u8::from(valid) * HOT_FLAG_VALID)
+                | (u8::from(state.game_over) * HOT_FLAG_GAME_OVER)
+                | (u8::from(all_clear_achieved) * HOT_FLAG_ALL_CLEAR_ACHIEVED)
+                | (u8::from(all_clear_bonus_consumed) * HOT_FLAG_ALL_CLEAR_BONUS_CONSUMED),
+        }
+    }
+
+    pub(crate) const fn valid(self) -> bool {
+        self.flags & HOT_FLAG_VALID != 0
+    }
+
+    pub(crate) const fn game_over(self) -> bool {
+        self.flags & HOT_FLAG_GAME_OVER != 0
+    }
+
+    pub(crate) const fn all_clear_achieved(self) -> bool {
+        self.flags & HOT_FLAG_ALL_CLEAR_ACHIEVED != 0
+    }
+
+    pub(crate) const fn all_clear_bonus_consumed(self) -> bool {
+        self.flags & HOT_FLAG_ALL_CLEAR_BONUS_CONSUMED != 0
+    }
+
+    pub(crate) const fn axis_y(self) -> Option<u8> {
+        if self.axis_y == u8::MAX {
+            None
+        } else {
+            Some(self.axis_y)
+        }
+    }
+}
+
+const _: () = assert!(std::mem::size_of::<TransitionHotResult>() == HOT_RESULT_BYTES);
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) struct TransitionSummary {
@@ -531,6 +625,11 @@ struct DirectPlacement {
     color_bits: [u128; COLOR_BIT_COUNT],
     occupied: u128,
     drop_heights: [u8; WIDTH],
+    inserted_indices: [u8; 2],
+}
+
+#[derive(Clone, Copy)]
+struct PlacementMetadata {
     landing_y: u8,
     inserted_indices: [u8; 2],
 }
@@ -839,32 +938,38 @@ fn add_direct_cell(
 }
 
 #[inline(always)]
-fn direct_placement(
+fn place_reachable_state(
     state: &CompactState,
     pair: Pair,
     action: PlacementAction,
-) -> Option<DirectPlacement> {
+    child: &mut CompactState,
+) -> Option<PlacementMetadata> {
     if state.game_over || !state.lower_compact {
         return None;
     }
     let axis_x = usize::from(action.axis_x);
-    let mut color_bits = state.color_bits;
     let mut occupied = state.internal_occupied();
-    let mut drop_heights = state.drop_heights;
+    *child = *state;
     let landing_y;
     let inserted;
     match action.direction {
         Direction::Up => {
-            let height = usize::from(drop_heights[axis_x]);
+            let height = usize::from(child.drop_heights[axis_x]);
             if height > HEIGHT - 2
                 || (height == HEIGHT - 2 && occupied & cell_bit(axis_x, HEIGHT - 1) != 0)
             {
                 return None;
             }
             landing_y = height as u8;
-            add_direct_cell(&mut color_bits, &mut occupied, axis_x, height, pair.axis);
             add_direct_cell(
-                &mut color_bits,
+                &mut child.color_bits,
+                &mut occupied,
+                axis_x,
+                height,
+                pair.axis,
+            );
+            add_direct_cell(
+                &mut child.color_bits,
                 &mut occupied,
                 axis_x,
                 height + 1,
@@ -874,20 +979,26 @@ fn direct_placement(
                 (axis_x * COLUMN_LANE_BITS + height) as u8,
                 (axis_x * COLUMN_LANE_BITS + height + 1) as u8,
             ];
-            drop_heights[axis_x] += 1;
+            child.drop_heights[axis_x] += 1;
             if height + 1 < HEIGHT - 1 {
-                drop_heights[axis_x] += 1;
+                child.drop_heights[axis_x] += 1;
             }
         }
         Direction::Down => {
-            let height = usize::from(drop_heights[axis_x]);
+            let height = usize::from(child.drop_heights[axis_x]);
             if height > HEIGHT - 3 {
                 return None;
             }
             landing_y = (height + 1) as u8;
-            add_direct_cell(&mut color_bits, &mut occupied, axis_x, height, pair.child);
             add_direct_cell(
-                &mut color_bits,
+                &mut child.color_bits,
+                &mut occupied,
+                axis_x,
+                height,
+                pair.child,
+            );
+            add_direct_cell(
+                &mut child.color_bits,
                 &mut occupied,
                 axis_x,
                 height + 1,
@@ -897,7 +1008,7 @@ fn direct_placement(
                 (axis_x * COLUMN_LANE_BITS + height + 1) as u8,
                 (axis_x * COLUMN_LANE_BITS + height) as u8,
             ];
-            drop_heights[axis_x] += 2;
+            child.drop_heights[axis_x] += 2;
         }
         Direction::Right | Direction::Left => {
             let child_x = if action.direction == Direction::Right {
@@ -905,21 +1016,21 @@ fn direct_placement(
             } else {
                 axis_x - 1
             };
-            let axis_height = usize::from(drop_heights[axis_x]);
-            let child_height = usize::from(drop_heights[child_x]);
+            let axis_height = usize::from(child.drop_heights[axis_x]);
+            let child_height = usize::from(child.drop_heights[child_x]);
             if axis_height > HEIGHT - 2 || child_height > HEIGHT - 2 {
                 return None;
             }
             landing_y = axis_height.max(child_height) as u8;
             add_direct_cell(
-                &mut color_bits,
+                &mut child.color_bits,
                 &mut occupied,
                 axis_x,
                 axis_height,
                 pair.axis,
             );
             add_direct_cell(
-                &mut color_bits,
+                &mut child.color_bits,
                 &mut occupied,
                 child_x,
                 child_height,
@@ -929,16 +1040,33 @@ fn direct_placement(
                 (axis_x * COLUMN_LANE_BITS + axis_height) as u8,
                 (child_x * COLUMN_LANE_BITS + child_height) as u8,
             ];
-            drop_heights[axis_x] += 1;
-            drop_heights[child_x] += 1;
+            child.drop_heights[axis_x] += 1;
+            child.drop_heights[child_x] += 1;
         }
     }
-    Some(DirectPlacement {
-        color_bits,
-        occupied,
-        drop_heights,
+    child.lower_compact = true;
+    child.settled = true;
+    child.game_over = occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
+    Some(PlacementMetadata {
         landing_y,
         inserted_indices: inserted,
+    })
+}
+
+/// QA/profile compatibility view. The production path mutates its
+/// caller-owned child state directly through `place_reachable_state`.
+fn direct_placement(
+    state: &CompactState,
+    pair: Pair,
+    action: PlacementAction,
+) -> Option<DirectPlacement> {
+    let mut child = *state;
+    let metadata = place_reachable_state(state, pair, action, &mut child)?;
+    Some(DirectPlacement {
+        color_bits: child.color_bits,
+        occupied: child.internal_occupied(),
+        drop_heights: child.drop_heights,
+        inserted_indices: metadata.inserted_indices,
     })
 }
 
@@ -1087,9 +1215,93 @@ fn find_vanish(color_bits: &[u128; COLOR_BIT_COUNT]) -> VanishInfo {
 /// Stable compact states cannot gain a new group except through one of the
 /// two cells placed by the current action.  Restricting the first-chain scan
 /// to those components preserves arbitrary-state semantics through the full
-/// scanner while making the normal reachable-state path constant work.
+/// scanner while making the normal reachable-state path constant work. Three
+/// fixed expansions are sufficient to reject a component smaller than four;
+/// complete convergence runs only for an actual pop candidate.
 #[inline(always)]
-fn find_inserted_vanish(
+fn find_inserted_vanish_from_planes(
+    pair: Pair,
+    inserted_indices: [u8; 2],
+    inserted_planes: [u128; 2],
+) -> VanishInfo {
+    let mut vanished_mask = 0_u128;
+    let mut vanished_count = 0_u8;
+    let mut total_connection_bonus = 0_u16;
+    let mut vanished_colors = 0_u8;
+    let mut checked_mask = 0_u128;
+    let plane_indices = [pair.axis.plane_index(), pair.child.plane_index()];
+    for index in 0..2 {
+        let plane_index = plane_indices[index];
+        let seed = 1_u128 << inserted_indices[index];
+        if seed & VISIBLE_MASK == 0 || checked_mask & seed != 0 {
+            continue;
+        }
+        let visible_plane = inserted_planes[index] & VISIBLE_MASK;
+        let mut group = seed;
+        for _ in 0..3 {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        checked_mask |= group;
+        if !has_at_least_four_bits(group) {
+            continue;
+        }
+        loop {
+            let expanded = group | (visible_neighbors(group) & visible_plane);
+            if expanded == group {
+                break;
+            }
+            group = expanded;
+        }
+        checked_mask |= group;
+        let count = group.count_ones();
+        vanished_mask |= group;
+        vanished_count += u8::try_from(count).expect("visible board count fits u8");
+        total_connection_bonus += connection_bonus(count);
+        vanished_colors |= 1_u8 << plane_index;
+    }
+    VanishInfo {
+        vanished_mask,
+        vanished_count,
+        connection_bonus: total_connection_bonus,
+        color_count: vanished_colors.count_ones() as u8,
+    }
+}
+
+#[inline(always)]
+fn inserted_color_planes(state: &CompactState, pair: Pair, inserted_indices: [u8; 2]) -> [u128; 2] {
+    let axis_bit = 1_u128 << inserted_indices[0];
+    let child_bit = 1_u128 << inserted_indices[1];
+    let axis_plane = color_plane(&state.color_bits, pair.axis.plane_index());
+    let child_plane = if pair.axis == pair.child {
+        axis_plane
+    } else {
+        color_plane(&state.color_bits, pair.child.plane_index())
+    };
+    let axis_inserted_plane = axis_plane
+        | axis_bit
+        | if pair.axis == pair.child {
+            child_bit
+        } else {
+            0
+        };
+    [axis_inserted_plane, child_plane | child_bit]
+}
+
+#[inline(always)]
+fn find_inserted_vanish(state: &CompactState, pair: Pair, inserted_indices: [u8; 2]) -> VanishInfo {
+    find_inserted_vanish_from_planes(
+        pair,
+        inserted_indices,
+        inserted_color_planes(state, pair, inserted_indices),
+    )
+}
+
+#[cfg(test)]
+fn reference_inserted_vanish(
     color_bits: &[u128; COLOR_BIT_COUNT],
     pair: Pair,
     inserted_indices: [u8; 2],
@@ -1109,18 +1321,6 @@ fn find_inserted_vanish(
         }
         let visible_plane = color_plane(color_bits, plane_index) & VISIBLE_MASK;
         let mut group = seed;
-        // Four cells connected to a seed are all reachable within three
-        // expansions.  Avoid the unbounded convergence loop for quiet moves.
-        for _ in 0..3 {
-            let expanded = group | (visible_neighbors(group) & visible_plane);
-            if expanded == group {
-                break;
-            }
-            group = expanded;
-        }
-        if !has_at_least_four_bits(group) {
-            continue;
-        }
         loop {
             let expanded = group | (visible_neighbors(group) & visible_plane);
             if expanded == group {
@@ -1132,6 +1332,9 @@ fn find_inserted_vanish(
             continue;
         }
         let count = group.count_ones();
+        if count < 4 {
+            continue;
+        }
         vanished_mask |= group;
         vanished_count += u8::try_from(count).expect("visible board count fits u8");
         total_connection_bonus += connection_bonus(count);
@@ -1158,23 +1361,6 @@ fn clear_and_drop(
     apply_gravity(&cleared)
 }
 
-fn invalid_transition(state: &CompactState, action_id: u8) -> TransitionSummary {
-    TransitionSummary {
-        state: *state,
-        action_id,
-        valid: false,
-        axis_y: None,
-        score_delta: 0,
-        attack_score_delta: 0,
-        chain_count: 0,
-        vanished_count: 0,
-        garbage_cleared_count: 0,
-        all_clear_achieved: false,
-        all_clear_bonus_consumed: false,
-        all_clear_bonus_score: 0,
-    }
-}
-
 pub(crate) fn transition(
     state: &CompactState,
     pair: Pair,
@@ -1187,6 +1373,32 @@ pub(crate) fn transition(
     Ok(unsafe { output.assume_init() })
 }
 
+/// Primary search transition. The caller owns both fixed-width output slots;
+/// no QA summary, trace, wire plane, or fingerprint is materialized here.
+#[inline]
+pub(crate) fn transition_hot_into(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
+) -> CompactResult<()> {
+    transition_hot_core::<false>(state, pair, action_id, None, child_output, hot_output)
+}
+
+#[allow(dead_code)]
+pub(crate) fn transition_hot(
+    state: &CompactState,
+    pair: Pair,
+    action_id: u8,
+) -> CompactResult<(CompactState, TransitionHotResult)> {
+    let mut child = MaybeUninit::uninit();
+    let mut hot = MaybeUninit::uninit();
+    transition_hot_into(state, pair, action_id, &mut child, &mut hot)?;
+    // SAFETY: `transition_hot_into` initializes both slots before success.
+    Ok(unsafe { (child.assume_init(), hot.assume_init()) })
+}
+
 pub(crate) fn transition_into(
     state: &CompactState,
     pair: Pair,
@@ -1194,73 +1406,163 @@ pub(crate) fn transition_into(
     trace: Option<&mut TransitionTrace>,
     output: &mut MaybeUninit<TransitionSummary>,
 ) -> CompactResult<()> {
-    let action = placement(action_id)?;
-    if state.lower_compact && state.settled {
-        let Some(value) = direct_placement(state, pair, action) else {
-            output.write(invalid_transition(state, action_id));
-            return Ok(());
-        };
-        return transition_reachable_into(state, pair, action_id, value, trace, output);
+    let mut child = MaybeUninit::uninit();
+    let mut hot = MaybeUninit::uninit();
+    if let Some(trace) = trace {
+        transition_hot_core::<true>(state, pair, action_id, Some(trace), &mut child, &mut hot)?;
+    } else {
+        transition_hot_into(state, pair, action_id, &mut child, &mut hot)?;
     }
-    output.write(transition_general(state, pair, action_id, action, trace)?);
+    // SAFETY: either successful core path initialized both output slots.
+    let child = unsafe { child.assume_init() };
+    // SAFETY: either successful core path initialized both output slots.
+    let hot = unsafe { hot.assume_init() };
+    output.write(materialize_transition_summary(child, hot));
     Ok(())
 }
 
-#[inline]
-fn transition_reachable_into(
+#[inline(always)]
+fn transition_hot_core<const TRACE: bool>(
     state: &CompactState,
     pair: Pair,
     action_id: u8,
-    placement: DirectPlacement,
     mut trace: Option<&mut TransitionTrace>,
-    output: &mut MaybeUninit<TransitionSummary>,
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
 ) -> CompactResult<()> {
-    if let Some(output) = trace.as_deref_mut() {
-        output.placement_planes = Some(wire_planes_from_color_bits(&placement.color_bits));
-    }
-    let vanish = find_inserted_vanish(&placement.color_bits, pair, placement.inserted_indices);
-    if vanish.vanished_mask == 0 {
-        let game_over = placement.occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
-        output.write(quiet_transition(
+    let action = placement(action_id)?;
+    if state.lower_compact && state.settled {
+        let mut child = *state;
+        let Some(metadata) = place_reachable_state(state, pair, action, &mut child) else {
+            write_invalid_hot(state, action_id, child_output, hot_output);
+            return Ok(());
+        };
+        if TRACE {
+            trace
+                .as_deref_mut()
+                .expect("trace-enabled transition has a sink")
+                .placement_planes = Some(wire_planes_from_color_bits(&child.color_bits));
+        }
+        let vanish = find_inserted_vanish(state, pair, metadata.inserted_indices);
+        if vanish.vanished_mask == 0 {
+            write_quiet_hot(
+                child,
+                action_id,
+                metadata.landing_y,
+                child_output,
+                hot_output,
+            );
+            return Ok(());
+        }
+        return resolve_chains_hot::<TRACE>(
+            state,
             action_id,
-            placement.landing_y,
-            CompactState::from_quiet_direct(placement, state, game_over),
-        ));
-        return Ok(());
+            metadata.landing_y,
+            child.color_bits,
+            vanish,
+            trace,
+            child_output,
+            hot_output,
+        );
     }
-    output.write(resolve_chains(
+    transition_general_hot::<TRACE>(
         state,
+        pair,
         action_id,
-        placement.landing_y,
-        placement.color_bits,
-        vanish,
+        action,
         trace,
-    )?);
-    Ok(())
+        child_output,
+        hot_output,
+    )
+}
+
+#[inline(always)]
+fn write_invalid_hot(
+    state: &CompactState,
+    action_id: u8,
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
+) {
+    child_output.write(*state);
+    hot_output.write(TransitionHotResult::new(
+        state, action_id, None, 0, 0, 0, 0, 0, false, false, false,
+    ));
+}
+
+#[inline(always)]
+fn write_quiet_hot(
+    child: CompactState,
+    action_id: u8,
+    landing_y: u8,
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
+) {
+    child_output.write(child);
+    hot_output.write(TransitionHotResult::new(
+        &child,
+        action_id,
+        Some(landing_y),
+        0,
+        0,
+        0,
+        0,
+        0,
+        true,
+        false,
+        false,
+    ));
+}
+
+fn materialize_transition_summary(
+    state: CompactState,
+    hot: TransitionHotResult,
+) -> TransitionSummary {
+    debug_assert_eq!(state.game_over, hot.game_over());
+    debug_assert_eq!(hot.flags & !HOT_RESULT_FLAGS_MASK, 0);
+    TransitionSummary {
+        state,
+        action_id: hot.action_id,
+        valid: hot.valid(),
+        axis_y: hot.axis_y(),
+        score_delta: hot.score_delta,
+        attack_score_delta: hot.attack_score_delta,
+        chain_count: hot.chain_count,
+        vanished_count: hot.vanished_count,
+        garbage_cleared_count: hot.garbage_cleared_count,
+        all_clear_achieved: hot.all_clear_achieved(),
+        all_clear_bonus_consumed: hot.all_clear_bonus_consumed(),
+        all_clear_bonus_score: if hot.all_clear_bonus_consumed() {
+            ALL_CLEAR_BONUS_SCORE
+        } else {
+            0
+        },
+    }
 }
 
 #[cold]
 #[inline(never)]
-fn transition_general(
+fn transition_general_hot<const TRACE: bool>(
     state: &CompactState,
     pair: Pair,
     action_id: u8,
     action: PlacementAction,
     mut trace: Option<&mut TransitionTrace>,
-) -> CompactResult<TransitionSummary> {
-    let direct = if state.lower_compact {
-        let Some(value) = direct_placement(state, pair, action) else {
-            return Ok(invalid_transition(state, action_id));
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
+) -> CompactResult<()> {
+    let mut direct_child = None;
+    let (current_color_bits, landing_y) = if state.lower_compact {
+        let mut child = *state;
+        let Some(metadata) = place_reachable_state(state, pair, action, &mut child) else {
+            write_invalid_hot(state, action_id, child_output, hot_output);
+            return Ok(());
         };
-        Some(value)
-    } else {
-        None
-    };
-    let (current_color_bits, landing_y) = if let Some(value) = direct {
-        (value.color_bits, value.landing_y)
+        direct_child = Some(child);
+        (child.color_bits, metadata.landing_y)
     } else {
         let Some(landing_y) = find_landing_y(state, action) else {
-            return Ok(invalid_transition(state, action_id));
+            write_invalid_hot(state, action_id, child_output, hot_output);
+            return Ok(());
         };
         let mut color_bits = state.color_bits;
         let mut occupied = state.internal_occupied();
@@ -1277,70 +1579,58 @@ fn transition_general(
         set_plane_cell(&mut color_bits, &mut occupied, child_x, child_y, pair.child)?;
         (apply_gravity(&color_bits), landing_y)
     };
-    if let Some(output) = trace.as_deref_mut() {
-        output.placement_planes = Some(wire_planes_from_color_bits(&current_color_bits));
+    if TRACE {
+        trace
+            .as_deref_mut()
+            .expect("trace-enabled transition has a sink")
+            .placement_planes = Some(wire_planes_from_color_bits(&current_color_bits));
     }
     let vanish = find_vanish(&current_color_bits);
     if vanish.vanished_mask == 0 {
-        let final_occupied = direct.map_or_else(
-            || occupied_from_color_bits(&current_color_bits),
-            |value| value.occupied,
-        );
+        let final_occupied = occupied_from_color_bits(&current_color_bits);
         let game_over = final_occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
-        let next_state = if let Some(value) = direct {
-            CompactState::from_quiet_direct(value, state, game_over)
+        let child = if let Some(mut child) = direct_child {
+            child.game_over = game_over;
+            child
         } else {
-            CompactState::from_parts(
-                wire_planes_from_color_bits(&current_color_bits),
+            CompactState::from_settled_color_bits(
+                current_color_bits,
                 state.all_clear_bonus_pending,
                 game_over,
                 state.score,
                 state.last_chain_end_score,
-            )?
+            )
         };
-        return Ok(quiet_transition(action_id, landing_y, next_state));
+        write_quiet_hot(child, action_id, landing_y, child_output, hot_output);
+        return Ok(());
     }
-    resolve_chains(
+    resolve_chains_hot::<TRACE>(
         state,
         action_id,
         landing_y,
         current_color_bits,
         vanish,
         trace,
+        child_output,
+        hot_output,
     )
-}
-
-#[inline]
-fn quiet_transition(action_id: u8, landing_y: u8, state: CompactState) -> TransitionSummary {
-    TransitionSummary {
-        state,
-        action_id,
-        valid: true,
-        axis_y: Some(landing_y),
-        score_delta: 0,
-        attack_score_delta: 0,
-        chain_count: 0,
-        vanished_count: 0,
-        garbage_cleared_count: 0,
-        all_clear_achieved: false,
-        all_clear_bonus_consumed: false,
-        all_clear_bonus_score: 0,
-    }
 }
 
 #[cold]
 #[inline(never)]
-fn resolve_chains(
+#[allow(clippy::too_many_arguments)]
+fn resolve_chains_hot<const TRACE: bool>(
     state: &CompactState,
     action_id: u8,
     landing_y: u8,
     mut current_color_bits: [u128; COLOR_BIT_COUNT],
     mut vanish: VanishInfo,
     mut trace: Option<&mut TransitionTrace>,
-) -> CompactResult<TransitionSummary> {
+    child_output: &mut MaybeUninit<CompactState>,
+    hot_output: &mut MaybeUninit<TransitionHotResult>,
+) -> CompactResult<()> {
     let mut pending = state.all_clear_bonus_pending;
     let mut all_clear_bonus_consumed = false;
-    let mut all_clear_bonus_score = 0_u64;
     let mut score = state.score;
     let mut chain_count = 0_u8;
     let mut vanished_total = 0_u16;
@@ -1362,7 +1652,6 @@ fn resolve_chains(
         let step_all_clear_bonus = if chain_count == 1 && pending {
             pending = false;
             all_clear_bonus_consumed = true;
-            all_clear_bonus_score = ALL_CLEAR_BONUS_SCORE;
             ALL_CLEAR_BONUS_SCORE
         } else {
             0
@@ -1380,19 +1669,23 @@ fn resolve_chains(
         garbage_total = garbage_total
             .checked_add(u16::from(garbage_count))
             .ok_or_else(|| CompactError::overflow("garbage count overflow"))?;
-        if let Some(output) = trace.as_deref_mut() {
-            output.chains.push(ChainStepTrace {
-                chain_index: chain_count,
-                vanished_count: vanish.vanished_count,
-                garbage_cleared_count: garbage_count,
-                base,
-                bonus,
-                score: step_score,
-                all_clear_bonus_score: step_all_clear_bonus,
-                board_planes: wire_planes_from_color_bits(&current_color_bits),
-                vanished_mask: internal_plane_to_wire(vanish.vanished_mask),
-                garbage_mask: internal_plane_to_wire(garbage_mask),
-            });
+        if TRACE {
+            trace
+                .as_deref_mut()
+                .expect("trace-enabled transition has a sink")
+                .chains
+                .push(ChainStepTrace {
+                    chain_index: chain_count,
+                    vanished_count: vanish.vanished_count,
+                    garbage_cleared_count: garbage_count,
+                    base,
+                    bonus,
+                    score: step_score,
+                    all_clear_bonus_score: step_all_clear_bonus,
+                    board_planes: wire_planes_from_color_bits(&current_color_bits),
+                    vanished_mask: internal_plane_to_wire(vanish.vanished_mask),
+                    garbage_mask: internal_plane_to_wire(garbage_mask),
+                });
         }
         current_color_bits =
             clear_and_drop(&current_color_bits, vanish.vanished_mask, garbage_mask);
@@ -1418,27 +1711,28 @@ fn resolve_chains(
         0
     };
     let game_over = final_occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
-    let next_state = CompactState::from_parts(
-        wire_planes_from_color_bits(&current_color_bits),
+    let child = CompactState::from_settled_color_bits(
+        current_color_bits,
         pending,
         game_over,
         score,
         last_chain_end_score,
-    )?;
-    Ok(TransitionSummary {
-        state: next_state,
+    );
+    child_output.write(child);
+    hot_output.write(TransitionHotResult::new(
+        &child,
         action_id,
-        valid: true,
-        axis_y: Some(landing_y),
-        score_delta: score - state.score,
+        Some(landing_y),
+        score - state.score,
         attack_score_delta,
         chain_count,
-        vanished_count: vanished_total,
-        garbage_cleared_count: garbage_total,
+        vanished_total,
+        garbage_total,
+        true,
         all_clear_achieved,
         all_clear_bonus_consumed,
-        all_clear_bonus_score,
-    })
+    ));
+    Ok(())
 }
 
 /// QA-only measurement returned by the PUYO-205 profile boundary.  The
@@ -1555,23 +1849,10 @@ impl LocalMetadataProfileState {
     }
 }
 
-#[repr(C)]
-#[derive(Clone, Copy)]
-struct MinimalHotProfileResult {
-    score_delta: u64,
-    attack_score_delta: u64,
-    vanished_count: u16,
-    garbage_cleared_count: u16,
-    action_id: u8,
-    axis_y: u8,
-    chain_count: u8,
-    flags: u8,
-}
-
 #[repr(C, align(16))]
 #[derive(Clone, Copy)]
 struct MetadataHotProfileResult {
-    hot: MinimalHotProfileResult,
+    hot: TransitionHotResult,
     occupied: u128,
     inserted_component_mask: u128,
 }
@@ -1622,51 +1903,7 @@ fn preextracted_inserted_vanish(
     inserted_indices: [u8; 2],
     inserted_planes: [u128; 2],
 ) -> VanishInfo {
-    let mut vanished_mask = 0_u128;
-    let mut vanished_count = 0_u8;
-    let mut total_connection_bonus = 0_u16;
-    let mut vanished_colors = 0_u8;
-    let plane_indices = [pair.axis.plane_index(), pair.child.plane_index()];
-    for index in 0..2 {
-        let plane_index = plane_indices[index];
-        let seed = 1_u128 << inserted_indices[index];
-        if seed & VISIBLE_MASK == 0 || vanished_mask & seed != 0 {
-            continue;
-        }
-        let visible_plane = inserted_planes[index] & VISIBLE_MASK;
-        let mut group = seed;
-        for _ in 0..3 {
-            let expanded = group | (visible_neighbors(group) & visible_plane);
-            if expanded == group {
-                break;
-            }
-            group = expanded;
-        }
-        if !has_at_least_four_bits(group) {
-            continue;
-        }
-        loop {
-            let expanded = group | (visible_neighbors(group) & visible_plane);
-            if expanded == group {
-                break;
-            }
-            group = expanded;
-        }
-        if vanished_mask & group != 0 {
-            continue;
-        }
-        let count = group.count_ones();
-        vanished_mask |= group;
-        vanished_count += u8::try_from(count).expect("visible board count fits u8");
-        total_connection_bonus += connection_bonus(count);
-        vanished_colors |= 1_u8 << plane_index;
-    }
-    VanishInfo {
-        vanished_mask,
-        vanished_count,
-        connection_bonus: total_connection_bonus,
-        color_count: vanished_colors.count_ones() as u8,
-    }
+    find_inserted_vanish_from_planes(pair, inserted_indices, inserted_planes)
 }
 
 fn score_profile_step(input: ScoreProfileInput) -> (u64, bool, u64) {
@@ -1758,20 +1995,20 @@ fn update_local_metadata_layout(record: &CompactProfileRecord) -> LocalMetadataP
     result
 }
 
-fn minimal_hot_result(summary: TransitionSummary) -> MinimalHotProfileResult {
-    MinimalHotProfileResult {
-        score_delta: summary.score_delta,
-        attack_score_delta: summary.attack_score_delta,
-        vanished_count: summary.vanished_count,
-        garbage_cleared_count: summary.garbage_cleared_count,
-        action_id: summary.action_id,
-        axis_y: summary.axis_y.unwrap_or(u8::MAX),
-        chain_count: summary.chain_count,
-        flags: u8::from(summary.valid)
-            | (u8::from(summary.state.game_over) << 1)
-            | (u8::from(summary.all_clear_achieved) << 2)
-            | (u8::from(summary.all_clear_bonus_consumed) << 3),
-    }
+fn hot_result_from_summary(summary: TransitionSummary) -> TransitionHotResult {
+    TransitionHotResult::new(
+        &summary.state,
+        summary.action_id,
+        summary.axis_y,
+        summary.score_delta,
+        summary.attack_score_delta,
+        summary.chain_count,
+        summary.vanished_count,
+        summary.garbage_cleared_count,
+        summary.valid,
+        summary.all_clear_achieved,
+        summary.all_clear_bonus_consumed,
+    )
 }
 
 impl CompactProfileWorkload {
@@ -1787,12 +2024,8 @@ impl CompactProfileWorkload {
             let direct = direct_placement(&state, pair, action).ok_or_else(|| {
                 CompactError::invalid("profile input is not a reachable direct placement")
             })?;
-            let inserted_planes = [
-                color_plane(&direct.color_bits, pair.axis.plane_index()),
-                color_plane(&direct.color_bits, pair.child.plane_index()),
-            ];
-            let first_vanish =
-                find_inserted_vanish(&direct.color_bits, pair, direct.inserted_indices);
+            let inserted_planes = inserted_color_planes(&state, pair, direct.inserted_indices);
+            let first_vanish = find_inserted_vanish(&state, pair, direct.inserted_indices);
             if first_vanish
                 != preextracted_inserted_vanish(pair, direct.inserted_indices, inserted_planes)
             {
@@ -2027,9 +2260,9 @@ pub(crate) fn profile_compact_records(
                 record_operations,
                 workload.semantic_mismatches,
                 std::mem::size_of::<CompactState>() as u32,
-                std::mem::size_of::<MinimalHotProfileResult>() as u32,
-                (std::mem::size_of::<CompactState>()
-                    + std::mem::size_of::<MinimalHotProfileResult>()) as u32,
+                std::mem::size_of::<TransitionHotResult>() as u32,
+                (std::mem::size_of::<CompactState>() + std::mem::size_of::<TransitionHotResult>())
+                    as u32,
                 0,
                 0,
             ),
@@ -2055,46 +2288,54 @@ pub(crate) fn profile_compact_records(
         PROFILE_MODE_FULL_TRANSITION => {
             measured_profile_loop(&workload, repeats, |value, checksum| {
                 for record in &value.records {
-                    let mut output = MaybeUninit::uninit();
-                    transition_into(
+                    let mut state_output = MaybeUninit::uninit();
+                    let mut hot_output = MaybeUninit::uninit();
+                    transition_hot_into(
                         black_box(&record.state),
                         record.pair,
                         record.action_id,
-                        None,
-                        &mut output,
+                        &mut state_output,
+                        &mut hot_output,
                     )
                     .expect("validated profile transition succeeds");
-                    // SAFETY: the successful transition initialized the output slot.
-                    let summary = unsafe { output.assume_init() };
-                    *checksum ^= summary.score_delta ^ u64::from(summary.chain_count);
-                    black_box(summary);
+                    // SAFETY: the successful transition initialized both output slots.
+                    let child = unsafe { state_output.assume_init() };
+                    // SAFETY: the successful transition initialized both output slots.
+                    let hot = unsafe { hot_output.assume_init() };
+                    *checksum ^= hot.score_delta
+                        ^ u64::from(hot.chain_count)
+                        ^ profile_checksum(child.color_bits[0]);
+                    black_box((child, hot));
                 }
             })
         }
         PROFILE_MODE_DIRECT_PLACEMENT => {
             measured_profile_loop(&workload, repeats, |value, checksum| {
                 for record in &value.records {
-                    let direct =
-                        direct_placement(black_box(&record.state), record.pair, record.action)
-                            .expect("validated direct placement");
-                    *checksum ^= profile_checksum(direct.color_bits[0]);
-                    black_box(direct);
+                    let mut child = record.state;
+                    let metadata = place_reachable_state(
+                        black_box(&record.state),
+                        record.pair,
+                        record.action,
+                        &mut child,
+                    )
+                    .expect("validated direct placement");
+                    *checksum ^=
+                        profile_checksum(child.color_bits[0]) ^ u64::from(metadata.landing_y);
+                    black_box((child, metadata));
                 }
             })
         }
         PROFILE_MODE_COLOR_PLANE_EXTRACTION => {
             measured_profile_loop(&workload, repeats, |value, checksum| {
                 for record in &value.records {
-                    let axis = color_plane(
-                        black_box(&record.direct.color_bits),
-                        record.pair.axis.plane_index(),
+                    let planes = inserted_color_planes(
+                        black_box(&record.state),
+                        record.pair,
+                        record.direct.inserted_indices,
                     );
-                    let child = color_plane(
-                        black_box(&record.direct.color_bits),
-                        record.pair.child.plane_index(),
-                    );
-                    *checksum ^= profile_checksum(axis ^ child.rotate_left(17));
-                    black_box((axis, child));
+                    *checksum ^= profile_checksum(planes[0] ^ planes[1].rotate_left(17));
+                    black_box(planes);
                 }
             })
         }
@@ -2115,34 +2356,18 @@ pub(crate) fn profile_compact_records(
         PROFILE_MODE_STATE_RESULT_MATERIALIZATION => {
             measured_profile_loop(&workload, repeats, |value, checksum| {
                 for record in &value.records {
-                    let summary = if record.first_vanish.vanished_mask == 0 {
-                        let game_over =
-                            record.direct.occupied & cell_bit(2, VISIBLE_HEIGHT - 1) != 0;
-                        quiet_transition(
-                            record.action_id,
-                            record.direct.landing_y,
-                            CompactState::from_quiet_direct(
-                                record.direct,
-                                &record.state,
-                                game_over,
-                            ),
-                        )
-                    } else {
-                        let state = CompactState::from_parts(
-                            wire_planes_from_color_bits(&record.final_color_bits),
-                            record.summary.state.all_clear_bonus_pending,
-                            record.summary.state.game_over,
-                            record.summary.state.score,
-                            record.summary.state.last_chain_end_score,
-                        )
-                        .expect("validated final profile state");
-                        TransitionSummary {
-                            state,
-                            ..record.summary
-                        }
-                    };
-                    *checksum ^= summary.score_delta ^ u64::from(summary.chain_count);
-                    black_box(summary);
+                    let mut state_output = MaybeUninit::uninit();
+                    let mut hot_output = MaybeUninit::uninit();
+                    state_output.write(record.summary.state);
+                    hot_output.write(hot_result_from_summary(record.summary));
+                    // SAFETY: both output slots were initialized immediately above.
+                    let child = unsafe { state_output.assume_init() };
+                    // SAFETY: both output slots were initialized immediately above.
+                    let hot = unsafe { hot_output.assume_init() };
+                    *checksum ^= hot.score_delta
+                        ^ u64::from(hot.chain_count)
+                        ^ profile_checksum(child.color_bits[0]);
+                    black_box((child, hot));
                 }
             })
         }
@@ -2243,7 +2468,7 @@ pub(crate) fn profile_compact_records(
                     let mut state_output = MaybeUninit::uninit();
                     let mut hot_output = MaybeUninit::uninit();
                     state_output.write(record.summary.state);
-                    hot_output.write(minimal_hot_result(record.summary));
+                    hot_output.write(hot_result_from_summary(record.summary));
                     // SAFETY: both output slots were initialized immediately above.
                     let state = unsafe { state_output.assume_init() };
                     // SAFETY: both output slots were initialized immediately above.
@@ -2260,7 +2485,7 @@ pub(crate) fn profile_compact_records(
                     let mut hot_output = MaybeUninit::uninit();
                     state_output.write(record.summary.state);
                     hot_output.write(MetadataHotProfileResult {
-                        hot: minimal_hot_result(record.summary),
+                        hot: hot_result_from_summary(record.summary),
                         occupied: record.summary.state.internal_occupied(),
                         inserted_component_mask: record.first_vanish.vanished_mask,
                     });
@@ -2392,14 +2617,38 @@ mod tests {
             for axis in 1..=NORMAL_COLOR_COUNT as u8 {
                 for child in 1..=NORMAL_COLOR_COUNT as u8 {
                     let pair = Pair::from_ids(axis, child).expect("generated pair is valid");
-                    for action in ACTIONS {
+                    for (action_id, action) in ACTIONS.into_iter().enumerate() {
                         let Some(placed) = direct_placement(&state, pair, action) else {
                             continue;
                         };
                         assert_eq!(
-                            find_inserted_vanish(&placed.color_bits, pair, placed.inserted_indices,),
+                            find_inserted_vanish(&state, pair, placed.inserted_indices),
                             find_vanish(&placed.color_bits),
                         );
+                        assert_eq!(
+                            reference_inserted_vanish(
+                                &placed.color_bits,
+                                pair,
+                                placed.inserted_indices,
+                            ),
+                            find_vanish(&placed.color_bits),
+                        );
+                        let (fast_child, fast_hot) = transition_hot(
+                            &state,
+                            pair,
+                            u8::try_from(action_id).expect("action ID fits u8"),
+                        )
+                        .expect("reachable fast transition succeeds");
+                        let mut scanner_state = state;
+                        scanner_state.settled = false;
+                        let (scanner_child, scanner_hot) = transition_hot(
+                            &scanner_state,
+                            pair,
+                            u8::try_from(action_id).expect("action ID fits u8"),
+                        )
+                        .expect("full-scanner transition succeeds");
+                        assert_eq!(fast_child, scanner_child);
+                        assert_eq!(fast_hot, scanner_hot);
                         checked += 1;
                     }
                 }
@@ -2483,11 +2732,36 @@ mod tests {
         ]);
         let pair = Pair::from_ids(1, 2).expect("valid pair");
 
-        let (result, allocation_count) =
-            crate::allocation_probe::count_allocations(|| transition(&state, pair, 7, None));
+        let (result, allocation_count) = crate::allocation_probe::count_allocations(|| {
+            let mut child = MaybeUninit::uninit();
+            let mut hot = MaybeUninit::uninit();
+            transition_hot_into(&state, pair, 7, &mut child, &mut hot)?;
+            // SAFETY: successful hot transitions initialize both output slots.
+            Ok::<_, CompactError>(unsafe { (child.assume_init(), hot.assume_init()) })
+        });
 
-        assert!(result.expect("transition succeeds").valid);
+        let (child, hot) = result.expect("transition succeeds");
+        assert!(hot.valid());
+        assert_eq!(child.game_over(), hot.game_over());
         assert_eq!(allocation_count, 0);
+    }
+
+    #[test]
+    fn fixed_hot_result_materializes_the_same_detailed_trace_summary() {
+        let state = state_with_cells(&[(0, 1, 0), (0, 1, 1)]);
+        let pair = Pair::from_ids(1, 1).expect("valid pair");
+        let (child, hot) = transition_hot(&state, pair, 7).expect("hot transition succeeds");
+        let mut trace = TransitionTrace::default();
+        let detailed =
+            transition(&state, pair, 7, Some(&mut trace)).expect("detailed transition succeeds");
+
+        assert_eq!(HOT_RESULT_ABI_VERSION, 1);
+        assert_eq!(HOT_RESULT_SCHEMA, "puyo.native_compact_hot_result.v1");
+        assert_eq!(std::mem::size_of::<CompactState>(), HOT_CHILD_STATE_BYTES);
+        assert_eq!(std::mem::size_of::<TransitionHotResult>(), HOT_RESULT_BYTES);
+        assert_eq!(hot.flags & !HOT_RESULT_FLAGS_MASK, 0);
+        assert_eq!(materialize_transition_summary(child, hot), detailed);
+        assert_eq!(trace.chains.len(), 1);
     }
 
     #[test]
@@ -2561,6 +2835,9 @@ mod tests {
         let pair = Pair::from_ids(1, 2).expect("valid pair");
         let action = placement(7).expect("valid action");
         let direct = direct_placement(&state, pair, action).expect("valid placement");
+        let mut direct_child = state;
+        let direct_metadata = place_reachable_state(&state, pair, action, &mut direct_child)
+            .expect("valid placement");
 
         let baseline_started = Instant::now();
         for index in 0..ITERATIONS {
@@ -2577,7 +2854,7 @@ mod tests {
         let vanish_started = Instant::now();
         for _ in 0..ITERATIONS {
             black_box(find_inserted_vanish(
-                black_box(&direct.color_bits),
+                black_box(&state),
                 pair,
                 direct.inserted_indices,
             ));
@@ -2588,34 +2865,69 @@ mod tests {
         for _ in 0..ITERATIONS {
             let placed =
                 direct_placement(black_box(&state), pair, action).expect("valid placement");
-            black_box(find_inserted_vanish(
-                &placed.color_bits,
-                pair,
-                placed.inserted_indices,
-            ));
+            black_box(find_inserted_vanish(&state, pair, placed.inserted_indices));
         }
         let combined_duration = combined_started.elapsed();
 
-        let materialize_started = Instant::now();
+        let result_write_started = Instant::now();
         for _ in 0..ITERATIONS {
-            black_box(CompactState::from_quiet_direct(
-                direct,
-                black_box(&state),
+            let mut child_output = MaybeUninit::uninit();
+            let mut hot_output = MaybeUninit::uninit();
+            child_output.write(direct_child);
+            hot_output.write(TransitionHotResult::new(
+                &direct_child,
+                7,
+                Some(direct_metadata.landing_y),
+                0,
+                0,
+                0,
+                0,
+                0,
+                true,
+                false,
                 false,
             ));
+            // SAFETY: both output slots were initialized immediately above.
+            black_box(unsafe { (child_output.assume_init_ref(), hot_output.assume_init_ref()) });
         }
-        let materialize_duration = materialize_started.elapsed();
+        let result_write_duration = result_write_started.elapsed();
 
         let manual_started = Instant::now();
         for _ in 0..ITERATIONS {
-            let placed =
-                direct_placement(black_box(&state), pair, action).expect("valid placement");
-            let vanish = find_inserted_vanish(&placed.color_bits, pair, placed.inserted_indices);
+            let mut next = *black_box(&state);
+            let metadata =
+                place_reachable_state(&state, pair, action, &mut next).expect("valid placement");
+            let vanish = find_inserted_vanish(&state, pair, metadata.inserted_indices);
             black_box(vanish.vanished_mask);
-            let next = CompactState::from_quiet_direct(placed, &state, false);
-            black_box(quiet_transition(7, placed.landing_y, next));
+            black_box((
+                next,
+                TransitionHotResult::new(
+                    &next,
+                    7,
+                    Some(metadata.landing_y),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    true,
+                    false,
+                    false,
+                ),
+            ));
         }
         let manual_duration = manual_started.elapsed();
+
+        let hot_into_started = Instant::now();
+        for _ in 0..ITERATIONS {
+            let mut child = MaybeUninit::uninit();
+            let mut hot = MaybeUninit::uninit();
+            transition_hot_into(black_box(&state), pair, 7, &mut child, &mut hot)
+                .expect("valid transition");
+            // SAFETY: the successful transition initialized both output slots.
+            black_box(unsafe { (child.assume_init_ref(), hot.assume_init_ref()) });
+        }
+        let hot_into_duration = hot_into_started.elapsed();
 
         let transition_started = Instant::now();
         for _ in 0..ITERATIONS {
@@ -2636,15 +2948,17 @@ mod tests {
         let per_iteration =
             |duration: std::time::Duration| duration.as_nanos() as f64 / f64::from(ITERATIONS);
         println!(
-            "state_bytes={} summary_bytes={} baseline_ns={:.3} placement_ns={:.3} inserted_vanish_ns={:.3} combined_ns={:.3} materialize_ns={:.3} manual_ns={:.3} transition_ns={:.3} into_ns={:.3}",
+            "state_bytes={} hot_result_bytes={} summary_bytes={} baseline_ns={:.3} placement_ns={:.3} inserted_vanish_ns={:.3} combined_ns={:.3} result_write_ns={:.3} manual_ns={:.3} hot_into_ns={:.3} transition_ns={:.3} into_ns={:.3}",
             std::mem::size_of::<CompactState>(),
+            std::mem::size_of::<TransitionHotResult>(),
             std::mem::size_of::<TransitionSummary>(),
             per_iteration(baseline),
             per_iteration(placement_duration),
             per_iteration(vanish_duration),
             per_iteration(combined_duration),
-            per_iteration(materialize_duration),
+            per_iteration(result_write_duration),
             per_iteration(manual_duration),
+            per_iteration(hot_into_duration),
             per_iteration(transition_duration),
             per_iteration(into_duration),
         );

@@ -20,6 +20,10 @@ from typing import Any
 
 from agents.compact_search import CompactSearchState
 from agents.deep_chain_native import (
+    COMPACT_HOT_CHILD_STATE_BYTES,
+    COMPACT_HOT_RESULT_ABI_VERSION,
+    COMPACT_HOT_RESULT_BYTES,
+    COMPACT_HOT_RESULT_SCHEMA_VERSION,
     NATIVE_MODULE_NAME,
     DeepChainNativeError,
     IncompatibleSchemaError,
@@ -37,6 +41,10 @@ from src.core.constants import GRID_HEIGHT, GRID_WIDTH, PuyoColor
 NATIVE_COMPACT_TRANSITION_SCHEMA_VERSION = "puyo.native_compact_transition_batch.v1"
 NATIVE_COMPACT_TRANSITION_ABI_VERSION = 1
 NATIVE_COMPACT_KERNEL_PATH = "scalar"
+NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION = COMPACT_HOT_RESULT_SCHEMA_VERSION
+NATIVE_COMPACT_HOT_RESULT_ABI_VERSION = COMPACT_HOT_RESULT_ABI_VERSION
+NATIVE_COMPACT_HOT_CHILD_STATE_BYTES = COMPACT_HOT_CHILD_STATE_BYTES
+NATIVE_COMPACT_HOT_RESULT_BYTES = COMPACT_HOT_RESULT_BYTES
 
 _REQUEST_MAGIC = b"PCTB"
 _SUCCESS_MAGIC = b"PCTS"
@@ -582,6 +590,14 @@ class NativeCompactBatchClient:
             != NATIVE_COMPACT_TRANSITION_SCHEMA_VERSION
             or getattr(module, "COMPACT_KERNEL_PATH", None)
             != NATIVE_COMPACT_KERNEL_PATH
+            or getattr(module, "COMPACT_HOT_RESULT_ABI_VERSION", None)
+            != NATIVE_COMPACT_HOT_RESULT_ABI_VERSION
+            or getattr(module, "COMPACT_HOT_RESULT_SCHEMA", None)
+            != NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION
+            or getattr(module, "COMPACT_HOT_CHILD_STATE_BYTES", None)
+            != NATIVE_COMPACT_HOT_CHILD_STATE_BYTES
+            or getattr(module, "COMPACT_HOT_RESULT_BYTES", None)
+            != NATIVE_COMPACT_HOT_RESULT_BYTES
             or not callable(getattr(module, "_compact_transition_batch", None))
         ):
             raise IncompatibleSchemaError(
@@ -643,6 +659,10 @@ class NativeCompactBatchClient:
 
 
 __all__ = [
+    "NATIVE_COMPACT_HOT_CHILD_STATE_BYTES",
+    "NATIVE_COMPACT_HOT_RESULT_ABI_VERSION",
+    "NATIVE_COMPACT_HOT_RESULT_BYTES",
+    "NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION",
     "NATIVE_COMPACT_KERNEL_PATH",
     "NATIVE_COMPACT_TRANSITION_ABI_VERSION",
     "NATIVE_COMPACT_TRANSITION_SCHEMA_VERSION",

@@ -97,6 +97,7 @@ const REQUEST_EVALUATOR_CONFIG_TAG: u16 = 0x8004;
 const REQUEST_SCHEMA_IDENTITIES_TAG: u16 = 0x8005;
 const REQUEST_EXECUTION_TAG: u16 = 0x8006;
 const CAPABILITIES_METADATA_TAG: u16 = 0x8101;
+const CAPABILITIES_COMPACT_HOT_RESULT_TAG: u16 = 0x0102;
 const ERROR_DETAILS_TAG: u16 = 0x8201;
 
 const WIRE_NAME: &str = "puyo.deep_chain_native.envelope.v1";
@@ -867,12 +868,30 @@ fn capabilities_payload() -> Vec<u8> {
     payload.data
 }
 
+fn compact_hot_result_capabilities_payload() -> Vec<u8> {
+    let mut payload = Writer::default();
+    payload.u16(compact::HOT_RESULT_ABI_VERSION);
+    payload
+        .u16(u16::try_from(compact::HOT_CHILD_STATE_BYTES).expect("hot child state size fits u16"));
+    payload.u16(u16::try_from(compact::HOT_RESULT_BYTES).expect("hot result size fits u16"));
+    payload.u16(u16::from(compact::HOT_RESULT_FLAGS_MASK));
+    payload.string(compact::HOT_RESULT_SCHEMA);
+    payload.data
+}
+
 #[pyfunction]
 fn capabilities(py: Python<'_>) -> Py<PyBytes> {
     let encoded = encode_envelope(
         CAPABILITIES_KIND,
         0,
-        &[(CAPABILITIES_METADATA_TAG, 1, capabilities_payload())],
+        &[
+            (CAPABILITIES_METADATA_TAG, 1, capabilities_payload()),
+            (
+                CAPABILITIES_COMPACT_HOT_RESULT_TAG,
+                1,
+                compact_hot_result_capabilities_payload(),
+            ),
+        ],
     );
     PyBytes::new(py, &encoded).unbind()
 }
@@ -952,6 +971,16 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add("COMPACT_TRANSITION_ABI_VERSION", compact_batch::ABI_VERSION)?;
     module.add("COMPACT_TRANSITION_SCHEMA", compact_batch::SCHEMA_NAME)?;
     module.add("COMPACT_KERNEL_PATH", compact_batch::KERNEL_PATH)?;
+    module.add(
+        "COMPACT_HOT_RESULT_ABI_VERSION",
+        compact::HOT_RESULT_ABI_VERSION,
+    )?;
+    module.add("COMPACT_HOT_RESULT_SCHEMA", compact::HOT_RESULT_SCHEMA)?;
+    module.add(
+        "COMPACT_HOT_CHILD_STATE_BYTES",
+        compact::HOT_CHILD_STATE_BYTES,
+    )?;
+    module.add("COMPACT_HOT_RESULT_BYTES", compact::HOT_RESULT_BYTES)?;
     module.add("COMPACT_PROFILE_SCHEMA", "puyo.native_compact_profile.v1")?;
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())

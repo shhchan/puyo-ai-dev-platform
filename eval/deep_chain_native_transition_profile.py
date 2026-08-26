@@ -1,4 +1,4 @@
-"""PUYO-205 compact-transition cycle, layout, and call-count evidence."""
+"""PUYO-205/206 compact-transition profiling and acceptance evidence."""
 
 from __future__ import annotations
 
@@ -21,6 +21,10 @@ from typing import Any
 from agents import long_horizon_search
 from agents.chain_structure import ChainStructureEvaluator
 from agents.deep_chain_native_transition import (
+    NATIVE_COMPACT_HOT_CHILD_STATE_BYTES,
+    NATIVE_COMPACT_HOT_RESULT_ABI_VERSION,
+    NATIVE_COMPACT_HOT_RESULT_BYTES,
+    NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION,
     NativeCompactBatchClient,
     NativeCompactTransitionInput,
     decode_native_compact_batch_response,
@@ -47,10 +51,15 @@ from eval.deep_chain_native_transition_benchmark import (
 from train.artifacts import describe_artifact, file_sha256, git_commit, utc_timestamp
 
 TICKET = "PUYO-205"
+OPTIMIZATION_TICKET = "PUYO-206"
+SUPPORTED_TICKETS = (TICKET, OPTIMIZATION_TICKET)
 PROFILE_SCHEMA_VERSION = "puyo.native_compact_profile.v1"
 BENCHMARK_SCHEMA_VERSION = "puyo.native_compact_profile_benchmark.v1"
 DEFAULT_SEARCH_CORPUS_PATH = Path("eval/deep_chain_native_corpus.json")
 DEFAULT_OUTPUT_DIR = Path("docs/benchmarks/puyo-205-native-compact-profile")
+DEFAULT_OPTIMIZATION_OUTPUT_DIR = Path(
+    "docs/benchmarks/puyo-206-native-compact-hot-path"
+)
 CANONICAL_MAX_EXPANDED_NODES = 600_000
 END_TO_END_BUDGET_MS = 1_000.0
 NATIVE_TOTAL_BUDGET_MS = 900.0
@@ -186,7 +195,9 @@ class NativeCompactProfiler:
             != PROFILE_SCHEMA_VERSION
             or not callable(getattr(selected, "_compact_transition_profile", None))
         ):
-            raise RuntimeError("release extension does not expose the PUYO-205 profile contract")
+            raise RuntimeError(
+                "release extension does not expose the compact-transition profile contract"
+            )
         self.module = selected
 
     def measure(self, request: bytes, *, mode: int, repeats: int = 1) -> dict[str, Any]:
@@ -694,8 +705,11 @@ def derive_budget_decision(
 def _render_report(summary: Mapping[str, Any]) -> str:
     profile = summary["profiles"]
     decision = summary["budget_decision"]
+    ticket = str(summary["ticket"])
+    optimized = ticket == OPTIMIZATION_TICKET
     lines = [
-        "# PUYO-205 compact transition profile",
+        f"# {ticket} compact transition "
+        + ("hot-path acceptance" if optimized else "profile"),
         "",
         f"- Evaluated commit: `{summary['evaluated_commit']}`",
         f"- Wheel SHA-256: `{summary['environment']['wheel_sha256']}`",
@@ -758,14 +772,19 @@ def _render_report(summary: Mapping[str, Any]) -> str:
                 "by scenarios."
             ),
             "",
-            "## ADR decision",
+            "## " + ("Acceptance decision" if optimized else "ADR decision"),
             "",
             (
-                f"Adopt **{decision['decision']['selected_option']}**. PUYO-206 must "
-                f"meet `{decision['decision']['transition_p95_target_ns_per_call']:.1f} "
+                (
+                    "The primary 80-byte child-state / 24-byte result hot path meets "
+                    if optimized
+                    else f"Adopt **{decision['decision']['selected_option']}**. "
+                    "PUYO-206 must meet "
+                )
+                + f"`{decision['decision']['transition_p95_target_ns_per_call']:.1f} "
                 f"ns` mixed and "
                 f"`{decision['decision']['quiet_p95_target_ns_per_call']:.1f} ns` quiet "
-                "p95. PUYO-207 must then enforce the unchanged transition+evaluator "
+                "p95. PUYO-207 must enforce the unchanged transition+evaluator "
                 f"combined budget of "
                 f"`{decision['decision']['combined_p95_budget_ms']:.3f} ms`, the native "
                 "900 ms budget, and the end-to-end 1,000 ms gate."
@@ -783,7 +802,10 @@ def _render_report(summary: Mapping[str, Any]) -> str:
             "```bash",
             "./scripts/build_deep_chain_native.sh",
             summary["command"],
-            "python -m eval.deep_chain_native_transition_profile verify",
+            (
+                "python -m eval.deep_chain_native_transition_profile verify "
+                f"--ticket {ticket} --artifact-dir {summary['artifact_dir']}"
+            ),
             "```",
             "",
         ]
@@ -792,6 +814,15 @@ def _render_report(summary: Mapping[str, Any]) -> str:
 
 
 def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
+    ticket = str(args.ticket)
+    output_dir = Path(
+        args.output_dir
+        or (
+            DEFAULT_OPTIMIZATION_OUTPUT_DIR
+            if ticket == OPTIMIZATION_TICKET
+            else DEFAULT_OUTPUT_DIR
+        )
+    )
     selected_cpu, available_cpus = _pin_process(args.cpu)
     for name in (
         "OMP_NUM_THREADS",
@@ -867,7 +898,8 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     valgrind = args.valgrind or shutil.which("valgrind")
     if not valgrind:
         raise RuntimeError(
-            "Valgrind is required for canonical PUYO-205 instruction/branch/cache evidence"
+            "Valgrind is required for canonical compact-transition "
+            "instruction/branch/cache evidence"
         )
     cachegrind = run_cachegrind(
         cachegrind_request,
@@ -886,8 +918,9 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     capabilities = batch_client.capabilities.to_dict()
     command = (
         "python -m eval.deep_chain_native_transition_profile run "
+        f"--ticket {ticket} "
         f"--corpus {args.corpus} --search-corpus {args.search_corpus} "
-        f"--output-dir {args.output_dir} --mixed-samples {args.mixed_samples} "
+        f"--output-dir {output_dir} --mixed-samples {args.mixed_samples} "
         f"--outcome-samples {args.outcome_samples} --stage-samples {args.stage_samples} "
         f"--alternative-samples {args.alternative_samples} --warmup {args.warmup} "
         f"--mixed-batch-size {args.mixed_batch_size} "
@@ -939,13 +972,43 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             budget["decision"]["transition_p95_target_ns_per_call"] == 100.0
             and budget["decision"]["combined_p95_budget_ms"] == 820.625
         ),
+        "hot_result_contract_fixed": (
+            capabilities["compact_hot_result"]
+            == {
+                "abi_version": NATIVE_COMPACT_HOT_RESULT_ABI_VERSION,
+                "schema": NATIVE_COMPACT_HOT_RESULT_SCHEMA_VERSION,
+                "child_state_bytes": NATIVE_COMPACT_HOT_CHILD_STATE_BYTES,
+                "result_bytes": NATIVE_COMPACT_HOT_RESULT_BYTES,
+                "flags_mask": 0x0F,
+            }
+        ),
     }
+    if ticket == OPTIMIZATION_TICKET:
+        checks.update(
+            {
+                "mixed_p95_target_met": (
+                    profiles["mixed"]["full_transition"]["p95_ns_per_record"]
+                    <= TRANSITION_TARGET_NS
+                ),
+                "quiet_p95_target_met": (
+                    profiles["quiet"]["full_transition"]["p95_ns_per_record"]
+                    <= QUIET_TARGET_NS
+                ),
+                "fixed_state_and_result_profile_sizes": (
+                    alternatives["result_minimal_hot"]["state_bytes"]
+                    == NATIVE_COMPACT_HOT_CHILD_STATE_BYTES
+                    and alternatives["result_minimal_hot"]["result_bytes"]
+                    == NATIVE_COMPACT_HOT_RESULT_BYTES
+                ),
+            }
+        )
     summary = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "ticket": TICKET,
+        "ticket": ticket,
         "created_at_utc": utc_timestamp(),
         "evaluated_commit": git_commit(),
         "command": command,
+        "artifact_dir": str(output_dir),
         "environment": {
             "cpu": _cpu_model(),
             "selected_cpu": selected_cpu,
@@ -1016,12 +1079,12 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             "checks": summary["checks"],
         }
     )
-    output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     _write_json(
         output_dir / "raw_profile.json",
         {
             "schema_version": PROFILE_SCHEMA_VERSION,
+            "ticket": ticket,
             "profiles": raw_profiles,
             "alternatives": alternative_raw,
         },
@@ -1040,7 +1103,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     )
     manifest = {
         "schema_version": BENCHMARK_SCHEMA_VERSION,
-        "ticket": TICKET,
+        "ticket": ticket,
         "created_at_utc": summary["created_at_utc"],
         "evaluated_commit": summary["evaluated_commit"],
         "wheel_sha256": summary["environment"]["wheel_sha256"],
@@ -1056,14 +1119,18 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     return summary
 
 
-def verify_benchmark(artifact_dir: str | Path = DEFAULT_OUTPUT_DIR) -> dict[str, Any]:
+def verify_benchmark(
+    artifact_dir: str | Path = DEFAULT_OUTPUT_DIR,
+    *,
+    ticket: str = TICKET,
+) -> dict[str, Any]:
     root = Path(artifact_dir)
     manifest = _read_json(root / "benchmark_manifest.json")
     issues = []
     if manifest.get("schema_version") != BENCHMARK_SCHEMA_VERSION:
-        issues.append("unexpected PUYO-205 manifest schema")
-    if manifest.get("ticket") != TICKET:
-        issues.append("unexpected PUYO-205 manifest ticket")
+        issues.append(f"unexpected {ticket} manifest schema")
+    if manifest.get("ticket") != ticket:
+        issues.append(f"unexpected {ticket} manifest ticket")
     for artifact in manifest.get("artifacts", []):
         path = root / artifact["path"]
         if not path.exists():
@@ -1072,11 +1139,13 @@ def verify_benchmark(artifact_dir: str | Path = DEFAULT_OUTPUT_DIR) -> dict[str,
             issues.append(f"artifact digest mismatch: {artifact['path']}")
     summary = _read_json(root / "benchmark_summary.json")
     if summary.get("schema_version") != BENCHMARK_SCHEMA_VERSION:
-        issues.append("unexpected PUYO-205 summary schema")
+        issues.append(f"unexpected {ticket} summary schema")
+    if summary.get("ticket") != ticket:
+        issues.append(f"unexpected {ticket} summary ticket")
     if not summary.get("passed"):
-        issues.append("PUYO-205 profile checks did not pass")
+        issues.append(f"{ticket} profile checks did not pass")
     if not all(summary.get("checks", {}).values()):
-        issues.append("PUYO-205 summary contains a failed check")
+        issues.append(f"{ticket} summary contains a failed check")
     if summary.get("environment", {}).get("wheel_sha256") != manifest.get(
         "wheel_sha256"
     ):
@@ -1100,9 +1169,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     run = subparsers.add_parser("run")
+    run.add_argument("--ticket", choices=SUPPORTED_TICKETS, default=TICKET)
     run.add_argument("--corpus", default=str(DEFAULT_CORPUS_PATH))
     run.add_argument("--search-corpus", default=str(DEFAULT_SEARCH_CORPUS_PATH))
-    run.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
+    run.add_argument("--output-dir")
     run.add_argument("--mixed-samples", type=int, default=120)
     run.add_argument("--outcome-samples", type=int, default=40)
     run.add_argument("--stage-samples", type=int, default=30)
@@ -1116,7 +1186,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     run.add_argument("--valgrind-lib")
     run.add_argument("--cpu", type=int)
     verify = subparsers.add_parser("verify")
-    verify.add_argument("--artifact-dir", default=str(DEFAULT_OUTPUT_DIR))
+    verify.add_argument("--ticket", choices=SUPPORTED_TICKETS, default=TICKET)
+    verify.add_argument("--artifact-dir")
     child = subparsers.add_parser("cachegrind-child")
     child.add_argument("--request", required=True)
     child.add_argument("--mode", type=int, required=True)
@@ -1133,7 +1204,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0 if summary["passed"] else 1
     if args.command == "cachegrind-child":
         return _cachegrind_child(args)
-    result = verify_benchmark(args.artifact_dir)
+    artifact_dir = args.artifact_dir or (
+        DEFAULT_OPTIMIZATION_OUTPUT_DIR
+        if args.ticket == OPTIMIZATION_TICKET
+        else DEFAULT_OUTPUT_DIR
+    )
+    result = verify_benchmark(artifact_dir, ticket=args.ticket)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["passed"] else 1
 

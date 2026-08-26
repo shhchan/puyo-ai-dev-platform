@@ -38,6 +38,11 @@ TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
 DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
 CHAIN_STRUCTURE_FEATURE_VERSION = "puyo.chain_structure_features.v1"
 CHAIN_STRUCTURE_WEIGHT_SCHEMA_VERSION = "puyo.chain_structure_weights.v1"
+COMPACT_HOT_RESULT_SCHEMA_VERSION = "puyo.native_compact_hot_result.v1"
+COMPACT_HOT_RESULT_ABI_VERSION = 1
+COMPACT_HOT_CHILD_STATE_BYTES = 80
+COMPACT_HOT_RESULT_BYTES = 24
+COMPACT_HOT_RESULT_FLAGS_MASK = 0x0F
 ABI_VERSION = 1
 SCHEMA_MAJOR = 1
 SCHEMA_MINOR = 0
@@ -72,6 +77,7 @@ REQUEST_SCHEMA_IDENTITIES_TAG = 0x8005
 REQUEST_EXECUTION_TAG = 0x8006
 
 CAPABILITIES_METADATA_TAG = 0x8101
+CAPABILITIES_COMPACT_HOT_RESULT_TAG = 0x0102
 ERROR_DETAILS_TAG = 0x8201
 
 RESULT_DECISION_TAG = 0x8301
@@ -990,6 +996,11 @@ class NativeCapabilities:
     simd_path: str
     cpu_features: tuple[str, ...]
     thread_modes: tuple[str, ...]
+    compact_hot_result_abi_version: int
+    compact_hot_result_schema: str
+    compact_hot_child_state_bytes: int
+    compact_hot_result_bytes: int
+    compact_hot_result_flags_mask: int
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1021,18 +1032,33 @@ class NativeCapabilities:
             "max_threads": self.max_threads,
             "crate_version": self.crate_version,
             "wire_name": self.wire_name,
+            "compact_hot_result": {
+                "abi_version": self.compact_hot_result_abi_version,
+                "schema": self.compact_hot_result_schema,
+                "child_state_bytes": self.compact_hot_child_state_bytes,
+                "result_bytes": self.compact_hot_result_bytes,
+                "flags_mask": self.compact_hot_result_flags_mask,
+            },
         }
 
 
 def decode_capabilities(payload: bytes | bytearray | memoryview) -> NativeCapabilities:
     envelope = decode_envelope(
-        payload, known_tags=frozenset({CAPABILITIES_METADATA_TAG})
+        payload,
+        known_tags=frozenset(
+            {CAPABILITIES_METADATA_TAG, CAPABILITIES_COMPACT_HOT_RESULT_TAG}
+        ),
     )
     if envelope.kind != EnvelopeKind.CAPABILITIES:
         raise InvalidNativeInputError("expected a capabilities envelope")
     sections = envelope.section_map
-    if set(sections) != {CAPABILITIES_METADATA_TAG}:
-        raise IncompatibleSchemaError("capabilities metadata section is required")
+    if set(sections) != {
+        CAPABILITIES_METADATA_TAG,
+        CAPABILITIES_COMPACT_HOT_RESULT_TAG,
+    }:
+        raise IncompatibleSchemaError(
+            "capabilities metadata and compact hot-result sections are required"
+        )
     section = sections[CAPABILITIES_METADATA_TAG]
     if section.version != 1:
         raise IncompatibleSchemaError("unsupported capabilities section version")
@@ -1064,6 +1090,18 @@ def decode_capabilities(payload: bytes | bytearray | memoryview) -> NativeCapabi
     reader.finish()
     cpu_features = tuple(item for item in values[10].split(",") if item)
     thread_modes = tuple(item for item in values[11].split(",") if item)
+    hot_section = sections[CAPABILITIES_COMPACT_HOT_RESULT_TAG]
+    if hot_section.version != 1:
+        raise IncompatibleSchemaError("unsupported compact hot-result capability version")
+    hot_reader = _Reader(
+        hot_section.payload, failing_tag=CAPABILITIES_COMPACT_HOT_RESULT_TAG
+    )
+    compact_hot_result_abi_version = hot_reader.u16("compact hot-result ABI")
+    compact_hot_child_state_bytes = hot_reader.u16("compact hot child-state bytes")
+    compact_hot_result_bytes = hot_reader.u16("compact hot-result bytes")
+    compact_hot_result_flags_mask = hot_reader.u16("compact hot-result flags mask")
+    compact_hot_result_schema = hot_reader.string("compact hot-result schema")
+    hot_reader.finish()
     return NativeCapabilities(
         abi_version=abi_version,
         schema_major=schema_major,
@@ -1089,6 +1127,11 @@ def decode_capabilities(payload: bytes | bytearray | memoryview) -> NativeCapabi
         simd_path=values[9],
         cpu_features=cpu_features,
         thread_modes=thread_modes,
+        compact_hot_result_abi_version=compact_hot_result_abi_version,
+        compact_hot_result_schema=compact_hot_result_schema,
+        compact_hot_child_state_bytes=compact_hot_child_state_bytes,
+        compact_hot_result_bytes=compact_hot_result_bytes,
+        compact_hot_result_flags_mask=compact_hot_result_flags_mask,
     )
 
 
@@ -1354,6 +1397,16 @@ class NativeDeepChainBackend:
             mismatches.append("wheel hash hook")
         if "oracle-1" not in capabilities.thread_modes:
             mismatches.append("oracle-1 thread mode")
+        if capabilities.compact_hot_result_abi_version != COMPACT_HOT_RESULT_ABI_VERSION:
+            mismatches.append("compact hot-result ABI version")
+        if capabilities.compact_hot_result_schema != COMPACT_HOT_RESULT_SCHEMA_VERSION:
+            mismatches.append("compact hot-result schema")
+        if capabilities.compact_hot_child_state_bytes != COMPACT_HOT_CHILD_STATE_BYTES:
+            mismatches.append("compact hot child-state size")
+        if capabilities.compact_hot_result_bytes != COMPACT_HOT_RESULT_BYTES:
+            mismatches.append("compact hot-result size")
+        if capabilities.compact_hot_result_flags_mask != COMPACT_HOT_RESULT_FLAGS_MASK:
+            mismatches.append("compact hot-result flags")
         if mismatches:
             raise IncompatibleSchemaError(
                 "native capabilities mismatch: " + ", ".join(mismatches),
@@ -1434,6 +1487,11 @@ def request_sha256(request: NativeDecisionRequest) -> str:
 __all__ = [
     "ABI_VERSION",
     "ACTION_LAYOUT_VERSION",
+    "COMPACT_HOT_CHILD_STATE_BYTES",
+    "COMPACT_HOT_RESULT_ABI_VERSION",
+    "COMPACT_HOT_RESULT_BYTES",
+    "COMPACT_HOT_RESULT_FLAGS_MASK",
+    "COMPACT_HOT_RESULT_SCHEMA_VERSION",
     "NATIVE_MODULE_NAME",
     "REQUEST_SCHEMA_DIGEST",
     "REQUEST_SCHEMA_VERSION",
