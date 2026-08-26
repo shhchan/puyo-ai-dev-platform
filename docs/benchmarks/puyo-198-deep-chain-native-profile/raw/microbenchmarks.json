@@ -1,0 +1,91 @@
+{
+  "benchmarks": {
+    "evaluator": {
+      "iterations": 12,
+      "mean_wall_us": 2412.45766665088,
+      "operations_per_second": 414.5150457244129,
+      "output_digest": "ccdea42d4f2d3e3ad187bf5bc8eca9774ee480e70dd3dc80a4e2ee805653244e",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.028951381000000165,
+      "system_seconds": 1.6999999999996185e-05,
+      "user_seconds": 0.028958999999999957,
+      "wall_seconds": 0.02894949199981056,
+      "warmup_iterations": 3
+    },
+    "mini_search": {
+      "iterations": 1,
+      "mean_wall_us": 2417517.8779996713,
+      "operations_per_second": 0.4136474063337355,
+      "output_digest": "eba95c1b09fe126cefc5ead75f24b9227bb5f6eb42d52f6129796a092243b59a",
+      "peak_rss_kib": 132960,
+      "process_seconds": 2.417283453,
+      "system_seconds": 0.0003039999999999987,
+      "user_seconds": 2.4169869999999998,
+      "wall_seconds": 2.4175178779996713,
+      "warmup_iterations": 0
+    },
+    "serialization": {
+      "iterations": 1000,
+      "mean_wall_us": 338.28695000011066,
+      "operations_per_second": 2956.070282934866,
+      "output_digest": "a9789ed95ca784bfbce3dc50976226013537bbfee6344d8351b7fbbf21ca37fb",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.33826614499999996,
+      "system_seconds": 6.0000000000060005e-06,
+      "user_seconds": 0.3382690000000004,
+      "wall_seconds": 0.33828695000011066,
+      "warmup_iterations": 10
+    },
+    "transition": {
+      "iterations": 500,
+      "mean_wall_us": 137.4785520001751,
+      "operations_per_second": 7273.861889371124,
+      "output_digest": "377c84f405f90182936e4a3cb2f8fa00a3bf7ccf742c074439959dd6ce15df8d",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.06873638900000012,
+      "system_seconds": 2.0000000000006124e-05,
+      "user_seconds": 0.06873099999999965,
+      "wall_seconds": 0.06873927600008756,
+      "warmup_iterations": 3
+    },
+    "transposition_key": {
+      "iterations": 500,
+      "mean_wall_us": 0.9177140000247164,
+      "operations_per_second": 1089664.100115142,
+      "output_digest": "77c38d65f19d530f4c5affe47eae878ccac1d39f7fcb0cd596ba2ba9fe44415a",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.0004589159999999204,
+      "system_seconds": 4.9999999999980616e-06,
+      "user_seconds": 0.0004550000000000942,
+      "wall_seconds": 0.0004588570000123582,
+      "warmup_iterations": 3
+    }
+  },
+  "canonical_quality_evidence": false,
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+  "corpus_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/eval/deep_chain_native_corpus.json",
+  "created_at_utc": "2026-08-26T01:15:18Z",
+  "evaluated_commit": "b4528a5d9f4b2b1cfdec641c247da780f7a90232",
+  "schema_version": "puyo.deep_chain_native.microbenchmark.v1",
+  "system": {
+    "configured_thread_environment": {
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "RAYON_NUM_THREADS": null
+    },
+    "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+    "logical_cpu_count": 8,
+    "machine": "x86_64",
+    "os": "Linux",
+    "os_release": "6.6.87.2-microsoft-standard-WSL2",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "process_thread_count": 8,
+    "python_executable": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/bin/python",
+    "python_implementation": "CPython",
+    "python_version": "3.12.3"
+  },
+  "ticket": "PUYO-198"
+}

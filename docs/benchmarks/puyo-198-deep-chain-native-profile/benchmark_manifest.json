@@ -1,0 +1,75 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw/smoke_profile.json",
+      "required": true,
+      "role": "smoke_profile",
+      "sha256": "5c483a01a6a3ea4cd8813f86cc2dbd39c7a067d5ce3fff8a17ec024c208ade8e",
+      "size_bytes": 370565
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw/intermediate_profile.json",
+      "required": true,
+      "role": "intermediate_profile",
+      "sha256": "545206e64111407302b16a4d3062e847748797f51f85f8f8092fa47ed7ddec5d",
+      "size_bytes": 381003
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw/reference_profile.json",
+      "required": true,
+      "role": "reference_profile",
+      "sha256": "c2ee70d5ce7b9beca7e7ddeccfbc54c7e72fac2b0e9e263821daf7e32c4ef558",
+      "size_bytes": 97700
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw/microbenchmarks.json",
+      "required": true,
+      "role": "microbenchmarks",
+      "sha256": "9164d79da069a9e4a6bd2d318f8717489dc9c325b984676805d1fed3f6373c4b",
+      "size_bytes": 3601
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "corpus.json",
+      "required": true,
+      "role": "frozen_corpus",
+      "sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
+      "size_bytes": 62306
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "67d10f2f9fd9ecbd7840b1696c6f2b6cfd222e74d6c525646d2d102a5385a360",
+      "size_bytes": 34281
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "5f5b377d8ca9e1b80b7e98a4ac28ff98f17ec3d74d20352e57ce6d478becccd9",
+      "size_bytes": 2347
+    }
+  ],
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+  "created_at_utc": "2026-08-26T01:16:59Z",
+  "evaluated_commit": "b4528a5d9f4b2b1cfdec641c247da780f7a90232",
+  "manifest_digest": "55cdf1e185b45ced736cb436e6c15a76bea65e672b30809cc91b4283c3b523d3",
+  "schema_version": "puyo.deep_chain_native.profile_manifest.v1",
+  "summary_digest": "7bbe10bb5649ec19598917816a5f7771f8ad5ed8ee32d51f5cabe8f828d8312b",
+  "ticket": "PUYO-198"
+}
