@@ -1,0 +1,66 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "alternative_contracts.json",
+      "required": true,
+      "role": "alternative_contracts",
+      "sha256": "6baaea54cf723f0dd6ddb11bc44edbfe1b8de0d9e8ffde2c143c0ce86e3c3942",
+      "size_bytes": 4958
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "280d61f96b9f4e8ca67061a7502f9e5c56ee4178d410416be0315832dc012f7c",
+      "size_bytes": 2767
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "66e27e17be4756b43d304b2804840b8deb0866b5217aa39f5b3c9d0914e3d3e5",
+      "size_bytes": 52721
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "cachegrind.json",
+      "required": true,
+      "role": "cachegrind",
+      "sha256": "13ff433dd593bedf7bf1a48468e35a85cd1e6db487267fb567888a3a0d9be395",
+      "size_bytes": 19160
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_count.json",
+      "required": true,
+      "role": "call_count",
+      "sha256": "a980f486bfe9e6fff341dfba790b905cf77b498d43b1a92017679e5ce272d69b",
+      "size_bytes": 1629
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "ff2bc3e9b8bae108fd2306b5f7174e3649bbd903fac1669fe377f8d501543f97",
+      "size_bytes": 1054524
+    }
+  ],
+  "command": "python -m eval.deep_chain_native_transition_profile run --corpus eval/deep_chain_native_transition_corpus.json --search-corpus eval/deep_chain_native_corpus.json --output-dir docs/benchmarks/puyo-205-native-compact-profile --mixed-samples 120 --outcome-samples 40 --stage-samples 30 --alternative-samples 40 --warmup 5 --mixed-batch-size 10000 --outcome-batch-size 4096 --cachegrind-records 256 --cachegrind-repeats 512 --cpu 0",
+  "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+  "created_at_utc": "2026-08-26T16:18:03Z",
+  "evaluated_commit": "25bb530df58b3f2e46cdd57026b5fc67c418ff4b",
+  "passed": true,
+  "schema_version": "puyo.native_compact_profile_benchmark.v1",
+  "ticket": "PUYO-205",
+  "wheel_sha256": "4351e77a563629f2c6a41d5dae83c8c41b233d82657e7cd890ac243093a7b601"
+}
