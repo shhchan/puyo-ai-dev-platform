@@ -1,6 +1,6 @@
 # PUYO-199 native extension build and boundary contract
 
-- Status: implemented foundation; production adoption remains blocked
+- Status: implemented foundation; PUYO-200 kernel added, production adoption remains blocked
 - Decision source: [PUYO-198 native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Native module: `_puyo_deep_chain_native`
 - Rust crate: `native/deep_chain_native`
@@ -20,8 +20,13 @@ the kernels inside this crate and must not create a second extension, state
 schema, binding, or per-node FFI path. No partial result is returned as a
 success.
 
-The production `deep_chain_builder` remains on its existing Python path. This
-task adds no backend selector and changes no action semantics.
+PUYO-200 subsequently added the in-crate compact transition and its separate
+underscore-prefixed QA batch boundary without changing the reserved one-call
+decision envelope. Its correctness gates pass, but its PUYO-198 performance
+allocation does not; see
+[the PUYO-200 transition report](puyo-200-native-compact-transition.md). The
+production `deep_chain_builder` therefore remains on its existing Python path,
+with no backend selector or action-semantic change.
 
 ## Supported build
 
@@ -166,9 +171,10 @@ The machine-readable adapter result includes:
 - GIL detach support, thread modes, parallel capability, and maximum threads.
 - an external wheel SHA-256 provenance hook populated by build/evidence tooling.
 
-The current selected path is always `scalar`, even when AVX2 or other features
-are detected. PUYO-200 may add runtime dispatch only if scalar and optimized
-paths are differential-identical and the selected path remains in provenance.
+The selected path remains `scalar`, even when AVX2 or other features are
+detected. PUYO-200 retained this baseline after measuring an experimental
+SSE2 connectivity path; an optimized path may be adopted only after complete
+scalar differential identity and selected-path provenance are retained.
 
 A source build records `PUYO_NATIVE_SOURCE_REVISION` when supplied; otherwise
 the build script obtains the Git revision and appends `-dirty` for a modified
@@ -226,4 +232,6 @@ copied into this repository.
 
 Ama remains the representation inspiration recorded by the existing compact
 search design and PUYO-198 ADR. No Ama source code was copied or translated in
-PUYO-199.
+PUYO-199. PUYO-200 later adapted its poppable-group connectivity identity under
+MIT; the upstream notice is retained in `native/deep_chain_native/LICENSE-AMA-MIT`
+and `NOTICE`.

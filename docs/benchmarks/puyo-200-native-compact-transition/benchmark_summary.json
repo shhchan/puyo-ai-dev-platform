@@ -1,0 +1,207 @@
+{
+  "capabilities": {
+    "abi_version": 1,
+    "build_profile": "release",
+    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "cpu_features": [
+      "scalar",
+      "sse2",
+      "ssse3",
+      "sse4.1",
+      "avx2"
+    ],
+    "crate_version": "0.2.0",
+    "gil_detach": true,
+    "limits": {
+      "max_request_bytes": 16777216,
+      "max_response_bytes": 16777216,
+      "max_sections": 64
+    },
+    "max_threads": 1,
+    "parallel": false,
+    "python_abi": "cp312",
+    "scalar_fallback": true,
+    "schema": {
+      "major": 1,
+      "minor_max": 0,
+      "minor_min": 0,
+      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+    },
+    "simd_path": "scalar",
+    "source_revision": "183721c54d61c7247cc36b0eef28c4cb6149e7c8",
+    "target": "x86_64-unknown-linux-gnu",
+    "thread_modes": [
+      "oracle-1"
+    ],
+    "wheel_hash_hook": true,
+    "wire_name": "puyo.deep_chain_native.envelope.v1"
+  },
+  "checks": {
+    "allocation_free_hot_transition": true,
+    "deterministic_serialization": true,
+    "fixed_fixture_parity": true,
+    "legal_action_parity": true,
+    "minimum_10k_state_action_parity": true,
+    "scalar_kernel_path": true,
+    "transition_performance_budget": false
+  },
+  "command": "python -m eval.deep_chain_native_transition_benchmark run --corpus eval/deep_chain_native_transition_corpus.json --output-dir docs/benchmarks/puyo-200-native-compact-transition --single-samples 200 --batch-samples 12 --batch-size 10000",
+  "contracts": {
+    "compact_state": "puyo.compact_search_state.v1",
+    "kernel_path": "scalar",
+    "native_batch": "puyo.native_compact_transition_batch.v1",
+    "normal_hot_path_heap_allocations": 0,
+    "normal_hot_path_python_objects": false
+  },
+  "corpus": {
+    "digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "path": "eval/deep_chain_native_transition_corpus.json",
+    "sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356"
+  },
+  "created_at_utc": "2026-08-26T09:38:13Z",
+  "environment": {
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "wheel_sha256": "fe5e0f723d4931095052dc06c3bc8a475b5b434c6d1299ed27cc2c5b6f04db53"
+  },
+  "evaluated_commit": "183721c54d61c7247cc36b0eef28c4cb6149e7c8",
+  "parity": {
+    "action_mismatch_count": 0,
+    "deterministic_response": true,
+    "fixed_fixture_count": 9,
+    "fixed_fixture_mismatch_count": 0,
+    "fixed_fixture_mismatches": [],
+    "mismatch_count": 0,
+    "mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "oracle_mismatch_count": 0,
+    "response_bytes": 1892400,
+    "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+    "state_count": 512,
+    "transition_count": 11264
+  },
+  "passed": false,
+  "performance": {
+    "allocation": {
+      "batch_boundary_allocations_included_in_wall_latency": true,
+      "evidence": "compact::tests::normal_hot_transition_performs_no_heap_allocation",
+      "normal_hot_transition_heap_allocations": 0
+    },
+    "budget": {
+      "canonical_max_expanded_nodes": 600000,
+      "decision_p95_budget_ms": 10.596,
+      "passed": false,
+      "per_expanded_node_budget_ns": 17.66,
+      "projected_decision_p95_ms": 78.20676000000002
+    },
+    "cold_single": {
+      "kernel_ns": 749,
+      "response_bytes": 216,
+      "wall_us": 96.009
+    },
+    "internal_profile": {
+      "categories": {
+        "invalid": {
+          "measurement": null,
+          "record_count": 0,
+          "record_fraction": 0.0
+        },
+        "multi_chain": {
+          "measurement": {
+            "kernel_p50_transitions_per_second": 2296738.631143776,
+            "kernel_p95_transitions_per_second": 802246.2896109106,
+            "kernel_per_transition_p50_ns": 435.4,
+            "kernel_per_transition_p95_ns": 1246.5,
+            "records_per_call": 20,
+            "samples": 8,
+            "wall_p50_transitions_per_second": 54259.065333340564,
+            "wall_p50_us": 368.602,
+            "wall_p95_transitions_per_second": 29341.646799926646,
+            "wall_p95_us": 681.625
+          },
+          "record_count": 20,
+          "record_fraction": 0.002
+        },
+        "one_chain": {
+          "measurement": {
+            "kernel_p50_transitions_per_second": 2946010.4815951874,
+            "kernel_p95_transitions_per_second": 1678613.2887273757,
+            "kernel_per_transition_p50_ns": 339.4421052631579,
+            "kernel_per_transition_p95_ns": 595.7298245614035,
+            "records_per_call": 570,
+            "samples": 8,
+            "wall_p50_transitions_per_second": 59986.60720064499,
+            "wall_p50_us": 9502.121,
+            "wall_p95_transitions_per_second": 55758.012573138374,
+            "wall_p95_us": 10222.746
+          },
+          "record_count": 570,
+          "record_fraction": 0.057
+        },
+        "quiet": {
+          "measurement": {
+            "kernel_p50_transitions_per_second": 17243843.709570423,
+            "kernel_p95_transitions_per_second": 15319196.043382142,
+            "kernel_per_transition_p50_ns": 57.99171094580234,
+            "kernel_per_transition_p95_ns": 65.27757704569606,
+            "records_per_call": 9410,
+            "samples": 8,
+            "wall_p50_transitions_per_second": 59281.704315357805,
+            "wall_p50_us": 158733.628,
+            "wall_p95_transitions_per_second": 52062.07246374358,
+            "wall_p95_us": 180745.782
+          },
+          "record_count": 9410,
+          "record_fraction": 0.941
+        }
+      },
+      "cause": "The allocation-free scalar transition itself exceeds the 17.66 ns/node allocation on quiet records; chain resolution adds gravity and repeated component scans. Python/FFI result materialization is outside the reported kernel timer.",
+      "kernel_timing_excludes_binary_parse_and_result_encoding": true,
+      "required_follow_up": "Return the native boundary and representation to ADR review; do not start PUYO-201 or mask the miss with fallback timing.",
+      "samples_per_category": 8,
+      "schema_version": "puyo.native_compact_transition_internal_profile.v1",
+      "selected_record_count": 10000
+    },
+    "memory": {
+      "peak_rss_delta_kib": 23692,
+      "peak_rss_kib_after": 55460,
+      "peak_rss_kib_before": 31768
+    },
+    "timed_response_digest_count": 212,
+    "warm_batch": {
+      "kernel_p50_transitions_per_second": 12812628.126281263,
+      "kernel_p95_transitions_per_second": 7671971.06746271,
+      "kernel_per_transition_p50_ns": 78.048,
+      "kernel_per_transition_p95_ns": 130.3446,
+      "records_per_call": 10000,
+      "samples": 12,
+      "wall_p50_transitions_per_second": 60087.0783140669,
+      "wall_p50_us": 166425.133,
+      "wall_p95_transitions_per_second": 51770.93457139589,
+      "wall_p95_us": 193158.576
+    },
+    "warm_single": {
+      "kernel_p50_transitions_per_second": 12195121.951219512,
+      "kernel_p95_transitions_per_second": 8928571.42857143,
+      "kernel_per_transition_p50_ns": 82.0,
+      "kernel_per_transition_p95_ns": 112.0,
+      "records_per_call": 1,
+      "samples": 200,
+      "wall_p50_transitions_per_second": 59573.454068866915,
+      "wall_p50_us": 16.786,
+      "wall_p95_transitions_per_second": 29839.16689046042,
+      "wall_p95_us": 33.513
+    }
+  },
+  "references": {
+    "adapted_algorithm": "FieldBit::get_mask_pop connectivity identity",
+    "ama_commit": "dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "ama_license": "MIT",
+    "copied_code": false,
+    "license_notice": "native/deep_chain_native/LICENSE-AMA-MIT"
+  },
+  "schema_version": "puyo.native_compact_transition_benchmark.v1",
+  "summary_digest": "f3914070bd17c3d2251af9c4e682cd80c328386aa83d92d77926201d20fb8055",
+  "ticket": "PUYO-200"
+}
