@@ -556,10 +556,9 @@ def _initial_observation_and_info(
 
 
 def _relative_filename(filename: str) -> str:
-    try:
-        return str(Path(filename).resolve().relative_to(REPO_ROOT))
-    except (OSError, ValueError):
-        return filename
+    normalized = filename.replace("\\", "/")
+    root = str(REPO_ROOT).replace("\\", "/").rstrip("/") + "/"
+    return normalized.removeprefix(root)
 
 
 def classify_hotspot(
@@ -572,6 +571,8 @@ def classify_hotspot(
 
     path = filename.replace("\\", "/")
     name = function_name
+    if path.endswith("eval/deep_chain_native_profile.py"):
+        return "profiler_instrumentation"
     digest_names = (
         "digest",
         "fingerprint",
@@ -725,6 +726,13 @@ def summarize_cprofile(
         groups[group]["exclusive_seconds"] += float(exclusive)
 
     total_exclusive = float(stats.total_tt)
+    instrumentation_exclusive = float(
+        groups.get("profiler_instrumentation", {}).get(
+            "exclusive_seconds",
+            0.0,
+        )
+    )
+    workload_exclusive = max(0.0, total_exclusive - instrumentation_exclusive)
     group_rows = []
     for name, values in groups.items():
         exclusive = float(values["exclusive_seconds"])
@@ -733,7 +741,11 @@ def summarize_cprofile(
                 "group": name,
                 **values,
                 "exclusive_share": (
-                    0.0 if total_exclusive <= 0.0 else exclusive / total_exclusive
+                    None
+                    if name == "profiler_instrumentation"
+                    else 0.0
+                    if workload_exclusive <= 0.0
+                    else exclusive / workload_exclusive
                 ),
                 "exclusive_per_expanded_node_us": (
                     None
@@ -747,6 +759,8 @@ def summarize_cprofile(
         "total_primitive_calls": int(stats.prim_calls),
         "total_calls": int(stats.total_calls),
         "total_exclusive_seconds": total_exclusive,
+        "workload_exclusive_seconds": workload_exclusive,
+        "profiler_instrumentation_exclusive_seconds": instrumentation_exclusive,
         "inclusive_time_note": (
             "Function inclusive times overlap and must not be summed; group shares "
             "use non-overlapping exclusive time."
@@ -1358,7 +1372,7 @@ def _profile_group_table(profile: Mapping[str, Any]) -> list[dict[str, Any]]:
     return [
         dict(row)
         for row in profile["deterministic_profile"]["groups"]
-        if row.get("group") != "other"
+        if row.get("group") not in {"other", "profiler_instrumentation"}
     ]
 
 
@@ -1392,6 +1406,7 @@ def finalize_evidence(
     classified = {
         row["group"]: float(row["exclusive_seconds"])
         for row in intermediate["deterministic_profile"]["groups"]
+        if row["group"] != "profiler_instrumentation"
     }
     total = sum(classified.values())
     outside_native_groups = {"decision_orchestration", "other"}

@@ -32,6 +32,7 @@ class TestDeepChainNativeProfile(unittest.TestCase):
             ("agents/long_horizon_search.py", "aggregate_expected_chain_evidence"): "scenario_aggregation",
             ("agents/long_horizon_search.py", "_root_build_diagnostics"): "diagnostics",
             ("agents/long_horizon_search.py", "compact_state_fingerprint"): "digest",
+            ("eval/deep_chain_native_profile.py", "_sample_stack"): "profiler_instrumentation",
         }
         for (path, function), expected in cases.items():
             with self.subTest(path=path, function=function):
