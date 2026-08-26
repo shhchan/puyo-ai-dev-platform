@@ -61,6 +61,7 @@ COMBINED_TRANSITION_EVALUATOR_BUDGET_MS = (
 )
 TRANSITION_TARGET_NS = 100.0
 QUIET_TARGET_NS = 50.0
+CYCLE_COUNTER_METHOD = "RDTSC serialized with LFENCE"
 TRANSITION_TARGET_MS = (
     TRANSITION_TARGET_NS * CANONICAL_MAX_EXPANDED_NODES / 1_000_000.0
 )
@@ -740,9 +741,9 @@ def _render_report(summary: Mapping[str, Any]) -> str:
             "",
             (
                 "Hardware PMU counters are unavailable in this WSL2 kernel "
-                "(`perf_event_open` returns `ENOENT`). Cycles use RDTSCP/RDTSC "
-                "ordering; instructions, branches, and cache events use Valgrind "
-                "Cachegrind and are labelled as simulated."
+                f"(`perf_event_open` returns `ENOENT`). Cycles use "
+                f"{CYCLE_COUNTER_METHOD}; instructions, branches, and cache events "
+                "use Valgrind Cachegrind and are labelled as simulated."
             ),
             "",
             "## Call-count model",
@@ -965,7 +966,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             },
             "hardware_pmu_available": False,
             "hardware_pmu_error": "ENOENT from perf_event_open on WSL2",
-            "cycle_counter": "RDTSC serialized with LFENCE on one pinned CPU",
+            "cycle_counter": f"{CYCLE_COUNTER_METHOD} on one pinned CPU",
             "instruction_branch_cache_counter": "Valgrind Cachegrind simulated",
         },
         "measurement_contract": {
