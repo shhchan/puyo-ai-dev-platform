@@ -53,6 +53,7 @@ jobs:
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --requirement requirements.txt
+          .venv/bin/python -m pip install ruff==0.16.0
       - name: Build and install release wheel
         run: ./scripts/build_deep_chain_native.sh
       - name: Check Rust format, lint, and units
