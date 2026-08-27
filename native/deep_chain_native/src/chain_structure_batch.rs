@@ -6,21 +6,27 @@
 
 use std::hint::black_box;
 use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::time::Instant;
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering as AtomicOrdering};
+use std::sync::{Arc, Barrier};
+use std::thread::{self, JoinHandle};
+use std::time::{Duration, Instant};
 
 use crate::chain_structure::{
     ActionStructureFeatures, ChainStructureFeatures, EvaluationConfig, EvaluationEvidence,
-    EvaluationHot, QuiescenceCandidate, RESULT_ABI_VERSION, RESULT_SCHEMA, WEIGHT_COUNT,
-    evaluate_evidence, evaluate_hot,
+    EvaluationHot, EvaluationProfileCounts, PROFILE_STAGE_BASE_FEATURES, PROFILE_STAGE_COUNT,
+    PROFILE_STAGE_DRIVER, PROFILE_STAGE_TRANSITION, QuiescenceCandidate, RESULT_ABI_VERSION,
+    RESULT_SCHEMA, WEIGHT_COUNT, evaluate_evidence, evaluate_hot, evaluate_profiled,
 };
 use crate::compact::{CompactState, Pair, TransitionHotResult, transition_hot};
 
 pub(crate) const BATCH_SCHEMA: &str = "puyo.native_chain_structure_batch.v1";
 pub(crate) const PROFILE_SCHEMA: &str = "puyo.native_chain_structure_combined_profile.v1";
+pub(crate) const STAGE_PROFILE_SCHEMA: &str = "puyo.native_chain_structure_stage_profile.v1";
 
 const REQUEST_MAGIC: &[u8; 4] = b"NCSB";
 const SUCCESS_MAGIC: &[u8; 4] = b"NCSS";
 const PROFILE_MAGIC: &[u8; 4] = b"NCSP";
+const STAGE_PROFILE_MAGIC: &[u8; 4] = b"NCST";
 const ABI_VERSION: u16 = 1;
 const REQUEST_HEADER_BYTES: usize = 48 + WEIGHT_COUNT * 8;
 const REQUEST_RECORD_BYTES: usize = 184;
@@ -29,6 +35,10 @@ const KNOWN_FLAGS: u16 = FLAG_EVIDENCE;
 const MAX_RECORDS: usize = 50_000;
 const MAX_REQUEST_BYTES: usize = 16 * 1024 * 1024;
 const MAX_RESPONSE_BYTES: usize = 16 * 1024 * 1024;
+const STAGE_PROFILE_HEADER_BYTES: usize = 216;
+const STAGE_PROFILE_RECORD_BYTES: usize = 20;
+const MIN_SAMPLE_INTERVAL_US: u32 = 10;
+const MAX_SAMPLE_INTERVAL_US: u32 = 10_000;
 
 #[derive(Clone, Debug)]
 struct BatchError(String);
@@ -401,6 +411,252 @@ pub(crate) fn guarded_execute(data: &[u8]) -> Result<Vec<u8>, String> {
     }
 }
 
+struct StageSampler {
+    marker: Arc<AtomicU8>,
+    running: Arc<AtomicBool>,
+    handle: JoinHandle<[u64; PROFILE_STAGE_COUNT]>,
+}
+
+impl StageSampler {
+    fn start(interval_us: u32) -> Self {
+        let marker = Arc::new(AtomicU8::new(PROFILE_STAGE_DRIVER));
+        let running = Arc::new(AtomicBool::new(true));
+        let ready = Arc::new(Barrier::new(2));
+        let sampled_marker = Arc::clone(&marker);
+        let sampled_running = Arc::clone(&running);
+        let sampled_ready = Arc::clone(&ready);
+        let handle = thread::spawn(move || {
+            let mut samples = [0_u64; PROFILE_STAGE_COUNT];
+            let initial = usize::from(sampled_marker.load(AtomicOrdering::Relaxed));
+            if initial < samples.len() {
+                samples[initial] += 1;
+            }
+            sampled_ready.wait();
+            let interval = Duration::from_micros(u64::from(interval_us));
+            while sampled_running.load(AtomicOrdering::Relaxed) {
+                thread::sleep(interval);
+                if !sampled_running.load(AtomicOrdering::Relaxed) {
+                    break;
+                }
+                let stage = usize::from(sampled_marker.load(AtomicOrdering::Relaxed));
+                if stage < samples.len() {
+                    samples[stage] += 1;
+                }
+            }
+            samples
+        });
+        ready.wait();
+        Self {
+            marker,
+            running,
+            handle,
+        }
+    }
+
+    fn finish(self) -> [u64; PROFILE_STAGE_COUNT] {
+        self.running.store(false, AtomicOrdering::Relaxed);
+        self.handle
+            .join()
+            .expect("native stage sampler thread must not panic")
+    }
+}
+
+#[cfg(target_arch = "x86_64")]
+fn profile_cycle_counter() -> u64 {
+    // SAFETY: LFENCE/RDTSC are available on the supported x86_64 release
+    // target and only read the invariant timestamp counter.
+    unsafe {
+        std::arch::x86_64::_mm_lfence();
+        let value = std::arch::x86_64::_rdtsc();
+        std::arch::x86_64::_mm_lfence();
+        value
+    }
+}
+
+#[cfg(not(target_arch = "x86_64"))]
+fn profile_cycle_counter() -> u64 {
+    0
+}
+
+fn accumulate_profile_counts(
+    target: &mut [u64; 5],
+    stage_entries: &mut [u64; PROFILE_STAGE_COUNT],
+    value: EvaluationProfileCounts,
+) {
+    target[0] += u64::from(value.pattern_nodes);
+    target[1] += u64::from(value.resolution_nodes);
+    target[2] += u64::from(value.rank_comparison_calls);
+    target[3] += u64::from(value.rank_tie_calls);
+    target[4] += u64::from(value.sha256_calls);
+    for (target_value, source_value) in stage_entries.iter_mut().zip(value.stage_entries) {
+        *target_value += u64::from(source_value);
+    }
+}
+
+fn stage_profile(data: &[u8], operations: u32, sample_interval_us: u32) -> BatchResult<Vec<u8>> {
+    if operations == 0 {
+        return Err(BatchError::invalid(
+            "stage-profile operation count must be positive",
+        ));
+    }
+    if !(MIN_SAMPLE_INTERVAL_US..=MAX_SAMPLE_INTERVAL_US).contains(&sample_interval_us) {
+        return Err(BatchError::invalid(
+            "stage-profile sample interval is outside the supported range",
+        ));
+    }
+    let request = parse_request(data)?;
+    let mut parents: Vec<EvaluationHot> = Vec::with_capacity(request.records.len());
+    let mut record_counts = Vec::with_capacity(request.records.len());
+    let validation_marker = AtomicU8::new(PROFILE_STAGE_DRIVER);
+    let mut mismatch_count = 0_u32;
+    for record in &request.records {
+        let parent = evaluate_hot(
+            &record.state,
+            &request.config,
+            None,
+            None,
+            record.target_chain_count,
+        );
+        let (child, transition) = transition_hot(&record.state, record.pair, record.action_id)
+            .map_err(|error| BatchError::invalid(error.to_string()))?;
+        if !transition.valid() {
+            return Err(BatchError::invalid(
+                "stage-profile records must contain valid transitions",
+            ));
+        }
+        let expected = evaluate_hot(
+            &child,
+            &request.config,
+            Some(&parent),
+            Some(transition),
+            record.target_chain_count,
+        );
+        let (profiled, counts) = evaluate_profiled(
+            &child,
+            &request.config,
+            Some(&parent),
+            Some(transition),
+            record.target_chain_count,
+            &validation_marker,
+        );
+        mismatch_count += u32::from(profiled != expected);
+        parents.push(parent);
+        record_counts.push(counts);
+    }
+
+    let sampler = StageSampler::start(sample_interval_us);
+    let marker = Arc::clone(&sampler.marker);
+    let started = Instant::now();
+    let started_cycles = profile_cycle_counter();
+    let mut checksum = 0_u64;
+    let mut aggregate_counts = [0_u64; 5];
+    let mut stage_entries = [0_u64; PROFILE_STAGE_COUNT];
+    for operation in 0..operations as usize {
+        let index = operation % request.records.len();
+        let record = &request.records[index];
+        marker.store(PROFILE_STAGE_TRANSITION, AtomicOrdering::Relaxed);
+        stage_entries[usize::from(PROFILE_STAGE_TRANSITION)] += 1;
+        let (child, transition) = transition_hot(
+            black_box(&record.state),
+            black_box(record.pair),
+            black_box(record.action_id),
+        )
+        .map_err(|error| BatchError::invalid(error.to_string()))?;
+        marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
+        let (evaluation, counts) = evaluate_profiled(
+            black_box(&child),
+            black_box(&request.config),
+            Some(black_box(&parents[index])),
+            Some(black_box(transition)),
+            black_box(record.target_chain_count),
+            marker.as_ref(),
+        );
+        accumulate_profile_counts(&mut aggregate_counts, &mut stage_entries, counts);
+        marker.store(PROFILE_STAGE_DRIVER, AtomicOrdering::Relaxed);
+        stage_entries[usize::from(PROFILE_STAGE_DRIVER)] += 1;
+        checksum ^= black_box(
+            evaluation
+                .score
+                .to_bits()
+                .rotate_left((operation % 63) as u32),
+        );
+    }
+    black_box(checksum);
+    let cycles = profile_cycle_counter().wrapping_sub(started_cycles);
+    let elapsed_ns = u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+    marker.store(PROFILE_STAGE_DRIVER, AtomicOrdering::Relaxed);
+    let stage_samples = sampler.finish();
+    let sample_count = stage_samples.iter().sum::<u64>();
+
+    let expected_bytes = STAGE_PROFILE_HEADER_BYTES
+        .checked_add(
+            record_counts
+                .len()
+                .checked_mul(STAGE_PROFILE_RECORD_BYTES)
+                .ok_or_else(|| BatchError::invalid("stage-profile response size overflow"))?,
+        )
+        .ok_or_else(|| BatchError::invalid("stage-profile response size overflow"))?;
+    let mut output = Vec::with_capacity(expected_bytes);
+    output.extend_from_slice(STAGE_PROFILE_MAGIC);
+    write_u16(&mut output, ABI_VERSION);
+    write_u16(
+        &mut output,
+        if cfg!(target_arch = "x86_64") {
+            0x3
+        } else {
+            0x2
+        },
+    );
+    write_u32(&mut output, operations);
+    write_u32(&mut output, request.records.len() as u32);
+    write_u64(&mut output, elapsed_ns);
+    write_u64(&mut output, cycles);
+    write_u64(&mut output, checksum);
+    write_u32(&mut output, sample_interval_us);
+    write_u32(&mut output, PROFILE_STAGE_COUNT as u32);
+    write_u64(&mut output, sample_count);
+    write_u32(&mut output, mismatch_count);
+    write_u16(&mut output, RESULT_ABI_VERSION);
+    write_u16(&mut output, STAGE_PROFILE_RECORD_BYTES as u16);
+    for value in aggregate_counts {
+        write_u64(&mut output, value);
+    }
+    for value in stage_samples {
+        write_u64(&mut output, value);
+    }
+    for value in stage_entries {
+        write_u64(&mut output, value);
+    }
+    debug_assert_eq!(output.len(), STAGE_PROFILE_HEADER_BYTES);
+    for counts in record_counts {
+        for value in [
+            counts.pattern_nodes,
+            counts.resolution_nodes,
+            counts.rank_comparison_calls,
+            counts.rank_tie_calls,
+            counts.sha256_calls,
+        ] {
+            write_u32(&mut output, value);
+        }
+    }
+    debug_assert_eq!(output.len(), expected_bytes);
+    Ok(output)
+}
+
+pub(crate) fn guarded_stage_profile(
+    data: &[u8],
+    operations: u32,
+    sample_interval_us: u32,
+) -> Result<Vec<u8>, String> {
+    match catch_unwind(AssertUnwindSafe(|| {
+        stage_profile(data, operations, sample_interval_us)
+    })) {
+        Ok(Ok(value)) => Ok(value),
+        Ok(Err(error)) => Err(error.0),
+        Err(_) => Err("panic caught at native stage-profile boundary".to_owned()),
+    }
+}
+
 fn profile(data: &[u8], operations: u32) -> BatchResult<Vec<u8>> {
     if operations == 0 {
         return Err(BatchError::invalid(
@@ -487,6 +743,10 @@ mod tests {
     fn schema_constants_are_versioned() {
         assert_eq!(BATCH_SCHEMA, "puyo.native_chain_structure_batch.v1");
         assert_eq!(schema_identity().0, "puyo.native_chain_structure_hot.v1");
+        assert_eq!(
+            STAGE_PROFILE_SCHEMA,
+            "puyo.native_chain_structure_stage_profile.v1"
+        );
         assert_eq!(EvaluationStatus::Available as u8, 1);
         assert_eq!(TruncationReason::ResolutionNodes as u8, 2);
         assert_eq!(std::mem::size_of::<CompactState>(), 80);

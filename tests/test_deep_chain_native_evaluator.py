@@ -15,6 +15,7 @@ from agents.deep_chain_native_evaluator import (
     NATIVE_CHAIN_STRUCTURE_BATCH_SCHEMA_VERSION,
     NATIVE_CHAIN_STRUCTURE_HOT_SCHEMA_VERSION,
     NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION,
+    NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION,
     NativeChainStructureBatchClient,
     NativeChainStructureInput,
     encode_native_chain_structure_batch,
@@ -109,6 +110,10 @@ class TestNativeChainStructureExtension(unittest.TestCase):
             NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION,
             "puyo.native_chain_structure_combined_profile.v1",
         )
+        self.assertEqual(
+            NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION,
+            "puyo.native_chain_structure_stage_profile.v1",
+        )
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_CHILD_STATE_BYTES, 80)
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_RESULT_BYTES, 24)
 
@@ -201,6 +206,36 @@ class TestNativeChainStructureExtension(unittest.TestCase):
         self.assertEqual(result.record_count, 1)
         self.assertGreater(result.elapsed_ns, 0)
         self.assertEqual(result.evaluator_abi_version, 1)
+
+    def test_stage_profile_preserves_result_and_reports_exact_call_counts(self):
+        record = NativeChainStructureInput(
+            CompactSearchState.empty(),
+            pair=(PuyoColor.RED, PuyoColor.BLUE),
+            action_id=0,
+        )
+
+        result = self.native_client.stage_profile(
+            [record],
+            self.config,
+            operations=17,
+            sample_interval_us=100,
+        )
+
+        self.assertEqual(result.operations, 17)
+        self.assertEqual(result.record_count, 1)
+        self.assertEqual(result.mismatch_count, 0)
+        self.assertEqual(result.aggregate_counts.pattern_nodes, 17 * 415)
+        self.assertEqual(result.record_counts[0].pattern_nodes, 415)
+        self.assertEqual(
+            result.aggregate_counts.resolution_nodes,
+            17 * result.record_counts[0].resolution_nodes,
+        )
+        self.assertEqual(sum(result.stage_sample_counts), result.sample_count)
+        self.assertEqual(
+            result.stage_entries["transition"],
+            result.operations,
+        )
+        self.assertTrue(result.sampler_available)
 
 
 if __name__ == "__main__":

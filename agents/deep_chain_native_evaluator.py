@@ -40,18 +40,34 @@ NATIVE_CHAIN_STRUCTURE_HOT_SCHEMA_VERSION = "puyo.native_chain_structure_hot.v1"
 NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION = (
     "puyo.native_chain_structure_combined_profile.v1"
 )
+NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION = (
+    "puyo.native_chain_structure_stage_profile.v1"
+)
 NATIVE_CHAIN_STRUCTURE_ABI_VERSION = 1
 NATIVE_CHAIN_STRUCTURE_MAX_EVIDENCE_CANDIDATES = 96
 
 _REQUEST_MAGIC = b"NCSB"
 _SUCCESS_MAGIC = b"NCSS"
 _PROFILE_MAGIC = b"NCSP"
+_STAGE_PROFILE_MAGIC = b"NCST"
 _REQUEST_HEADER_BYTES = 240
 _REQUEST_RECORD_BYTES = 184
 _FLAG_EVIDENCE = 0x1
 _MAX_RECORDS = 50_000
 _CANDIDATE_BYTES = 61
 _FIXED_RESULT_BYTES = 265
+_STAGE_PROFILE_HEADER_BYTES = 216
+_STAGE_PROFILE_RECORD_BYTES = 20
+
+NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES = (
+    "driver_unattributed",
+    "transition",
+    "base_feature_component_extraction",
+    "placement_enumeration_trigger_qualification",
+    "virtual_resolve_gravity",
+    "remaining_structure_scan",
+    "candidate_ranking_sha256",
+)
 
 _STRUCTURE_COLORS = (
     PuyoColor.RED,
@@ -191,6 +207,71 @@ class NativeCombinedProfileResult:
     @property
     def ns_per_operation(self) -> float:
         return self.elapsed_ns / float(self.operations)
+
+
+@dataclass(frozen=True, slots=True)
+class NativeStageProfileCounts:
+    pattern_nodes: int
+    resolution_nodes: int
+    rank_comparison_calls: int
+    rank_tie_calls: int
+    sha256_calls: int
+
+    def to_dict(self) -> dict[str, int]:
+        return {
+            "pattern_nodes": int(self.pattern_nodes),
+            "resolution_nodes": int(self.resolution_nodes),
+            "rank_comparison_calls": int(self.rank_comparison_calls),
+            "rank_tie_calls": int(self.rank_tie_calls),
+            "sha256_calls": int(self.sha256_calls),
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class NativeChainStructureStageProfileResult:
+    operations: int
+    record_count: int
+    elapsed_ns: int
+    cycles: int
+    checksum: int
+    sample_interval_us: int
+    sample_count: int
+    mismatch_count: int
+    evaluator_abi_version: int
+    cycle_counter_available: bool
+    sampler_available: bool
+    aggregate_counts: NativeStageProfileCounts
+    stage_sample_counts: tuple[int, ...]
+    stage_entry_counts: tuple[int, ...]
+    record_counts: tuple[NativeStageProfileCounts, ...]
+
+    @property
+    def elapsed_ms(self) -> float:
+        return self.elapsed_ns / 1_000_000.0
+
+    @property
+    def ns_per_operation(self) -> float:
+        return self.elapsed_ns / float(self.operations)
+
+    @property
+    def stage_samples(self) -> dict[str, int]:
+        return dict(
+            zip(
+                NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES,
+                self.stage_sample_counts,
+                strict=True,
+            )
+        )
+
+    @property
+    def stage_entries(self) -> dict[str, int]:
+        return dict(
+            zip(
+                NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES,
+                self.stage_entry_counts,
+                strict=True,
+            )
+        )
 
 
 class _Reader:
@@ -545,6 +626,101 @@ def decode_native_combined_profile(
     )
 
 
+def decode_native_stage_profile(
+    payload: bytes | bytearray | memoryview,
+) -> NativeChainStructureStageProfileResult:
+    encoded = bytes(payload)
+    if len(encoded) < _STAGE_PROFILE_HEADER_BYTES:
+        raise InvalidNativeInputError("truncated native stage-profile response")
+    reader = _Reader(encoded)
+    if reader.take(4, "stage-profile magic") != _STAGE_PROFILE_MAGIC:
+        raise InvalidNativeInputError("invalid native stage-profile framing")
+    abi = reader.u16("stage-profile ABI")
+    flags = reader.u16("stage-profile flags")
+    operations = reader.u32("stage-profile operations")
+    record_count = reader.u32("stage-profile record count")
+    elapsed_ns = reader.u64("stage-profile elapsed time")
+    cycles = reader.u64("stage-profile cycles")
+    checksum = reader.u64("stage-profile checksum")
+    sample_interval_us = reader.u32("stage-profile sample interval")
+    stage_count = reader.u32("stage-profile stage count")
+    sample_count = reader.u64("stage-profile sample count")
+    mismatch_count = reader.u32("stage-profile mismatch count")
+    evaluator_abi = reader.u16("stage-profile evaluator ABI")
+    record_bytes = reader.u16("stage-profile record bytes")
+    if (
+        abi != NATIVE_CHAIN_STRUCTURE_ABI_VERSION
+        or flags & ~0x3
+        or not operations
+        or not record_count
+        or not elapsed_ns
+        or stage_count != len(NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES)
+        or evaluator_abi != NATIVE_CHAIN_STRUCTURE_ABI_VERSION
+        or record_bytes != _STAGE_PROFILE_RECORD_BYTES
+    ):
+        raise InvalidNativeInputError("invalid native stage-profile controls")
+    aggregate_values = tuple(
+        reader.u64(f"stage-profile aggregate counter {index}") for index in range(5)
+    )
+    stage_samples = tuple(
+        reader.u64(f"stage-profile sample counter {index}")
+        for index in range(stage_count)
+    )
+    stage_entries = tuple(
+        reader.u64(f"stage-profile entry counter {index}")
+        for index in range(stage_count)
+    )
+    expected_length = _STAGE_PROFILE_HEADER_BYTES + record_count * record_bytes
+    if (
+        not 10 <= sample_interval_us <= 10_000
+        or not sample_count
+        or sample_count != sum(stage_samples)
+        or len(encoded) != expected_length
+        or bool(flags & 0x1) != bool(cycles)
+        or not flags & 0x2
+    ):
+        raise InvalidNativeInputError("invalid native stage-profile controls")
+
+    def counts(values: Sequence[int]) -> NativeStageProfileCounts:
+        return NativeStageProfileCounts(
+            pattern_nodes=int(values[0]),
+            resolution_nodes=int(values[1]),
+            rank_comparison_calls=int(values[2]),
+            rank_tie_calls=int(values[3]),
+            sha256_calls=int(values[4]),
+        )
+
+    per_record = tuple(
+        counts(
+            tuple(
+                reader.u32(
+                    f"stage-profile record {record_index} counter {counter_index}"
+                )
+                for counter_index in range(5)
+            )
+        )
+        for record_index in range(record_count)
+    )
+    reader.finish()
+    return NativeChainStructureStageProfileResult(
+        operations=operations,
+        record_count=record_count,
+        elapsed_ns=elapsed_ns,
+        cycles=cycles,
+        checksum=checksum,
+        sample_interval_us=sample_interval_us,
+        sample_count=sample_count,
+        mismatch_count=mismatch_count,
+        evaluator_abi_version=evaluator_abi,
+        cycle_counter_available=bool(flags & 0x1),
+        sampler_available=bool(flags & 0x2),
+        aggregate_counts=counts(aggregate_values),
+        stage_sample_counts=stage_samples,
+        stage_entry_counts=stage_entries,
+        record_counts=per_record,
+    )
+
+
 def _cells_from_internal_mask(mask: int) -> tuple[tuple[int, int], ...]:
     cells = []
     remaining = int(mask)
@@ -681,6 +857,7 @@ class NativeChainStructureBatchClient:
             "CHAIN_STRUCTURE_EVALUATOR_SCHEMA": NATIVE_CHAIN_STRUCTURE_HOT_SCHEMA_VERSION,
             "CHAIN_STRUCTURE_BATCH_SCHEMA": NATIVE_CHAIN_STRUCTURE_BATCH_SCHEMA_VERSION,
             "CHAIN_STRUCTURE_COMBINED_PROFILE_SCHEMA": NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION,
+            "CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA": NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION,
         }
         for name, value in expected.items():
             if getattr(selected, name, None) != value:
@@ -723,20 +900,54 @@ class NativeChainStructureBatchClient:
             self.module._chain_structure_combined_profile(request, int(operations))
         )
 
+    def stage_profile(
+        self,
+        records: Sequence[NativeChainStructureInput],
+        config: ChainStructureConfig,
+        *,
+        operations: int,
+        sample_interval_us: int = 100,
+    ) -> NativeChainStructureStageProfileResult:
+        if not 1 <= int(operations) <= 0xFFFFFFFF:
+            raise InvalidNativeInputError(
+                "stage-profile operations are outside the u32 range"
+            )
+        if not 10 <= int(sample_interval_us) <= 10_000:
+            raise InvalidNativeInputError(
+                "stage-profile sample interval is outside the supported range"
+            )
+        request = encode_native_chain_structure_batch(
+            records,
+            config,
+            include_evidence=False,
+        )
+        return decode_native_stage_profile(
+            self.module._chain_structure_stage_profile(
+                request,
+                int(operations),
+                int(sample_interval_us),
+            )
+        )
+
 
 __all__ = [
     "NATIVE_CHAIN_STRUCTURE_ABI_VERSION",
     "NATIVE_CHAIN_STRUCTURE_BATCH_SCHEMA_VERSION",
     "NATIVE_CHAIN_STRUCTURE_HOT_SCHEMA_VERSION",
     "NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION",
+    "NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES",
+    "NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION",
     "NativeChainStructureBatchClient",
     "NativeChainStructureBatchResult",
     "NativeChainStructureInput",
     "NativeChainStructureRecord",
+    "NativeChainStructureStageProfileResult",
     "NativeCombinedProfileResult",
     "NativeQuiescenceCandidate",
+    "NativeStageProfileCounts",
     "decode_native_chain_structure_batch_response",
     "decode_native_combined_profile",
+    "decode_native_stage_profile",
     "encode_native_chain_structure_batch",
     "materialize_native_chain_structure_result",
 ]

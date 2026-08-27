@@ -7,6 +7,7 @@
 //! nor materializes Python-facing objects.
 
 use std::cmp::Ordering;
+use std::sync::atomic::{AtomicU8, Ordering as AtomicOrdering};
 
 use crate::compact::{
     CompactState, HEIGHT, NORMAL_COLOR_COUNT, PLANE_COUNT, TransitionHotResult, VISIBLE_HEIGHT,
@@ -20,6 +21,15 @@ pub(crate) const WEIGHT_COUNT: usize = 24;
 pub(crate) const MAX_COMPONENTS: usize = WIDTH * HEIGHT;
 pub(crate) const MAX_EVIDENCE_CANDIDATES: usize = 96;
 pub(crate) const DEFAULT_MAX_RETAINED_CANDIDATES: usize = 12;
+
+pub(crate) const PROFILE_STAGE_DRIVER: u8 = 0;
+pub(crate) const PROFILE_STAGE_TRANSITION: u8 = 1;
+pub(crate) const PROFILE_STAGE_BASE_FEATURES: u8 = 2;
+pub(crate) const PROFILE_STAGE_PLACEMENT: u8 = 3;
+pub(crate) const PROFILE_STAGE_RESOLVE: u8 = 4;
+pub(crate) const PROFILE_STAGE_REMAINING: u8 = 5;
+pub(crate) const PROFILE_STAGE_RANKING: u8 = 6;
+pub(crate) const PROFILE_STAGE_COUNT: usize = 7;
 
 const COLUMN_LANE_BITS: usize = 16;
 const BOARD_MASK: u128 = lane_mask(HEIGHT);
@@ -236,6 +246,21 @@ pub(crate) struct EvaluationEvidence {
     pub(crate) hot: EvaluationHot,
     pub(crate) candidates: [QuiescenceCandidate; MAX_EVIDENCE_CANDIDATES],
     pub(crate) candidate_count: u8,
+}
+
+/// Exact per-evaluation counters emitted only by the PUYO-219 QA profile path.
+///
+/// `evaluate_hot` does not construct or update this value. The separate
+/// profiled entry point preserves the production result while exposing the
+/// work performed by bounded quiescence to a statistical stage sampler.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub(crate) struct EvaluationProfileCounts {
+    pub(crate) pattern_nodes: u32,
+    pub(crate) resolution_nodes: u32,
+    pub(crate) rank_comparison_calls: u32,
+    pub(crate) rank_tie_calls: u32,
+    pub(crate) sha256_calls: u32,
+    pub(crate) stage_entries: [u32; PROFILE_STAGE_COUNT],
 }
 
 impl Default for EvaluationEvidence {
@@ -1019,7 +1044,7 @@ fn compare_columns(left: &[u8], right: &[u8]) -> Ordering {
     Ordering::Equal
 }
 
-struct QuiescenceSearch<'a, const EVIDENCE: bool> {
+struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool> {
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
@@ -1034,15 +1059,18 @@ struct QuiescenceSearch<'a, const EVIDENCE: bool> {
     has_best: bool,
     candidates: [QuiescenceCandidate; MAX_EVIDENCE_CANDIDATES],
     candidate_count: usize,
+    profile_stage: Option<&'a AtomicU8>,
+    profile_counts: EvaluationProfileCounts,
 }
 
-impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
+impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENCE, PROFILE> {
     fn new(
         planes: &'a [u128; PLANE_COUNT],
         occupied: u128,
         heights: &'a [u8; WIDTH],
         reachable: u8,
         config: &'a EvaluationConfig,
+        profile_stage: Option<&'a AtomicU8>,
     ) -> Self {
         Self {
             planes,
@@ -1059,10 +1087,27 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
             has_best: false,
             candidates: [QuiescenceCandidate::default(); MAX_EVIDENCE_CANDIDATES],
             candidate_count: 0,
+            profile_stage,
+            profile_counts: EvaluationProfileCounts::default(),
         }
     }
 
+    #[inline]
+    fn enter_profile_stage(&mut self, stage: u8) {
+        if !PROFILE {
+            return;
+        }
+        let Some(marker) = self.profile_stage else {
+            return;
+        };
+        marker.store(stage, AtomicOrdering::Relaxed);
+        self.profile_counts.stage_entries[usize::from(stage)] += 1;
+    }
+
     fn candidate_is_better(&mut self, candidate: &QuiescenceCandidate) -> bool {
+        if PROFILE {
+            self.profile_counts.rank_comparison_calls += 1;
+        }
         match compare_candidate_rank_prefix(candidate, &self.best) {
             Ordering::Greater => {
                 self.best_tie_break_valid = false;
@@ -1070,8 +1115,15 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
             }
             Ordering::Less => false,
             Ordering::Equal => {
+                if PROFILE {
+                    self.profile_counts.rank_tie_calls += 1;
+                    self.profile_counts.sha256_calls += 1;
+                }
                 let candidate_tie_break = stable_candidate_digest(candidate);
                 if !self.best_tie_break_valid {
+                    if PROFILE {
+                        self.profile_counts.sha256_calls += 1;
+                    }
                     self.best_tie_break = stable_candidate_digest(&self.best);
                     self.best_tie_break_valid = true;
                 }
@@ -1132,6 +1184,9 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
                 return;
             }
             self.pattern_nodes += valid.len() as u32;
+            if PROFILE {
+                self.profile_counts.pattern_nodes += valid.len() as u32;
+            }
             let plane = self.planes[plane_index];
             if (plane & VISIBLE_MASK).count_ones() + u32::from(added_puyos) < 4 {
                 continue;
@@ -1156,14 +1211,21 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
                 return;
             }
             for (pattern, anchors) in pending.iter().copied().take(pending_count) {
+                self.enter_profile_stage(PROFILE_STAGE_RESOLVE);
                 let mut virtual_planes = *self.planes;
                 virtual_planes[plane_index] |= pattern.mask;
                 let resolved = resolve_virtual(virtual_planes);
                 self.resolution_nodes += 1;
+                if PROFILE {
+                    self.profile_counts.resolution_nodes += 1;
+                }
                 if resolved.chain_count == 0 {
+                    self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
                     continue;
                 }
+                self.enter_profile_stage(PROFILE_STAGE_REMAINING);
                 let remaining = remaining_structure(&resolved.planes);
+                self.enter_profile_stage(PROFILE_STAGE_RANKING);
                 let mut candidate = QuiescenceCandidate {
                     chain_count: resolved.chain_count,
                     chain_score: resolved.score,
@@ -1190,6 +1252,7 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
                 if EVIDENCE {
                     self.push_evidence(candidate);
                 }
+                self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
             }
         }
     }
@@ -1207,15 +1270,23 @@ impl<'a, const EVIDENCE: bool> QuiescenceSearch<'a, EVIDENCE> {
     }
 }
 
-fn bounded_quiescence<'a, const EVIDENCE: bool>(
+fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
     reachable: u8,
     config: &'a EvaluationConfig,
-) -> QuiescenceSearch<'a, EVIDENCE> {
-    let mut search =
-        QuiescenceSearch::<EVIDENCE>::new(planes, occupied, heights, reachable, config);
+    profile_stage: Option<&'a AtomicU8>,
+) -> QuiescenceSearch<'a, EVIDENCE, PROFILE> {
+    let mut search = QuiescenceSearch::<EVIDENCE, PROFILE>::new(
+        planes,
+        occupied,
+        heights,
+        reachable,
+        config,
+        profile_stage,
+    );
+    search.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
     for first in 0..WIDTH as u8 {
         search.consider_columns(&[first], 1);
         if search.truncated() {
@@ -1244,6 +1315,10 @@ fn bounded_quiescence<'a, const EVIDENCE: bool>(
             }
         }
     }
+    if PROFILE {
+        search.profile_counts.pattern_nodes = search.pattern_nodes;
+        search.profile_counts.resolution_nodes = search.resolution_nodes;
+    }
     search
 }
 
@@ -1257,14 +1332,14 @@ fn canonical_heights(heights: &[u8; WIDTH]) -> [u8; WIDTH] {
     }
 }
 
-fn build_features<const EVIDENCE: bool>(
+fn build_features<const EVIDENCE: bool, const PROFILE: bool>(
     state: &CompactState,
     planes: &[u128; PLANE_COUNT],
     occupied: u128,
     heights: &[u8; WIDTH],
     components: &[Component],
     connections: u8,
-    quiescence: &QuiescenceSearch<'_, EVIDENCE>,
+    quiescence: &QuiescenceSearch<'_, EVIDENCE, PROFILE>,
 ) -> ChainStructureFeatures {
     let normal_mask = planes
         .iter()
@@ -1521,15 +1596,19 @@ fn python_float_sum(values: &[f64]) -> f64 {
     total
 }
 
-fn evaluate_internal<const EVIDENCE: bool>(
+fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
     state: &CompactState,
     config: &EvaluationConfig,
     parent: Option<&EvaluationHot>,
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
-) -> EvaluationEvidence {
+    profile_stage: Option<&AtomicU8>,
+) -> (EvaluationEvidence, EvaluationProfileCounts) {
     debug_assert!(config.validate().is_ok());
     debug_assert!(target_chain_count > 0);
+    if PROFILE && let Some(marker) = profile_stage {
+        marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
+    }
     let planes = state.evaluator_planes();
     let occupied = state.internal_occupied();
     let heights = column_heights(occupied);
@@ -1537,7 +1616,18 @@ fn evaluate_internal<const EVIDENCE: bool>(
     let landing = landing_mask(&heights, reachable);
     let components = extract_components(&planes, occupied, landing);
     let connections = connection_candidate_count(components.as_slice(), landing);
-    let quiescence = bounded_quiescence::<EVIDENCE>(&planes, occupied, &heights, reachable, config);
+    let mut quiescence = bounded_quiescence::<EVIDENCE, PROFILE>(
+        &planes,
+        occupied,
+        &heights,
+        reachable,
+        config,
+        profile_stage,
+    );
+    if PROFILE && let Some(marker) = profile_stage {
+        marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
+        quiescence.profile_counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)] += 2;
+    }
     let features = build_features(
         state,
         &planes,
@@ -1556,7 +1646,8 @@ fn evaluate_internal<const EVIDENCE: bool>(
     } else {
         EvaluationStatus::NotFound
     };
-    EvaluationEvidence {
+    let profile_counts = quiescence.profile_counts;
+    let evidence = EvaluationEvidence {
         hot: EvaluationHot {
             status,
             truncation_reason: quiescence.truncation_reason,
@@ -1571,7 +1662,8 @@ fn evaluate_internal<const EVIDENCE: bool>(
         },
         candidates: quiescence.candidates,
         candidate_count: quiescence.candidate_count as u8,
-    }
+    };
+    (evidence, profile_counts)
 }
 
 #[inline]
@@ -1582,7 +1674,9 @@ pub(crate) fn evaluate_hot(
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
 ) -> EvaluationHot {
-    evaluate_internal::<false>(state, config, parent, action, target_chain_count).hot
+    evaluate_internal::<false, false>(state, config, parent, action, target_chain_count, None)
+        .0
+        .hot
 }
 
 pub(crate) fn evaluate_evidence(
@@ -1592,7 +1686,28 @@ pub(crate) fn evaluate_evidence(
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
 ) -> EvaluationEvidence {
-    evaluate_internal::<true>(state, config, parent, action, target_chain_count)
+    evaluate_internal::<true, false>(state, config, parent, action, target_chain_count, None).0
+}
+
+/// Evaluate the unchanged hot result while publishing PUYO-219 QA-only stage
+/// markers and exact inner-loop call counts.
+pub(crate) fn evaluate_profiled(
+    state: &CompactState,
+    config: &EvaluationConfig,
+    parent: Option<&EvaluationHot>,
+    action: Option<TransitionHotResult>,
+    target_chain_count: u8,
+    profile_stage: &AtomicU8,
+) -> (EvaluationHot, EvaluationProfileCounts) {
+    let (evaluation, counts) = evaluate_internal::<false, true>(
+        state,
+        config,
+        parent,
+        action,
+        target_chain_count,
+        Some(profile_stage),
+    );
+    (evaluation.hot, counts)
 }
 
 #[cfg(test)]
@@ -1704,6 +1819,41 @@ mod tests {
         detailed.hot.best.fixed_tie_break = 0;
         assert_eq!(hot, detailed.hot);
         assert_eq!(allocations, 0);
+    }
+
+    #[test]
+    fn profiled_path_matches_hot_result_and_reports_exact_work() {
+        let state = state_with_cells(&[
+            (0, 0, 0),
+            (0, 1, 0),
+            (0, 2, 0),
+            (1, 0, 1),
+            (1, 1, 1),
+            (1, 2, 1),
+        ]);
+        let config = default_config();
+        let expected = evaluate_hot(&state, &config, None, None, 6);
+        let marker = AtomicU8::new(PROFILE_STAGE_DRIVER);
+
+        let (actual, counts) = evaluate_profiled(&state, &config, None, None, 6, &marker);
+
+        assert_eq!(actual, expected);
+        assert_eq!(counts.pattern_nodes, actual.pattern_nodes);
+        assert_eq!(counts.resolution_nodes, actual.resolution_nodes);
+        assert_eq!(
+            counts.stage_entries[usize::from(PROFILE_STAGE_RESOLVE)],
+            counts.resolution_nodes
+        );
+        assert_eq!(
+            counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)],
+            2
+        );
+        assert!(counts.stage_entries[usize::from(PROFILE_STAGE_PLACEMENT)] > 0);
+        assert!(counts.sha256_calls >= counts.rank_tie_calls);
+        assert_eq!(
+            marker.load(AtomicOrdering::Relaxed),
+            PROFILE_STAGE_BASE_FEATURES
+        );
     }
 
     #[test]

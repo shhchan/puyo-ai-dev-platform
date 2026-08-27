@@ -981,6 +981,22 @@ fn _chain_structure_combined_profile(
         .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+fn _chain_structure_stage_profile(
+    py: Python<'_>,
+    request: &[u8],
+    operations: u32,
+    sample_interval_us: u32,
+) -> PyResult<Py<PyBytes>> {
+    let owned = request.to_vec();
+    let response = py.detach(move || {
+        chain_structure_batch::guarded_stage_profile(&owned, operations, sample_interval_us)
+    });
+    response
+        .map(|value| PyBytes::new(py, &value).unbind())
+        .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(capabilities, module)?)?;
@@ -991,6 +1007,7 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(_compact_transition_profile, module)?)?;
     module.add_function(wrap_pyfunction!(_chain_structure_evaluate_batch, module)?)?;
     module.add_function(wrap_pyfunction!(_chain_structure_combined_profile, module)?)?;
+    module.add_function(wrap_pyfunction!(_chain_structure_stage_profile, module)?)?;
     module.add("ABI_VERSION", ABI_VERSION)?;
     module.add("SCHEMA_MAJOR", SCHEMA_MAJOR)?;
     module.add("SCHEMA_MINOR", SCHEMA_MINOR)?;
@@ -1027,6 +1044,10 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add(
         "CHAIN_STRUCTURE_COMBINED_PROFILE_SCHEMA",
         chain_structure_batch::schema_identity().1,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA",
+        chain_structure_batch::STAGE_PROFILE_SCHEMA,
     )?;
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
