@@ -71,9 +71,11 @@ jobs:
       - name: Check Rust format, lint, and units
         run: |
           cargo fmt --manifest-path native/deep_chain_native/Cargo.toml -- --check
+          rustfmt --edition 2021 --check eval/puyo_211_color_plane_candidate.rs
           cargo clippy --locked --manifest-path native/deep_chain_native/Cargo.toml -- -D warnings
           cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml
+          rustc --edition=2021 -C opt-level=3 -C codegen-units=1 -C target-cpu=x86-64 eval/puyo_211_color_plane_candidate.rs -o /tmp/puyo-211-color-plane-candidate
       - name: Run Python boundary tests
         run: |
-          .venv/bin/ruff check agents/deep_chain_native.py agents/deep_chain_native_transition.py eval/deep_chain_native_transition_benchmark.py eval/deep_chain_native_transition_profile.py tests/test_deep_chain_native.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition_profile.py
-          .venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark tests.test_deep_chain_native_transition_profile
+          .venv/bin/ruff check agents/deep_chain_native.py agents/deep_chain_native_transition.py eval/deep_chain_native_transition_benchmark.py eval/deep_chain_native_transition_profile.py eval/deep_chain_native_transition_investigation.py tests/test_deep_chain_native.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition_profile.py tests/test_deep_chain_native_transition_investigation.py
+          .venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark tests.test_deep_chain_native_transition_profile tests.test_deep_chain_native_transition_investigation
