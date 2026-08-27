@@ -128,6 +128,7 @@ def _semantic_verification(
     corpus: Mapping[str, Any],
     fixture_path: str | Path,
     module: Any,
+    ticket: str = TICKET,
 ) -> tuple[dict[str, Any], tuple[NativeChainStructureInput, ...]]:
     config = load_chain_structure_config()
     python_evaluator = ChainStructureEvaluator(config)
@@ -246,7 +247,7 @@ def _semantic_verification(
     )
     payload = {
         "schema_version": SEMANTIC_SCHEMA_VERSION,
-        "ticket": TICKET,
+        "ticket": ticket,
         "fixture": {
             "record_count": len(fixtures),
             "mismatch_count": len(fixture_mismatches),
