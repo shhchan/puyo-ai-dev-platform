@@ -1889,21 +1889,34 @@ def verify_benchmark(
         issues.append(f"unexpected {ticket} summary schema")
     if summary.get("ticket") != ticket:
         issues.append(f"unexpected {ticket} summary ticket")
-    if not summary.get("passed"):
-        issues.append(f"{ticket} profile checks did not pass")
-    if not all(summary.get("checks", {}).values()):
-        issues.append(f"{ticket} summary contains a failed check")
+    if ticket != VERIFICATION_TICKET:
+        if not summary.get("passed"):
+            issues.append(f"{ticket} profile checks did not pass")
+        if not all(summary.get("checks", {}).values()):
+            issues.append(f"{ticket} summary contains a failed check")
     if summary.get("environment", {}).get("wheel_sha256") != manifest.get(
         "wheel_sha256"
     ):
         issues.append("wheel hash differs between summary and manifest")
     if ticket == VERIFICATION_TICKET:
-        if not manifest.get("passed"):
-            issues.append("verification manifest records a failed decision")
-        if summary.get("final_decision", {}).get("decision") != "GO":
-            issues.append("PUYO-207 final decision is not GO")
-        if not summary.get("final_decision", {}).get("passed"):
-            issues.append("PUYO-207 final decision checks did not pass")
+        checks_passed = all(summary.get("checks", {}).values())
+        decision = summary.get("final_decision", {})
+        decision_passed = bool(decision.get("passed"))
+        decision_is_go = decision.get("decision") == "GO"
+        if bool(summary.get("passed")) != checks_passed:
+            issues.append("summary pass flag disagrees with its gate checks")
+        if bool(manifest.get("passed")) != bool(summary.get("passed")):
+            issues.append("manifest pass flag differs from summary")
+        if decision_passed != decision_is_go:
+            issues.append("Go/No-Go label disagrees with its decision flag")
+        if decision_passed != bool(summary.get("passed")):
+            issues.append("Go/No-Go result differs from summary gates")
+        decision_checks = decision.get("gate_checks", {})
+        if any(
+            summary.get("checks", {}).get(name) != value
+            for name, value in decision_checks.items()
+        ):
+            issues.append("Go/No-Go inputs differ from summary gate checks")
         if summary.get("evaluated_commit") != manifest.get("evaluated_commit"):
             issues.append("evaluated commit differs between summary and manifest")
         if summary.get("source_tree") != manifest.get("source_tree"):
@@ -1941,8 +1954,8 @@ def verify_benchmark(
                 issues.append("measurement contract differs from manifest")
         decision_path = root / "go_no_go_decision.json"
         if decision_path.exists():
-            decision = _read_json(decision_path)
-            if decision != summary.get("final_decision"):
+            stored_decision = _read_json(decision_path)
+            if stored_decision != summary.get("final_decision"):
                 issues.append("Go/No-Go decision differs from summary")
         expected_summary_digest = _digest(
             {
