@@ -1120,6 +1120,11 @@ def _render_report(summary: Mapping[str, Any]) -> str:
                 f"range is `{authority['quiet']['p95_range_ns']:.3f} ns`. Mixed run-p95 "
                 f"median is `{authority['mixed']['median_run_p95_ns_per_record']:.3f} ns`."
             ),
+            (
+                "The baseline itself is not reproducible at the fixed gates: two of "
+                "three quiet runs exceed 50 ns, two of three mixed runs exceed 100 ns, "
+                "and the quiet run-p95 median exceeds the 45 ns engineering margin."
+            ),
             "Every raw sample, run order, process ID, affinity, and before/after CPU-frequency snapshot is retained.",
             "",
             "## PUYO-206 / PUYO-207 gap",
@@ -1131,6 +1136,22 @@ def _render_report(summary: Mapping[str, Any]) -> str:
                 "variance. PUYO-212 must alternate baseline/candidate order and compare "
                 "paired ratios; the median may not regress and each run has a fixed 2% "
                 "tolerance."
+            ),
+            "",
+            "| Same-wheel pair | median control/reference p95 | maximum absolute drift |",
+            "| --- | ---: | ---: |",
+            (
+                f"| mixed | {summary['paired_baseline']['aggregate']['mixed']['median_control_to_reference_p95_ratio']:.4f} | "
+                f"{summary['paired_baseline']['aggregate']['mixed']['maximum_absolute_p95_drift_percent']:.1f}% |"
+            ),
+            (
+                f"| quiet | {summary['paired_baseline']['aggregate']['quiet']['median_control_to_reference_p95_ratio']:.4f} | "
+                f"{summary['paired_baseline']['aggregate']['quiet']['maximum_absolute_p95_drift_percent']:.1f}% |"
+            ),
+            "",
+            (
+                "Same-wheel drift is far above the 2% code-regression tolerance, so this "
+                "environment cannot resolve a small production change reliably."
             ),
             "",
             "## Re-profiled quiet cost",
@@ -1187,14 +1208,35 @@ def _render_report(summary: Mapping[str, Any]) -> str:
             ]
         )
     else:
-        lines.append(
-            "No candidate has sufficient conservative evidence for the required three-run margin; do not modify native production code."
+        micro = candidate["evidence"]["candidate_microbenchmark"]
+        projection = candidate["engineering_projection"]
+        lines.extend(
+            [
+                (
+                    "No candidate has sufficient conservative evidence for the required "
+                    "three-run margin; do not modify native production code."
+                ),
+                "",
+                (
+                    f"The strongest isolated option, reusing placed child planes, has zero "
+                    f"semantic mismatches and median candidate/baseline ratio "
+                    f"`{micro['median_candidate_to_baseline_ns_ratio']:.4f}`, but its "
+                    f"conservative p05 saving is only `{micro['p05_saved_ns_per_record']:.3f} ns`."
+                ),
+                (
+                    f"That projects quiet p95 to "
+                    f"`{', '.join(f'{value:.3f}' for value in projection['projected_quiet_p95_by_run'])}` ns "
+                    f"with median `{projection['projected_quiet_median_p95']:.3f} ns`; mixed "
+                    "also remains above target in two runs. PUYO-212 should remain unstarted "
+                    "unless a controlled baseline or a new candidate can satisfy the same gates."
+                ),
+            ]
         )
     gates = candidate["puyo_212_acceptance"]
     lines.extend(
         [
             "",
-            "## PUYO-212 fixed gate and rollback",
+            "## Fixed gate for any authorized follow-up",
             "",
             f"- Quiet: all three p95 `<= {gates['quiet']['every_run_p95_ns_at_or_below']:.1f} ns`; median `<= {gates['quiet']['median_run_p95_ns_at_or_below']:.1f} ns`.",
             f"- Mixed: all three p95 `<= {gates['mixed']['every_run_p95_ns_at_or_below']:.1f} ns`; paired median no regression; every regression `<= {gates['mixed']['each_run_regression_tolerance_percent']:.1f}%`.",
@@ -1203,7 +1245,15 @@ def _render_report(summary: Mapping[str, Any]) -> str:
             "## Reproduction",
             "",
             "```bash",
-            summary["command"],
+            "VALGRIND_BIN=/path/to/valgrind-3.22.0",
+            "VALGRIND_LIB_DIR=/path/to/libexec/valgrind",
+            (
+                ".venv/bin/python -m eval.deep_chain_native_transition_investigation "
+                "run --corpus eval/deep_chain_native_transition_corpus.json "
+                "--search-corpus eval/deep_chain_native_corpus.json "
+                f"--output-dir {summary['artifact_dir']} --cpu 0 "
+                '--valgrind "$VALGRIND_BIN" --valgrind-lib "$VALGRIND_LIB_DIR"'
+            ),
             (
                 ".venv/bin/python -m eval.deep_chain_native_transition_investigation "
                 f"verify --artifact-dir {summary['artifact_dir']}"

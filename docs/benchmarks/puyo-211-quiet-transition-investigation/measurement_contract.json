@@ -1,0 +1,66 @@
+{
+  "authoritative_fresh_process_runs": 3,
+  "authoritative_run_order": [
+    "mixed",
+    "quiet",
+    "one_chain",
+    "multi_chain"
+  ],
+  "authority": {
+    "capability_source_revision": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+    "evaluated_commit": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+    "manifest_path": "docs/benchmarks/puyo-207-native-transition-verification/benchmark_manifest.json",
+    "manifest_sha256": "d2987cf85995613b6f5580177c3d9dd258d98524a32eec8d8dd8ca3a440ab4b5",
+    "measurement_contract_digest": "bab61eba363cb75f1fadadf7a0dedb189342803b37a2f381fa7ff9c0a377ff18",
+    "source_tree": "e8f73fcaaa868909e56fcc71eef6fd7a29f1dcb5",
+    "transition_corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+  },
+  "candidate_microbenchmark": {
+    "authority": "feasibility only",
+    "order": "AB/BA alternating",
+    "repeats": 512,
+    "samples": 40,
+    "target_cpu": "x86-64 portable scalar",
+    "warmup": 5
+  },
+  "contract_digest": "64897792f192a574a95a59d1f84183fde7b0478854fa81b3488a453362dcb8b5",
+  "locked_puyo_207_contract": {
+    "alternative_samples": 40,
+    "auxiliary_cold_warm": {
+      "authority": "observational; does not replace locked outcome samples",
+      "batch_samples": 12,
+      "batch_size": 10000,
+      "batch_warmup": 2,
+      "isolated_process": true,
+      "single_samples": 200,
+      "single_warmup": 20
+    },
+    "cachegrind_records": 256,
+    "cachegrind_repeats": 512,
+    "contract_digest": "bab61eba363cb75f1fadadf7a0dedb189342803b37a2f381fa7ff9c0a377ff18",
+    "fixed_cpu": 0,
+    "mixed_batch_size": 10000,
+    "mixed_samples": 120,
+    "outcome_batch_size": 4096,
+    "outcome_samples": 40,
+    "outlier_exclusion": "none",
+    "percentile_method": "nearest-rank: sorted[ceil(p/100*N)-1]",
+    "release_wheel_required": true,
+    "stage_samples": 30,
+    "targets": {
+      "combined_transition_evaluator_p95_ms": 820.625,
+      "end_to_end_p95_ms": 1000.0,
+      "max_expanded_nodes": 600000,
+      "mixed_p95_ns_per_transition": 100.0,
+      "native_total_p95_ms": 900.0,
+      "quiet_p95_ns_per_transition": 50.0
+    },
+    "threads": 1,
+    "warmup_samples_per_mode": 5
+  },
+  "paired_baseline_pairs": 3,
+  "paired_order": "reference/control alternates by pair",
+  "profile_isolated_after_authoritative_and_paired_runs": true,
+  "schema_version": "puyo.native_compact_transition_investigation_contract.v1"
+}
