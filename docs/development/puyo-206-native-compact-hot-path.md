@@ -1,10 +1,10 @@
 # PUYO-206 native compact transition hot path
 
-- Status: component implementation and acceptance gates complete
+- Status: component implementation complete; PUYO-207 final decision is **No-Go**
 - Decision source: [PUYO-205 compact transition ADR delta](puyo-205-native-transition-adr-delta.md)
 - Parent boundary: [PUYO-198 deep-chain native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Native crate: `native/deep_chain_native` 0.3.0
-- Production impact: none; PUYO-201 remains blocked until the independent PUYO-207 decision
+- Production impact: none; PUYO-201 remains blocked after PUYO-207
 
 ## Outcome
 
@@ -32,10 +32,12 @@ also compares more than 100,000 reachable local transitions with a forced
 full-scanner path, including every normal-color pair and action, with exact
 child-state and hot-result equality.
 
-This is a PUYO-206 component Go only. It does not start or unblock PUYO-201.
-PUYO-207 remains responsible for the unchanged 820.625 ms combined transition
-plus evaluator/quiescence gate, the 900 ms native gate, and the 1,000 ms
-end-to-end gate.
+This was a PUYO-206 component Go only. It did not start or unblock PUYO-201.
+PUYO-207 independently rebuilt and remeasured the release artifact at 77.119 ns
+mixed p95 and 57.325 ns quiet p95. The mixed target passed, but the quiet target
+failed, so the final decision is No-Go and the native line stops before
+PUYO-201. See the
+[PUYO-207 verification report](puyo-207-native-transition-verification.md).
 
 ## Fixed native contract
 

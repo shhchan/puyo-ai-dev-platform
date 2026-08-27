@@ -9,6 +9,7 @@ on:
       - "docs/benchmarks/puyo-200-native-compact-transition/**"
       - "docs/benchmarks/puyo-205-native-compact-profile/**"
       - "docs/benchmarks/puyo-206-native-compact-hot-path/**"
+      - "docs/benchmarks/puyo-207-native-transition-verification/**"
       - "eval/deep_chain_native_transition_benchmark.py"
       - "eval/deep_chain_native_transition_corpus.json"
       - "eval/deep_chain_native_transition_profile.py"
@@ -28,6 +29,7 @@ on:
       - "docs/benchmarks/puyo-200-native-compact-transition/**"
       - "docs/benchmarks/puyo-205-native-compact-profile/**"
       - "docs/benchmarks/puyo-206-native-compact-hot-path/**"
+      - "docs/benchmarks/puyo-207-native-transition-verification/**"
       - "eval/deep_chain_native_transition_benchmark.py"
       - "eval/deep_chain_native_transition_corpus.json"
       - "eval/deep_chain_native_transition_profile.py"
@@ -50,6 +52,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

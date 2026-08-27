@@ -1,6 +1,6 @@
 # PUYO-205 compact transition ADR delta
 
-- Status: Accepted; implemented by PUYO-206 and retained for PUYO-207 verification
+- Status: Accepted; PUYO-207 independent verification concluded **No-Go**
 - Date: 2026-08-27
 - Amends: [PUYO-198 deep-chain native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Inputs: PUYO-200 No-Go evidence and the frozen PUYO-198/PUYO-200 corpora
@@ -206,16 +206,29 @@ transitions. Its source-bound evidence is
 [`benchmark_manifest.json`](../benchmarks/puyo-206-native-compact-hot-path/benchmark_manifest.json)
 and its implementation contract is documented in
 [the PUYO-206 hot-path report](puyo-206-native-compact-hot-path.md). PUYO-201
-remains blocked because this component pass does not replace PUYO-207's
-independent combined-gate decision.
+remained blocked because this component pass did not replace PUYO-207's
+independent decision.
+
+PUYO-207 then rebuilt the wheel from clean commit `cff9ea5` and repeated this
+measurement contract without changing samples, warm-up, percentile, or
+targets. Mixed p95 passed at 77.119 ns, but quiet p95 was 57.325 ns and failed
+the fixed 50.0 ns stop condition. All semantic, deterministic, allocation,
+ABI, and memory checks passed. The 46.272 ms mixed projection would leave
+774.353 ms for evaluator/quiescence inside the combined envelope, but that
+headroom is diagnostic and cannot override a failed component target.
+
+The final result is therefore **No-Go**. PUYO-201 remains blocked and the
+current native line stops before evaluator implementation. The authoritative
+decision and immutable evidence are in
+[the PUYO-207 verification report](puyo-207-native-transition-verification.md).
 
 ## Consequences
 
 - PUYO-205 changes no production backend, search semantics, quality setting,
   action ID, state lifecycle, or fallback behavior.
 - PUYO-206 owns only the selected three-slice local-update/hot-result redesign.
-- PUYO-201 remains To Do and blocked through PUYO-207.
-- PUYO-207 must reuse the checked-in runner and targets without post-hoc
-  adjustment.
+- PUYO-201 remains To Do and blocked after the PUYO-207 No-Go.
+- PUYO-207 reused the checked-in runner and targets without post-hoc
+  adjustment or outlier removal.
 - A later real-Linux run may add hardware PMU evidence, but it cannot replace
   or silently reinterpret this accepted measurement contract.

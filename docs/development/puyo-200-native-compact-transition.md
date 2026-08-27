@@ -1,7 +1,6 @@
 # PUYO-200 native compact transition kernel
 
-- Status: implementation/parity complete; PUYO-206 component gate is **Go**,
-  production remains blocked through PUYO-207
+- Status: implementation/parity complete; PUYO-207 final gate is **No-Go**
 - Parent design: [PUYO-198 native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Foundation: [PUYO-199 native extension contract](puyo-199-native-extension-contract.md)
 - Native crate: `native/deep_chain_native` 0.3.0
@@ -48,10 +47,16 @@ PUYO-206 then implemented the selected local-update and fixed hot-result
 design. Its release-wheel run measured mixed p95 at 66.497 ns and quiet p95 at
 33.904 ns, meeting both fixed component targets with all 11,264 frozen
 transitions at mismatch zero. The implementation and evidence contract are in
-[the PUYO-206 hot-path report](puyo-206-native-compact-hot-path.md). This
-component result supersedes the PUYO-200/205 quiet-path No-Go, but it does not
-authorize production work: PUYO-201 remains blocked until PUYO-207 independently
-passes the unchanged combined and outer gates.
+[the PUYO-206 hot-path report](puyo-206-native-compact-hot-path.md). That result
+was a component Go only.
+
+PUYO-207 independently rebuilt the release wheel and measured 77.119 ns mixed
+p95 and 57.325 ns quiet p95 under the unchanged contract. Semantic,
+deterministic, allocation, ABI, and memory gates all passed, but the quiet p95
+exceeded the fixed 50.0 ns stop condition. The final result is therefore
+No-Go; PUYO-200 owns an unresolved performance gate and PUYO-201 remains
+blocked. See the
+[PUYO-207 verification report](puyo-207-native-transition-verification.md).
 
 ## Internal representation
 
