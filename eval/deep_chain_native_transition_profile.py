@@ -660,6 +660,61 @@ def run_source_verification() -> dict[str, Any]:
     }
 
 
+def run_cold_warm_verification(
+    corpus_path: str | Path,
+    *,
+    cpu: int,
+) -> dict[str, Any]:
+    """Measure auxiliary cold/warm latency without heating the locked run."""
+
+    command = [
+        sys.executable,
+        "-m",
+        "eval.deep_chain_native_transition_profile",
+        "cold-warm-child",
+        "--corpus",
+        str(corpus_path),
+        "--cpu",
+        str(cpu),
+    ]
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "OMP_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "OPENBLAS_NUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "RAYON_NUM_THREADS": "1",
+        }
+    )
+    completed = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "isolated cold/warm verification failed: " + completed.stderr[-2000:]
+        )
+    payload = json.loads(completed.stdout.strip().splitlines()[-1])
+    result = {
+        name: payload[name]
+        for name in (
+            "cold_single",
+            "warm_single",
+            "warm_batch",
+            "memory",
+            "allocation",
+            "timed_response_digest_count",
+        )
+    }
+    result["isolated_process"] = True
+    result["command"] = " ".join(command)
+    return result
+
+
 def _pin_process(cpu: int | None) -> tuple[int, list[int]]:
     available = sorted(os.sched_getaffinity(0))
     selected = available[0] if cpu is None else int(cpu)
@@ -1317,20 +1372,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     corpus = _read_json(args.corpus)
     oracle = verify_frozen_corpus(args.corpus)
     batch_client = NativeCompactBatchClient()
-    verification_inputs = _flatten_inputs(corpus)
-    cold_warm = (
-        run_microbenchmark(
-            batch_client,
-            verification_inputs,
-            single_samples=200,
-            batch_samples=12,
-            batch_size=10_000,
-        )
-        if verification_mode
-        else None
-    )
     native_parity = evaluate_native_parity(batch_client, corpus)
-    fixtures = _fixture_parity(batch_client) if verification_mode else None
     selected, selection_metadata = _profile_inputs(
         corpus,
         mixed_batch_size=args.mixed_batch_size,
@@ -1414,6 +1456,12 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         decomposition,
     )
     capabilities = batch_client.capabilities.to_dict()
+    cold_warm = (
+        run_cold_warm_verification(args.corpus, cpu=selected_cpu)
+        if verification_mode
+        else None
+    )
+    fixtures = _fixture_parity(batch_client) if verification_mode else None
     evaluated_commit = git_commit()
     source_tree = _git_tree(evaluated_commit)
     source_verification = run_source_verification() if verification_mode else None
@@ -1498,6 +1546,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     }
     if verification_mode:
         measurement_contract["auxiliary_cold_warm"] = {
+            "isolated_process": True,
             "single_samples": 200,
             "single_warmup": 20,
             "batch_samples": 12,
@@ -1926,6 +1975,28 @@ def _cachegrind_child(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cold_warm_child(args: argparse.Namespace) -> int:
+    _pin_process(args.cpu)
+    for name in (
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "RAYON_NUM_THREADS",
+    ):
+        os.environ[name] = "1"
+    corpus = _read_json(args.corpus)
+    result = run_microbenchmark(
+        NativeCompactBatchClient(),
+        _flatten_inputs(corpus),
+        single_samples=200,
+        batch_samples=12,
+        batch_size=10_000,
+    )
+    print(json.dumps(result, sort_keys=True))
+    return 0
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1954,6 +2025,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     child.add_argument("--mode", type=int, required=True)
     child.add_argument("--repeats", type=int, required=True)
     child.add_argument("--cpu", type=int, required=True)
+    cold_warm_child = subparsers.add_parser("cold-warm-child")
+    cold_warm_child.add_argument("--corpus", required=True)
+    cold_warm_child.add_argument("--cpu", type=int, required=True)
     return parser.parse_args(argv)
 
 
@@ -1965,6 +2039,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0 if summary["passed"] else 1
     if args.command == "cachegrind-child":
         return _cachegrind_child(args)
+    if args.command == "cold-warm-child":
+        return _cold_warm_child(args)
     artifact_dir = args.artifact_dir or _default_output_dir(args.ticket)
     result = verify_benchmark(artifact_dir, ticket=args.ticket)
     print(json.dumps(result, indent=2, sort_keys=True))
