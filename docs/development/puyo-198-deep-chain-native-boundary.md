@@ -1,11 +1,11 @@
 # PUYO-198 Deep-chain native boundary ADR
 
-- Status: Accepted boundary; current native implementation line stopped by
-  PUYO-207 **No-Go**
+- Status: Accepted boundary; current native implementation line closed by
+  PUYO-213 **NO_GO_STOP**
 - Date: 2026-08-26
 - Final transition decision: 2026-08-27
 - Decision owners: PUYO-198 / PUYO-184
-- Applies to: PUYO-199 through PUYO-207
+- Applies to: PUYO-199 through PUYO-213 native decision chain
 - Supersedes: none
 
 ## Decision
@@ -41,6 +41,13 @@ the mixed transition target, but missed the fixed quiet-transition target.
 PUYO-201 therefore remains blocked; no evaluator, search, integration, or
 production-promotion task may treat the original conditional Go as current
 authorization.
+
+PUYO-211 later found that the identical release wheel did not reproduce the
+fixed mixed and quiet targets reliably and selected no optimization candidate.
+PUYO-212 therefore closed without a candidate commit or PR. PUYO-213 reviewed
+that negative result and the integration history and selected
+**NO_GO_STOP**. The current line is closed before PUYO-201; its diagnostic
+combined-budget arithmetic is not risk acceptance or restart authority.
 
 ## Locked invariants
 
@@ -313,6 +320,20 @@ Because the quiet component target failed first, this arithmetic does not
 grant PUYO-201 a budget or authorize implementation.  The source-bound result
 is [the PUYO-207 independent verification](puyo-207-native-transition-verification.md).
 
+### PUYO-213 final successor decision
+
+PUYO-211's three fresh-process runs missed the mixed target twice and the
+quiet target twice. Same-wheel p95 drift reached 30.0% and 33.3%, while the
+strongest safe candidate's conservative saving was only 0.521 ns. PUYO-212
+correctly produced no implementation branch delta or candidate PR.
+
+PUYO-213 therefore selects **NO_GO_STOP**, not `GO_OPTIMIZED` or
+`GO_WITH_RISK_ACCEPTANCE`. No measured transition-plus-evaluator result exists,
+and no human approval waives the quiet component miss. PUYO-200 closes as a
+negative performance result; PUYO-201 and PUYO-202 remain unstarted. See the
+[PUYO-213 decision report](puyo-213-transition-restart-decision.md) and its
+[machine-readable result](../benchmarks/puyo-213-transition-restart-decision/final_decision.json).
+
 ## Language and binding evaluation
 
 | Candidate | Performance and boundary | Determinism/safety | Build and maintenance | Decision |
@@ -555,12 +576,15 @@ review.  Parallelism never justifies changing search semantics.
 | Ticket | Required handoff and stop condition |
 | --- | --- |
 | PUYO-199 | Scaffold pinned wheel/build, implement capability/envelope codec and one-call Python adapter, GIL detach/error tests; stop if release wheel cannot build on Linux x86_64 |
-| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; owns the unresolved transition performance gate after PUYO-207 No-Go |
+| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; closed by PUYO-213 as a negative performance result |
 | PUYO-205 | Profile transition stages and alternatives, confirm the call model, and fix the successor measurement and budget contract |
 | PUYO-206 | Implement the selected three-slice local-update/hot-result redesign; component measurement met mixed p95 <= 100.0 ns and quiet p95 <= 50.0 ns |
 | PUYO-207 | Final No-Go: independent mixed p95 77.119 ns passed, quiet p95 57.325 ns failed; PUYO-201 was not unblocked |
-| PUYO-201 | Blocked; do not port evaluator/quiescence unless a new ADR and transition gate authorize a successor line |
-| PUYO-202 | Port the complete beam/TT/aggregation loop, oracle and deterministic six-worker modes; meet 29.375 ms search plus 30 ms aggregation |
+| PUYO-211 | Identical-wheel investigation selected no implementation candidate; fixed targets were not stable across three runs |
+| PUYO-212 | Closed without candidate code or PR because PUYO-211 selected no candidate |
+| PUYO-213 | Final `NO_GO_STOP`; current native line ends before evaluator implementation |
+| PUYO-201 | To Do and blocked; do not port evaluator/quiescence on the current line |
+| PUYO-202 | To Do and blocked; do not start after the PUYO-213 stop decision |
 | PUYO-203 | Integrate one call per decision and explicit backend/provenance/fallback; do not make native the default or mask a missed native budget |
 | PUYO-204 | Run locked 30-seed quality/performance/future-isolation evidence; promote only at p95 <= 1.0 s with zero parity/digest/leak failures |
 

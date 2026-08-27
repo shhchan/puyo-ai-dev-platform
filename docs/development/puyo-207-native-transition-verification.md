@@ -1,6 +1,7 @@
 # PUYO-207 independent native transition verification
 
 - Status: **No-Go**
+- Successor closure: PUYO-213 **NO_GO_STOP**
 - Decision date: 2026-08-27
 - Evaluated commit: `cff9ea5d0295087db8332c2a6efa59db74f886ef`
 - Source tree: `e8f73fcaaa868909e56fcc71eef6fd7a29f1dcb5`
@@ -133,3 +134,12 @@ unchanged gates. See the
 
 PUYO-207 itself performs no further optimization and does not reduce depth,
 width, scenarios, or the node ceiling.
+
+## PUYO-213 successor closure
+
+PUYO-211 selected no implementation candidate, and PUYO-212 therefore closed
+without candidate code or a PR. The integration range from PR #105's merge to
+PR #106's merge contains no `native/deep_chain_native` change. PUYO-213 leaves
+this `NO_GO` result and every fixed target intact and selects **NO_GO_STOP**.
+PUYO-201 and PUYO-202 must not start on the current line. The final audit is in
+[the PUYO-213 decision report](puyo-213-transition-restart-decision.md).

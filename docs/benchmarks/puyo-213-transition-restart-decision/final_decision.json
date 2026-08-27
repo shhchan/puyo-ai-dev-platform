@@ -1,0 +1,169 @@
+{
+  "authority_artifacts": [
+    {
+      "path": "docs/benchmarks/puyo-207-native-transition-verification/benchmark_manifest.json",
+      "sha256": "d2987cf85995613b6f5580177c3d9dd258d98524a32eec8d8dd8ca3a440ab4b5"
+    },
+    {
+      "path": "docs/benchmarks/puyo-207-native-transition-verification/benchmark_summary.json",
+      "sha256": "89423373e8149daf56004eba398d0dbdf3959e2f1ee1c1d78ae2eda4adfefa50"
+    },
+    {
+      "path": "docs/benchmarks/puyo-207-native-transition-verification/go_no_go_decision.json",
+      "sha256": "94c0e715a4d8b9b53d29ec5fdce79f0e4c928efba7e1d393c7c2d6206a43d92b"
+    },
+    {
+      "path": "docs/benchmarks/puyo-211-quiet-transition-investigation/benchmark_manifest.json",
+      "sha256": "7c6b775edd8b533d14b2040cadbf1a29c153d698dbafa6a2d9e17f006a051ef1"
+    },
+    {
+      "path": "docs/benchmarks/puyo-211-quiet-transition-investigation/benchmark_summary.json",
+      "sha256": "41bc5f19bd13b2893f5afb3f4349dbfdcc4e5c84bc3ec5fcb18b65046436bdf4"
+    },
+    {
+      "path": "docs/benchmarks/puyo-211-quiet-transition-investigation/candidate_analysis.json",
+      "sha256": "7aab2969f979d8277b9f08a21608444df1beeae68a889980bda7c72f60e4fa32"
+    },
+    {
+      "path": "docs/benchmarks/puyo-211-quiet-transition-investigation/paired_baseline.json",
+      "sha256": "98d81a3ae55142a9814ee4cebd4873b347f5bfef0224f4e52faff55f94fed2ac"
+    },
+    {
+      "path": "docs/benchmarks/puyo-211-quiet-transition-investigation/raw_authoritative_runs.json",
+      "sha256": "e953c9603252732612334cc24ffd823bf74f0f56d11f41114c23c04d302dc346"
+    }
+  ],
+  "decision": "NO_GO_STOP",
+  "decision_date": "2026-08-27",
+  "evidence": {
+    "puyo_207": {
+      "child_state_bytes": 80,
+      "combined_transition_evaluator_p95_ms": 820.625,
+      "decision": "NO_GO",
+      "determinism_mismatch_count": 0,
+      "end_to_end_envelope_p95_ms": 1000.0,
+      "evaluator_quiescence_residual_p95_ms": 774.35348,
+      "fixture_mismatch_count": 0,
+      "hot_result_bytes": 24,
+      "mixed_p95_ns": 77.1192,
+      "mixed_target_ns": 100.0,
+      "native_envelope_p95_ms": 900.0,
+      "native_mismatch_count": 0,
+      "normal_hot_path_heap_allocations": 0,
+      "observed_combined_p95_ms": null,
+      "oracle_mismatch_count": 0,
+      "quiet_p95_ns": 57.32470703125,
+      "quiet_target_ns": 50.0,
+      "required_evaluator_speedup": 1869.2687995668334,
+      "transition_calls": 600000,
+      "transition_projection_p95_ms": 46.27152000000001
+    },
+    "puyo_211": {
+      "conservative_candidate_saving_ns": 0.5210695266723633,
+      "decision": "NO_IMPLEMENTATION_CANDIDATE",
+      "mixed_maximum_same_wheel_drift_percent": 29.96978901100689,
+      "mixed_p95_ns_by_run": [
+        106.6071,
+        108.9041,
+        98.6554
+      ],
+      "projected_mixed_p95_ns_by_run": [
+        106.11677357540131,
+        108.41377357540131,
+        98.16507357540131
+      ],
+      "projected_quiet_median_p95_ns": 50.39665508270264,
+      "projected_quiet_p95_ns_by_run": [
+        41.03117656707764,
+        65.05681133270264,
+        50.39665508270264
+      ],
+      "quiet_maximum_same_wheel_drift_percent": 33.28664285838316,
+      "quiet_p95_ns_by_run": [
+        41.55224609375,
+        65.577880859375,
+        50.917724609375
+      ],
+      "selected_candidate": null,
+      "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+    }
+  },
+  "external_audit": {
+    "observed_at_utc": "2026-08-27T09:36:58Z",
+    "pull_requests": [
+      {
+        "base": "integration/puyo-113-v1-7-2",
+        "head": "PUYO-207/transition-go-no-go",
+        "merge_commit": "5e76617eeeb26630ec45aa9843d40a691592341a",
+        "number": 105,
+        "state": "MERGED"
+      },
+      {
+        "base": "integration/puyo-113-v1-7-2",
+        "head": "PUYO-211/quiet-transition-analysis",
+        "merge_commit": "b5865038d1bffa0970baaad20aa79369fa21d7f1",
+        "number": 106,
+        "state": "MERGED"
+      }
+    ],
+    "puyo_209_authoritative": false,
+    "puyo_209_jira_status": "DROP",
+    "puyo_212_jira_comment_id": "10572",
+    "puyo_212_jira_status": "Complete",
+    "puyo_212_pull_request_search_matches": []
+  },
+  "jira_outcome": {
+    "required_links": [
+      "PUYO-200 blocks PUYO-201",
+      "PUYO-207 blocks PUYO-201",
+      "PUYO-213 blocks PUYO-201"
+    ],
+    "statuses": {
+      "PUYO-200": "Complete",
+      "PUYO-201": "To Do",
+      "PUYO-202": "To Do",
+      "PUYO-207": "Complete",
+      "PUYO-213": "Complete"
+    }
+  },
+  "production_backend_changed": false,
+  "puyo_201": {
+    "may_start": false,
+    "reason": "The current transition line has no selected optimization candidate, does not reproduce the fixed component targets, and has no measured combined evaluator result."
+  },
+  "puyo_202": {
+    "may_start": false,
+    "reason": "PUYO-201 is not authorized and no downstream native task may bypass the stopped evaluator gate."
+  },
+  "rationale": [
+    "GO_OPTIMIZED is unavailable because PUYO-211 selected no candidate and PUYO-212 produced no implementation commit or PR.",
+    "The same PUYO-207 wheel missed the mixed and quiet targets in two of three fresh-process PUYO-211 runs; same-wheel p95 drift reached 30.0% and 33.3%.",
+    "The strongest candidate saves only 0.521 ns conservatively and still projects two mixed failures and a quiet median above the required 45 ns margin.",
+    "The 820.625 ms combined value is an unmeasured projection because evaluator/quiescence is not implemented; the projected residual would also require about 1869.269x evaluator speedup.",
+    "No human reviewer approval to waive the quiet component miss is recorded, so GO_WITH_RISK_ACCEPTANCE is not granted."
+  ],
+  "repository_audit": {
+    "baseline_merge_commit": "5e76617eeeb26630ec45aa9843d40a691592341a",
+    "candidate_commit": null,
+    "candidate_pr": {
+      "exists": false,
+      "search": "PUYO-212"
+    },
+    "integration_branch": "integration/puyo-113-v1-7-2",
+    "integration_head": "b5865038d1bffa0970baaad20aa79369fa21d7f1",
+    "native_changed_files": [],
+    "native_diff_range": "5e76617eeeb26630ec45aa9843d40a691592341a..b5865038d1bffa0970baaad20aa79369fa21d7f1",
+    "puyo_211_commits": [
+      "efc2455b82579e7e37598e5f0a0deeb98cda5e18",
+      "f4b8724c451eb0aed80332f7e8e24fee0a82af79"
+    ]
+  },
+  "risk_acceptance": {
+    "component_miss_waived": false,
+    "granted": false,
+    "human_reviewer_approval_recorded": false
+  },
+  "schema_version": "puyo.native_transition_restart_decision.v1",
+  "stop_condition": "Do not start PUYO-201, PUYO-202, or later work on the current native line. A successor requires a new ADR with stable source-bound evidence and explicit human authorization; PUYO-207 remains NO_GO and its fixed targets are not rewritten.",
+  "ticket": "PUYO-213"
+}

@@ -1,10 +1,11 @@
 # PUYO-205 compact transition ADR delta
 
-- Status: Accepted; PUYO-207 independent verification concluded **No-Go**
+- Status: Accepted historical contract; PUYO-213 concluded **NO_GO_STOP**
 - Date: 2026-08-27
 - Amends: [PUYO-198 deep-chain native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Inputs: PUYO-200 No-Go evidence and the frozen PUYO-198/PUYO-200 corpora
-- Production impact: none; PUYO-201 and the production backend remain blocked
+- Production impact: none; PUYO-201 is stopped and the production backend
+  remains unchanged
 
 ## Decision
 
@@ -222,12 +223,23 @@ current native line stops before evaluator implementation. The authoritative
 decision and immutable evidence are in
 [the PUYO-207 verification report](puyo-207-native-transition-verification.md).
 
+PUYO-211 subsequently found no stable implementation candidate: two of three
+fresh-process runs missed each fixed component target, same-wheel drift was far
+above the comparison tolerance, and the strongest conservative saving was
+0.521 ns. PUYO-212 therefore made no native change and opened no candidate PR.
+PUYO-213 reviewed the immutable artifacts and the empty integration native
+diff and selected **NO_GO_STOP**. The 820.625 ms combined value remains a
+historical envelope, not authorization to implement the missing evaluator.
+The successor authority is the
+[PUYO-213 decision report](puyo-213-transition-restart-decision.md).
+
 ## Consequences
 
 - PUYO-205 changes no production backend, search semantics, quality setting,
   action ID, state lifecycle, or fallback behavior.
 - PUYO-206 owns only the selected three-slice local-update/hot-result redesign.
-- PUYO-201 remains To Do and blocked after the PUYO-207 No-Go.
+- PUYO-200 closes as a negative performance result after PUYO-213.
+- PUYO-201 and PUYO-202 remain To Do and must not start on the current line.
 - PUYO-207 reused the checked-in runner and targets without post-hoc
   adjustment or outlier removal.
 - A later real-Linux run may add hardware PMU evidence, but it cannot replace
