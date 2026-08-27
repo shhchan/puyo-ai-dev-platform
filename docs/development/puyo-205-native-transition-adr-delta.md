@@ -1,11 +1,12 @@
 # PUYO-205 compact transition ADR delta
 
-- Status: Accepted historical contract; PUYO-213 concluded **NO_GO_STOP**
+- Status: Accepted historical contract; PUYO-213 concluded
+  **GO_WITH_RISK_ACCEPTANCE** for a bounded successor
 - Date: 2026-08-27
 - Amends: [PUYO-198 deep-chain native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Inputs: PUYO-200 No-Go evidence and the frozen PUYO-198/PUYO-200 corpora
-- Production impact: none; PUYO-201 is stopped and the production backend
-  remains unchanged
+- Production impact: none; the bounded PUYO-201 prototype is not production
+  authorization and the production backend remains unchanged
 
 ## Decision
 
@@ -218,9 +219,9 @@ ABI, and memory checks passed. The 46.272 ms mixed projection would leave
 774.353 ms for evaluator/quiescence inside the combined envelope, but that
 headroom is diagnostic and cannot override a failed component target.
 
-The final result is therefore **No-Go**. PUYO-201 remains blocked and the
-current native line stops before evaluator implementation. The authoritative
-decision and immutable evidence are in
+PUYO-207's result is therefore **No-Go**. At that checkpoint PUYO-201 remained
+blocked and the native line stopped before evaluator implementation. The
+authoritative component decision and immutable evidence are in
 [the PUYO-207 verification report](puyo-207-native-transition-verification.md).
 
 PUYO-211 subsequently found no stable implementation candidate: two of three
@@ -228,9 +229,11 @@ fresh-process runs missed each fixed component target, same-wheel drift was far
 above the comparison tolerance, and the strongest conservative saving was
 0.521 ns. PUYO-212 therefore made no native change and opened no candidate PR.
 PUYO-213 reviewed the immutable artifacts and the empty integration native
-diff and selected **NO_GO_STOP**. The 820.625 ms combined value remains a
-historical envelope, not authorization to implement the missing evaluator.
-The successor authority is the
+diff. Shion MORISHITA explicitly accepted the known quiet-transition and
+repeatability risks, so the final decision is **GO_WITH_RISK_ACCEPTANCE** for
+one bounded PUYO-201 combined prototype. The 820.625 ms combined value remains
+an unchanged hard gate, not an observed result or a component pass. The
+successor authority is the
 [PUYO-213 decision report](puyo-213-transition-restart-decision.md).
 
 ## Consequences
@@ -239,7 +242,9 @@ The successor authority is the
   action ID, state lifecycle, or fallback behavior.
 - PUYO-206 owns only the selected three-slice local-update/hot-result redesign.
 - PUYO-200 closes as a negative performance result after PUYO-213.
-- PUYO-201 and PUYO-202 remain To Do and must not start on the current line.
+- PUYO-201 remains To Do until PR #107 merges and a new session starts the
+  bounded prototype; PUYO-202 remains To Do until that prototype passes every
+  combined and correctness gate.
 - PUYO-207 reused the checked-in runner and targets without post-hoc
   adjustment or outlier removal.
 - A later real-Linux run may add hardware PMU evidence, but it cannot replace

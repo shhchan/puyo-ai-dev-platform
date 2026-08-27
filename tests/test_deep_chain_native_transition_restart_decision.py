@@ -23,14 +23,37 @@ class TestDeepChainNativeTransitionRestartDecision(unittest.TestCase):
 
         self.assertTrue(result["passed"], result["issues"])
 
-    def test_risk_acceptance_cannot_be_recorded_without_a_new_decision(self):
+    def test_human_approval_removal_is_rejected(self):
         result = self._mutated_decision(
-            lambda payload: payload["risk_acceptance"].update({"granted": True})
+            lambda payload: payload["risk_acceptance"].update(
+                {"human_reviewer_approval_recorded": False}
+            )
+        )
+
+        self.assertFalse(result["passed"])
+        self.assertIn("risk acceptance differs from its authority", result["issues"])
+
+    def test_stop_decision_substitution_is_rejected(self):
+        result = self._mutated_decision(
+            lambda payload: payload.update({"decision": "NO_GO_STOP"})
         )
 
         self.assertFalse(result["passed"])
         self.assertIn(
-            "quiet component risk acceptance must not be granted", result["issues"]
+            "PUYO-213 must record the selected GO_WITH_RISK_ACCEPTANCE outcome",
+            result["issues"],
+        )
+
+    def test_combined_gate_drift_is_rejected(self):
+        result = self._mutated_decision(
+            lambda payload: payload["prototype_gate"].update(
+                {"combined_transition_evaluator_p95_ms_max": 820.626}
+            )
+        )
+
+        self.assertFalse(result["passed"])
+        self.assertIn(
+            "bounded prototype gate differs from its authority", result["issues"]
         )
 
     def test_authority_digest_drift_is_rejected(self):

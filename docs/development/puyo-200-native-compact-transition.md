@@ -1,7 +1,7 @@
 # PUYO-200 native compact transition kernel
 
-- Status: Complete as a negative performance result; PUYO-213 is
-  **NO_GO_STOP**
+- Status: Complete as a negative performance result; PUYO-213 grants a bounded
+  **GO_WITH_RISK_ACCEPTANCE** exception downstream
 - Parent design: [PUYO-198 native boundary ADR](puyo-198-deep-chain-native-boundary.md)
 - Foundation: [PUYO-199 native extension contract](puyo-199-native-extension-contract.md)
 - Native crate: `native/deep_chain_native` 0.3.0
@@ -61,9 +61,12 @@ blocked. See the
 
 PUYO-211 later selected no implementation candidate after the identical wheel
 missed each fixed target in two of three fresh processes. PUYO-212 consequently
-produced no candidate commit, PR, or integration native diff. PUYO-213 selected
-**NO_GO_STOP**, so this ticket closes without treating the quiet miss as a pass.
-PUYO-201 and PUYO-202 remain unstarted; the production backend is unchanged.
+produced no candidate commit, PR, or integration native diff. PUYO-213 records
+explicit human risk acceptance for one bounded PUYO-201 combined prototype,
+so this ticket still closes without treating the quiet miss as a pass.
+PUYO-201 remains To Do until PR #107 merges and a new session begins; PUYO-202
+remains blocked until the prototype passes. The production backend is
+unchanged.
 See the [PUYO-213 final decision](puyo-213-transition-restart-decision.md).
 
 ## Internal representation

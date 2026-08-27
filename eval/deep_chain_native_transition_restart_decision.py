@@ -15,6 +15,9 @@ from eval.deep_chain_native_transition_profile import verify_benchmark
 
 TICKET = "PUYO-213"
 SCHEMA_VERSION = "puyo.native_transition_restart_decision.v1"
+RISK_SCOPE = "PUYO-201 bounded combined transition+evaluator prototype only"
+APPROVER = "Shion MORISHITA"
+APPROVER_ACCOUNT_ID = "712020:5cd83348-3d7f-41f5-a7d4-5f63a211f8d1"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DECISION_PATH = REPOSITORY_ROOT / (
     "docs/benchmarks/puyo-213-transition-restart-decision/final_decision.json"
@@ -253,19 +256,81 @@ def verify_decision(
         issues.append("unexpected PUYO-213 decision schema")
     if decision.get("ticket") != TICKET:
         issues.append("unexpected PUYO-213 decision ticket")
-    if decision.get("decision") != "NO_GO_STOP":
-        issues.append("PUYO-213 must record the selected NO_GO_STOP outcome")
+    if decision.get("decision") != "GO_WITH_RISK_ACCEPTANCE":
+        issues.append(
+            "PUYO-213 must record the selected GO_WITH_RISK_ACCEPTANCE outcome"
+        )
     risk = decision.get("risk_acceptance", {})
-    if risk.get("granted") is not False:
-        issues.append("quiet component risk acceptance must not be granted")
-    if risk.get("human_reviewer_approval_recorded") is not False:
-        issues.append("decision must not claim an absent human risk approval")
-    if decision.get("puyo_201", {}).get("may_start") is not False:
-        issues.append("PUYO-201 must remain stopped")
+    expected_risk = {
+        "approval_source": (
+            "explicit user instruction in the Codex session, mirrored to the "
+            "PUYO-213 Jira work-session comment"
+        ),
+        "approved_by": APPROVER,
+        "approved_by_atlassian_account_id": APPROVER_ACCOUNT_ID,
+        "approved_on": "2026-08-27",
+        "component_miss_waived": True,
+        "granted": True,
+        "human_reviewer_approval_recorded": True,
+        "scope": RISK_SCOPE,
+    }
+    _check_equal(issues, "risk acceptance", risk, expected_risk)
+
+    puyo_201 = decision.get("puyo_201", {})
+    if puyo_201.get("may_start") is not True:
+        issues.append("PUYO-201 must be authorized for the bounded prototype")
+    if puyo_201.get("readiness") != "READY_TO_START_WITH_RISK_ACCEPTANCE":
+        issues.append("PUYO-201 must record risk-accepted start readiness")
+    if puyo_201.get("first_work_unit") != (
+        "bounded combined transition+evaluator prototype"
+    ):
+        issues.append("PUYO-201 first work unit must remain the bounded prototype")
+    expected_start_prerequisites = [
+        ("PUYO-213 PR #107 is reviewed and merged into integration/puyo-113-v1-7-2"),
+        (
+            "A new session re-reads PUYO-201 and transitions it from To Do "
+            "to In Progress"
+        ),
+        "The PUYO-201 branch is created from the updated integration branch",
+    ]
+    _check_equal(
+        issues,
+        "PUYO-201 start prerequisites",
+        puyo_201.get("start_prerequisites"),
+        expected_start_prerequisites,
+    )
     if decision.get("puyo_202", {}).get("may_start") is not False:
         issues.append("PUYO-202 must remain stopped")
     if decision.get("production_backend_changed") is not False:
         issues.append("evidence-only decision must not change production routing")
+    expected_prototype_gate = {
+        "combined_transition_evaluator_p95_ms_max": 820.625,
+        "end_to_end_p95_ms_max": 1000.0,
+        "expanded_node_count": 600000,
+        "native_total_p95_ms_max": 900.0,
+        "on_failure": {
+            "close_implementation_pr_unmerged": True,
+            "merge_implementation_pr": False,
+            "puyo_202_may_start": False,
+        },
+        "production_backend_promotion_allowed": False,
+        "required_child_state_bytes": 80,
+        "required_hot_result_bytes": 24,
+        "required_mismatch_counts": {
+            "determinism": 0,
+            "fixture": 0,
+            "native_parity": 0,
+            "oracle": 0,
+        },
+        "required_normal_hot_path_heap_allocations": 0,
+        "scope": RISK_SCOPE,
+    }
+    _check_equal(
+        issues,
+        "bounded prototype gate",
+        decision.get("prototype_gate"),
+        expected_prototype_gate,
+    )
     expected_statuses = {
         "PUYO-200": "Complete",
         "PUYO-201": "To Do",
@@ -283,6 +348,21 @@ def verify_decision(
     _verify_authority_artifacts(decision, issues)
     _verify_source_evidence(decision, issues)
     _verify_git_audit(decision, issues)
+
+    evidence = decision.get("evidence", {})
+    puyo_207_evidence = evidence.get("puyo_207", {})
+    if puyo_207_evidence.get("decision") != "NO_GO":
+        issues.append("risk acceptance must not rewrite PUYO-207 NO_GO")
+    quiet_p95 = puyo_207_evidence.get("quiet_p95_ns")
+    quiet_target = puyo_207_evidence.get("quiet_target_ns")
+    if not isinstance(quiet_p95, (int, float)) or not isinstance(
+        quiet_target, (int, float)
+    ):
+        issues.append("PUYO-207 quiet miss evidence is unavailable")
+    elif quiet_p95 <= quiet_target:
+        issues.append("risk acceptance must preserve the PUYO-207 quiet miss")
+    if puyo_207_evidence.get("observed_combined_p95_ms") is not None:
+        issues.append("decision must not claim a measured combined prototype")
 
     try:
         puyo_207_verification = verify_benchmark(PUYO_207_DIR, ticket="PUYO-207")

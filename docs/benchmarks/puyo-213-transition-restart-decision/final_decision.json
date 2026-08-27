@@ -33,7 +33,7 @@
       "sha256": "e953c9603252732612334cc24ffd823bf74f0f56d11f41114c23c04d302dc346"
     }
   ],
-  "decision": "NO_GO_STOP",
+  "decision": "GO_WITH_RISK_ACCEPTANCE",
   "decision_date": "2026-08-27",
   "evidence": {
     "puyo_207": {
@@ -127,20 +127,50 @@
     }
   },
   "production_backend_changed": false,
+  "prototype_gate": {
+    "combined_transition_evaluator_p95_ms_max": 820.625,
+    "end_to_end_p95_ms_max": 1000.0,
+    "expanded_node_count": 600000,
+    "native_total_p95_ms_max": 900.0,
+    "on_failure": {
+      "close_implementation_pr_unmerged": true,
+      "merge_implementation_pr": false,
+      "puyo_202_may_start": false
+    },
+    "production_backend_promotion_allowed": false,
+    "required_child_state_bytes": 80,
+    "required_hot_result_bytes": 24,
+    "required_mismatch_counts": {
+      "determinism": 0,
+      "fixture": 0,
+      "native_parity": 0,
+      "oracle": 0
+    },
+    "required_normal_hot_path_heap_allocations": 0,
+    "scope": "PUYO-201 bounded combined transition+evaluator prototype only"
+  },
   "puyo_201": {
-    "may_start": false,
-    "reason": "The current transition line has no selected optimization candidate, does not reproduce the fixed component targets, and has no measured combined evaluator result."
+    "first_work_unit": "bounded combined transition+evaluator prototype",
+    "may_start": true,
+    "readiness": "READY_TO_START_WITH_RISK_ACCEPTANCE",
+    "reason": "Explicit human approval accepts the known quiet-transition and repeatability risks only to measure a bounded combined prototype against the unchanged outer gates.",
+    "start_prerequisites": [
+      "PUYO-213 PR #107 is reviewed and merged into integration/puyo-113-v1-7-2",
+      "A new session re-reads PUYO-201 and transitions it from To Do to In Progress",
+      "The PUYO-201 branch is created from the updated integration branch"
+    ]
   },
   "puyo_202": {
     "may_start": false,
-    "reason": "PUYO-201 is not authorized and no downstream native task may bypass the stopped evaluator gate."
+    "reason": "PUYO-202 remains blocked until the bounded PUYO-201 prototype passes every combined, native, end-to-end, semantic, determinism, allocation, and ABI/memory gate."
   },
   "rationale": [
     "GO_OPTIMIZED is unavailable because PUYO-211 selected no candidate and PUYO-212 produced no implementation commit or PR.",
     "The same PUYO-207 wheel missed the mixed and quiet targets in two of three fresh-process PUYO-211 runs; same-wheel p95 drift reached 30.0% and 33.3%.",
     "The strongest candidate saves only 0.521 ns conservatively and still projects two mixed failures and a quiet median above the required 45 ns margin.",
-    "The 820.625 ms combined value is an unmeasured projection because evaluator/quiescence is not implemented; the projected residual would also require about 1869.269x evaluator speedup.",
-    "No human reviewer approval to waive the quiet component miss is recorded, so GO_WITH_RISK_ACCEPTANCE is not granted."
+    "PUYO-207 nevertheless passed mixed performance, semantic parity, determinism, allocation, ABI, and memory checks, and its transition projection leaves diagnostic headroom inside the unchanged 820.625 ms combined envelope.",
+    "The 820.625 ms combined value remains unmeasured because evaluator/quiescence is not implemented; the projected residual would require about 1869.269x evaluator speedup.",
+    "Shion MORISHITA explicitly accepts the known quiet-transition and repeatability risks for one bounded PUYO-201 combined prototype; this is not a retroactive PUYO-207 pass or production approval."
   ],
   "repository_audit": {
     "baseline_merge_commit": "5e76617eeeb26630ec45aa9843d40a691592341a",
@@ -159,11 +189,16 @@
     ]
   },
   "risk_acceptance": {
-    "component_miss_waived": false,
-    "granted": false,
-    "human_reviewer_approval_recorded": false
+    "approval_source": "explicit user instruction in the Codex session, mirrored to the PUYO-213 Jira work-session comment",
+    "approved_by": "Shion MORISHITA",
+    "approved_by_atlassian_account_id": "712020:5cd83348-3d7f-41f5-a7d4-5f63a211f8d1",
+    "approved_on": "2026-08-27",
+    "component_miss_waived": true,
+    "granted": true,
+    "human_reviewer_approval_recorded": true,
+    "scope": "PUYO-201 bounded combined transition+evaluator prototype only"
   },
   "schema_version": "puyo.native_transition_restart_decision.v1",
-  "stop_condition": "Do not start PUYO-201, PUYO-202, or later work on the current native line. A successor requires a new ADR with stable source-bound evidence and explicit human authorization; PUYO-207 remains NO_GO and its fixed targets are not rewritten.",
+  "stop_condition": "PUYO-201 may start only with the bounded combined prototype after PR #107 is reviewed and merged. If any prototype gate fails, close its implementation PR unmerged and do not start PUYO-202. PUYO-207 remains NO_GO, its fixed targets are not rewritten, and production promotion is not authorized.",
   "ticket": "PUYO-213"
 }

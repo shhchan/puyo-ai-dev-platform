@@ -1,7 +1,8 @@
 # PUYO-213 transition restart decision
 
-- Status: **NO_GO_STOP**
+- Status: **GO_WITH_RISK_ACCEPTANCE**
 - Decision date: 2026-08-27
+- Human approver: Shion MORISHITA
 - Integration authority: `integration/puyo-113-v1-7-2` at
   `b5865038d1bffa0970baaad20aa79369fa21d7f1`
 - Machine-readable decision:
@@ -10,18 +11,23 @@
 
 ## Decision
 
-Stop the current deep-chain native implementation line before PUYO-201. Do not
-start the evaluator/quiescence port, PUYO-202, or any later native task from the
-current transition baseline. PUYO-207 remains `NO_GO`; this decision does not
-rewrite its fixed 100.0 ns mixed or 50.0 ns quiet target and does not accept the
-quiet miss as a pass.
+Authorize PUYO-201 to start in a new work session with one bounded combined
+transition-plus-evaluator prototype. This authorization becomes actionable
+only after PR #107 is reviewed and merged into
+`integration/puyo-113-v1-7-2`. The new session must then re-read PUYO-201,
+transition it from To Do to In Progress, and create its work branch from the
+updated integration branch.
 
-`GO_OPTIMIZED` is unavailable because PUYO-211 selected no implementation
-candidate and PUYO-212 produced no candidate commit or PR. The alternative
-`GO_WITH_RISK_ACCEPTANCE` is not selected: the combined result has not been
-measured, the same-wheel baseline is not stable enough to support a bounded
-comparison, and no human reviewer approval to waive the component miss is
-recorded.
+The decision is **GO_WITH_RISK_ACCEPTANCE**, not `GO_OPTIMIZED`. Shion
+MORISHITA explicitly accepts the known quiet-transition and repeatability
+risks for that prototype on 2026-08-27. The exception is limited to measuring
+the combined design. It is not a retroactive pass for PUYO-207, permission to
+change a fixed target, approval to promote the production backend, or
+authorization to start PUYO-202 before the prototype passes.
+
+PUYO-207 therefore remains `NO_GO`: its mixed target passed, its quiet target
+failed, and no measured combined result exists yet. PUYO-211 still selected no
+optimization candidate, and PUYO-212 still has no candidate commit or PR.
 
 ## PUYO-212 and repository audit
 
@@ -53,7 +59,7 @@ component authority:
 | Evidence | Observed | Fixed gate | Result |
 | --- | ---: | ---: | --- |
 | mixed p95 | 77.119 ns | <= 100.0 ns | pass |
-| quiet p95 | 57.325 ns | <= 50.0 ns | **fail** |
+| quiet p95 | 57.325 ns | <= 50.0 ns | **fail, risk accepted only for prototype** |
 | parity / deterministic mismatch | 0 | 0 | pass |
 | normal hot-path allocation | 0 | 0 | pass |
 | child state / hot result | 80 / 24 bytes | 80 / 24 bytes | pass |
@@ -77,39 +83,89 @@ Two mixed runs and two quiet runs miss their fixed targets. Same-wheel p95
 drift reached 30.0% for mixed and 33.3% for quiet. The strongest safe candidate
 has only a 0.521 ns conservative saving; its projection still leaves two mixed
 failures and a 50.397 ns quiet median, above the required 45.0 ns engineering
-margin. These results support neither an optimized restart nor a stable
-combined prototype exception.
+margin. The prototype must treat this variability as a known risk rather than
+as proof that the component gate passed.
+
+## Why the bounded experiment is permitted
+
+The existing line has useful positive evidence: semantic and deterministic
+parity pass, the hot path allocates nothing, the ABI/memory constraints pass,
+the authoritative mixed p95 passes 100 ns, and its 46.272 ms projection leaves
+diagnostic room inside the outer envelope. It also has material unresolved
+risk: the quiet p95 misses 50 ns, fresh-process repeatability is poor, no
+optimization candidate exists, the combined result is unmeasured, and the
+evaluator projection requires an extreme speedup.
+
+Those facts do not establish feasibility, but they are sufficient to define a
+falsifiable prototype. The human approval accepts the cost of running that
+experiment while preserving all outer gates and a hard failure exit.
 
 ## Decision matrix
 
 | Candidate outcome | Required authority | Finding |
 | --- | --- | --- |
 | `GO_OPTIMIZED` | selected candidate, all gates, reviewed merged PR | rejected; none exists |
-| `GO_WITH_RISK_ACCEPTANCE` | stable feasibility plus explicit human approval | not granted |
-| `NO_GO_STOP` | no sufficient optimization or combined-feasibility basis | **selected** |
+| `GO_WITH_RISK_ACCEPTANCE` | explicit human approval plus bounded unchanged outer gates | **selected** |
+| `NO_GO_STOP` | no accepted experiment despite the known risks | not selected after human approval |
+
+## Bounded PUYO-201 prototype contract
+
+PUYO-201's first and only initially authorized work unit is the combined
+transition-plus-evaluator prototype. It passes only if one source-bound result
+meets every row below:
+
+| Gate | Required result |
+| --- | --- |
+| Expanded-node authority | exactly 600,000 nodes; no timeout or reduced profile substitute |
+| Transition plus evaluator p95 | <= 820.625 ms |
+| Native call total p95 | <= 900.000 ms |
+| End-to-end p95 | <= 1,000.000 ms |
+| Fixture, oracle, and Python/native parity mismatches | 0 |
+| Determinism mismatches | 0 |
+| Normal hot-path heap allocations | 0 |
+| Child state / hot result | exactly 80 / 24 bytes |
+| Production backend promotion | prohibited by this decision |
+
+If any row fails, the PUYO-201 implementation PR must not merge and must be
+closed unmerged. PUYO-202 remains To Do and must not start. Further work then
+requires a new reviewed decision; target rewriting, outlier removal, node-count
+reduction, fallback timing, and production routing cannot be used to convert a
+failure into a pass.
 
 ## Jira and downstream state
 
 | Ticket | Final state | Rule |
 | --- | --- | --- |
-| PUYO-200 | Complete | negative performance result is closed; no more work on this line |
-| PUYO-201 | To Do / blocked | do not implement evaluator/quiescence |
-| PUYO-202 | To Do / blocked by the stopped line | do not start |
-| PUYO-207 | Complete / `NO_GO` | decision and fixed targets remain authoritative |
-| PUYO-213 | Complete / `NO_GO_STOP` | final successor decision |
+| PUYO-200 | Complete | negative component result remains recorded; risk exception is downstream-only |
+| PUYO-201 | To Do / `READY_TO_START_WITH_RISK_ACCEPTANCE` | start only in a new session after PR #107 merges |
+| PUYO-202 | To Do / blocked | start only after PUYO-201 passes every prototype gate |
+| PUYO-207 | Complete / `NO_GO` | fixed targets and quiet miss remain authoritative |
+| PUYO-213 | Complete / `GO_WITH_RISK_ACCEPTANCE` | bounded successor decision |
 
 The existing `PUYO-200 blocks PUYO-201`, `PUYO-207 blocks PUYO-201`, and
-`PUYO-213 blocks PUYO-201` links remain as the audit chain. No production
-backend, search behavior, schema, ABI, corpus, or performance target changes.
+`PUYO-213 blocks PUYO-201` links remain as the audit chain. Their completed
+states and this explicit exception document why PUYO-201 can start without
+rewriting the historical No-Go. No production backend, search behavior,
+schema, ABI, corpus, or performance target changes.
 
-## Successor policy
+## Next-session handoff
 
-This closes the current line; it is not a permanent ban on a separately
-authorized design. Any successor must start from a new ADR, preserve or
-explicitly replace the source-bound target with human approval, provide a
-stable controlled baseline and a selected candidate, and define independent
-semantic, allocation, memory, and combined-budget gates before implementation.
-The stopped PUYO-201/202 chain cannot be reused to bypass that review.
+The next Codex session must perform these steps in order:
+
+1. Confirm PR #107 is reviewed and merged into
+   `integration/puyo-113-v1-7-2`; do not start from the pre-decision head.
+2. Fetch PUYO-201 from Jira, confirm it is To Do under PUYO-184 in Sprint 8,
+   and re-read this decision and the PUYO-201 acceptance criteria.
+3. Transition PUYO-201 to In Progress and create
+   `PUYO-201/native-evaluator-quiescence-prototype` from the updated
+   integration branch.
+4. Implement and measure only the bounded combined prototype before widening
+   scope to search, integration, or production work.
+5. Merge no implementation and start no PUYO-202 work unless every gate in the
+   preceding table passes with source-bound evidence.
+
+This handoff is preparation only. PUYO-201 remains unstarted and To Do at the
+end of PUYO-213.
 
 ## Verification
 
