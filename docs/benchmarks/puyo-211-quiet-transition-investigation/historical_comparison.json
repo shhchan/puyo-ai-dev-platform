@@ -1,0 +1,23 @@
+{
+  "conclusion": "PUYO-206 and PUYO-207 used the identical compact.rs Git object and locked contract. The 23.421 ns p95 gap has no algorithmic source change and is attributed to process/frequency/scheduling variance; fresh-process replication quantifies that variance separately.",
+  "contract_identical": true,
+  "native_compact_source": {
+    "identical": true,
+    "path": "native/deep_chain_native/src/compact.rs",
+    "puyo_206_git_object": "9cc4d4c19a7a6f36746246126d328581315bc68c",
+    "puyo_207_git_object": "9cc4d4c19a7a6f36746246126d328581315bc68c"
+  },
+  "puyo_206": {
+    "evaluated_commit": "a015bbf3f0e03c7ec0afb747e5df389ec668d6a9",
+    "quiet_p95_ns": 33.904296875,
+    "wheel_sha256": "e1b837f932463906b13ce86d12d3187f1c115d2e9c7a2dbf1c089a672ffa1938"
+  },
+  "puyo_207": {
+    "evaluated_commit": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+    "quiet_p95_ns": 57.32470703125,
+    "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+  },
+  "quiet_p95_delta_ns": 23.42041015625,
+  "quiet_p95_increase_percent": 69.077999884786,
+  "schema_version": "puyo.native_compact_historical_variance.v1"
+}

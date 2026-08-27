@@ -122,6 +122,14 @@ Reproduce on Linux x86_64 with CPython 3.12 and Valgrind 3.22.0 on `PATH`:
   --ticket PUYO-207
 ```
 
-The next action is an explicit human decision to stop the current native line
-or authorize a new ADR/optimization ticket. PUYO-207 itself performs no further
-optimization and does not reduce depth, width, scenarios, or the node ceiling.
+PUYO-211 subsequently repeated the identical wheel in three fresh processes,
+calibrated three same-wheel process pairs, re-profiled the quiet path, and
+compared the strongest safe micro-optimization candidate. The baseline did not
+reproduce the fixed mixed/quiet gates, and the candidate could not create the
+required margin, so PUYO-211 selected **no implementation candidate**. PUYO-212
+must remain unstarted unless a controlled baseline or new evidence passes the
+unchanged gates. See the
+[PUYO-211 investigation](puyo-211-quiet-transition-investigation.md).
+
+PUYO-207 itself performs no further optimization and does not reduce depth,
+width, scenarios, or the node ceiling.
