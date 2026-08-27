@@ -111,6 +111,16 @@ cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml
 .venv/bin/python -m eval.deep_chain_native_evaluator_profile verify
 ```
 
+The verifier accepts a wheel rebuilt by CI after the evidence-only commit only
+when the measurement commit is an ancestor, every release-build input is
+unchanged, and the installed wheel reports the current checkout revision. To
+audit the exact wheel used for the canonical measurement instead, run:
+
+```bash
+.venv/bin/python -m eval.deep_chain_native_evaluator_profile verify \
+  --require-exact-wheel
+```
+
 The expensive canonical measurement is reproduced with:
 
 ```bash

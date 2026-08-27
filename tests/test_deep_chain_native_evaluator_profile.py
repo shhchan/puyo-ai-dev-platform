@@ -1,4 +1,6 @@
 import unittest
+from types import SimpleNamespace
+from unittest import mock
 
 from eval.deep_chain_native_evaluator_profile import (
     COMBINED_BUDGET_MS,
@@ -9,6 +11,8 @@ from eval.deep_chain_native_evaluator_profile import (
     EXPECTED_CORPUS_SHA256,
     MIN_ATTRIBUTED_SHARE,
     PROFILE_SAMPLES,
+    RELEASE_BUILD_INPUT_PATHS,
+    _release_sources_unchanged,
     derive_profile_decision,
     derive_stage_budget,
     derive_stage_decomposition,
@@ -72,6 +76,37 @@ class TestNativeEvaluatorHotPathProfile(unittest.TestCase):
         self.assertEqual(COMBINED_BUDGET_MS, 820.625)
         self.assertAlmostEqual(EVALUATOR_BUDGET_MS, 774.353480)
         self.assertEqual(MIN_ATTRIBUTED_SHARE, 0.95)
+
+    def test_verify_can_require_the_exact_measurement_wheel(self):
+        default_args = parse_args(["verify"])
+        strict_args = parse_args(["verify", "--require-exact-wheel"])
+
+        self.assertFalse(default_args.require_exact_wheel)
+        self.assertTrue(strict_args.require_exact_wheel)
+
+    @mock.patch("eval.deep_chain_native_evaluator_profile.subprocess.run")
+    def test_rebuilt_wheel_requires_unchanged_release_inputs(self, run):
+        run.side_effect = [
+            SimpleNamespace(returncode=0),
+            SimpleNamespace(returncode=0),
+        ]
+        commit = "a" * 40
+
+        self.assertTrue(_release_sources_unchanged(commit))
+        self.assertEqual(run.call_count, 2)
+        diff_command = run.call_args_list[1].args[0]
+        self.assertEqual(
+            diff_command[:6],
+            ["git", "diff", "--quiet", commit, "HEAD", "--"],
+        )
+        self.assertEqual(tuple(diff_command[6:]), RELEASE_BUILD_INPUT_PATHS)
+
+    @mock.patch("eval.deep_chain_native_evaluator_profile.subprocess.run")
+    def test_rebuilt_wheel_rejects_an_unrelated_measurement_commit(self, run):
+        run.return_value = SimpleNamespace(returncode=1)
+
+        self.assertFalse(_release_sources_unchanged("b" * 40))
+        run.assert_called_once()
 
     def test_call_count_summary_uses_nearest_rank_and_exact_total(self):
         rows = [

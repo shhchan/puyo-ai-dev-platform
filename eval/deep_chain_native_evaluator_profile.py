@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from agents.chain_structure import ChainStructureConfig, load_chain_structure_config
+from agents.deep_chain_native import decode_capabilities
 from agents.deep_chain_native_evaluator import (
     NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES,
     NativeChainStructureBatchClient,
@@ -89,6 +90,16 @@ COUNT_NAMES = (
     "rank_tie_calls",
     "sha256_calls",
 )
+RELEASE_BUILD_INPUT_PATHS = (
+    "native/deep_chain_native",
+    "agents/chain_structure.py",
+    "agents/deep_chain_native.py",
+    "agents/deep_chain_native_evaluator.py",
+    "agents/deep_chain_native_transition.py",
+    "requirements-native.txt",
+    "rust-toolchain.toml",
+    "scripts/build_deep_chain_native.sh",
+)
 
 
 def _write_json(path: str | Path, payload: Any) -> None:
@@ -120,6 +131,52 @@ def _source_commit_is_ancestor() -> bool:
         ).returncode
         == 0
     )
+
+
+def _is_full_git_sha(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 40
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _is_sha256(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _release_sources_unchanged(measurement_commit: Any) -> bool:
+    if not _is_full_git_sha(measurement_commit):
+        return False
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", measurement_commit, "HEAD"],
+        cwd=ROOT,
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if ancestor.returncode != 0:
+        return False
+    diff = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--quiet",
+            measurement_commit,
+            "HEAD",
+            "--",
+            *RELEASE_BUILD_INPUT_PATHS,
+        ],
+        cwd=ROOT,
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return diff.returncode == 0
 
 
 def _combined_profile(
@@ -930,7 +987,11 @@ def run_profile(
     return summary
 
 
-def verify_profile(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
+def verify_profile(
+    output_dir: str | Path = DEFAULT_OUTPUT_DIR,
+    *,
+    require_exact_wheel: bool = False,
+) -> list[str]:
     destination = Path(output_dir)
     issues = []
     try:
@@ -964,15 +1025,31 @@ def verify_profile(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
         issues.append("frozen corpus hash drifted")
     if measurement.get("config", {}).get("sha256") != EXPECTED_CONFIG_SHA256:
         issues.append("frozen config hash drifted")
-    wheel = manifest.get("environment", {}).get("release_wheel_path")
+    environment = manifest.get("environment", {})
+    wheel = environment.get("release_wheel_path")
+    expected_wheel_sha256 = environment.get("release_wheel_sha256")
+    if not _is_sha256(expected_wheel_sha256):
+        issues.append("canonical release wheel hash is invalid")
     if not wheel or "manylinux_2_28_x86_64" not in wheel:
         issues.append("canonical release wheel path drifted")
     elif not (ROOT / wheel).is_file():
         issues.append("canonical release wheel is missing")
-    elif file_sha256(ROOT / wheel) != manifest["environment"].get(
-        "release_wheel_sha256"
-    ):
-        issues.append("canonical release wheel hash drifted")
+    elif file_sha256(ROOT / wheel) != expected_wheel_sha256:
+        if require_exact_wheel:
+            issues.append("canonical release wheel hash drifted")
+        elif not _release_sources_unchanged(manifest.get("measurement_commit")):
+            issues.append("rebuilt release wheel source inputs drifted")
+        else:
+            try:
+                extension = importlib.import_module(
+                    "_puyo_deep_chain_native._puyo_deep_chain_native"
+                )
+                capabilities = decode_capabilities(bytes(extension.capabilities()))
+            except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                issues.append(f"rebuilt release wheel provenance unavailable: {exc}")
+            else:
+                if capabilities.source_revision != git_commit(ROOT):
+                    issues.append("rebuilt release wheel revision differs from HEAD")
     decision = summary.get("decision", {})
     if manifest.get("decision") != decision.get("decision"):
         issues.append("manifest and summary decisions differ")
@@ -999,6 +1076,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     for command in ("run", "verify"):
         subparser = subparsers.add_parser(command)
         subparser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+        if command == "verify":
+            subparser.add_argument(
+                "--require-exact-wheel",
+                action="store_true",
+                help="require the locally present wheel to match the measured wheel SHA",
+            )
     return parser.parse_args(argv)
 
 
@@ -1008,7 +1091,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         summary = run_profile(output_dir=args.output_dir)
         print(json.dumps(summary["decision"], indent=2, sort_keys=True))
         return 0 if summary["decision"]["passed"] else 1
-    issues = verify_profile(args.output_dir)
+    issues = verify_profile(
+        args.output_dir,
+        require_exact_wheel=args.require_exact_wheel,
+    )
     if issues:
         for issue in issues:
             print(issue, file=sys.stderr)
