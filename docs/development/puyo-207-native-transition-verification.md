@@ -1,6 +1,8 @@
 # PUYO-207 independent native transition verification
 
 - Status: **No-Go**
+- Successor decision: PUYO-213 **GO_WITH_RISK_ACCEPTANCE** for a bounded
+  combined prototype
 - Decision date: 2026-08-27
 - Evaluated commit: `cff9ea5d0295087db8332c2a6efa59db74f886ef`
 - Source tree: `e8f73fcaaa868909e56fcc71eef6fd7a29f1dcb5`
@@ -11,16 +13,20 @@
 
 ## Decision
 
-Do not start PUYO-201. The independently rebuilt release wheel passes the
-mixed component target and every semantic, deterministic, allocation, ABI,
-and memory contract, but its locked quiet p95 is `57.325 ns`, above the fixed
-`50.0 ns` target. The PUYO-205 stop condition applies even though the measured
-mixed projection leaves mathematical room inside the combined budget.
+PUYO-207's decision was to not start PUYO-201 from this component result. The
+independently rebuilt release wheel passes the mixed component target and every
+semantic, deterministic, allocation, ABI, and memory contract, but its locked
+quiet p95 is `57.325 ns`, above the fixed `50.0 ns` target. The PUYO-205 stop
+condition applied even though the measured mixed projection left mathematical
+room inside the combined budget. The later PUYO-213 decision preserves this
+No-Go while separately authorizing a bounded combined prototype with explicit
+human risk acceptance.
 
 This is a transition verification No-Go, not a production rollback. The native
-backend was never promoted. PUYO-200 returns to In Progress as the owner of the
-unresolved transition gate, PUYO-201 remains To Do and blocked, and PUYO-202
-through PUYO-204 must not use this result to continue the native line.
+backend was never promoted. At this checkpoint PUYO-200 returned to In Progress
+as the owner of the unresolved transition gate, PUYO-201 remained To Do and
+blocked, and PUYO-202 through PUYO-204 could not use this result alone to
+continue the native line.
 
 PR #102 was already merged before this verification, so it cannot be returned
 to Draft. Its code remains isolated from production routing; the merged commit
@@ -96,7 +102,8 @@ component stop condition failed:
 The transition is `1,782.682x` faster than the frozen Python transition
 reference. Meeting the hypothetical residual would require approximately
 `1,869.269x` against the frozen Python evaluator reference. That headroom does
-not override the quiet target and is not an allocation granted to PUYO-201.
+not override the quiet target and was not, by this decision alone, an
+allocation granted to PUYO-201.
 
 ## Measurement integrity
 
@@ -126,10 +133,23 @@ PUYO-211 subsequently repeated the identical wheel in three fresh processes,
 calibrated three same-wheel process pairs, re-profiled the quiet path, and
 compared the strongest safe micro-optimization candidate. The baseline did not
 reproduce the fixed mixed/quiet gates, and the candidate could not create the
-required margin, so PUYO-211 selected **no implementation candidate**. PUYO-212
-must remain unstarted unless a controlled baseline or new evidence passes the
-unchanged gates. See the
+required margin, so PUYO-211 selected **no implementation candidate**. At that
+checkpoint PUYO-212 could not implement a candidate; it subsequently closed
+without code or a PR. See the
 [PUYO-211 investigation](puyo-211-quiet-transition-investigation.md).
 
 PUYO-207 itself performs no further optimization and does not reduce depth,
 width, scenarios, or the node ceiling.
+
+## PUYO-213 successor decision
+
+PUYO-211 selected no implementation candidate, and PUYO-212 therefore closed
+without candidate code or a PR. The integration range from PR #105's merge to
+PR #106's merge contains no `native/deep_chain_native` change. PUYO-213 leaves
+this `NO_GO` result and every fixed target intact while recording explicit
+human risk acceptance for one bounded PUYO-201 combined prototype. PUYO-201
+may start only after PR #107 merges and only under the unchanged 820.625 ms
+combined, 900 ms native, 1,000 ms end-to-end, semantic, determinism,
+allocation, and ABI/memory gates. PUYO-202 remains blocked until it passes.
+The final audit is in
+[the PUYO-213 decision report](puyo-213-transition-restart-decision.md).

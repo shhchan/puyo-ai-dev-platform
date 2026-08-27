@@ -1,11 +1,11 @@
 # PUYO-198 Deep-chain native boundary ADR
 
-- Status: Accepted boundary; current native implementation line stopped by
-  PUYO-207 **No-Go**
+- Status: Accepted boundary; PUYO-213 authorizes a bounded successor under
+  **GO_WITH_RISK_ACCEPTANCE**
 - Date: 2026-08-26
 - Final transition decision: 2026-08-27
 - Decision owners: PUYO-198 / PUYO-184
-- Applies to: PUYO-199 through PUYO-207
+- Applies to: PUYO-199 through PUYO-213 native decision chain
 - Supersedes: none
 
 ## Decision
@@ -35,12 +35,19 @@ explicit native backend only after the component gates in this ADR pass.
 PUYO-204 remains the authority for production promotion and the locked
 end-to-end gate.
 
-PUYO-207 concluded that conditional path with a final No-Go for the current
-native line.  The independent release-wheel run preserved semantic parity and
+PUYO-207 concluded that conditional path with a final No-Go for the transition
+component.  The independent release-wheel run preserved semantic parity and
 the mixed transition target, but missed the fixed quiet-transition target.
-PUYO-201 therefore remains blocked; no evaluator, search, integration, or
-production-promotion task may treat the original conditional Go as current
-authorization.
+That result remains `NO_GO`; the original conditional Go is not current
+authorization and cannot be used for production promotion.
+
+PUYO-211 later found that the identical release wheel did not reproduce the
+fixed mixed and quiet targets reliably and selected no optimization candidate.
+PUYO-212 therefore closed without a candidate commit or PR. PUYO-213 reviewed
+that negative result and the integration history. Shion MORISHITA then
+explicitly accepted the known component and repeatability risks, so PUYO-213
+selected **GO_WITH_RISK_ACCEPTANCE** for one bounded PUYO-201 combined
+prototype. This is not a retroactive PUYO-207 pass or production authority.
 
 ## Locked invariants
 
@@ -282,8 +289,10 @@ replaced those two rows as separate downstream pass authorities with their
 unchanged 820.625 ms sum.  PUYO-206 met the fixed mixed/quiet transition
 targets of 100.0/50.0 ns as a component result.  PUYO-207 independently
 remeasured the same implementation and missed the quiet target, so the
-combined residual is diagnostic only.  The 900 ms native and 1,000 ms
-end-to-end gates remain unchanged but were not reached.
+combined residual is diagnostic in that component decision. PUYO-213 later
+accepts the risk of measuring it as a hard gate for the bounded prototype. The
+900 ms native and 1,000 ms end-to-end gates remain unchanged but were not
+reached.
 
 Rules for all downstream measurements:
 
@@ -309,9 +318,26 @@ warm-up, affinity, percentile, and corpus contract was unchanged.
 
 At 600,000 evaluated nodes, the mixed result projects to 46.272 ms and would
 leave 774.353 ms for evaluator/quiescence inside the 820.625 ms envelope.
-Because the quiet component target failed first, this arithmetic does not
-grant PUYO-201 a budget or authorize implementation.  The source-bound result
-is [the PUYO-207 independent verification](puyo-207-native-transition-verification.md).
+Because the quiet component target failed first, this arithmetic did not by
+itself grant PUYO-201 a budget or authorize implementation. The later
+PUYO-213 human risk acceptance is the separate, bounded authority. The
+source-bound result is [the PUYO-207 independent verification](puyo-207-native-transition-verification.md).
+
+### PUYO-213 final successor decision
+
+PUYO-211's three fresh-process runs missed the mixed target twice and the
+quiet target twice. Same-wheel p95 drift reached 30.0% and 33.3%, while the
+strongest safe candidate's conservative saving was only 0.521 ns. PUYO-212
+correctly produced no implementation branch delta or candidate PR.
+
+PUYO-213 therefore selects **GO_WITH_RISK_ACCEPTANCE**, not `GO_OPTIMIZED`.
+No measured transition-plus-evaluator result exists, but explicit human
+approval waives the quiet component stop only for one bounded combined
+prototype. PUYO-200 closes as a negative performance result; PUYO-201 remains
+To Do until a new session starts it after PR #107 merges, and PUYO-202 remains
+blocked until that prototype passes every unchanged outer gate. See the
+[PUYO-213 decision report](puyo-213-transition-restart-decision.md) and its
+[machine-readable result](../benchmarks/puyo-213-transition-restart-decision/final_decision.json).
 
 ## Language and binding evaluation
 
@@ -555,12 +581,15 @@ review.  Parallelism never justifies changing search semantics.
 | Ticket | Required handoff and stop condition |
 | --- | --- |
 | PUYO-199 | Scaffold pinned wheel/build, implement capability/envelope codec and one-call Python adapter, GIL detach/error tests; stop if release wheel cannot build on Linux x86_64 |
-| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; owns the unresolved transition performance gate after PUYO-207 No-Go |
+| PUYO-200 | Port compact transition with all 14 rows/lifecycle and frozen transition parity; closed by PUYO-213 as a negative performance result |
 | PUYO-205 | Profile transition stages and alternatives, confirm the call model, and fix the successor measurement and budget contract |
 | PUYO-206 | Implement the selected three-slice local-update/hot-result redesign; component measurement met mixed p95 <= 100.0 ns and quiet p95 <= 50.0 ns |
 | PUYO-207 | Final No-Go: independent mixed p95 77.119 ns passed, quiet p95 57.325 ns failed; PUYO-201 was not unblocked |
-| PUYO-201 | Blocked; do not port evaluator/quiescence unless a new ADR and transition gate authorize a successor line |
-| PUYO-202 | Port the complete beam/TT/aggregation loop, oracle and deterministic six-worker modes; meet 29.375 ms search plus 30 ms aggregation |
+| PUYO-211 | Identical-wheel investigation selected no implementation candidate; fixed targets were not stable across three runs |
+| PUYO-212 | Closed without candidate code or PR because PUYO-211 selected no candidate |
+| PUYO-213 | Final `GO_WITH_RISK_ACCEPTANCE`; permits one bounded combined prototype after PR #107 merges |
+| PUYO-201 | To Do and ready for the bounded transition-plus-evaluator prototype in a new session; all 820.625/900/1,000 ms and correctness gates remain fixed |
+| PUYO-202 | To Do and blocked; start only if the PUYO-201 prototype passes every gate |
 | PUYO-203 | Integrate one call per decision and explicit backend/provenance/fallback; do not make native the default or mask a missed native budget |
 | PUYO-204 | Run locked 30-seed quality/performance/future-isolation evidence; promote only at p95 <= 1.0 s with zero parity/digest/leak failures |
 
