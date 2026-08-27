@@ -884,8 +884,16 @@ def run_profile(
         "_puyo_deep_chain_native._puyo_deep_chain_native"
     )
     module_path = Path(extension.__file__)
-    wheels = sorted((ROOT / "dist" / "native").glob("puyo_deep_chain_native-*.whl"))
-    wheel_path = wheels[-1] if wheels else None
+    wheels = sorted(
+        (ROOT / "dist" / "native").glob(
+            "puyo_deep_chain_native-*-cp312-*-manylinux_2_28_x86_64.whl"
+        )
+    )
+    if len(wheels) != 1:
+        raise RuntimeError(
+            "expected exactly one canonical manylinux_2_28 release wheel"
+        )
+    wheel_path = wheels[0]
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
         "ticket": TICKET,
@@ -903,12 +911,8 @@ def run_profile(
             "canonical_evaluator_thread_count": 1,
             "native_module_path": str(module_path),
             "native_module_sha256": file_sha256(module_path),
-            "release_wheel_path": (
-                None if wheel_path is None else str(wheel_path.relative_to(ROOT))
-            ),
-            "release_wheel_sha256": (
-                None if wheel_path is None else file_sha256(wheel_path)
-            ),
+            "release_wheel_path": str(wheel_path.relative_to(ROOT)),
+            "release_wheel_sha256": file_sha256(wheel_path),
         },
         "input_digest": _digest(measurement),
         "decision": decision["decision"],
@@ -960,6 +964,15 @@ def verify_profile(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
         issues.append("frozen corpus hash drifted")
     if measurement.get("config", {}).get("sha256") != EXPECTED_CONFIG_SHA256:
         issues.append("frozen config hash drifted")
+    wheel = manifest.get("environment", {}).get("release_wheel_path")
+    if not wheel or "manylinux_2_28_x86_64" not in wheel:
+        issues.append("canonical release wheel path drifted")
+    elif not (ROOT / wheel).is_file():
+        issues.append("canonical release wheel is missing")
+    elif file_sha256(ROOT / wheel) != manifest["environment"].get(
+        "release_wheel_sha256"
+    ):
+        issues.append("canonical release wheel hash drifted")
     decision = summary.get("decision", {})
     if manifest.get("decision") != decision.get("decision"):
         issues.append("manifest and summary decisions differ")
