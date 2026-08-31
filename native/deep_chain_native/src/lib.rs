@@ -1,3 +1,5 @@
+mod chain_structure;
+mod chain_structure_batch;
 mod compact;
 mod compact_batch;
 
@@ -957,6 +959,44 @@ fn _compact_transition_profile(
     PyBytes::new(py, &response).unbind()
 }
 
+#[pyfunction]
+fn _chain_structure_evaluate_batch(py: Python<'_>, request: &[u8]) -> PyResult<Py<PyBytes>> {
+    let owned = request.to_vec();
+    let response = py.detach(move || chain_structure_batch::guarded_execute(&owned));
+    response
+        .map(|value| PyBytes::new(py, &value).unbind())
+        .map_err(PyValueError::new_err)
+}
+
+#[pyfunction]
+fn _chain_structure_combined_profile(
+    py: Python<'_>,
+    request: &[u8],
+    operations: u32,
+) -> PyResult<Py<PyBytes>> {
+    let owned = request.to_vec();
+    let response = py.detach(move || chain_structure_batch::guarded_profile(&owned, operations));
+    response
+        .map(|value| PyBytes::new(py, &value).unbind())
+        .map_err(PyValueError::new_err)
+}
+
+#[pyfunction]
+fn _chain_structure_stage_profile(
+    py: Python<'_>,
+    request: &[u8],
+    operations: u32,
+    sample_interval_us: u32,
+) -> PyResult<Py<PyBytes>> {
+    let owned = request.to_vec();
+    let response = py.detach(move || {
+        chain_structure_batch::guarded_stage_profile(&owned, operations, sample_interval_us)
+    });
+    response
+        .map(|value| PyBytes::new(py, &value).unbind())
+        .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(capabilities, module)?)?;
@@ -965,6 +1005,9 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(_gil_probe, module)?)?;
     module.add_function(wrap_pyfunction!(_compact_transition_batch, module)?)?;
     module.add_function(wrap_pyfunction!(_compact_transition_profile, module)?)?;
+    module.add_function(wrap_pyfunction!(_chain_structure_evaluate_batch, module)?)?;
+    module.add_function(wrap_pyfunction!(_chain_structure_combined_profile, module)?)?;
+    module.add_function(wrap_pyfunction!(_chain_structure_stage_profile, module)?)?;
     module.add("ABI_VERSION", ABI_VERSION)?;
     module.add("SCHEMA_MAJOR", SCHEMA_MAJOR)?;
     module.add("SCHEMA_MINOR", SCHEMA_MINOR)?;
@@ -982,6 +1025,30 @@ fn _puyo_deep_chain_native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     )?;
     module.add("COMPACT_HOT_RESULT_BYTES", compact::HOT_RESULT_BYTES)?;
     module.add("COMPACT_PROFILE_SCHEMA", "puyo.native_compact_profile.v1")?;
+    module.add(
+        "CHAIN_STRUCTURE_EVALUATOR_ABI_VERSION",
+        chain_structure::RESULT_ABI_VERSION,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_EVALUATOR_SCHEMA",
+        chain_structure::RESULT_SCHEMA,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_FEATURE_SCHEMA",
+        chain_structure::FEATURE_SCHEMA,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_BATCH_SCHEMA",
+        chain_structure_batch::BATCH_SCHEMA,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_COMBINED_PROFILE_SCHEMA",
+        chain_structure_batch::schema_identity().1,
+    )?;
+    module.add(
+        "CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA",
+        chain_structure_batch::STAGE_PROFILE_SCHEMA,
+    )?;
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }

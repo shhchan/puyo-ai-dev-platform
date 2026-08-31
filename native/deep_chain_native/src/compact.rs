@@ -434,8 +434,18 @@ impl CompactState {
         internal_plane_to_wire(self.internal_occupied())
     }
 
-    fn internal_occupied(&self) -> u128 {
+    pub(crate) fn internal_occupied(&self) -> u128 {
         occupied_from_color_bits(&self.color_bits)
+    }
+
+    /// Fixed six-plane view shared with the native structural evaluator.
+    ///
+    /// The transition kernel keeps its compact three-bit representation as
+    /// the source of truth.  Materializing these six registers once at the
+    /// evaluator boundary avoids wire conversion and preserves the 80-byte
+    /// child-state ABI.
+    pub(crate) fn evaluator_planes(&self) -> [u128; PLANE_COUNT] {
+        std::array::from_fn(|index| color_plane(&self.color_bits, index))
     }
 
     pub(crate) fn board_fingerprint(&self) -> [u64; 2] {
