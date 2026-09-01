@@ -286,7 +286,7 @@ impl Default for EvaluationEvidence {
 #[derive(Clone, Copy, Debug, Default)]
 struct Component {
     mask: u128,
-    extensions: u128,
+    extension_columns: u8,
     frontier_slots: u32,
     color: u8,
     size: u8,
@@ -295,13 +295,20 @@ struct Component {
 
 #[derive(Clone, Copy)]
 struct ComponentSet {
-    values: [Component; MAX_COMPONENTS],
+    #[cfg(test)]
+    values: [MaybeUninit<Component>; MAX_COMPONENTS],
     len: usize,
     landing: u128,
     incremental_resolution_supported: bool,
     base_normal: u128,
     base_occupied: u128,
     base_remaining: RemainingStructure,
+    isolated_count: u8,
+    reachable_ignition_count: u8,
+    growth_columns: u8,
+    connection_seen_once: [u8; NORMAL_COLOR_COUNT],
+    connection_seen_multiple: [u8; NORMAL_COLOR_COUNT],
+    connection_candidate_count: u8,
     frontier_sizes: [MaybeUninit<u8>; MAX_FRONTIER_COMPONENTS],
     frontier_slots: [MaybeUninit<u32>; MAX_FRONTIER_COMPONENTS],
     frontier_masks: [MaybeUninit<u128>; MAX_FRONTIER_COMPONENTS],
@@ -316,13 +323,20 @@ struct ComponentSet {
 impl Default for ComponentSet {
     fn default() -> Self {
         Self {
-            values: [Component::default(); MAX_COMPONENTS],
+            #[cfg(test)]
+            values: [MaybeUninit::uninit(); MAX_COMPONENTS],
             len: 0,
             landing: 0,
             incremental_resolution_supported: false,
             base_normal: 0,
             base_occupied: 0,
             base_remaining: RemainingStructure::default(),
+            isolated_count: 0,
+            reachable_ignition_count: 0,
+            growth_columns: 0,
+            connection_seen_once: [0; NORMAL_COLOR_COUNT],
+            connection_seen_multiple: [0; NORMAL_COLOR_COUNT],
+            connection_candidate_count: 0,
             frontier_sizes: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
             frontier_slots: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
             frontier_masks: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
@@ -338,12 +352,22 @@ impl Default for ComponentSet {
 
 impl ComponentSet {
     fn push(&mut self, value: Component) {
-        debug_assert!(self.len < self.values.len());
-        self.values[self.len] = value;
+        debug_assert!(self.len < MAX_COMPONENTS);
+        #[cfg(test)]
+        self.values[self.len].write(value);
         self.len += 1;
         self.base_remaining.link_2 += u8::from(value.size == 2);
         self.base_remaining.link_3 += u8::from(value.size == 3);
         self.base_remaining.connection_edges += value.connection_edges;
+        self.isolated_count += u8::from(value.size == 1);
+        self.reachable_ignition_count += u8::from(value.size == 3 && value.extension_columns != 0);
+        self.growth_columns |= value.extension_columns;
+        let color = usize::from(value.color);
+        let repeated_connections = value.extension_columns & self.connection_seen_once[color];
+        let new_connections = repeated_connections & !self.connection_seen_multiple[color];
+        self.connection_candidate_count += new_connections.count_ones() as u8;
+        self.connection_seen_once[color] |= value.extension_columns;
+        self.connection_seen_multiple[color] |= repeated_connections;
         if value.frontier_slots == 0 {
             return;
         }
@@ -368,8 +392,11 @@ impl ComponentSet {
         self.frontier_len += 1;
     }
 
+    #[cfg(test)]
     fn as_slice(&self) -> &[Component] {
-        &self.values[..self.len]
+        // SAFETY: `push` initializes every element below `len`, and `len`
+        // cannot exceed the backing array's capacity.
+        unsafe { std::slice::from_raw_parts(self.values.as_ptr().cast(), self.len) }
     }
 }
 
@@ -1047,23 +1074,25 @@ fn extract_components(
             let seed = 1_u128 << remaining.trailing_zeros();
             let mask = flood(seed, plane, false);
             remaining &= !mask;
+            let size = mask.count_ones() as u8;
             let connection_edges = ((mask & (mask >> COLUMN_LANE_BITS)).count_ones()
                 + (mask & (mask >> 1)).count_ones()) as u8;
             let neighbors = board_neighbors(mask);
-            let extensions = neighbors & landing & !occupied;
             let stack_frontier = neighbors & stack_mask;
             let mut frontier_slots = 0_u32;
+            let mut extension_columns = 0_u8;
             for (column, height) in heights.iter().copied().enumerate() {
                 let slots = ((stack_frontier >> (column * COLUMN_LANE_BITS + usize::from(height)))
                     & 0x07) as u32;
                 frontier_slots |= slots << (column * 3);
+                extension_columns |= u8::from(slots & 1 != 0) << column;
             }
             result.push(Component {
                 mask,
-                extensions,
+                extension_columns,
                 frontier_slots,
                 color: plane_index as u8,
-                size: mask.count_ones() as u8,
+                size,
                 connection_edges,
             });
         }
@@ -1071,7 +1100,8 @@ fn extract_components(
     result
 }
 
-fn connection_candidate_count(components: &[Component], landing: u128) -> u8 {
+#[cfg(test)]
+fn connection_candidate_count_exact(components: &[Component], landing: u128) -> u8 {
     let mut count = 0_u8;
     let mut cells = landing;
     while cells != 0 {
@@ -3227,32 +3257,19 @@ fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: 
     planes: &[u128; PLANE_COUNT],
     occupied: u128,
     heights: &[u8; WIDTH],
-    components: &[Component],
-    connections: u8,
+    components: &ComponentSet,
     quiescence: &QuiescenceSearch<'_, EVIDENCE, PROFILE, INCREMENTAL>,
 ) -> ChainStructureFeatures {
-    let normal_mask = planes
-        .iter()
-        .copied()
-        .take(NORMAL_COLOR_COUNT)
-        .fold(0_u128, |value, plane| value | plane);
+    let normal_mask = components.base_normal;
     let normal_count = normal_mask.count_ones() as u8;
     let nuisance_count = planes[PLANE_COUNT - 1].count_ones() as u8;
     let hidden_row_count = (occupied & HIDDEN_MASK).count_ones() as u8;
-    let isolated_count = components.iter().filter(|value| value.size == 1).count() as u8;
-    let link_2 = components.iter().filter(|value| value.size == 2).count() as u8;
-    let link_3 = components.iter().filter(|value| value.size == 3).count() as u8;
-    let connectivity_edges = components
-        .iter()
-        .map(|value| value.connection_edges)
-        .sum::<u8>();
-    let reachable_ignition_count = components
-        .iter()
-        .filter(|value| value.size == 3 && value.extensions != 0)
-        .count() as u8;
-    let growth_mask = components
-        .iter()
-        .fold(0_u128, |value, component| value | component.extensions);
+    let isolated_count = components.isolated_count;
+    let link_2 = components.base_remaining.link_2;
+    let link_3 = components.base_remaining.link_3;
+    let connectivity_edges = components.base_remaining.connection_edges;
+    let reachable_ignition_count = components.reachable_ignition_count;
+    let growth_columns = components.growth_columns;
     let supported = normal_mask & ((occupied << 1) | ROW_ZERO_MASK) & ROW_THREE_MASK;
     let foundation_cell_count = supported.count_ones() as u8;
     let mut adjacent_roughness = 0_u8;
@@ -3293,18 +3310,19 @@ fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: 
     let death = state.game_over() || heights[2].max(heights[3]) as usize >= VISIBLE_HEIGHT;
     let search_complete = quiescence.truncation_reason == TruncationReason::None;
     let unreachable_trigger = normal_count > 0 && search_complete && !quiescence.has_best;
-    let structural_dead_end = unreachable_trigger && connections == 0 && growth_mask == 0;
+    let structural_dead_end =
+        unreachable_trigger && components.connection_candidate_count == 0 && growth_columns == 0;
     let mut result = ChainStructureFeatures {
         canonical_column_heights: canonical_heights(heights),
         normal_puyo_count: normal_count,
-        component_count: components.len() as u8,
+        component_count: components.len as u8,
         isolated_count,
         link_2,
         link_3,
         connectivity_edges,
-        connection_candidate_count: connections,
+        connection_candidate_count: components.connection_candidate_count,
         reachable_ignition_count,
-        growth_site_count: growth_mask.count_ones() as u8,
+        growth_site_count: growth_columns.count_ones() as u8,
         foundation_cell_count,
         fold_space,
         adjacent_roughness,
@@ -3512,7 +3530,6 @@ fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
         reachable,
         config.max_added_puyos,
     );
-    let connections = connection_candidate_count(components.as_slice(), landing);
     let mut quiescence = bounded_quiescence::<EVIDENCE, PROFILE, true>(
         &planes,
         occupied,
@@ -3526,15 +3543,7 @@ fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
         marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
         quiescence.profile_counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)] += 2;
     }
-    let features = build_features(
-        state,
-        &planes,
-        occupied,
-        &heights,
-        components.as_slice(),
-        connections,
-        &quiescence,
-    );
+    let features = build_features(state, &planes, occupied, &heights, &components, &quiescence);
     let action_features = action_features(&features, parent, action, target_chain_count);
     let score_breakdown = score(&features, &action_features, config);
     let status = if quiescence.truncation_reason != TruncationReason::None {
@@ -3678,6 +3687,11 @@ mod tests {
             reachable,
             config.max_added_puyos,
         );
+        assert_eq!(
+            components.connection_candidate_count,
+            connection_candidate_count_exact(components.as_slice(), landing),
+            "connection candidates: {label}",
+        );
         let frontier = bounded_quiescence::<true, false, true>(
             &planes,
             occupied,
@@ -3820,6 +3834,90 @@ mod tests {
         let config = default_config();
         for (index, state) in states.iter().enumerate() {
             assert_frontier_matches_exhaustive(state, &config, &format!("resolution-{index}"));
+        }
+    }
+
+    #[test]
+    fn component_metadata_aggregation_matches_exact_property_corpus() {
+        for index in 0..512 {
+            let state = property_state(0x2220_0000 + index);
+            let planes = state.evaluator_planes();
+            let occupied = state.internal_occupied();
+            let heights = column_heights(occupied);
+            let reachable = reachable_columns(&heights);
+            let landing = landing_mask(&heights, reachable);
+            let components = extract_components(
+                &planes,
+                occupied,
+                landing,
+                &heights,
+                reachable,
+                default_config().max_added_puyos,
+            );
+            let values = components.as_slice();
+            let expected_normal = planes
+                .iter()
+                .copied()
+                .take(NORMAL_COLOR_COUNT)
+                .fold(0_u128, |value, plane| value | plane);
+            let expected_growth = values
+                .iter()
+                .fold(0_u8, |value, component| value | component.extension_columns);
+
+            assert_eq!(components.len, values.len(), "component count: {index}");
+            assert_eq!(
+                components.base_normal, expected_normal,
+                "normal mask: {index}"
+            );
+            assert_eq!(
+                components.isolated_count,
+                values
+                    .iter()
+                    .filter(|component| component.size == 1)
+                    .count() as u8,
+                "isolated count: {index}",
+            );
+            assert_eq!(
+                components.base_remaining.link_2,
+                values
+                    .iter()
+                    .filter(|component| component.size == 2)
+                    .count() as u8,
+                "link-2 count: {index}",
+            );
+            assert_eq!(
+                components.base_remaining.link_3,
+                values
+                    .iter()
+                    .filter(|component| component.size == 3)
+                    .count() as u8,
+                "link-3 count: {index}",
+            );
+            assert_eq!(
+                components.base_remaining.connection_edges,
+                values
+                    .iter()
+                    .map(|component| component.connection_edges)
+                    .sum::<u8>(),
+                "connection edges: {index}",
+            );
+            assert_eq!(
+                components.reachable_ignition_count,
+                values
+                    .iter()
+                    .filter(|component| { component.size == 3 && component.extension_columns != 0 })
+                    .count() as u8,
+                "reachable ignition count: {index}",
+            );
+            assert_eq!(
+                components.growth_columns, expected_growth,
+                "growth sites: {index}"
+            );
+            assert_eq!(
+                components.connection_candidate_count,
+                connection_candidate_count_exact(values, landing),
+                "connection candidates: {index}",
+            );
         }
     }
 
