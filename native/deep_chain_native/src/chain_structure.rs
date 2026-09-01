@@ -769,7 +769,8 @@ struct RemainingStructure {
 #[derive(Clone, Copy, Debug, Default)]
 struct ComponentAnalysis {
     remaining: RemainingStructure,
-    poppable: u128,
+    has_poppable: bool,
+    normal: u128,
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -2245,58 +2246,80 @@ fn at_least_two_of_four(first: u128, second: u128, third: u128, fourth: u128) ->
         | (third & fourth)
 }
 
-#[inline]
-fn at_least_three_of_four(first: u128, second: u128, third: u128, fourth: u128) -> u128 {
-    (first & second & third)
-        | (first & second & fourth)
-        | (first & third & fourth)
-        | (second & third & fourth)
-}
-
 #[inline(always)]
-fn component_analysis(planes: &[u128; PLANE_COUNT]) -> ComponentAnalysis {
+fn component_analysis<const TERMINAL_ONLY: bool>(
+    planes: &[u128; PLANE_COUNT],
+) -> ComponentAnalysis {
     let mut west = 0_u128;
     let mut east = 0_u128;
     let mut down = 0_u128;
     let mut up = 0_u128;
+    let mut normal = 0_u128;
     for plane in planes.iter().copied().take(NORMAL_COLOR_COUNT) {
-        west |= shift_west_board(plane) & plane;
-        east |= shift_east_board(plane) & plane;
-        down |= shift_down_board(plane) & plane;
-        up |= shift_up_board(plane) & plane;
+        normal |= plane;
+        let horizontal = shift_west_board(plane) & plane;
+        let vertical = shift_down_board(plane) & plane;
+        west |= horizontal;
+        east |= shift_east_board(horizontal);
+        down |= vertical;
+        up |= shift_up_board(vertical);
     }
-    let at_least_one = west | east | down | up;
-    let at_least_two = at_least_two_of_four(west, east, down, up);
-    let at_least_three = at_least_three_of_four(west, east, down, up);
-    let degree_one = at_least_one & !at_least_two;
-    let degree_two = at_least_two & !at_least_three;
-    let leaf_west = east & shift_east_board(degree_one);
-    let leaf_east = west & shift_west_board(degree_one);
-    let leaf_down = up & shift_up_board(degree_one);
-    let leaf_up = down & shift_down_board(degree_one);
-    let adjacent_leaf = leaf_west | leaf_east | leaf_down | leaf_up;
-    let link_2_cells = degree_one & adjacent_leaf;
-    let centers_with_two_leaves =
-        degree_two & at_least_two_of_four(leaf_west, leaf_east, leaf_down, leaf_up);
+    let vertical_both = up & down;
+    let horizontal_both = west & east;
+    let vertical_either = up | down;
+    let horizontal_either = west | east;
+    let at_least_one = vertical_either | horizontal_either;
+    let at_least_two = vertical_both | horizontal_both | (vertical_either & horizontal_either);
+    let at_least_three = (vertical_both & horizontal_either) | (horizontal_both & vertical_either);
     let connected_degree_two = at_least_two
         & ((west & shift_west_board(at_least_two))
             | (east & shift_east_board(at_least_two))
             | (down & shift_down_board(at_least_two))
             | (up & shift_up_board(at_least_two)));
     let poppable_seeds = at_least_three | connected_degree_two;
-    let poppable = poppable_seeds
-        | shift_east_board(poppable_seeds & west)
-        | shift_west_board(poppable_seeds & east)
-        | shift_up_board(poppable_seeds & down)
-        | shift_down_board(poppable_seeds & up);
-    ComponentAnalysis {
-        remaining: RemainingStructure {
+    // Resolution only needs to know whether another chain exists; every
+    // size-four-or-larger grid component has at least one such seed.
+    let has_poppable = poppable_seeds != 0;
+    let connection_edges = (west.count_ones() + down.count_ones()) as u8;
+    let remaining = if TERMINAL_ONLY {
+        if !has_poppable {
+            // The differential resolver excludes hidden cells. With no
+            // poppable component, every component has at most three cells.
+            // A three-cell grid component has exactly one degree-two center;
+            // a two-cell component contributes exactly one edge.
+            let link_3 = at_least_two.count_ones() as u8;
+            debug_assert!(connection_edges >= link_3 * 2);
+            RemainingStructure {
+                link_2: connection_edges - link_3 * 2,
+                link_3,
+                connection_edges,
+                extension_space: 0,
+            }
+        } else {
+            RemainingStructure::default()
+        }
+    } else {
+        let degree_one = at_least_one & !at_least_two;
+        let degree_two = at_least_two & !at_least_three;
+        let leaf_west = east & shift_east_board(degree_one);
+        let leaf_east = west & shift_west_board(degree_one);
+        let leaf_down = up & shift_up_board(degree_one);
+        let leaf_up = down & shift_down_board(degree_one);
+        let adjacent_leaf = leaf_west | leaf_east | leaf_down | leaf_up;
+        let link_2_cells = degree_one & adjacent_leaf;
+        let centers_with_two_leaves =
+            degree_two & at_least_two_of_four(leaf_west, leaf_east, leaf_down, leaf_up);
+        RemainingStructure {
             link_2: (link_2_cells.count_ones() / 2) as u8,
             link_3: centers_with_two_leaves.count_ones() as u8,
-            connection_edges: (west.count_ones() + down.count_ones()) as u8,
+            connection_edges,
             extension_space: 0,
-        },
-        poppable,
+        }
+    };
+    ComponentAnalysis {
+        remaining,
+        has_poppable,
+        normal,
     }
 }
 
@@ -2305,7 +2328,7 @@ fn remaining_structure_with_extension(
     planes: &[u128; PLANE_COUNT],
     extension_space: u8,
 ) -> RemainingStructure {
-    let mut result = component_analysis(planes).remaining;
+    let mut result = component_analysis::<false>(planes).remaining;
     result.extension_space = extension_space;
     result
 }
@@ -2359,18 +2382,14 @@ fn compact_extension_space(normal: u128, occupied: u128) -> u8 {
 
 #[inline(always)]
 fn finish_fused_remaining(
-    planes: &[u128; PLANE_COUNT],
+    normal: u128,
+    garbage: u128,
     mut remaining: RemainingStructure,
 ) -> RemainingStructure {
-    let normal = planes
-        .iter()
-        .copied()
-        .take(NORMAL_COLOR_COUNT)
-        .fold(0_u128, |value, plane| value | plane);
     if normal == 0 {
         return RemainingStructure::default();
     }
-    remaining.extension_space = compact_extension_space(normal, normal | planes[PLANE_COUNT - 1]);
+    remaining.extension_space = compact_extension_space(normal, normal | garbage);
     remaining
 }
 
@@ -2433,10 +2452,13 @@ unsafe fn resolve_virtual_incremental_seeded(
     };
     progress.apply_incremental(first_vanish, placements);
     loop {
-        let analysis = component_analysis(&progress.planes);
-        if analysis.poppable & VISIBLE_MASK == 0 {
-            progress.remaining_structure =
-                Some(finish_fused_remaining(&progress.planes, analysis.remaining));
+        let analysis = component_analysis::<true>(&progress.planes);
+        if !analysis.has_poppable {
+            progress.remaining_structure = Some(finish_fused_remaining(
+                analysis.normal,
+                progress.planes[PLANE_COUNT - 1],
+                analysis.remaining,
+            ));
             return resolved_result(progress, trigger_anchors);
         }
         let vanish = find_vanish_prefiltered(&progress.planes);
@@ -2781,12 +2803,15 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
             return;
         }
-        self.enter_profile_stage(PROFILE_STAGE_REMAINING);
         let remaining = if INCREMENTAL && self.components.incremental_resolution_supported {
-            resolved
-                .remaining_structure
-                .unwrap_or_else(|| remaining_structure_compact(&resolved.planes))
+            if let Some(remaining) = resolved.remaining_structure {
+                remaining
+            } else {
+                self.enter_profile_stage(PROFILE_STAGE_REMAINING);
+                remaining_structure_compact(&resolved.planes)
+            }
         } else {
+            self.enter_profile_stage(PROFILE_STAGE_REMAINING);
             remaining_structure(&resolved.planes)
         };
         self.rank_resolved_candidate(
@@ -2831,7 +2856,6 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         let specification = PLACEMENT_CATALOG.patterns[pattern_index];
         let pattern = pattern_from_spec(specification, self.heights, landing);
         if INCREMENTAL && resolution_spec.precomputed_valid {
-            self.enter_profile_stage(PROFILE_STAGE_RESOLVE);
             self.finish_cached_candidate(
                 plane_index,
                 added_puyos,
@@ -3816,11 +3840,19 @@ mod tests {
             );
             let visible_planes =
                 std::array::from_fn(|plane_index| planes[plane_index] & VISIBLE_MASK);
+            let terminal_analysis = component_analysis::<true>(&visible_planes);
+            let exact_analysis = component_analysis::<false>(&visible_planes);
             assert_eq!(
-                component_analysis(&visible_planes).poppable != 0,
+                terminal_analysis.has_poppable,
                 find_vanish_exact(&visible_planes).mask != 0,
                 "component-analysis-{index}"
             );
+            if !terminal_analysis.has_poppable {
+                assert_eq!(
+                    terminal_analysis.remaining, exact_analysis.remaining,
+                    "terminal-remaining-{index}"
+                );
+            }
         }
     }
 
@@ -3922,9 +3954,8 @@ mod tests {
         assert_eq!(counts.pattern_nodes, actual.pattern_nodes);
         assert!(counts.executed_pattern_probes <= counts.pattern_nodes);
         assert_eq!(counts.resolution_nodes, actual.resolution_nodes);
-        assert_eq!(
-            counts.stage_entries[usize::from(PROFILE_STAGE_RESOLVE)],
-            counts.resolution_nodes
+        assert!(
+            counts.stage_entries[usize::from(PROFILE_STAGE_RESOLVE)] <= counts.resolution_nodes
         );
         assert_eq!(
             counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)],
