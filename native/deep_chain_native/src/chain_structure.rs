@@ -1795,55 +1795,160 @@ fn resolve_virtual(
     let mut score = 0_u32;
     let mut trigger_anchors = 0_u128;
     let mut first_trigger_cell = u32::MAX;
+    resolve_virtual_seeded(
+        &mut planes,
+        trigger_plane,
+        placements,
+        &mut chain_count,
+        &mut score,
+        &mut trigger_anchors,
+        &mut first_trigger_cell,
+        None,
+    );
+    ResolvedVirtual {
+        planes,
+        chain_count,
+        score,
+        trigger_anchors,
+    }
+}
+
+fn resolve_virtual_seeded(
+    planes: &mut [u128; PLANE_COUNT],
+    trigger_plane: usize,
+    placements: u128,
+    chain_count: &mut u8,
+    score: &mut u32,
+    trigger_anchors: &mut u128,
+    first_trigger_cell: &mut u32,
+    mut seeded_first: Option<(u128, u32, u16, u8)>,
+) {
     loop {
-        let mut vanished = 0_u128;
-        let mut vanished_count = 0_u32;
-        let mut total_connection_bonus = 0_u16;
-        let mut color_count = 0_u8;
-        for (plane_index, plane) in planes.iter().copied().take(NORMAL_COLOR_COUNT).enumerate() {
-            let visible_plane = plane & VISIBLE_MASK;
-            let mut remaining = visible_plane;
-            let mut color_vanished = false;
-            while remaining != 0 {
-                let seed = 1_u128 << remaining.trailing_zeros();
-                let group = flood(seed, visible_plane, true);
-                remaining &= !group;
-                let count = group.count_ones();
-                if count < 4 {
-                    continue;
-                }
-                if chain_count == 0 && plane_index == trigger_plane {
-                    let trigger_cells = group & placements;
-                    if trigger_cells != 0 {
-                        let first_cell = trigger_cells.trailing_zeros();
-                        if first_cell < first_trigger_cell {
-                            first_trigger_cell = first_cell;
-                            trigger_anchors = group & !placements;
+        let (vanished, vanished_count, total_connection_bonus, color_count) = if let Some(seed) =
+            seeded_first.take()
+        {
+            seed
+        } else {
+            let mut vanished = 0_u128;
+            let mut vanished_count = 0_u32;
+            let mut total_connection_bonus = 0_u16;
+            let mut color_count = 0_u8;
+            for (plane_index, plane) in planes.iter().copied().take(NORMAL_COLOR_COUNT).enumerate()
+            {
+                let visible_plane = plane & VISIBLE_MASK;
+                let mut remaining = visible_plane;
+                let mut color_vanished = false;
+                while remaining != 0 {
+                    let seed = 1_u128 << remaining.trailing_zeros();
+                    let group = flood(seed, visible_plane, true);
+                    remaining &= !group;
+                    let count = group.count_ones();
+                    if count < 4 {
+                        continue;
+                    }
+                    if *chain_count == 0 && plane_index == trigger_plane {
+                        let trigger_cells = group & placements;
+                        if trigger_cells != 0 {
+                            let first_cell = trigger_cells.trailing_zeros();
+                            if first_cell < *first_trigger_cell {
+                                *first_trigger_cell = first_cell;
+                                *trigger_anchors = group & !placements;
+                            }
                         }
                     }
+                    vanished |= group;
+                    vanished_count += count;
+                    total_connection_bonus += connection_bonus(count);
+                    color_vanished = true;
                 }
-                vanished |= group;
-                vanished_count += count;
-                total_connection_bonus += connection_bonus(count);
-                color_vanished = true;
+                color_count += u8::from(color_vanished);
             }
-            color_count += u8::from(color_vanished);
-        }
+            (
+                vanished,
+                vanished_count,
+                total_connection_bonus,
+                color_count,
+            )
+        };
         if vanished == 0 {
             break;
         }
-        chain_count += 1;
+        *chain_count += 1;
         let garbage = visible_neighbors(vanished) & planes[PLANE_COUNT - 1] & VISIBLE_MASK;
-        let chain_bonus = CHAIN_BONUS[usize::from(chain_count).min(CHAIN_BONUS.len() - 1)];
+        let chain_bonus = CHAIN_BONUS[usize::from(*chain_count).min(CHAIN_BONUS.len() - 1)];
         let color_bonus = COLOR_BONUS[usize::from(color_count)];
         let bonus = (chain_bonus + total_connection_bonus + color_bonus).max(1);
-        score += vanished_count * 10 * u32::from(bonus);
+        *score += vanished_count * 10 * u32::from(bonus);
         for plane in planes.iter_mut().take(NORMAL_COLOR_COUNT) {
             *plane &= !vanished;
         }
         planes[PLANE_COUNT - 1] &= !garbage;
-        planes = apply_gravity(&planes);
+        *planes = apply_gravity(planes);
     }
+}
+
+fn resolve_virtual_differential(
+    mut planes: [u128; PLANE_COUNT],
+    trigger_plane: usize,
+    placements: u128,
+    components: &[Component],
+) -> ResolvedVirtual {
+    // A pre-existing clear can involve any color and is outside the trigger
+    // locality contract. Keep the exact oracle for that rare/unsupported
+    // shape instead of silently changing chain ordering or score semantics.
+    if components
+        .iter()
+        .any(|component| (component.mask & VISIBLE_MASK).count_ones() >= 4)
+    {
+        return resolve_virtual(planes, trigger_plane, placements);
+    }
+    let visible_placements = placements & VISIBLE_MASK;
+    let mut affected = visible_placements;
+    let placement_neighbors = visible_neighbors(visible_placements);
+    for component in components {
+        if usize::from(component.color) == trigger_plane
+            && component.mask & VISIBLE_MASK & placement_neighbors != 0
+        {
+            affected |= component.mask & VISIBLE_MASK;
+        }
+    }
+    let mut vanished = 0_u128;
+    let mut total_connection_bonus = 0_u16;
+    let mut trigger_group = 0_u128;
+    let mut first_trigger_cell = u32::MAX;
+    let mut pending = visible_placements;
+    while pending != 0 {
+        let seed = 1_u128 << pending.trailing_zeros();
+        let group = flood(seed, affected, true);
+        pending &= !group;
+        if group.count_ones() >= 4 {
+            vanished |= group;
+            total_connection_bonus += connection_bonus(group.count_ones());
+            let trigger_cells = group & placements;
+            if trigger_cells != 0 && trigger_cells.trailing_zeros() < first_trigger_cell {
+                first_trigger_cell = trigger_cells.trailing_zeros();
+                trigger_group = group;
+            }
+        }
+    }
+    if vanished == 0 {
+        return resolve_virtual(planes, trigger_plane, placements);
+    }
+    let count = vanished.count_ones();
+    let anchors = trigger_group & !placements;
+    let mut chain_count = 0_u8;
+    let mut score = 0_u32;
+    let mut trigger_anchors = anchors;
+    resolve_virtual_seeded(
+        &mut planes,
+        trigger_plane,
+        placements,
+        &mut chain_count,
+        &mut score,
+        &mut trigger_anchors,
+        &mut first_trigger_cell,
+        Some((vanished, count, total_connection_bonus, 1)),
+    );
     ResolvedVirtual {
         planes,
         chain_count,
@@ -1902,6 +2007,7 @@ struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool> {
     occupied: u128,
     heights: &'a [u8; WIDTH],
     reachable: u8,
+    components: &'a [Component],
     config: &'a EvaluationConfig,
     pattern_nodes: u32,
     resolution_nodes: u32,
@@ -1922,6 +2028,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
         occupied: u128,
         heights: &'a [u8; WIDTH],
         reachable: u8,
+        components: &'a [Component],
         config: &'a EvaluationConfig,
         profile_stage: Option<&'a AtomicU8>,
     ) -> Self {
@@ -1930,6 +2037,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
             occupied,
             heights,
             reachable,
+            components,
             config,
             pattern_nodes: 0,
             resolution_nodes: 0,
@@ -2003,7 +2111,12 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
     ) {
         let mut virtual_planes = *self.planes;
         virtual_planes[plane_index] |= pattern.mask;
-        let resolved = resolve_virtual(virtual_planes, plane_index, pattern.mask);
+        let resolved = resolve_virtual_differential(
+            virtual_planes,
+            plane_index,
+            pattern.mask,
+            self.components,
+        );
         self.resolution_nodes += 1;
         if PROFILE {
             self.profile_counts.resolution_nodes += 1;
@@ -2319,7 +2432,7 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
     occupied: u128,
     heights: &'a [u8; WIDTH],
     reachable: u8,
-    components: &ComponentSet,
+    components: &'a ComponentSet,
     config: &'a EvaluationConfig,
     profile_stage: Option<&'a AtomicU8>,
 ) -> QuiescenceSearch<'a, EVIDENCE, PROFILE> {
@@ -2328,6 +2441,7 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
         occupied,
         heights,
         reachable,
+        components.as_slice(),
         config,
         profile_stage,
     );
@@ -2348,8 +2462,15 @@ fn bounded_quiescence_exhaustive<'a>(
     reachable: u8,
     config: &'a EvaluationConfig,
 ) -> QuiescenceSearch<'a, true, false> {
-    let mut search =
-        QuiescenceSearch::<true, false>::new(planes, occupied, heights, reachable, config, None);
+    let mut search = QuiescenceSearch::<true, false>::new(
+        planes,
+        occupied,
+        heights,
+        reachable,
+        &[],
+        config,
+        None,
+    );
     for first in 0..WIDTH as u8 {
         search.consider_columns_exhaustive(&[first], 1);
         if search.truncated() {
