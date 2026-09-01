@@ -14,10 +14,26 @@ from eval.deep_chain_native_incremental_resolution import (
     PROPERTY_COMPARISON_COUNT,
     STAGE_NAMES,
     derive_summary,
+    parse_args,
+    verify_incremental_resolution_artifacts,
 )
 
 
 class DeepChainNativeIncrementalResolutionTest(unittest.TestCase):
+    def test_historical_verify_preserves_hash_checks_after_successor_changes(self):
+        args = parse_args(["verify", "--historical"])
+
+        self.assertTrue(args.historical)
+        self.assertFalse(args.require_exact_wheel)
+        self.assertFalse(args.skip_oracle_rerun)
+        self.assertEqual(
+            verify_incremental_resolution_artifacts(
+                rerun_oracle=False,
+                historical=True,
+            ),
+            [],
+        )
+
     def _inputs(self):
         baseline = _read_json(BASELINE_SUMMARY_PATH)
         semantic = _read_json(BASELINE_SEMANTIC_PATH)
