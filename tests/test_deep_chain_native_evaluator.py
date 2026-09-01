@@ -112,7 +112,7 @@ class TestNativeChainStructureExtension(unittest.TestCase):
         )
         self.assertEqual(
             NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION,
-            "puyo.native_chain_structure_stage_profile.v1",
+            "puyo.native_chain_structure_stage_profile.v2",
         )
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_CHILD_STATE_BYTES, 80)
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_RESULT_BYTES, 24)
@@ -226,6 +226,7 @@ class TestNativeChainStructureExtension(unittest.TestCase):
         self.assertEqual(result.mismatch_count, 0)
         self.assertEqual(result.aggregate_counts.pattern_nodes, 17 * 415)
         self.assertEqual(result.record_counts[0].pattern_nodes, 415)
+        self.assertLessEqual(result.record_counts[0].executed_pattern_probes, 96)
         self.assertEqual(
             result.aggregate_counts.resolution_nodes,
             17 * result.record_counts[0].resolution_nodes,

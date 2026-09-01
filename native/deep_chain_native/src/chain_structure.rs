@@ -7,6 +7,7 @@
 //! nor materializes Python-facing objects.
 
 use std::cmp::Ordering;
+use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicU8, Ordering as AtomicOrdering};
 
 use crate::compact::{
@@ -21,6 +22,12 @@ pub(crate) const WEIGHT_COUNT: usize = 24;
 pub(crate) const MAX_COMPONENTS: usize = WIDTH * HEIGHT;
 pub(crate) const MAX_EVIDENCE_CANDIDATES: usize = 96;
 pub(crate) const DEFAULT_MAX_RETAINED_CANDIDATES: usize = 12;
+
+const PLACEMENT_PATTERN_COUNT: usize = 83;
+const PLACEMENT_ORBIT_COUNT: usize = 43;
+const ROOT_PLACEMENT_PATTERN_INDEX: u8 = PLACEMENT_PATTERN_COUNT as u8;
+const MAX_FRONTIER_COMPONENTS: usize = WIDTH + (WIDTH - 1) * 3;
+const STACK_SLOT_COUNT: usize = WIDTH * 3;
 
 pub(crate) const PROFILE_STAGE_DRIVER: u8 = 0;
 pub(crate) const PROFILE_STAGE_TRANSITION: u8 = 1;
@@ -256,6 +263,7 @@ pub(crate) struct EvaluationEvidence {
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub(crate) struct EvaluationProfileCounts {
     pub(crate) pattern_nodes: u32,
+    pub(crate) executed_pattern_probes: u32,
     pub(crate) resolution_nodes: u32,
     pub(crate) rank_comparison_calls: u32,
     pub(crate) rank_tie_calls: u32,
@@ -277,6 +285,7 @@ impl Default for EvaluationEvidence {
 struct Component {
     mask: u128,
     extensions: u128,
+    frontier_slots: u32,
     color: u8,
     size: u8,
     connection_edges: u8,
@@ -286,6 +295,14 @@ struct Component {
 struct ComponentSet {
     values: [Component; MAX_COMPONENTS],
     len: usize,
+    landing: u128,
+    frontier_sizes: [MaybeUninit<u8>; MAX_FRONTIER_COMPONENTS],
+    frontier_slots: [MaybeUninit<u32>; MAX_FRONTIER_COMPONENTS],
+    frontier_color_components: [u32; NORMAL_COLOR_COUNT],
+    frontier_len: usize,
+    stack_neighbors: [u32; STACK_SLOT_COUNT],
+    stack_prefix_neighbors: [[u32; 4]; WIDTH],
+    stack_prefix_components: [[u32; 4]; WIDTH],
 }
 
 impl Default for ComponentSet {
@@ -293,6 +310,14 @@ impl Default for ComponentSet {
         Self {
             values: [Component::default(); MAX_COMPONENTS],
             len: 0,
+            landing: 0,
+            frontier_sizes: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
+            frontier_slots: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
+            frontier_color_components: [0; NORMAL_COLOR_COUNT],
+            frontier_len: 0,
+            stack_neighbors: [0; STACK_SLOT_COUNT],
+            stack_prefix_neighbors: [[0; 4]; WIDTH],
+            stack_prefix_components: [[0; 4]; WIDTH],
         }
     }
 }
@@ -302,6 +327,26 @@ impl ComponentSet {
         debug_assert!(self.len < self.values.len());
         self.values[self.len] = value;
         self.len += 1;
+        if value.frontier_slots == 0 {
+            return;
+        }
+        debug_assert!(self.frontier_len < MAX_FRONTIER_COMPONENTS);
+        let component_bit = 1_u32 << self.frontier_len;
+        self.frontier_sizes[self.frontier_len].write(value.size);
+        self.frontier_slots[self.frontier_len].write(value.frontier_slots);
+        self.frontier_color_components[usize::from(value.color)] |= component_bit;
+        let mut frontier = value.frontier_slots;
+        while frontier != 0 {
+            let slot = frontier.trailing_zeros() as usize;
+            frontier &= frontier - 1;
+            let column = slot / 3;
+            let mut count = slot % 3 + 1;
+            while count <= 3 {
+                self.stack_prefix_components[column][count] |= component_bit;
+                count += 1;
+            }
+        }
+        self.frontier_len += 1;
     }
 
     fn as_slice(&self) -> &[Component] {
@@ -312,16 +357,356 @@ impl ComponentSet {
 #[derive(Clone, Copy, Debug, Default)]
 struct PlacementPattern {
     mask: u128,
+    #[cfg_attr(not(test), allow(dead_code))]
     counts: [u8; WIDTH],
     minimum_column: u8,
     minimum_height: u8,
 }
+
+#[derive(Clone, Copy)]
+struct PlacementPatternSpec {
+    counts: [u8; WIDTH],
+    column_specs: [u8; 3],
+    column_count: u8,
+    count_at_least_columns: [u8; 3],
+    added_puyos: u8,
+    minimum_column: u8,
+}
+
+impl PlacementPatternSpec {
+    const EMPTY: Self = Self {
+        counts: [0; WIDTH],
+        column_specs: [0; 3],
+        column_count: 0,
+        count_at_least_columns: [0; 3],
+        added_puyos: 0,
+        minimum_column: 0,
+    };
+}
+
+#[derive(Clone, Copy)]
+struct PlacementOrbitSpec {
+    first_pattern: u8,
+    pattern_count: u8,
+    added_puyos: u8,
+}
+
+impl PlacementOrbitSpec {
+    const EMPTY: Self = Self {
+        first_pattern: 0,
+        pattern_count: 0,
+        added_puyos: 0,
+    };
+
+    #[inline(always)]
+    fn pattern_mask(self) -> u128 {
+        ((1_u128 << self.pattern_count) - 1) << self.first_pattern
+    }
+}
+
+struct PlacementCatalog {
+    patterns: [PlacementPatternSpec; PLACEMENT_PATTERN_COUNT],
+    orbits: [PlacementOrbitSpec; PLACEMENT_ORBIT_COUNT],
+    orbit_by_pattern: [u8; PLACEMENT_PATTERN_COUNT],
+    by_added_puyos: [u128; 4],
+    count_at_least: [[u128; 4]; WIDTH],
+    proper_subpatterns: [u128; PLACEMENT_PATTERN_COUNT],
+    proper_supersets: [u128; PLACEMENT_PATTERN_COUNT],
+    nonminimal_by_singletons: [u128; 1 << WIDTH],
+    nonminimal_by_pairs: [[u128; 1 << 7]; 3],
+    pattern_by_counts: [u8; 1 << (WIDTH * 2)],
+    pattern_slots: [u32; PLACEMENT_PATTERN_COUNT],
+    slot_patterns: [u128; STACK_SLOT_COUNT],
+    next_pattern_by_slot: [[u8; WIDTH * 3]; PLACEMENT_PATTERN_COUNT + 1],
+}
+
+const fn compare_column_patterns(left: &[u8; 3], right: &[u8; 3], len: usize) -> i8 {
+    let mut index = 0_usize;
+    while index < len {
+        if left[index] < right[index] {
+            return -1;
+        }
+        if left[index] > right[index] {
+            return 1;
+        }
+        index += 1;
+    }
+    0
+}
+
+const fn pattern_spec(columns: &[u8; 3], len: usize) -> PlacementPatternSpec {
+    let mut counts = [0_u8; WIDTH];
+    let mut index = 0_usize;
+    while index < len {
+        counts[columns[index] as usize] += 1;
+        index += 1;
+    }
+    let mut column_specs = [0_u8; 3];
+    let mut column_count = 0_usize;
+    let mut count_at_least_columns = [0_u8; 3];
+    let mut column = 0_usize;
+    while column < WIDTH {
+        if counts[column] != 0 {
+            column_specs[column_count] = ((column as u8) << 2) | counts[column];
+            column_count += 1;
+            let mut count = 0_usize;
+            while count < counts[column] as usize {
+                count_at_least_columns[count] |= 1_u8 << column;
+                count += 1;
+            }
+        }
+        column += 1;
+    }
+    PlacementPatternSpec {
+        counts,
+        column_specs,
+        column_count: column_count as u8,
+        count_at_least_columns,
+        added_puyos: len as u8,
+        minimum_column: columns[0],
+    }
+}
+
+const fn push_catalog_orbit(
+    catalog: &mut PlacementCatalog,
+    pattern_cursor: &mut usize,
+    orbit_cursor: &mut usize,
+    columns: [u8; 3],
+    len: usize,
+) {
+    let mut mirrored = [0_u8; 3];
+    let mut index = 0_usize;
+    while index < len {
+        mirrored[index] = (WIDTH - 1) as u8 - columns[len - 1 - index];
+        index += 1;
+    }
+    let comparison = compare_column_patterns(&columns, &mirrored, len);
+    if comparison > 0 {
+        return;
+    }
+    let first_pattern = *pattern_cursor;
+    catalog.patterns[*pattern_cursor] = pattern_spec(&columns, len);
+    *pattern_cursor += 1;
+    if comparison < 0 {
+        catalog.patterns[*pattern_cursor] = pattern_spec(&mirrored, len);
+        *pattern_cursor += 1;
+    }
+    catalog.orbits[*orbit_cursor] = PlacementOrbitSpec {
+        first_pattern: first_pattern as u8,
+        pattern_count: (*pattern_cursor - first_pattern) as u8,
+        added_puyos: len as u8,
+    };
+    *orbit_cursor += 1;
+}
+
+const fn build_placement_catalog() -> PlacementCatalog {
+    let mut catalog = PlacementCatalog {
+        patterns: [PlacementPatternSpec::EMPTY; PLACEMENT_PATTERN_COUNT],
+        orbits: [PlacementOrbitSpec::EMPTY; PLACEMENT_ORBIT_COUNT],
+        orbit_by_pattern: [u8::MAX; PLACEMENT_PATTERN_COUNT],
+        by_added_puyos: [0; 4],
+        count_at_least: [[0; 4]; WIDTH],
+        proper_subpatterns: [0; PLACEMENT_PATTERN_COUNT],
+        proper_supersets: [0; PLACEMENT_PATTERN_COUNT],
+        nonminimal_by_singletons: [0; 1 << WIDTH],
+        nonminimal_by_pairs: [[0; 1 << 7]; 3],
+        pattern_by_counts: [u8::MAX; 1 << (WIDTH * 2)],
+        pattern_slots: [0; PLACEMENT_PATTERN_COUNT],
+        slot_patterns: [0; STACK_SLOT_COUNT],
+        next_pattern_by_slot: [[u8::MAX; WIDTH * 3]; PLACEMENT_PATTERN_COUNT + 1],
+    };
+    let mut pattern_cursor = 0_usize;
+    let mut orbit_cursor = 0_usize;
+
+    let mut first = 0_u8;
+    while first < WIDTH as u8 {
+        push_catalog_orbit(
+            &mut catalog,
+            &mut pattern_cursor,
+            &mut orbit_cursor,
+            [first, 0, 0],
+            1,
+        );
+        first += 1;
+    }
+    first = 0;
+    while first < WIDTH as u8 {
+        let mut second = first;
+        while second < WIDTH as u8 {
+            push_catalog_orbit(
+                &mut catalog,
+                &mut pattern_cursor,
+                &mut orbit_cursor,
+                [first, second, 0],
+                2,
+            );
+            second += 1;
+        }
+        first += 1;
+    }
+    first = 0;
+    while first < WIDTH as u8 {
+        let mut second = first;
+        while second < WIDTH as u8 {
+            let mut third = second;
+            while third < WIDTH as u8 {
+                push_catalog_orbit(
+                    &mut catalog,
+                    &mut pattern_cursor,
+                    &mut orbit_cursor,
+                    [first, second, third],
+                    3,
+                );
+                third += 1;
+            }
+            second += 1;
+        }
+        first += 1;
+    }
+
+    let mut pattern_index = 0_usize;
+    let mut orbit_index = 0_usize;
+    while orbit_index < PLACEMENT_ORBIT_COUNT {
+        let orbit = catalog.orbits[orbit_index];
+        let mut offset = 0_u8;
+        while offset < orbit.pattern_count {
+            catalog.orbit_by_pattern[orbit.first_pattern as usize + offset as usize] =
+                orbit_index as u8;
+            offset += 1;
+        }
+        orbit_index += 1;
+    }
+    while pattern_index < PLACEMENT_PATTERN_COUNT {
+        let bit = 1_u128 << pattern_index;
+        let pattern = catalog.patterns[pattern_index];
+        let mut count_code = 0_usize;
+        let mut code_column = 0_usize;
+        while code_column < WIDTH {
+            count_code |= (pattern.counts[code_column] as usize) << (code_column * 2);
+            let mut offset = 0_u8;
+            while offset < pattern.counts[code_column] {
+                catalog.pattern_slots[pattern_index] |=
+                    1_u32 << (code_column * 3 + offset as usize);
+                offset += 1;
+            }
+            code_column += 1;
+        }
+        catalog.pattern_by_counts[count_code] = pattern_index as u8;
+        catalog.by_added_puyos[pattern.added_puyos as usize] |= bit;
+        let mut column = 0_usize;
+        while column < WIDTH {
+            let mut count = 1_u8;
+            while count <= pattern.counts[column] {
+                catalog.count_at_least[column][count as usize] |= bit;
+                count += 1;
+            }
+            column += 1;
+        }
+        pattern_index += 1;
+    }
+    let mut slot = 0_usize;
+    while slot < STACK_SLOT_COUNT {
+        catalog.slot_patterns[slot] = catalog.count_at_least[slot / 3][slot % 3 + 1];
+        slot += 1;
+    }
+    pattern_index = 0;
+    while pattern_index < PLACEMENT_PATTERN_COUNT {
+        let pattern = catalog.patterns[pattern_index];
+        let mut candidate_index = 0_usize;
+        while candidate_index < PLACEMENT_PATTERN_COUNT {
+            let candidate = catalog.patterns[candidate_index];
+            if candidate.added_puyos < pattern.added_puyos {
+                let mut subset = true;
+                let mut column = 0_usize;
+                while column < WIDTH {
+                    if candidate.counts[column] > pattern.counts[column] {
+                        subset = false;
+                        break;
+                    }
+                    column += 1;
+                }
+                if subset {
+                    catalog.proper_subpatterns[pattern_index] |= 1_u128 << candidate_index;
+                    catalog.proper_supersets[candidate_index] |= 1_u128 << pattern_index;
+                }
+            }
+            candidate_index += 1;
+        }
+        pattern_index += 1;
+    }
+    let mut selection = 0_usize;
+    while selection < 1 << WIDTH {
+        let mut bit = 0_usize;
+        while bit < WIDTH {
+            if selection & (1 << bit) != 0 {
+                catalog.nonminimal_by_singletons[selection] |= catalog.proper_supersets[bit];
+            }
+            bit += 1;
+        }
+        selection += 1;
+    }
+    let mut chunk = 0_usize;
+    while chunk < 3 {
+        selection = 0;
+        while selection < 1 << 7 {
+            let mut bit = 0_usize;
+            while bit < 7 {
+                let pattern = WIDTH + chunk * 7 + bit;
+                if pattern < WIDTH + 21 && selection & (1 << bit) != 0 {
+                    catalog.nonminimal_by_pairs[chunk][selection] |=
+                        catalog.proper_supersets[pattern];
+                }
+                bit += 1;
+            }
+            selection += 1;
+        }
+        chunk += 1;
+    }
+    let mut current_index = 0_usize;
+    while current_index <= PLACEMENT_PATTERN_COUNT {
+        let current = if current_index == PLACEMENT_PATTERN_COUNT {
+            PlacementPatternSpec::EMPTY
+        } else {
+            catalog.patterns[current_index]
+        };
+        let mut slot = 0_usize;
+        while slot < WIDTH * 3 {
+            let column = slot / 3;
+            let required_count = (slot % 3 + 1) as u8;
+            let current_count = current.counts[column];
+            let additional = required_count.saturating_sub(current_count);
+            if additional != 0 && current.added_puyos + additional <= 3 {
+                let mut count_code = 0_usize;
+                let mut code_column = 0_usize;
+                while code_column < WIDTH {
+                    let count = if code_column == column {
+                        required_count
+                    } else {
+                        current.counts[code_column]
+                    };
+                    count_code |= (count as usize) << (code_column * 2);
+                    code_column += 1;
+                }
+                let next_pattern = catalog.pattern_by_counts[count_code];
+                if next_pattern != u8::MAX {
+                    catalog.next_pattern_by_slot[current_index][slot] = next_pattern;
+                }
+            }
+            slot += 1;
+        }
+        current_index += 1;
+    }
+    catalog
+}
+
+const PLACEMENT_CATALOG: PlacementCatalog = build_placement_catalog();
 
 #[derive(Clone, Copy, Debug, Default)]
 struct ResolvedVirtual {
     planes: [u128; PLANE_COUNT],
     chain_count: u8,
     score: u32,
+    trigger_anchors: u128,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -346,6 +731,24 @@ const fn lane_mask(height: usize) -> u128 {
     }
     result
 }
+
+const fn build_lane_selection_masks() -> [u128; 1 << WIDTH] {
+    let mut result = [0_u128; 1 << WIDTH];
+    let mut selection = 0_usize;
+    while selection < result.len() {
+        let mut column = 0_usize;
+        while column < WIDTH {
+            if selection & (1 << column) != 0 {
+                result[selection] |= 0xffff_u128 << (column * COLUMN_LANE_BITS);
+            }
+            column += 1;
+        }
+        selection += 1;
+    }
+    result
+}
+
+const LANE_SELECTION_MASKS: [u128; 1 << WIDTH] = build_lane_selection_masks();
 
 const fn row_mask(y: usize) -> u128 {
     let mut result = 0_u128;
@@ -425,8 +828,62 @@ fn landing_mask(heights: &[u8; WIDTH], reachable: u8) -> u128 {
     result
 }
 
-fn extract_components(planes: &[u128; PLANE_COUNT], occupied: u128, landing: u128) -> ComponentSet {
-    let mut result = ComponentSet::default();
+fn extract_components(
+    planes: &[u128; PLANE_COUNT],
+    occupied: u128,
+    landing: u128,
+    heights: &[u8; WIDTH],
+    reachable: u8,
+    max_added_puyos: u8,
+) -> ComponentSet {
+    let mut result = ComponentSet {
+        landing,
+        ..ComponentSet::default()
+    };
+    let mut stack_mask = 0_u128;
+    let mut capacities = [0_u8; WIDTH];
+    for (column, height) in heights.iter().copied().enumerate() {
+        if reachable & (1_u8 << column) == 0 {
+            continue;
+        }
+        let capacity = (VISIBLE_HEIGHT as u8)
+            .saturating_sub(height)
+            .min(max_added_puyos);
+        capacities[column] = capacity;
+        if capacity != 0 {
+            stack_mask |=
+                ((1_u128 << capacity) - 1) << (column * COLUMN_LANE_BITS + usize::from(height));
+        }
+    }
+    for (column, capacity) in capacities.iter().copied().enumerate() {
+        for offset in 1..usize::from(capacity) {
+            let lower = column * 3 + offset - 1;
+            let upper = lower + 1;
+            result.stack_neighbors[lower] |= 1_u32 << upper;
+            result.stack_neighbors[upper] |= 1_u32 << lower;
+        }
+    }
+    for left_column in 0..WIDTH - 1 {
+        let right_column = left_column + 1;
+        for left_offset in 0..usize::from(capacities[left_column]) {
+            let right_offset = isize::from(heights[left_column]) + left_offset as isize
+                - isize::from(heights[right_column]);
+            if !(0..isize::from(capacities[right_column])).contains(&right_offset) {
+                continue;
+            }
+            let left_slot = left_column * 3 + left_offset;
+            let right_slot = right_column * 3 + right_offset as usize;
+            result.stack_neighbors[left_slot] |= 1_u32 << right_slot;
+            result.stack_neighbors[right_slot] |= 1_u32 << left_slot;
+        }
+    }
+    for column in 0..WIDTH {
+        for count in 1..=3 {
+            let slot = column * 3 + count - 1;
+            result.stack_prefix_neighbors[column][count] =
+                result.stack_prefix_neighbors[column][count - 1] | result.stack_neighbors[slot];
+        }
+    }
     for (plane_index, plane) in planes.iter().copied().enumerate().take(NORMAL_COLOR_COUNT) {
         let mut remaining = plane;
         while remaining != 0 {
@@ -435,10 +892,19 @@ fn extract_components(planes: &[u128; PLANE_COUNT], occupied: u128, landing: u12
             remaining &= !mask;
             let connection_edges = ((mask & (mask >> COLUMN_LANE_BITS)).count_ones()
                 + (mask & (mask >> 1)).count_ones()) as u8;
-            let extensions = board_neighbors(mask) & landing & !occupied;
+            let neighbors = board_neighbors(mask);
+            let extensions = neighbors & landing & !occupied;
+            let stack_frontier = neighbors & stack_mask;
+            let mut frontier_slots = 0_u32;
+            for (column, height) in heights.iter().copied().enumerate() {
+                let slots = ((stack_frontier >> (column * COLUMN_LANE_BITS + usize::from(height)))
+                    & 0x07) as u32;
+                frontier_slots |= slots << (column * 3);
+            }
             result.push(Component {
                 mask,
                 extensions,
+                frontier_slots,
                 color: plane_index as u8,
                 size: mask.count_ones() as u8,
                 connection_edges,
@@ -795,6 +1261,7 @@ fn compare_candidate_rank_prefix(
         .then_with(|| right.trigger_height.cmp(&left.trigger_height))
 }
 
+#[cfg(test)]
 fn virtual_trigger_anchors(plane: u128, placements: u128) -> Option<u128> {
     let combined = (plane | placements) & VISIBLE_MASK;
     let mut origins = placements;
@@ -815,6 +1282,7 @@ fn virtual_trigger_anchors(plane: u128, placements: u128) -> Option<u128> {
     None
 }
 
+#[cfg(test)]
 fn pattern_from_columns(columns: &[u8], heights: &[u8; WIDTH]) -> PlacementPattern {
     let mut counts = [0_u8; WIDTH];
     for column in columns {
@@ -837,6 +1305,7 @@ fn pattern_from_columns(columns: &[u8], heights: &[u8; WIDTH]) -> PlacementPatte
     }
 }
 
+#[cfg(test)]
 fn valid_pattern(columns: &[u8], heights: &[u8; WIDTH], reachable: u8) -> Option<PlacementPattern> {
     let mut counts = [0_u8; WIDTH];
     for column in columns {
@@ -856,6 +1325,372 @@ fn valid_pattern(columns: &[u8], heights: &[u8; WIDTH], reachable: u8) -> Option
     Some(pattern_from_columns(columns, heights))
 }
 
+#[inline(always)]
+fn pattern_from_spec(
+    specification: PlacementPatternSpec,
+    heights: &[u8; WIDTH],
+    landing: u128,
+) -> PlacementPattern {
+    let [first_columns, second_columns, third_columns] = specification.count_at_least_columns;
+    let mask = (landing & LANE_SELECTION_MASKS[usize::from(first_columns)])
+        | ((landing & LANE_SELECTION_MASKS[usize::from(second_columns)]) << 1)
+        | ((landing & LANE_SELECTION_MASKS[usize::from(third_columns)]) << 2);
+    let mut minimum_height = u8::MAX;
+    let mut index = 0_usize;
+    while index < usize::from(specification.column_count) {
+        let column_spec = specification.column_specs[index];
+        let column = usize::from(column_spec >> 2);
+        let height = heights[column];
+        minimum_height = minimum_height.min(height);
+        index += 1;
+    }
+    PlacementPattern {
+        mask,
+        counts: specification.counts,
+        minimum_column: specification.minimum_column,
+        minimum_height,
+    }
+}
+
+fn valid_catalog_patterns(heights: &[u8; WIDTH], reachable: u8, max_added_puyos: u8) -> u128 {
+    if heights
+        .iter()
+        .copied()
+        .any(|height| usize::from(height) > VISIBLE_HEIGHT)
+    {
+        return 0;
+    }
+    let mut valid = 0_u128;
+    for added_puyos in 1..=max_added_puyos {
+        valid |= PLACEMENT_CATALOG.by_added_puyos[usize::from(added_puyos)];
+    }
+    for (column, height) in heights.iter().copied().enumerate() {
+        if reachable & (1_u8 << column) == 0 {
+            valid &= !PLACEMENT_CATALOG.count_at_least[column][1];
+            continue;
+        }
+        let capacity = (VISIBLE_HEIGHT as u8).saturating_sub(height).min(3);
+        if capacity < 3 {
+            valid &= !PLACEMENT_CATALOG.count_at_least[column][usize::from(capacity + 1)];
+        }
+    }
+    valid
+}
+
+struct TriggerFrontier {
+    candidate_patterns: [u128; NORMAL_COLOR_COUNT],
+    candidate_groups: [u64; 4],
+    candidate_count: u32,
+}
+
+impl TriggerFrontier {
+    #[inline(always)]
+    fn new() -> Self {
+        Self {
+            candidate_patterns: [0_u128; NORMAL_COLOR_COUNT],
+            candidate_groups: [0_u64; 4],
+            candidate_count: 0,
+        }
+    }
+}
+
+fn build_trigger_frontier(
+    result: &mut TriggerFrontier,
+    components: &ComponentSet,
+    max_added_puyos: u8,
+    valid_patterns: u128,
+) {
+    #[derive(Clone, Copy)]
+    struct FrontierState {
+        connected_components: u32,
+        frontier: u32,
+        group_size: u8,
+        added_puyos: u8,
+        pattern_index: u8,
+    }
+
+    fn simple_component_candidates(
+        component_size: u8,
+        component_frontier: u32,
+        stack_neighbors: &[u32; STACK_SLOT_COUNT],
+    ) -> u128 {
+        #[inline(always)]
+        fn patterns_for_slots(mut slots: u32) -> u128 {
+            let mut patterns = 0_u128;
+            while slots != 0 {
+                let slot = slots.trailing_zeros() as usize;
+                slots &= slots - 1;
+                // SAFETY: frontier and neighbor bits use the 18-slot topology.
+                patterns |= unsafe { *PLACEMENT_CATALOG.slot_patterns.get_unchecked(slot) };
+            }
+            patterns
+        }
+
+        let deficit = 4_u8.saturating_sub(component_size).max(1);
+        let mut candidates = 0_u128;
+        let mut first_slots = component_frontier;
+        while first_slots != 0 {
+            let first = first_slots.trailing_zeros() as usize;
+            first_slots &= first_slots - 1;
+            // SAFETY: component frontier bits use the 18-slot topology.
+            let first_patterns = unsafe { *PLACEMENT_CATALOG.slot_patterns.get_unchecked(first) };
+            if deficit == 1 {
+                candidates |= first_patterns;
+                continue;
+            }
+            let mut second_slots =
+                (component_frontier | stack_neighbors[first]) & !(1_u32 << first);
+            if deficit == 2 {
+                candidates |= first_patterns & patterns_for_slots(second_slots);
+                continue;
+            }
+            while second_slots != 0 {
+                let second = second_slots.trailing_zeros() as usize;
+                second_slots &= second_slots - 1;
+                // SAFETY: neighbor bits use the 18-slot topology.
+                let pair_patterns = first_patterns
+                    & unsafe { *PLACEMENT_CATALOG.slot_patterns.get_unchecked(second) };
+                if pair_patterns == 0 {
+                    continue;
+                }
+                let selected = (1_u32 << first) | (1_u32 << second);
+                let third_slots =
+                    (component_frontier | stack_neighbors[first] | stack_neighbors[second])
+                        & !selected;
+                candidates |= pair_patterns & patterns_for_slots(third_slots);
+            }
+        }
+        candidates
+    }
+
+    struct Expansion<'a> {
+        component_sizes: &'a [MaybeUninit<u8>; MAX_FRONTIER_COMPONENTS],
+        component_frontiers: &'a [MaybeUninit<u32>; MAX_FRONTIER_COMPONENTS],
+        stack_prefix_neighbors: &'a [[u32; 4]; WIDTH],
+        stack_prefix_components: &'a [[u32; 4]; WIDTH],
+        color_components: u32,
+        max_added_puyos: u8,
+        candidates: &'a mut u128,
+    }
+
+    impl Expansion<'_> {
+        #[inline(always)]
+        fn should_expand(&mut self, state: FrontierState, visited: &mut u128) -> bool {
+            if state.added_puyos != 0 {
+                let pattern_index = state.pattern_index;
+                let pattern_bit = 1_u128 << pattern_index;
+                if *visited & pattern_bit != 0 {
+                    return false;
+                }
+                *visited |= pattern_bit;
+                let excluded = pattern_bit
+                    | unsafe {
+                        *PLACEMENT_CATALOG
+                            .proper_subpatterns
+                            .get_unchecked(usize::from(pattern_index))
+                    };
+                if excluded & *self.candidates != 0 {
+                    return false;
+                }
+                if state.group_size >= 4 {
+                    *self.candidates |= pattern_bit;
+                    return false;
+                }
+            }
+            state.added_puyos < self.max_added_puyos
+        }
+
+        #[inline(always)]
+        fn advance(&self, state: FrontierState, slot: usize) -> Option<FrontierState> {
+            let column = slot / 3;
+            let required_count = slot % 3 + 1;
+            let next_pattern_index = unsafe {
+                *PLACEMENT_CATALOG
+                    .next_pattern_by_slot
+                    .get_unchecked(usize::from(state.pattern_index))
+                    .get_unchecked(slot)
+            };
+            if next_pattern_index == u8::MAX {
+                return None;
+            }
+            let next_added = unsafe {
+                *PLACEMENT_CATALOG
+                    .patterns
+                    .get_unchecked(usize::from(next_pattern_index))
+            }
+            .added_puyos;
+            if next_added > self.max_added_puyos {
+                return None;
+            }
+            let additional = next_added - state.added_puyos;
+            let next_placements = unsafe {
+                *PLACEMENT_CATALOG
+                    .pattern_slots
+                    .get_unchecked(usize::from(next_pattern_index))
+            };
+            let joined_components = (unsafe {
+                *self
+                    .stack_prefix_components
+                    .get_unchecked(column)
+                    .get_unchecked(required_count)
+            }) & self.color_components
+                & !state.connected_components;
+            let mut new_frontier = state.frontier
+                | unsafe {
+                    *self
+                        .stack_prefix_neighbors
+                        .get_unchecked(column)
+                        .get_unchecked(required_count)
+                };
+            let mut next_size = state.group_size.wrapping_add(additional);
+            let mut joined = joined_components;
+            while joined != 0 {
+                let component_index = joined.trailing_zeros() as usize;
+                joined &= joined - 1;
+                // SAFETY: joined bits come from compact component-index
+                // topology written during frontier construction.
+                next_size = next_size.wrapping_add(unsafe {
+                    *self
+                        .component_sizes
+                        .get_unchecked(component_index)
+                        .assume_init_ref()
+                });
+                new_frontier |= unsafe {
+                    *self
+                        .component_frontiers
+                        .get_unchecked(component_index)
+                        .assume_init_ref()
+                };
+            }
+            Some(FrontierState {
+                connected_components: state.connected_components | joined_components,
+                frontier: new_frontier & !next_placements,
+                group_size: next_size,
+                added_puyos: next_added,
+                pattern_index: next_pattern_index,
+            })
+        }
+
+        fn visit(&mut self, root: FrontierState, visited: &mut u128) {
+            if !self.should_expand(root, visited) {
+                return;
+            }
+            let mut first_slots = root.frontier;
+            while first_slots != 0 {
+                let first = first_slots.trailing_zeros() as usize;
+                first_slots &= first_slots - 1;
+                let Some(first_state) = self.advance(root, first) else {
+                    continue;
+                };
+                if !self.should_expand(first_state, visited) {
+                    continue;
+                }
+                let mut second_slots = first_state.frontier;
+                while second_slots != 0 {
+                    let second = second_slots.trailing_zeros() as usize;
+                    second_slots &= second_slots - 1;
+                    let Some(second_state) = self.advance(first_state, second) else {
+                        continue;
+                    };
+                    if !self.should_expand(second_state, visited) {
+                        continue;
+                    }
+                    let mut third_slots = second_state.frontier;
+                    while third_slots != 0 {
+                        let third = third_slots.trailing_zeros() as usize;
+                        third_slots &= third_slots - 1;
+                        let Some(third_state) = self.advance(second_state, third) else {
+                            continue;
+                        };
+                        let _ = self.should_expand(third_state, visited);
+                    }
+                }
+            }
+        }
+    }
+
+    if valid_patterns == 0 || components.frontier_len == 0 {
+        return;
+    }
+    let component_sizes = &components.frontier_sizes;
+    let component_frontiers = &components.frontier_slots;
+    let stack_neighbors = &components.stack_neighbors;
+    let stack_prefix_neighbors = &components.stack_prefix_neighbors;
+    let stack_prefix_components = &components.stack_prefix_components;
+    for (plane_index, color_component_mask) in components
+        .frontier_color_components
+        .iter()
+        .copied()
+        .enumerate()
+    {
+        if color_component_mask == 0 {
+            continue;
+        }
+        if color_component_mask & (color_component_mask - 1) == 0 {
+            let component_index = color_component_mask.trailing_zeros() as usize;
+            // SAFETY: color-component bits refer to compact entries written by
+            // the topology loop.
+            let component_size = unsafe { *component_sizes[component_index].assume_init_ref() };
+            let component_frontier =
+                unsafe { *component_frontiers[component_index].assume_init_ref() };
+            result.candidate_patterns[plane_index] |=
+                simple_component_candidates(component_size, component_frontier, stack_neighbors);
+        } else {
+            let mut roots = color_component_mask;
+            while roots != 0 {
+                let component_index = roots.trailing_zeros() as usize;
+                roots &= roots - 1;
+                // SAFETY: root bits refer to compact entries written by the
+                // topology loop.
+                let component_size = unsafe { *component_sizes[component_index].assume_init_ref() };
+                let component_frontier =
+                    unsafe { *component_frontiers[component_index].assume_init_ref() };
+                let mut visited = 0_u128;
+                Expansion {
+                    component_sizes,
+                    component_frontiers,
+                    stack_prefix_neighbors,
+                    stack_prefix_components,
+                    color_components: color_component_mask,
+                    max_added_puyos,
+                    candidates: &mut result.candidate_patterns[plane_index],
+                }
+                .visit(
+                    FrontierState {
+                        connected_components: 1_u32 << component_index,
+                        frontier: component_frontier,
+                        group_size: component_size,
+                        added_puyos: 0,
+                        pattern_index: ROOT_PLACEMENT_PATTERN_INDEX,
+                    },
+                    &mut visited,
+                );
+            }
+        }
+    }
+    for (plane_index, candidates) in result.candidate_patterns.iter_mut().enumerate() {
+        let triggered = *candidates;
+        let singleton_selection = triggered as usize & ((1 << WIDTH) - 1);
+        let pair_selection = ((triggered >> WIDTH) as u32) & ((1 << 21) - 1);
+        let nonminimal = PLACEMENT_CATALOG.nonminimal_by_singletons[singleton_selection]
+            | PLACEMENT_CATALOG.nonminimal_by_pairs[0][(pair_selection & 0x7f) as usize]
+            | PLACEMENT_CATALOG.nonminimal_by_pairs[1][((pair_selection >> 7) & 0x7f) as usize]
+            | PLACEMENT_CATALOG.nonminimal_by_pairs[2][((pair_selection >> 14) & 0x7f) as usize];
+        *candidates = triggered & !nonminimal & valid_patterns;
+        let mut pending = *candidates;
+        while pending != 0 {
+            let pattern_index = pending.trailing_zeros() as usize;
+            pending &= pending - 1;
+            result.candidate_count += 1;
+            let group_index = usize::from(PLACEMENT_CATALOG.orbit_by_pattern[pattern_index])
+                * NORMAL_COLOR_COUNT
+                + plane_index;
+            result.candidate_groups[group_index / 64] |= 1_u64 << (group_index % 64);
+        }
+    }
+}
+
+#[cfg(test)]
 fn has_smaller_trigger(plane: u128, pattern: &PlacementPattern, heights: &[u8; WIDTH]) -> bool {
     if pattern.mask.count_ones() <= 1 {
         return false;
@@ -951,15 +1786,21 @@ fn apply_gravity(planes: &[u128; PLANE_COUNT]) -> [u128; PLANE_COUNT] {
     result
 }
 
-fn resolve_virtual(mut planes: [u128; PLANE_COUNT]) -> ResolvedVirtual {
+fn resolve_virtual(
+    mut planes: [u128; PLANE_COUNT],
+    trigger_plane: usize,
+    placements: u128,
+) -> ResolvedVirtual {
     let mut chain_count = 0_u8;
     let mut score = 0_u32;
+    let mut trigger_anchors = 0_u128;
+    let mut first_trigger_cell = u32::MAX;
     loop {
         let mut vanished = 0_u128;
         let mut vanished_count = 0_u32;
         let mut total_connection_bonus = 0_u16;
         let mut color_count = 0_u8;
-        for plane in planes.iter().copied().take(NORMAL_COLOR_COUNT) {
+        for (plane_index, plane) in planes.iter().copied().take(NORMAL_COLOR_COUNT).enumerate() {
             let visible_plane = plane & VISIBLE_MASK;
             let mut remaining = visible_plane;
             let mut color_vanished = false;
@@ -970,6 +1811,16 @@ fn resolve_virtual(mut planes: [u128; PLANE_COUNT]) -> ResolvedVirtual {
                 let count = group.count_ones();
                 if count < 4 {
                     continue;
+                }
+                if chain_count == 0 && plane_index == trigger_plane {
+                    let trigger_cells = group & placements;
+                    if trigger_cells != 0 {
+                        let first_cell = trigger_cells.trailing_zeros();
+                        if first_cell < first_trigger_cell {
+                            first_trigger_cell = first_cell;
+                            trigger_anchors = group & !placements;
+                        }
+                    }
                 }
                 vanished |= group;
                 vanished_count += count;
@@ -997,6 +1848,7 @@ fn resolve_virtual(mut planes: [u128; PLANE_COUNT]) -> ResolvedVirtual {
         planes,
         chain_count,
         score,
+        trigger_anchors,
     }
 }
 
@@ -1034,6 +1886,7 @@ fn remaining_structure(planes: &[u128; PLANE_COUNT]) -> RemainingStructure {
     result
 }
 
+#[cfg(test)]
 fn compare_columns(left: &[u8], right: &[u8]) -> Ordering {
     for (left_value, right_value) in left.iter().zip(right) {
         match left_value.cmp(right_value) {
@@ -1141,7 +1994,241 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
         self.truncation_reason != TruncationReason::None
     }
 
-    fn consider_columns(&mut self, columns: &[u8], added_puyos: u8) {
+    #[inline(always)]
+    fn resolve_candidate_marked(
+        &mut self,
+        plane_index: usize,
+        added_puyos: u8,
+        pattern: PlacementPattern,
+    ) {
+        let mut virtual_planes = *self.planes;
+        virtual_planes[plane_index] |= pattern.mask;
+        let resolved = resolve_virtual(virtual_planes, plane_index, pattern.mask);
+        self.resolution_nodes += 1;
+        if PROFILE {
+            self.profile_counts.resolution_nodes += 1;
+        }
+        if resolved.chain_count == 0 {
+            self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
+            return;
+        }
+        self.enter_profile_stage(PROFILE_STAGE_REMAINING);
+        let remaining = remaining_structure(&resolved.planes);
+        self.enter_profile_stage(PROFILE_STAGE_RANKING);
+        let anchors = resolved.trigger_anchors;
+        debug_assert!(anchors != 0);
+        let mut candidate = QuiescenceCandidate {
+            chain_count: resolved.chain_count,
+            chain_score: resolved.score,
+            required_key_count: added_puyos,
+            trigger_color: plane_index as u8,
+            placements_mask: pattern.mask,
+            anchor_mask: anchors,
+            trigger_column: pattern.minimum_column,
+            trigger_height: pattern.minimum_height,
+            trigger_protection: trigger_protection(self.occupied, anchors),
+            remaining_link_2: remaining.link_2,
+            remaining_link_3: remaining.link_3,
+            remaining_connection_edges: remaining.connection_edges,
+            extension_space: remaining.extension_space,
+            fixed_tie_break: 0,
+        };
+        if EVIDENCE {
+            candidate.fixed_tie_break = fixed_candidate_key(&candidate);
+        }
+        if !self.has_best || self.candidate_is_better(&candidate) {
+            self.best = candidate;
+            self.has_best = true;
+        }
+        if EVIDENCE {
+            self.push_evidence(candidate);
+        }
+        self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
+    }
+
+    #[cfg(test)]
+    #[inline(always)]
+    fn resolve_candidate(
+        &mut self,
+        plane_index: usize,
+        added_puyos: u8,
+        pattern: PlacementPattern,
+    ) {
+        self.enter_profile_stage(PROFILE_STAGE_RESOLVE);
+        self.resolve_candidate_marked(plane_index, added_puyos, pattern);
+    }
+
+    #[inline(always)]
+    fn resolve_frontier_candidate(
+        &mut self,
+        plane_index: usize,
+        added_puyos: u8,
+        pattern_index: usize,
+        landing: u128,
+    ) {
+        self.enter_profile_stage(PROFILE_STAGE_RESOLVE);
+        let specification = PLACEMENT_CATALOG.patterns[pattern_index];
+        let pattern = pattern_from_spec(specification, self.heights, landing);
+        self.resolve_candidate_marked(plane_index, added_puyos, pattern);
+    }
+
+    #[cfg(test)]
+    fn resolve_pending_group(
+        &mut self,
+        plane_index: usize,
+        added_puyos: u8,
+        pending: &[PlacementPattern],
+    ) {
+        if self.resolution_nodes + pending.len() as u32 > self.config.max_resolution_nodes {
+            self.truncation_reason = TruncationReason::ResolutionNodes;
+            return;
+        }
+        for pattern in pending.iter().copied() {
+            self.resolve_candidate(plane_index, added_puyos, pattern);
+        }
+    }
+
+    fn evaluate_frontier_group(
+        &mut self,
+        frontier: &TriggerFrontier,
+        orbit: PlacementOrbitSpec,
+        plane_index: usize,
+        landing: u128,
+    ) {
+        let mut probes = [0_u8; 2];
+        let mut probe_count = 0_usize;
+        let mut pending_mask = orbit.pattern_mask() & frontier.candidate_patterns[plane_index];
+        while pending_mask != 0 {
+            let pattern_index = pending_mask.trailing_zeros() as usize;
+            pending_mask &= pending_mask - 1;
+            probes[probe_count] = pattern_index as u8;
+            probe_count += 1;
+        }
+        if PROFILE {
+            self.profile_counts.executed_pattern_probes += probe_count as u32;
+        }
+        if self.resolution_nodes + probe_count as u32 > self.config.max_resolution_nodes {
+            self.truncation_reason = TruncationReason::ResolutionNodes;
+            return;
+        }
+        for pattern_index in probes[..probe_count].iter().copied() {
+            self.resolve_frontier_candidate(
+                plane_index,
+                orbit.added_puyos,
+                usize::from(pattern_index),
+                landing,
+            );
+        }
+    }
+
+    #[inline(always)]
+    fn evaluate_frontier_group_prechecked(
+        &mut self,
+        frontier: &TriggerFrontier,
+        orbit: PlacementOrbitSpec,
+        plane_index: usize,
+        landing: u128,
+    ) {
+        let mut pending_mask = orbit.pattern_mask() & frontier.candidate_patterns[plane_index];
+        if PROFILE {
+            self.profile_counts.executed_pattern_probes += pending_mask.count_ones();
+        }
+        while pending_mask != 0 {
+            let pattern_index = pending_mask.trailing_zeros() as usize;
+            pending_mask &= pending_mask - 1;
+            self.resolve_frontier_candidate(plane_index, orbit.added_puyos, pattern_index, landing);
+        }
+    }
+
+    #[cfg(test)]
+    fn evaluate_exhaustive_probe_group(
+        &mut self,
+        plane_index: usize,
+        added_puyos: u8,
+        patterns: &[PlacementPattern],
+    ) {
+        let plane = self.planes[plane_index];
+        let mut pending = [PlacementPattern::default(); 2];
+        let mut pending_count = 0_usize;
+        for pattern in patterns {
+            if virtual_trigger_anchors(plane, pattern.mask).is_none() {
+                continue;
+            }
+            if has_smaller_trigger(plane, pattern, self.heights) {
+                continue;
+            }
+            pending[pending_count] = *pattern;
+            pending_count += 1;
+        }
+        self.resolve_pending_group(plane_index, added_puyos, &pending[..pending_count]);
+    }
+
+    fn evaluate_frontier_catalog(&mut self, components: &ComponentSet, landing: u128) {
+        let valid_patterns =
+            valid_catalog_patterns(self.heights, self.reachable, self.config.max_added_puyos);
+        let mut frontier = TriggerFrontier::new();
+        build_trigger_frontier(
+            &mut frontier,
+            components,
+            self.config.max_added_puyos,
+            valid_patterns,
+        );
+        let total_pattern_nodes = valid_patterns.count_ones() * NORMAL_COLOR_COUNT as u32;
+        let total_resolution_nodes = frontier.candidate_count;
+        if self.pattern_nodes + total_pattern_nodes <= self.config.max_pattern_nodes
+            && self.resolution_nodes + total_resolution_nodes <= self.config.max_resolution_nodes
+        {
+            self.pattern_nodes += total_pattern_nodes;
+            if PROFILE {
+                self.profile_counts.pattern_nodes += total_pattern_nodes;
+            }
+            for (word_index, mut groups) in frontier.candidate_groups.into_iter().enumerate() {
+                while groups != 0 {
+                    let bit_index = groups.trailing_zeros() as usize;
+                    groups &= groups - 1;
+                    let group_index = word_index * 64 + bit_index;
+                    let orbit_index = group_index / NORMAL_COLOR_COUNT;
+                    let plane_index = group_index % NORMAL_COLOR_COUNT;
+                    self.evaluate_frontier_group_prechecked(
+                        &frontier,
+                        PLACEMENT_CATALOG.orbits[orbit_index],
+                        plane_index,
+                        landing,
+                    );
+                }
+            }
+            return;
+        }
+        for orbit in PLACEMENT_CATALOG.orbits {
+            let valid_orbit = valid_patterns & orbit.pattern_mask();
+            if valid_orbit == 0 {
+                continue;
+            }
+            let valid_count = valid_orbit.count_ones();
+            for (plane_index, candidate_patterns) in
+                frontier.candidate_patterns.iter().copied().enumerate()
+            {
+                if self.pattern_nodes + valid_count > self.config.max_pattern_nodes {
+                    self.truncation_reason = TruncationReason::PatternNodes;
+                    return;
+                }
+                self.pattern_nodes += valid_count;
+                if PROFILE {
+                    self.profile_counts.pattern_nodes += valid_count;
+                }
+                if valid_orbit & candidate_patterns == 0 {
+                    continue;
+                }
+                self.evaluate_frontier_group(&frontier, orbit, plane_index, landing);
+                if self.truncated() {
+                    return;
+                }
+            }
+        }
+    }
+
+    #[cfg(test)]
+    fn consider_columns_exhaustive(&mut self, columns: &[u8], added_puyos: u8) {
         let mut mirrored_storage = [0_u8; 3];
         for index in 0..columns.len() {
             mirrored_storage[index] = (WIDTH - 1) as u8 - columns[columns.len() - 1 - index];
@@ -1156,7 +2243,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
                     valid[0] = pattern;
                     valid_count = 1;
                 }
-                self.evaluate_orbit(&valid[..valid_count], added_puyos);
+                self.evaluate_orbit_exhaustive(&valid[..valid_count], added_puyos);
             }
             Ordering::Less => {
                 let mut valid = [PlacementPattern::default(); 2];
@@ -1169,12 +2256,13 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
                     valid[valid_count] = pattern;
                     valid_count += 1;
                 }
-                self.evaluate_orbit(&valid[..valid_count], added_puyos);
+                self.evaluate_orbit_exhaustive(&valid[..valid_count], added_puyos);
             }
         }
     }
 
-    fn evaluate_orbit(&mut self, valid: &[PlacementPattern], added_puyos: u8) {
+    #[cfg(test)]
+    fn evaluate_orbit_exhaustive(&mut self, valid: &[PlacementPattern], added_puyos: u8) {
         if valid.is_empty() {
             return;
         }
@@ -1191,68 +2279,24 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool> QuiescenceSearch<'a, EVIDENC
             if (plane & VISIBLE_MASK).count_ones() + u32::from(added_puyos) < 4 {
                 continue;
             }
-            let mut pending = [(PlacementPattern::default(), 0_u128); 2];
-            let mut pending_count = 0_usize;
+            let mut probes = [PlacementPattern::default(); 2];
+            let mut probe_count = 0_usize;
             for pattern in valid {
                 if visible_neighbors(pattern.mask) & plane == 0 {
                     continue;
                 }
-                let Some(anchors) = virtual_trigger_anchors(plane, pattern.mask) else {
-                    continue;
-                };
-                if has_smaller_trigger(plane, pattern, self.heights) {
-                    continue;
-                }
-                pending[pending_count] = (*pattern, anchors);
-                pending_count += 1;
+                probes[probe_count] = *pattern;
+                probe_count += 1;
             }
-            if self.resolution_nodes + pending_count as u32 > self.config.max_resolution_nodes {
-                self.truncation_reason = TruncationReason::ResolutionNodes;
-                return;
-            }
-            for (pattern, anchors) in pending.iter().copied().take(pending_count) {
-                self.enter_profile_stage(PROFILE_STAGE_RESOLVE);
-                let mut virtual_planes = *self.planes;
-                virtual_planes[plane_index] |= pattern.mask;
-                let resolved = resolve_virtual(virtual_planes);
-                self.resolution_nodes += 1;
-                if PROFILE {
-                    self.profile_counts.resolution_nodes += 1;
+            if probe_count != 0 {
+                self.evaluate_exhaustive_probe_group(
+                    plane_index,
+                    added_puyos,
+                    &probes[..probe_count],
+                );
+                if self.truncated() {
+                    return;
                 }
-                if resolved.chain_count == 0 {
-                    self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
-                    continue;
-                }
-                self.enter_profile_stage(PROFILE_STAGE_REMAINING);
-                let remaining = remaining_structure(&resolved.planes);
-                self.enter_profile_stage(PROFILE_STAGE_RANKING);
-                let mut candidate = QuiescenceCandidate {
-                    chain_count: resolved.chain_count,
-                    chain_score: resolved.score,
-                    required_key_count: added_puyos,
-                    trigger_color: plane_index as u8,
-                    placements_mask: pattern.mask,
-                    anchor_mask: anchors,
-                    trigger_column: pattern.minimum_column,
-                    trigger_height: pattern.minimum_height,
-                    trigger_protection: trigger_protection(self.occupied, anchors),
-                    remaining_link_2: remaining.link_2,
-                    remaining_link_3: remaining.link_3,
-                    remaining_connection_edges: remaining.connection_edges,
-                    extension_space: remaining.extension_space,
-                    fixed_tie_break: 0,
-                };
-                if EVIDENCE {
-                    candidate.fixed_tie_break = fixed_candidate_key(&candidate);
-                }
-                if !self.has_best || self.candidate_is_better(&candidate) {
-                    self.best = candidate;
-                    self.has_best = true;
-                }
-                if EVIDENCE {
-                    self.push_evidence(candidate);
-                }
-                self.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
             }
         }
     }
@@ -1275,6 +2319,7 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
     occupied: u128,
     heights: &'a [u8; WIDTH],
     reachable: u8,
+    components: &ComponentSet,
     config: &'a EvaluationConfig,
     profile_stage: Option<&'a AtomicU8>,
 ) -> QuiescenceSearch<'a, EVIDENCE, PROFILE> {
@@ -1287,8 +2332,26 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
         profile_stage,
     );
     search.enter_profile_stage(PROFILE_STAGE_PLACEMENT);
+    search.evaluate_frontier_catalog(components, components.landing);
+    if PROFILE {
+        search.profile_counts.pattern_nodes = search.pattern_nodes;
+        search.profile_counts.resolution_nodes = search.resolution_nodes;
+    }
+    search
+}
+
+#[cfg(test)]
+fn bounded_quiescence_exhaustive<'a>(
+    planes: &'a [u128; PLANE_COUNT],
+    occupied: u128,
+    heights: &'a [u8; WIDTH],
+    reachable: u8,
+    config: &'a EvaluationConfig,
+) -> QuiescenceSearch<'a, true, false> {
+    let mut search =
+        QuiescenceSearch::<true, false>::new(planes, occupied, heights, reachable, config, None);
     for first in 0..WIDTH as u8 {
-        search.consider_columns(&[first], 1);
+        search.consider_columns_exhaustive(&[first], 1);
         if search.truncated() {
             return search;
         }
@@ -1296,7 +2359,7 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
     if config.max_added_puyos >= 2 {
         for first in 0..WIDTH as u8 {
             for second in first..WIDTH as u8 {
-                search.consider_columns(&[first, second], 2);
+                search.consider_columns_exhaustive(&[first, second], 2);
                 if search.truncated() {
                     return search;
                 }
@@ -1307,17 +2370,13 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool>(
         for first in 0..WIDTH as u8 {
             for second in first..WIDTH as u8 {
                 for third in second..WIDTH as u8 {
-                    search.consider_columns(&[first, second, third], 3);
+                    search.consider_columns_exhaustive(&[first, second, third], 3);
                     if search.truncated() {
                         return search;
                     }
                 }
             }
         }
-    }
-    if PROFILE {
-        search.profile_counts.pattern_nodes = search.pattern_nodes;
-        search.profile_counts.resolution_nodes = search.resolution_nodes;
     }
     search
 }
@@ -1614,13 +2673,21 @@ fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
     let heights = column_heights(occupied);
     let reachable = reachable_columns(&heights);
     let landing = landing_mask(&heights, reachable);
-    let components = extract_components(&planes, occupied, landing);
+    let components = extract_components(
+        &planes,
+        occupied,
+        landing,
+        &heights,
+        reachable,
+        config.max_added_puyos,
+    );
     let connections = connection_candidate_count(components.as_slice(), landing);
     let mut quiescence = bounded_quiescence::<EVIDENCE, PROFILE>(
         &planes,
         occupied,
         &heights,
         reachable,
+        &components,
         config,
         profile_stage,
     );
@@ -1743,6 +2810,132 @@ mod tests {
         CompactState::from_parts(planes, false, false, 0, 0).expect("valid test state")
     }
 
+    fn property_state(seed: u64) -> CompactState {
+        let mut value = seed;
+        let mut planes = [0_u128; PLANE_COUNT];
+        for x in 0..WIDTH {
+            value = value
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1);
+            let height = ((value >> 32) as usize) % (HEIGHT + 1);
+            for y in 0..height {
+                value = value
+                    .wrapping_mul(6_364_136_223_846_793_005)
+                    .wrapping_add(1);
+                let plane = ((value >> 32) as usize) % PLANE_COUNT;
+                planes[plane] |= 1_u128 << (y * WIDTH + x);
+            }
+        }
+        CompactState::from_parts(planes, false, false, 0, 0).expect("valid property state")
+    }
+
+    fn assert_frontier_matches_exhaustive(
+        state: &CompactState,
+        config: &EvaluationConfig,
+        label: &str,
+    ) {
+        let planes = state.evaluator_planes();
+        let occupied = state.internal_occupied();
+        let heights = column_heights(occupied);
+        let reachable = reachable_columns(&heights);
+        let landing = landing_mask(&heights, reachable);
+        let components = extract_components(
+            &planes,
+            occupied,
+            landing,
+            &heights,
+            reachable,
+            config.max_added_puyos,
+        );
+        let frontier = bounded_quiescence::<true, false>(
+            &planes,
+            occupied,
+            &heights,
+            reachable,
+            &components,
+            config,
+            None,
+        );
+        let exhaustive =
+            bounded_quiescence_exhaustive(&planes, occupied, &heights, reachable, config);
+
+        assert_eq!(frontier.pattern_nodes, exhaustive.pattern_nodes, "{label}");
+        assert_eq!(
+            frontier.resolution_nodes, exhaustive.resolution_nodes,
+            "{label}"
+        );
+        assert_eq!(
+            frontier.truncation_reason, exhaustive.truncation_reason,
+            "{label}"
+        );
+        assert_eq!(frontier.has_best, exhaustive.has_best, "{label}");
+        assert_eq!(frontier.best, exhaustive.best, "{label}");
+        assert_eq!(
+            frontier.candidate_count, exhaustive.candidate_count,
+            "{label}"
+        );
+        assert_eq!(
+            &frontier.candidates[..frontier.candidate_count],
+            &exhaustive.candidates[..exhaustive.candidate_count],
+            "{label}"
+        );
+    }
+
+    #[test]
+    fn placement_catalog_preserves_exhaustive_orbit_layout() {
+        assert_eq!(PLACEMENT_CATALOG.by_added_puyos[1].count_ones(), 6);
+        assert_eq!(PLACEMENT_CATALOG.by_added_puyos[2].count_ones(), 21);
+        assert_eq!(PLACEMENT_CATALOG.by_added_puyos[3].count_ones(), 56);
+        assert_eq!(
+            PLACEMENT_CATALOG
+                .orbits
+                .iter()
+                .map(|orbit| u32::from(orbit.pattern_count))
+                .sum::<u32>(),
+            PLACEMENT_PATTERN_COUNT as u32
+        );
+        assert_eq!(
+            PLACEMENT_CATALOG
+                .orbits
+                .iter()
+                .filter(|orbit| orbit.pattern_count == 1)
+                .count(),
+            3
+        );
+    }
+
+    #[test]
+    fn frontier_search_matches_exhaustive_property_corpus() {
+        let mut states = Vec::with_capacity(132);
+        states.push(state_with_cells(&[
+            (0, 0, 13),
+            (0, 1, 12),
+            (5, 1, 13),
+            (5, 4, 0),
+        ]));
+        let mut unreachable = Vec::new();
+        for x in [2_usize, 3] {
+            for y in 0..VISIBLE_HEIGHT {
+                unreachable.push(((x + y) % NORMAL_COLOR_COUNT, x, y));
+            }
+        }
+        unreachable.extend([(0, 0, 0), (0, 1, 0), (5, 5, 0)]);
+        states.push(state_with_cells(&unreachable));
+        states.extend((0..130).map(|index| property_state(0x2230_0000 + index)));
+
+        let pattern_budgets = [1_u32, 2, 7, 24, 95, 96, 414, 415, 512];
+        let resolution_budgets = [1_u32, 2, 7, 24, 96];
+        for (index, state) in states.iter().enumerate() {
+            let full = default_config();
+            assert_frontier_matches_exhaustive(state, &full, &format!("full-{index}"));
+
+            let mut bounded = default_config();
+            bounded.max_pattern_nodes = pattern_budgets[index % pattern_budgets.len()];
+            bounded.max_resolution_nodes = resolution_budgets[index % resolution_budgets.len()];
+            assert_frontier_matches_exhaustive(state, &bounded, &format!("bounded-{index}"));
+        }
+    }
+
     #[test]
     fn candidate_tie_break_matches_python_canonical_sha256() {
         let candidate = QuiescenceCandidate {
@@ -1839,6 +3032,7 @@ mod tests {
 
         assert_eq!(actual, expected);
         assert_eq!(counts.pattern_nodes, actual.pattern_nodes);
+        assert!(counts.executed_pattern_probes <= counts.pattern_nodes);
         assert_eq!(counts.resolution_nodes, actual.resolution_nodes);
         assert_eq!(
             counts.stage_entries[usize::from(PROFILE_STAGE_RESOLVE)],

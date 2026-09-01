@@ -85,6 +85,7 @@ EVALUATOR_STAGE_NAMES = (
 )
 COUNT_NAMES = (
     "pattern_nodes",
+    "executed_pattern_probes",
     "resolution_nodes",
     "rank_comparison_calls",
     "rank_tie_calls",
