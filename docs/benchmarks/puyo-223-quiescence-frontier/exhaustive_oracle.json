@@ -1,0 +1,49 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--release",
+    "--locked",
+    "--manifest-path",
+    "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+    "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+    "--",
+    "--exact"
+  ],
+  "comparison_count": 264,
+  "comparison_modes": [
+    "full_budget",
+    "varied_truncation_budget"
+  ],
+  "mismatch_count": 0,
+  "passed": true,
+  "pattern_budgets": [
+    1,
+    2,
+    7,
+    24,
+    95,
+    96,
+    414,
+    415,
+    512
+  ],
+  "random_state_count": 130,
+  "resolution_budgets": [
+    1,
+    2,
+    7,
+    24,
+    96
+  ],
+  "schema_version": "puyo.native_quiescence_frontier_oracle.v1",
+  "source_sha256": "ba8d97c54c717c98ac1c9d31e9333a4af77a644949c08b0581372ac68e8895d3",
+  "special_cases": [
+    "hidden_row_with_ojama",
+    "unreachable_columns_with_ojama"
+  ],
+  "state_count": 132,
+  "test": "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+  "test_output_sha256": "aa3646164f3c60eddc5b02d4a8a0782aeee97049160e198c73b72a7fca579338",
+  "ticket": "PUYO-223"
+}
