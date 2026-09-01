@@ -992,6 +992,7 @@ def verify_profile(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     *,
     require_exact_wheel: bool = False,
+    allow_historical_wheel: bool = False,
 ) -> list[str]:
     destination = Path(output_dir)
     issues = []
@@ -1038,6 +1039,10 @@ def verify_profile(
     elif file_sha256(ROOT / wheel) != expected_wheel_sha256:
         if require_exact_wheel:
             issues.append("canonical release wheel hash drifted")
+        elif allow_historical_wheel:
+            # The caller still validates every manifest-bound artifact; a
+            # successor build may legitimately replace this untracked wheel.
+            pass
         elif not _release_sources_unchanged(manifest.get("measurement_commit")):
             issues.append("rebuilt release wheel source inputs drifted")
         else:

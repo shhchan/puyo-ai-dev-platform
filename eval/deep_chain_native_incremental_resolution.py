@@ -1,4 +1,4 @@
-"""PUYO-223 quiescence-frontier semantic and performance verification."""
+"""PUYO-220 differential virtual-resolution semantic and performance gates."""
 
 from __future__ import annotations
 
@@ -21,37 +21,49 @@ from eval.deep_chain_native_evaluator_profile import (
 )
 from train.artifacts import describe_artifact, file_sha256, git_commit, utc_timestamp
 
-TICKET = "PUYO-223"
-SUMMARY_SCHEMA_VERSION = "puyo.native_quiescence_frontier_summary.v1"
-COMPARISON_SCHEMA_VERSION = "puyo.native_quiescence_frontier_comparison.v1"
-ORACLE_SCHEMA_VERSION = "puyo.native_quiescence_frontier_oracle.v1"
-MANIFEST_SCHEMA_VERSION = "puyo.native_quiescence_frontier_manifest.v1"
+TICKET = "PUYO-220"
+SUMMARY_SCHEMA_VERSION = "puyo.native_incremental_resolution_summary.v1"
+COMPARISON_SCHEMA_VERSION = "puyo.native_incremental_resolution_comparison.v1"
+ORACLE_SCHEMA_VERSION = "puyo.native_incremental_resolution_oracle.v1"
+MANIFEST_SCHEMA_VERSION = "puyo.native_incremental_resolution_manifest.v1"
 
-DEFAULT_OUTPUT_DIR = ROOT / "docs" / "benchmarks" / "puyo-223-quiescence-frontier"
+DEFAULT_OUTPUT_DIR = ROOT / "docs" / "benchmarks" / "puyo-220-incremental-resolution"
 RAW_PROFILE_DIRNAME = "puyo-219-compatible-profile"
-BASELINE_DIR = ROOT / "docs" / "benchmarks" / "puyo-219-evaluator-hot-path"
+BASELINE_DIR = (
+    ROOT
+    / "docs"
+    / "benchmarks"
+    / "puyo-223-quiescence-frontier"
+    / RAW_PROFILE_DIRNAME
+)
 BASELINE_SUMMARY_PATH = BASELINE_DIR / "benchmark_summary.json"
 BASELINE_SEMANTIC_PATH = BASELINE_DIR / "semantic_verification.json"
 BASELINE_MEASUREMENT_PATH = BASELINE_DIR / "measurement_contract.json"
+BUDGET_SUMMARY_PATH = (
+    ROOT / "docs" / "benchmarks" / "puyo-219-evaluator-hot-path" / "benchmark_summary.json"
+)
 NATIVE_MANIFEST_PATH = ROOT / "native" / "deep_chain_native" / "Cargo.toml"
 CHAIN_STRUCTURE_SOURCE_PATH = (
     ROOT / "native" / "deep_chain_native" / "src" / "chain_structure.rs"
 )
 
 PROPERTY_TEST = (
-    "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus"
+    "chain_structure::tests::incremental_resolution_matches_exact_property_corpus"
 )
-PROPERTY_STATE_COUNT = 132
-PROPERTY_RANDOM_STATE_COUNT = 130
-PROPERTY_COMPARISON_COUNT = PROPERTY_STATE_COUNT * 2
-PATTERN_BUDGETS = (1, 2, 7, 24, 95, 96, 414, 415, 512)
-RESOLUTION_BUDGETS = (1, 2, 7, 24, 96)
-REQUIRED_PROBE_P95 = 96
+PROPERTY_STATE_COUNT = 256
+PROPERTY_RANDOM_STATE_COUNT = 252
+PROPERTY_COMPARISON_COUNT = PROPERTY_STATE_COUNT
+MINIMUM_REDUCTION_PERCENT = 70.0
 REQUIRED_CHILD_STATE_BYTES = 80
 REQUIRED_HOT_RESULT_BYTES = 24
 
+STAGE_NAMES = (
+    "virtual_resolve_gravity",
+    "remaining_structure_scan",
+)
 LOGICAL_COUNTERS = (
     "pattern_nodes",
+    "executed_pattern_probes",
     "resolution_nodes",
     "rank_comparison_calls",
     "rank_tie_calls",
@@ -104,13 +116,13 @@ def _run_property_oracle() -> dict[str, Any]:
         "state_count": PROPERTY_STATE_COUNT,
         "random_state_count": PROPERTY_RANDOM_STATE_COUNT,
         "comparison_count": PROPERTY_COMPARISON_COUNT,
-        "comparison_modes": ["full_budget", "varied_truncation_budget"],
+        "comparison_mode": "candidate-order-and-fields against exact exhaustive resolver",
         "special_cases": [
-            "hidden_row_with_ojama",
-            "unreachable_columns_with_ojama",
+            "multiple_chain",
+            "adjacent_ojama",
+            "hidden_row",
+            "left_right_asymmetry",
         ],
-        "pattern_budgets": list(PATTERN_BUDGETS),
-        "resolution_budgets": list(RESOLUTION_BUDGETS),
         "source_sha256": file_sha256(CHAIN_STRUCTURE_SOURCE_PATH),
         "test_output_sha256": hashlib.sha256(output.encode("utf-8")).hexdigest(),
     }
@@ -129,28 +141,32 @@ def _counter_signature(summary: Mapping[str, Any], name: str) -> dict[str, Any]:
     }
 
 
+def _stage_sum(summary: Mapping[str, Any], field: str) -> float:
+    stages = summary["stage_decomposition"]["evaluator_stages"]
+    return sum(float(stages[name][field]) for name in STAGE_NAMES)
+
+
+def _budget_sum(summary: Mapping[str, Any]) -> float:
+    ledger = summary["stage_budget"]["stage_budget_ledger"]
+    return sum(float(ledger[name]["target_budget_600k_ms"]) for name in STAGE_NAMES)
+
+
 def derive_summary(
     *,
     baseline_summary: Mapping[str, Any],
     baseline_semantic: Mapping[str, Any],
     baseline_measurement: Mapping[str, Any],
+    budget_summary: Mapping[str, Any],
     current_summary: Mapping[str, Any],
     current_measurement: Mapping[str, Any],
     oracle: Mapping[str, Any],
 ) -> dict[str, Any]:
-    stage_name = "placement_enumeration_trigger_qualification"
-    baseline_stage = baseline_summary["stage_decomposition"]["evaluator_stages"][
-        stage_name
-    ]
-    target = baseline_summary["stage_budget"]["stage_budget_ledger"][stage_name][
-        "target_budget_600k_ms"
-    ]
-    current_stage = current_summary["stage_decomposition"]["evaluator_stages"][
-        stage_name
-    ]
-    before_ms = float(baseline_stage["current_projected_600k_ms"])
-    after_ms = float(current_stage["current_projected_600k_ms"])
-    target_ms = float(target)
+    before_ms = _stage_sum(baseline_summary, "current_projected_600k_ms")
+    after_ms = _stage_sum(current_summary, "current_projected_600k_ms")
+    before_ns = _stage_sum(baseline_summary, "current_ns_per_node")
+    after_ns = _stage_sum(current_summary, "current_ns_per_node")
+    target_ms = _budget_sum(budget_summary)
+    reduction = (before_ms - after_ms) / before_ms * 100.0
 
     baseline_counters = {
         name: _counter_signature(baseline_summary, name) for name in LOGICAL_COUNTERS
@@ -171,11 +187,18 @@ def derive_summary(
         for name in SEMANTIC_SECTIONS
     }
     source = current_summary["source_verification"]
-    probe = current_summary["call_counts"]["distribution"][
-        "executed_pattern_probes"
-    ]
     current_profile = current_measurement["canonical_profile"]
     baseline_profile = baseline_measurement["canonical_profile"]
+    baseline_combined_ms = float(
+        baseline_summary["combined_profile"]["aggregate"][
+            "transition_evaluator_p95_ms"
+        ]
+    )
+    current_combined_ms = float(
+        current_summary["combined_profile"]["aggregate"][
+            "transition_evaluator_p95_ms"
+        ]
+    )
 
     checks = {
         "same_frozen_corpus": (
@@ -220,15 +243,16 @@ def derive_summary(
             row["matches"] for row in response_sha256.values()
         ),
         "logical_counters_match": baseline_counters == current_counters,
-        "property_oracle_264_zero_mismatches": (
+        "property_oracle_256_zero_mismatches": (
             oracle.get("passed") is True
             and oracle.get("comparison_count") == PROPERTY_COMPARISON_COUNT
             and oracle.get("mismatch_count") == 0
         ),
-        "executed_probe_p95_at_most_96": (
-            int(probe["p95_per_node"]) <= REQUIRED_PROBE_P95
+        "minimum_70_percent_stage_reduction": (
+            reduction >= MINIMUM_REDUCTION_PERCENT
         ),
-        "placement_stage_budget_met": after_ms <= target_ms,
+        "puyo_219_stage_budget_met": after_ms <= target_ms,
+        "combined_profile_no_regression": current_combined_ms <= baseline_combined_ms,
         "determinism": (
             current_semantic["determinism"]["mismatch_count"] == 0
             and current_summary["combined_profile"]["aggregate"][
@@ -254,17 +278,23 @@ def derive_summary(
             "operations_per_sample": EXPANDED_NODE_COUNT,
             "sample_count": PROFILE_SAMPLES,
             "outlier_removal": "none",
+            "stages": list(STAGE_NAMES),
             "before_600k_ms": before_ms,
             "after_600k_ms": after_ms,
             "target_600k_ms": target_ms,
-            "before_ns_per_node": float(baseline_stage["current_ns_per_node"]),
-            "after_ns_per_node": float(current_stage["current_ns_per_node"]),
+            "before_ns_per_node": before_ns,
+            "after_ns_per_node": after_ns,
             "target_ns_per_node": target_ms * 1_000_000.0 / EXPANDED_NODE_COUNT,
             "speedup": before_ms / after_ms,
-            "reduction_percent": (before_ms - after_ms) / before_ms * 100.0,
+            "reduction_percent": reduction,
+            "minimum_reduction_percent": MINIMUM_REDUCTION_PERCENT,
             "margin_600k_ms": target_ms - after_ms,
         },
-        "probe_distribution": dict(probe),
+        "combined_profile": {
+            "before_p95_600k_ms": baseline_combined_ms,
+            "after_p95_600k_ms": current_combined_ms,
+            "no_regression": current_combined_ms <= baseline_combined_ms,
+        },
         "logical_counters": {
             "before": baseline_counters,
             "after": current_counters,
@@ -285,34 +315,35 @@ def derive_summary(
 
 def _report(summary: Mapping[str, Any]) -> str:
     comparison = summary["comparison"]
-    probe = summary["probe_distribution"]
+    combined = summary["combined_profile"]
     decision = summary["decision"]
     return "\n".join(
         [
-            "# PUYO-223 quiescence frontier verification",
+            "# PUYO-220 differential virtual resolution verification",
             "",
             f"Decision: **{decision['decision']}**.",
             "",
             (
-                "The placement/trigger stage fell from "
+                "Virtual resolve plus remaining structure fell from "
                 f"{comparison['before_600k_ms']:.3f} ms to "
                 f"{comparison['after_600k_ms']:.3f} ms per 600,000 nodes "
-                f"({comparison['speedup']:.3f}x)."
+                f"({comparison['reduction_percent']:.3f}% reduction)."
             ),
             (
-                f"The fixed PUYO-219 stage target is "
+                f"The fixed PUYO-219 allocation is "
                 f"{comparison['target_600k_ms']:.3f} ms; measured margin is "
                 f"{comparison['margin_600k_ms']:.3f} ms."
+            ),
+            (
+                "Combined p95 changed from "
+                f"{combined['before_p95_600k_ms']:.3f} ms to "
+                f"{combined['after_p95_600k_ms']:.3f} ms."
             ),
             "",
             "## Gates",
             "",
-            (
-                f"- executed pattern probes: p50 {probe['p50_per_node']}, "
-                f"p95 {probe['p95_per_node']}, max {probe['maximum_per_node']}"
-            ),
             "- fixture / transition / selected-child mismatches: 0 / 0 / 0",
-            "- exhaustive frontier/oracle comparisons: 264, mismatches: 0",
+            "- incremental/exact candidate comparisons: 256, mismatches: 0",
             "- response SHA-256 and all logical counter distributions: unchanged",
             "- normal hot-path allocations: 0; child/result ABI: 80/24 bytes",
             "- production max_added_puyos remains 3",
@@ -321,7 +352,7 @@ def _report(summary: Mapping[str, Any]) -> str:
     )
 
 
-def run_frontier_verification(
+def run_incremental_resolution_verification(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
 ) -> dict[str, Any]:
     destination = Path(output_dir)
@@ -331,17 +362,19 @@ def run_frontier_verification(
     baseline = _read_json(BASELINE_SUMMARY_PATH)
     baseline_semantic = _read_json(BASELINE_SEMANTIC_PATH)
     baseline_measurement = _read_json(BASELINE_MEASUREMENT_PATH)
+    budget = _read_json(BUDGET_SUMMARY_PATH)
     oracle = _run_property_oracle()
     summary = derive_summary(
         baseline_summary=baseline,
         baseline_semantic=baseline_semantic,
         baseline_measurement=baseline_measurement,
+        budget_summary=budget,
         current_summary=current,
         current_measurement=current_measurement,
         oracle=oracle,
     )
     destination.mkdir(parents=True, exist_ok=True)
-    _write_json(destination / "exhaustive_oracle.json", oracle)
+    _write_json(destination / "exact_oracle.json", oracle)
     _write_json(destination / "before_after.json", summary["comparison"])
     _write_json(destination / "benchmark_summary.json", summary)
     (destination / "benchmark_report.md").write_text(
@@ -361,6 +394,8 @@ def run_frontier_verification(
         "measurement_commit": summary["measurement_commit"],
         "baseline_summary_path": str(BASELINE_SUMMARY_PATH.relative_to(ROOT)),
         "baseline_summary_sha256": file_sha256(BASELINE_SUMMARY_PATH),
+        "budget_summary_path": str(BUDGET_SUMMARY_PATH.relative_to(ROOT)),
+        "budget_summary_sha256": file_sha256(BUDGET_SUMMARY_PATH),
         "raw_profile_manifest_sha256": file_sha256(
             raw_dir / "benchmark_manifest.json"
         ),
@@ -369,11 +404,7 @@ def run_frontier_verification(
         "decision": summary["decision"]["decision"],
         "passed": summary["decision"]["passed"],
         "artifacts": [
-            describe_artifact(
-                path,
-                run_dir=destination,
-                role=path.stem,
-            )
+            describe_artifact(path, run_dir=destination, role=path.stem)
             for path in artifact_paths
         ],
     }
@@ -381,23 +412,21 @@ def run_frontier_verification(
     return summary
 
 
-def verify_frontier_artifacts(
+def verify_incremental_resolution_artifacts(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     *,
     require_exact_wheel: bool = False,
     rerun_oracle: bool = True,
-    historical: bool = False,
 ) -> list[str]:
     destination = Path(output_dir)
     issues = verify_profile(
         destination / RAW_PROFILE_DIRNAME,
         require_exact_wheel=require_exact_wheel,
-        allow_historical_wheel=historical,
     )
     try:
         manifest = _read_json(destination / "benchmark_manifest.json")
         summary = _read_json(destination / "benchmark_summary.json")
-        oracle = _read_json(destination / "exhaustive_oracle.json")
+        oracle = _read_json(destination / "exact_oracle.json")
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         return [*issues, f"artifact read failed: {exc}"]
     if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
@@ -413,28 +442,22 @@ def verify_frontier_artifacts(
     if file_sha256(BASELINE_SUMMARY_PATH) != manifest.get(
         "baseline_summary_sha256"
     ):
-        issues.append("PUYO-219 baseline summary hash drifted")
+        issues.append("PUYO-223 baseline summary hash drifted")
+    if file_sha256(BUDGET_SUMMARY_PATH) != manifest.get("budget_summary_sha256"):
+        issues.append("PUYO-219 budget summary hash drifted")
     decision = summary.get("decision", {})
     if decision.get("passed") != all(decision.get("checks", {}).values()):
         issues.append("decision does not match checks")
     if not decision.get("passed"):
-        issues.append("PUYO-223 verification did not pass")
+        issues.append("PUYO-220 verification did not pass")
     if not math.isclose(
         float(summary.get("comparison", {}).get("target_600k_ms", -1.0)),
-        float(
-            _read_json(BASELINE_SUMMARY_PATH)["stage_budget"][
-                "stage_budget_ledger"
-            ]["placement_enumeration_trigger_qualification"][
-                "target_budget_600k_ms"
-            ]
-        ),
+        _budget_sum(_read_json(BUDGET_SUMMARY_PATH)),
         rel_tol=0.0,
         abs_tol=1e-9,
     ):
-        issues.append("placement-stage target drifted")
-    if not historical and oracle.get("source_sha256") != file_sha256(
-        CHAIN_STRUCTURE_SOURCE_PATH
-    ):
+        issues.append("resolve/remaining stage target drifted")
+    if oracle.get("source_sha256") != file_sha256(CHAIN_STRUCTURE_SOURCE_PATH):
         issues.append("property-oracle source drifted")
     if rerun_oracle:
         rerun = _run_property_oracle()
@@ -452,25 +475,19 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         if command == "verify":
             subparser.add_argument("--require-exact-wheel", action="store_true")
             subparser.add_argument("--skip-oracle-rerun", action="store_true")
-            subparser.add_argument(
-                "--historical",
-                action="store_true",
-                help="verify hash-bound PUYO-223 evidence after successor source changes",
-            )
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     if args.command == "run":
-        summary = run_frontier_verification(args.output_dir)
+        summary = run_incremental_resolution_verification(args.output_dir)
         print(json.dumps(summary["decision"], indent=2, sort_keys=True))
         return 0 if summary["decision"]["passed"] else 1
-    issues = verify_frontier_artifacts(
+    issues = verify_incremental_resolution_artifacts(
         args.output_dir,
         require_exact_wheel=args.require_exact_wheel,
-        rerun_oracle=not args.skip_oracle_rerun and not args.historical,
-        historical=args.historical,
+        rerun_oracle=not args.skip_oracle_rerun,
     )
     if issues:
         for issue in issues:

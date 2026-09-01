@@ -12,6 +12,8 @@ on:
       - "docs/development/puyo-219-native-evaluator-hot-path-profile.md"
       - "docs/benchmarks/puyo-223-quiescence-frontier/**"
       - "docs/development/puyo-223-quiescence-frontier.md"
+      - "docs/benchmarks/puyo-220-incremental-resolution/**"
+      - "docs/development/puyo-220-incremental-resolution.md"
       - "docs/benchmarks/puyo-200-native-compact-transition/**"
       - "docs/benchmarks/puyo-205-native-compact-profile/**"
       - "docs/benchmarks/puyo-206-native-compact-hot-path/**"
@@ -22,6 +24,7 @@ on:
       - "eval/deep_chain_native_evaluator_benchmark.py"
       - "eval/deep_chain_native_evaluator_profile.py"
       - "eval/deep_chain_native_quiescence_frontier.py"
+      - "eval/deep_chain_native_incremental_resolution.py"
       - "eval/deep_chain_native_transition_corpus.json"
       - "eval/deep_chain_native_transition_profile.py"
       - "eval/deep_chain_native_transition_investigation.py"
@@ -35,6 +38,7 @@ on:
       - "tests/test_deep_chain_native_evaluator_benchmark.py"
       - "tests/test_deep_chain_native_evaluator_profile.py"
       - "tests/test_deep_chain_native_quiescence_frontier.py"
+      - "tests/test_deep_chain_native_incremental_resolution.py"
       - "tests/test_deep_chain_native_transition.py"
       - "tests/test_deep_chain_native_transition_benchmark.py"
       - "tests/test_deep_chain_native_transition_profile.py"
@@ -51,6 +55,8 @@ on:
       - "docs/development/puyo-219-native-evaluator-hot-path-profile.md"
       - "docs/benchmarks/puyo-223-quiescence-frontier/**"
       - "docs/development/puyo-223-quiescence-frontier.md"
+      - "docs/benchmarks/puyo-220-incremental-resolution/**"
+      - "docs/development/puyo-220-incremental-resolution.md"
       - "docs/benchmarks/puyo-200-native-compact-transition/**"
       - "docs/benchmarks/puyo-205-native-compact-profile/**"
       - "docs/benchmarks/puyo-206-native-compact-hot-path/**"
@@ -61,6 +67,7 @@ on:
       - "eval/deep_chain_native_evaluator_benchmark.py"
       - "eval/deep_chain_native_evaluator_profile.py"
       - "eval/deep_chain_native_quiescence_frontier.py"
+      - "eval/deep_chain_native_incremental_resolution.py"
       - "eval/deep_chain_native_transition_corpus.json"
       - "eval/deep_chain_native_transition_profile.py"
       - "eval/deep_chain_native_transition_investigation.py"
@@ -74,6 +81,7 @@ on:
       - "tests/test_deep_chain_native_evaluator_benchmark.py"
       - "tests/test_deep_chain_native_evaluator_profile.py"
       - "tests/test_deep_chain_native_quiescence_frontier.py"
+      - "tests/test_deep_chain_native_incremental_resolution.py"
       - "tests/test_deep_chain_native_transition.py"
       - "tests/test_deep_chain_native_transition_benchmark.py"
       - "tests/test_deep_chain_native_transition_profile.py"
@@ -115,8 +123,9 @@ jobs:
           rustc --edition=2021 -C opt-level=3 -C codegen-units=1 -C target-cpu=x86-64 eval/puyo_211_color_plane_candidate.rs -o /tmp/puyo-211-color-plane-candidate
       - name: Run Python boundary tests
         run: |
-          .venv/bin/ruff check agents/deep_chain_native.py agents/deep_chain_native_evaluator.py agents/deep_chain_native_transition.py eval/deep_chain_native_evaluator_benchmark.py eval/deep_chain_native_evaluator_profile.py eval/deep_chain_native_quiescence_frontier.py eval/deep_chain_native_transition_benchmark.py eval/deep_chain_native_transition_profile.py eval/deep_chain_native_transition_investigation.py eval/deep_chain_native_transition_restart_decision.py tests/test_deep_chain_native.py tests/test_deep_chain_native_evaluator.py tests/test_deep_chain_native_evaluator_benchmark.py tests/test_deep_chain_native_evaluator_profile.py tests/test_deep_chain_native_quiescence_frontier.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition_profile.py tests/test_deep_chain_native_transition_investigation.py tests/test_deep_chain_native_transition_restart_decision.py
-          .venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_evaluator tests.test_deep_chain_native_evaluator_benchmark tests.test_deep_chain_native_evaluator_profile tests.test_deep_chain_native_quiescence_frontier tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark tests.test_deep_chain_native_transition_profile tests.test_deep_chain_native_transition_investigation tests.test_deep_chain_native_transition_restart_decision
+          .venv/bin/ruff check agents/deep_chain_native.py agents/deep_chain_native_evaluator.py agents/deep_chain_native_transition.py eval/deep_chain_native_evaluator_benchmark.py eval/deep_chain_native_evaluator_profile.py eval/deep_chain_native_incremental_resolution.py eval/deep_chain_native_quiescence_frontier.py eval/deep_chain_native_transition_benchmark.py eval/deep_chain_native_transition_profile.py eval/deep_chain_native_transition_investigation.py eval/deep_chain_native_transition_restart_decision.py tests/test_deep_chain_native.py tests/test_deep_chain_native_evaluator.py tests/test_deep_chain_native_evaluator_benchmark.py tests/test_deep_chain_native_evaluator_profile.py tests/test_deep_chain_native_incremental_resolution.py tests/test_deep_chain_native_quiescence_frontier.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition_profile.py tests/test_deep_chain_native_transition_investigation.py tests/test_deep_chain_native_transition_restart_decision.py
+          .venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_evaluator tests.test_deep_chain_native_evaluator_benchmark tests.test_deep_chain_native_evaluator_profile tests.test_deep_chain_native_incremental_resolution tests.test_deep_chain_native_quiescence_frontier tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark tests.test_deep_chain_native_transition_profile tests.test_deep_chain_native_transition_investigation tests.test_deep_chain_native_transition_restart_decision
           .venv/bin/python -m eval.deep_chain_native_evaluator_benchmark verify
-          .venv/bin/python -m eval.deep_chain_native_quiescence_frontier verify
+          .venv/bin/python -m eval.deep_chain_native_quiescence_frontier verify --historical
+          .venv/bin/python -m eval.deep_chain_native_incremental_resolution verify
           .venv/bin/python -m eval.deep_chain_native_transition_restart_decision

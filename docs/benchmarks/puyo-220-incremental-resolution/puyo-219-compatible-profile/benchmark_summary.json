@@ -1,0 +1,4792 @@
+{
+  "call_counts": {
+    "distribution": {
+      "executed_pattern_probes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "mean_per_node": 17.408203125,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "pattern_nodes": {
+        "exact_600k_total": 249000000,
+        "maximum_per_node": 415,
+        "mean_per_node": 415.0,
+        "p50_per_node": 415,
+        "p95_per_node": 415
+      },
+      "rank_comparison_calls": {
+        "exact_600k_total": 9846138,
+        "maximum_per_node": 29,
+        "mean_per_node": 16.41015625,
+        "p50_per_node": 17,
+        "p95_per_node": 24
+      },
+      "rank_tie_calls": {
+        "exact_600k_total": 1028918,
+        "maximum_per_node": 13,
+        "mean_per_node": 1.71484375,
+        "p50_per_node": 1,
+        "p95_per_node": 10
+      },
+      "resolution_nodes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "mean_per_node": 17.408203125,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "sha256_calls": {
+        "exact_600k_total": 1415633,
+        "maximum_per_node": 14,
+        "mean_per_node": 2.359375,
+        "p50_per_node": 2,
+        "p95_per_node": 11
+      }
+    },
+    "operations": 600000,
+    "per_source_state": [
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 26,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 14,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 18,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 19,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 0,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 0,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 0,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 25,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 16,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 20,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 25,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 21,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 23,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 28,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 27,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 28,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 23,
+        "sha256_calls": 7
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 6,
+        "resolution_nodes": 8,
+        "sha256_calls": 7
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 16,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 16,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 23,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 8,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 8,
+        "resolution_nodes": 22,
+        "sha256_calls": 10
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 29,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 28,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 29,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 16,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 3,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 2,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 3,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 10,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 9,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 10,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 9,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 8,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 9,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 10,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 9,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 10,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 26,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 18,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 17,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 8,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 9,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 8,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 9,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 23,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 26,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 23,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 5,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 4,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 5,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 8,
+        "resolution_nodes": 25,
+        "sha256_calls": 9
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 26,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 8,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 9,
+        "resolution_nodes": 16,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 13,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 11,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 11,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 8,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 13,
+        "sha256_calls": 7
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 25,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 22,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 13,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 26,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 26,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 9,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 8,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 9,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 23,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 11,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 15,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 20,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 20,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 22,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 19,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 16,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 24,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 6,
+        "resolution_nodes": 17,
+        "sha256_calls": 7
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 28,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 27,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 28,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 29,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 28,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 29,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 30,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 29,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 30,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 8,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 6,
+        "resolution_nodes": 21,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 12,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 21,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 11,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 16,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 8,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 7,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 11,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 24,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 24,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 25,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 20,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 24,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 20,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 16,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 22,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 22,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 24,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 4,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 3,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 4,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 9,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 8,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 9,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 8,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 12,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 24,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 25,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 20,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 19,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 8,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 16,
+        "sha256_calls": 13
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 6,
+        "resolution_nodes": 8,
+        "sha256_calls": 7
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 17,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 5,
+        "resolution_nodes": 16,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 13,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 12,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 8,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 11,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 18,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 8,
+        "resolution_nodes": 24,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 22,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 22,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 22,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 21,
+        "sha256_calls": 9
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 11,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 24,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 25,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 8,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 17,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 21,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 20,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 20,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 24,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 23,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 25,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 4,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 3,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 4,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 20,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 22,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 10,
+        "resolution_nodes": 18,
+        "sha256_calls": 11
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 12,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 21,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 18,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 26,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 27,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 26,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 27,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 29,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 28,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 29,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 17,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 26,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 25,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 26,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 8,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 17,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 10,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 9,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 10,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 13,
+        "resolution_nodes": 20,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 18,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 20,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 29,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 28,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 29,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 22,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 24,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 23,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 24,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 7,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 6,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 7,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 16,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 13,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 13,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 14,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 18,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 18,
+        "sha256_calls": 12
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 20,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 17,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 4,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 3,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 4,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 14,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 16,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 15,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 23,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 22,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 23,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 18,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 17,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 18,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 14,
+        "sha256_calls": 3
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 3,
+        "resolution_nodes": 8,
+        "sha256_calls": 5
+      },
+      {
+        "executed_pattern_probes": 12,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 11,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 12,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 21,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 19,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 14,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 13,
+        "rank_tie_calls": 7,
+        "resolution_nodes": 14,
+        "sha256_calls": 8
+      },
+      {
+        "executed_pattern_probes": 21,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 20,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 21,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 17,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 16,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 17,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 20,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 19,
+        "rank_tie_calls": 2,
+        "resolution_nodes": 20,
+        "sha256_calls": 4
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 15,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 14,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 15,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 11,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 10,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 11,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 8,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 7,
+        "rank_tie_calls": 4,
+        "resolution_nodes": 8,
+        "sha256_calls": 6
+      },
+      {
+        "executed_pattern_probes": 16,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 15,
+        "rank_tie_calls": 11,
+        "resolution_nodes": 16,
+        "sha256_calls": 14
+      },
+      {
+        "executed_pattern_probes": 22,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 21,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 22,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 19,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 25,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 24,
+        "rank_tie_calls": 1,
+        "resolution_nodes": 25,
+        "sha256_calls": 2
+      },
+      {
+        "executed_pattern_probes": 19,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 18,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 19,
+        "sha256_calls": 0
+      },
+      {
+        "executed_pattern_probes": 13,
+        "pattern_nodes": 415,
+        "rank_comparison_calls": 12,
+        "rank_tie_calls": 0,
+        "resolution_nodes": 13,
+        "sha256_calls": 0
+      }
+    ],
+    "schema_version": "puyo.native_chain_structure_call_counts.v1",
+    "source_state_count": 512,
+    "ticket": "PUYO-219"
+  },
+  "combined_profile": {
+    "aggregate": {
+      "checksum": 6517067855075167553,
+      "determinism_mismatch_count": 0,
+      "end_to_end_p50_ms": 3221.777859,
+      "end_to_end_p95_ms": 3248.092484,
+      "native_call_total_p50_ms": 3220.603128,
+      "native_call_total_p95_ms": 3246.823399,
+      "operations_exact": true,
+      "operations_per_sample": 600000,
+      "outlier_removal": "none",
+      "record_count": 512,
+      "sample_count": 5,
+      "transition_evaluator_p50_ms": 3218.308776,
+      "transition_evaluator_p95_ms": 3244.639751
+    },
+    "samples": [
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 3227.306594,
+        "end_to_end_ns": 3227306594,
+        "native_call_total_ms": 3225.994859,
+        "native_call_total_ns": 3225994859,
+        "ns_per_operation": 5372.929083333333,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 0,
+        "transition_evaluator_ms": 3223.75745,
+        "transition_evaluator_ns": 3223757450
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 3201.730557,
+        "end_to_end_ns": 3201730557,
+        "native_call_total_ms": 3200.514478,
+        "native_call_total_ns": 3200514478,
+        "ns_per_operation": 5330.515551666666,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 1,
+        "transition_evaluator_ms": 3198.309331,
+        "transition_evaluator_ns": 3198309331
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 3248.092484,
+        "end_to_end_ns": 3248092484,
+        "native_call_total_ms": 3246.823399,
+        "native_call_total_ns": 3246823399,
+        "ns_per_operation": 5407.732918333333,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 2,
+        "transition_evaluator_ms": 3244.639751,
+        "transition_evaluator_ns": 3244639751
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 3221.777859,
+        "end_to_end_ns": 3221777859,
+        "native_call_total_ms": 3220.603128,
+        "native_call_total_ns": 3220603128,
+        "ns_per_operation": 5363.84796,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 3,
+        "transition_evaluator_ms": 3218.308776,
+        "transition_evaluator_ns": 3218308776
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 3142.100888,
+        "end_to_end_ns": 3142100888,
+        "native_call_total_ms": 3140.903576,
+        "native_call_total_ns": 3140903576,
+        "ns_per_operation": 5231.059565,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 4,
+        "transition_evaluator_ms": 3138.635739,
+        "transition_evaluator_ns": 3138635739
+      }
+    ]
+  },
+  "created_at_utc": "2026-09-01T10:09:05Z",
+  "decision": {
+    "checks": {
+      "budget_ledger_exact": true,
+      "child_state_abi": true,
+      "cycle_counter_and_sampler": true,
+      "determinism": true,
+      "diagnostic_ablation_only": true,
+      "exact_600k_combined_operations": true,
+      "exact_600k_stage_operations": true,
+      "five_samples_no_outlier_removal": true,
+      "fixture_parity": true,
+      "frozen_config_sha256": true,
+      "frozen_corpus_digest": true,
+      "frozen_corpus_sha256": true,
+      "hot_result_abi": true,
+      "normal_hot_path_allocations": true,
+      "profiled_result_parity": true,
+      "python_native_evaluator_parity": true,
+      "source_implementation_commit": true,
+      "stage_attribution_at_least_95_percent": true,
+      "transition_oracle_parity": true
+    },
+    "combined_gate_met": false,
+    "decision": "PROFILE_COMPLETE_OPTIMIZATION_REQUIRED",
+    "failed_checks": [],
+    "passed": true,
+    "production_semantics_changed": false
+  },
+  "diagnostic_ablation": {
+    "depth_2_to_3_increment_ns_per_node": 2137.249535,
+    "depth_2_to_3_share_of_depth_3": 0.3984545331892666,
+    "diagnostic_only": true,
+    "median_ns_per_node": {
+      "1": 1889.8925433333334,
+      "2": 3226.598425,
+      "3": 5363.84796
+    },
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "production_max_added_puyos": 3,
+    "production_semantics_changed": false,
+    "sample_count": 5,
+    "schema_version": "puyo.native_chain_structure_depth_ablation.v1",
+    "ticket": "PUYO-219",
+    "variants": {
+      "1": {
+        "config_digest": "0513faeecd77042c02f57e7a910b4d090b17f0c56e38cf251cbb1f0236788517",
+        "max_added_puyos": 1,
+        "profile": {
+          "aggregate": {
+            "checksum": 261803236961453236,
+            "determinism_mismatch_count": 0,
+            "end_to_end_p50_ms": 1136.052209,
+            "end_to_end_p95_ms": 1143.381801,
+            "native_call_total_p50_ms": 1134.837931,
+            "native_call_total_p95_ms": 1141.891626,
+            "operations_exact": true,
+            "operations_per_sample": 600000,
+            "outlier_removal": "none",
+            "record_count": 512,
+            "sample_count": 5,
+            "transition_evaluator_p50_ms": 1133.935526,
+            "transition_evaluator_p95_ms": 1140.746007
+          },
+          "samples": [
+            {
+              "checksum": 261803236961453236,
+              "end_to_end_ms": 1086.953478,
+              "end_to_end_ns": 1086953478,
+              "native_call_total_ms": 1085.607805,
+              "native_call_total_ns": 1085607805,
+              "ns_per_operation": 1807.83878,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 0,
+              "transition_evaluator_ms": 1084.703268,
+              "transition_evaluator_ns": 1084703268
+            },
+            {
+              "checksum": 261803236961453236,
+              "end_to_end_ms": 1143.381801,
+              "end_to_end_ns": 1143381801,
+              "native_call_total_ms": 1141.891626,
+              "native_call_total_ns": 1141891626,
+              "ns_per_operation": 1901.243345,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 1,
+              "transition_evaluator_ms": 1140.746007,
+              "transition_evaluator_ns": 1140746007
+            },
+            {
+              "checksum": 261803236961453236,
+              "end_to_end_ms": 1136.052209,
+              "end_to_end_ns": 1136052209,
+              "native_call_total_ms": 1134.843303,
+              "native_call_total_ns": 1134843303,
+              "ns_per_operation": 1889.93717,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 2,
+              "transition_evaluator_ms": 1133.962302,
+              "transition_evaluator_ns": 1133962302
+            },
+            {
+              "checksum": 261803236961453236,
+              "end_to_end_ms": 1095.779916,
+              "end_to_end_ns": 1095779916,
+              "native_call_total_ms": 1094.288636,
+              "native_call_total_ns": 1094288636,
+              "ns_per_operation": 1822.32274,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 3,
+              "transition_evaluator_ms": 1093.393644,
+              "transition_evaluator_ns": 1093393644
+            },
+            {
+              "checksum": 261803236961453236,
+              "end_to_end_ms": 1136.221035,
+              "end_to_end_ns": 1136221035,
+              "native_call_total_ms": 1134.837931,
+              "native_call_total_ns": 1134837931,
+              "ns_per_operation": 1889.8925433333334,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 4,
+              "transition_evaluator_ms": 1133.935526,
+              "transition_evaluator_ns": 1133935526
+            }
+          ]
+        }
+      },
+      "2": {
+        "config_digest": "869a14ff1746f09d4c90361043b41acbcd14162915c875a136214eae8550affd",
+        "max_added_puyos": 2,
+        "profile": {
+          "aggregate": {
+            "checksum": 17221647859157287655,
+            "determinism_mismatch_count": 0,
+            "end_to_end_p50_ms": 1938.637993,
+            "end_to_end_p95_ms": 1949.436446,
+            "native_call_total_p50_ms": 1937.43413,
+            "native_call_total_p95_ms": 1948.032655,
+            "operations_exact": true,
+            "operations_per_sample": 600000,
+            "outlier_removal": "none",
+            "record_count": 512,
+            "sample_count": 5,
+            "transition_evaluator_p50_ms": 1935.959055,
+            "transition_evaluator_p95_ms": 1946.55503
+          },
+          "samples": [
+            {
+              "checksum": 17221647859157287655,
+              "end_to_end_ms": 1938.637993,
+              "end_to_end_ns": 1938637993,
+              "native_call_total_ms": 1937.43413,
+              "native_call_total_ns": 1937434130,
+              "ns_per_operation": 3226.598425,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 0,
+              "transition_evaluator_ms": 1935.959055,
+              "transition_evaluator_ns": 1935959055
+            },
+            {
+              "checksum": 17221647859157287655,
+              "end_to_end_ms": 1923.980922,
+              "end_to_end_ns": 1923980922,
+              "native_call_total_ms": 1921.952204,
+              "native_call_total_ns": 1921952204,
+              "ns_per_operation": 3200.75432,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 1,
+              "transition_evaluator_ms": 1920.452592,
+              "transition_evaluator_ns": 1920452592
+            },
+            {
+              "checksum": 17221647859157287655,
+              "end_to_end_ms": 1945.764953,
+              "end_to_end_ns": 1945764953,
+              "native_call_total_ms": 1944.298741,
+              "native_call_total_ns": 1944298741,
+              "ns_per_operation": 3237.305946666667,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 2,
+              "transition_evaluator_ms": 1942.383568,
+              "transition_evaluator_ns": 1942383568
+            },
+            {
+              "checksum": 17221647859157287655,
+              "end_to_end_ms": 1938.589273,
+              "end_to_end_ns": 1938589273,
+              "native_call_total_ms": 1937.231188,
+              "native_call_total_ns": 1937231188,
+              "ns_per_operation": 3226.211195,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 3,
+              "transition_evaluator_ms": 1935.726717,
+              "transition_evaluator_ns": 1935726717
+            },
+            {
+              "checksum": 17221647859157287655,
+              "end_to_end_ms": 1949.436446,
+              "end_to_end_ns": 1949436446,
+              "native_call_total_ms": 1948.032655,
+              "native_call_total_ns": 1948032655,
+              "ns_per_operation": 3244.2583833333333,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 4,
+              "transition_evaluator_ms": 1946.55503,
+              "transition_evaluator_ns": 1946555030
+            }
+          ]
+        }
+      },
+      "3": {
+        "config_digest": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+        "max_added_puyos": 3,
+        "profile": {
+          "aggregate": {
+            "checksum": 6517067855075167553,
+            "determinism_mismatch_count": 0,
+            "end_to_end_p50_ms": 3221.777859,
+            "end_to_end_p95_ms": 3248.092484,
+            "native_call_total_p50_ms": 3220.603128,
+            "native_call_total_p95_ms": 3246.823399,
+            "operations_exact": true,
+            "operations_per_sample": 600000,
+            "outlier_removal": "none",
+            "record_count": 512,
+            "sample_count": 5,
+            "transition_evaluator_p50_ms": 3218.308776,
+            "transition_evaluator_p95_ms": 3244.639751
+          },
+          "samples": [
+            {
+              "checksum": 6517067855075167553,
+              "end_to_end_ms": 3227.306594,
+              "end_to_end_ns": 3227306594,
+              "native_call_total_ms": 3225.994859,
+              "native_call_total_ns": 3225994859,
+              "ns_per_operation": 5372.929083333333,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 0,
+              "transition_evaluator_ms": 3223.75745,
+              "transition_evaluator_ns": 3223757450
+            },
+            {
+              "checksum": 6517067855075167553,
+              "end_to_end_ms": 3201.730557,
+              "end_to_end_ns": 3201730557,
+              "native_call_total_ms": 3200.514478,
+              "native_call_total_ns": 3200514478,
+              "ns_per_operation": 5330.515551666666,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 1,
+              "transition_evaluator_ms": 3198.309331,
+              "transition_evaluator_ns": 3198309331
+            },
+            {
+              "checksum": 6517067855075167553,
+              "end_to_end_ms": 3248.092484,
+              "end_to_end_ns": 3248092484,
+              "native_call_total_ms": 3246.823399,
+              "native_call_total_ns": 3246823399,
+              "ns_per_operation": 5407.732918333333,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 2,
+              "transition_evaluator_ms": 3244.639751,
+              "transition_evaluator_ns": 3244639751
+            },
+            {
+              "checksum": 6517067855075167553,
+              "end_to_end_ms": 3221.777859,
+              "end_to_end_ns": 3221777859,
+              "native_call_total_ms": 3220.603128,
+              "native_call_total_ns": 3220603128,
+              "ns_per_operation": 5363.84796,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 3,
+              "transition_evaluator_ms": 3218.308776,
+              "transition_evaluator_ns": 3218308776
+            },
+            {
+              "checksum": 6517067855075167553,
+              "end_to_end_ms": 3142.100888,
+              "end_to_end_ns": 3142100888,
+              "native_call_total_ms": 3140.903576,
+              "native_call_total_ns": 3140903576,
+              "ns_per_operation": 5231.059565,
+              "operations": 600000,
+              "record_count": 512,
+              "sample": 4,
+              "transition_evaluator_ms": 3138.635739,
+              "transition_evaluator_ns": 3138635739
+            }
+          ]
+        }
+      }
+    }
+  },
+  "measurement_commit": "ebe5acbbaa8f62616e9e8b36a8a3c271cb83fc8a",
+  "schema_version": "puyo.native_chain_structure_hot_path_profile.v1",
+  "semantic": {
+    "determinism": {
+      "byte_identical_repeats": true,
+      "mismatch_count": 0
+    },
+    "fixture": {
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 8,
+      "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+    },
+    "passed": true,
+    "python_native_evaluator": {
+      "invalid_selected": [],
+      "invalid_selected_count": 0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 512,
+      "response_sha256": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705"
+    },
+    "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+    "ticket": "PUYO-219",
+    "transition_oracle": {
+      "action_mismatch_count": 0,
+      "mismatch_count": 0,
+      "record_count": 11264,
+      "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "transition_mismatch_count": 0
+    }
+  },
+  "source_implementation_commit": "c66d3ab054626b4015c203c790d136deb9b44a26",
+  "source_verification": {
+    "allocation_test": "chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing",
+    "allocation_test_passed": true,
+    "child_state_bytes": 80,
+    "evaluator_abi_version": 1,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "test_output_sha256": "29c43c303e0b2b552f78a927a3d6636eda4c922858c3ccf17a3ee2ac561151db"
+  },
+  "stage_budget": {
+    "allocation_method": "proportional to the source-bound evaluator cycle share; the ledger is a diagnostic allocation and does not change production semantics",
+    "combined_budget_600k_ms": 820.625,
+    "evaluator_budget_600k_ms": 774.35348,
+    "evaluator_budget_ns_per_node": 1290.5891333333334,
+    "follow_up_order": [
+      "PUYO-223",
+      "PUYO-220",
+      "PUYO-222",
+      "PUYO-221"
+    ],
+    "implementation_priority": [
+      {
+        "amdahl": {
+          "current_stage_600k_ms": 996.9116020684917,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.4528418089037478,
+          "remaining_if_stage_free_600k_ms": 2201.456628931509,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_evaluator_cycle_share": 0.31169381699267246,
+        "current_projected_600k_ms": 996.9116020684917,
+        "stages": [
+          "placement_enumeration_trigger_qualification"
+        ],
+        "ticket": "PUYO-223"
+      },
+      {
+        "amdahl": {
+          "current_stage_600k_ms": 231.10839782166778,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.0778861342837374,
+          "remaining_if_stage_free_600k_ms": 2967.2598331783324,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_evaluator_cycle_share": 0.07225822079573668,
+        "current_projected_600k_ms": 231.10839782166778,
+        "stages": [
+          "virtual_resolve_gravity",
+          "remaining_structure_scan"
+        ],
+        "ticket": "PUYO-220"
+      }
+    ],
+    "schema_version": "puyo.native_chain_structure_stage_budget.v1",
+    "stage_budget_ledger": {
+      "base_feature_component_extraction": {
+        "amdahl": {
+          "current_stage_600k_ms": 988.5055473706536,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.4473153715357512,
+          "remaining_if_stage_free_600k_ms": 2209.862683629347,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_ns_per_node": 1647.509245617756,
+        "current_projected_600k_ms": 988.5055473706536,
+        "required_speedup_to_proportional_budget": 4.1303723862647335,
+        "target_budget_600k_ms": 239.32601105359416,
+        "target_budget_ns_per_node": 398.87668508932364
+      },
+      "candidate_ranking_sha256": {
+        "amdahl": {
+          "current_stage_600k_ms": 981.8426837391874,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.4429647494713294,
+          "remaining_if_stage_free_600k_ms": 2216.5255472608133,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_ns_per_node": 1636.4044728986455,
+        "current_projected_600k_ms": 981.8426837391874,
+        "required_speedup_to_proportional_budget": 4.1303723862647335,
+        "target_budget_600k_ms": 237.71287233185973,
+        "target_budget_ns_per_node": 396.18812055309957
+      },
+      "placement_enumeration_trigger_qualification": {
+        "amdahl": {
+          "current_stage_600k_ms": 996.9116020684917,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.4528418089037478,
+          "remaining_if_stage_free_600k_ms": 2201.456628931509,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_ns_per_node": 1661.5193367808195,
+        "current_projected_600k_ms": 996.9116020684917,
+        "required_speedup_to_proportional_budget": 4.1303723862647335,
+        "target_budget_600k_ms": 241.36119188275904,
+        "target_budget_ns_per_node": 402.2686531379317
+      },
+      "remaining_structure_scan": {
+        "amdahl": {
+          "current_stage_600k_ms": 0.0,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.0,
+          "remaining_if_stage_free_600k_ms": 3198.3682310000004,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_ns_per_node": 0.0,
+        "current_projected_600k_ms": 0.0,
+        "required_speedup_to_proportional_budget": null,
+        "target_budget_600k_ms": 0.0,
+        "target_budget_ns_per_node": 0.0
+      },
+      "virtual_resolve_gravity": {
+        "amdahl": {
+          "current_stage_600k_ms": 231.10839782166778,
+          "gate_possible_if_only_stage_changes": false,
+          "maximum_evaluator_speedup_if_stage_free": 1.0778861342837374,
+          "remaining_if_stage_free_600k_ms": 2967.2598331783324,
+          "required_stage_speedup_if_only_stage_changes": null
+        },
+        "current_ns_per_node": 385.180663036113,
+        "current_projected_600k_ms": 231.10839782166778,
+        "required_speedup_to_proportional_budget": 4.1303723862647335,
+        "target_budget_600k_ms": 55.95340473178707,
+        "target_budget_ns_per_node": 93.25567455297845
+      }
+    },
+    "stage_budget_sum_600k_ms": 774.35348,
+    "stop_conditions": [
+      "stop on any fixture, transition-oracle, evaluator, or determinism mismatch",
+      "stop on any hot-path allocation or 80/24-byte ABI regression",
+      "after the first implementation candidate, rerun PUYO-222 profiling before the next optimization",
+      "do not start the independent PUYO-221 gate until the combined 600,000-node p95 is at or below 820.625 ms"
+    ],
+    "ticket": "PUYO-219",
+    "transition_budget_600k_ms": 46.27152
+  },
+  "stage_decomposition": {
+    "attribution": {
+      "driver_unattributed_share": 0.0003302977398197518,
+      "passes": true,
+      "required_minimum": 0.95,
+      "sampled_stage_share": 0.9996697022601803
+    },
+    "combined": {
+      "observed_ns_per_node": 5407.732918333333,
+      "observed_p95_ms": 3244.639751
+    },
+    "evaluator": {
+      "observed_ns_per_node": 5330.613718333334,
+      "observed_projected_600k_ms": 3198.3682310000004,
+      "sampled_cycle_ratio_of_profiled_loop": 0.9739654602934932
+    },
+    "evaluator_stages": {
+      "base_feature_component_extraction": {
+        "current_ns_per_node": 1647.509245617756,
+        "current_projected_600k_ms": 988.5055473706536,
+        "cycle_ratio_of_evaluator": 0.30906558469084966,
+        "cycle_ratio_of_profiled_loop": 0.30101920445430097,
+        "estimated_cycles_at_profile_p50": 3249275777.673713,
+        "sample_count": 25518,
+        "stage_entries_per_node": 2.0
+      },
+      "candidate_ranking_sha256": {
+        "current_ns_per_node": 1636.4044728986455,
+        "current_projected_600k_ms": 981.8426837391874,
+        "cycle_ratio_of_evaluator": 0.3069823775207412,
+        "cycle_ratio_of_profiled_loop": 0.2989902326239796,
+        "estimated_cycles_at_profile_p50": 3227374553.6843767,
+        "sample_count": 25346,
+        "stage_entries_per_node": 17.408276666666666
+      },
+      "placement_enumeration_trigger_qualification": {
+        "current_ns_per_node": 1661.5193367808195,
+        "current_projected_600k_ms": 996.9116020684917,
+        "cycle_ratio_of_evaluator": 0.31169381699267246,
+        "cycle_ratio_of_profiled_loop": 0.30357901193790404,
+        "estimated_cycles_at_profile_p50": 3276906973.0556083,
+        "sample_count": 25735,
+        "stage_entries_per_node": 18.408276666666666
+      },
+      "remaining_structure_scan": {
+        "current_ns_per_node": 0.0,
+        "current_projected_600k_ms": 0.0,
+        "cycle_ratio_of_evaluator": 0.0,
+        "cycle_ratio_of_profiled_loop": 0.0,
+        "estimated_cycles_at_profile_p50": 0.0,
+        "sample_count": 0,
+        "stage_entries_per_node": 0.0
+      },
+      "virtual_resolve_gravity": {
+        "current_ns_per_node": 385.180663036113,
+        "current_projected_600k_ms": 231.10839782166778,
+        "cycle_ratio_of_evaluator": 0.07225822079573668,
+        "cycle_ratio_of_profiled_loop": 0.07037701127730854,
+        "estimated_cycles_at_profile_p50": 759666873.9556929,
+        "sample_count": 5966,
+        "stage_entries_per_node": 5.042975
+      }
+    },
+    "outer_overhead": {
+      "native_call_parse_prepare_response_600k_ms": 2.183647999999721,
+      "native_call_parse_prepare_response_ns_per_node": 3.6394133333328686,
+      "python_encode_decode_600k_ms": 1.2690849999999045,
+      "python_encode_decode_ns_per_node": 2.1151416666665077
+    },
+    "transition": {
+      "estimated_cycles_at_profile_p50": 277457948.09746146,
+      "fixed_projection_600k_ms": 46.27152,
+      "fixed_projection_ns_per_node": 77.1192,
+      "sampled_cycle_ratio_of_profiled_loop": 0.025704241966687115
+    }
+  },
+  "ticket": "PUYO-219"
+}
