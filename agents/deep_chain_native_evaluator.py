@@ -41,7 +41,7 @@ NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION = (
     "puyo.native_chain_structure_combined_profile.v1"
 )
 NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION = (
-    "puyo.native_chain_structure_stage_profile.v1"
+    "puyo.native_chain_structure_stage_profile.v2"
 )
 NATIVE_CHAIN_STRUCTURE_ABI_VERSION = 1
 NATIVE_CHAIN_STRUCTURE_MAX_EVIDENCE_CANDIDATES = 96
@@ -56,8 +56,8 @@ _FLAG_EVIDENCE = 0x1
 _MAX_RECORDS = 50_000
 _CANDIDATE_BYTES = 61
 _FIXED_RESULT_BYTES = 265
-_STAGE_PROFILE_HEADER_BYTES = 216
-_STAGE_PROFILE_RECORD_BYTES = 20
+_STAGE_PROFILE_HEADER_BYTES = 224
+_STAGE_PROFILE_RECORD_BYTES = 24
 
 NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES = (
     "driver_unattributed",
@@ -212,6 +212,7 @@ class NativeCombinedProfileResult:
 @dataclass(frozen=True, slots=True)
 class NativeStageProfileCounts:
     pattern_nodes: int
+    executed_pattern_probes: int
     resolution_nodes: int
     rank_comparison_calls: int
     rank_tie_calls: int
@@ -220,6 +221,7 @@ class NativeStageProfileCounts:
     def to_dict(self) -> dict[str, int]:
         return {
             "pattern_nodes": int(self.pattern_nodes),
+            "executed_pattern_probes": int(self.executed_pattern_probes),
             "resolution_nodes": int(self.resolution_nodes),
             "rank_comparison_calls": int(self.rank_comparison_calls),
             "rank_tie_calls": int(self.rank_tie_calls),
@@ -660,7 +662,7 @@ def decode_native_stage_profile(
     ):
         raise InvalidNativeInputError("invalid native stage-profile controls")
     aggregate_values = tuple(
-        reader.u64(f"stage-profile aggregate counter {index}") for index in range(5)
+        reader.u64(f"stage-profile aggregate counter {index}") for index in range(6)
     )
     stage_samples = tuple(
         reader.u64(f"stage-profile sample counter {index}")
@@ -684,10 +686,11 @@ def decode_native_stage_profile(
     def counts(values: Sequence[int]) -> NativeStageProfileCounts:
         return NativeStageProfileCounts(
             pattern_nodes=int(values[0]),
-            resolution_nodes=int(values[1]),
-            rank_comparison_calls=int(values[2]),
-            rank_tie_calls=int(values[3]),
-            sha256_calls=int(values[4]),
+            executed_pattern_probes=int(values[1]),
+            resolution_nodes=int(values[2]),
+            rank_comparison_calls=int(values[3]),
+            rank_tie_calls=int(values[4]),
+            sha256_calls=int(values[5]),
         )
 
     per_record = tuple(
@@ -696,7 +699,7 @@ def decode_native_stage_profile(
                 reader.u32(
                     f"stage-profile record {record_index} counter {counter_index}"
                 )
-                for counter_index in range(5)
+                for counter_index in range(6)
             )
         )
         for record_index in range(record_count)

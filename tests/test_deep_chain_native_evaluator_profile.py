@@ -112,19 +112,21 @@ class TestNativeEvaluatorHotPathProfile(unittest.TestCase):
         rows = [
             {
                 "pattern_nodes": value,
-                "resolution_nodes": value + 1,
-                "rank_comparison_calls": value + 2,
-                "rank_tie_calls": value + 3,
-                "sha256_calls": value + 4,
+                "executed_pattern_probes": value + 2,
+                "resolution_nodes": value + 3,
+                "rank_comparison_calls": value + 4,
+                "rank_tie_calls": value + 5,
+                "sha256_calls": value + 6,
             }
             for value in (1, 2, 3, 4, 5)
         ]
         aggregate = {
             "pattern_nodes": 100,
-            "resolution_nodes": 200,
-            "rank_comparison_calls": 300,
-            "rank_tie_calls": 400,
-            "sha256_calls": 500,
+            "executed_pattern_probes": 300,
+            "resolution_nodes": 400,
+            "rank_comparison_calls": 500,
+            "rank_tie_calls": 600,
+            "sha256_calls": 700,
         }
 
         result = summarize_call_counts(rows, aggregate)
@@ -133,7 +135,7 @@ class TestNativeEvaluatorHotPathProfile(unittest.TestCase):
         self.assertEqual(result["distribution"]["pattern_nodes"]["p95_per_node"], 5)
         self.assertEqual(
             result["distribution"]["sha256_calls"]["exact_600k_total"],
-            500,
+            700,
         )
 
     def test_stage_budget_sums_exactly_and_orders_candidates_by_contribution(self):
