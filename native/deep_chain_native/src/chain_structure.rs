@@ -526,6 +526,8 @@ const COMPONENT_CACHE_WAYS: usize = 4;
 struct CachedComponentAnalysis {
     components: ComponentSet,
     base_features: ChainStructureFeatures,
+    valid_patterns: u128,
+    trigger_frontier: TriggerFrontier,
 }
 
 struct ComponentCache {
@@ -537,6 +539,12 @@ struct ComponentCache {
     lengths: [u8; COMPONENT_CACHE_SET_COUNT],
     next_replacement: [u8; COMPONENT_CACHE_SET_COUNT],
 }
+
+#[cfg(not(test))]
+const _: () = {
+    assert!(std::mem::size_of::<CachedComponentAnalysis>() < 3_072);
+    assert!(std::mem::size_of::<ComponentCache>() < 12 * 1_024 * 1_024);
+};
 
 impl ComponentCache {
     const fn new() -> Self {
@@ -2218,9 +2226,9 @@ impl Default for FrontierResolutionSpec {
     }
 }
 
+#[derive(Clone, Copy)]
 struct TriggerFrontier {
     candidate_patterns: [u128; NORMAL_COLOR_COUNT],
-    candidate_components: [MaybeUninit<u32>; MAX_FRONTIER_CANDIDATE_RECORDS],
     candidate_group_resolutions: [u16; CANDIDATE_GROUP_COUNT],
     resolution_anchors: [u128; RESOLUTION_CACHE_SIZE],
     resolution_precomputed: [MaybeUninit<CachedResolution>; RESOLUTION_CACHE_SIZE],
@@ -2235,7 +2243,6 @@ impl TriggerFrontier {
     fn new() -> Self {
         Self {
             candidate_patterns: [0_u128; NORMAL_COLOR_COUNT],
-            candidate_components: [MaybeUninit::uninit(); MAX_FRONTIER_CANDIDATE_RECORDS],
             candidate_group_resolutions: [0; CANDIDATE_GROUP_COUNT],
             resolution_anchors: [0_u128; RESOLUTION_CACHE_SIZE],
             resolution_precomputed: [MaybeUninit::uninit(); RESOLUTION_CACHE_SIZE],
@@ -2244,21 +2251,6 @@ impl TriggerFrontier {
             candidate_groups: [0_u64; 4],
             candidate_count: 0,
         }
-    }
-
-    #[inline(always)]
-    fn record_candidate(
-        &mut self,
-        plane_index: usize,
-        pattern_index: usize,
-        trigger_components: u32,
-    ) {
-        debug_assert!(trigger_components != 0);
-        debug_assert_eq!(trigger_components >> MAX_FRONTIER_COMPONENTS, 0);
-        debug_assert!(plane_index < NORMAL_COLOR_COUNT);
-        debug_assert!(pattern_index < PLACEMENT_PATTERN_COUNT);
-        self.candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
-            .write(trigger_components);
     }
 }
 
@@ -2490,6 +2482,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
     if valid_patterns == 0 || components.frontier_len == 0 {
         return;
     }
+    let mut candidate_components = [MaybeUninit::<u32>::uninit(); MAX_FRONTIER_CANDIDATE_RECORDS];
     let component_topology = &components.frontier_topology;
     let stack_neighbors = &components.stack_neighbors;
     let stack_prefix_neighbors = &components.stack_prefix_neighbors;
@@ -2532,7 +2525,8 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
             while pending != 0 {
                 let pattern_index = pending.trailing_zeros() as usize;
                 pending &= pending - 1;
-                result.record_candidate(plane_index, pattern_index, 1_u32 << component_index);
+                candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
+                    .write(1_u32 << component_index);
             }
         } else {
             multi_component_planes |= 1_u8 << plane_index;
@@ -2562,7 +2556,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
                     max_added_puyos,
                     plane_index: plane_index as u8,
                     candidates: &mut result.candidate_patterns[plane_index],
-                    candidate_components: &mut result.candidate_components,
+                    candidate_components: &mut candidate_components,
                     frontier_state_visits: &mut profile_counts.frontier_state_visits,
                 }
                 .visit(
@@ -2616,7 +2610,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
             // SAFETY: candidate bits are published only after their component
             // entry is written by the single- or multi-component frontier path.
             let trigger_components = unsafe {
-                *result.candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
+                *candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
                     .assume_init_ref()
             };
             let added_puyos = PLACEMENT_CATALOG.patterns[pattern_index].added_puyos;
@@ -3456,6 +3450,7 @@ struct QuiescenceSearch<'a, M: EvidenceMode, const PROFILE: bool, const INCREMEN
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
+    #[cfg(test)]
     reachable: u8,
     components: &'a ComponentSet,
     config: &'a EvaluationConfig,
@@ -3481,7 +3476,7 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
         planes: &'a [u128; PLANE_COUNT],
         occupied: u128,
         heights: &'a [u8; WIDTH],
-        reachable: u8,
+        _reachable: u8,
         components: &'a ComponentSet,
         config: &'a EvaluationConfig,
         profile_stage: Option<&'a AtomicU8>,
@@ -3490,7 +3485,8 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
             planes,
             occupied,
             heights,
-            reachable,
+            #[cfg(test)]
+            reachable: _reachable,
             components,
             config,
             pattern_nodes: 0,
@@ -4153,20 +4149,13 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
         self.resolve_pending_group(plane_index, added_puyos, &pending[..pending_count]);
     }
 
-    fn evaluate_frontier_catalog(&mut self, components: &ComponentSet, landing: u128) {
+    fn evaluate_frontier_catalog(
+        &mut self,
+        frontier: &TriggerFrontier,
+        valid_patterns: u128,
+        landing: u128,
+    ) {
         self.enter_profile_stage(PROFILE_STAGE_PLACEMENT_ORBIT);
-        let valid_patterns =
-            valid_catalog_patterns(self.heights, self.reachable, self.config.max_added_puyos);
-        let mut frontier = TriggerFrontier::new();
-        build_trigger_frontier::<PROFILE>(
-            &mut frontier,
-            self.planes,
-            components,
-            self.config.max_added_puyos,
-            valid_patterns,
-            self.profile_stage,
-            &mut self.profile_counts,
-        );
         self.enter_profile_stage(PROFILE_STAGE_PLACEMENT_DISPATCH);
         let total_pattern_nodes = valid_patterns.count_ones() * NORMAL_COLOR_COUNT as u32;
         let total_resolution_nodes = frontier.candidate_count;
@@ -4182,7 +4171,7 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
                     let bit_index = groups.trailing_zeros() as usize;
                     groups &= groups - 1;
                     let group_index = word_index * 64 + bit_index;
-                    self.evaluate_frontier_group_prechecked(&frontier, group_index, landing);
+                    self.evaluate_frontier_group_prechecked(frontier, group_index, landing);
                 }
             }
             return;
@@ -4207,7 +4196,7 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
                 if valid_orbit & candidate_patterns == 0 {
                     continue;
                 }
-                self.evaluate_frontier_group(&frontier, orbit_index, orbit, plane_index, landing);
+                self.evaluate_frontier_group(frontier, orbit_index, orbit, plane_index, landing);
                 if self.truncated() {
                     return;
                 }
@@ -4294,15 +4283,34 @@ impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
     }
 }
 
-fn bounded_quiescence<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>(
+struct QuiescenceInput<'a> {
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
     reachable: u8,
     components: &'a ComponentSet,
+    frontier: &'a TriggerFrontier,
+    valid_patterns: u128,
     config: &'a EvaluationConfig,
     profile_stage: Option<&'a AtomicU8>,
+    profile_counts: EvaluationProfileCounts,
+}
+
+fn bounded_quiescence<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>(
+    input: QuiescenceInput<'a>,
 ) -> QuiescenceSearch<'a, M, PROFILE, INCREMENTAL> {
+    let QuiescenceInput {
+        planes,
+        occupied,
+        heights,
+        reachable,
+        components,
+        frontier,
+        valid_patterns,
+        config,
+        profile_stage,
+        profile_counts,
+    } = input;
     let mut search = QuiescenceSearch::<M, PROFILE, INCREMENTAL>::new(
         planes,
         occupied,
@@ -4312,8 +4320,9 @@ fn bounded_quiescence<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTA
         config,
         profile_stage,
     );
+    search.profile_counts = profile_counts;
     search.enter_profile_stage(PROFILE_STAGE_PLACEMENT_ORBIT);
-    search.evaluate_frontier_catalog(components, components.landing);
+    search.evaluate_frontier_catalog(frontier, valid_patterns, components.landing);
     if PROFILE {
         search.profile_counts.pattern_nodes = search.pattern_nodes;
         search.profile_counts.resolution_nodes = search.resolution_nodes;
@@ -4668,12 +4677,13 @@ fn evaluate_internal<M: EvidenceMode, const PROFILE: bool>(
     let component_cache_key = state.board_key();
     let component_cache_hash = component_cache_key.cache_hash();
     set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_CACHE_LOOKUP);
-    let (components, component_cache_hit) = if let Some(components) = cached_component_set(
-        component_cache_key,
-        component_cache_hash,
-        config.max_added_puyos,
-    ) {
-        (components, true)
+    let (analysis, component_cache_hit, frontier_profile_counts) = if let Some(analysis) =
+        cached_component_set(
+            component_cache_key,
+            component_cache_hash,
+            config.max_added_puyos,
+        ) {
+        (analysis, true, EvaluationProfileCounts::default())
     } else {
         let components = extract_components::<PROFILE>(ComponentExtraction {
             planes: &planes,
@@ -4688,6 +4698,18 @@ fn evaluate_internal<M: EvidenceMode, const PROFILE: bool>(
         });
         set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_FEATURE_AGGREGATION);
         let base_features = build_base_features(&planes, occupied, &heights, &components);
+        let valid_patterns = valid_catalog_patterns(&heights, reachable, config.max_added_puyos);
+        let mut trigger_frontier = TriggerFrontier::new();
+        let mut frontier_profile_counts = EvaluationProfileCounts::default();
+        build_trigger_frontier::<PROFILE>(
+            &mut trigger_frontier,
+            &planes,
+            &components,
+            config.max_added_puyos,
+            valid_patterns,
+            profile_stage,
+            &mut frontier_profile_counts,
+        );
         (
             cache_component_set(
                 component_cache_key,
@@ -4696,24 +4718,30 @@ fn evaluate_internal<M: EvidenceMode, const PROFILE: bool>(
                 CachedComponentAnalysis {
                     components,
                     base_features,
+                    valid_patterns,
+                    trigger_frontier,
                 },
             ),
             false,
+            frontier_profile_counts,
         )
     };
     // SAFETY: entries use fixed storage and no subsequent cache access occurs
     // before this evaluation releases the shared reference.
-    let analysis = unsafe { &*components };
+    let analysis = unsafe { &*analysis };
     let components = &analysis.components;
-    let mut quiescence = bounded_quiescence::<M, PROFILE, true>(
-        &planes,
+    let mut quiescence = bounded_quiescence::<M, PROFILE, true>(QuiescenceInput {
+        planes: &planes,
         occupied,
-        &heights,
+        heights: &heights,
         reachable,
         components,
+        frontier: &analysis.trigger_frontier,
+        valid_patterns: analysis.valid_patterns,
         config,
         profile_stage,
-    );
+        profile_counts: frontier_profile_counts,
+    });
     if PROFILE {
         let stage_entries = &mut quiescence.profile_counts.stage_entries;
         stage_entries[usize::from(PROFILE_STAGE_BASE_GEOMETRY)] += 1;
@@ -4887,15 +4915,29 @@ mod tests {
             connection_candidate_count_exact(components.as_slice(), landing),
             "connection candidates: {label}",
         );
-        let frontier = bounded_quiescence::<CollectEvidence, false, true>(
+        let valid_patterns = valid_catalog_patterns(&heights, reachable, config.max_added_puyos);
+        let mut trigger_frontier = TriggerFrontier::new();
+        build_trigger_frontier::<false>(
+            &mut trigger_frontier,
             &planes,
-            occupied,
-            &heights,
-            reachable,
             &components,
-            config,
+            config.max_added_puyos,
+            valid_patterns,
             None,
+            &mut EvaluationProfileCounts::default(),
         );
+        let frontier = bounded_quiescence::<CollectEvidence, false, true>(QuiescenceInput {
+            planes: &planes,
+            occupied,
+            heights: &heights,
+            reachable,
+            components: &components,
+            frontier: &trigger_frontier,
+            valid_patterns,
+            config,
+            profile_stage: None,
+            profile_counts: EvaluationProfileCounts::default(),
+        });
         let exhaustive = bounded_quiescence_exhaustive(
             &planes,
             occupied,
@@ -5438,12 +5480,18 @@ mod tests {
             counts.stage_entries[usize::from(PROFILE_STAGE_BASE_CACHE_LOOKUP)],
             1
         );
-        // The unprofiled call above primes the exact-key component cache.
+        // The unprofiled call above primes the exact-key component and trigger
+        // frontier cache.
         for stage in [
             PROFILE_STAGE_BASE_STACK_TOPOLOGY,
             PROFILE_STAGE_BASE_COMPONENT_FLOOD,
             PROFILE_STAGE_BASE_COMPONENT_METADATA,
             PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY,
+            PROFILE_STAGE_PLACEMENT_FRONTIER,
+            PROFILE_STAGE_PLACEMENT_QUALIFICATION,
+            PROFILE_STAGE_PLACEMENT_DEDUPLICATION,
+            PROFILE_STAGE_PLACEMENT_SINGLE_FRONTIER,
+            PROFILE_STAGE_PLACEMENT_MULTI_FRONTIER,
         ] {
             assert_eq!(counts.stage_entries[usize::from(stage)], 0);
         }
@@ -5453,9 +5501,6 @@ mod tests {
         );
         for stage in [
             PROFILE_STAGE_PLACEMENT_ORBIT,
-            PROFILE_STAGE_PLACEMENT_FRONTIER,
-            PROFILE_STAGE_PLACEMENT_QUALIFICATION,
-            PROFILE_STAGE_PLACEMENT_DEDUPLICATION,
             PROFILE_STAGE_PLACEMENT_DISPATCH,
         ] {
             assert!(counts.stage_entries[usize::from(stage)] > 0);
@@ -5468,9 +5513,56 @@ mod tests {
     }
 
     #[test]
+    fn trigger_frontier_cache_reuses_exact_board_work() {
+        let state = state_with_cells(&[
+            (0, 0, 0),
+            (0, 1, 0),
+            (0, 2, 0),
+            (1, 0, 1),
+            (1, 1, 1),
+            (2, 4, 0),
+            (3, 5, 0),
+        ]);
+        let config = default_config();
+        let marker = AtomicU8::new(PROFILE_STAGE_DRIVER);
+
+        let (cold, cold_counts) = evaluate_profiled(&state, &config, None, None, 6, &marker);
+        let (hot, hot_counts) = evaluate_profiled(&state, &config, None, None, 6, &marker);
+
+        assert_eq!(hot, cold);
+        assert!(cold_counts.qualified_candidates > 0);
+        assert!(cold_counts.stage_entries[usize::from(PROFILE_STAGE_PLACEMENT_QUALIFICATION)] > 0);
+        assert_eq!(hot_counts.frontier_state_visits, 0);
+        assert_eq!(hot_counts.qualified_candidates, 0);
+        assert_eq!(hot_counts.resolution_group_comparisons, 0);
+        assert_eq!(hot_counts.resolution_groups, 0);
+        for stage in [
+            PROFILE_STAGE_PLACEMENT_FRONTIER,
+            PROFILE_STAGE_PLACEMENT_QUALIFICATION,
+            PROFILE_STAGE_PLACEMENT_DEDUPLICATION,
+            PROFILE_STAGE_PLACEMENT_SINGLE_FRONTIER,
+            PROFILE_STAGE_PLACEMENT_MULTI_FRONTIER,
+        ] {
+            assert_eq!(hot_counts.stage_entries[usize::from(stage)], 0);
+        }
+        assert_eq!(hot_counts.pattern_nodes, cold_counts.pattern_nodes);
+        assert_eq!(
+            hot_counts.executed_pattern_probes,
+            cold_counts.executed_pattern_probes
+        );
+        assert_eq!(hot_counts.resolution_nodes, cold_counts.resolution_nodes);
+        assert_eq!(
+            hot_counts.rank_comparison_calls,
+            cold_counts.rank_comparison_calls
+        );
+        assert_eq!(hot_counts.rank_tie_calls, cold_counts.rank_tie_calls);
+        assert_eq!(hot_counts.sha256_calls, cold_counts.sha256_calls);
+    }
+
+    #[test]
     fn hot_workspaces_stay_below_stack_probe_boundary() {
         assert!(std::mem::size_of::<QuiescenceSearch<'_, NoEvidence, false, true>>() < 4_096);
-        assert!(std::mem::size_of::<TriggerFrontier>() < 4_096);
+        assert!(std::mem::size_of::<TriggerFrontier>() < 2_048);
         assert_eq!(std::mem::size_of::<CachedResolution>(), 24);
         assert_eq!(std::mem::size_of::<ResolutionCacheEntry>(), 48);
     }
