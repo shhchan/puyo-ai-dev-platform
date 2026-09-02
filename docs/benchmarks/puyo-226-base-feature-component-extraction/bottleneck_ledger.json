@@ -1,0 +1,22 @@
+{
+  "base_substage_total_600k_ms": 80.28749098284295,
+  "base_substages_600k_ms": {
+    "base_board_geometry": 7.638415948493441,
+    "base_component_cache_lookup": 29.67877914789082,
+    "base_component_flood": 0.10094822839418645,
+    "base_component_metadata_aggregation": 0.13459763785891526,
+    "base_feature_aggregation": 41.422423051081175,
+    "base_frontier_topology": 0.5720399609003899,
+    "base_stack_topology": 0.740287008224034
+  },
+  "baseline_attributed_share": 0.9991315103823986,
+  "baseline_largest_stage": "base_feature_component_extraction",
+  "current_attributed_share": 0.9986808693071266,
+  "current_combined_budget_gap_ms": 174.89636099999996,
+  "current_largest_unimproved_stage": "placement_enumeration_trigger_qualification",
+  "current_largest_unimproved_stage_600k_ms": 480.446268337398,
+  "follow_up_required": true,
+  "follow_up_ticket": "PUYO-227",
+  "remaining_if_next_stage_free_600k_ms": 515.075092662602,
+  "schema_version": "puyo.native_base_feature_ledger.v1"
+}
