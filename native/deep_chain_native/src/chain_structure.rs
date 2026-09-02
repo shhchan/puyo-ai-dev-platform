@@ -6,6 +6,7 @@
 //! evidence is optional and bounded; the normal search path neither allocates
 //! nor materializes Python-facing objects.
 
+use std::cell::UnsafeCell;
 use std::cmp::Ordering;
 use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicU8, Ordering as AtomicOrdering};
@@ -13,8 +14,8 @@ use std::sync::atomic::{AtomicU8, Ordering as AtomicOrdering};
 use sha2::block_api::compress256;
 
 use crate::compact::{
-    CompactState, HEIGHT, NORMAL_COLOR_COUNT, PLANE_COUNT, TransitionHotResult, VISIBLE_HEIGHT,
-    WIDTH,
+    BoardKey, CompactState, HEIGHT, NORMAL_COLOR_COUNT, PLANE_COUNT, TransitionHotResult,
+    VISIBLE_HEIGHT, WIDTH,
 };
 
 pub(crate) const FEATURE_SCHEMA: &str = "puyo.chain_structure_features.v1";
@@ -32,7 +33,9 @@ const MAX_FRONTIER_CANDIDATE_RECORDS: usize = PLACEMENT_PATTERN_COUNT * NORMAL_C
 const ROOT_PLACEMENT_PATTERN_INDEX: u8 = PLACEMENT_PATTERN_COUNT as u8;
 const MAX_FRONTIER_COMPONENTS: usize = WIDTH + (WIDTH - 1) * 3;
 const STACK_SLOT_COUNT: usize = WIDTH * 3;
-const RESOLUTION_CACHE_SIZE: usize = 32;
+const STACK_FIRST_SLOT_MASK: u32 = build_stack_first_slot_mask();
+const RESOLUTION_SPEC_TABLE_SIZE: usize = 32;
+const RESOLUTION_CACHE_SIZE: usize = 16;
 
 pub(crate) const PROFILE_STAGE_DRIVER: u8 = 0;
 pub(crate) const PROFILE_STAGE_TRANSITION: u8 = 1;
@@ -47,7 +50,14 @@ pub(crate) const PROFILE_STAGE_PLACEMENT_DEDUPLICATION: u8 = 9;
 pub(crate) const PROFILE_STAGE_PLACEMENT_DISPATCH: u8 = 10;
 pub(crate) const PROFILE_STAGE_PLACEMENT_SINGLE_FRONTIER: u8 = 11;
 pub(crate) const PROFILE_STAGE_PLACEMENT_MULTI_FRONTIER: u8 = 12;
-pub(crate) const PROFILE_STAGE_COUNT: usize = 13;
+pub(crate) const PROFILE_STAGE_BASE_GEOMETRY: u8 = 13;
+pub(crate) const PROFILE_STAGE_BASE_STACK_TOPOLOGY: u8 = 14;
+pub(crate) const PROFILE_STAGE_BASE_COMPONENT_FLOOD: u8 = 15;
+pub(crate) const PROFILE_STAGE_BASE_COMPONENT_METADATA: u8 = 16;
+pub(crate) const PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY: u8 = 17;
+pub(crate) const PROFILE_STAGE_BASE_FEATURE_AGGREGATION: u8 = 18;
+pub(crate) const PROFILE_STAGE_BASE_CACHE_LOOKUP: u8 = 19;
+pub(crate) const PROFILE_STAGE_COUNT: usize = 20;
 pub(crate) const PROFILE_COUNTER_COUNT: usize = 15;
 
 const COLUMN_LANE_BITS: usize = 16;
@@ -312,6 +322,13 @@ fn mark_profile_stage<const PROFILE: bool>(
     stage_entries[usize::from(stage)] += 1;
 }
 
+#[inline(always)]
+fn set_profile_stage<const PROFILE: bool>(marker: Option<&AtomicU8>, stage: u8) {
+    if PROFILE && let Some(marker) = marker {
+        marker.store(stage, AtomicOrdering::Relaxed);
+    }
+}
+
 impl Default for EvaluationEvidence {
     fn default() -> Self {
         Self {
@@ -319,6 +336,56 @@ impl Default for EvaluationEvidence {
             candidates: [QuiescenceCandidate::default(); MAX_EVIDENCE_CANDIDATES],
             candidate_count: 0,
         }
+    }
+}
+
+trait EvidenceMode {
+    type Storage;
+
+    const ENABLED: bool;
+
+    fn storage() -> Self::Storage;
+    fn push(storage: &mut Self::Storage, candidate: QuiescenceCandidate);
+}
+
+struct NoEvidence;
+
+impl EvidenceMode for NoEvidence {
+    type Storage = ();
+
+    const ENABLED: bool = false;
+
+    #[inline(always)]
+    fn storage() -> Self::Storage {}
+
+    #[inline(always)]
+    fn push(_storage: &mut Self::Storage, _candidate: QuiescenceCandidate) {
+        unreachable!("hot evaluation cannot retain evidence")
+    }
+}
+
+struct CollectEvidence;
+
+impl EvidenceMode for CollectEvidence {
+    type Storage = EvaluationEvidence;
+
+    const ENABLED: bool = true;
+
+    fn storage() -> Self::Storage {
+        EvaluationEvidence::default()
+    }
+
+    fn push(storage: &mut Self::Storage, candidate: QuiescenceCandidate) {
+        let candidate_count = usize::from(storage.candidate_count);
+        if storage.candidates[..candidate_count]
+            .iter()
+            .any(|current| same_candidate_signature(current, &candidate))
+        {
+            return;
+        }
+        debug_assert!(candidate_count < storage.candidates.len());
+        storage.candidates[candidate_count] = candidate;
+        storage.candidate_count += 1;
     }
 }
 
@@ -336,9 +403,12 @@ struct Component {
 struct ComponentSet {
     #[cfg(test)]
     values: [MaybeUninit<Component>; MAX_COMPONENTS],
+    #[cfg(test)]
+    test_len: usize,
     len: usize,
     landing: u128,
     accelerated_search_supported: bool,
+    bounded_components: bool,
     incremental_resolution_supported: bool,
     base_normal: u128,
     base_occupied: u128,
@@ -350,7 +420,6 @@ struct ComponentSet {
     connection_seen_multiple: [u8; NORMAL_COLOR_COUNT],
     connection_candidate_count: u8,
     frontier_topology: [MaybeUninit<u64>; MAX_FRONTIER_COMPONENTS],
-    frontier_masks: [MaybeUninit<u128>; MAX_FRONTIER_COMPONENTS],
     frontier_color_components: [u32; NORMAL_COLOR_COUNT],
     frontier_len: usize,
     stack_neighbors: [u32; STACK_SLOT_COUNT],
@@ -363,9 +432,12 @@ impl Default for ComponentSet {
         Self {
             #[cfg(test)]
             values: [MaybeUninit::uninit(); MAX_COMPONENTS],
+            #[cfg(test)]
+            test_len: 0,
             len: 0,
             landing: 0,
             accelerated_search_supported: false,
+            bounded_components: false,
             incremental_resolution_supported: false,
             base_normal: 0,
             base_occupied: 0,
@@ -377,7 +449,6 @@ impl Default for ComponentSet {
             connection_seen_multiple: [0; NORMAL_COLOR_COUNT],
             connection_candidate_count: 0,
             frontier_topology: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
-            frontier_masks: [MaybeUninit::uninit(); MAX_FRONTIER_COMPONENTS],
             frontier_color_components: [0; NORMAL_COLOR_COUNT],
             frontier_len: 0,
             stack_neighbors: [0; STACK_SLOT_COUNT],
@@ -388,15 +459,8 @@ impl Default for ComponentSet {
 }
 
 impl ComponentSet {
-    fn push(&mut self, value: Component) {
-        debug_assert!(self.len < MAX_COMPONENTS);
-        #[cfg(test)]
-        self.values[self.len].write(value);
-        self.len += 1;
-        self.base_remaining.link_2 += u8::from(value.size == 2);
-        self.base_remaining.link_3 += u8::from(value.size == 3);
-        self.base_remaining.connection_edges += value.connection_edges;
-        self.isolated_count += u8::from(value.size == 1);
+    #[inline(always)]
+    fn push_extension_metadata(&mut self, value: Component) {
         self.reachable_ignition_count += u8::from(value.size == 3 && value.extension_columns != 0);
         self.growth_columns |= value.extension_columns;
         let color = usize::from(value.color);
@@ -405,6 +469,21 @@ impl ComponentSet {
         self.connection_candidate_count += new_connections.count_ones() as u8;
         self.connection_seen_once[color] |= value.extension_columns;
         self.connection_seen_multiple[color] |= repeated_connections;
+    }
+
+    #[inline(always)]
+    fn push_metadata(&mut self, value: Component) {
+        debug_assert!(self.len < MAX_COMPONENTS);
+        self.len += 1;
+        self.base_remaining.link_2 += u8::from(value.size == 2);
+        self.base_remaining.link_3 += u8::from(value.size == 3);
+        self.base_remaining.connection_edges += value.connection_edges;
+        self.isolated_count += u8::from(value.size == 1);
+        self.push_extension_metadata(value);
+    }
+
+    #[inline(always)]
+    fn push_frontier(&mut self, value: Component) {
         if value.frontier_slots == 0 {
             return;
         }
@@ -413,30 +492,148 @@ impl ComponentSet {
         self.frontier_topology[self.frontier_len].write(
             u64::from(value.frontier_slots)
                 | (u64::from(value.size) << 32)
-                | (u64::from(value.connection_edges) << 40),
+                | (u64::from(value.connection_edges) << 40)
+                | (u64::from(value.color) << 48)
+                | (u64::from(value.mask.trailing_zeros()) << 56),
         );
-        self.frontier_masks[self.frontier_len].write(value.mask);
         self.frontier_color_components[usize::from(value.color)] |= frontier_component_bit;
         let mut frontier = value.frontier_slots;
         while frontier != 0 {
             let slot = frontier.trailing_zeros() as usize;
             frontier &= frontier - 1;
             let column = slot / 3;
-            let mut count = slot % 3 + 1;
-            while count <= 3 {
-                self.stack_prefix_components[column][count] |= frontier_component_bit;
-                count += 1;
-            }
+            let count = slot % 3 + 1;
+            self.stack_prefix_components[column][count] |= frontier_component_bit;
         }
         self.frontier_len += 1;
     }
 
     #[cfg(test)]
     fn as_slice(&self) -> &[Component] {
-        // SAFETY: `push` initializes every element below `len`, and `len`
-        // cannot exceed the backing array's capacity.
-        unsafe { std::slice::from_raw_parts(self.values.as_ptr().cast(), self.len) }
+        // SAFETY: the exact test scanner initializes every element below
+        // `test_len`, which cannot exceed the backing array's capacity.
+        unsafe { std::slice::from_raw_parts(self.values.as_ptr().cast(), self.test_len) }
     }
+}
+
+#[cfg(not(test))]
+const COMPONENT_CACHE_SET_COUNT: usize = 1024;
+#[cfg(test)]
+const COMPONENT_CACHE_SET_COUNT: usize = 8;
+const COMPONENT_CACHE_WAYS: usize = 4;
+
+#[derive(Clone, Copy)]
+struct CachedComponentAnalysis {
+    components: ComponentSet,
+    base_features: ChainStructureFeatures,
+}
+
+struct ComponentCache {
+    keys: [[MaybeUninit<BoardKey>; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+    values:
+        [[MaybeUninit<CachedComponentAnalysis>; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+    hashes: [[u64; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+    max_added_puyos: [[u8; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+    lengths: [u8; COMPONENT_CACHE_SET_COUNT],
+    next_replacement: [u8; COMPONENT_CACHE_SET_COUNT],
+}
+
+impl ComponentCache {
+    const fn new() -> Self {
+        Self {
+            keys: [[MaybeUninit::uninit(); COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+            values: [[MaybeUninit::uninit(); COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+            hashes: [[0; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+            max_added_puyos: [[0; COMPONENT_CACHE_WAYS]; COMPONENT_CACHE_SET_COUNT],
+            lengths: [0; COMPONENT_CACHE_SET_COUNT],
+            next_replacement: [0; COMPONENT_CACHE_SET_COUNT],
+        }
+    }
+
+    #[inline(always)]
+    fn set_index(hash: u64) -> usize {
+        hash as usize & (COMPONENT_CACHE_SET_COUNT - 1)
+    }
+
+    #[inline(always)]
+    fn get(
+        &self,
+        key: BoardKey,
+        hash: u64,
+        max_added_puyos: u8,
+    ) -> Option<*const CachedComponentAnalysis> {
+        let set = Self::set_index(hash);
+        for way in 0..usize::from(self.lengths[set]) {
+            if self.hashes[set][way] == hash
+                && self.max_added_puyos[set][way] == max_added_puyos
+                // SAFETY: `lengths[set]` advances only after both slots are written.
+                && unsafe { *self.keys[set][way].assume_init_ref() == key }
+            {
+                // SAFETY: the matching key and component are published together.
+                return Some(unsafe { self.values[set][way].assume_init_ref() });
+            }
+        }
+        None
+    }
+
+    #[inline(always)]
+    fn insert(
+        &mut self,
+        key: BoardKey,
+        hash: u64,
+        max_added_puyos: u8,
+        value: CachedComponentAnalysis,
+    ) -> *const CachedComponentAnalysis {
+        let set = Self::set_index(hash);
+        let length = usize::from(self.lengths[set]);
+        let way = if length < COMPONENT_CACHE_WAYS {
+            self.lengths[set] += 1;
+            length
+        } else {
+            let next = usize::from(self.next_replacement[set]);
+            self.next_replacement[set] = ((next + 1) % COMPONENT_CACHE_WAYS) as u8;
+            next
+        };
+        self.keys[set][way].write(key);
+        self.values[set][way].write(value);
+        self.hashes[set][way] = hash;
+        self.max_added_puyos[set][way] = max_added_puyos;
+        // SAFETY: the selected component slot was initialized immediately
+        // above and remains stable in the fixed backing array.
+        unsafe { self.values[set][way].assume_init_ref() }
+    }
+}
+
+std::thread_local! {
+    static COMPONENT_CACHE: UnsafeCell<ComponentCache> =
+        const { UnsafeCell::new(ComponentCache::new()) };
+}
+
+#[inline(always)]
+fn cached_component_set(
+    key: BoardKey,
+    hash: u64,
+    max_added_puyos: u8,
+) -> Option<*const CachedComponentAnalysis> {
+    COMPONENT_CACHE.with(|cache| {
+        // SAFETY: this fixed cache is thread-local and evaluator calls do not
+        // re-enter component extraction on the same thread.
+        unsafe { (&*cache.get()).get(key, hash, max_added_puyos) }
+    })
+}
+
+#[inline(always)]
+fn cache_component_set(
+    key: BoardKey,
+    hash: u64,
+    max_added_puyos: u8,
+    value: CachedComponentAnalysis,
+) -> *const CachedComponentAnalysis {
+    COMPONENT_CACHE.with(|cache| {
+        // SAFETY: this fixed cache is thread-local and evaluator calls do not
+        // re-enter component extraction on the same thread.
+        unsafe { (&mut *cache.get()).insert(key, hash, max_added_puyos, value) }
+    })
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -829,23 +1026,45 @@ struct ResolvedVirtual {
 
 #[derive(Clone, Copy, Debug, Default)]
 struct CachedResolution {
-    chain_count: u8,
+    trigger_anchors_low: u64,
+    trigger_anchors_high: u32,
     score: u32,
-    trigger_anchors: u128,
     remaining_structure: RemainingStructure,
+    chain_count: u8,
 }
 
 impl CachedResolution {
     #[inline(always)]
-    fn from_resolved(resolved: ResolvedVirtual) -> Self {
+    fn new(
+        chain_count: u8,
+        score: u32,
+        trigger_anchors: u128,
+        remaining_structure: RemainingStructure,
+    ) -> Self {
         Self {
-            chain_count: resolved.chain_count,
-            score: resolved.score,
-            trigger_anchors: resolved.trigger_anchors,
-            remaining_structure: resolved
+            trigger_anchors_low: trigger_anchors as u64,
+            trigger_anchors_high: (trigger_anchors >> 64) as u32,
+            score,
+            remaining_structure,
+            chain_count,
+        }
+    }
+
+    #[inline(always)]
+    fn from_resolved(resolved: ResolvedVirtual) -> Self {
+        Self::new(
+            resolved.chain_count,
+            resolved.score,
+            resolved.trigger_anchors,
+            resolved
                 .remaining_structure
                 .expect("differential resolution must fuse terminal structure"),
-        }
+        )
+    }
+
+    #[inline(always)]
+    fn trigger_anchors(self) -> u128 {
+        u128::from(self.trigger_anchors_low) | (u128::from(self.trigger_anchors_high) << 64)
     }
 }
 
@@ -920,6 +1139,16 @@ const fn build_lane_selection_masks() -> [u128; 1 << WIDTH] {
 
 const LANE_SELECTION_MASKS: [u128; 1 << WIDTH] = build_lane_selection_masks();
 
+const fn build_stack_first_slot_mask() -> u32 {
+    let mut result = 0_u32;
+    let mut column = 0_usize;
+    while column < WIDTH {
+        result |= 1_u32 << (column * 3);
+        column += 1;
+    }
+    result
+}
+
 const fn row_mask(y: usize) -> u128 {
     let mut result = 0_u128;
     let mut x = 0_usize;
@@ -956,6 +1185,28 @@ fn flood(seed: u128, plane: u128, visible_only: bool) -> u128 {
         }
         group = expanded;
     }
+}
+
+#[inline(always)]
+fn flood_small_component(seed: u128, plane: u128) -> u128 {
+    let adjacent = board_neighbors(seed) & plane;
+    seed | adjacent | (board_neighbors(adjacent) & plane)
+}
+
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "bmi2")]
+unsafe fn pack_stack_frontier(frontier: u128, extraction_mask: u128) -> (u32, u8) {
+    use std::arch::x86_64::{_pext_u32, _pext_u64};
+
+    // The lower half contains four lanes (12 slots) and the upper half two
+    // lanes (six slots). Each extraction mask always contributes three bits
+    // per lane, so concatenating the PEXT results preserves the 18-slot
+    // topology even when a column has less than three cells of capacity.
+    let lower = _pext_u64(frontier as u64, extraction_mask as u64) as u32;
+    let upper = _pext_u64((frontier >> 64) as u64, (extraction_mask >> 64) as u64) as u32;
+    let slots = lower | (upper << 12);
+    let extension_columns = _pext_u32(slots, STACK_FIRST_SLOT_MASK) as u8;
+    (slots, extension_columns)
 }
 
 #[inline]
@@ -1057,6 +1308,7 @@ fn column_heights(occupied: u128) -> [u8; WIDTH] {
     result
 }
 
+#[inline(always)]
 fn reachable_columns(heights: &[u8; WIDTH]) -> u8 {
     let mut open = 0_u8;
     for (x, height) in heights.iter().copied().enumerate() {
@@ -1064,16 +1316,18 @@ fn reachable_columns(heights: &[u8; WIDTH]) -> u8 {
             open |= 1_u8 << x;
         }
     }
-    let mut reachable = open & ((1_u8 << 2) | (1_u8 << 3));
-    loop {
-        let expanded = reachable | (((reachable << 1) | (reachable >> 1)) & open & 0x3f);
-        if expanded == reachable {
-            return reachable;
-        }
-        reachable = expanded;
+    let centers = open & ((1_u8 << 2) | (1_u8 << 3));
+    let mut reachable = centers;
+    reachable |= ((reachable << 1) | (reachable >> 1)) & open & 0x3f;
+    reachable |= ((reachable << 1) | (reachable >> 1)) & open & 0x3f;
+    if centers == ((1_u8 << 2) | (1_u8 << 3)) {
+        reachable
+    } else {
+        reachable | (((reachable << 1) | (reachable >> 1)) & open & 0x3f)
     }
 }
 
+#[inline(always)]
 fn landing_mask(heights: &[u8; WIDTH], reachable: u8) -> u128 {
     let mut result = 0_u128;
     for (x, height) in heights.iter().copied().enumerate() {
@@ -1085,36 +1339,99 @@ fn landing_mask(heights: &[u8; WIDTH], reachable: u8) -> u128 {
 }
 
 #[inline(always)]
-fn extract_components_impl<const ACCELERATED: bool>(
-    planes: &[u128; PLANE_COUNT],
+fn stable_component_metadata(planes: &[u128; PLANE_COUNT]) -> (RemainingStructure, u8, u8) {
+    let mut west = 0_u128;
+    let mut east = 0_u128;
+    let mut down = 0_u128;
+    let mut up = 0_u128;
+    let mut normal_count = 0_u8;
+    for plane in planes.iter().copied().take(NORMAL_COLOR_COUNT) {
+        debug_assert_eq!(poppable_mask(plane), 0);
+        normal_count += plane.count_ones() as u8;
+        let horizontal = (plane >> COLUMN_LANE_BITS) & plane;
+        let vertical = (plane >> 1) & plane;
+        west |= horizontal;
+        east |= (horizontal << COLUMN_LANE_BITS) & BOARD_MASK;
+        down |= vertical;
+        up |= (vertical << 1) & BOARD_MASK;
+    }
+    let vertical_both = up & down;
+    let horizontal_both = west & east;
+    let at_least_two = vertical_both | horizontal_both | ((up | down) & (west | east));
+    let connection_edges = (west.count_ones() + down.count_ones()) as u8;
+    let link_3 = at_least_two.count_ones() as u8;
+    debug_assert!(connection_edges >= link_3 * 2);
+    let link_2 = connection_edges - link_3 * 2;
+    let isolated_count = normal_count - link_2 * 2 - link_3 * 3;
+    let component_count = isolated_count + link_2 + link_3;
+    (
+        RemainingStructure {
+            link_2,
+            link_3,
+            connection_edges,
+            extension_space: 0,
+        },
+        isolated_count,
+        component_count,
+    )
+}
+
+#[derive(Clone, Copy)]
+struct ComponentExtraction<'a> {
+    planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     landing: u128,
-    heights: &[u8; WIDTH],
+    heights: &'a [u8; WIDTH],
     reachable: u8,
     max_added_puyos: u8,
+    lower_compact: bool,
+    settled: bool,
+    profile_stage: Option<&'a AtomicU8>,
+}
+
+#[inline(always)]
+fn extract_components_impl<const ACCELERATED: bool, const PROFILE: bool>(
+    input: ComponentExtraction<'_>,
 ) -> ComponentSet {
+    let ComponentExtraction {
+        planes,
+        occupied,
+        landing,
+        heights,
+        reachable,
+        max_added_puyos,
+        lower_compact,
+        settled,
+        profile_stage,
+    } = input;
+    let bounded_components = settled && occupied & HIDDEN_MASK == 0;
     let mut result = ComponentSet {
         landing,
         accelerated_search_supported: ACCELERATED,
-        base_normal: planes
-            .iter()
-            .copied()
-            .take(NORMAL_COLOR_COUNT)
-            .fold(0_u128, |value, plane| value | plane),
+        bounded_components,
+        base_normal: occupied & !planes[PLANE_COUNT - 1],
         base_occupied: occupied,
         incremental_resolution_supported: ACCELERATED
             && occupied & HIDDEN_MASK == 0
-            && lower_board_is_compact(occupied)
-            && planes
-                .iter()
-                .copied()
-                .take(NORMAL_COLOR_COUNT)
-                .all(|plane| poppable_mask(plane) == 0),
+            && lower_compact
+            && settled,
         ..ComponentSet::default()
     };
+    if bounded_components {
+        let (remaining, isolated_count, component_count) = stable_component_metadata(planes);
+        result.base_remaining = remaining;
+        result.isolated_count = isolated_count;
+        result.len = usize::from(component_count);
+    }
+    set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_STACK_TOPOLOGY);
     let mut stack_mask = 0_u128;
+    let mut stack_extraction_mask = 0_u128;
     let mut capacities = [0_u8; WIDTH];
     for (column, height) in heights.iter().copied().enumerate() {
+        if ACCELERATED {
+            let extraction_height = usize::from(height.min((COLUMN_LANE_BITS - 3) as u8));
+            stack_extraction_mask |= 0x07_u128 << (column * COLUMN_LANE_BITS + extraction_height);
+        }
         if reachable & (1_u8 << column) == 0 {
             continue;
         }
@@ -1128,43 +1445,104 @@ fn extract_components_impl<const ACCELERATED: bool>(
         }
     }
     for (column, capacity) in capacities.iter().copied().enumerate() {
-        for offset in 1..usize::from(capacity) {
-            let lower = column * 3 + offset - 1;
-            let upper = lower + 1;
-            result.stack_neighbors[lower] |= 1_u32 << upper;
-            result.stack_neighbors[upper] |= 1_u32 << lower;
+        let base = column * 3;
+        if capacity >= 2 {
+            result.stack_neighbors[base] |= 1_u32 << (base + 1);
+            result.stack_neighbors[base + 1] |= 1_u32 << base;
+        }
+        if capacity >= 3 {
+            result.stack_neighbors[base + 1] |= 1_u32 << (base + 2);
+            result.stack_neighbors[base + 2] |= 1_u32 << (base + 1);
         }
     }
     for left_column in 0..WIDTH - 1 {
         let right_column = left_column + 1;
-        for left_offset in 0..usize::from(capacities[left_column]) {
-            let right_offset = isize::from(heights[left_column]) + left_offset as isize
-                - isize::from(heights[right_column]);
-            if !(0..isize::from(capacities[right_column])).contains(&right_offset) {
-                continue;
-            }
-            let left_slot = left_column * 3 + left_offset;
-            let right_slot = right_column * 3 + right_offset as usize;
+        let first_height = heights[left_column].max(heights[right_column]);
+        let final_height = (heights[left_column] + capacities[left_column])
+            .min(heights[right_column] + capacities[right_column]);
+        for height in first_height..final_height {
+            let left_slot = left_column * 3 + usize::from(height - heights[left_column]);
+            let right_slot = right_column * 3 + usize::from(height - heights[right_column]);
             result.stack_neighbors[left_slot] |= 1_u32 << right_slot;
             result.stack_neighbors[right_slot] |= 1_u32 << left_slot;
         }
     }
     for column in 0..WIDTH {
-        for count in 1..=3 {
-            let slot = column * 3 + count - 1;
-            result.stack_prefix_neighbors[column][count] =
-                result.stack_prefix_neighbors[column][count - 1] | result.stack_neighbors[slot];
+        let base = column * 3;
+        result.stack_prefix_neighbors[column][1] = result.stack_neighbors[base];
+        result.stack_prefix_neighbors[column][2] =
+            result.stack_prefix_neighbors[column][1] | result.stack_neighbors[base + 1];
+        result.stack_prefix_neighbors[column][3] =
+            result.stack_prefix_neighbors[column][2] | result.stack_neighbors[base + 2];
+    }
+    for (plane_index, plane) in planes.iter().copied().enumerate().take(NORMAL_COLOR_COUNT) {
+        let mut remaining = if bounded_components {
+            board_neighbors(stack_mask) & plane
+        } else {
+            plane
+        };
+        while remaining != 0 {
+            set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_COMPONENT_FLOOD);
+            let seed = 1_u128 << remaining.trailing_zeros();
+            let mask = if bounded_components {
+                flood_small_component(seed, plane)
+            } else {
+                flood(seed, plane, false)
+            };
+            remaining &= !mask;
+            set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_COMPONENT_METADATA);
+            let size = mask.count_ones() as u8;
+            let connection_edges = ((mask & (mask >> COLUMN_LANE_BITS)).count_ones()
+                + (mask & (mask >> 1)).count_ones()) as u8;
+            set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY);
+            let neighbors = board_neighbors(mask);
+            let stack_frontier = neighbors & stack_mask;
+            let (frontier_slots, extension_columns) = if ACCELERATED {
+                // SAFETY: the accelerated entry point is guarded by the BMI2
+                // runtime feature check and constructs three extraction bits
+                // for each of the six board lanes.
+                unsafe { pack_stack_frontier(stack_frontier, stack_extraction_mask) }
+            } else {
+                let mut frontier_slots = 0_u32;
+                let mut extension_columns = 0_u8;
+                for (column, height) in heights.iter().copied().enumerate() {
+                    let slots = ((stack_frontier
+                        >> (column * COLUMN_LANE_BITS + usize::from(height)))
+                        & 0x07) as u32;
+                    frontier_slots |= slots << (column * 3);
+                    extension_columns |= u8::from(slots & 1 != 0) << column;
+                }
+                (frontier_slots, extension_columns)
+            };
+            let component = Component {
+                mask,
+                extension_columns,
+                frontier_slots,
+                color: plane_index as u8,
+                size,
+                connection_edges,
+            };
+            set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_COMPONENT_METADATA);
+            if bounded_components {
+                result.push_extension_metadata(component);
+            } else {
+                result.push_metadata(component);
+            }
+            set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY);
+            result.push_frontier(component);
         }
     }
+    for prefixes in &mut result.stack_prefix_components {
+        prefixes[2] |= prefixes[1];
+        prefixes[3] |= prefixes[2];
+    }
+    #[cfg(test)]
     for (plane_index, plane) in planes.iter().copied().enumerate().take(NORMAL_COLOR_COUNT) {
         let mut remaining = plane;
         while remaining != 0 {
             let seed = 1_u128 << remaining.trailing_zeros();
             let mask = flood(seed, plane, false);
             remaining &= !mask;
-            let size = mask.count_ones() as u8;
-            let connection_edges = ((mask & (mask >> COLUMN_LANE_BITS)).count_ones()
-                + (mask & (mask >> 1)).count_ones()) as u8;
             let neighbors = board_neighbors(mask);
             let stack_frontier = neighbors & stack_mask;
             let mut frontier_slots = 0_u32;
@@ -1175,69 +1553,38 @@ fn extract_components_impl<const ACCELERATED: bool>(
                 frontier_slots |= slots << (column * 3);
                 extension_columns |= u8::from(slots & 1 != 0) << column;
             }
-            result.push(Component {
+            let component = Component {
                 mask,
                 extension_columns,
                 frontier_slots,
                 color: plane_index as u8,
-                size,
-                connection_edges,
-            });
+                size: mask.count_ones() as u8,
+                connection_edges: ((mask & (mask >> COLUMN_LANE_BITS)).count_ones()
+                    + (mask & (mask >> 1)).count_ones()) as u8,
+            };
+            debug_assert!(result.test_len < MAX_COMPONENTS);
+            result.values[result.test_len].write(component);
+            result.test_len += 1;
         }
     }
     result
 }
 
 #[cfg(target_arch = "x86_64")]
-#[target_feature(enable = "popcnt")]
-unsafe fn extract_components_popcnt(
-    planes: &[u128; PLANE_COUNT],
-    occupied: u128,
-    landing: u128,
-    heights: &[u8; WIDTH],
-    reachable: u8,
-    max_added_puyos: u8,
+#[target_feature(enable = "bmi2,popcnt")]
+unsafe fn extract_components_accelerated<const PROFILE: bool>(
+    input: ComponentExtraction<'_>,
 ) -> ComponentSet {
-    extract_components_impl::<true>(
-        planes,
-        occupied,
-        landing,
-        heights,
-        reachable,
-        max_added_puyos,
-    )
+    extract_components_impl::<true, PROFILE>(input)
 }
 
-fn extract_components(
-    planes: &[u128; PLANE_COUNT],
-    occupied: u128,
-    landing: u128,
-    heights: &[u8; WIDTH],
-    reachable: u8,
-    max_added_puyos: u8,
-) -> ComponentSet {
+fn extract_components<const PROFILE: bool>(input: ComponentExtraction<'_>) -> ComponentSet {
     #[cfg(target_arch = "x86_64")]
     if differential_gravity_supported() {
-        // SAFETY: the runtime feature guard includes POPCNT.
-        return unsafe {
-            extract_components_popcnt(
-                planes,
-                occupied,
-                landing,
-                heights,
-                reachable,
-                max_added_puyos,
-            )
-        };
+        // SAFETY: the runtime feature guard includes BMI2 and POPCNT.
+        return unsafe { extract_components_accelerated::<PROFILE>(input) };
     }
-    extract_components_impl::<false>(
-        planes,
-        occupied,
-        landing,
-        heights,
-        reachable,
-        max_added_puyos,
-    )
+    extract_components_impl::<false, PROFILE>(input)
 }
 
 #[cfg(test)]
@@ -1262,12 +1609,12 @@ fn connection_candidate_count_exact(components: &[Component], landing: u128) -> 
 }
 
 fn mirror_mask(mask: u128) -> u128 {
-    let mut result = 0_u128;
-    for x in 0..WIDTH {
-        let column = (mask >> (x * COLUMN_LANE_BITS)) & 0xffff;
-        result |= column << ((WIDTH - 1 - x) * COLUMN_LANE_BITS);
-    }
-    result
+    ((mask & 0x0000_0000_0000_0000_0000_0000_0000_ffff) << 80)
+        | ((mask & 0x0000_0000_0000_0000_0000_0000_ffff_0000) << 48)
+        | ((mask & 0x0000_0000_0000_0000_0000_ffff_0000_0000) << 16)
+        | ((mask & 0x0000_0000_0000_0000_ffff_0000_0000_0000) >> 16)
+        | ((mask & 0x0000_0000_0000_ffff_0000_0000_0000_0000) >> 48)
+        | ((mask & 0x0000_0000_ffff_0000_0000_0000_0000_0000) >> 80)
 }
 
 fn compare_cell_sequences(mut left: u128, mut right: u128) -> Ordering {
@@ -1300,8 +1647,10 @@ fn canonical_mask(mask: u128) -> u128 {
     }
 }
 
-const CANDIDATE_JSON_CAPACITY: usize = 1024;
-const CANDIDATE_SUFFIX_CAPACITY: usize = 96;
+// The largest ABI-valid identity contains three placements and all 84 board
+// cells as anchors. Including the numeric suffix fits ten SHA-256 blocks.
+const CANDIDATE_JSON_CAPACITY: usize = 640;
+const CANDIDATE_SUFFIX_CAPACITY: usize = 48;
 
 struct CandidateJson<const CAPACITY: usize = CANDIDATE_JSON_CAPACITY> {
     bytes: [MaybeUninit<u8>; CAPACITY],
@@ -1422,7 +1771,7 @@ fn encode_stable_candidate_identity(
     json: &mut CandidateJson,
 ) {
     json.clear();
-    let color = match identity.trigger_color {
+    let color = match identity.trigger_color() {
         0 => b"RED".as_slice(),
         1 => b"BLUE".as_slice(),
         2 => b"GREEN".as_slice(),
@@ -1433,9 +1782,9 @@ fn encode_stable_candidate_identity(
     json.extend(b"[\"");
     json.extend(color);
     json.extend(b"\",");
-    json.cells(identity.placements_mask);
+    json.cells(identity.placements_mask());
     json.push(b',');
-    json.cells(identity.anchor_mask);
+    json.cells(identity.anchor_mask());
 }
 
 fn encode_stable_candidate_head(candidate: &QuiescenceCandidate, json: &mut CandidateJson) {
@@ -1561,18 +1910,34 @@ struct CandidateTieBreakComparison {
 
 #[derive(Clone, Copy, Eq, PartialEq)]
 struct CanonicalCandidateIdentity {
-    placements_mask: u128,
+    placements_and_color: u128,
     anchor_mask: u128,
-    trigger_color: u8,
 }
 
 impl CanonicalCandidateIdentity {
+    const COLOR_SHIFT: usize = 120;
+
     fn new(candidate: &QuiescenceCandidate) -> Self {
         Self {
-            placements_mask: canonical_mask(candidate.placements_mask),
+            placements_and_color: canonical_mask(candidate.placements_mask)
+                | (u128::from(candidate.trigger_color) << Self::COLOR_SHIFT),
             anchor_mask: canonical_mask(candidate.anchor_mask),
-            trigger_color: candidate.trigger_color,
         }
+    }
+
+    #[inline(always)]
+    fn placements_mask(self) -> u128 {
+        self.placements_and_color & BOARD_MASK
+    }
+
+    #[inline(always)]
+    fn anchor_mask(self) -> u128 {
+        self.anchor_mask
+    }
+
+    #[inline(always)]
+    fn trigger_color(self) -> u8 {
+        (self.placements_and_color >> Self::COLOR_SHIFT) as u8
     }
 }
 
@@ -1582,14 +1947,13 @@ struct CandidateDigestCacheEntry {
     digest: [u8; 32],
 }
 
-const CANDIDATE_DIGEST_CACHE_SIZE: usize = 16;
+const CANDIDATE_DIGEST_CACHE_SIZE: usize = 14;
 
 struct CandidateTieBreakWorkspace {
-    encodings: [CandidateJson; 2],
+    encoding: CandidateJson,
     suffix: CandidateJson<CANDIDATE_SUFFIX_CAPACITY>,
     digest_cache: [MaybeUninit<CandidateDigestCacheEntry>; CANDIDATE_DIGEST_CACHE_SIZE],
     digest_cache_len: usize,
-    best_slot: usize,
     best_identity: Option<CanonicalCandidateIdentity>,
     best_digest: [u8; 32],
     best_valid: bool,
@@ -1599,11 +1963,10 @@ struct CandidateTieBreakWorkspace {
 impl Default for CandidateTieBreakWorkspace {
     fn default() -> Self {
         Self {
-            encodings: [CandidateJson::new(), CandidateJson::new()],
+            encoding: CandidateJson::new(),
             suffix: CandidateJson::new(),
             digest_cache: [MaybeUninit::uninit(); CANDIDATE_DIGEST_CACHE_SIZE],
             digest_cache_len: 0,
-            best_slot: 0,
             best_identity: None,
             best_digest: [0; 32],
             best_valid: false,
@@ -1617,10 +1980,6 @@ impl CandidateTieBreakWorkspace {
         self.best_valid = false;
         self.suffix_valid = false;
         self.digest_cache_len = 0;
-    }
-
-    fn scratch_slot(&self) -> usize {
-        self.best_slot ^ 1
     }
 
     fn cached_digest(&self, identity: CanonicalCandidateIdentity) -> Option<[u8; 32]> {
@@ -1654,12 +2013,10 @@ impl CandidateTieBreakWorkspace {
         candidate: &QuiescenceCandidate,
         promote_to_best: bool,
     ) -> [u8; 32] {
-        let candidate_slot = self.scratch_slot();
-        encode_stable_candidate(candidate, &mut self.encodings[candidate_slot]);
-        let digest = sha256(&mut self.encodings[candidate_slot]);
+        encode_stable_candidate(candidate, &mut self.encoding);
+        let digest = sha256(&mut self.encoding);
         if promote_to_best {
             let identity = CanonicalCandidateIdentity::new(candidate);
-            self.best_slot = candidate_slot;
             self.best_identity = Some(identity);
             self.best_digest = digest;
             self.best_valid = true;
@@ -1678,16 +2035,15 @@ impl CandidateTieBreakWorkspace {
             append_stable_candidate_suffix(best, &mut self.suffix);
             self.suffix_valid = true;
         }
-        let candidate_slot = self.scratch_slot();
         let mut sha256_calls = 0;
         if !self.best_valid {
             let identity = CanonicalCandidateIdentity::new(best);
             encode_stable_candidate_with_suffix(
                 identity,
                 self.suffix.as_slice(),
-                &mut self.encodings[self.best_slot],
+                &mut self.encoding,
             );
-            self.best_digest = sha256(&mut self.encodings[self.best_slot]);
+            self.best_digest = sha256(&mut self.encoding);
             self.best_identity = Some(identity);
             self.best_valid = true;
             self.remember_digest(identity, self.best_digest);
@@ -1707,16 +2063,15 @@ impl CandidateTieBreakWorkspace {
             encode_stable_candidate_with_suffix(
                 candidate_identity,
                 self.suffix.as_slice(),
-                &mut self.encodings[candidate_slot],
+                &mut self.encoding,
             );
-            let digest = sha256(&mut self.encodings[candidate_slot]);
+            let digest = sha256(&mut self.encoding);
             self.remember_digest(candidate_identity, digest);
             sha256_calls += 1;
             digest
         };
         let ordering = candidate_digest.cmp(&self.best_digest);
         if ordering == Ordering::Greater {
-            self.best_slot = candidate_slot;
             self.best_identity = Some(candidate_identity);
             self.best_digest = candidate_digest;
         }
@@ -1863,17 +2218,9 @@ impl Default for FrontierResolutionSpec {
     }
 }
 
-#[derive(Clone, Copy)]
-struct TriggerCandidateRecord {
-    trigger_components: u32,
-    pattern_index: u8,
-    plane_index: u8,
-}
-
 struct TriggerFrontier {
     candidate_patterns: [u128; NORMAL_COLOR_COUNT],
-    candidate_records: [MaybeUninit<TriggerCandidateRecord>; MAX_FRONTIER_CANDIDATE_RECORDS],
-    candidate_record_count: usize,
+    candidate_components: [MaybeUninit<u32>; MAX_FRONTIER_CANDIDATE_RECORDS],
     candidate_group_resolutions: [u16; CANDIDATE_GROUP_COUNT],
     resolution_anchors: [u128; RESOLUTION_CACHE_SIZE],
     resolution_precomputed: [MaybeUninit<CachedResolution>; RESOLUTION_CACHE_SIZE],
@@ -1888,8 +2235,7 @@ impl TriggerFrontier {
     fn new() -> Self {
         Self {
             candidate_patterns: [0_u128; NORMAL_COLOR_COUNT],
-            candidate_records: [MaybeUninit::uninit(); MAX_FRONTIER_CANDIDATE_RECORDS],
-            candidate_record_count: 0,
+            candidate_components: [MaybeUninit::uninit(); MAX_FRONTIER_CANDIDATE_RECORDS],
             candidate_group_resolutions: [0; CANDIDATE_GROUP_COUNT],
             resolution_anchors: [0_u128; RESOLUTION_CACHE_SIZE],
             resolution_precomputed: [MaybeUninit::uninit(); RESOLUTION_CACHE_SIZE],
@@ -1907,13 +2253,12 @@ impl TriggerFrontier {
         pattern_index: usize,
         trigger_components: u32,
     ) {
-        debug_assert!(self.candidate_record_count < self.candidate_records.len());
-        self.candidate_records[self.candidate_record_count].write(TriggerCandidateRecord {
-            trigger_components,
-            pattern_index: pattern_index as u8,
-            plane_index: plane_index as u8,
-        });
-        self.candidate_record_count += 1;
+        debug_assert!(trigger_components != 0);
+        debug_assert_eq!(trigger_components >> MAX_FRONTIER_COMPONENTS, 0);
+        debug_assert!(plane_index < NORMAL_COLOR_COUNT);
+        debug_assert!(pattern_index < PLACEMENT_PATTERN_COUNT);
+        self.candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
+            .write(trigger_components);
     }
 }
 
@@ -1931,6 +2276,7 @@ fn minimal_trigger_patterns(triggered: u128, valid_patterns: u128) -> u128 {
 #[inline(always)]
 fn build_trigger_frontier_impl<const PROFILE: bool>(
     result: &mut TriggerFrontier,
+    planes: &[u128; PLANE_COUNT],
     components: &ComponentSet,
     max_added_puyos: u8,
     valid_patterns: u128,
@@ -2003,9 +2349,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
         max_added_puyos: u8,
         plane_index: u8,
         candidates: &'a mut u128,
-        candidate_records:
-            &'a mut [MaybeUninit<TriggerCandidateRecord>; MAX_FRONTIER_CANDIDATE_RECORDS],
-        candidate_record_count: &'a mut usize,
+        candidate_components: &'a mut [MaybeUninit<u32>; MAX_FRONTIER_CANDIDATE_RECORDS],
         frontier_state_visits: &'a mut u32,
     }
 
@@ -2032,15 +2376,9 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
                     return false;
                 }
                 if state.group_size >= 4 {
-                    debug_assert!(*self.candidate_record_count < self.candidate_records.len());
-                    self.candidate_records[*self.candidate_record_count].write(
-                        TriggerCandidateRecord {
-                            trigger_components: state.connected_components,
-                            pattern_index,
-                            plane_index: self.plane_index,
-                        },
-                    );
-                    *self.candidate_record_count += 1;
+                    let candidate_index = usize::from(self.plane_index) * PLACEMENT_PATTERN_COUNT
+                        + usize::from(pattern_index);
+                    self.candidate_components[candidate_index].write(state.connected_components);
                     *self.candidates |= pattern_bit;
                     return false;
                 }
@@ -2224,8 +2562,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
                     max_added_puyos,
                     plane_index: plane_index as u8,
                     candidates: &mut result.candidate_patterns[plane_index],
-                    candidate_records: &mut result.candidate_records,
-                    candidate_record_count: &mut result.candidate_record_count,
+                    candidate_components: &mut result.candidate_components,
                     frontier_state_visits: &mut profile_counts.frontier_state_visits,
                 }
                 .visit(
@@ -2256,159 +2593,171 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
         &mut profile_counts.stage_entries,
         PROFILE_STAGE_PLACEMENT_QUALIFICATION,
     );
-    let mut resolution_spec_keys = [0_u32; RESOLUTION_CACHE_SIZE];
-    let mut resolution_spec_anchors = [MaybeUninit::<u128>::uninit(); RESOLUTION_CACHE_SIZE];
+    let mut resolution_spec_keys = [0_u32; RESOLUTION_SPEC_TABLE_SIZE];
+    let mut resolution_spec_anchors = [MaybeUninit::<u128>::uninit(); RESOLUTION_SPEC_TABLE_SIZE];
     let mut resolution_spec_remaining =
-        [MaybeUninit::<RemainingStructure>::uninit(); RESOLUTION_CACHE_SIZE];
-    let mut resolution_spec_anchor_counts = [MaybeUninit::<u8>::uninit(); RESOLUTION_CACHE_SIZE];
+        [MaybeUninit::<RemainingStructure>::uninit(); RESOLUTION_SPEC_TABLE_SIZE];
+    let mut resolution_spec_anchor_counts =
+        [MaybeUninit::<u8>::uninit(); RESOLUTION_SPEC_TABLE_SIZE];
     let mut resolution_spec_precomputed = 0_u32;
-    let mut resolution_groups_by_added = [MaybeUninit::<[u8; 4]>::uninit(); RESOLUTION_CACHE_SIZE];
+    let mut resolution_groups_by_added =
+        [MaybeUninit::<[u8; 4]>::uninit(); RESOLUTION_SPEC_TABLE_SIZE];
     let mut previous_trigger_components = 0_u32;
     let mut previous_resolution_spec = u8::MAX;
     let mut resolution_group_count = 0_usize;
-    for record_index in 0..result.candidate_record_count {
-        // SAFETY: the compact record count is advanced only after a record is initialized.
-        let record = unsafe { *result.candidate_records[record_index].assume_init_ref() };
-        let plane_index = usize::from(record.plane_index);
-        let pattern_index = usize::from(record.pattern_index);
-        if result.candidate_patterns[plane_index] & (1_u128 << pattern_index) == 0 {
-            continue;
-        }
-        if PROFILE {
-            profile_counts.qualified_candidates += 1;
-        }
-        let trigger_components = record.trigger_components;
-        let added_puyos = PLACEMENT_CATALOG.patterns[pattern_index].added_puyos;
-        let resolution_spec = if trigger_components == previous_trigger_components {
-            usize::from(previous_resolution_spec)
-        } else {
-            let mut resolution_spec =
-                usize::try_from(trigger_components.wrapping_mul(0x9e37_79b1) >> 27)
-                    .expect("five-bit resolution hash fits usize");
-            loop {
-                if PROFILE {
-                    profile_counts.resolution_group_comparisons += 1;
-                }
-                let existing = resolution_spec_keys[resolution_spec];
-                if existing == trigger_components {
-                    break;
-                }
-                if existing == 0 {
-                    resolution_spec_keys[resolution_spec] = trigger_components;
-                    resolution_groups_by_added[resolution_spec].write([0_u8; 4]);
-                    let mut anchors = 0_u128;
-                    let mut surface_remaining = components.base_remaining;
-                    let mut component_bits = trigger_components;
-                    while component_bits != 0 {
-                        let component_index = component_bits.trailing_zeros() as usize;
-                        component_bits &= component_bits - 1;
-                        // SAFETY: trigger bits refer to initialized compact
-                        // frontier component metadata.
-                        anchors |= unsafe {
-                            *components.frontier_masks[component_index].assume_init_ref()
-                        } & VISIBLE_MASK;
-                        // SAFETY: the same trigger bit refers to initialized size
-                        // and edge metadata for this frontier component.
-                        let topology = unsafe {
-                            *components.frontier_topology[component_index].assume_init_ref()
-                        };
-                        let component_size = (topology >> 32) as u8;
-                        let component_edges = (topology >> 40) as u8;
-                        surface_remaining.link_2 -= u8::from(component_size == 2);
-                        surface_remaining.link_3 -= u8::from(component_size == 3);
-                        surface_remaining.connection_edges -= component_edges;
-                    }
-                    resolution_spec_anchors[resolution_spec].write(anchors);
-                    let final_normal = components.base_normal & !anchors;
-                    let final_occupied = components.base_occupied & !anchors;
-                    if components.incremental_resolution_supported
-                        && components.base_normal == components.base_occupied
-                        && lower_board_is_compact(final_occupied)
-                    {
-                        // SAFETY: incremental support includes the POPCNT
-                        // runtime feature check on x86-64.
-                        let (anchor_count, updated_remaining) = unsafe {
-                            precomputed_surface_with_popcnt(
-                                final_normal,
-                                final_occupied,
-                                anchors,
-                                0,
-                                surface_remaining,
-                            )
-                        };
-                        surface_remaining = updated_remaining;
-                        resolution_spec_anchor_counts[resolution_spec].write(anchor_count as u8);
-                        resolution_spec_precomputed |= 1_u32 << resolution_spec;
-                    }
-                    resolution_spec_remaining[resolution_spec].write(surface_remaining);
-                    break;
-                }
-                resolution_spec = (resolution_spec + 1) & (RESOLUTION_CACHE_SIZE - 1);
-            }
-            previous_trigger_components = trigger_components;
-            previous_resolution_spec = resolution_spec as u8;
-            resolution_spec
-        };
-        // SAFETY: group slots are initialized with their resolution spec.
-        let groups_by_added =
-            unsafe { resolution_groups_by_added[resolution_spec].assume_init_mut() };
-        let encoded_group = groups_by_added[usize::from(added_puyos)];
-        let resolution_group = if encoded_group != 0 {
-            usize::from(encoded_group - 1)
-        } else if resolution_group_count < RESOLUTION_CACHE_SIZE {
-            let resolution_group = resolution_group_count;
-            groups_by_added[usize::from(added_puyos)] = resolution_group as u8 + 1;
-            // SAFETY: every compact resolution spec has initialized anchors.
-            let anchors = unsafe { *resolution_spec_anchors[resolution_spec].assume_init_ref() };
-            result.resolution_anchors[resolution_group] = anchors;
-            if resolution_spec_precomputed & (1_u32 << resolution_spec) != 0 {
-                // SAFETY: a resolution spec is published in the hash table
-                // only after its remaining-structure entry is initialized.
-                let surface_remaining =
-                    unsafe { *resolution_spec_remaining[resolution_spec].assume_init_ref() };
-                // SAFETY: the precomputed-spec bit publishes the anchor count.
-                let first_count = u32::from(unsafe {
-                    *resolution_spec_anchor_counts[resolution_spec].assume_init_ref()
-                }) + u32::from(added_puyos);
-                let precomputed = CachedResolution {
-                    chain_count: 1,
-                    score: first_count * 10 * u32::from(connection_bonus(first_count).max(1)),
-                    trigger_anchors: anchors,
-                    remaining_structure: surface_remaining,
-                };
-                result.resolution_precomputed[resolution_group].write(precomputed);
-                result.resolution_precomputed_rank_keys[resolution_group]
-                    .write(resolved_candidate_rank_key(added_puyos, precomputed));
-                result.precomputed_groups |= 1_u32 << resolution_group;
-            }
-            resolution_group_count += 1;
+    for plane_index in 0..NORMAL_COLOR_COUNT {
+        let mut qualified_patterns = result.candidate_patterns[plane_index];
+        while qualified_patterns != 0 {
+            let pattern_index = qualified_patterns.trailing_zeros() as usize;
+            qualified_patterns &= qualified_patterns - 1;
             if PROFILE {
-                profile_counts.resolution_groups += 1;
-                profile_counts.precomputed_resolution_groups +=
-                    u32::from(result.precomputed_groups & (1_u32 << resolution_group) != 0);
+                profile_counts.qualified_candidates += 1;
             }
-            resolution_group
-        } else {
-            RESOLUTION_CACHE_SIZE
-        };
-        let encoded_resolution_group = if resolution_group < RESOLUTION_CACHE_SIZE {
-            resolution_group as u8 + 1
-        } else {
-            u8::MAX
-        };
-        result.candidate_count += 1;
-        let orbit_index = usize::from(PLACEMENT_CATALOG.orbit_by_pattern[pattern_index]);
-        let group_index = orbit_index * NORMAL_COLOR_COUNT + plane_index;
-        let pattern_offset =
-            pattern_index - usize::from(PLACEMENT_CATALOG.orbits[orbit_index].first_pattern);
-        debug_assert!(pattern_offset < 2);
-        debug_assert_eq!(
-            result.candidate_group_resolutions[group_index] & (0xff << (pattern_offset * 8)),
-            0
-        );
-        result.candidate_group_resolutions[group_index] |=
-            u16::from(encoded_resolution_group) << (pattern_offset * 8);
-        result.candidate_groups[group_index / 64] |= 1_u64 << (group_index % 64);
+            // SAFETY: candidate bits are published only after their component
+            // entry is written by the single- or multi-component frontier path.
+            let trigger_components = unsafe {
+                *result.candidate_components[plane_index * PLACEMENT_PATTERN_COUNT + pattern_index]
+                    .assume_init_ref()
+            };
+            let added_puyos = PLACEMENT_CATALOG.patterns[pattern_index].added_puyos;
+            let resolution_spec = if trigger_components == previous_trigger_components {
+                usize::from(previous_resolution_spec)
+            } else {
+                let mut resolution_spec =
+                    usize::try_from(trigger_components.wrapping_mul(0x9e37_79b1) >> 27)
+                        .expect("five-bit resolution hash fits usize");
+                loop {
+                    if PROFILE {
+                        profile_counts.resolution_group_comparisons += 1;
+                    }
+                    let existing = resolution_spec_keys[resolution_spec];
+                    if existing == trigger_components {
+                        break;
+                    }
+                    if existing == 0 {
+                        resolution_spec_keys[resolution_spec] = trigger_components;
+                        resolution_groups_by_added[resolution_spec].write([0_u8; 4]);
+                        let mut anchors = 0_u128;
+                        let mut surface_remaining = components.base_remaining;
+                        let mut component_bits = trigger_components;
+                        while component_bits != 0 {
+                            let component_index = component_bits.trailing_zeros() as usize;
+                            component_bits &= component_bits - 1;
+                            // SAFETY: the same trigger bit refers to initialized size
+                            // edge, and color metadata for this frontier component.
+                            let topology = unsafe {
+                                *components.frontier_topology[component_index].assume_init_ref()
+                            };
+                            // SAFETY: the trigger bit also refers to an initialized
+                            // seed. The packed topology retains its exact color.
+                            let seed = (topology >> 56) as u8;
+                            let component_plane = planes[((topology >> 48) as u8) as usize];
+                            let component_mask = if components.bounded_components {
+                                flood_small_component(1_u128 << seed, component_plane)
+                            } else {
+                                flood(1_u128 << seed, component_plane, false)
+                            };
+                            anchors |= component_mask & VISIBLE_MASK;
+                            let component_size = (topology >> 32) as u8;
+                            let component_edges = (topology >> 40) as u8;
+                            surface_remaining.link_2 -= u8::from(component_size == 2);
+                            surface_remaining.link_3 -= u8::from(component_size == 3);
+                            surface_remaining.connection_edges -= component_edges;
+                        }
+                        resolution_spec_anchors[resolution_spec].write(anchors);
+                        let final_normal = components.base_normal & !anchors;
+                        let final_occupied = components.base_occupied & !anchors;
+                        if components.incremental_resolution_supported
+                            && components.base_normal == components.base_occupied
+                            && lower_board_is_compact(final_occupied)
+                        {
+                            // SAFETY: incremental support includes the POPCNT
+                            // runtime feature check on x86-64.
+                            let (anchor_count, updated_remaining) = unsafe {
+                                precomputed_surface_with_popcnt(
+                                    final_normal,
+                                    final_occupied,
+                                    anchors,
+                                    0,
+                                    surface_remaining,
+                                )
+                            };
+                            surface_remaining = updated_remaining;
+                            resolution_spec_anchor_counts[resolution_spec]
+                                .write(anchor_count as u8);
+                            resolution_spec_precomputed |= 1_u32 << resolution_spec;
+                        }
+                        resolution_spec_remaining[resolution_spec].write(surface_remaining);
+                        break;
+                    }
+                    resolution_spec = (resolution_spec + 1) & (RESOLUTION_SPEC_TABLE_SIZE - 1);
+                }
+                previous_trigger_components = trigger_components;
+                previous_resolution_spec = resolution_spec as u8;
+                resolution_spec
+            };
+            // SAFETY: group slots are initialized with their resolution spec.
+            let groups_by_added =
+                unsafe { resolution_groups_by_added[resolution_spec].assume_init_mut() };
+            let encoded_group = groups_by_added[usize::from(added_puyos)];
+            let resolution_group = if encoded_group != 0 {
+                usize::from(encoded_group - 1)
+            } else if resolution_group_count < RESOLUTION_CACHE_SIZE {
+                let resolution_group = resolution_group_count;
+                groups_by_added[usize::from(added_puyos)] = resolution_group as u8 + 1;
+                // SAFETY: every compact resolution spec has initialized anchors.
+                let anchors =
+                    unsafe { *resolution_spec_anchors[resolution_spec].assume_init_ref() };
+                result.resolution_anchors[resolution_group] = anchors;
+                if resolution_spec_precomputed & (1_u32 << resolution_spec) != 0 {
+                    // SAFETY: a resolution spec is published in the hash table
+                    // only after its remaining-structure entry is initialized.
+                    let surface_remaining =
+                        unsafe { *resolution_spec_remaining[resolution_spec].assume_init_ref() };
+                    // SAFETY: the precomputed-spec bit publishes the anchor count.
+                    let first_count = u32::from(unsafe {
+                        *resolution_spec_anchor_counts[resolution_spec].assume_init_ref()
+                    }) + u32::from(added_puyos);
+                    let precomputed = CachedResolution::new(
+                        1,
+                        first_count * 10 * u32::from(connection_bonus(first_count).max(1)),
+                        anchors,
+                        surface_remaining,
+                    );
+                    result.resolution_precomputed[resolution_group].write(precomputed);
+                    result.resolution_precomputed_rank_keys[resolution_group]
+                        .write(resolved_candidate_rank_key(added_puyos, precomputed));
+                    result.precomputed_groups |= 1_u32 << resolution_group;
+                }
+                resolution_group_count += 1;
+                if PROFILE {
+                    profile_counts.resolution_groups += 1;
+                    profile_counts.precomputed_resolution_groups +=
+                        u32::from(result.precomputed_groups & (1_u32 << resolution_group) != 0);
+                }
+                resolution_group
+            } else {
+                RESOLUTION_CACHE_SIZE
+            };
+            let encoded_resolution_group = if resolution_group < RESOLUTION_CACHE_SIZE {
+                resolution_group as u8 + 1
+            } else {
+                u8::MAX
+            };
+            result.candidate_count += 1;
+            let orbit_index = usize::from(PLACEMENT_CATALOG.orbit_by_pattern[pattern_index]);
+            let group_index = orbit_index * NORMAL_COLOR_COUNT + plane_index;
+            let pattern_offset =
+                pattern_index - usize::from(PLACEMENT_CATALOG.orbits[orbit_index].first_pattern);
+            debug_assert!(pattern_offset < 2);
+            debug_assert_eq!(
+                result.candidate_group_resolutions[group_index] & (0xff << (pattern_offset * 8)),
+                0
+            );
+            result.candidate_group_resolutions[group_index] |=
+                u16::from(encoded_resolution_group) << (pattern_offset * 8);
+            result.candidate_groups[group_index / 64] |= 1_u64 << (group_index % 64);
+        }
     }
 }
 
@@ -2416,6 +2765,7 @@ fn build_trigger_frontier_impl<const PROFILE: bool>(
 #[target_feature(enable = "bmi1,bmi2,popcnt")]
 unsafe fn build_trigger_frontier_accelerated<const PROFILE: bool>(
     result: &mut TriggerFrontier,
+    planes: &[u128; PLANE_COUNT],
     components: &ComponentSet,
     max_added_puyos: u8,
     valid_patterns: u128,
@@ -2424,6 +2774,7 @@ unsafe fn build_trigger_frontier_accelerated<const PROFILE: bool>(
 ) {
     build_trigger_frontier_impl::<PROFILE>(
         result,
+        planes,
         components,
         max_added_puyos,
         valid_patterns,
@@ -2434,6 +2785,7 @@ unsafe fn build_trigger_frontier_accelerated<const PROFILE: bool>(
 
 fn build_trigger_frontier<const PROFILE: bool>(
     result: &mut TriggerFrontier,
+    planes: &[u128; PLANE_COUNT],
     components: &ComponentSet,
     max_added_puyos: u8,
     valid_patterns: u128,
@@ -2446,6 +2798,7 @@ fn build_trigger_frontier<const PROFILE: bool>(
         return unsafe {
             build_trigger_frontier_accelerated::<PROFILE>(
                 result,
+                planes,
                 components,
                 max_added_puyos,
                 valid_patterns,
@@ -2456,6 +2809,7 @@ fn build_trigger_frontier<const PROFILE: bool>(
     }
     build_trigger_frontier_impl::<PROFILE>(
         result,
+        planes,
         components,
         max_added_puyos,
         valid_patterns,
@@ -3098,7 +3452,7 @@ fn compare_columns(left: &[u8], right: &[u8]) -> Ordering {
     Ordering::Equal
 }
 
-struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool> {
+struct QuiescenceSearch<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool> {
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
@@ -3112,8 +3466,7 @@ struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool, const INC
     best_rank_key: u128,
     tie_break_workspace: CandidateTieBreakWorkspace,
     has_best: bool,
-    candidates: [QuiescenceCandidate; MAX_EVIDENCE_CANDIDATES],
-    candidate_count: usize,
+    evidence: M::Storage,
     resolution_cache: [ResolutionCacheEntry; RESOLUTION_CACHE_SIZE],
     trigger_protection_cache: [MaybeUninit<f64>; RESOLUTION_CACHE_SIZE],
     trigger_protection_cached: u32,
@@ -3121,8 +3474,8 @@ struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool, const INC
     profile_counts: EvaluationProfileCounts,
 }
 
-impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
-    QuiescenceSearch<'a, EVIDENCE, PROFILE, INCREMENTAL>
+impl<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>
+    QuiescenceSearch<'a, M, PROFILE, INCREMENTAL>
 {
     fn new(
         planes: &'a [u128; PLANE_COUNT],
@@ -3147,8 +3500,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             best_rank_key: 0,
             tie_break_workspace: CandidateTieBreakWorkspace::default(),
             has_best: false,
-            candidates: [QuiescenceCandidate::default(); MAX_EVIDENCE_CANDIDATES],
-            candidate_count: 0,
+            evidence: M::storage(),
             resolution_cache: [ResolutionCacheEntry::default(); RESOLUTION_CACHE_SIZE],
             trigger_protection_cache: [MaybeUninit::uninit(); RESOLUTION_CACHE_SIZE],
             trigger_protection_cached: 0,
@@ -3211,14 +3563,14 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
                 }
             }
         };
-        if EVIDENCE && digest.is_none() {
+        if M::ENABLED && digest.is_none() {
             digest = Some(self.tie_break_workspace.digest_candidate(candidate, better));
             if PROFILE {
                 self.profile_counts.sha256_calls += 1;
             }
         }
         if let Some(digest) = digest
-            && EVIDENCE
+            && M::ENABLED
         {
             candidate.fixed_tie_break = u64::from_be_bytes(
                 digest[..8]
@@ -3300,7 +3652,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         resolution_group: u8,
     ) {
         self.enter_profile_stage(PROFILE_STAGE_RANKING);
-        let anchors = resolved.trigger_anchors;
+        let anchors = resolved.trigger_anchors();
         debug_assert!(anchors != 0);
         let remaining = resolved.remaining_structure;
         let mut candidate = QuiescenceCandidate {
@@ -3321,7 +3673,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         };
         let rank_key = candidate_rank_key(&candidate);
         let rank_key_ordering = self.has_best.then(|| rank_key.cmp(&self.best_rank_key));
-        if EVIDENCE || rank_key_ordering != Some(Ordering::Less) {
+        if M::ENABLED || rank_key_ordering != Some(Ordering::Less) {
             candidate.trigger_protection =
                 self.trigger_protection_for_group(resolution_group, anchors);
             candidate.trigger_height = pattern_minimum_height(pattern.columns, self.heights);
@@ -3330,7 +3682,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             self.best = candidate;
             self.has_best = true;
         }
-        if EVIDENCE {
+        if M::ENABLED {
             self.push_evidence(candidate);
         }
         self.enter_profile_stage(PROFILE_STAGE_PLACEMENT_DISPATCH);
@@ -3399,7 +3751,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
                 .assume_init_ref()
         };
         let protection =
-            self.trigger_protection_for_group(resolution_group, resolved.trigger_anchors);
+            self.trigger_protection_for_group(resolution_group, resolved.trigger_anchors());
         let trigger_height =
             pattern_minimum_height(specification.count_at_least_columns[0], self.heights);
         if rank_key_ordering == Some(Ordering::Equal)
@@ -3423,7 +3775,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             required_key_count: specification.added_puyos,
             trigger_color: plane_index as u8,
             placements_mask: pattern.mask,
-            anchor_mask: resolved.trigger_anchors,
+            anchor_mask: resolved.trigger_anchors(),
             trigger_column: pattern.minimum_column,
             trigger_height,
             trigger_protection: protection,
@@ -3573,12 +3925,12 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             plane_index,
             added_puyos,
             pattern,
-            CachedResolution {
-                chain_count: resolved.chain_count,
-                score: resolved.score,
-                trigger_anchors: resolved.trigger_anchors,
-                remaining_structure: remaining,
-            },
+            CachedResolution::new(
+                resolved.chain_count,
+                resolved.score,
+                resolved.trigger_anchors,
+                remaining,
+            ),
             resolution_group,
         );
     }
@@ -3618,7 +3970,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
                 if PROFILE {
                     self.profile_counts.precomputed_candidate_hits += 1;
                 }
-                if EVIDENCE {
+                if M::ENABLED {
                     // SAFETY: the precomputed-group bit publishes the fixed
                     // resolution before candidate dispatch.
                     let precomputed = unsafe {
@@ -3808,6 +4160,7 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         let mut frontier = TriggerFrontier::new();
         build_trigger_frontier::<PROFILE>(
             &mut frontier,
+            self.planes,
             components,
             self.config.max_added_puyos,
             valid_patterns,
@@ -3937,19 +4290,11 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
     }
 
     fn push_evidence(&mut self, candidate: QuiescenceCandidate) {
-        if self.candidates[..self.candidate_count]
-            .iter()
-            .any(|current| same_candidate_signature(current, &candidate))
-        {
-            return;
-        }
-        debug_assert!(self.candidate_count < self.candidates.len());
-        self.candidates[self.candidate_count] = candidate;
-        self.candidate_count += 1;
+        M::push(&mut self.evidence, candidate);
     }
 }
 
-fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>(
+fn bounded_quiescence<'a, M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>(
     planes: &'a [u128; PLANE_COUNT],
     occupied: u128,
     heights: &'a [u8; WIDTH],
@@ -3957,8 +4302,8 @@ fn bounded_quiescence<'a, const EVIDENCE: bool, const PROFILE: bool, const INCRE
     components: &'a ComponentSet,
     config: &'a EvaluationConfig,
     profile_stage: Option<&'a AtomicU8>,
-) -> QuiescenceSearch<'a, EVIDENCE, PROFILE, INCREMENTAL> {
-    let mut search = QuiescenceSearch::<EVIDENCE, PROFILE, INCREMENTAL>::new(
+) -> QuiescenceSearch<'a, M, PROFILE, INCREMENTAL> {
+    let mut search = QuiescenceSearch::<M, PROFILE, INCREMENTAL>::new(
         planes,
         occupied,
         heights,
@@ -3984,8 +4329,8 @@ fn bounded_quiescence_exhaustive<'a>(
     reachable: u8,
     components: &'a ComponentSet,
     config: &'a EvaluationConfig,
-) -> QuiescenceSearch<'a, true, false, false> {
-    let mut search = QuiescenceSearch::<true, false, false>::new(
+) -> QuiescenceSearch<'a, CollectEvidence, false, false> {
+    let mut search = QuiescenceSearch::<CollectEvidence, false, false>::new(
         planes, occupied, heights, reachable, components, config, None,
     );
     for first in 0..WIDTH as u8 {
@@ -4020,22 +4365,34 @@ fn bounded_quiescence_exhaustive<'a>(
 }
 
 fn canonical_heights(heights: &[u8; WIDTH]) -> [u8; WIDTH] {
-    let mut mirrored = *heights;
-    mirrored.reverse();
-    if heights.as_slice() <= mirrored.as_slice() {
+    let mirrored = [
+        heights[5], heights[4], heights[3], heights[2], heights[1], heights[0],
+    ];
+    let forward_key = u64::from_be_bytes([
+        heights[0], heights[1], heights[2], heights[3], heights[4], heights[5], 0, 0,
+    ]);
+    let mirrored_key = u64::from_be_bytes([
+        mirrored[0],
+        mirrored[1],
+        mirrored[2],
+        mirrored[3],
+        mirrored[4],
+        mirrored[5],
+        0,
+        0,
+    ]);
+    if forward_key <= mirrored_key {
         *heights
     } else {
         mirrored
     }
 }
 
-fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>(
-    state: &CompactState,
+fn build_base_features(
     planes: &[u128; PLANE_COUNT],
     occupied: u128,
     heights: &[u8; WIDTH],
     components: &ComponentSet,
-    quiescence: &QuiescenceSearch<'_, EVIDENCE, PROFILE, INCREMENTAL>,
 ) -> ChainStructureFeatures {
     let normal_mask = components.base_normal;
     let normal_count = normal_mask.count_ones() as u8;
@@ -4050,15 +4407,14 @@ fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: 
     let supported = normal_mask & ((occupied << 1) | ROW_ZERO_MASK) & ROW_THREE_MASK;
     let foundation_cell_count = supported.count_ones() as u8;
     let mut adjacent_roughness = 0_u8;
-    for x in 0..WIDTH - 1 {
-        adjacent_roughness += heights[x].abs_diff(heights[x + 1]);
-    }
-    let minimum_height = heights.iter().copied().min().unwrap_or(0);
-    let maximum_height = heights.iter().copied().max().unwrap_or(0);
-    let height_spread = maximum_height - minimum_height;
+    let mut minimum_height = heights[0];
+    let mut maximum_height = heights[0];
     let mut well_depth = 0_u8;
     let mut bump_height = 0_u8;
+    let mut fold_space = 0_u16;
     for (x, height) in heights.iter().copied().enumerate() {
+        minimum_height = minimum_height.min(height);
+        maximum_height = maximum_height.max(height);
         let left = if x > 0 { heights[x - 1] } else { heights[1] };
         let right = if x < WIDTH - 1 {
             heights[x + 1]
@@ -4071,25 +4427,20 @@ fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: 
         if x > 0 && x < WIDTH - 1 && height > left && height > right {
             bump_height += height - left.max(right);
         }
-    }
-    let mut fold_space = 0_u16;
-    if normal_count > 0 {
-        for x in 0..WIDTH - 1 {
-            let left = VISIBLE_HEIGHT.saturating_sub(usize::from(heights[x]));
+        if x < WIDTH - 1 {
+            adjacent_roughness += height.abs_diff(heights[x + 1]);
+            let left = VISIBLE_HEIGHT.saturating_sub(usize::from(height));
             let right = VISIBLE_HEIGHT.saturating_sub(usize::from(heights[x + 1]));
             fold_space += left.min(right) as u16;
         }
     }
+    fold_space *= u16::from(normal_count != 0);
+    let height_spread = maximum_height - minimum_height;
     let peak = f64::from(maximum_height) / VISIBLE_HEIGHT as f64;
     let center = f64::from(heights[2].max(heights[3])) / VISIBLE_HEIGHT as f64;
     let nuisance_ratio = (f64::from(nuisance_count) / 30.0).min(1.0);
     let danger_ratio = (center * 0.55 + peak * 0.35 + nuisance_ratio * 0.10).min(1.0);
-    let death = state.game_over() || heights[2].max(heights[3]) as usize >= VISIBLE_HEIGHT;
-    let search_complete = quiescence.truncation_reason == TruncationReason::None;
-    let unreachable_trigger = normal_count > 0 && search_complete && !quiescence.has_best;
-    let structural_dead_end =
-        unreachable_trigger && components.connection_candidate_count == 0 && growth_columns == 0;
-    let mut result = ChainStructureFeatures {
+    ChainStructureFeatures {
         canonical_column_heights: canonical_heights(heights),
         normal_puyo_count: normal_count,
         component_count: components.len as u8,
@@ -4109,14 +4460,27 @@ fn build_features<const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: 
         danger_ratio,
         nuisance_count,
         hidden_row_count,
-        death,
-        unreachable_trigger,
-        structural_dead_end,
+        death: heights[2].max(heights[3]) as usize >= VISIBLE_HEIGHT,
         required_key_count: -1,
         trigger_column: -1,
         trigger_height: -1,
         ..ChainStructureFeatures::default()
-    };
+    }
+}
+
+fn finish_features<M: EvidenceMode, const PROFILE: bool, const INCREMENTAL: bool>(
+    mut result: ChainStructureFeatures,
+    state: &CompactState,
+    components: &ComponentSet,
+    quiescence: &QuiescenceSearch<'_, M, PROFILE, INCREMENTAL>,
+) -> ChainStructureFeatures {
+    result.death |= state.game_over();
+    let search_complete = quiescence.truncation_reason == TruncationReason::None;
+    result.unreachable_trigger =
+        result.normal_puyo_count > 0 && search_complete && !quiescence.has_best;
+    result.structural_dead_end = result.unreachable_trigger
+        && components.connection_candidate_count == 0
+        && components.growth_columns == 0;
     if quiescence.has_best {
         let best = quiescence.best;
         result.trigger_reachable = true;
@@ -4281,46 +4645,93 @@ fn python_float_sum(values: &[f64]) -> f64 {
     total
 }
 
-fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
+fn evaluate_internal<M: EvidenceMode, const PROFILE: bool>(
     state: &CompactState,
     config: &EvaluationConfig,
     parent: Option<&EvaluationHot>,
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
     profile_stage: Option<&AtomicU8>,
-) -> (EvaluationEvidence, EvaluationProfileCounts) {
+) -> (EvaluationHot, M::Storage, EvaluationProfileCounts) {
     debug_assert!(config.validate().is_ok());
     debug_assert!(target_chain_count > 0);
-    if PROFILE && let Some(marker) = profile_stage {
-        marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
-    }
+    set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_GEOMETRY);
     let planes = state.evaluator_planes();
     let occupied = state.internal_occupied();
-    let heights = column_heights(occupied);
+    let heights = if state.lower_compact() {
+        state.column_heights_for_occupied(occupied)
+    } else {
+        column_heights(occupied)
+    };
     let reachable = reachable_columns(&heights);
     let landing = landing_mask(&heights, reachable);
-    let components = extract_components(
-        &planes,
-        occupied,
-        landing,
-        &heights,
-        reachable,
+    let component_cache_key = state.board_key();
+    let component_cache_hash = component_cache_key.cache_hash();
+    set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_CACHE_LOOKUP);
+    let (components, component_cache_hit) = if let Some(components) = cached_component_set(
+        component_cache_key,
+        component_cache_hash,
         config.max_added_puyos,
-    );
-    let mut quiescence = bounded_quiescence::<EVIDENCE, PROFILE, true>(
+    ) {
+        (components, true)
+    } else {
+        let components = extract_components::<PROFILE>(ComponentExtraction {
+            planes: &planes,
+            occupied,
+            landing,
+            heights: &heights,
+            reachable,
+            max_added_puyos: config.max_added_puyos,
+            lower_compact: state.lower_compact(),
+            settled: state.settled(),
+            profile_stage,
+        });
+        set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_FEATURE_AGGREGATION);
+        let base_features = build_base_features(&planes, occupied, &heights, &components);
+        (
+            cache_component_set(
+                component_cache_key,
+                component_cache_hash,
+                config.max_added_puyos,
+                CachedComponentAnalysis {
+                    components,
+                    base_features,
+                },
+            ),
+            false,
+        )
+    };
+    // SAFETY: entries use fixed storage and no subsequent cache access occurs
+    // before this evaluation releases the shared reference.
+    let analysis = unsafe { &*components };
+    let components = &analysis.components;
+    let mut quiescence = bounded_quiescence::<M, PROFILE, true>(
         &planes,
         occupied,
         &heights,
         reachable,
-        &components,
+        components,
         config,
         profile_stage,
     );
-    if PROFILE && let Some(marker) = profile_stage {
-        marker.store(PROFILE_STAGE_BASE_FEATURES, AtomicOrdering::Relaxed);
-        quiescence.profile_counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)] += 2;
+    if PROFILE {
+        let stage_entries = &mut quiescence.profile_counts.stage_entries;
+        stage_entries[usize::from(PROFILE_STAGE_BASE_GEOMETRY)] += 1;
+        stage_entries[usize::from(PROFILE_STAGE_BASE_CACHE_LOOKUP)] += 1;
+        if !component_cache_hit {
+            stage_entries[usize::from(PROFILE_STAGE_BASE_STACK_TOPOLOGY)] += 1;
+            stage_entries[usize::from(PROFILE_STAGE_BASE_COMPONENT_FLOOD)] +=
+                components.frontier_len as u32;
+            stage_entries[usize::from(PROFILE_STAGE_BASE_COMPONENT_METADATA)] +=
+                components.len as u32;
+            stage_entries[usize::from(PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY)] +=
+                components.frontier_len as u32;
+        }
+        stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURE_AGGREGATION)] +=
+            1 + u32::from(!component_cache_hit);
     }
-    let features = build_features(state, &planes, occupied, &heights, &components, &quiescence);
+    set_profile_stage::<PROFILE>(profile_stage, PROFILE_STAGE_BASE_FEATURE_AGGREGATION);
+    let features = finish_features(analysis.base_features, state, components, &quiescence);
     let action_features = action_features(&features, parent, action, target_chain_count);
     let score_breakdown = score(&features, &action_features, config);
     let status = if quiescence.truncation_reason != TruncationReason::None {
@@ -4331,23 +4742,19 @@ fn evaluate_internal<const EVIDENCE: bool, const PROFILE: bool>(
         EvaluationStatus::NotFound
     };
     let profile_counts = quiescence.profile_counts;
-    let evidence = EvaluationEvidence {
-        hot: EvaluationHot {
-            status,
-            truncation_reason: quiescence.truncation_reason,
-            pattern_nodes: quiescence.pattern_nodes,
-            resolution_nodes: quiescence.resolution_nodes,
-            score: score_breakdown.values[ScoreBreakdown::TOTAL],
-            features,
-            action_features,
-            score_breakdown,
-            best: quiescence.best,
-            has_best: quiescence.has_best,
-        },
-        candidates: quiescence.candidates,
-        candidate_count: quiescence.candidate_count as u8,
+    let hot = EvaluationHot {
+        status,
+        truncation_reason: quiescence.truncation_reason,
+        pattern_nodes: quiescence.pattern_nodes,
+        resolution_nodes: quiescence.resolution_nodes,
+        score: score_breakdown.values[ScoreBreakdown::TOTAL],
+        features,
+        action_features,
+        score_breakdown,
+        best: quiescence.best,
+        has_best: quiescence.has_best,
     };
-    (evidence, profile_counts)
+    (hot, quiescence.evidence, profile_counts)
 }
 
 #[inline]
@@ -4358,9 +4765,8 @@ pub(crate) fn evaluate_hot(
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
 ) -> EvaluationHot {
-    evaluate_internal::<false, false>(state, config, parent, action, target_chain_count, None)
+    evaluate_internal::<NoEvidence, false>(state, config, parent, action, target_chain_count, None)
         .0
-        .hot
 }
 
 pub(crate) fn evaluate_evidence(
@@ -4370,7 +4776,16 @@ pub(crate) fn evaluate_evidence(
     action: Option<TransitionHotResult>,
     target_chain_count: u8,
 ) -> EvaluationEvidence {
-    evaluate_internal::<true, false>(state, config, parent, action, target_chain_count, None).0
+    let (hot, mut evidence, _) = evaluate_internal::<CollectEvidence, false>(
+        state,
+        config,
+        parent,
+        action,
+        target_chain_count,
+        None,
+    );
+    evidence.hot = hot;
+    evidence
 }
 
 /// Evaluate the unchanged hot result while publishing PUYO-219 QA-only stage
@@ -4383,7 +4798,7 @@ pub(crate) fn evaluate_profiled(
     target_chain_count: u8,
     profile_stage: &AtomicU8,
 ) -> (EvaluationHot, EvaluationProfileCounts) {
-    let (evaluation, counts) = evaluate_internal::<false, true>(
+    let (evaluation, _, counts) = evaluate_internal::<NoEvidence, true>(
         state,
         config,
         parent,
@@ -4391,7 +4806,7 @@ pub(crate) fn evaluate_profiled(
         target_chain_count,
         Some(profile_stage),
     );
-    (evaluation.hot, counts)
+    (evaluation, counts)
 }
 
 #[cfg(test)]
@@ -4456,20 +4871,23 @@ mod tests {
         let heights = column_heights(occupied);
         let reachable = reachable_columns(&heights);
         let landing = landing_mask(&heights, reachable);
-        let components = extract_components(
-            &planes,
+        let components = extract_components::<false>(ComponentExtraction {
+            planes: &planes,
             occupied,
             landing,
-            &heights,
+            heights: &heights,
             reachable,
-            config.max_added_puyos,
-        );
+            max_added_puyos: config.max_added_puyos,
+            lower_compact: state.lower_compact(),
+            settled: state.settled(),
+            profile_stage: None,
+        });
         assert_eq!(
             components.connection_candidate_count,
             connection_candidate_count_exact(components.as_slice(), landing),
             "connection candidates: {label}",
         );
-        let frontier = bounded_quiescence::<true, false, true>(
+        let frontier = bounded_quiescence::<CollectEvidence, false, true>(
             &planes,
             occupied,
             &heights,
@@ -4499,12 +4917,12 @@ mod tests {
         assert_eq!(frontier.has_best, exhaustive.has_best, "{label}");
         assert_eq!(frontier.best, exhaustive.best, "{label}");
         assert_eq!(
-            frontier.candidate_count, exhaustive.candidate_count,
+            frontier.evidence.candidate_count, exhaustive.evidence.candidate_count,
             "{label}"
         );
         assert_eq!(
-            &frontier.candidates[..frontier.candidate_count],
-            &exhaustive.candidates[..exhaustive.candidate_count],
+            &frontier.evidence.candidates[..usize::from(frontier.evidence.candidate_count)],
+            &exhaustive.evidence.candidates[..usize::from(exhaustive.evidence.candidate_count)],
             "{label}"
         );
     }
@@ -4656,14 +5074,17 @@ mod tests {
             let heights = column_heights(occupied);
             let reachable = reachable_columns(&heights);
             let landing = landing_mask(&heights, reachable);
-            let components = extract_components(
-                &planes,
+            let components = extract_components::<false>(ComponentExtraction {
+                planes: &planes,
                 occupied,
                 landing,
-                &heights,
+                heights: &heights,
                 reachable,
-                default_config().max_added_puyos,
-            );
+                max_added_puyos: default_config().max_added_puyos,
+                lower_compact: state.lower_compact(),
+                settled: state.settled(),
+                profile_stage: None,
+            });
             let values = components.as_slice();
             let expected_normal = planes
                 .iter()
@@ -5010,8 +5431,25 @@ mod tests {
             counts.stage_entries[usize::from(PROFILE_STAGE_RESOLVE)] <= counts.resolution_nodes
         );
         assert_eq!(
-            counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURES)],
-            2
+            counts.stage_entries[usize::from(PROFILE_STAGE_BASE_GEOMETRY)],
+            1
+        );
+        assert_eq!(
+            counts.stage_entries[usize::from(PROFILE_STAGE_BASE_CACHE_LOOKUP)],
+            1
+        );
+        // The unprofiled call above primes the exact-key component cache.
+        for stage in [
+            PROFILE_STAGE_BASE_STACK_TOPOLOGY,
+            PROFILE_STAGE_BASE_COMPONENT_FLOOD,
+            PROFILE_STAGE_BASE_COMPONENT_METADATA,
+            PROFILE_STAGE_BASE_FRONTIER_TOPOLOGY,
+        ] {
+            assert_eq!(counts.stage_entries[usize::from(stage)], 0);
+        }
+        assert_eq!(
+            counts.stage_entries[usize::from(PROFILE_STAGE_BASE_FEATURE_AGGREGATION)],
+            1
         );
         for stage in [
             PROFILE_STAGE_PLACEMENT_ORBIT,
@@ -5025,8 +5463,40 @@ mod tests {
         assert!(counts.sha256_calls >= counts.rank_tie_calls);
         assert_eq!(
             marker.load(AtomicOrdering::Relaxed),
-            PROFILE_STAGE_BASE_FEATURES
+            PROFILE_STAGE_BASE_FEATURE_AGGREGATION
         );
+    }
+
+    #[test]
+    fn hot_workspaces_stay_below_stack_probe_boundary() {
+        assert!(std::mem::size_of::<QuiescenceSearch<'_, NoEvidence, false, true>>() < 4_096);
+        assert!(std::mem::size_of::<TriggerFrontier>() < 4_096);
+        assert_eq!(std::mem::size_of::<CachedResolution>(), 24);
+        assert_eq!(std::mem::size_of::<ResolutionCacheEntry>(), 48);
+    }
+
+    #[test]
+    fn candidate_json_capacity_covers_largest_valid_identity() {
+        let candidate = QuiescenceCandidate {
+            chain_count: u8::MAX,
+            chain_score: u32::MAX,
+            required_key_count: 3,
+            trigger_color: (NORMAL_COLOR_COUNT - 1) as u8,
+            placements_mask: cell_bit(3, HEIGHT - 1)
+                | cell_bit(4, HEIGHT - 1)
+                | cell_bit(5, HEIGHT - 1),
+            anchor_mask: BOARD_MASK,
+            trigger_height: u8::MAX,
+            remaining_link_2: u8::MAX,
+            remaining_link_3: u8::MAX,
+            remaining_connection_edges: u8::MAX,
+            extension_space: u8::MAX,
+            ..QuiescenceCandidate::default()
+        };
+        let mut json = CandidateJson::new();
+        encode_stable_candidate(&candidate, &mut json);
+        assert!(json.len + 9 <= CANDIDATE_JSON_CAPACITY);
+        let _ = sha256(&mut json);
     }
 
     #[test]

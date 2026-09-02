@@ -41,7 +41,7 @@ NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION = (
     "puyo.native_chain_structure_combined_profile.v1"
 )
 NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION = (
-    "puyo.native_chain_structure_stage_profile.v4"
+    "puyo.native_chain_structure_stage_profile.v6"
 )
 NATIVE_CHAIN_STRUCTURE_ABI_VERSION = 1
 NATIVE_CHAIN_STRUCTURE_MAX_EVIDENCE_CANDIDATES = 96
@@ -71,6 +71,13 @@ NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES = (
     "placement_candidate_dispatch",
     "placement_single_component_frontier",
     "placement_multi_component_frontier",
+    "base_board_geometry",
+    "base_stack_topology",
+    "base_component_flood",
+    "base_component_metadata_aggregation",
+    "base_frontier_topology",
+    "base_feature_aggregation",
+    "base_component_cache_lookup",
 )
 NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES = (
     "pattern_nodes",

@@ -22,7 +22,7 @@ use crate::compact::{CompactState, Pair, TransitionHotResult, transition_hot};
 
 pub(crate) const BATCH_SCHEMA: &str = "puyo.native_chain_structure_batch.v1";
 pub(crate) const PROFILE_SCHEMA: &str = "puyo.native_chain_structure_combined_profile.v1";
-pub(crate) const STAGE_PROFILE_SCHEMA: &str = "puyo.native_chain_structure_stage_profile.v4";
+pub(crate) const STAGE_PROFILE_SCHEMA: &str = "puyo.native_chain_structure_stage_profile.v6";
 
 const REQUEST_MAGIC: &[u8; 4] = b"NCSB";
 const SUCCESS_MAGIC: &[u8; 4] = b"NCSS";
@@ -766,7 +766,7 @@ mod tests {
         assert_eq!(schema_identity().0, "puyo.native_chain_structure_hot.v1");
         assert_eq!(
             STAGE_PROFILE_SCHEMA,
-            "puyo.native_chain_structure_stage_profile.v4"
+            "puyo.native_chain_structure_stage_profile.v6"
         );
         assert_eq!(EvaluationStatus::Available as u8, 1);
         assert_eq!(TruncationReason::ResolutionNodes as u8, 2);
