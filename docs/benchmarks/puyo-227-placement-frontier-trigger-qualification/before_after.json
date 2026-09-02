@@ -1,0 +1,20 @@
+{
+  "acceptance_baseline": "canonical PUYO-226 after profile on the same CPU, frozen corpus, production config, release wheel contract, and 5 x 600,000 operations",
+  "baseline_combined_p95_600k_ms": 995.521361,
+  "baseline_stage_cycles_per_node": 2740.954548735943,
+  "baseline_stage_projected_600k_ms": 480.446268337398,
+  "combined_gate_600k_ms": 820.625,
+  "combined_gate_met": true,
+  "combined_reduction_percent": 18.596912356961464,
+  "current_combined_p95_600k_ms": 810.385126,
+  "current_stage_cycles_per_node": 732.9447389954705,
+  "current_stage_projected_600k_ms": 136.17449998389438,
+  "minimum_combined_reduction_percent": 20.0,
+  "minimum_stage_cycle_reduction_percent": 30.0,
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "sample_count": 5,
+  "schema_version": "puyo.native_placement_frontier_comparison.v1",
+  "stage_cycle_reduction_percent": 73.25950773851811,
+  "target_stage": "placement_enumeration_trigger_qualification"
+}
