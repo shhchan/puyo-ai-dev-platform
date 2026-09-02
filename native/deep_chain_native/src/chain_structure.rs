@@ -10,6 +10,8 @@ use std::cmp::Ordering;
 use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicU8, Ordering as AtomicOrdering};
 
+use sha2::block_api::compress256;
+
 use crate::compact::{
     CompactState, HEIGHT, NORMAL_COLOR_COUNT, PLANE_COUNT, TransitionHotResult, VISIBLE_HEIGHT,
     WIDTH,
@@ -47,6 +49,9 @@ const ROW_ZERO_MASK: u128 = row_mask(0);
 const ROW_THREE_MASK: u128 = lane_mask(3);
 const TOP_VISIBLE_ROW_MASK: u128 = row_mask(VISIBLE_HEIGHT - 1);
 const ROW_FOURTEEN_MASK: u128 = row_mask(HEIGHT - 1);
+const LEFT_VISIBLE_COLUMN_MASK: u128 = (1_u128 << VISIBLE_HEIGHT) - 1;
+const RIGHT_VISIBLE_COLUMN_MASK: u128 =
+    LEFT_VISIBLE_COLUMN_MASK << ((WIDTH - 1) * COLUMN_LANE_BITS);
 const CHAIN_BONUS: [u16; 20] = [
     0, 0, 8, 16, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512,
 ];
@@ -1160,28 +1165,43 @@ fn canonical_mask(mask: u128) -> u128 {
     }
 }
 
-struct CandidateJson {
-    bytes: [u8; 1024],
+const CANDIDATE_JSON_CAPACITY: usize = 1024;
+const CANDIDATE_SUFFIX_CAPACITY: usize = 96;
+
+struct CandidateJson<const CAPACITY: usize = CANDIDATE_JSON_CAPACITY> {
+    bytes: [MaybeUninit<u8>; CAPACITY],
     len: usize,
 }
 
-impl CandidateJson {
-    fn new() -> Self {
+impl<const CAPACITY: usize> CandidateJson<CAPACITY> {
+    const fn new() -> Self {
         Self {
-            bytes: [0; 1024],
+            bytes: [MaybeUninit::uninit(); CAPACITY],
             len: 0,
         }
     }
 
+    fn clear(&mut self) {
+        self.len = 0;
+    }
+
     fn push(&mut self, value: u8) {
         debug_assert!(self.len < self.bytes.len());
-        self.bytes[self.len] = value;
+        self.bytes[self.len].write(value);
         self.len += 1;
     }
 
     fn extend(&mut self, value: &[u8]) {
-        debug_assert!(self.len + value.len() <= self.bytes.len());
-        self.bytes[self.len..self.len + value.len()].copy_from_slice(value);
+        assert!(self.len + value.len() <= self.bytes.len());
+        // SAFETY: the capacity check above proves the destination range is
+        // in-bounds, and `value` cannot alias this private workspace.
+        unsafe {
+            std::ptr::copy_nonoverlapping(
+                value.as_ptr(),
+                self.bytes.as_mut_ptr().cast::<u8>().add(self.len),
+                value.len(),
+            );
+        }
         self.len += value.len();
     }
 
@@ -1219,124 +1239,31 @@ impl CandidateJson {
     }
 
     fn as_slice(&self) -> &[u8] {
-        &self.bytes[..self.len]
+        // SAFETY: every element below `len` is initialized by `push` or
+        // `extend`, and neither method can advance beyond the backing array.
+        unsafe { std::slice::from_raw_parts(self.bytes.as_ptr().cast(), self.len) }
     }
 }
 
-const SHA256_ROUND_CONSTANTS: [u32; 64] = [
-    0x428a_2f98,
-    0x7137_4491,
-    0xb5c0_fbcf,
-    0xe9b5_dba5,
-    0x3956_c25b,
-    0x59f1_11f1,
-    0x923f_82a4,
-    0xab1c_5ed5,
-    0xd807_aa98,
-    0x1283_5b01,
-    0x2431_85be,
-    0x550c_7dc3,
-    0x72be_5d74,
-    0x80de_b1fe,
-    0x9bdc_06a7,
-    0xc19b_f174,
-    0xe49b_69c1,
-    0xefbe_4786,
-    0x0fc1_9dc6,
-    0x240c_a1cc,
-    0x2de9_2c6f,
-    0x4a74_84aa,
-    0x5cb0_a9dc,
-    0x76f9_88da,
-    0x983e_5152,
-    0xa831_c66d,
-    0xb003_27c8,
-    0xbf59_7fc7,
-    0xc6e0_0bf3,
-    0xd5a7_9147,
-    0x06ca_6351,
-    0x1429_2967,
-    0x27b7_0a85,
-    0x2e1b_2138,
-    0x4d2c_6dfc,
-    0x5338_0d13,
-    0x650a_7354,
-    0x766a_0abb,
-    0x81c2_c92e,
-    0x9272_2c85,
-    0xa2bf_e8a1,
-    0xa81a_664b,
-    0xc24b_8b70,
-    0xc76c_51a3,
-    0xd192_e819,
-    0xd699_0624,
-    0xf40e_3585,
-    0x106a_a070,
-    0x19a4_c116,
-    0x1e37_6c08,
-    0x2748_774c,
-    0x34b0_bcb5,
-    0x391c_0cb3,
-    0x4ed8_aa4a,
-    0x5b9c_ca4f,
-    0x682e_6ff3,
-    0x748f_82ee,
-    0x78a5_636f,
-    0x84c8_7814,
-    0x8cc7_0208,
-    0x90be_fffa,
-    0xa450_6ceb,
-    0xbef9_a3f7,
-    0xc671_78f2,
-];
-
-fn sha256_compress(state: &mut [u32; 8], block: &[u8]) {
-    debug_assert_eq!(block.len(), 64);
-    let mut schedule = [0_u32; 64];
-    let (words, remainder) = block.as_chunks::<4>();
-    debug_assert!(remainder.is_empty());
-    for (index, bytes) in words.iter().take(16).enumerate() {
-        schedule[index] = u32::from_be_bytes(*bytes);
+fn sha256(json: &mut CandidateJson) -> [u8; 32] {
+    let message_len = json.len;
+    let padded_len = (message_len + 9).div_ceil(64) * 64;
+    assert!(padded_len <= json.bytes.len());
+    json.bytes[message_len].write(0x80);
+    for byte in &mut json.bytes[message_len + 1..padded_len - 8] {
+        byte.write(0);
     }
-    for index in 16..64 {
-        let s0 = schedule[index - 15].rotate_right(7)
-            ^ schedule[index - 15].rotate_right(18)
-            ^ (schedule[index - 15] >> 3);
-        let s1 = schedule[index - 2].rotate_right(17)
-            ^ schedule[index - 2].rotate_right(19)
-            ^ (schedule[index - 2] >> 10);
-        schedule[index] = schedule[index - 16]
-            .wrapping_add(s0)
-            .wrapping_add(schedule[index - 7])
-            .wrapping_add(s1);
+    for (target, source) in json.bytes[padded_len - 8..padded_len]
+        .iter_mut()
+        .zip(((message_len as u64) * 8).to_be_bytes())
+    {
+        target.write(source);
     }
-    let [mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut h] = *state;
-    for index in 0..64 {
-        let sum_one = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
-        let choose = (e & f) ^ (!e & g);
-        let first = h
-            .wrapping_add(sum_one)
-            .wrapping_add(choose)
-            .wrapping_add(SHA256_ROUND_CONSTANTS[index])
-            .wrapping_add(schedule[index]);
-        let sum_zero = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
-        let majority = (a & b) ^ (a & c) ^ (b & c);
-        let second = sum_zero.wrapping_add(majority);
-        h = g;
-        g = f;
-        f = e;
-        e = d.wrapping_add(first);
-        d = c;
-        c = b;
-        b = a;
-        a = first.wrapping_add(second);
-    }
-    for (target, value) in state.iter_mut().zip([a, b, c, d, e, f, g, h]) {
-        *target = target.wrapping_add(value);
-    }
-}
-
-fn sha256(value: &[u8]) -> [u8; 32] {
+    // SAFETY: the canonical bytes and padding above initialize exactly
+    // `padded_len` bytes, which is a non-zero multiple of 64.
+    let blocks = unsafe {
+        std::slice::from_raw_parts(json.bytes.as_ptr().cast::<[u8; 64]>(), padded_len / 64)
+    };
     let mut state = [
         0x6a09_e667,
         0xbb67_ae85,
@@ -1347,32 +1274,20 @@ fn sha256(value: &[u8]) -> [u8; 32] {
         0x1f83_d9ab,
         0x5be0_cd19,
     ];
-    let (blocks, remainder) = value.as_chunks::<64>();
-    for block in blocks {
-        sha256_compress(&mut state, block);
-    }
-    let mut tail = [0_u8; 128];
-    tail[..remainder.len()].copy_from_slice(remainder);
-    tail[remainder.len()] = 0x80;
-    let tail_len = if remainder.len() < 56 { 64 } else { 128 };
-    tail[tail_len - 8..tail_len].copy_from_slice(&((value.len() as u64) * 8).to_be_bytes());
-    let (tail_blocks, tail_remainder) = tail[..tail_len].as_chunks::<64>();
-    debug_assert!(tail_remainder.is_empty());
-    for block in tail_blocks {
-        sha256_compress(&mut state, block);
-    }
+    compress256(&mut state, blocks);
     let mut result = [0_u8; 32];
-    let (result_words, result_remainder) = result.as_chunks_mut::<4>();
-    debug_assert!(result_remainder.is_empty());
-    for (target, word) in result_words.iter_mut().zip(state) {
+    for (target, word) in result.as_chunks_mut::<4>().0.iter_mut().zip(state) {
         target.copy_from_slice(&word.to_be_bytes());
     }
     result
 }
 
-fn stable_candidate_digest(candidate: &QuiescenceCandidate) -> [u8; 32] {
-    let mut json = CandidateJson::new();
-    let color = match candidate.trigger_color {
+fn encode_stable_candidate_identity(
+    identity: CanonicalCandidateIdentity,
+    json: &mut CandidateJson,
+) {
+    json.clear();
+    let color = match identity.trigger_color {
         0 => b"RED".as_slice(),
         1 => b"BLUE".as_slice(),
         2 => b"GREEN".as_slice(),
@@ -1383,9 +1298,19 @@ fn stable_candidate_digest(candidate: &QuiescenceCandidate) -> [u8; 32] {
     json.extend(b"[\"");
     json.extend(color);
     json.extend(b"\",");
-    json.cells(canonical_mask(candidate.placements_mask));
+    json.cells(identity.placements_mask);
     json.push(b',');
-    json.cells(canonical_mask(candidate.anchor_mask));
+    json.cells(identity.anchor_mask);
+}
+
+fn encode_stable_candidate_head(candidate: &QuiescenceCandidate, json: &mut CandidateJson) {
+    encode_stable_candidate_identity(CanonicalCandidateIdentity::new(candidate), json);
+}
+
+fn append_stable_candidate_suffix<const CAPACITY: usize>(
+    candidate: &QuiescenceCandidate,
+    json: &mut CandidateJson<CAPACITY>,
+) {
     for value in [
         candidate.chain_count as u32,
         candidate.chain_score,
@@ -1400,15 +1325,27 @@ fn stable_candidate_digest(candidate: &QuiescenceCandidate) -> [u8; 32] {
         json.decimal(value);
     }
     json.push(b']');
-    sha256(json.as_slice())
 }
 
-fn fixed_candidate_key(candidate: &QuiescenceCandidate) -> u64 {
-    u64::from_be_bytes(
-        stable_candidate_digest(candidate)[..8]
-            .try_into()
-            .expect("SHA-256 prefix has eight bytes"),
-    )
+fn encode_stable_candidate(candidate: &QuiescenceCandidate, json: &mut CandidateJson) {
+    encode_stable_candidate_head(candidate, json);
+    append_stable_candidate_suffix(candidate, json);
+}
+
+fn encode_stable_candidate_with_suffix(
+    identity: CanonicalCandidateIdentity,
+    suffix: &[u8],
+    json: &mut CandidateJson,
+) {
+    encode_stable_candidate_identity(identity, json);
+    json.extend(suffix);
+}
+
+#[cfg(test)]
+fn stable_candidate_digest(candidate: &QuiescenceCandidate) -> [u8; 32] {
+    let mut json = CandidateJson::new();
+    encode_stable_candidate(candidate, &mut json);
+    sha256(&mut json)
 }
 
 fn same_candidate_signature(left: &QuiescenceCandidate, right: &QuiescenceCandidate) -> bool {
@@ -1425,7 +1362,28 @@ fn same_candidate_signature(left: &QuiescenceCandidate, right: &QuiescenceCandid
         && left.extension_space == right.extension_space
 }
 
-fn compare_candidate_rank_prefix(
+fn candidate_rank_key(candidate: &QuiescenceCandidate) -> u128 {
+    (u128::from(candidate.chain_count) << 72)
+        | (u128::from(u8::MAX - candidate.required_key_count) << 64)
+        | (u128::from(candidate.chain_score) << 32)
+        | (u128::from(candidate.remaining_link_3) << 24)
+        | (u128::from(candidate.remaining_link_2) << 16)
+        | (u128::from(candidate.remaining_connection_edges) << 8)
+        | u128::from(candidate.extension_space)
+}
+
+fn compare_candidate_rank_suffix(
+    left: &QuiescenceCandidate,
+    right: &QuiescenceCandidate,
+) -> Ordering {
+    left.trigger_protection
+        .partial_cmp(&right.trigger_protection)
+        .unwrap_or(Ordering::Equal)
+        .then_with(|| right.trigger_height.cmp(&left.trigger_height))
+}
+
+#[cfg(test)]
+fn compare_candidate_rank_prefix_exact(
     left: &QuiescenceCandidate,
     right: &QuiescenceCandidate,
 ) -> Ordering {
@@ -1446,6 +1404,181 @@ fn compare_candidate_rank_prefix(
                 .unwrap_or(Ordering::Equal)
         })
         .then_with(|| right.trigger_height.cmp(&left.trigger_height))
+}
+
+struct CandidateTieBreakComparison {
+    ordering: Ordering,
+    digest: [u8; 32],
+    sha256_calls: u8,
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+struct CanonicalCandidateIdentity {
+    placements_mask: u128,
+    anchor_mask: u128,
+    trigger_color: u8,
+}
+
+impl CanonicalCandidateIdentity {
+    fn new(candidate: &QuiescenceCandidate) -> Self {
+        Self {
+            placements_mask: canonical_mask(candidate.placements_mask),
+            anchor_mask: canonical_mask(candidate.anchor_mask),
+            trigger_color: candidate.trigger_color,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+struct CandidateDigestCacheEntry {
+    identity: CanonicalCandidateIdentity,
+    digest: [u8; 32],
+}
+
+const CANDIDATE_DIGEST_CACHE_SIZE: usize = 16;
+
+struct CandidateTieBreakWorkspace {
+    encodings: [CandidateJson; 2],
+    suffix: CandidateJson<CANDIDATE_SUFFIX_CAPACITY>,
+    digest_cache: [MaybeUninit<CandidateDigestCacheEntry>; CANDIDATE_DIGEST_CACHE_SIZE],
+    digest_cache_len: usize,
+    best_slot: usize,
+    best_identity: Option<CanonicalCandidateIdentity>,
+    best_digest: [u8; 32],
+    best_valid: bool,
+    suffix_valid: bool,
+}
+
+impl Default for CandidateTieBreakWorkspace {
+    fn default() -> Self {
+        Self {
+            encodings: [CandidateJson::new(), CandidateJson::new()],
+            suffix: CandidateJson::new(),
+            digest_cache: [MaybeUninit::uninit(); CANDIDATE_DIGEST_CACHE_SIZE],
+            digest_cache_len: 0,
+            best_slot: 0,
+            best_identity: None,
+            best_digest: [0; 32],
+            best_valid: false,
+            suffix_valid: false,
+        }
+    }
+}
+
+impl CandidateTieBreakWorkspace {
+    fn invalidate_best(&mut self) {
+        self.best_valid = false;
+        self.suffix_valid = false;
+        self.digest_cache_len = 0;
+    }
+
+    fn scratch_slot(&self) -> usize {
+        self.best_slot ^ 1
+    }
+
+    fn cached_digest(&self, identity: CanonicalCandidateIdentity) -> Option<[u8; 32]> {
+        // SAFETY: `remember_digest` initializes every entry below
+        // `digest_cache_len`, which never exceeds the array capacity.
+        let entries = unsafe {
+            std::slice::from_raw_parts(
+                self.digest_cache
+                    .as_ptr()
+                    .cast::<CandidateDigestCacheEntry>(),
+                self.digest_cache_len,
+            )
+        };
+        entries
+            .iter()
+            .find(|entry| entry.identity == identity)
+            .map(|entry| entry.digest)
+    }
+
+    fn remember_digest(&mut self, identity: CanonicalCandidateIdentity, digest: [u8; 32]) {
+        if self.digest_cache_len == self.digest_cache.len() {
+            return;
+        }
+        self.digest_cache[self.digest_cache_len]
+            .write(CandidateDigestCacheEntry { identity, digest });
+        self.digest_cache_len += 1;
+    }
+
+    fn digest_candidate(
+        &mut self,
+        candidate: &QuiescenceCandidate,
+        promote_to_best: bool,
+    ) -> [u8; 32] {
+        let candidate_slot = self.scratch_slot();
+        encode_stable_candidate(candidate, &mut self.encodings[candidate_slot]);
+        let digest = sha256(&mut self.encodings[candidate_slot]);
+        if promote_to_best {
+            let identity = CanonicalCandidateIdentity::new(candidate);
+            self.best_slot = candidate_slot;
+            self.best_identity = Some(identity);
+            self.best_digest = digest;
+            self.best_valid = true;
+            self.remember_digest(identity, digest);
+        }
+        digest
+    }
+
+    fn compare(
+        &mut self,
+        candidate: &QuiescenceCandidate,
+        best: &QuiescenceCandidate,
+    ) -> CandidateTieBreakComparison {
+        if !self.suffix_valid {
+            self.suffix.clear();
+            append_stable_candidate_suffix(best, &mut self.suffix);
+            self.suffix_valid = true;
+        }
+        let candidate_slot = self.scratch_slot();
+        let mut sha256_calls = 0;
+        if !self.best_valid {
+            let identity = CanonicalCandidateIdentity::new(best);
+            encode_stable_candidate_with_suffix(
+                identity,
+                self.suffix.as_slice(),
+                &mut self.encodings[self.best_slot],
+            );
+            self.best_digest = sha256(&mut self.encodings[self.best_slot]);
+            self.best_identity = Some(identity);
+            self.best_valid = true;
+            self.remember_digest(identity, self.best_digest);
+            sha256_calls += 1;
+        }
+        let candidate_identity = CanonicalCandidateIdentity::new(candidate);
+        if Some(candidate_identity) == self.best_identity {
+            return CandidateTieBreakComparison {
+                ordering: Ordering::Equal,
+                digest: self.best_digest,
+                sha256_calls,
+            };
+        }
+        let candidate_digest = if let Some(digest) = self.cached_digest(candidate_identity) {
+            digest
+        } else {
+            encode_stable_candidate_with_suffix(
+                candidate_identity,
+                self.suffix.as_slice(),
+                &mut self.encodings[candidate_slot],
+            );
+            let digest = sha256(&mut self.encodings[candidate_slot]);
+            self.remember_digest(candidate_identity, digest);
+            sha256_calls += 1;
+            digest
+        };
+        let ordering = candidate_digest.cmp(&self.best_digest);
+        if ordering == Ordering::Greater {
+            self.best_slot = candidate_slot;
+            self.best_identity = Some(candidate_identity);
+            self.best_digest = candidate_digest;
+        }
+        CandidateTieBreakComparison {
+            ordering,
+            digest: candidate_digest,
+            sha256_calls,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -2007,7 +2140,8 @@ fn has_smaller_trigger(plane: u128, pattern: &PlacementPattern, heights: &[u8; W
     false
 }
 
-fn trigger_protection(occupied: u128, anchors: u128) -> f64 {
+#[cfg(test)]
+fn trigger_protection_exact(occupied: u128, anchors: u128) -> f64 {
     if anchors == 0 {
         return 0.0;
     }
@@ -2031,6 +2165,27 @@ fn trigger_protection(occupied: u128, anchors: u128) -> f64 {
             protected += u32::from(occupied & cell_bit(target_x as usize, target_y as usize) != 0);
         }
     }
+    if possible == 0 {
+        0.0
+    } else {
+        f64::from(protected) / f64::from(possible)
+    }
+}
+
+#[inline(always)]
+fn trigger_protection(occupied: u128, anchors: u128) -> f64 {
+    if anchors == 0 {
+        return 0.0;
+    }
+    let right = (anchors & !RIGHT_VISIBLE_COLUMN_MASK) << COLUMN_LANE_BITS;
+    let left = (anchors & !LEFT_VISIBLE_COLUMN_MASK) >> COLUMN_LANE_BITS;
+    let up = (anchors & !TOP_VISIBLE_ROW_MASK) << 1;
+    let down = (anchors & !ROW_ZERO_MASK) >> 1;
+    let possible = right.count_ones() + left.count_ones() + up.count_ones() + down.count_ones();
+    let protected = (right & occupied).count_ones()
+        + (left & occupied).count_ones()
+        + (up & occupied).count_ones()
+        + (down & occupied).count_ones();
     if possible == 0 {
         0.0
     } else {
@@ -2554,8 +2709,8 @@ struct QuiescenceSearch<'a, const EVIDENCE: bool, const PROFILE: bool, const INC
     resolution_nodes: u32,
     truncation_reason: TruncationReason,
     best: QuiescenceCandidate,
-    best_tie_break: [u8; 32],
-    best_tie_break_valid: bool,
+    best_rank_key: u128,
+    tie_break_workspace: CandidateTieBreakWorkspace,
     has_best: bool,
     candidates: [QuiescenceCandidate; MAX_EVIDENCE_CANDIDATES],
     candidate_count: usize,
@@ -2587,8 +2742,8 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             resolution_nodes: 0,
             truncation_reason: TruncationReason::None,
             best: QuiescenceCandidate::default(),
-            best_tie_break: [0; 32],
-            best_tie_break_valid: false,
+            best_rank_key: 0,
+            tie_break_workspace: CandidateTieBreakWorkspace::default(),
             has_best: false,
             candidates: [QuiescenceCandidate::default(); MAX_EVIDENCE_CANDIDATES],
             candidate_count: 0,
@@ -2610,37 +2765,70 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         self.profile_counts.stage_entries[usize::from(stage)] += 1;
     }
 
-    fn candidate_is_better(&mut self, candidate: &QuiescenceCandidate) -> bool {
-        if PROFILE {
-            self.profile_counts.rank_comparison_calls += 1;
-        }
-        match compare_candidate_rank_prefix(candidate, &self.best) {
-            Ordering::Greater => {
-                self.best_tie_break_valid = false;
+    fn candidate_is_better(
+        &mut self,
+        candidate: &mut QuiescenceCandidate,
+        rank_key: u128,
+        rank_key_ordering: Option<Ordering>,
+    ) -> bool {
+        let mut digest = None;
+        let better = match rank_key_ordering {
+            None => {
+                self.tie_break_workspace.invalidate_best();
                 true
             }
-            Ordering::Less => false,
-            Ordering::Equal => {
+            Some(ordering) => {
                 if PROFILE {
-                    self.profile_counts.rank_tie_calls += 1;
-                    self.profile_counts.sha256_calls += 1;
+                    self.profile_counts.rank_comparison_calls += 1;
                 }
-                let candidate_tie_break = stable_candidate_digest(candidate);
-                if !self.best_tie_break_valid {
-                    if PROFILE {
-                        self.profile_counts.sha256_calls += 1;
+                match ordering {
+                    Ordering::Greater => {
+                        self.tie_break_workspace.invalidate_best();
+                        true
                     }
-                    self.best_tie_break = stable_candidate_digest(&self.best);
-                    self.best_tie_break_valid = true;
-                }
-                if candidate_tie_break > self.best_tie_break {
-                    self.best_tie_break = candidate_tie_break;
-                    true
-                } else {
-                    false
+                    Ordering::Less => false,
+                    Ordering::Equal => match compare_candidate_rank_suffix(candidate, &self.best) {
+                        Ordering::Greater => {
+                            self.tie_break_workspace.invalidate_best();
+                            true
+                        }
+                        Ordering::Less => false,
+                        Ordering::Equal => {
+                            if PROFILE {
+                                self.profile_counts.rank_tie_calls += 1;
+                            }
+                            let comparison =
+                                self.tie_break_workspace.compare(candidate, &self.best);
+                            if PROFILE {
+                                self.profile_counts.sha256_calls +=
+                                    u32::from(comparison.sha256_calls);
+                            }
+                            digest = Some(comparison.digest);
+                            comparison.ordering == Ordering::Greater
+                        }
+                    },
                 }
             }
+        };
+        if EVIDENCE && digest.is_none() {
+            digest = Some(self.tie_break_workspace.digest_candidate(candidate, better));
+            if PROFILE {
+                self.profile_counts.sha256_calls += 1;
+            }
         }
+        if let Some(digest) = digest
+            && EVIDENCE
+        {
+            candidate.fixed_tie_break = u64::from_be_bytes(
+                digest[..8]
+                    .try_into()
+                    .expect("SHA-256 prefix has eight bytes"),
+            );
+        }
+        if better {
+            self.best_rank_key = rank_key;
+        }
+        better
     }
 
     fn truncated(&self) -> bool {
@@ -2698,17 +2886,19 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             anchor_mask: anchors,
             trigger_column: pattern.minimum_column,
             trigger_height: pattern.minimum_height,
-            trigger_protection: trigger_protection(self.occupied, anchors),
+            trigger_protection: 0.0,
             remaining_link_2: remaining.link_2,
             remaining_link_3: remaining.link_3,
             remaining_connection_edges: remaining.connection_edges,
             extension_space: remaining.extension_space,
             fixed_tie_break: 0,
         };
-        if EVIDENCE {
-            candidate.fixed_tie_break = fixed_candidate_key(&candidate);
+        let rank_key = candidate_rank_key(&candidate);
+        let rank_key_ordering = self.has_best.then(|| rank_key.cmp(&self.best_rank_key));
+        if EVIDENCE || rank_key_ordering != Some(Ordering::Less) {
+            candidate.trigger_protection = trigger_protection(self.occupied, anchors);
         }
-        if !self.has_best || self.candidate_is_better(&candidate) {
+        if self.candidate_is_better(&mut candidate, rank_key, rank_key_ordering) {
             self.best = candidate;
             self.has_best = true;
         }
@@ -3966,7 +4156,13 @@ mod tests {
             trigger_height: 0,
             ..QuiescenceCandidate::default()
         };
+        let mut encoding = CandidateJson::new();
+        encode_stable_candidate(&candidate, &mut encoding);
 
+        assert_eq!(
+            encoding.as_slice(),
+            br#"["BLUE",[[0,1],[1,0],[2,0]],[[0,0]],1,40,3,0,0,0,0,0]"#,
+        );
         assert_eq!(
             stable_candidate_digest(&candidate),
             [
@@ -3975,6 +4171,144 @@ mod tests {
                 0xe0, 0xa9, 0xb2, 0xbf,
             ]
         );
+    }
+
+    #[test]
+    fn candidate_tie_break_workspace_reuses_canonical_best() {
+        let best = QuiescenceCandidate {
+            chain_count: 1,
+            chain_score: 40,
+            required_key_count: 3,
+            trigger_color: 1,
+            placements_mask: (1_u128 << 1) | (1_u128 << 16) | (1_u128 << 32),
+            anchor_mask: 1,
+            trigger_height: 0,
+            ..QuiescenceCandidate::default()
+        };
+        let mut workspace = CandidateTieBreakWorkspace::default();
+
+        let first = workspace.compare(&best, &best);
+        assert_eq!(first.ordering, Ordering::Equal);
+        assert_eq!(first.digest, stable_candidate_digest(&best));
+        assert_eq!(first.sha256_calls, 1);
+
+        let repeated = workspace.compare(&best, &best);
+        assert_eq!(repeated.ordering, Ordering::Equal);
+        assert_eq!(repeated.digest, stable_candidate_digest(&best));
+        assert_eq!(repeated.sha256_calls, 0);
+
+        let different = QuiescenceCandidate {
+            placements_mask: (1_u128 << 2) | (1_u128 << 17) | (1_u128 << 33),
+            ..best
+        };
+        let comparison = workspace.compare(&different, &best);
+        assert_eq!(
+            comparison.ordering,
+            stable_candidate_digest(&different).cmp(&stable_candidate_digest(&best)),
+        );
+        assert_eq!(comparison.digest, stable_candidate_digest(&different));
+        assert_eq!(comparison.sha256_calls, 1);
+    }
+
+    #[test]
+    fn packed_candidate_rank_matches_fieldwise_ordering() {
+        for index in 0..4_096_u32 {
+            let candidate = |salt: u32| QuiescenceCandidate {
+                chain_count: index.wrapping_mul(17).wrapping_add(salt) as u8,
+                chain_score: index.wrapping_mul(2_654_435_761).wrapping_add(salt),
+                required_key_count: index.wrapping_add(salt) as u8,
+                trigger_height: index.wrapping_mul(3).wrapping_add(salt) as u8,
+                trigger_protection: f64::from(index.wrapping_mul(7).wrapping_add(salt) % 17) / 16.0,
+                remaining_link_2: index.wrapping_mul(5).wrapping_add(salt) as u8,
+                remaining_link_3: index.wrapping_mul(11).wrapping_add(salt) as u8,
+                remaining_connection_edges: index.wrapping_mul(13).wrapping_add(salt) as u8,
+                extension_space: index.wrapping_mul(19).wrapping_add(salt) as u8,
+                ..QuiescenceCandidate::default()
+            };
+            let left = candidate(0);
+            let right = candidate(index.rotate_left(7));
+            let packed = candidate_rank_key(&left)
+                .cmp(&candidate_rank_key(&right))
+                .then_with(|| compare_candidate_rank_suffix(&left, &right));
+            assert_eq!(
+                packed,
+                compare_candidate_rank_prefix_exact(&left, &right),
+                "candidate pair {index}",
+            );
+        }
+    }
+
+    #[test]
+    fn candidate_workspace_matches_full_digest_ordering_property_corpus() {
+        let candidate = |seed: u32| {
+            let mut placements_mask = 0_u128;
+            let mut anchor_mask = 0_u128;
+            for offset in 0..3_u32 {
+                let placement = seed.wrapping_mul(17).wrapping_add(offset.wrapping_mul(29));
+                let anchor = seed.wrapping_mul(31).wrapping_add(offset.wrapping_mul(11));
+                placements_mask |= cell_bit(
+                    placement as usize % WIDTH,
+                    (placement as usize / WIDTH) % VISIBLE_HEIGHT,
+                );
+                anchor_mask |= cell_bit(
+                    anchor as usize % WIDTH,
+                    (anchor as usize / WIDTH) % VISIBLE_HEIGHT,
+                );
+            }
+            QuiescenceCandidate {
+                chain_count: 3,
+                chain_score: 2_280,
+                required_key_count: 3,
+                trigger_color: (seed % NORMAL_COLOR_COUNT as u32) as u8,
+                placements_mask,
+                anchor_mask,
+                trigger_height: 4,
+                trigger_protection: 0.5,
+                remaining_link_2: 2,
+                remaining_link_3: 1,
+                remaining_connection_edges: 5,
+                extension_space: 7,
+                ..QuiescenceCandidate::default()
+            }
+        };
+        for index in 0..4_096_u32 {
+            let best = candidate(index);
+            let current = candidate(index.rotate_left(11) ^ 0x2240_0000);
+            let mut workspace = CandidateTieBreakWorkspace::default();
+
+            let comparison = workspace.compare(&current, &best);
+
+            assert_eq!(
+                comparison.ordering,
+                stable_candidate_digest(&current).cmp(&stable_candidate_digest(&best)),
+                "candidate pair {index}",
+            );
+            assert_eq!(
+                comparison.digest,
+                stable_candidate_digest(&current),
+                "candidate digest {index}",
+            );
+            assert!(comparison.sha256_calls <= 2);
+        }
+    }
+
+    #[test]
+    fn bit_parallel_trigger_protection_matches_exact_property_corpus() {
+        for index in 0..512 {
+            let state = property_state(0x2240_0000 + index);
+            let occupied = state.internal_occupied();
+            let planes = state.evaluator_planes();
+            for (plane_index, plane) in planes.iter().copied().take(NORMAL_COLOR_COUNT).enumerate()
+            {
+                let anchors = plane & VISIBLE_MASK;
+                assert_eq!(
+                    trigger_protection(occupied, anchors),
+                    trigger_protection_exact(occupied, anchors),
+                    "state {index}, plane {plane_index}",
+                );
+            }
+        }
+        assert_eq!(trigger_protection(0, 0), trigger_protection_exact(0, 0));
     }
 
     #[test]
