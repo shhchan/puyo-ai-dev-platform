@@ -338,6 +338,7 @@ struct ComponentSet {
     values: [MaybeUninit<Component>; MAX_COMPONENTS],
     len: usize,
     landing: u128,
+    accelerated_search_supported: bool,
     incremental_resolution_supported: bool,
     base_normal: u128,
     base_occupied: u128,
@@ -364,6 +365,7 @@ impl Default for ComponentSet {
             values: [MaybeUninit::uninit(); MAX_COMPONENTS],
             len: 0,
             landing: 0,
+            accelerated_search_supported: false,
             incremental_resolution_supported: false,
             base_normal: 0,
             base_occupied: 0,
@@ -1025,9 +1027,16 @@ fn lower_board_is_compact_exact(occupied: u128) -> bool {
 #[cfg(target_arch = "x86_64")]
 #[inline]
 fn differential_gravity_supported() -> bool {
-    std::arch::is_x86_feature_detected!("bmi1")
+    static SUPPORT: AtomicU8 = AtomicU8::new(0);
+    let cached = SUPPORT.load(AtomicOrdering::Relaxed);
+    if cached != 0 {
+        return cached == 2;
+    }
+    let supported = std::arch::is_x86_feature_detected!("bmi1")
         && std::arch::is_x86_feature_detected!("bmi2")
-        && std::arch::is_x86_feature_detected!("popcnt")
+        && std::arch::is_x86_feature_detected!("popcnt");
+    SUPPORT.store(if supported { 2 } else { 1 }, AtomicOrdering::Relaxed);
+    supported
 }
 
 #[cfg(not(target_arch = "x86_64"))]
@@ -1077,7 +1086,7 @@ fn landing_mask(heights: &[u8; WIDTH], reachable: u8) -> u128 {
 }
 
 #[inline(always)]
-fn extract_components_impl(
+fn extract_components_impl<const ACCELERATED: bool>(
     planes: &[u128; PLANE_COUNT],
     occupied: u128,
     landing: u128,
@@ -1087,13 +1096,14 @@ fn extract_components_impl(
 ) -> ComponentSet {
     let mut result = ComponentSet {
         landing,
+        accelerated_search_supported: ACCELERATED,
         base_normal: planes
             .iter()
             .copied()
             .take(NORMAL_COLOR_COUNT)
             .fold(0_u128, |value, plane| value | plane),
         base_occupied: occupied,
-        incremental_resolution_supported: differential_gravity_supported()
+        incremental_resolution_supported: ACCELERATED
             && occupied & HIDDEN_MASK == 0
             && lower_board_is_compact(occupied)
             && planes
@@ -1189,7 +1199,7 @@ unsafe fn extract_components_popcnt(
     reachable: u8,
     max_added_puyos: u8,
 ) -> ComponentSet {
-    extract_components_impl(
+    extract_components_impl::<true>(
         planes,
         occupied,
         landing,
@@ -1221,7 +1231,7 @@ fn extract_components(
             )
         };
     }
-    extract_components_impl(
+    extract_components_impl::<false>(
         planes,
         occupied,
         landing,
@@ -2432,7 +2442,7 @@ fn build_trigger_frontier<const PROFILE: bool>(
     profile_counts: &mut EvaluationProfileCounts,
 ) {
     #[cfg(target_arch = "x86_64")]
-    if differential_gravity_supported() {
+    if components.accelerated_search_supported {
         // SAFETY: the runtime guard covers every enabled target feature.
         return unsafe {
             build_trigger_frontier_accelerated::<PROFILE>(
@@ -3355,8 +3365,8 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         plane_index: usize,
         specification: &PlacementPatternSpec,
         landing: u128,
-        resolved: CachedResolution,
-        rank_key: u128,
+        frontier: &TriggerFrontier,
+        group: usize,
         resolution_group: u8,
     ) {
         self.resolution_nodes += 1;
@@ -3364,6 +3374,15 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             self.profile_counts.resolution_nodes += 1;
         }
         self.enter_profile_stage(PROFILE_STAGE_RANKING);
+        // SAFETY: the precomputed-group bit publishes the rank prefix together
+        // with the resolution. Read the larger resolution only for candidates
+        // that survive this prefix comparison.
+        let rank_key = unsafe {
+            *frontier
+                .resolution_precomputed_rank_keys
+                .get_unchecked(group)
+                .assume_init_ref()
+        };
         let rank_key_ordering = self.has_best.then(|| rank_key.cmp(&self.best_rank_key));
         if rank_key_ordering == Some(Ordering::Less) {
             if PROFILE {
@@ -3372,6 +3391,14 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
             self.enter_profile_stage(PROFILE_STAGE_PLACEMENT_DISPATCH);
             return;
         }
+        // SAFETY: this group passed the published precomputed-group check in
+        // the caller.
+        let resolved = unsafe {
+            *frontier
+                .resolution_precomputed
+                .get_unchecked(group)
+                .assume_init_ref()
+        };
         let protection =
             self.trigger_protection_for_group(resolution_group, resolved.trigger_anchors);
         let trigger_height =
@@ -3589,26 +3616,18 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         if INCREMENTAL && resolution_group != u8::MAX {
             let group = usize::from(resolution_group);
             if frontier.precomputed_groups & (1_u32 << group) != 0 {
-                // SAFETY: a true validity flag is published only after the
-                // corresponding fixed resolution has been initialized.
-                let precomputed = unsafe {
-                    *frontier
-                        .resolution_precomputed
-                        .get_unchecked(group)
-                        .assume_init_ref()
-                };
-                // SAFETY: the precomputed-group bit publishes the resolution
-                // and its rank prefix together.
-                let precomputed_rank_key = unsafe {
-                    *frontier
-                        .resolution_precomputed_rank_keys
-                        .get_unchecked(group)
-                        .assume_init_ref()
-                };
                 if PROFILE {
                     self.profile_counts.precomputed_candidate_hits += 1;
                 }
                 if EVIDENCE {
+                    // SAFETY: the precomputed-group bit publishes the fixed
+                    // resolution before candidate dispatch.
+                    let precomputed = unsafe {
+                        *frontier
+                            .resolution_precomputed
+                            .get_unchecked(group)
+                            .assume_init_ref()
+                    };
                     self.finish_cached_candidate(
                         plane_index,
                         added_puyos,
@@ -3621,8 +3640,8 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
                         plane_index,
                         specification,
                         landing,
-                        precomputed,
-                        precomputed_rank_key,
+                        frontier,
+                        group,
                         resolution_group,
                     );
                 }
