@@ -142,6 +142,6 @@ jobs:
           .venv/bin/python -m eval.deep_chain_native_evaluator_benchmark verify
           .venv/bin/python -m eval.deep_chain_native_quiescence_frontier verify --historical
           .venv/bin/python -m eval.deep_chain_native_incremental_resolution verify --historical
-          .venv/bin/python -m eval.deep_chain_native_next_bottleneck verify
+          .venv/bin/python -m eval.deep_chain_native_next_bottleneck verify --historical
           .venv/bin/python -m eval.deep_chain_native_candidate_ranking verify
           .venv/bin/python -m eval.deep_chain_native_transition_restart_decision

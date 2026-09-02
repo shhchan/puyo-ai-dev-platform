@@ -1,0 +1,226 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "after-profile/benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "1612ad096660988348ca0c1b10ca24d7e76fd9242d7e2f72761b3db34a3a903d",
+      "size_bytes": 1732
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "38c13852f45b5eb95e62adcc6afeb2968b9601ba698eb11a23b2c83a2405226e",
+      "size_bytes": 133753
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "4a3641f8e75b699b9826d480ccdbdc4d7e6f20561060bcb31d9c485c03e60754",
+      "size_bytes": 100592
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "443d84699c84c96e9157de54dbd87a1edb06c7de96c70415685e6587a62af655",
+      "size_bytes": 10218
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+      "size_bytes": 1824
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "8fd3aea96d107a525c3e3d2614cc11bee380e74446e83a39b256f6706fe922b7",
+      "size_bytes": 12554
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "b27989bf3daf6a620e23c00198d6b9348a859abda30134f517be6a3ee6a0e1db",
+      "size_bytes": 5304
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "96b3bc674ffdc238d93a05f001df6d44f41f1e6ea7b0ed23d76858ada2513cae",
+      "size_bytes": 9131
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "before-profile/benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "ac24230a86433ef242e9f86ac13bdc8181eb19db45a52c0b538b051b68b93f36",
+      "size_bytes": 1732
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "592aa6b6cbeef5d69d29f97f52f9c2507cf510403c0c8bce259c7fcc8920f561",
+      "size_bytes": 133820
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "33250604a7b43490198b098eaef15a8392a4e0d29cd94360554e4e855f4f52a3",
+      "size_bytes": 100590
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "2af5bb38adb337120d0744dad6813812f30d4bf40aeb3fd7078aae989f236f8b",
+      "size_bytes": 10256
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+      "size_bytes": 1824
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "16e3c9d74438c8b7b7c927c453e251ea610d1f4553c2d0fd52f591108f09f8d6",
+      "size_bytes": 12574
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "2bfd9b96ad950ff583e59c7388936781435cd84cc4f04e20f5bd654734d8ae8a",
+      "size_bytes": 5310
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before-profile/stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "2229871f3b69499148f8c5842a9ada003926ed7752f11b898c59bd3932e27097",
+      "size_bytes": 9148
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before_after.json",
+      "required": true,
+      "role": "before_after",
+      "sha256": "14e45657dabf422855dba369eb8bcb9b897e22bdbcc2eff592c07b2153c9a41d",
+      "size_bytes": 1288
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "e3359380c2a3d68dcb5bf99290e40963946fa9baa49edd1e1d84f883f67b7235",
+      "size_bytes": 1040
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "027b8a42352b0ae83bc5c69131eb38ca5184f9897afa2b571336ffe886c3bea1",
+      "size_bytes": 8953
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "bottleneck_ledger.json",
+      "required": true,
+      "role": "bottleneck_ledger",
+      "sha256": "4f318da21ecc2df1ca09aa4ca676857bcfbed16661316ec2254c5205858e2d04",
+      "size_bytes": 635
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "candidate_ranking_oracle.json",
+      "required": true,
+      "role": "candidate_ranking_oracle",
+      "sha256": "b342eb2cc6e6c8d37f66a292a4ddf96846b25d50b05563506b5c9039acaf7543",
+      "size_bytes": 1339
+    }
+  ],
+  "created_at_utc": "2026-09-02T01:36:28Z",
+  "decision": "PASS_FOLLOW_UP_REQUIRED",
+  "follow_up_ticket": "PUYO-225",
+  "historical_baseline_summary_path": "docs/benchmarks/puyo-222-next-bottleneck/puyo-219-compatible-profile/benchmark_summary.json",
+  "historical_baseline_summary_sha256": "debf281bb9de2d3cd8972dc17b9ae699607333453e4fdf199b396ac6c9179c13",
+  "measurement_commit": "07956fae11184de1497f600634059858aabbcb9b",
+  "paired_baseline_measurement_sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+  "paired_baseline_semantic_sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+  "paired_baseline_summary_sha256": "592aa6b6cbeef5d69d29f97f52f9c2507cf510403c0c8bce259c7fcc8920f561",
+  "passed": true,
+  "raw_profile_manifest_sha256": "839b5885a63396927c3c12a91902eb2da285aa4df375d36544e8b66547277682",
+  "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "release_wheel_sha256": "02142b7d6230c8455ee20d7dbb9070c533fca5d5006d4cc7aaef1057fd59dc66",
+  "schema_version": "puyo.native_candidate_ranking_manifest.v1",
+  "ticket": "PUYO-224"
+}
