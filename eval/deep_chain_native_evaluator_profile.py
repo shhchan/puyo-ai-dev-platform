@@ -93,8 +93,17 @@ PLACEMENT_SUBSTAGE_NAMES = (
     "placement_single_component_frontier",
     "placement_multi_component_frontier",
 )
+BASE_SUBSTAGE_NAMES = (
+    "base_board_geometry",
+    "base_component_cache_lookup",
+    "base_stack_topology",
+    "base_component_flood",
+    "base_component_metadata_aggregation",
+    "base_frontier_topology",
+    "base_feature_aggregation",
+)
 EVALUATOR_LEAF_STAGE_NAMES = (
-    "base_feature_component_extraction",
+    *BASE_SUBSTAGE_NAMES,
     *PLACEMENT_SUBSTAGE_NAMES,
     "virtual_resolve_gravity",
     "remaining_structure_scan",
@@ -435,6 +444,28 @@ def derive_stage_decomposition(
                 int(stage["stage_entries_per_sample"][name]) / EXPANDED_NODE_COUNT
             ),
         }
+    base_sample_count = sum(
+        int(stage["stage_sample_totals"][name]) for name in BASE_SUBSTAGE_NAMES
+    )
+    base_cycle_share = sum(float(shares[name]) for name in BASE_SUBSTAGE_NAMES)
+    base_evaluator_share = base_cycle_share / evaluator_samples
+    base_projected_ms = observed_evaluator_ms * base_evaluator_share
+    evaluator_stages["base_feature_component_extraction"] = {
+        "sample_count": base_sample_count,
+        "cycle_ratio_of_profiled_loop": base_cycle_share,
+        "cycle_ratio_of_evaluator": base_evaluator_share,
+        "estimated_cycles_at_profile_p50": median_cycles * base_cycle_share,
+        "current_projected_600k_ms": base_projected_ms,
+        "current_ns_per_node": base_projected_ms * 1_000_000.0 / EXPANDED_NODE_COUNT,
+        "stage_entries_per_node": (
+            sum(
+                int(stage["stage_entries_per_sample"][name])
+                for name in BASE_SUBSTAGE_NAMES
+            )
+            / EXPANDED_NODE_COUNT
+        ),
+        "substage_names": list(BASE_SUBSTAGE_NAMES),
+    }
     placement_sample_count = sum(
         int(stage["stage_sample_totals"][name]) for name in PLACEMENT_SUBSTAGE_NAMES
     )
