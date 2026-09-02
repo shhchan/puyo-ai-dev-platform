@@ -1,0 +1,33 @@
+{
+  "aggregates": [
+    "component_count",
+    "normal_mask",
+    "isolated_count",
+    "link_2",
+    "link_3",
+    "connection_edges",
+    "reachable_ignition_count",
+    "growth_sites",
+    "connection_candidate_count"
+  ],
+  "command": [
+    "cargo",
+    "test",
+    "--release",
+    "--locked",
+    "--manifest-path",
+    "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+    "chain_structure::tests::component_metadata_aggregation_matches_exact_property_corpus",
+    "--",
+    "--exact"
+  ],
+  "comparison_count": 512,
+  "comparison_mode": "incremental component aggregates against retained exact component scans",
+  "mismatch_count": 0,
+  "passed": true,
+  "schema_version": "puyo.native_component_metadata_oracle.v1",
+  "source_sha256": "a40d20f0f0ab4beaab76435032aa2222f74be6270d4c73e8c54f05dd3fbdf419",
+  "test": "chain_structure::tests::component_metadata_aggregation_matches_exact_property_corpus",
+  "test_output_sha256": "bbde06457443f8565c650041e7f82bea2b58eebc48ee2118ec54959256dd044d",
+  "ticket": "PUYO-222"
+}
