@@ -1,0 +1,332 @@
+{
+  "bottleneck_ledger": {
+    "baseline_attributed_share": 0.9990025043507789,
+    "baseline_largest_stage": "placement_enumeration_trigger_qualification",
+    "current_attributed_share": 0.9991315103823986,
+    "current_combined_budget_gap_ms": 436.02578500000004,
+    "current_largest_unimproved_stage": "base_feature_component_extraction",
+    "current_largest_unimproved_stage_600k_ms": 358.4064123034552,
+    "follow_up_required": true,
+    "follow_up_ticket": "PUYO-226",
+    "placement_substage_total_600k_ms": 444.97752147596395,
+    "placement_substages_600k_ms": {
+      "placement_candidate_dispatch": 104.88876121056586,
+      "placement_deduplication": 11.07813882448673,
+      "placement_frontier_update": 1.986657114421632,
+      "placement_multi_component_frontier": 149.7063988257386,
+      "placement_orbit_enumeration": 19.832898989734602,
+      "placement_single_component_frontier": 40.94533984977466,
+      "placement_trigger_qualification": 116.53932666124184
+    },
+    "remaining_if_next_stage_free_600k_ms": 898.2443726965448,
+    "schema_version": "puyo.native_placement_enumeration_ledger.v1"
+  },
+  "comparison": {
+    "acceptance_baseline": "canonical PUYO-224 after profile on the same CPU, frozen corpus, production config, release wheel contract, and 5 x 600,000 operations",
+    "baseline_combined_p95_600k_ms": 1591.628655,
+    "baseline_stage_cycles_per_node": 3745.1450177286806,
+    "baseline_stage_projected_600k_ms": 669.8436134880075,
+    "combined_gate_600k_ms": 820.625,
+    "combined_gate_met": false,
+    "combined_reduction_percent": 21.04623267165292,
+    "current_combined_p95_600k_ms": 1256.650785,
+    "current_stage_cycles_per_node": 2545.632582305182,
+    "current_stage_projected_600k_ms": 444.97752147596395,
+    "minimum_combined_reduction_percent": 20.0,
+    "minimum_stage_cycle_reduction_percent": 30.0,
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "sample_count": 5,
+    "schema_version": "puyo.native_placement_enumeration_comparison.v1",
+    "stage_cycle_reduction_percent": 32.02846431166949,
+    "target_stage": "placement_enumeration_trigger_qualification"
+  },
+  "created_at_utc": "2026-09-02T06:19:59Z",
+  "decision": {
+    "checks": {
+      "baseline_and_current_attribution_at_least_95_percent": true,
+      "child_state_abi_80": true,
+      "determinism": true,
+      "fixture_eight_zero_mismatches": true,
+      "follow_up_recorded_when_gate_unmet": true,
+      "hot_result_abi_24": true,
+      "logical_budget_and_rank_counters_match": true,
+      "minimum_20_percent_combined_reduction_or_gate_met": true,
+      "minimum_30_percent_stage_cycle_reduction": true,
+      "normal_hot_path_allocations_zero": true,
+      "placement_and_trigger_oracle_zero_mismatches": true,
+      "placement_substage_ledger_exact": true,
+      "production_depth_three": true,
+      "profile_checks_pass": true,
+      "response_bytes_and_sha_order_match": true,
+      "same_five_by_600k_contract": true,
+      "same_frozen_config": true,
+      "same_frozen_corpus": true,
+      "selected_child_512_zero_mismatches": true,
+      "target_is_largest_puyo_224_after_stage": true,
+      "transition_11264_zero_mismatches": true
+    },
+    "decision": "PASS_FOLLOW_UP_REQUIRED",
+    "failed_checks": [],
+    "passed": true
+  },
+  "logical_counters": {
+    "after": {
+      "executed_pattern_probes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "pattern_nodes": {
+        "exact_600k_total": 249000000,
+        "maximum_per_node": 415,
+        "p50_per_node": 415,
+        "p95_per_node": 415
+      },
+      "rank_comparison_calls": {
+        "exact_600k_total": 9846138,
+        "maximum_per_node": 29,
+        "p50_per_node": 17,
+        "p95_per_node": 24
+      },
+      "rank_tie_calls": {
+        "exact_600k_total": 1028918,
+        "maximum_per_node": 13,
+        "p50_per_node": 1,
+        "p95_per_node": 10
+      },
+      "resolution_nodes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "sha256_calls": {
+        "exact_600k_total": 1383996,
+        "maximum_per_node": 14,
+        "p50_per_node": 2,
+        "p95_per_node": 11
+      }
+    },
+    "before": {
+      "executed_pattern_probes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "pattern_nodes": {
+        "exact_600k_total": 249000000,
+        "maximum_per_node": 415,
+        "p50_per_node": 415,
+        "p95_per_node": 415
+      },
+      "rank_comparison_calls": {
+        "exact_600k_total": 9846138,
+        "maximum_per_node": 29,
+        "p50_per_node": 17,
+        "p95_per_node": 24
+      },
+      "rank_tie_calls": {
+        "exact_600k_total": 1028918,
+        "maximum_per_node": 13,
+        "p50_per_node": 1,
+        "p95_per_node": 10
+      },
+      "resolution_nodes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "sha256_calls": {
+        "exact_600k_total": 1383996,
+        "maximum_per_node": 14,
+        "p50_per_node": 2,
+        "p95_per_node": 11
+      }
+    },
+    "matches": true
+  },
+  "measurement_commit": "a2f2cf6ef8f59df25d6a6112bebbc48bf65b2fa9",
+  "oracle": {
+    "catalog_orbit_count": 43,
+    "catalog_pattern_count": 83,
+    "commands": [
+      [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--manifest-path",
+        "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+        "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+        "--",
+        "--exact"
+      ],
+      [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--manifest-path",
+        "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+        "chain_structure::tests::placement_catalog_preserves_exhaustive_orbit_layout",
+        "--",
+        "--exact"
+      ],
+      [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--manifest-path",
+        "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+        "chain_structure::tests::bit_parallel_compact_check_matches_exact_lane_scan",
+        "--",
+        "--exact"
+      ],
+      [
+        "cargo",
+        "test",
+        "--release",
+        "--locked",
+        "--manifest-path",
+        "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+        "chain_structure::tests::bit_parallel_trigger_protection_matches_exact_property_corpus",
+        "--",
+        "--exact"
+      ]
+    ],
+    "compact_property_comparison_count": 53248,
+    "coverage": [
+      "exact placement and trigger-qualified candidate identities under full and bounded budgets",
+      "83 placement patterns and 43 mirror orbits",
+      "bit-parallel compact-board qualification against exact lane scans",
+      "bit-parallel trigger protection against exact cell scans"
+    ],
+    "frontier_property_comparison_count": 264,
+    "mismatch_count": 0,
+    "passed": true,
+    "protection_property_comparison_count": 2561,
+    "schema_version": "puyo.native_placement_enumeration_oracle.v1",
+    "source_sha256": "3936592886872ddb0444fa11fe1691e5bd28de93047bc7645b7acd02488d8139",
+    "test_output_sha256": "ccb6e5d3e189671f36bb3a14080d7a8a4dd769b8b6d0cebcff1d6dc498d0ebfc",
+    "ticket": "PUYO-225"
+  },
+  "placement_work_counters": {
+    "frontier_state_visits": {
+      "exact_600k_total": 19467680,
+      "maximum_per_node": 81,
+      "p50_per_node": 36,
+      "p95_per_node": 64
+    },
+    "multi_component_frontiers": {
+      "exact_600k_total": 1001974,
+      "maximum_per_node": 4,
+      "p50_per_node": 2,
+      "p95_per_node": 3
+    },
+    "precomputed_candidate_hits": {
+      "exact_600k_total": 7419181,
+      "maximum_per_node": 29,
+      "p50_per_node": 12,
+      "p95_per_node": 22
+    },
+    "precomputed_resolution_groups": {
+      "exact_600k_total": 2165627,
+      "maximum_per_node": 7,
+      "p50_per_node": 4,
+      "p95_per_node": 6
+    },
+    "qualified_candidates": {
+      "exact_600k_total": 10444966,
+      "maximum_per_node": 30,
+      "p50_per_node": 18,
+      "p95_per_node": 25
+    },
+    "resolution_cache_hits": {
+      "exact_600k_total": 1470676,
+      "maximum_per_node": 11,
+      "p50_per_node": 2,
+      "p95_per_node": 7
+    },
+    "resolution_group_comparisons": {
+      "exact_600k_total": 3712540,
+      "maximum_per_node": 14,
+      "p50_per_node": 6,
+      "p95_per_node": 11
+    },
+    "resolution_groups": {
+      "exact_600k_total": 3720736,
+      "maximum_per_node": 12,
+      "p50_per_node": 6,
+      "p95_per_node": 10
+    },
+    "single_component_frontiers": {
+      "exact_600k_total": 914042,
+      "maximum_per_node": 4,
+      "p50_per_node": 2,
+      "p95_per_node": 3
+    }
+  },
+  "response_sha256": {
+    "fixture": {
+      "after": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e",
+      "before": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e",
+      "matches": true
+    },
+    "python_native_evaluator": {
+      "after": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705",
+      "before": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705",
+      "matches": true
+    },
+    "transition_oracle": {
+      "after": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "before": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "matches": true
+    }
+  },
+  "schema_version": "puyo.native_placement_enumeration_summary.v1",
+  "semantic": {
+    "determinism": {
+      "byte_identical_repeats": true,
+      "mismatch_count": 0
+    },
+    "fixture": {
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 8,
+      "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+    },
+    "passed": true,
+    "python_native_evaluator": {
+      "invalid_selected": [],
+      "invalid_selected_count": 0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 512,
+      "response_sha256": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705"
+    },
+    "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+    "ticket": "PUYO-219",
+    "transition_oracle": {
+      "action_mismatch_count": 0,
+      "mismatch_count": 0,
+      "record_count": 11264,
+      "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "transition_mismatch_count": 0
+    }
+  },
+  "source_verification": {
+    "allocation_test": "chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing",
+    "allocation_test_passed": true,
+    "child_state_bytes": 80,
+    "evaluator_abi_version": 1,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "test_output_sha256": "8aaef5515b0adbf09eb535b5b32144a4cd0d7df5800b63750b61d02e24868717"
+  },
+  "ticket": "PUYO-225"
+}
