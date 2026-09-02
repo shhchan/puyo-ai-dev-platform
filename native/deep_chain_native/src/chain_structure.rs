@@ -517,7 +517,7 @@ impl ComponentSet {
 }
 
 #[cfg(not(test))]
-const COMPONENT_CACHE_SET_COUNT: usize = 512;
+const COMPONENT_CACHE_SET_COUNT: usize = 1024;
 #[cfg(test)]
 const COMPONENT_CACHE_SET_COUNT: usize = 8;
 const COMPONENT_CACHE_WAYS: usize = 4;
