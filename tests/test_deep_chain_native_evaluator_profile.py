@@ -4,7 +4,9 @@ from unittest import mock
 
 from eval.deep_chain_native_evaluator_profile import (
     COMBINED_BUDGET_MS,
+    COUNT_NAMES,
     EVALUATOR_BUDGET_MS,
+    EVALUATOR_LEAF_STAGE_NAMES,
     EXPANDED_NODE_COUNT,
     EXPECTED_CONFIG_SHA256,
     EXPECTED_CORPUS_DIGEST,
@@ -36,15 +38,13 @@ def _combined_profile():
 
 
 def _stage_profile(*, driver_share=0.01):
-    evaluator_share = (1.0 - driver_share - 0.01) / 5.0
+    evaluator_share = (1.0 - driver_share - 0.01) / len(
+        EVALUATOR_LEAF_STAGE_NAMES
+    )
     shares = {
         "driver_unattributed": driver_share,
         "transition": 0.01,
-        "base_feature_component_extraction": evaluator_share,
-        "placement_enumeration_trigger_qualification": evaluator_share,
-        "virtual_resolve_gravity": evaluator_share,
-        "remaining_structure_scan": evaluator_share,
-        "candidate_ranking_sha256": evaluator_share,
+        **{name: evaluator_share for name in EVALUATOR_LEAF_STAGE_NAMES},
     }
     return {
         "aggregate": {
@@ -110,24 +110,11 @@ class TestNativeEvaluatorHotPathProfile(unittest.TestCase):
 
     def test_call_count_summary_uses_nearest_rank_and_exact_total(self):
         rows = [
-            {
-                "pattern_nodes": value,
-                "executed_pattern_probes": value + 2,
-                "resolution_nodes": value + 3,
-                "rank_comparison_calls": value + 4,
-                "rank_tie_calls": value + 5,
-                "sha256_calls": value + 6,
-            }
+            {name: value + index for index, name in enumerate(COUNT_NAMES)}
             for value in (1, 2, 3, 4, 5)
         ]
-        aggregate = {
-            "pattern_nodes": 100,
-            "executed_pattern_probes": 300,
-            "resolution_nodes": 400,
-            "rank_comparison_calls": 500,
-            "rank_tie_calls": 600,
-            "sha256_calls": 700,
-        }
+        aggregate = {name: (index + 1) * 100 for index, name in enumerate(COUNT_NAMES)}
+        aggregate["sha256_calls"] = 700
 
         result = summarize_call_counts(rows, aggregate)
 
