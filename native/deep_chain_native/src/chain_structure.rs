@@ -662,9 +662,8 @@ const fn build_placement_catalog() -> PlacementCatalog {
         let orbit = catalog.orbits[group_index / NORMAL_COLOR_COUNT];
         let plane_index = group_index % NORMAL_COLOR_COUNT;
         catalog.candidate_group_specs[group_index] = orbit.first_pattern as u16
-            | ((orbit.pattern_count as u16) << 7)
-            | ((orbit.added_puyos as u16) << 9)
-            | ((plane_index as u16) << 11);
+            | ((orbit.added_puyos as u16) << 7)
+            | ((plane_index as u16) << 9);
         group_index += 1;
     }
     while pattern_index < PLACEMENT_PATTERN_COUNT {
@@ -3734,12 +3733,11 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
         landing: u128,
     ) {
         // The compact group specification encodes first pattern (bits 0..6),
-        // pattern count (7..8), added puyos (9..10), and color plane (11..13).
+        // added puyos (7..8), and color plane (9..11).
         let group_spec = PLACEMENT_CATALOG.candidate_group_specs[group_index];
         let first_pattern = usize::from(group_spec & 0x7f);
-        let pattern_count = usize::from((group_spec >> 7) & 0x03);
-        let added_puyos = ((group_spec >> 9) & 0x03) as u8;
-        let plane_index = usize::from(group_spec >> 11);
+        let added_puyos = ((group_spec >> 7) & 0x03) as u8;
+        let plane_index = usize::from(group_spec >> 9);
         let resolution_groups = frontier.candidate_group_resolutions[group_index];
         if PROFILE {
             self.profile_counts.executed_pattern_probes += u32::from(resolution_groups as u8 != 0)
@@ -3761,25 +3759,23 @@ impl<'a, const EVIDENCE: bool, const PROFILE: bool, const INCREMENTAL: bool>
                 first_resolution_group,
             );
         }
-        if pattern_count == 2 {
-            let second_resolution_group = (resolution_groups >> 8) as u8;
-            if second_resolution_group == 0 {
-                return;
-            }
-            let second_resolution_group = if second_resolution_group == u8::MAX {
-                u8::MAX
-            } else {
-                second_resolution_group - 1
-            };
-            self.resolve_frontier_candidate(
-                frontier,
-                plane_index,
-                added_puyos,
-                first_pattern + 1,
-                landing,
-                second_resolution_group,
-            );
+        let second_resolution_group = (resolution_groups >> 8) as u8;
+        if second_resolution_group == 0 {
+            return;
         }
+        let second_resolution_group = if second_resolution_group == u8::MAX {
+            u8::MAX
+        } else {
+            second_resolution_group - 1
+        };
+        self.resolve_frontier_candidate(
+            frontier,
+            plane_index,
+            added_puyos,
+            first_pattern + 1,
+            landing,
+            second_resolution_group,
+        );
     }
 
     #[cfg(test)]
