@@ -1,0 +1,144 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "after-profile/benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "ca587e2a34d3434f3c61c8f81cb75fb71db7ffbcb689981f40f30a47f6f2e5cb",
+      "size_bytes": 2238
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "59c5feaa28dbb877e2eb7072b83420c3cc24d3ad49c882102c214ccd26100d84",
+      "size_bytes": 318369
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "915dff3c0ab071a366fefaa6490e4ab16a818b9f1e18009b0e85ee1cc65c19df",
+      "size_bytes": 272623
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "1d4dacae329a3333c1169217682c75007b98f18fb5e3a30b62f0f975ccc636b7",
+      "size_bytes": 10184
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "49453c855fc38426f45a0f43b6d0b2af8542b58e0773466e8a653a2c630932c4",
+      "size_bytes": 2044
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "5cece7316d5a463f6f975e62d6e89d028e77517a21c860dcfd8f99bcb4a09f11",
+      "size_bytes": 18776
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "8ec626a624737cf33cd14036a3876efeef7f84543a47fb2d19a8cf6a13cdb96f",
+      "size_bytes": 5327
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "after-profile/stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "08bedb99e362b26888d1dedc198a8cdfea7f844ae65585f352f5c541ae940a8b",
+      "size_bytes": 15101
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before_after.json",
+      "required": true,
+      "role": "before_after",
+      "sha256": "419590a89a5b47bcebf8b0ad99866749e18d16e53b6db2fd98f98b948b1da1d1",
+      "size_bytes": 972
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "87d7c1911c138fb1c5de7f0eb228931d7c2ed3110829db22c50bc61240bea41b",
+      "size_bytes": 779
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "7935981747fe5d425feb7a23765b21500ca36b013d248a5cb654d6e0b2cd7b97",
+      "size_bytes": 11213
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "bottleneck_ledger.json",
+      "required": true,
+      "role": "bottleneck_ledger",
+      "sha256": "3f40953a1aa01b51cdd36695d8bf566a576998545d26693d89be6514466f064c",
+      "size_bytes": 1059
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "placement_enumeration_oracle.json",
+      "required": true,
+      "role": "placement_enumeration_oracle",
+      "sha256": "46ce5d2755f51288845f42bf33828e7052748d851da4d0fcfaacef26ebaec4ce",
+      "size_bytes": 2085
+    }
+  ],
+  "baseline_measurement_sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+  "baseline_semantic_sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+  "baseline_summary_path": "docs/benchmarks/puyo-224-candidate-ranking/after-profile/benchmark_summary.json",
+  "baseline_summary_sha256": "38c13852f45b5eb95e62adcc6afeb2968b9601ba698eb11a23b2c83a2405226e",
+  "created_at_utc": "2026-09-02T06:19:59Z",
+  "decision": "PASS_FOLLOW_UP_REQUIRED",
+  "follow_up_ticket": "PUYO-226",
+  "measurement_commit": "a2f2cf6ef8f59df25d6a6112bebbc48bf65b2fa9",
+  "passed": true,
+  "raw_profile_manifest_sha256": "78e9ad9edc9d8563516f64e9bf4a01822e063006d22db8cbc69f78cf28ad5ff0",
+  "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "release_wheel_sha256": "3a2735cf3d817789a5f96c6ece8f9e8e83953658e5d684829b1a70e19c4eda0c",
+  "schema_version": "puyo.native_placement_enumeration_manifest.v1",
+  "ticket": "PUYO-225"
+}

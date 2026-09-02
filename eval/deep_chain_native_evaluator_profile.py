@@ -20,6 +20,7 @@ from typing import Any
 from agents.chain_structure import ChainStructureConfig, load_chain_structure_config
 from agents.deep_chain_native import decode_capabilities
 from agents.deep_chain_native_evaluator import (
+    NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES,
     NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES,
     NativeChainStructureBatchClient,
     NativeChainStructureInput,
@@ -83,14 +84,23 @@ EVALUATOR_STAGE_NAMES = (
     "remaining_structure_scan",
     "candidate_ranking_sha256",
 )
-COUNT_NAMES = (
-    "pattern_nodes",
-    "executed_pattern_probes",
-    "resolution_nodes",
-    "rank_comparison_calls",
-    "rank_tie_calls",
-    "sha256_calls",
+PLACEMENT_SUBSTAGE_NAMES = (
+    "placement_orbit_enumeration",
+    "placement_frontier_update",
+    "placement_trigger_qualification",
+    "placement_deduplication",
+    "placement_candidate_dispatch",
+    "placement_single_component_frontier",
+    "placement_multi_component_frontier",
 )
+EVALUATOR_LEAF_STAGE_NAMES = (
+    "base_feature_component_extraction",
+    *PLACEMENT_SUBSTAGE_NAMES,
+    "virtual_resolve_gravity",
+    "remaining_structure_scan",
+    "candidate_ranking_sha256",
+)
+COUNT_NAMES = NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES
 RELEASE_BUILD_INPUT_PATHS = (
     "native/deep_chain_native",
     "agents/chain_structure.py",
@@ -400,7 +410,7 @@ def derive_stage_decomposition(
     stage = stage_profile["aggregate"]
     shares = stage["stage_sample_shares"]
     attributed_share = 1.0 - float(shares["driver_unattributed"])
-    evaluator_samples = sum(float(shares[name]) for name in EVALUATOR_STAGE_NAMES)
+    evaluator_samples = sum(float(shares[name]) for name in EVALUATOR_LEAF_STAGE_NAMES)
     if evaluator_samples <= 0.0:
         raise ValueError("stage sampler did not observe evaluator work")
     observed_combined_ms = float(combined["transition_evaluator_p95_ms"])
@@ -410,7 +420,7 @@ def derive_stage_decomposition(
     )
     median_cycles = float(stage["cycles_p50"])
     evaluator_stages = {}
-    for name in EVALUATOR_STAGE_NAMES:
+    for name in EVALUATOR_LEAF_STAGE_NAMES:
         combined_cycle_share = float(shares[name])
         evaluator_share = combined_cycle_share / evaluator_samples
         projected_ms = observed_evaluator_ms * evaluator_share
@@ -425,6 +435,30 @@ def derive_stage_decomposition(
                 int(stage["stage_entries_per_sample"][name]) / EXPANDED_NODE_COUNT
             ),
         }
+    placement_sample_count = sum(
+        int(stage["stage_sample_totals"][name]) for name in PLACEMENT_SUBSTAGE_NAMES
+    )
+    placement_cycle_share = sum(float(shares[name]) for name in PLACEMENT_SUBSTAGE_NAMES)
+    placement_evaluator_share = placement_cycle_share / evaluator_samples
+    placement_projected_ms = observed_evaluator_ms * placement_evaluator_share
+    evaluator_stages["placement_enumeration_trigger_qualification"] = {
+        "sample_count": placement_sample_count,
+        "cycle_ratio_of_profiled_loop": placement_cycle_share,
+        "cycle_ratio_of_evaluator": placement_evaluator_share,
+        "estimated_cycles_at_profile_p50": median_cycles * placement_cycle_share,
+        "current_projected_600k_ms": placement_projected_ms,
+        "current_ns_per_node": (
+            placement_projected_ms * 1_000_000.0 / EXPANDED_NODE_COUNT
+        ),
+        "stage_entries_per_node": (
+            sum(
+                int(stage["stage_entries_per_sample"][name])
+                for name in PLACEMENT_SUBSTAGE_NAMES
+            )
+            / EXPANDED_NODE_COUNT
+        ),
+        "substage_names": list(PLACEMENT_SUBSTAGE_NAMES),
+    }
     native_boundary_ms = max(
         0.0,
         float(combined["native_call_total_p95_ms"]) - observed_combined_ms,
