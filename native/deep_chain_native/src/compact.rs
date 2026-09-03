@@ -322,6 +322,23 @@ impl SearchStateKey {
             depth,
         })
     }
+
+    /// Deterministic table index hash. Equality still compares the complete
+    /// lifecycle/search identity, so collisions can never merge states.
+    pub(crate) fn table_hash(self) -> u64 {
+        let coordinates = u64::from(self.root_action)
+            | (u64::from(self.scenario_id) << 8)
+            | (u64::from(self.pair_cursor) << 16)
+            | (u64::from(self.depth) << 32)
+            | (u64::from(self.all_clear_bonus_pending) << 48)
+            | (u64::from(self.game_over) << 49);
+        splitmix64(
+            self.board.cache_hash()
+                ^ coordinates
+                ^ self.score.rotate_left(19)
+                ^ self.last_chain_end_score.rotate_left(41),
+        )
+    }
 }
 
 #[repr(C, align(16))]

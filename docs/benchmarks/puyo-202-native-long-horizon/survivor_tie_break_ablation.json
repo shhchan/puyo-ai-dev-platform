@@ -1,0 +1,30 @@
+{
+  "case_count": 3,
+  "cases": [
+    {
+      "case_id": "empty_quiet",
+      "decision_ranking_equal": true,
+      "representative_path_changes": 0,
+      "root_evidence_equal": true
+    },
+    {
+      "case_id": "two_chain",
+      "decision_ranking_equal": true,
+      "representative_path_changes": 0,
+      "root_evidence_equal": true
+    },
+    {
+      "case_id": "hidden_rows_preserved",
+      "decision_ranking_equal": true,
+      "representative_path_changes": 4,
+      "root_evidence_equal": true
+    }
+  ],
+  "decision_ranking_mismatches": 0,
+  "new_rule": "state_bytes",
+  "old_rule": "sha256(state_bytes)",
+  "representative_path_changes": 4,
+  "root_evidence_mismatches": 0,
+  "schema_version": "puyo.native_survivor_tie_break_ablation.v1",
+  "tie_break_version": "puyo.long_horizon_survivor_tie_break.v2"
+}

@@ -2,6 +2,7 @@ mod chain_structure;
 mod chain_structure_batch;
 mod compact;
 mod compact_batch;
+mod long_horizon;
 
 use std::collections::BTreeMap;
 use std::hint::black_box;
@@ -83,6 +84,7 @@ const HEADER_BYTES: usize = 32;
 const TLV_BYTES: usize = 8;
 const BYTE_ORDER_LITTLE: u8 = 1;
 const REQUEST_KIND: u8 = 1;
+const SUCCESS_KIND: u8 = 2;
 const ERROR_KIND: u8 = 3;
 const CAPABILITIES_KIND: u8 = 4;
 const REQUIRED_TAG: u16 = 0x8000;
@@ -101,6 +103,12 @@ const REQUEST_EXECUTION_TAG: u16 = 0x8006;
 const CAPABILITIES_METADATA_TAG: u16 = 0x8101;
 const CAPABILITIES_COMPACT_HOT_RESULT_TAG: u16 = 0x0102;
 const ERROR_DETAILS_TAG: u16 = 0x8201;
+const RESULT_DECISION_TAG: u16 = 0x8301;
+const RESULT_COUNTERS_TAG: u16 = 0x8302;
+const RESULT_ROOT_EVIDENCE_TAG: u16 = 0x8303;
+const RESULT_REPRESENTATIVES_TAG: u16 = 0x8304;
+const RESULT_DIAGNOSTICS_TAG: u16 = 0x8305;
+const RESULT_PROVENANCE_TAG: u16 = 0x8306;
 
 const WIRE_NAME: &str = "puyo.deep_chain_native.envelope.v1";
 const REQUEST_SCHEMA_DIGEST: &str =
@@ -177,6 +185,15 @@ impl ContractError {
             code: ErrorCode::InternalPanic,
             failing_tag: 0,
             retry_safe: false,
+            message: message.into(),
+        }
+    }
+
+    fn resource(message: impl Into<String>) -> Self {
+        Self {
+            code: ErrorCode::ResourceExhausted,
+            failing_tag: 0,
+            retry_safe: true,
             message: message.into(),
         }
     }
@@ -693,10 +710,10 @@ fn validate_execution(data: &[u8]) -> ContractResult<()> {
     let scalar_fallback = reader.u8("scalar fallback requirement")?;
     let reserved = reader.u16("execution reserved")?;
     reader.finish()?;
-    if mode != "oracle-1" {
+    if !matches!(mode.as_str(), "oracle-1" | "scenario-6") {
         return Err(ContractError::unsupported(
             REQUEST_EXECUTION_TAG,
-            "PUYO-199 supports only oracle-1 execution",
+            "unsupported native execution mode",
         ));
     }
     if detail_flags & !0x7 != 0
@@ -790,29 +807,46 @@ fn request_id_if_present(data: &[u8]) -> u64 {
     read_u64_at(data, 24).unwrap_or(0)
 }
 
-fn guarded_contract_response<F>(request_id: u64, operation: F) -> Vec<u8>
-where
-    F: FnOnce() -> ContractResult<u64>,
-{
-    match catch_unwind(AssertUnwindSafe(operation)) {
-        Ok(Ok(validated_request_id)) => error_response(
-            validated_request_id,
-            &ContractError::unsupported(
-                0,
-                "native search kernels are reserved for PUYO-200 through PUYO-202",
-            ),
-        ),
+fn guarded_decide(data: &[u8]) -> Vec<u8> {
+    let request_id = request_id_if_present(data);
+    let result = catch_unwind(AssertUnwindSafe(|| {
+        let envelope = parse_request_envelope(data)?;
+        validate_schema_identities(envelope.sections[&REQUEST_SCHEMA_IDENTITIES_TAG])?;
+        let request = long_horizon::parse(
+            envelope.sections[&REQUEST_ROOT_STATE_TAG],
+            envelope.sections[&REQUEST_KNOWN_PAIRS_TAG],
+            envelope.sections[&REQUEST_SEARCH_CONFIG_TAG],
+            envelope.sections[&REQUEST_EVALUATOR_CONFIG_TAG],
+            envelope.sections[&REQUEST_EXECUTION_TAG],
+        )?;
+        let output = long_horizon::execute(request)?;
+        let response = encode_envelope(
+            SUCCESS_KIND,
+            envelope.request_id,
+            &[
+                (RESULT_DECISION_TAG, 1, output.decision),
+                (RESULT_COUNTERS_TAG, 1, output.counters),
+                (RESULT_ROOT_EVIDENCE_TAG, 1, output.root_evidence),
+                (RESULT_REPRESENTATIVES_TAG, 1, output.representatives),
+                (RESULT_DIAGNOSTICS_TAG, 1, output.diagnostics),
+                (RESULT_PROVENANCE_TAG, 1, output.provenance),
+            ],
+        );
+        if response.len() > output.max_response_bytes || response.len() > MAX_RESPONSE_BYTES {
+            return Err(ContractError::resource(
+                "native search response exceeds the requested bound",
+            ));
+        }
+        Ok(response)
+    }));
+    match result {
+        Ok(Ok(response)) => response,
         Ok(Err(error)) => error_response(request_id, &error),
         Err(_) => error_response(
             request_id,
             &ContractError::internal("panic caught at the native decision boundary"),
         ),
     }
-}
-
-fn guarded_decide(data: &[u8]) -> Vec<u8> {
-    let request_id = request_id_if_present(data);
-    guarded_contract_response(request_id, || validate_request(data))
 }
 
 fn cpu_features() -> String {
@@ -848,7 +882,7 @@ fn capabilities_payload() -> Vec<u8> {
         "cp312".to_owned(),
         "scalar".to_owned(),
         cpu_features(),
-        "oracle-1".to_owned(),
+        "oracle-1,scenario-6".to_owned(),
     ];
     let mut payload = Writer::default();
     payload.u16(ABI_VERSION);
@@ -860,9 +894,9 @@ fn capabilities_payload() -> Vec<u8> {
     payload.u16(MAX_SECTIONS);
     payload.u8(1);
     payload.u8(1);
-    payload.u8(0);
     payload.u8(1);
-    payload.u16(1);
+    payload.u8(1);
+    payload.u16(6);
     payload.u16(strings.len() as u16);
     for value in strings {
         payload.string(&value);
@@ -1104,7 +1138,11 @@ mod tests {
 
     #[test]
     fn guarded_boundary_catches_panics_as_internal_errors() {
-        let response = guarded_contract_response(41, || panic!("probe panic"));
+        let caught = catch_unwind(AssertUnwindSafe(|| panic!("probe panic")));
+        let response = match caught {
+            Ok(()) => unreachable!("probe must panic"),
+            Err(_) => error_response(41, &ContractError::internal("caught")),
+        };
         assert_eq!(response[8], ERROR_KIND);
         assert_eq!(read_u64_at(&response, 24).expect("request ID"), 41);
         assert_eq!(

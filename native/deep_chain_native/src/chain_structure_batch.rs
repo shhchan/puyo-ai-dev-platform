@@ -321,7 +321,7 @@ fn encode_candidate(output: &mut Vec<u8>, value: &QuiescenceCandidate) {
     write_u64(output, value.fixed_tie_break);
 }
 
-fn encode_evaluation(value: &EvaluationEvidence, include_evidence: bool) -> Vec<u8> {
+pub(crate) fn encode_evaluation(value: &EvaluationEvidence, include_evidence: bool) -> Vec<u8> {
     let mut output = Vec::new();
     output.extend_from_slice(&[
         value.hot.status as u8,

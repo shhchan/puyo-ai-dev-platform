@@ -20,7 +20,6 @@ from agents.deep_chain_native import (
     NativeBackendUnavailableError,
     NativeDecisionRequest,
     NativeDeepChainBackend,
-    UnsupportedNativeConfigError,
     decode_envelope,
     decode_request,
     decode_response,
@@ -29,6 +28,7 @@ from agents.deep_chain_native import (
     native_fallback_allowed,
     request_sha256,
 )
+from agents.deep_chain_native_search import materialize_native_long_horizon_result
 from agents.long_horizon_search import LongHorizonSearchConfig
 from src.core.constants import PuyoColor
 
@@ -338,9 +338,10 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
         self.assertEqual(capabilities.target, "x86_64-unknown-linux-gnu")
         self.assertEqual(capabilities.simd_path, "scalar")
         self.assertIn("scalar", capabilities.cpu_features)
-        self.assertEqual(capabilities.thread_modes, ("oracle-1",))
+        self.assertEqual(capabilities.thread_modes, ("oracle-1", "scenario-6"))
         self.assertTrue(payload["gil_detach"])
-        self.assertFalse(payload["parallel"])
+        self.assertTrue(payload["parallel"])
+        self.assertEqual(capabilities.max_threads, 6)
         self.assertTrue(payload["wheel_hash_hook"])
         self.assertEqual(
             payload["compact_hot_result"],
@@ -365,18 +366,25 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
                 self.assertEqual(returned.evaluator_config, request.evaluator_config)
                 self.assertEqual(request_sha256(returned), request_sha256(request))
 
-    def test_decide_reserves_one_call_contract_with_typed_unimplemented_error(self):
+    def test_decide_executes_one_call_native_search_contract(self):
         request = self.make_request(self.corpus["cases"][0], request_id=777)
+        native = self.backend.decide(request)
+        materialized = materialize_native_long_horizon_result(native, request)
+        expected = self.corpus["search_case"]["expected"]
 
-        with self.assertRaises(UnsupportedNativeConfigError) as captured:
-            self.backend.decide(request)
-
-        self.assertEqual(captured.exception.failing_tag, 0)
-        self.assertTrue(captured.exception.retry_safe)
         self.assertEqual(
-            captured.exception.provenance["build_profile"],
-            "release",
+            native.selected_action, self.corpus["search_case"]["expected_action_id"]
         )
+        self.assertEqual(
+            native.ranked_root_actions,
+            tuple(expected["ranked_root_actions"]),
+        )
+        self.assertEqual(
+            materialized.deterministic_digest, expected["deterministic_digest"]
+        )
+        self.assertEqual(materialized.counters.to_dict(), expected["counters"])
+        self.assertEqual(native.provenance["thread_mode"], "oracle-1")
+        self.assertGreater(native.telemetry["arena_capacity_nodes"], 0)
 
     def test_native_rejects_abi_mismatch_and_overlapping_planes(self):
         request = self.make_request(self.corpus["cases"][0], request_id=88)

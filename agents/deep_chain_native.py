@@ -1,9 +1,8 @@
 """Versioned Python boundary for the deep-chain native extension.
 
-The production deep-chain builder remains Python-only.  This module owns the
-decision-level binary contract and the strict adapter that later native kernel
-tickets extend.  Search nodes never cross this boundary or carry Python
-callbacks.
+The production deep-chain builder remains Python-only until backend promotion.
+This module owns the decision-level binary contract and strict adapter. Search
+nodes never cross this boundary or carry Python callbacks.
 """
 
 from __future__ import annotations
@@ -512,9 +511,9 @@ class NativeDecisionRequest:
             raise InvalidNativeInputError("pair_cursor is outside known_pairs")
         if not 0 <= int(self.scenario_cursor) < int(self.search_config.scenarios):
             raise InvalidNativeInputError("scenario_cursor is outside scenarios")
-        if self.execution_mode != "oracle-1":
+        if self.execution_mode not in {"oracle-1", "scenario-6"}:
             raise UnsupportedNativeConfigError(
-                "PUYO-199 supports only the deterministic oracle-1 mode"
+                f"unsupported native execution mode: {self.execution_mode}"
             )
         if not 0 < int(self.max_response_bytes) <= _MAX_RESPONSE_BYTES:
             raise InvalidNativeInputError("max_response_bytes is outside its limit")
@@ -883,7 +882,7 @@ def _decode_execution(payload: bytes) -> tuple[str, int, int]:
         raise InvalidNativeInputError(
             "invalid execution boundary control", failing_tag=REQUEST_EXECUTION_TAG
         )
-    if execution_mode != "oracle-1":
+    if execution_mode not in {"oracle-1", "scenario-6"}:
         raise UnsupportedNativeConfigError(
             f"unsupported execution mode: {execution_mode}",
             failing_tag=REQUEST_EXECUTION_TAG,
@@ -1092,7 +1091,9 @@ def decode_capabilities(payload: bytes | bytearray | memoryview) -> NativeCapabi
     thread_modes = tuple(item for item in values[11].split(",") if item)
     hot_section = sections[CAPABILITIES_COMPACT_HOT_RESULT_TAG]
     if hot_section.version != 1:
-        raise IncompatibleSchemaError("unsupported compact hot-result capability version")
+        raise IncompatibleSchemaError(
+            "unsupported compact hot-result capability version"
+        )
     hot_reader = _Reader(
         hot_section.payload, failing_tag=CAPABILITIES_COMPACT_HOT_RESULT_TAG
     )
@@ -1180,19 +1181,21 @@ class NativeDecisionResult:
     budget_exhausted: bool
     deterministic_digest: str
     counters: Mapping[str, int]
+    telemetry: Mapping[str, int]
     root_evidence: bytes
     representatives: bytes
     diagnostics: bytes
+    record_counts: Mapping[str, int]
     provenance: Mapping[str, Any]
 
 
-def _decode_record_section(payload: bytes, *, tag: int, name: str) -> bytes:
+def _decode_record_section(payload: bytes, *, tag: int, name: str) -> tuple[bytes, int]:
     """Validate reserved result-record framing before exposing its body."""
 
     reader = _Reader(payload, failing_tag=tag)
     schema_version = reader.u16(f"{name} schema version")
     reserved = reader.u16(f"{name} reserved")
-    _record_count = reader.u32(f"{name} record count")
+    record_count = reader.u32(f"{name} record count")
     body_bytes = reader.u32(f"{name} body bytes")
     body = reader.take(body_bytes, f"{name} body")
     reader.finish()
@@ -1201,7 +1204,7 @@ def _decode_record_section(payload: bytes, *, tag: int, name: str) -> bytes:
             f"unsupported {name} record framing",
             failing_tag=tag,
         )
-    return body
+    return body, record_count
 
 
 def _decode_result(envelope: Envelope) -> NativeDecisionResult:
@@ -1259,6 +1262,28 @@ def _decode_result(envelope: Envelope) -> NativeDecisionResult:
         failing_tag=RESULT_COUNTERS_TAG,
     )
     counters = {name: counter_reader.u64(name) for name in counter_names}
+    telemetry_names = (
+        "arena_capacity_nodes",
+        "tt_capacity_slots",
+        "peak_live_nodes",
+        "scenario_jobs",
+        "scenario_reruns",
+        "pool_reuses",
+        "search_ns",
+        "aggregation_ns",
+        "serialization_ns",
+    )
+    remaining_counter_bytes = len(counter_reader.payload) - counter_reader.offset
+    if remaining_counter_bytes not in {0, len(telemetry_names) * 8}:
+        raise InvalidNativeInputError(
+            "native result counter extension has an invalid length",
+            failing_tag=RESULT_COUNTERS_TAG,
+        )
+    telemetry = (
+        {name: counter_reader.u64(name) for name in telemetry_names}
+        if remaining_counter_bytes
+        else {}
+    )
     counter_reader.finish()
 
     provenance_reader = _Reader(
@@ -1279,17 +1304,17 @@ def _decode_result(envelope: Envelope) -> NativeDecisionResult:
     provenance = {name: provenance_reader.string(name) for name in provenance_names}
     provenance["thread_count"] = provenance_reader.u16("thread count")
     provenance_reader.finish()
-    root_evidence = _decode_record_section(
+    root_evidence, root_evidence_count = _decode_record_section(
         sections[RESULT_ROOT_EVIDENCE_TAG].payload,
         tag=RESULT_ROOT_EVIDENCE_TAG,
         name="root evidence",
     )
-    representatives = _decode_record_section(
+    representatives, representative_count = _decode_record_section(
         sections[RESULT_REPRESENTATIVES_TAG].payload,
         tag=RESULT_REPRESENTATIVES_TAG,
         name="representatives",
     )
-    diagnostics = _decode_record_section(
+    diagnostics, diagnostic_count = _decode_record_section(
         sections[RESULT_DIAGNOSTICS_TAG].payload,
         tag=RESULT_DIAGNOSTICS_TAG,
         name="diagnostics",
@@ -1302,9 +1327,15 @@ def _decode_result(envelope: Envelope) -> NativeDecisionResult:
         budget_exhausted=bool(budget_exhausted),
         deterministic_digest=deterministic_digest,
         counters=counters,
+        telemetry=telemetry,
         root_evidence=root_evidence,
         representatives=representatives,
         diagnostics=diagnostics,
+        record_counts={
+            "root_evidence": root_evidence_count,
+            "representatives": representative_count,
+            "diagnostics": diagnostic_count,
+        },
         provenance=provenance,
     )
 
@@ -1397,7 +1428,16 @@ class NativeDeepChainBackend:
             mismatches.append("wheel hash hook")
         if "oracle-1" not in capabilities.thread_modes:
             mismatches.append("oracle-1 thread mode")
-        if capabilities.compact_hot_result_abi_version != COMPACT_HOT_RESULT_ABI_VERSION:
+        if "scenario-6" not in capabilities.thread_modes:
+            mismatches.append("scenario-6 thread mode")
+        if not capabilities.parallel:
+            mismatches.append("scenario parallelism")
+        if capabilities.max_threads < 6:
+            mismatches.append("six native workers")
+        if (
+            capabilities.compact_hot_result_abi_version
+            != COMPACT_HOT_RESULT_ABI_VERSION
+        ):
             mismatches.append("compact hot-result ABI version")
         if capabilities.compact_hot_result_schema != COMPACT_HOT_RESULT_SCHEMA_VERSION:
             mismatches.append("compact hot-result schema")

@@ -613,6 +613,14 @@ def _decode_record(payload: bytes) -> NativeChainStructureRecord:
     )
 
 
+def decode_native_chain_structure_record(
+    payload: bytes | bytearray | memoryview,
+) -> NativeChainStructureRecord:
+    """Decode one bounded evaluator record embedded in another native result."""
+
+    return _decode_record(bytes(payload))
+
+
 def decode_native_chain_structure_batch_response(
     payload: bytes | bytearray | memoryview,
 ) -> NativeChainStructureBatchResult:
@@ -1014,6 +1022,7 @@ __all__ = [
     "NativeQuiescenceCandidate",
     "NativeStageProfileCounts",
     "decode_native_chain_structure_batch_response",
+    "decode_native_chain_structure_record",
     "decode_native_combined_profile",
     "decode_native_stage_profile",
     "encode_native_chain_structure_batch",

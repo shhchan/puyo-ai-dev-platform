@@ -1,0 +1,166 @@
+{
+  "samples": [
+    {
+      "counters": {
+        "evaluated_nodes": 465032,
+        "expanded_nodes": 465036,
+        "game_over_nodes": 4,
+        "generated_nodes": 465036,
+        "invalid_nodes": 0,
+        "pruned_nodes": 304300,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 83427,
+        "transposition_hits": 54673
+      },
+      "end_to_end_ns": 375648394,
+      "materialization_ns": 102883346,
+      "native_digest": "native-long-horizon-6275f85a4a5bc54cdf9abd58",
+      "native_total_ns": 272765048,
+      "python_semantic_digest": "long-horizon-search-f2b71fe94b6e886e1fbbdbb5",
+      "sample": 0,
+      "seed": 123,
+      "selected_action": 3,
+      "telemetry": {
+        "aggregation_ns": 45921,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5690,
+        "pool_reuses": 1,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 272117343,
+        "serialization_ns": 335262,
+        "tt_capacity_slots": 16384
+      }
+    },
+    {
+      "counters": {
+        "evaluated_nodes": 464982,
+        "expanded_nodes": 465026,
+        "game_over_nodes": 44,
+        "generated_nodes": 465026,
+        "invalid_nodes": 0,
+        "pruned_nodes": 297706,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 85416,
+        "transposition_hits": 59228
+      },
+      "end_to_end_ns": 350736589,
+      "materialization_ns": 96462625,
+      "native_digest": "native-long-horizon-0fe817ab305a9a3b3765b023",
+      "native_total_ns": 254273964,
+      "python_semantic_digest": "long-horizon-search-648568c908cc3dd89f3ac291",
+      "sample": 1,
+      "seed": 1337,
+      "selected_action": 10,
+      "telemetry": {
+        "aggregation_ns": 51023,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5690,
+        "pool_reuses": 1,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 253687113,
+        "serialization_ns": 270720,
+        "tt_capacity_slots": 16384
+      }
+    },
+    {
+      "counters": {
+        "evaluated_nodes": 464933,
+        "expanded_nodes": 465028,
+        "game_over_nodes": 95,
+        "generated_nodes": 465028,
+        "invalid_nodes": 0,
+        "pruned_nodes": 323652,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 75059,
+        "transposition_hits": 43590
+      },
+      "end_to_end_ns": 376672674,
+      "materialization_ns": 107359171,
+      "native_digest": "native-long-horizon-dc99c17b68f6f23dc3fdbff4",
+      "native_total_ns": 269313503,
+      "python_semantic_digest": "long-horizon-search-9e01c8a2632640422e48b092",
+      "sample": 2,
+      "seed": 2026,
+      "selected_action": 0,
+      "telemetry": {
+        "aggregation_ns": 41745,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5690,
+        "pool_reuses": 1,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 268716461,
+        "serialization_ns": 292937,
+        "tt_capacity_slots": 16384
+      }
+    },
+    {
+      "counters": {
+        "evaluated_nodes": 465020,
+        "expanded_nodes": 465022,
+        "game_over_nodes": 2,
+        "generated_nodes": 465022,
+        "invalid_nodes": 0,
+        "pruned_nodes": 285943,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 91024,
+        "transposition_hits": 65421
+      },
+      "end_to_end_ns": 359973838,
+      "materialization_ns": 95881850,
+      "native_digest": "native-long-horizon-40cc8d2d6adf7d8d0c5d6911",
+      "native_total_ns": 264091988,
+      "python_semantic_digest": "long-horizon-search-09cee99eba9ec805a546fd65",
+      "sample": 3,
+      "seed": 9001,
+      "selected_action": 9,
+      "telemetry": {
+        "aggregation_ns": 39212,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5690,
+        "pool_reuses": 1,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 263551037,
+        "serialization_ns": 252650,
+        "tt_capacity_slots": 16384
+      }
+    },
+    {
+      "counters": {
+        "evaluated_nodes": 465034,
+        "expanded_nodes": 465034,
+        "game_over_nodes": 0,
+        "generated_nodes": 465034,
+        "invalid_nodes": 0,
+        "pruned_nodes": 307475,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 85048,
+        "transposition_hits": 49879
+      },
+      "end_to_end_ns": 398748906,
+      "materialization_ns": 121062324,
+      "native_digest": "native-long-horizon-b453c1ee432665d3b8fb69a9",
+      "native_total_ns": 277686582,
+      "python_semantic_digest": "long-horizon-search-8a880386287612c5821faafb",
+      "sample": 4,
+      "seed": 65537,
+      "selected_action": 6,
+      "telemetry": {
+        "aggregation_ns": 162073,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5656,
+        "pool_reuses": 1,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 276512049,
+        "serialization_ns": 753195,
+        "tt_capacity_slots": 16384
+      }
+    }
+  ],
+  "schema_version": "puyo.native_long_horizon_samples.v1",
+  "ticket": "PUYO-202"
+}
