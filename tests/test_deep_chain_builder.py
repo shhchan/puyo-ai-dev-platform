@@ -240,6 +240,7 @@ class TestDeepChainBuilder(unittest.TestCase):
             (reference.depth, reference.width, reference.scenarios),
             (16, 250, 6),
         )
+        self.assertEqual(reference.max_expanded_nodes, 600_000)
         self.assertEqual((smoke.depth, smoke.width, smoke.scenarios), (4, 8, 2))
         self.assertEqual(benchmark.seed_count * benchmark.repeats_per_seed, 60)
         self.assertEqual(benchmark.to_dict()["seeds"], list(range(123, 153)))
@@ -625,6 +626,7 @@ class TestDeepChainBuilder(unittest.TestCase):
 
         self.assertIsInstance(policy, DeepChainBuilderPolicy)
         self.assertEqual(policy.profile.name, "reference")
+        self.assertEqual(policy.backend_mode, "python")
         self.assertEqual(smoke_policy.profile.name, "smoke")
 
 
