@@ -9,6 +9,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from puyo_env.actions import action_to_placement, legal_action_mask
 from puyo_env.obs import encode_observation
 from selfplay.policies import make_policy
@@ -67,12 +68,14 @@ def run_headless_smoke(
     seed: int,
     turns: int,
     profile: str = "smoke",
+    backend: str = "python",
 ) -> dict[str, Any]:
     simulator = HeadlessPuyoSimulator(seed=int(seed))
     policy = make_policy(
         "deep_chain_builder",
         seed=int(seed),
         deep_chain_profile=profile,
+        deep_chain_backend=backend,
     )
     records = []
     for step_count in range(int(turns)):
@@ -136,6 +139,7 @@ def run_headless_smoke(
                     ),
                 },
                 "search": diagnostics.get("search", {}),
+                "backend": diagnostics.get("backend", {}),
                 "fallback": diagnostics.get("fallback", {}),
                 "decision_trace": diagnostics.get("decision_trace", {}),
             }
@@ -161,6 +165,7 @@ def run_headless_smoke(
     return {
         "seed": int(seed),
         "profile": profile,
+        "backend": backend,
         "requested_turns": int(turns),
         "completed_turns": len(records),
         "actions": [record["action"] for record in records],
@@ -187,11 +192,18 @@ def build_smoke_artifact(
     turns: int = 3,
     repeats: int = 2,
     profile: str = "smoke",
+    backend: str = "python",
+    ticket: str = "PUYO-187",
 ) -> dict[str, Any]:
     if min(int(turns), int(repeats)) <= 0:
         raise ValueError("smoke turns and repeats must be positive")
     runs = [
-        run_headless_smoke(seed=seed, turns=turns, profile=profile)
+        run_headless_smoke(
+            seed=seed,
+            turns=turns,
+            profile=profile,
+            backend=backend,
+        )
         for _ in range(repeats)
     ]
     action_digests = [run["action_digest"] for run in runs]
@@ -227,19 +239,24 @@ def build_smoke_artifact(
         "fallback_unused": all(
             not bool(record["fallback"].get("used")) for record in records
         ),
+        "requested_backend_recorded": all(
+            record.get("backend", {}).get("requested_backend") == backend
+            for record in records
+        ),
         "action_digest_match": len(set(action_digests)) == 1,
         "plan_digest_match": len(set(plan_digests)) == 1,
         "final_board_digest_match": len(set(board_digests)) == 1,
     }
     artifact = {
         "schema_version": SMOKE_SCHEMA_VERSION,
-        "ticket": "PUYO-187",
+        "ticket": str(ticket),
         "environment": "safe_no_threat",
         "configuration": {
             "seed": int(seed),
             "turns": int(turns),
             "repeats": int(repeats),
             "profile": profile,
+            "backend": backend,
         },
         "checks": checks,
         "determinism": {
@@ -295,6 +312,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--turns", type=int, default=3)
     parser.add_argument("--repeats", type=int, default=2)
     parser.add_argument("--profile", default="smoke")
+    parser.add_argument(
+        "--backend",
+        choices=LONG_HORIZON_BACKEND_CHOICES,
+        default="python",
+    )
+    parser.add_argument("--ticket", default="PUYO-187")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument(
         "--verify",
@@ -310,6 +333,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             turns=args.turns,
             repeats=args.repeats,
             profile=args.profile,
+            backend=args.backend,
+            ticket=args.ticket,
         )
         _write_json(args.output, artifact)
     verify_smoke_artifact(artifact)

@@ -1,13 +1,17 @@
 import json
 import tempfile
 import unittest
+from contextlib import redirect_stderr
+from io import StringIO
 from pathlib import Path
 
 from agents.deep_chain_builder import load_deep_chain_builder_config
 from eval.deep_chain_builder_benchmark import (
+    CANONICAL_BACKEND,
     MANIFEST_SCHEMA_VERSION,
     RUN_SCHEMA_VERSION,
     SUMMARY_SCHEMA_VERSION,
+    _build_parser,
     audit_future_isolation,
     finalize_evidence,
     percentile,
@@ -44,11 +48,29 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         self.assertTrue(payload["fully_evaluated"])
         self.assertEqual(payload["termination_reason"], "turn_limit")
         self.assertEqual(payload["completed_turns"], 1)
+        self.assertEqual(payload["backend"], "python")
+        self.assertEqual(payload["records"][0]["search"]["backend"]["backend"], "python")
         self.assertEqual(payload["simulator_parity_mismatch_count"], 0)
         self.assertEqual(len(payload["action_digest"]), 64)
         self.assertEqual(len(payload["plan_digest"]), 64)
         self.assertEqual(len(payload["trajectory_digest"]), 64)
         self.assertTrue(payload["records"][0]["parity"]["passed"])
+
+    def test_canonical_commands_require_explicit_native_backend(self):
+        parser = _build_parser()
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(["run"])
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(["preflight"])
+
+        run_args = parser.parse_args(["run", "--backend", "native"])
+        preflight_args = parser.parse_args(
+            ["preflight", "--backend", "native"]
+        )
+
+        self.assertEqual(CANONICAL_BACKEND, "native")
+        self.assertEqual(run_args.backend, CANONICAL_BACKEND)
+        self.assertEqual(preflight_args.backend, CANONICAL_BACKEND)
 
     def test_private_future_sentinels_do_not_cross_visible_boundary(self):
         payload = audit_future_isolation((123, 124), max_steps=40)

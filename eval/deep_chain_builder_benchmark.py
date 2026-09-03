@@ -28,6 +28,10 @@ from agents.deep_chain_builder import (
     build_visible_runtime_input,
     load_deep_chain_builder_config,
 )
+from agents.deep_chain_search_backend import (
+    DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH,
+    load_long_horizon_backend_config,
+)
 from puyo_env.actions import action_to_placement, legal_action_mask
 from puyo_env.obs import encode_observation
 from selfplay.policies import make_policy
@@ -50,6 +54,7 @@ REFERENCE_SOURCE_COMMIT = "dea210bcd92965ae08fbc311f23565b0fab6dbbb"
 REFERENCE_SOURCE_URL = (
     f"https://github.com/citrus610/ama/tree/{REFERENCE_SOURCE_COMMIT}"
 )
+CANONICAL_BACKEND = "native"
 
 
 def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
@@ -316,11 +321,12 @@ def _parity_result(
     }
 
 
-def _policy_factory(seed: int, profile: str) -> Any:
+def _policy_factory(seed: int, profile: str, backend: str = "python") -> Any:
     return make_policy(
         "deep_chain_builder",
         seed=int(seed),
         deep_chain_profile=profile,
+        deep_chain_backend=backend,
     )
 
 
@@ -330,14 +336,22 @@ def run_benchmark_run(
     repeat: int,
     profile: str,
     max_steps: int,
-    policy_factory: Callable[[int, str], Any] = _policy_factory,
+    backend: str = "python",
+    policy_factory: Callable[[int, str], Any] | None = None,
 ) -> dict[str, Any]:
-    """Execute one canonical safe/no-threat trajectory without time cutoff."""
+    """Execute one safe/no-threat trajectory without a wall-clock cutoff."""
 
     evaluated_commit = git_commit(REPO_ROOT)
     configuration_sha256 = file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH)
+    backend_configuration_sha256 = file_sha256(
+        DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
+    )
     simulator = HeadlessPuyoSimulator(seed=int(seed))
-    policy = policy_factory(int(seed), str(profile))
+    policy = (
+        _policy_factory(int(seed), str(profile), str(backend))
+        if policy_factory is None
+        else policy_factory(int(seed), str(profile))
+    )
     records = []
     actual_fire_chain_counts = []
     premature_fire_count = 0
@@ -425,6 +439,7 @@ def run_benchmark_run(
 
         trace = diagnostics.get("decision_trace", {})
         search = diagnostics.get("search", {})
+        backend_diagnostics = diagnostics.get("backend", {})
         record = {
             "turn": int(step_count),
             "action": int(action),
@@ -451,6 +466,11 @@ def run_benchmark_run(
                 ),
                 "counters": _json_ready(
                     search.get("counters", {}) if isinstance(search, Mapping) else {}
+                ),
+                "backend": _json_ready(
+                    backend_diagnostics
+                    if isinstance(backend_diagnostics, Mapping)
+                    else {}
                 ),
             },
             "flow": {
@@ -511,9 +531,11 @@ def run_benchmark_run(
         "run_id": run_identity(seed, repeat),
         "evaluated_commit": evaluated_commit,
         "configuration_sha256": configuration_sha256,
+        "backend_configuration_sha256": backend_configuration_sha256,
         "seed": int(seed),
         "repeat": int(repeat),
         "profile": str(profile),
+        "backend": str(backend),
         "environment": "safe_no_threat",
         "max_steps": int(max_steps),
         "completed_turns": int(completed_turns),
@@ -586,10 +608,13 @@ def _load_completed_runs(output_dir: Path, contract: Any) -> list[dict[str, Any]
 def run_pending_benchmark(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     *,
+    backend: str,
     max_runs: int | None = None,
 ) -> dict[str, Any]:
     """Run pending canonical identities, writing each result immediately."""
 
+    if backend != CANONICAL_BACKEND:
+        raise ValueError("canonical deep-chain benchmark requires backend=native")
     if max_runs is not None and max_runs <= 0:
         raise ValueError("max_runs must be positive when provided")
     target = Path(output_dir)
@@ -607,6 +632,7 @@ def run_pending_benchmark(
             repeat=identity["repeat"],
             profile="reference",
             max_steps=contract.max_steps,
+            backend=backend,
         )
         _write_json(path, payload)
         completed_now += 1
@@ -823,6 +849,7 @@ def _tracked_worktree_clean() -> bool:
 
 
 def _lineage_payload(config: Any) -> dict[str, Any]:
+    backend_config = load_long_horizon_backend_config()
     return {
         "schema_version": LINEAGE_SCHEMA_VERSION,
         "ticket": "PUYO-189",
@@ -833,6 +860,14 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
             "sha256": file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH),
             "config_version": config.config_version,
             "profile_id": config.profile("reference").profile_id,
+            "backend": {
+                "path": str(
+                    DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH.relative_to(REPO_ROOT)
+                ),
+                "sha256": file_sha256(DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH),
+                "config_version": backend_config.config_version,
+                "required_backend": CANONICAL_BACKEND,
+            },
         },
         "policy": {
             "policy_id": config.policy_id,
@@ -849,11 +884,12 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
         "reproduction": {
             "canonical_run": (
                 ".venv/bin/python -m eval.deep_chain_builder_benchmark run "
+                "--backend native "
                 "--output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline"
             ),
             "resume_one_run": (
                 ".venv/bin/python -m eval.deep_chain_builder_benchmark run "
-                "--max-runs 1 --output-dir "
+                "--backend native --max-runs 1 --output-dir "
                 "docs/benchmarks/puyo-189-deep-chain-builder-baseline"
             ),
             "verify": (
@@ -870,11 +906,17 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
     }
 
 
-def _preflight_worker(queue: Any, seed: int, profile: str, max_steps: int) -> None:
+def _preflight_worker(
+    queue: Any,
+    seed: int,
+    profile: str,
+    backend: str,
+    max_steps: int,
+) -> None:
     observation, info = _initial_observation_and_info(seed, max_steps=max_steps)
-    policy = _policy_factory(seed, profile)
     started = time.perf_counter()
     try:
+        policy = _policy_factory(seed, profile, backend)
         action = int(policy.select_action(observation, info))
         diagnostics = getattr(policy, "tactical_diagnostics", {})
         queue.put(
@@ -897,6 +939,11 @@ def _preflight_worker(queue: Any, seed: int, profile: str, max_steps: int) -> No
                     if isinstance(diagnostics, Mapping)
                     else {}
                 ),
+                "backend": _json_ready(
+                    diagnostics.get("backend", {})
+                    if isinstance(diagnostics, Mapping)
+                    else {}
+                ),
             }
         )
     except BaseException as exc:  # noqa: BLE001 - child must report diagnostic
@@ -912,11 +959,14 @@ def _preflight_worker(queue: Any, seed: int, profile: str, max_steps: int) -> No
 def run_preflight(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     *,
+    backend: str,
     seed: int | None = None,
     timeout_seconds: float = 5.0,
 ) -> dict[str, Any]:
     """Run one non-canonical supervised decision latency probe."""
 
+    if backend != CANONICAL_BACKEND:
+        raise ValueError("reference preflight requires backend=native")
     config = load_deep_chain_builder_config()
     contract = config.benchmark
     selected_seed = contract.seed_start if seed is None else int(seed)
@@ -928,7 +978,7 @@ def run_preflight(
     queue = context.Queue()
     process = context.Process(
         target=_preflight_worker,
-        args=(queue, selected_seed, "reference", contract.max_steps),
+        args=(queue, selected_seed, "reference", backend, contract.max_steps),
     )
     started = time.perf_counter()
     process.start()
@@ -962,6 +1012,10 @@ def run_preflight(
         "seed": int(selected_seed),
         "evaluated_commit": git_commit(REPO_ROOT),
         "configuration_sha256": file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH),
+        "backend_configuration_sha256": file_sha256(
+            DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
+        ),
+        "backend": backend,
         "profile": config.profile("reference").to_dict(),
         "timeout_seconds": float(timeout_seconds),
         "timed_out": bool(timed_out),
@@ -1124,6 +1178,7 @@ def finalize_evidence(
     target = Path(output_dir)
     target.mkdir(parents=True, exist_ok=True)
     config = load_deep_chain_builder_config()
+    backend_config = load_long_horizon_backend_config()
     contract = config.benchmark
     seeds = list(range(contract.seed_start, contract.seed_start + contract.seed_count))
     expected = expected_run_identities(contract)
@@ -1178,9 +1233,15 @@ def finalize_evidence(
     fully_evaluated_count = sum(bool(run.get("fully_evaluated")) for run in runs)
     lineage_commit = git_commit(REPO_ROOT)
     configuration_sha256 = file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH)
+    backend_configuration_sha256 = file_sha256(
+        DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
+    )
     matching_lineage_count = sum(
         run.get("evaluated_commit") == lineage_commit
         and run.get("configuration_sha256") == configuration_sha256
+        and run.get("backend_configuration_sha256")
+        == backend_configuration_sha256
+        and run.get("backend") == CANONICAL_BACKEND
         for run in runs
     )
     latency = _aggregate_latency(runs)
@@ -1355,6 +1416,11 @@ def finalize_evidence(
         "configuration": {
             "policy_id": config.policy_id,
             "profile": config.profile("reference").to_dict(),
+            "backend": {
+                **backend_config.to_dict(),
+                "selected_backend": CANONICAL_BACKEND,
+                "configuration_sha256": backend_configuration_sha256,
+            },
             "benchmark": contract.to_dict(),
         },
         "aggregate": {
@@ -1410,6 +1476,11 @@ def finalize_evidence(
     configuration["configuration_sha256"] = file_sha256(
         DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH
     )
+    configuration["backend"] = {
+        **backend_config.to_dict(),
+        "selected_backend": CANONICAL_BACKEND,
+        "configuration_sha256": backend_configuration_sha256,
+    }
     _write_json(target / "configuration.json", configuration)
     lineage = _lineage_payload(config)
     _write_json(target / "lineage.json", lineage)
@@ -1546,11 +1617,13 @@ def _build_parser() -> argparse.ArgumentParser:
 
     preflight = subparsers.add_parser("preflight")
     preflight.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    preflight.add_argument("--backend", choices=(CANONICAL_BACKEND,), required=True)
     preflight.add_argument("--seed", type=int)
     preflight.add_argument("--timeout-seconds", type=float, default=5.0)
 
     run = subparsers.add_parser("run")
     run.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    run.add_argument("--backend", choices=(CANONICAL_BACKEND,), required=True)
     run.add_argument(
         "--max-runs",
         type=int,
@@ -1582,11 +1655,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "preflight":
         result = run_preflight(
             args.output_dir,
+            backend=args.backend,
             seed=args.seed,
             timeout_seconds=args.timeout_seconds,
         )
     elif args.command == "run":
-        result = run_pending_benchmark(args.output_dir, max_runs=args.max_runs)
+        result = run_pending_benchmark(
+            args.output_dir,
+            backend=args.backend,
+            max_runs=args.max_runs,
+        )
     elif args.command == "finalize":
         result = finalize_evidence(args.output_dir)
     elif args.command == "record-gui-qa":
