@@ -200,6 +200,12 @@ dummy SDL は描画内容の色・可読性を保証しないため、最終 vis
 実施する。timeout/cancel では未完了の native result を採用せず、future を cancel して
 worker を終了するため、partial result や stale plan は表示しない。
 
+clean release build で取得した自動検証、固定 differential、reference preflight、native smoke、
+simulator parity、dummy GUI/replay の要約は
+[PUYO-203 QA summary](../benchmarks/puyo-203-deep-chain-native-integration/qa_summary.json)
+に記録する。通常ウィンドウの目視項目だけは `pending_human_visual_review` として自動検証から
+明確に分離している。
+
 ## Related work
 
 - [PUYO-198 native boundary](puyo-198-deep-chain-native-boundary.md)
