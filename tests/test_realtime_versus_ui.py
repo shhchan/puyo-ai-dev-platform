@@ -140,11 +140,19 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
 
     def test_deep_chain_builder_is_a_realtime_policy_and_async(self):
         config = parse_config(
-            ["--policy-a", "deep_chain_builder", "--deep-chain-profile", "smoke"]
+            [
+                "--policy-a",
+                "deep_chain_builder",
+                "--deep-chain-profile",
+                "smoke",
+                "--deep-chain-backend",
+                "native",
+            ]
         )
 
         self.assertEqual(config.policy_a, "deep_chain_builder")
         self.assertEqual(config.deep_chain_profile, "smoke")
+        self.assertEqual(config.deep_chain_backend, "native")
         self.assertIn("deep_chain_builder", ASYNC_POLICY_TYPES)
 
     def test_terminal_frame_auto_exit_is_parsed_and_validated(self):
@@ -273,6 +281,11 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
                     "scenario_ids": ["scenario-0", "scenario-1"],
                     "counters": {"expanded_nodes": 1020},
                 },
+                "backend": {
+                    "requested_backend": "native",
+                    "backend": "native",
+                    "fallback": {"used": False},
+                },
                 "decision_trace": {
                     "step_count": 2,
                     "elapsed_seconds": 1.25,
@@ -309,6 +322,9 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(summary["scenario_count"], 2)
         self.assertEqual(summary["max_chain"], 9)
         self.assertEqual(summary["expanded_nodes"], 1020)
+        self.assertEqual(summary["backend_id"], "native")
+        self.assertEqual(summary["backend_requested"], "native")
+        self.assertFalse(summary["backend_fallback"])
         self.assertEqual(summary["flow_step_count"], 2)
         self.assertEqual(summary["flow_steps"][1]["step_id"], "run_long_range_search")
         self.assertEqual(summary["flow_elapsed_seconds"], 1.25)

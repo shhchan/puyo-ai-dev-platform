@@ -124,11 +124,17 @@ class TestLauncherService(unittest.TestCase):
 
     def test_arena_uses_configured_latency_by_default(self):
         service = self.make_service()
+        service.update_setting("arena", "deep_chain_profile", "reference")
+        service.update_setting("arena", "deep_chain_backend", "native")
 
         command = service.command_for("arena")
 
         latency_mode_index = command.index("--latency-mode")
         self.assertEqual(command[latency_mode_index + 1], "configured")
+        profile_index = command.index("--deep-chain-profile")
+        backend_index = command.index("--deep-chain-backend")
+        self.assertEqual(command[profile_index + 1], "reference")
+        self.assertEqual(command[backend_index + 1], "native")
 
     def test_v1_7_analyzer_manager_round_trips_without_checkpoint(self):
         service = self.make_service()
@@ -149,8 +155,10 @@ class TestLauncherService(unittest.TestCase):
         self.assertIsNone(config.checkpoint_a)
 
         service.update_setting("spectate", "deep_chain_profile", "reference")
+        service.update_setting("spectate", "deep_chain_backend", "native")
         config = parse_realtime_config(service.command_for("spectate")[3:])
         self.assertEqual(config.deep_chain_profile, "reference")
+        self.assertEqual(config.deep_chain_backend, "native")
 
     def test_v1_7_bootstrap_manager_requires_and_round_trips_checkpoint(self):
         service = self.make_service()

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from puyo_env.realtime_ai import (
     REALTIME_LATENCY_MODES,
     RealtimeDecisionConfig,
@@ -475,6 +476,7 @@ def parse_args(argv=None):
     policy_choices = [
         "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
         "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
+        "deep_chain_builder",
         "worker_large", "worker_quick", "worker_punish", "worker_counter",
         "worker_fire", "worker_fire_max", "worker_survival",
     ]
@@ -491,6 +493,8 @@ def parse_args(argv=None):
     parser.add_argument("--beam-width", type=int, default=48)
     parser.add_argument("--beam-scenarios", type=int, default=1)
     parser.add_argument("--beam-minimum-chain", type=int, default=6)
+    parser.add_argument("--deep-chain-profile", choices=("smoke", "reference"), default="smoke")
+    parser.add_argument("--deep-chain-backend", choices=LONG_HORIZON_BACKEND_CHOICES, default="python")
     parser.add_argument("--inference-latency-ticks", type=int, default=0)
     parser.add_argument("--latency-mode", choices=REALTIME_LATENCY_MODES, default="configured")
     parser.add_argument("--timeout-ticks", type=int, default=None)
@@ -511,6 +515,8 @@ def _policy_spec_from_args(args, side: str) -> dict[str, Any]:
         beam_width=args.beam_width,
         beam_scenarios=args.beam_scenarios,
         beam_minimum_chain=args.beam_minimum_chain,
+        deep_chain_profile=args.deep_chain_profile,
+        deep_chain_backend=args.deep_chain_backend,
     )
 
 

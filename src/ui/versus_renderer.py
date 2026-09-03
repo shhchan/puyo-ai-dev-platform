@@ -649,6 +649,9 @@ class VersusRenderer:
                 default={},
             )
             profile_name = str(summary.get("profile_name") or "deep")
+            backend_name = str(summary.get("backend_id") or "-")
+            if summary.get("backend_fallback"):
+                backend_name += "!"
             candidate_count = summary.get("candidate_count")
             candidate_label = "-" if candidate_count is None else str(candidate_count)
             selection_reason = str(summary.get("selection_reason") or "-")
@@ -668,7 +671,7 @@ class VersusRenderer:
             )
             stats = common_stats + (
                 (
-                    f"{profile_name} c{candidate_label} s{summary.get('scenario_count', 0)}",
+                    f"{profile_name}/{backend_name} c{candidate_label} s{summary.get('scenario_count', 0)}",
                     (160, 210, 255),
                 ),
                 (

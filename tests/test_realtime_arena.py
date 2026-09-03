@@ -1,19 +1,39 @@
 import copy
 import unittest
 
+from agents.strategy_workers import FixedProfilePolicy, smoke_worker_profiles
+from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
 from eval.realtime_arena import (
+    _policy_spec_from_args,
+    parse_args,
     replay_realtime_match,
     run_realtime_match,
     run_realtime_paired_series,
     summarize_realtime_result,
 )
-from agents.strategy_workers import FixedProfilePolicy, smoke_worker_profiles
-from agents.v1_7_analyzer_manager import V17AnalyzerManagerPolicy
 from puyo_env.realtime_ai import RealtimeDecisionConfig
 from selfplay.policies import FirstLegalPolicy, RandomPolicy
 
 
 class TestRealtimeArena(unittest.TestCase):
+    def test_deep_chain_backend_is_forwarded_from_cli(self):
+        args = parse_args(
+            [
+                "--policy-a",
+                "deep_chain_builder",
+                "--deep-chain-profile",
+                "reference",
+                "--deep-chain-backend",
+                "native",
+            ]
+        )
+
+        spec = _policy_spec_from_args(args, "a")
+
+        self.assertEqual(spec["policy_type"], "deep_chain_builder")
+        self.assertEqual(spec["deep_chain_profile"], "reference")
+        self.assertEqual(spec["deep_chain_backend"], "native")
+
     def test_realtime_match_runs_existing_policies_with_replay(self):
         match = run_realtime_match(
             FirstLegalPolicy(),

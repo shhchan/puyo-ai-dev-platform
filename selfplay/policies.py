@@ -178,6 +178,7 @@ def make_policy(
     beam_scenarios: int = 1,
     beam_minimum_chain: int = 6,
     deep_chain_profile: str = "reference",
+    deep_chain_backend: str = "python",
     forced_tactic_id: str | None = None,
 ) -> Policy:
     if policy_type == "first":
@@ -197,7 +198,10 @@ def make_policy(
             )
         )
     if policy_type == "deep_chain_builder":
-        return DeepChainBuilderPolicy(profile=deep_chain_profile)
+        return DeepChainBuilderPolicy(
+            profile=deep_chain_profile,
+            backend=deep_chain_backend,
+        )
     if policy_type == "worker_large":
         profiles = default_worker_profiles()
         return FixedProfilePolicy(profile_id_by_name(profiles, "build_large", "large_chain"), profiles)
