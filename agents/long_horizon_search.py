@@ -47,6 +47,7 @@ FUTURE_SAMPLING_MODES = {
 FUTURE_ROLLOUT_SEED_DERIVATION = "sha256-decision-seed-sample-index-v1"
 FUTURE_QUEUE_GENERATOR = "src.core.tsumo.PuyoSequence"
 LONG_HORIZON_PROPOSAL_DIGEST_VERSION = "puyo.long_horizon_proposal_digest.v1"
+LONG_HORIZON_SURVIVOR_TIE_BREAK_VERSION = "puyo.long_horizon_survivor_tie_break.v2"
 TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
 ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION = "puyo.root_survivor_coverage.v1"
 ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION = "puyo.build_main_root_diagnostics.v1"
@@ -1639,7 +1640,7 @@ def _survivor_sort_key(node: LongHorizonNode) -> tuple[Any, ...]:
     return (
         -float(node.evaluator_score),
         int(node.root_action),
-        node.state_fingerprint,
+        node.state.to_bytes(),
         int(node.last_action),
         tuple(int(action) for action in node.path),
     )
@@ -2249,6 +2250,7 @@ __all__ = [
     "LONG_HORIZON_PROFILE_SCHEMA_VERSION",
     "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_SEARCH_PROFILES",
+    "LONG_HORIZON_SURVIVOR_TIE_BREAK_VERSION",
     "QUALITY_D12_PROFILE",
     "QUALITY_D16_PROFILE",
     "REPRESENTATIVE_SCENARIO_BAGS",

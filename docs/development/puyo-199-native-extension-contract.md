@@ -138,7 +138,7 @@ required tags, or unsupported versions fail closed.
 | `0x8003` | search | budgets, seed, pair/scenario cursors, profile and search modes |
 | `0x8004` | evaluator | three versions, four budgets, 24 ordered `f64` weights, fatal score |
 | `0x8005` | identities | action/state/sampling/ranking/terminal/diagnostic/result versions and config SHA-256 |
-| `0x8006` | execution | `oracle-1`, result limits, scalar requirement, callback flag fixed false |
+| `0x8006` | execution | `oracle-1` or `scenario-6`, result limits, scalar requirement, callback flag fixed false |
 
 State validation covers all six non-overlapping 84-bit planes, both hidden
 rows, OJAMA, all-clear/game-over flags, checked `u64` score and
@@ -160,9 +160,8 @@ The Python result decoder already rejects action IDs outside the locked 0–21
 layout, duplicate ranked roots, malformed flags, missing sections, and a
 mismatched request ID. The three variable-record sections start with
 `schema_version: u16`, zero `reserved: u16`, `record_count: u32`, and
-`body_bytes: u32`; their bounded record bodies are filled by PUYO-202. Later
-tasks must fill these sections without changing their ownership or adding
-node-level calls.
+`body_bytes: u32`; PUYO-202 fills their bounded record bodies without changing
+section ownership or adding node-level calls.
 
 ## Capabilities and provenance
 
