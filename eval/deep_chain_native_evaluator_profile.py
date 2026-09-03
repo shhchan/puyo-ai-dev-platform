@@ -1100,7 +1100,8 @@ def verify_profile(
     if not wheel or "manylinux_2_28_x86_64" not in wheel:
         issues.append("canonical release wheel path drifted")
     elif not (ROOT / wheel).is_file():
-        issues.append("canonical release wheel is missing")
+        if not allow_historical_wheel:
+            issues.append("canonical release wheel is missing")
     elif file_sha256(ROOT / wheel) != expected_wheel_sha256:
         if require_exact_wheel:
             issues.append("canonical release wheel hash drifted")

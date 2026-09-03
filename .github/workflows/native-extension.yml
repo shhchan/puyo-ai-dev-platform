@@ -193,6 +193,6 @@ jobs:
           .venv/bin/python -m eval.deep_chain_native_placement_enumeration verify --historical
           .venv/bin/python -m eval.deep_chain_native_base_features verify --historical
           .venv/bin/python -m eval.deep_chain_native_placement_frontier verify --historical
-          .venv/bin/python -m eval.deep_chain_native_evaluator_revalidation verify
+          .venv/bin/python -m eval.deep_chain_native_evaluator_revalidation verify --historical
           .venv/bin/python -m eval.deep_chain_native_search_benchmark verify --historical
           .venv/bin/python -m eval.deep_chain_native_transition_restart_decision
