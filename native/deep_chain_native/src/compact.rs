@@ -268,6 +268,16 @@ impl BoardKey {
     pub(crate) const fn color_bits(&self) -> &[u128; COLOR_BIT_COUNT] {
         &self.color_bits
     }
+
+    pub(crate) fn cache_hash(self) -> u64 {
+        let low = self.color_bits[0] as u64
+            ^ (self.color_bits[1] as u64).rotate_left(17)
+            ^ (self.color_bits[2] as u64).rotate_left(37);
+        let high = (self.color_bits[0] >> 64) as u64
+            ^ ((self.color_bits[1] >> 64) as u64).rotate_left(23)
+            ^ ((self.color_bits[2] >> 64) as u64).rotate_left(43);
+        splitmix64(low ^ high.rotate_left(11))
+    }
 }
 
 /// Complete native search identity.  Search coordinates deliberately cannot
@@ -453,7 +463,10 @@ impl CompactState {
     }
 
     pub(crate) fn column_heights(&self) -> [u8; WIDTH] {
-        let occupied = self.internal_occupied();
+        self.column_heights_for_occupied(self.internal_occupied())
+    }
+
+    pub(crate) fn column_heights_for_occupied(&self, occupied: u128) -> [u8; WIDTH] {
         let mut heights = self.drop_heights;
         for (x, height) in heights.iter_mut().enumerate() {
             if occupied & cell_bit(x, HEIGHT - 1) != 0 {
@@ -461,6 +474,14 @@ impl CompactState {
             }
         }
         heights
+    }
+
+    pub(crate) const fn lower_compact(&self) -> bool {
+        self.lower_compact
+    }
+
+    pub(crate) const fn settled(&self) -> bool {
+        self.settled
     }
 
     pub(crate) const fn board_key(&self) -> BoardKey {

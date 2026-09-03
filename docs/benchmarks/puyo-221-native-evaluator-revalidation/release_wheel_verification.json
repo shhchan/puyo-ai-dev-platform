@@ -1,0 +1,16 @@
+{
+  "capability_source_revision": "f24ace63c1d8b25fad032874740bd6e437b1b08c",
+  "installed_module_matches_wheel": true,
+  "installed_module_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+  "installed_module_sha256": "4c95c2bbdc8ebb888a4b8e1f1cf648cd1d32a1e11d626136d8aa8533f428e651",
+  "passed": true,
+  "release_build": true,
+  "schema_version": "puyo.native_evaluator_revalidation_wheel.v1",
+  "source_revision_matches_commit": true,
+  "ticket": "PUYO-221",
+  "wheel_extension_member": "_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+  "wheel_extension_sha256": "4c95c2bbdc8ebb888a4b8e1f1cf648cd1d32a1e11d626136d8aa8533f428e651",
+  "wheel_extension_size_bytes": 4263080,
+  "wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "wheel_sha256": "073766e650cdcccab789c510911d84f0e0f9673d839256c47659d5d6eb8d4ac4"
+}

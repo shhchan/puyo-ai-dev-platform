@@ -1,0 +1,40 @@
+{
+  "canonical_vector_count": 1,
+  "commands": [
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::candidate"
+    ],
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::bit_parallel_trigger_protection_matches_exact_property_corpus",
+      "--",
+      "--exact"
+    ]
+  ],
+  "coverage": [
+    "canonical candidate JSON bytes and fixed SHA-256 vector",
+    "workspace reuse and exact duplicate identity",
+    "packed rank-prefix ordering against fieldwise ordering",
+    "full SHA-256 digest ordering against the retained oracle",
+    "bit-parallel trigger protection against exact cell scans"
+  ],
+  "mismatch_count": 0,
+  "ordering_property_comparison_count": 8192,
+  "passed": true,
+  "protection_property_comparison_count": 2560,
+  "schema_version": "puyo.native_candidate_ranking_oracle.v1",
+  "source_sha256": "5c4ee37400e54124ed51748729ed90a9f1d317056499e0cae930ab2f7d5cb440",
+  "test_output_sha256": "b6d3db8fa4650366c6057e491fc88bcbcbcfa94e6a3408041d8cac82b046c281",
+  "ticket": "PUYO-224"
+}

@@ -386,11 +386,13 @@ def verify_frontier_artifacts(
     *,
     require_exact_wheel: bool = False,
     rerun_oracle: bool = True,
+    historical: bool = False,
 ) -> list[str]:
     destination = Path(output_dir)
     issues = verify_profile(
         destination / RAW_PROFILE_DIRNAME,
         require_exact_wheel=require_exact_wheel,
+        allow_historical_wheel=historical,
     )
     try:
         manifest = _read_json(destination / "benchmark_manifest.json")
@@ -430,7 +432,9 @@ def verify_frontier_artifacts(
         abs_tol=1e-9,
     ):
         issues.append("placement-stage target drifted")
-    if oracle.get("source_sha256") != file_sha256(CHAIN_STRUCTURE_SOURCE_PATH):
+    if not historical and oracle.get("source_sha256") != file_sha256(
+        CHAIN_STRUCTURE_SOURCE_PATH
+    ):
         issues.append("property-oracle source drifted")
     if rerun_oracle:
         rerun = _run_property_oracle()
@@ -448,6 +452,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         if command == "verify":
             subparser.add_argument("--require-exact-wheel", action="store_true")
             subparser.add_argument("--skip-oracle-rerun", action="store_true")
+            subparser.add_argument(
+                "--historical",
+                action="store_true",
+                help="verify hash-bound PUYO-223 evidence after successor source changes",
+            )
     return parser.parse_args(argv)
 
 
@@ -460,7 +469,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     issues = verify_frontier_artifacts(
         args.output_dir,
         require_exact_wheel=args.require_exact_wheel,
-        rerun_oracle=not args.skip_oracle_rerun,
+        rerun_oracle=not args.skip_oracle_rerun and not args.historical,
+        historical=args.historical,
     )
     if issues:
         for issue in issues:

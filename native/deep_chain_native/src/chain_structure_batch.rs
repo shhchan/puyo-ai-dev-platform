@@ -13,15 +13,16 @@ use std::time::{Duration, Instant};
 
 use crate::chain_structure::{
     ActionStructureFeatures, ChainStructureFeatures, EvaluationConfig, EvaluationEvidence,
-    EvaluationHot, EvaluationProfileCounts, PROFILE_STAGE_BASE_FEATURES, PROFILE_STAGE_COUNT,
-    PROFILE_STAGE_DRIVER, PROFILE_STAGE_TRANSITION, QuiescenceCandidate, RESULT_ABI_VERSION,
-    RESULT_SCHEMA, WEIGHT_COUNT, evaluate_evidence, evaluate_hot, evaluate_profiled,
+    EvaluationHot, EvaluationProfileCounts, PROFILE_COUNTER_COUNT, PROFILE_STAGE_BASE_FEATURES,
+    PROFILE_STAGE_COUNT, PROFILE_STAGE_DRIVER, PROFILE_STAGE_TRANSITION, QuiescenceCandidate,
+    RESULT_ABI_VERSION, RESULT_SCHEMA, WEIGHT_COUNT, evaluate_evidence, evaluate_hot,
+    evaluate_profiled,
 };
 use crate::compact::{CompactState, Pair, TransitionHotResult, transition_hot};
 
 pub(crate) const BATCH_SCHEMA: &str = "puyo.native_chain_structure_batch.v1";
 pub(crate) const PROFILE_SCHEMA: &str = "puyo.native_chain_structure_combined_profile.v1";
-pub(crate) const STAGE_PROFILE_SCHEMA: &str = "puyo.native_chain_structure_stage_profile.v2";
+pub(crate) const STAGE_PROFILE_SCHEMA: &str = "puyo.native_chain_structure_stage_profile.v6";
 
 const REQUEST_MAGIC: &[u8; 4] = b"NCSB";
 const SUCCESS_MAGIC: &[u8; 4] = b"NCSS";
@@ -35,8 +36,8 @@ const KNOWN_FLAGS: u16 = FLAG_EVIDENCE;
 const MAX_RECORDS: usize = 50_000;
 const MAX_REQUEST_BYTES: usize = 16 * 1024 * 1024;
 const MAX_RESPONSE_BYTES: usize = 16 * 1024 * 1024;
-const STAGE_PROFILE_HEADER_BYTES: usize = 224;
-const STAGE_PROFILE_RECORD_BYTES: usize = 24;
+const STAGE_PROFILE_HEADER_BYTES: usize = 64 + PROFILE_COUNTER_COUNT * 8 + PROFILE_STAGE_COUNT * 16;
+const STAGE_PROFILE_RECORD_BYTES: usize = PROFILE_COUNTER_COUNT * 4;
 const MIN_SAMPLE_INTERVAL_US: u32 = 10;
 const MAX_SAMPLE_INTERVAL_US: u32 = 10_000;
 
@@ -479,7 +480,7 @@ fn profile_cycle_counter() -> u64 {
 }
 
 fn accumulate_profile_counts(
-    target: &mut [u64; 6],
+    target: &mut [u64; PROFILE_COUNTER_COUNT],
     stage_entries: &mut [u64; PROFILE_STAGE_COUNT],
     value: EvaluationProfileCounts,
 ) {
@@ -489,6 +490,15 @@ fn accumulate_profile_counts(
     target[3] += u64::from(value.rank_comparison_calls);
     target[4] += u64::from(value.rank_tie_calls);
     target[5] += u64::from(value.sha256_calls);
+    target[6] += u64::from(value.single_component_frontiers);
+    target[7] += u64::from(value.multi_component_frontiers);
+    target[8] += u64::from(value.frontier_state_visits);
+    target[9] += u64::from(value.qualified_candidates);
+    target[10] += u64::from(value.resolution_group_comparisons);
+    target[11] += u64::from(value.resolution_groups);
+    target[12] += u64::from(value.precomputed_resolution_groups);
+    target[13] += u64::from(value.precomputed_candidate_hits);
+    target[14] += u64::from(value.resolution_cache_hits);
     for (target_value, source_value) in stage_entries.iter_mut().zip(value.stage_entries) {
         *target_value += u64::from(source_value);
     }
@@ -550,7 +560,7 @@ fn stage_profile(data: &[u8], operations: u32, sample_interval_us: u32) -> Batch
     let started = Instant::now();
     let started_cycles = profile_cycle_counter();
     let mut checksum = 0_u64;
-    let mut aggregate_counts = [0_u64; 6];
+    let mut aggregate_counts = [0_u64; PROFILE_COUNTER_COUNT];
     let mut stage_entries = [0_u64; PROFILE_STAGE_COUNT];
     for operation in 0..operations as usize {
         let index = operation % request.records.len();
@@ -637,6 +647,15 @@ fn stage_profile(data: &[u8], operations: u32, sample_interval_us: u32) -> Batch
             counts.rank_comparison_calls,
             counts.rank_tie_calls,
             counts.sha256_calls,
+            counts.single_component_frontiers,
+            counts.multi_component_frontiers,
+            counts.frontier_state_visits,
+            counts.qualified_candidates,
+            counts.resolution_group_comparisons,
+            counts.resolution_groups,
+            counts.precomputed_resolution_groups,
+            counts.precomputed_candidate_hits,
+            counts.resolution_cache_hits,
         ] {
             write_u32(&mut output, value);
         }
@@ -747,7 +766,7 @@ mod tests {
         assert_eq!(schema_identity().0, "puyo.native_chain_structure_hot.v1");
         assert_eq!(
             STAGE_PROFILE_SCHEMA,
-            "puyo.native_chain_structure_stage_profile.v2"
+            "puyo.native_chain_structure_stage_profile.v6"
         );
         assert_eq!(EvaluationStatus::Available as u8, 1);
         assert_eq!(TruncationReason::ResolutionNodes as u8, 2);

@@ -1,0 +1,20 @@
+{
+  "after_600k_ms": 231.10839782166778,
+  "after_ns_per_node": 385.180663036113,
+  "before_600k_ms": 3130.4965729044034,
+  "before_ns_per_node": 5217.494288174005,
+  "margin_600k_ms": 4.935117132434073,
+  "minimum_reduction_percent": 70.0,
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "reduction_percent": 92.61751634478709,
+  "sample_count": 5,
+  "schema_version": "puyo.native_incremental_resolution_comparison.v1",
+  "speedup": 13.545576891238786,
+  "stages": [
+    "virtual_resolve_gravity",
+    "remaining_structure_scan"
+  ],
+  "target_600k_ms": 236.04351495410185,
+  "target_ns_per_node": 393.40585825683644
+}

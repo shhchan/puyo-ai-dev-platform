@@ -1,0 +1,69 @@
+{
+  "budgets": {
+    "combined_600k_ms": 820.625,
+    "evaluator_600k_ms": 774.35348,
+    "evaluator_ns_per_node": 1290.5891333333334,
+    "transition_600k_ms": 46.27152
+  },
+  "canonical_profile": {
+    "evaluator_thread_count": 1,
+    "fallback_timing": false,
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "percentile": "nearest-rank sorted[ceil(p/100*N)-1]",
+    "release_build": true,
+    "sample_count": 5,
+    "warmup_operations": 10000
+  },
+  "config": {
+    "path": "train/config/v1_7_chain_structure.yaml",
+    "production_max_added_puyos": 3,
+    "sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7"
+  },
+  "corpus": {
+    "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "path": "eval/deep_chain_native_transition_corpus.json",
+    "selected_action_count": 512,
+    "sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356",
+    "state_count": 512,
+    "transition_count": 11264
+  },
+  "schema_version": "puyo.native_chain_structure_hot_path_measurement.v1",
+  "source_implementation_commit": "c66d3ab054626b4015c203c790d136deb9b44a26",
+  "source_implementation_is_ancestor": true,
+  "source_ticket": "PUYO-201",
+  "stage_profile": {
+    "diagnostic_only": true,
+    "evaluator_thread_count": 1,
+    "external_sampling_tools": {
+      "fallback": "built-in user-space interval sampler",
+      "perf": null,
+      "valgrind": null
+    },
+    "marker_stages": [
+      "driver_unattributed",
+      "transition",
+      "base_feature_component_extraction",
+      "placement_orbit_enumeration",
+      "virtual_resolve_gravity",
+      "remaining_structure_scan",
+      "candidate_ranking_sha256",
+      "placement_frontier_update",
+      "placement_trigger_qualification",
+      "placement_deduplication",
+      "placement_candidate_dispatch",
+      "placement_single_component_frontier",
+      "placement_multi_component_frontier",
+      "base_board_geometry",
+      "base_stack_topology",
+      "base_component_flood",
+      "base_component_metadata_aggregation",
+      "base_frontier_topology",
+      "base_feature_aggregation",
+      "base_component_cache_lookup"
+    ],
+    "sample_interval_us": 100,
+    "sampler_thread_count": 1
+  },
+  "ticket": "PUYO-219"
+}

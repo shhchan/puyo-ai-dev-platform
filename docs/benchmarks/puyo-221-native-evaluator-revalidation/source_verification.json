@@ -1,0 +1,11 @@
+{
+  "allocation_test": "chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing",
+  "allocation_test_passed": true,
+  "child_state_bytes": 80,
+  "evaluator_abi_version": 1,
+  "hot_result_bytes": 24,
+  "normal_hot_path_heap_allocations": 0,
+  "schema_version": "puyo.native_evaluator_revalidation_source.v1",
+  "test_output_sha256": "bb7e66d1ed6b55ca3fd408ea91252e570d7d0e43d9e32d3ec041dcfc664831ca",
+  "ticket": "PUYO-221"
+}

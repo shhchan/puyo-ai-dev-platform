@@ -1,0 +1,179 @@
+{
+  "created_at_utc": "2026-09-02T23:46:33Z",
+  "decision": {
+    "checks": {
+      "child_state_abi_80": true,
+      "clean_source_tree": true,
+      "determinism": true,
+      "end_to_end_p95": true,
+      "evaluator_512_zero_mismatches": true,
+      "five_exact_600k_samples": true,
+      "fixture_eight_zero_mismatches": true,
+      "frozen_config_sha256": true,
+      "frozen_corpus_digest": true,
+      "frozen_corpus_sha256": true,
+      "hot_result_abi_24": true,
+      "native_call_total_p95": true,
+      "nearest_rank_no_outlier_removal": true,
+      "normal_hot_path_allocations_zero": true,
+      "production_backend_not_promoted": true,
+      "release_wheel_provenance": true,
+      "transition_11264_zero_mismatches": true,
+      "transition_evaluator_p95": true
+    },
+    "decision": "GO",
+    "failed_checks": [],
+    "follow_up_required": false,
+    "passed": true,
+    "production_backend_promoted": false,
+    "production_backend_promotion_requires_separate_decision": true,
+    "puyo_202_block_removal_candidate": true,
+    "qa_pr_may_merge": true
+  },
+  "profile": {
+    "aggregate": {
+      "checksum": 6517067855075167553,
+      "determinism_mismatch_count": 0,
+      "end_to_end_p50_ms": 605.848074,
+      "end_to_end_p95_ms": 630.228447,
+      "native_call_total_p50_ms": 604.859289,
+      "native_call_total_p95_ms": 628.381989,
+      "operations_exact": true,
+      "operations_per_sample": 600000,
+      "outlier_removal": "none",
+      "record_count": 512,
+      "sample_count": 5,
+      "transition_evaluator_p50_ms": 604.259962,
+      "transition_evaluator_p95_ms": 627.423102
+    },
+    "samples": [
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 611.776503,
+        "end_to_end_ns": 611776503,
+        "native_call_total_ms": 610.578009,
+        "native_call_total_ns": 610578009,
+        "ns_per_operation": 1016.410025,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 0,
+        "transition_evaluator_ms": 609.846015,
+        "transition_evaluator_ns": 609846015
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 604.30474,
+        "end_to_end_ns": 604304740,
+        "native_call_total_ms": 602.825829,
+        "native_call_total_ns": 602825829,
+        "ns_per_operation": 1003.5981133333333,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 1,
+        "transition_evaluator_ms": 602.158868,
+        "transition_evaluator_ns": 602158868
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 630.228447,
+        "end_to_end_ns": 630228447,
+        "native_call_total_ms": 628.381989,
+        "native_call_total_ns": 628381989,
+        "ns_per_operation": 1045.70517,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 2,
+        "transition_evaluator_ms": 627.423102,
+        "transition_evaluator_ns": 627423102
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 605.848074,
+        "end_to_end_ns": 605848074,
+        "native_call_total_ms": 604.859289,
+        "native_call_total_ns": 604859289,
+        "ns_per_operation": 1007.0999366666666,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 3,
+        "transition_evaluator_ms": 604.259962,
+        "transition_evaluator_ns": 604259962
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 594.770783,
+        "end_to_end_ns": 594770783,
+        "native_call_total_ms": 593.824699,
+        "native_call_total_ns": 593824699,
+        "ns_per_operation": 988.844885,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 4,
+        "transition_evaluator_ms": 593.306931,
+        "transition_evaluator_ns": 593306931
+      }
+    ],
+    "schema_version": "puyo.native_evaluator_revalidation_raw_profile.v1",
+    "ticket": "PUYO-221"
+  },
+  "release_wheel_verification": {
+    "capability_source_revision": "f24ace63c1d8b25fad032874740bd6e437b1b08c",
+    "installed_module_matches_wheel": true,
+    "installed_module_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "installed_module_sha256": "4c95c2bbdc8ebb888a4b8e1f1cf648cd1d32a1e11d626136d8aa8533f428e651",
+    "passed": true,
+    "release_build": true,
+    "schema_version": "puyo.native_evaluator_revalidation_wheel.v1",
+    "source_revision_matches_commit": true,
+    "ticket": "PUYO-221",
+    "wheel_extension_member": "_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "wheel_extension_sha256": "4c95c2bbdc8ebb888a4b8e1f1cf648cd1d32a1e11d626136d8aa8533f428e651",
+    "wheel_extension_size_bytes": 4263080,
+    "wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "wheel_sha256": "073766e650cdcccab789c510911d84f0e0f9673d839256c47659d5d6eb8d4ac4"
+  },
+  "schema_version": "puyo.native_evaluator_revalidation_summary.v1",
+  "semantic": {
+    "determinism": {
+      "byte_identical_repeats": true,
+      "mismatch_count": 0
+    },
+    "fixture": {
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 8,
+      "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+    },
+    "passed": true,
+    "python_native_evaluator": {
+      "invalid_selected": [],
+      "invalid_selected_count": 0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 512,
+      "response_sha256": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705"
+    },
+    "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+    "ticket": "PUYO-221",
+    "transition_oracle": {
+      "action_mismatch_count": 0,
+      "mismatch_count": 0,
+      "record_count": 11264,
+      "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "transition_mismatch_count": 0
+    }
+  },
+  "source_commit": "f24ace63c1d8b25fad032874740bd6e437b1b08c",
+  "source_verification": {
+    "allocation_test": "chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing",
+    "allocation_test_passed": true,
+    "child_state_bytes": 80,
+    "evaluator_abi_version": 1,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "schema_version": "puyo.native_evaluator_revalidation_source.v1",
+    "test_output_sha256": "bb7e66d1ed6b55ca3fd408ea91252e570d7d0e43d9e32d3ec041dcfc664831ca",
+    "ticket": "PUYO-221"
+  },
+  "ticket": "PUYO-221"
+}

@@ -41,7 +41,7 @@ NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION = (
     "puyo.native_chain_structure_combined_profile.v1"
 )
 NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION = (
-    "puyo.native_chain_structure_stage_profile.v2"
+    "puyo.native_chain_structure_stage_profile.v6"
 )
 NATIVE_CHAIN_STRUCTURE_ABI_VERSION = 1
 NATIVE_CHAIN_STRUCTURE_MAX_EVIDENCE_CANDIDATES = 96
@@ -56,18 +56,52 @@ _FLAG_EVIDENCE = 0x1
 _MAX_RECORDS = 50_000
 _CANDIDATE_BYTES = 61
 _FIXED_RESULT_BYTES = 265
-_STAGE_PROFILE_HEADER_BYTES = 224
-_STAGE_PROFILE_RECORD_BYTES = 24
 
 NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES = (
     "driver_unattributed",
     "transition",
     "base_feature_component_extraction",
-    "placement_enumeration_trigger_qualification",
+    "placement_orbit_enumeration",
     "virtual_resolve_gravity",
     "remaining_structure_scan",
     "candidate_ranking_sha256",
+    "placement_frontier_update",
+    "placement_trigger_qualification",
+    "placement_deduplication",
+    "placement_candidate_dispatch",
+    "placement_single_component_frontier",
+    "placement_multi_component_frontier",
+    "base_board_geometry",
+    "base_stack_topology",
+    "base_component_flood",
+    "base_component_metadata_aggregation",
+    "base_frontier_topology",
+    "base_feature_aggregation",
+    "base_component_cache_lookup",
 )
+NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES = (
+    "pattern_nodes",
+    "executed_pattern_probes",
+    "resolution_nodes",
+    "rank_comparison_calls",
+    "rank_tie_calls",
+    "sha256_calls",
+    "single_component_frontiers",
+    "multi_component_frontiers",
+    "frontier_state_visits",
+    "qualified_candidates",
+    "resolution_group_comparisons",
+    "resolution_groups",
+    "precomputed_resolution_groups",
+    "precomputed_candidate_hits",
+    "resolution_cache_hits",
+)
+_STAGE_PROFILE_HEADER_BYTES = (
+    64
+    + len(NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES) * 8
+    + len(NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES) * 16
+)
+_STAGE_PROFILE_RECORD_BYTES = len(NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES) * 4
 
 _STRUCTURE_COLORS = (
     PuyoColor.RED,
@@ -217,6 +251,15 @@ class NativeStageProfileCounts:
     rank_comparison_calls: int
     rank_tie_calls: int
     sha256_calls: int
+    single_component_frontiers: int
+    multi_component_frontiers: int
+    frontier_state_visits: int
+    qualified_candidates: int
+    resolution_group_comparisons: int
+    resolution_groups: int
+    precomputed_resolution_groups: int
+    precomputed_candidate_hits: int
+    resolution_cache_hits: int
 
     def to_dict(self) -> dict[str, int]:
         return {
@@ -226,6 +269,15 @@ class NativeStageProfileCounts:
             "rank_comparison_calls": int(self.rank_comparison_calls),
             "rank_tie_calls": int(self.rank_tie_calls),
             "sha256_calls": int(self.sha256_calls),
+            "single_component_frontiers": int(self.single_component_frontiers),
+            "multi_component_frontiers": int(self.multi_component_frontiers),
+            "frontier_state_visits": int(self.frontier_state_visits),
+            "qualified_candidates": int(self.qualified_candidates),
+            "resolution_group_comparisons": int(self.resolution_group_comparisons),
+            "resolution_groups": int(self.resolution_groups),
+            "precomputed_resolution_groups": int(self.precomputed_resolution_groups),
+            "precomputed_candidate_hits": int(self.precomputed_candidate_hits),
+            "resolution_cache_hits": int(self.resolution_cache_hits),
         }
 
 
@@ -662,7 +714,8 @@ def decode_native_stage_profile(
     ):
         raise InvalidNativeInputError("invalid native stage-profile controls")
     aggregate_values = tuple(
-        reader.u64(f"stage-profile aggregate counter {index}") for index in range(6)
+        reader.u64(f"stage-profile aggregate counter {index}")
+        for index in range(len(NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES))
     )
     stage_samples = tuple(
         reader.u64(f"stage-profile sample counter {index}")
@@ -691,6 +744,15 @@ def decode_native_stage_profile(
             rank_comparison_calls=int(values[3]),
             rank_tie_calls=int(values[4]),
             sha256_calls=int(values[5]),
+            single_component_frontiers=int(values[6]),
+            multi_component_frontiers=int(values[7]),
+            frontier_state_visits=int(values[8]),
+            qualified_candidates=int(values[9]),
+            resolution_group_comparisons=int(values[10]),
+            resolution_groups=int(values[11]),
+            precomputed_resolution_groups=int(values[12]),
+            precomputed_candidate_hits=int(values[13]),
+            resolution_cache_hits=int(values[14]),
         )
 
     per_record = tuple(
@@ -699,7 +761,9 @@ def decode_native_stage_profile(
                 reader.u32(
                     f"stage-profile record {record_index} counter {counter_index}"
                 )
-                for counter_index in range(6)
+                for counter_index in range(
+                    len(NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES)
+                )
             )
         )
         for record_index in range(record_count)
@@ -937,6 +1001,7 @@ __all__ = [
     "NATIVE_CHAIN_STRUCTURE_ABI_VERSION",
     "NATIVE_CHAIN_STRUCTURE_BATCH_SCHEMA_VERSION",
     "NATIVE_CHAIN_STRUCTURE_HOT_SCHEMA_VERSION",
+    "NATIVE_CHAIN_STRUCTURE_PROFILE_COUNTER_NAMES",
     "NATIVE_CHAIN_STRUCTURE_PROFILE_SCHEMA_VERSION",
     "NATIVE_CHAIN_STRUCTURE_PROFILE_STAGE_NAMES",
     "NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION",

@@ -112,7 +112,7 @@ class TestNativeChainStructureExtension(unittest.TestCase):
         )
         self.assertEqual(
             NATIVE_CHAIN_STRUCTURE_STAGE_PROFILE_SCHEMA_VERSION,
-            "puyo.native_chain_structure_stage_profile.v2",
+            "puyo.native_chain_structure_stage_profile.v6",
         )
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_CHILD_STATE_BYTES, 80)
         self.assertEqual(NATIVE_MODULE.COMPACT_HOT_RESULT_BYTES, 24)
