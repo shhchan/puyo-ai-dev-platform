@@ -1,0 +1,30 @@
+{
+  "determinism": {
+    "byte_identical_repeats": true,
+    "mismatch_count": 0
+  },
+  "fixture": {
+    "mismatch_count": 0,
+    "mismatches": [],
+    "record_count": 8,
+    "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+  },
+  "passed": true,
+  "python_native_evaluator": {
+    "invalid_selected": [],
+    "invalid_selected_count": 0,
+    "mismatch_count": 0,
+    "mismatches": [],
+    "record_count": 512,
+    "response_sha256": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705"
+  },
+  "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+  "ticket": "PUYO-221",
+  "transition_oracle": {
+    "action_mismatch_count": 0,
+    "mismatch_count": 0,
+    "record_count": 11264,
+    "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+    "transition_mismatch_count": 0
+  }
+}
