@@ -12,6 +12,8 @@ backend routing の versioned 設定は
 `train/config/deep_chain_builder.yaml` と `train/config/v1_7_chain_structure.yaml`
 が authority である。reference の `depth=16`、`width=250`、`scenarios=6`、
 `max_expanded_nodes=600000`、minimum chain 6、evaluator weight は変更しない。
+minimum chain 6 は PUYO-204 canonical benchmark の固定値であり、後述する UI の
+実験用目標連鎖とは別に管理する。
 
 ## Runtime contract
 
@@ -112,6 +114,46 @@ realtime arena:
 なる。軽量な操作確認だけなら profile を `smoke` にできる。`auto` が Python へ戻った
 場合は `smoke/python!` と表示する。
 
+## Experimenting with a larger target chain
+
+launcher の `deep-chain 目標連鎖` は `6 / 8 / 10 / 12` から選べる。これは探索の
+`minimum_chain_count` に直接入り、設定値未満の安全時発火を `premature_fire`、設定値以上を
+`target_fire` として評価する。たとえば 10 を選ぶと 7 連鎖で妥協せず、10 連鎖以上になる候補を
+優先して組み続ける。探索で到達可能な候補や盤面状況に依存するため、設定値への到達自体を保証する
+hard limit ではない。値を上げるほど発火が遅れ、窒息するリスクも上がる。
+
+大連鎖の目視比較には `deep-chain profile=reference`、`deep-chain backend=native`、
+`deep-chain 目標連鎖=10` または `12` を使う。対戦画面の HUD は次を同時表示する。
+
+- `aim cN`: UI で選んだ目標連鎖数
+- `plan cN`: 現 decision で選択した探索 trajectory の最大予測連鎖数
+- `actual cN`: その試合で実際に発火した最大連鎖数
+
+CLI でも同じ実験ができる。
+
+```bash
+.venv/bin/python -m eval.realtime_versus_ui \
+  --policy-a deep_chain_builder \
+  --policy-b random \
+  --deep-chain-profile reference \
+  --deep-chain-backend native \
+  --deep-chain-target-chain 10 \
+  --seed 187
+```
+
+実装時の再現確認では、同一の seed 187、40 placements、`reference/native` で次の結果になった。
+
+| 目標 | 実発火 | 最大実連鎖 | 最大予測連鎖 | game over |
+| ---: | --- | ---: | ---: | --- |
+| 6 | 28 手目（turn index 27）: 6 連鎖 | 6 | 9 | false |
+| 10 | 36 手目（turn index 35）: 12 連鎖 | 12 | 13 | false |
+| 12 | 34 手目（turn index 33）: 12 連鎖 | 12 | 13 | false |
+
+これは UI 制御が実際の選択に効くことを確かめる非 canonical 実験であり、一般 seed に対する品質保証や
+PUYO-204 の合否証跡には使わない。PUYO-204 の `run` / `preflight` コマンドは UI 設定を読まず、
+目標 6 を明示的に固定する。canonical run artifact が 6 以外なら loader が拒否する。また、固定済みの
+`train/config/deep_chain_builder.yaml` はこの機能で変更していない。
+
 canonical benchmark は backend の省略を受け付けない。
 
 ```bash
@@ -189,12 +231,14 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 2. `thinking` 中も描画・pause・終了操作が止まらない。
 3. 3回以上の decision が盤面へ適用され、少なくとも1回の replan が発生する。
 4. decision 後の HUD が `reference/native`、candidate/scenario/node、selection reason、
-   plan ID、replan reason、flow timing を表示する。
+   `aim` / `plan` / `actual` chain、plan ID、replan reason、flow timing を表示する。
 5. ghost step 1 が action と一致し、step 2 以降、未知 tsumo、replan 後の置換が正しい。
 6. overlay toggle を往復しても操作・描画が継続する。
 7. replay の backend provenance/timing/counter、profile=reference、fallback=false と
    画面の plan/action が一致する。
 8. `deep-chain backend=python` に戻した同じ seed/profile でも action/plan contract が保たれる。
+9. `deep-chain 目標連鎖` を 6 から 10 または 12 へ変えると HUD の `aim` が一致し、実発火時の
+   `actual` と chain animation が一致する。
 
 dummy SDL は描画内容の色・可読性を保証しないため、最終 visual review は通常ウィンドウで
 実施する。timeout/cancel では未完了の native result を採用せず、future を cancel して
