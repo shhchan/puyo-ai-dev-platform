@@ -55,6 +55,9 @@ REFERENCE_SOURCE_URL = (
     f"https://github.com/citrus610/ama/tree/{REFERENCE_SOURCE_COMMIT}"
 )
 CANONICAL_BACKEND = "native"
+# PUYO-204 canonical evidence is intentionally insulated from runtime/UI
+# experiments, even if the interactive default changes in a later task.
+CANONICAL_TARGET_CHAIN_COUNT = 6
 
 
 def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
@@ -321,12 +324,18 @@ def _parity_result(
     }
 
 
-def _policy_factory(seed: int, profile: str, backend: str = "python") -> Any:
+def _policy_factory(
+    seed: int,
+    profile: str,
+    backend: str = "python",
+    target_chain_count: int = CANONICAL_TARGET_CHAIN_COUNT,
+) -> Any:
     return make_policy(
         "deep_chain_builder",
         seed=int(seed),
         deep_chain_profile=profile,
         deep_chain_backend=backend,
+        deep_chain_target_chain=target_chain_count,
     )
 
 
@@ -337,6 +346,7 @@ def run_benchmark_run(
     profile: str,
     max_steps: int,
     backend: str = "python",
+    target_chain_count: int = CANONICAL_TARGET_CHAIN_COUNT,
     policy_factory: Callable[[int, str], Any] | None = None,
 ) -> dict[str, Any]:
     """Execute one safe/no-threat trajectory without a wall-clock cutoff."""
@@ -348,7 +358,12 @@ def run_benchmark_run(
     )
     simulator = HeadlessPuyoSimulator(seed=int(seed))
     policy = (
-        _policy_factory(int(seed), str(profile), str(backend))
+        _policy_factory(
+            int(seed),
+            str(profile),
+            str(backend),
+            int(target_chain_count),
+        )
         if policy_factory is None
         else policy_factory(int(seed), str(profile))
     )
@@ -536,6 +551,7 @@ def run_benchmark_run(
         "repeat": int(repeat),
         "profile": str(profile),
         "backend": str(backend),
+        "target_chain_count": int(target_chain_count),
         "environment": "safe_no_threat",
         "max_steps": int(max_steps),
         "completed_turns": int(completed_turns),
@@ -601,6 +617,8 @@ def _load_completed_runs(output_dir: Path, contract: Any) -> list[dict[str, Any]
             raise ValueError(f"unsupported run schema: {path}")
         if payload.get("run_id") != identity["run_id"]:
             raise ValueError(f"run identity mismatch: {path}")
+        if payload.get("target_chain_count") != CANONICAL_TARGET_CHAIN_COUNT:
+            raise ValueError(f"canonical target chain count mismatch: {path}")
         runs.append(payload)
     return runs
 
@@ -633,6 +651,7 @@ def run_pending_benchmark(
             profile="reference",
             max_steps=contract.max_steps,
             backend=backend,
+            target_chain_count=CANONICAL_TARGET_CHAIN_COUNT,
         )
         _write_json(path, payload)
         completed_now += 1
@@ -872,6 +891,7 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
         "policy": {
             "policy_id": config.policy_id,
             "profile": config.profile("reference").to_dict(),
+            "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
             "environment": config.benchmark.environment,
         },
         "reference_attribution": {
@@ -916,7 +936,12 @@ def _preflight_worker(
     observation, info = _initial_observation_and_info(seed, max_steps=max_steps)
     started = time.perf_counter()
     try:
-        policy = _policy_factory(seed, profile, backend)
+        policy = _policy_factory(
+            seed,
+            profile,
+            backend,
+            CANONICAL_TARGET_CHAIN_COUNT,
+        )
         action = int(policy.select_action(observation, info))
         diagnostics = getattr(policy, "tactical_diagnostics", {})
         queue.put(
@@ -1016,6 +1041,7 @@ def run_preflight(
             DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
         ),
         "backend": backend,
+        "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
         "profile": config.profile("reference").to_dict(),
         "timeout_seconds": float(timeout_seconds),
         "timed_out": bool(timed_out),
@@ -1242,6 +1268,7 @@ def finalize_evidence(
         and run.get("backend_configuration_sha256")
         == backend_configuration_sha256
         and run.get("backend") == CANONICAL_BACKEND
+        and run.get("target_chain_count") == CANONICAL_TARGET_CHAIN_COUNT
         for run in runs
     )
     latency = _aggregate_latency(runs)
@@ -1416,6 +1443,7 @@ def finalize_evidence(
         "configuration": {
             "policy_id": config.policy_id,
             "profile": config.profile("reference").to_dict(),
+            "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
             "backend": {
                 **backend_config.to_dict(),
                 "selected_backend": CANONICAL_BACKEND,
@@ -1473,6 +1501,7 @@ def finalize_evidence(
     _write_json(target / "benchmark_summary.json", summary)
 
     configuration = config.to_dict()
+    configuration["canonical_target_chain_count"] = CANONICAL_TARGET_CHAIN_COUNT
     configuration["configuration_sha256"] = file_sha256(
         DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH
     )

@@ -25,6 +25,8 @@ class TestRealtimeArena(unittest.TestCase):
                 "reference",
                 "--deep-chain-backend",
                 "native",
+                "--deep-chain-target-chain",
+                "12",
             ]
         )
 
@@ -33,6 +35,7 @@ class TestRealtimeArena(unittest.TestCase):
         self.assertEqual(spec["policy_type"], "deep_chain_builder")
         self.assertEqual(spec["deep_chain_profile"], "reference")
         self.assertEqual(spec["deep_chain_backend"], "native")
+        self.assertEqual(spec["deep_chain_target_chain"], 12)
 
     def test_realtime_match_runs_existing_policies_with_replay(self):
         match = run_realtime_match(

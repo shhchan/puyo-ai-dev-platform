@@ -226,6 +226,9 @@ def _base_diagnostics(
         "configuration": {
             "search_config_version": request.search_config_version,
             "search_config_sha256": request.search_config_sha256,
+            "minimum_chain_count": int(
+                request.search_config.minimum_chain_count
+            ),
             "evaluator_config_version": request.evaluator_config_version,
             "evaluator_config_sha256": request.evaluator_config_sha256,
             "backend_config_version": request.backend_config_version,

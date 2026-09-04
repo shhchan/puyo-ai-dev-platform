@@ -197,6 +197,9 @@ class TestDeepChainSearchBackend(unittest.TestCase):
             execution.diagnostics["configuration"]["evaluator_config_sha256"],
             "3" * 64,
         )
+        self.assertEqual(
+            execution.diagnostics["configuration"]["minimum_chain_count"], 6
+        )
         self.assertEqual(execution.diagnostics["boundary_call_count"], 1)
         self.assertEqual(execution.diagnostics["timing"]["native_compute_ns"], 12)
         json.dumps(execution.diagnostics, allow_nan=False)
@@ -368,6 +371,48 @@ class TestDeepChainSearchBackend(unittest.TestCase):
                 )
 
         self.assertEqual(len(boundary.requests), len(fixed_seeds))
+
+    @unittest.skipUnless(
+        RELEASE_NATIVE_AVAILABLE,
+        "release native extension is not installed",
+    )
+    def test_experimental_target_chain_keeps_python_native_parity(self):
+        config = _small_policy_config()
+        python_policy = DeepChainBuilderPolicy(
+            profile="smoke",
+            config=config,
+            backend="python",
+            target_chain_count=10,
+        )
+        native_policy = DeepChainBuilderPolicy(
+            profile="smoke",
+            config=config,
+            backend="native",
+            target_chain_count=10,
+        )
+        observation, info = _observation(seed=203)
+
+        python_action = python_policy.select_action(observation, info)
+        native_action = native_policy.select_action(observation, info)
+        python_diagnostics = python_policy.tactical_diagnostics
+        native_diagnostics = native_policy.tactical_diagnostics
+
+        self.assertEqual(native_action, python_action)
+        self.assertEqual(
+            native_diagnostics["search"]["deterministic_digest"],
+            python_diagnostics["search"]["deterministic_digest"],
+        )
+        self.assertEqual(
+            native_diagnostics["scenario_aggregation"],
+            python_diagnostics["scenario_aggregation"],
+        )
+        self.assertEqual(native_diagnostics["target_chain_count"], 10)
+        self.assertEqual(
+            native_diagnostics["backend"]["configuration"][
+                "minimum_chain_count"
+            ],
+            10,
+        )
 
     @unittest.skipUnless(
         RELEASE_NATIVE_AVAILABLE,

@@ -147,12 +147,15 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
                 "smoke",
                 "--deep-chain-backend",
                 "native",
+                "--deep-chain-target-chain",
+                "10",
             ]
         )
 
         self.assertEqual(config.policy_a, "deep_chain_builder")
         self.assertEqual(config.deep_chain_profile, "smoke")
         self.assertEqual(config.deep_chain_backend, "native")
+        self.assertEqual(config.deep_chain_target_chain, 10)
         self.assertIn("deep_chain_builder", ASYNC_POLICY_TYPES)
 
     def test_terminal_frame_auto_exit_is_parsed_and_validated(self):
@@ -263,6 +266,7 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         class StubPolicy:
             tactical_diagnostics = {
                 "policy_id": "deep_chain_builder",
+                "target_chain_count": 10,
                 "profile": {"name": "smoke", "depth": 4, "width": 8},
                 "selected_action": 7,
                 "candidate_count": 22,
@@ -321,6 +325,7 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(summary["profile_name"], "smoke")
         self.assertEqual(summary["scenario_count"], 2)
         self.assertEqual(summary["max_chain"], 9)
+        self.assertEqual(summary["target_chain"], 10)
         self.assertEqual(summary["expanded_nodes"], 1020)
         self.assertEqual(summary["backend_id"], "native")
         self.assertEqual(summary["backend_requested"], "native")

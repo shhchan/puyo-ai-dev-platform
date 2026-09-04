@@ -20,6 +20,10 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
+from agents.deep_chain_builder import (
+    DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+)
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from eval.lifecycle_audit import audit_realtime_lifecycle
 from eval.realtime_gui_qa import (
@@ -163,6 +167,7 @@ class RealtimeVersusUiConfig:
     beam_minimum_chain_b: int | None = None
     deep_chain_profile: str = "smoke"
     deep_chain_backend: str = "python"
+    deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
     device_a: str | None = None
     device_b: str | None = None
     deterministic_a: bool | None = None
@@ -210,6 +215,11 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
     if config.deep_chain_backend not in DEEP_CHAIN_BACKEND_CHOICES:
         raise ValueError(
             f"deep_chain_backend must be one of: {DEEP_CHAIN_BACKEND_CHOICES}"
+        )
+    if config.deep_chain_target_chain not in DEEP_CHAIN_TARGET_CHAIN_CHOICES:
+        raise ValueError(
+            "deep_chain_target_chain must be one of: "
+            f"{DEEP_CHAIN_TARGET_CHAIN_CHOICES}"
         )
     if config.max_ticks is not None and config.max_ticks <= 0:
         raise ValueError("max_ticks must be positive")
@@ -366,6 +376,11 @@ class RealtimeVersusMatchController:
                 if policy_type == "deep_chain_builder"
                 else None
             ),
+            "deep_chain_target_chain": (
+                self.config.deep_chain_target_chain
+                if policy_type == "deep_chain_builder"
+                else None
+            ),
         }
 
     def tactical_diagnostics(self, agent: str) -> dict:
@@ -430,6 +445,12 @@ class RealtimeVersusMatchController:
         if diagnostics.get("policy_id") == "deep_chain_builder":
             plan = diagnostics.get("plan", {})
             profile = diagnostics.get("profile", {})
+            objective = (
+                plan.get("objective", {}) if isinstance(plan, Mapping) else {}
+            )
+            target_chain = diagnostics.get("target_chain_count")
+            if target_chain is None and isinstance(objective, Mapping):
+                target_chain = objective.get("minimum_chain_count")
             selected_action = diagnostics.get("selected_action")
             max_chain = None
             aggregates = diagnostics.get("scenario_aggregation", ())
@@ -482,6 +503,7 @@ class RealtimeVersusMatchController:
                 "selection_reason": diagnostics.get("selection_reason", ""),
                 "scenario_count": len(search.get("scenario_ids", ())) if isinstance(search, Mapping) else 0,
                 "max_chain": max_chain,
+                "target_chain": target_chain,
                 "expanded_nodes": search_counters.get("expanded_nodes", search_counters.get("nodes_expanded", 0)),
                 "flow_steps": tuple(
                     {
@@ -1060,6 +1082,7 @@ class RealtimeVersusMatchController:
             beam_minimum_chain=side_value("beam_minimum_chain"),
             deep_chain_profile=self.config.deep_chain_profile,
             deep_chain_backend=self.config.deep_chain_backend,
+            deep_chain_target_chain=self.config.deep_chain_target_chain,
         )
 
     def _current_board(self, agent: str) -> tuple:
@@ -1332,6 +1355,16 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
             "auto の fallback は smoke のみ許可します。"
         ),
     )
+    parser.add_argument(
+        "--deep-chain-target-chain",
+        type=int,
+        choices=DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+        default=DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+        help=(
+            "deep_chain_builder が target_fire とみなす目標連鎖数。"
+            "大連鎖の確認には reference/native を推奨します。"
+        ),
+    )
     for side in ("a", "b"):
         parser.add_argument(f"--beam-depth-{side}", type=int)
         parser.add_argument(f"--beam-width-{side}", type=int)
@@ -1401,6 +1434,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         beam_minimum_chain=args.beam_minimum_chain,
         deep_chain_profile=args.deep_chain_profile,
         deep_chain_backend=args.deep_chain_backend,
+        deep_chain_target_chain=args.deep_chain_target_chain,
         beam_depth_a=args.beam_depth_a,
         beam_depth_b=args.beam_depth_b,
         beam_width_a=args.beam_width_a,

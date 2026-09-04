@@ -9,6 +9,10 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from agents.deep_chain_builder import (
+    DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+)
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from puyo_env.actions import action_to_placement, legal_action_mask
 from puyo_env.obs import encode_observation
@@ -69,6 +73,7 @@ def run_headless_smoke(
     turns: int,
     profile: str = "smoke",
     backend: str = "python",
+    target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
 ) -> dict[str, Any]:
     simulator = HeadlessPuyoSimulator(seed=int(seed))
     policy = make_policy(
@@ -76,6 +81,7 @@ def run_headless_smoke(
         seed=int(seed),
         deep_chain_profile=profile,
         deep_chain_backend=backend,
+        deep_chain_target_chain=target_chain_count,
     )
     records = []
     for step_count in range(int(turns)):
@@ -166,6 +172,7 @@ def run_headless_smoke(
         "seed": int(seed),
         "profile": profile,
         "backend": backend,
+        "target_chain_count": int(target_chain_count),
         "requested_turns": int(turns),
         "completed_turns": len(records),
         "actions": [record["action"] for record in records],
@@ -193,6 +200,7 @@ def build_smoke_artifact(
     repeats: int = 2,
     profile: str = "smoke",
     backend: str = "python",
+    target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     ticket: str = "PUYO-187",
 ) -> dict[str, Any]:
     if min(int(turns), int(repeats)) <= 0:
@@ -203,6 +211,7 @@ def build_smoke_artifact(
             turns=turns,
             profile=profile,
             backend=backend,
+            target_chain_count=target_chain_count,
         )
         for _ in range(repeats)
     ]
@@ -243,6 +252,15 @@ def build_smoke_artifact(
             record.get("backend", {}).get("requested_backend") == backend
             for record in records
         ),
+        "target_chain_recorded": all(
+            record.get("plan", {}).get("objective", {}).get(
+                "minimum_chain_count"
+            )
+            == target_chain_count
+            and record.get("search", {}).get("target_chain_count")
+            == target_chain_count
+            for record in records
+        ),
         "action_digest_match": len(set(action_digests)) == 1,
         "plan_digest_match": len(set(plan_digests)) == 1,
         "final_board_digest_match": len(set(board_digests)) == 1,
@@ -257,6 +275,7 @@ def build_smoke_artifact(
             "repeats": int(repeats),
             "profile": profile,
             "backend": backend,
+            "target_chain_count": int(target_chain_count),
         },
         "checks": checks,
         "determinism": {
@@ -317,6 +336,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         choices=LONG_HORIZON_BACKEND_CHOICES,
         default="python",
     )
+    parser.add_argument(
+        "--target-chain",
+        type=int,
+        choices=DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+        default=DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    )
     parser.add_argument("--ticket", default="PUYO-187")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument(
@@ -334,6 +359,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             repeats=args.repeats,
             profile=args.profile,
             backend=args.backend,
+            target_chain_count=args.target_chain,
             ticket=args.ticket,
         )
         _write_json(args.output, artifact)

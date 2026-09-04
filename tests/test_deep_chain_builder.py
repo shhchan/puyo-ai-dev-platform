@@ -13,6 +13,7 @@ from agents.decision_flow import (
 from agents.deep_chain_builder import (
     AGGREGATED_ROOT_SCORES_ARTIFACT,
     DEEP_CHAIN_BUILDER_POLICY_ID,
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     N_TURN_PLAN_SCHEMA_VERSION,
     NORMALIZED_OBSERVATION_ARTIFACT,
     RUNTIME_INPUT_ARTIFACT,
@@ -557,6 +558,66 @@ class TestDeepChainBuilder(unittest.TestCase):
         self.assertFalse(diagnostics["fallback"]["used"])
         json.dumps(diagnostics, allow_nan=False)
 
+    def test_runtime_target_chain_reaches_search_plan_and_diagnostics(self):
+        simulator = HeadlessPuyoSimulator(seed=187)
+        observation = encode_observation(simulator, step_count=0, max_steps=4)
+        info = {
+            "action_mask": legal_action_mask(simulator),
+            "score": simulator.game.score,
+            "step_count": 0,
+            "max_steps": 4,
+        }
+        default_policy = DeepChainBuilderPolicy(profile="smoke", config=self.config)
+        explicit_default_policy = DeepChainBuilderPolicy(
+            profile="smoke",
+            config=self.config,
+            target_chain_count=DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+        )
+        experimental_policy = DeepChainBuilderPolicy(
+            profile="smoke",
+            config=self.config,
+            target_chain_count=10,
+        )
+
+        default_action = default_policy.select_action(observation, info)
+        explicit_action = explicit_default_policy.select_action(observation, info)
+        experimental_policy.select_action(observation, info)
+        default_diagnostics = default_policy.tactical_diagnostics
+        explicit_diagnostics = explicit_default_policy.tactical_diagnostics
+        experimental_diagnostics = experimental_policy.tactical_diagnostics
+
+        self.assertEqual(default_action, explicit_action)
+        self.assertEqual(
+            default_diagnostics["search"]["deterministic_digest"],
+            explicit_diagnostics["search"]["deterministic_digest"],
+        )
+        self.assertEqual(
+            default_diagnostics["plan_id"], explicit_diagnostics["plan_id"]
+        )
+        self.assertEqual(experimental_diagnostics["target_chain_count"], 10)
+        self.assertEqual(experimental_diagnostics["search"]["target_chain_count"], 10)
+        self.assertEqual(
+            experimental_diagnostics["backend"]["configuration"][
+                "minimum_chain_count"
+            ],
+            10,
+        )
+        self.assertEqual(
+            experimental_diagnostics["plan"]["objective"]["minimum_chain_count"],
+            10,
+        )
+
+    def test_runtime_target_chain_rejects_values_outside_native_contract(self):
+        for value in (0, 256, True):
+            with self.subTest(value=value), self.assertRaises(
+                (TypeError, ValueError)
+            ):
+                DeepChainBuilderPolicy(
+                    profile="smoke",
+                    config=self.config,
+                    target_chain_count=value,
+                )
+
     def test_policy_researches_and_reports_plan_change_reason(self):
         flow = DecisionFlow(
             (
@@ -621,13 +682,16 @@ class TestDeepChainBuilder(unittest.TestCase):
     def test_factory_builds_deep_chain_policy_without_checkpoint(self):
         policy = make_policy("deep_chain_builder")
         smoke_policy = make_policy(
-            "deep_chain_builder", deep_chain_profile="smoke"
+            "deep_chain_builder",
+            deep_chain_profile="smoke",
+            deep_chain_target_chain=10,
         )
 
         self.assertIsInstance(policy, DeepChainBuilderPolicy)
         self.assertEqual(policy.profile.name, "reference")
         self.assertEqual(policy.backend_mode, "python")
         self.assertEqual(smoke_policy.profile.name, "smoke")
+        self.assertEqual(smoke_policy.target_chain_count, 10)
 
 
 if __name__ == "__main__":

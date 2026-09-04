@@ -18,7 +18,10 @@ except (ImportError, OSError):  # pragma: no cover - dependency guard
     torch = None
 
 from agents.beam_search import BeamSearchConfig, BeamSearchPolicy
-from agents.deep_chain_builder import DeepChainBuilderPolicy
+from agents.deep_chain_builder import (
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    DeepChainBuilderPolicy,
+)
 from agents.networks import VECTOR_FEATURE_DIM, PuyoActorCritic
 from agents.strategy_manager import RuleBasedManagerPolicy, StrategyManagerPolicy
 from agents.strategy_workers import (
@@ -179,6 +182,7 @@ def make_policy(
     beam_minimum_chain: int = 6,
     deep_chain_profile: str = "reference",
     deep_chain_backend: str = "python",
+    deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     forced_tactic_id: str | None = None,
 ) -> Policy:
     if policy_type == "first":
@@ -201,6 +205,7 @@ def make_policy(
         return DeepChainBuilderPolicy(
             profile=deep_chain_profile,
             backend=deep_chain_backend,
+            target_chain_count=deep_chain_target_chain,
         )
     if policy_type == "worker_large":
         profiles = default_worker_profiles()

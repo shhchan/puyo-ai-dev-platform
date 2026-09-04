@@ -14,6 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from agents.deep_chain_builder import (
+    DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+)
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from puyo_env.realtime_ai import (
     REALTIME_LATENCY_MODES,
@@ -495,6 +499,12 @@ def parse_args(argv=None):
     parser.add_argument("--beam-minimum-chain", type=int, default=6)
     parser.add_argument("--deep-chain-profile", choices=("smoke", "reference"), default="smoke")
     parser.add_argument("--deep-chain-backend", choices=LONG_HORIZON_BACKEND_CHOICES, default="python")
+    parser.add_argument(
+        "--deep-chain-target-chain",
+        type=int,
+        choices=DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+        default=DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    )
     parser.add_argument("--inference-latency-ticks", type=int, default=0)
     parser.add_argument("--latency-mode", choices=REALTIME_LATENCY_MODES, default="configured")
     parser.add_argument("--timeout-ticks", type=int, default=None)
@@ -517,6 +527,7 @@ def _policy_spec_from_args(args, side: str) -> dict[str, Any]:
         beam_minimum_chain=args.beam_minimum_chain,
         deep_chain_profile=args.deep_chain_profile,
         deep_chain_backend=args.deep_chain_backend,
+        deep_chain_target_chain=args.deep_chain_target_chain,
     )
 
 

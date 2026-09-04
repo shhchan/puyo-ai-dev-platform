@@ -675,7 +675,11 @@ class VersusRenderer:
                     (160, 210, 255),
                 ),
                 (
-                    f"max c{summary.get('max_chain', 0)} n{summary.get('expanded_nodes', 0)}",
+                    f"aim c{summary.get('target_chain', 0)} plan c{summary.get('max_chain', 0)}",
+                    (160, 210, 255),
+                ),
+                (
+                    f"actual c{info.get('max_chain_count', 0)} n{summary.get('expanded_nodes', 0)}",
                     (190, 198, 215),
                 ),
                 (

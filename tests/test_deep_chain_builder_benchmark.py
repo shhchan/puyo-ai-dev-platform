@@ -8,10 +8,12 @@ from pathlib import Path
 from agents.deep_chain_builder import load_deep_chain_builder_config
 from eval.deep_chain_builder_benchmark import (
     CANONICAL_BACKEND,
+    CANONICAL_TARGET_CHAIN_COUNT,
     MANIFEST_SCHEMA_VERSION,
     RUN_SCHEMA_VERSION,
     SUMMARY_SCHEMA_VERSION,
     _build_parser,
+    _load_completed_runs,
     audit_future_isolation,
     finalize_evidence,
     percentile,
@@ -30,6 +32,7 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         self.assertEqual(config.benchmark.repeats_per_seed, 2)
         self.assertEqual(config.benchmark.max_steps, 40)
         self.assertEqual(config.benchmark.to_dict()["run_count"], 60)
+        self.assertEqual(CANONICAL_TARGET_CHAIN_COUNT, 6)
 
     def test_percentile_is_interpolated_and_empty_is_not_evaluable(self):
         self.assertEqual(percentile([], 0.95), None)
@@ -49,6 +52,7 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         self.assertEqual(payload["termination_reason"], "turn_limit")
         self.assertEqual(payload["completed_turns"], 1)
         self.assertEqual(payload["backend"], "python")
+        self.assertEqual(payload["target_chain_count"], CANONICAL_TARGET_CHAIN_COUNT)
         self.assertEqual(payload["records"][0]["search"]["backend"]["backend"], "python")
         self.assertEqual(payload["simulator_parity_mismatch_count"], 0)
         self.assertEqual(len(payload["action_digest"]), 64)
@@ -62,6 +66,16 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
             parser.parse_args(["run"])
         with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
             parser.parse_args(["preflight"])
+        with redirect_stderr(StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(
+                [
+                    "run",
+                    "--backend",
+                    "native",
+                    "--target-chain",
+                    "10",
+                ]
+            )
 
         run_args = parser.parse_args(["run", "--backend", "native"])
         preflight_args = parser.parse_args(
@@ -79,6 +93,28 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         self.assertEqual(payload["private_future_leak_count"], 0)
         self.assertEqual(payload["seed_count"], 2)
         self.assertTrue(all(record["digests_match"] for record in payload["records"]))
+
+    def test_canonical_loader_rejects_an_experimental_target(self):
+        config = load_deep_chain_builder_config()
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            run_dir = target / "runs"
+            run_dir.mkdir(parents=True)
+            (run_dir / "seed-123-repeat-01.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": RUN_SCHEMA_VERSION,
+                        "run_id": "seed-123-repeat-01",
+                        "target_chain_count": 10,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError, "canonical target chain count mismatch"
+            ):
+                _load_completed_runs(target, config.benchmark)
 
     def test_incomplete_reference_evidence_is_a_verified_fail_not_a_pass(self):
         with tempfile.TemporaryDirectory() as directory:
