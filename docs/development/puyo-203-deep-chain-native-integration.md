@@ -149,6 +149,10 @@ CLI でも同じ実験ができる。
 | 10 | 36 手目（turn index 35）: 12 連鎖 | 12 | 13 | false |
 | 12 | 34 手目（turn index 33）: 12 連鎖 | 12 | 13 | false |
 
+action / plan / final-board digest を含む結果は
+[target-chain experiment](../benchmarks/puyo-203-deep-chain-native-integration/target_chain_experiment.json)
+に保存した。
+
 これは UI 制御が実際の選択に効くことを確かめる非 canonical 実験であり、一般 seed に対する品質保証や
 PUYO-204 の合否証跡には使わない。PUYO-204 の `run` / `preflight` コマンドは UI 設定を読まず、
 目標 6 を明示的に固定する。canonical run artifact が 6 以外なら loader が拒否する。また、固定済みの
