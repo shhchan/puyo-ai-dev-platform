@@ -94,7 +94,7 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
   --deep-chain-profile reference \
   --deep-chain-backend native \
   --deep-chain-target-chain 6 \
-  --seed 123 \
+  --seed 187 \
   --speed 4 \
   --max-frames 240 \
   --result-json docs/benchmarks/puyo-204-deep-chain-native-baseline/gui_dummy_result.json \
