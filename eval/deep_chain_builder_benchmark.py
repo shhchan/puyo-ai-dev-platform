@@ -1,4 +1,4 @@
-"""PUYO-189 deep-chain quality, performance, and acceptance evidence.
+"""PUYO-204 deep-chain native quality, performance, and acceptance evidence.
 
 The canonical ``run`` command never applies a wall-clock search cutoff.  This
 preserves the count-authoritative reference profile fixed by PUYO-185.  Runs
@@ -13,7 +13,12 @@ import argparse
 import hashlib
 import json
 import multiprocessing
+import os
+import platform
+import resource
 import subprocess
+import sys
+import tempfile
 import time
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
@@ -25,11 +30,14 @@ from agents.deep_chain_builder import (
     DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH,
     VISIBLE_INFO_FIELDS,
     VISIBLE_OBSERVATION_FIELDS,
+    DeepChainBuilderPolicy,
     build_visible_runtime_input,
     load_deep_chain_builder_config,
 )
+from agents.deep_chain_native import NativeDeepChainBackend
 from agents.deep_chain_search_backend import (
     DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH,
+    NativeLongHorizonSearchBackend,
     load_long_horizon_backend_config,
 )
 from puyo_env.actions import action_to_placement, legal_action_mask
@@ -39,34 +47,54 @@ from src.core.constants import GRID_HEIGHT, GRID_WIDTH
 from src.core.headless import HeadlessPuyoSimulator
 from train.artifacts import describe_artifact, file_sha256, git_commit, utc_timestamp
 
-RUN_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_run.v1"
-RUN_INDEX_SCHEMA_VERSION = "puyo.deep_chain_builder.run_index.v1"
-SUMMARY_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_summary.v1"
-MANIFEST_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_manifest.v1"
-PREFLIGHT_SCHEMA_VERSION = "puyo.deep_chain_builder.preflight.v1"
-FUTURE_ISOLATION_SCHEMA_VERSION = "puyo.deep_chain_builder.future_isolation.v1"
-GUI_QA_SCHEMA_VERSION = "puyo.deep_chain_builder.gui_qa.v1"
-LINEAGE_SCHEMA_VERSION = "puyo.deep_chain_builder.lineage.v1"
+RUN_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_run.v2"
+RUN_INDEX_SCHEMA_VERSION = "puyo.deep_chain_builder.run_index.v2"
+SUMMARY_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_summary.v2"
+MANIFEST_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_manifest.v2"
+PREFLIGHT_SCHEMA_VERSION = "puyo.deep_chain_builder.preflight.v2"
+FUTURE_ISOLATION_SCHEMA_VERSION = "puyo.deep_chain_builder.future_isolation.v2"
+GUI_QA_SCHEMA_VERSION = "puyo.deep_chain_builder.gui_qa.v2"
+LINEAGE_SCHEMA_VERSION = "puyo.deep_chain_builder.lineage.v2"
+BUILD_PROVENANCE_SCHEMA_VERSION = "puyo.deep_chain_builder.build_provenance.v1"
+HISTORICAL_COMPARISON_SCHEMA_VERSION = "puyo.deep_chain_builder.comparison.v1"
 
-DEFAULT_OUTPUT_DIR = Path("docs/benchmarks/puyo-189-deep-chain-builder-baseline")
+TICKET = "PUYO-204"
+PREVIOUS_TICKET = "PUYO-189"
+DEFAULT_OUTPUT_DIR = Path("docs/benchmarks/puyo-204-deep-chain-native-baseline")
+PREVIOUS_OUTPUT_DIR = Path("docs/benchmarks/puyo-189-deep-chain-builder-baseline")
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REFERENCE_SOURCE_COMMIT = "dea210bcd92965ae08fbc311f23565b0fab6dbbb"
 REFERENCE_SOURCE_URL = (
     f"https://github.com/citrus610/ama/tree/{REFERENCE_SOURCE_COMMIT}"
 )
 CANONICAL_BACKEND = "native"
+CANONICAL_EXECUTION_MODE = "scenario-6"
+DIAGNOSTIC_EXECUTION_MODE = "oracle-1"
 # PUYO-204 canonical evidence is intentionally insulated from runtime/UI
 # experiments, even if the interactive default changes in a later task.
 CANONICAL_TARGET_CHAIN_COUNT = 6
+# PUYO-189's quality contract calls every actual fire below the locked
+# ten-chain quality floor premature, independently of the search target.
+CANONICAL_PREMATURE_FIRE_CHAIN_COUNT = 10
 
 
 def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(
-        json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+    rendered = json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    with tempfile.NamedTemporaryFile(
+        mode="w",
         encoding="utf-8",
-    )
+        dir=target.parent,
+        prefix=f".{target.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as temporary:
+        temporary.write(rendered)
+        temporary.flush()
+        os.fsync(temporary.fileno())
+        temporary_path = Path(temporary.name)
+    os.replace(temporary_path, target)
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -74,6 +102,16 @@ def _read_json(path: str | Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise TypeError(f"{path} must contain a JSON object")
     return payload
+
+
+def _protect_historical_output(output_dir: str | Path) -> None:
+    target = Path(output_dir)
+    if not target.is_absolute():
+        target = REPO_ROOT / target
+    if target.resolve() == (REPO_ROOT / PREVIOUS_OUTPUT_DIR).resolve():
+        raise ValueError(
+            "PUYO-189 evidence is read-only; use the dedicated PUYO-204 output directory"
+        )
 
 
 def _json_ready(value: Any) -> Any:
@@ -119,6 +157,150 @@ def _mean(values: Sequence[float | int]) -> float | None:
     if not values:
         return None
     return sum(float(value) for value in values) / len(values)
+
+
+def _host_environment() -> dict[str, Any]:
+    cpu_model = platform.processor()
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.is_file():
+        for line in cpuinfo.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.lower().startswith("model name") and ":" in line:
+                cpu_model = line.split(":", 1)[1].strip()
+                break
+    return {
+        "platform": platform.platform(),
+        "system": platform.system(),
+        "release": platform.release(),
+        "machine": platform.machine(),
+        "cpu_model": cpu_model,
+        "logical_cpu_count": os.cpu_count(),
+        "python_version": platform.python_version(),
+        "python_implementation": platform.python_implementation(),
+        "python_abi": f"cp{sys.version_info.major}{sys.version_info.minor}",
+    }
+
+
+def _native_build_provenance(*, strict: bool) -> dict[str, Any]:
+    commit = git_commit(REPO_ROOT)
+    tracked_clean = _tracked_worktree_clean()
+    try:
+        capabilities = NativeDeepChainBackend(canonical=True).capabilities.to_dict()
+        error = None
+    except Exception as exc:  # noqa: BLE001 - evidence must retain build failures
+        capabilities = {}
+        error = {"type": type(exc).__name__, "detail": str(exc)}
+    wheel_paths = sorted(
+        (REPO_ROOT / "dist" / "native").glob(
+            "puyo_deep_chain_native-*-cp312-*-manylinux_2_28_x86_64.whl"
+        )
+    )
+    wheels = [
+        {
+            "path": str(path.relative_to(REPO_ROOT)),
+            "filename": path.name,
+            "size_bytes": path.stat().st_size,
+            "sha256": file_sha256(path),
+        }
+        for path in wheel_paths
+    ]
+    source_revision = str(capabilities.get("source_revision", ""))
+    backend_config = load_long_horizon_backend_config()
+    checks = {
+        "tracked_worktree_clean": tracked_clean,
+        "capabilities_available": error is None,
+        "release_build": capabilities.get("build_profile") == "release",
+        "source_revision_matches_commit": source_revision == commit,
+        "python_abi_matches": capabilities.get("python_abi")
+        == f"cp{sys.version_info.major}{sys.version_info.minor}",
+        "gil_detached": capabilities.get("gil_detach") is True,
+        "configured_thread_mode_available": CANONICAL_EXECUTION_MODE
+        in capabilities.get("thread_modes", ()),
+        "configured_thread_mode_locked": (
+            backend_config.native_execution_mode == CANONICAL_EXECUTION_MODE
+        ),
+        "single_release_wheel_present": len(wheels) == 1,
+    }
+    payload = {
+        "schema_version": BUILD_PROVENANCE_SCHEMA_VERSION,
+        "ticket": TICKET,
+        "recorded_at_utc": utc_timestamp(),
+        "evaluated_commit": commit,
+        "tracked_worktree_clean": tracked_clean,
+        "host": _host_environment(),
+        "capabilities": capabilities,
+        "wheels": wheels,
+        "configuration": {
+            "search_sha256": file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH),
+            "backend_sha256": file_sha256(
+                DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
+            ),
+            "backend_version": backend_config.config_version,
+            "thread_mode": backend_config.native_execution_mode,
+            "thread_count": 6,
+        },
+        "checks": checks,
+        "valid_for_canonical": all(checks.values()),
+        "error": error,
+    }
+    if strict and not payload["valid_for_canonical"]:
+        failed = ", ".join(name for name, passed in checks.items() if not passed)
+        raise RuntimeError(f"canonical native build provenance failed: {failed}")
+    return payload
+
+
+def _scenario_accounting(diagnostics: Mapping[str, Any]) -> dict[str, Any]:
+    search = diagnostics.get("search", {})
+    expected = (
+        tuple(int(value) for value in search.get("scenario_ids", ()))
+        if isinstance(search, Mapping)
+        else ()
+    )
+    aggregates = diagnostics.get("scenario_aggregation", ())
+    failures = []
+    root_count = 0
+    if isinstance(aggregates, (list, tuple)):
+        for aggregate in aggregates:
+            if not isinstance(aggregate, Mapping):
+                continue
+            root_count += 1
+            evidence = aggregate.get("evidence", {})
+            values = (
+                evidence.get("scenario_values", ())
+                if isinstance(evidence, Mapping)
+                else ()
+            )
+            ids = [
+                int(item["scenario_id"])
+                for item in values
+                if isinstance(item, Mapping) and "scenario_id" in item
+            ]
+            missing = sorted(set(expected) - set(ids))
+            unexpected = sorted(set(ids) - set(expected))
+            duplicates = sorted({value for value in ids if ids.count(value) > 1})
+            requested = (
+                int(evidence.get("requested_scenarios", 0))
+                if isinstance(evidence, Mapping)
+                else 0
+            )
+            if missing or unexpected or duplicates or requested != len(expected):
+                failures.append(
+                    {
+                        "root_action": aggregate.get("root_action"),
+                        "requested_scenarios": requested,
+                        "observed_scenario_ids": ids,
+                        "missing_scenario_ids": missing,
+                        "unexpected_scenario_ids": unexpected,
+                        "duplicate_scenario_ids": duplicates,
+                    }
+                )
+    return {
+        "expected_scenario_ids": list(expected),
+        "expected_scenario_count": len(expected),
+        "root_count": root_count,
+        "failure_count": len(failures),
+        "failures": failures,
+        "passed": bool(expected) and root_count > 0 and not failures,
+    }
 
 
 def _board_snapshot(simulator: HeadlessPuyoSimulator) -> list[list[str]]:
@@ -221,6 +403,7 @@ def audit_future_isolation(
     leak_count = sum(bool(record["leaked"]) for record in records)
     return {
         "schema_version": FUTURE_ISOLATION_SCHEMA_VERSION,
+        "ticket": TICKET,
         "method": "counterfactual_private_sentinel_boundary_audit",
         "visible_observation_fields": list(VISIBLE_OBSERVATION_FIELDS),
         "visible_info_fields": list(VISIBLE_INFO_FIELDS),
@@ -329,7 +512,21 @@ def _policy_factory(
     profile: str,
     backend: str = "python",
     target_chain_count: int = CANONICAL_TARGET_CHAIN_COUNT,
+    execution_mode: str | None = None,
 ) -> Any:
+    if backend == CANONICAL_BACKEND and execution_mode is not None:
+        backend_config = load_long_horizon_backend_config()
+        search_backend = NativeLongHorizonSearchBackend(
+            execution_mode=execution_mode,
+            max_response_bytes=backend_config.max_response_bytes,
+            canonical=True,
+        )
+        return DeepChainBuilderPolicy(
+            profile=profile,
+            backend=CANONICAL_BACKEND,
+            search_backend=search_backend,
+            target_chain_count=target_chain_count,
+        )
     return make_policy(
         "deep_chain_builder",
         seed=int(seed),
@@ -374,6 +571,7 @@ def run_benchmark_run(
     fallback_count = 0
     termination_reason = "turn_limit"
     started_at = time.perf_counter()
+    usage_started = resource.getrusage(resource.RUSAGE_SELF)
 
     for step_count in range(int(max_steps)):
         mask = legal_action_mask(simulator)
@@ -449,7 +647,7 @@ def run_benchmark_run(
         chain_count = int(actual.chain_count)
         if chain_count > 0:
             actual_fire_chain_counts.append(chain_count)
-        if 1 <= chain_count < 10:
+        if 1 <= chain_count < CANONICAL_PREMATURE_FIRE_CHAIN_COUNT:
             premature_fire_count += 1
 
         trace = diagnostics.get("decision_trace", {})
@@ -487,6 +685,11 @@ def run_benchmark_run(
                     if isinstance(backend_diagnostics, Mapping)
                     else {}
                 ),
+                "scenario_ids": _json_ready(
+                    search.get("scenario_ids", ())
+                    if isinstance(search, Mapping)
+                    else ()
+                ),
             },
             "flow": {
                 "elapsed_seconds": (
@@ -500,6 +703,7 @@ def run_benchmark_run(
             },
             "fallback": _json_ready(fallback),
             "parity": parity,
+            "scenario_accounting": _scenario_accounting(diagnostics),
         }
         record["decision_digest"] = _stable_digest(
             {
@@ -540,9 +744,10 @@ def run_benchmark_run(
     ]
     completed_turns = sum("action" in record for record in records)
     fully_evaluated = termination_reason in {"turn_limit", "game_over"}
+    usage_finished = resource.getrusage(resource.RUSAGE_SELF)
     return {
         "schema_version": RUN_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "run_id": run_identity(seed, repeat),
         "evaluated_commit": evaluated_commit,
         "configuration_sha256": configuration_sha256,
@@ -558,6 +763,15 @@ def run_benchmark_run(
         "fully_evaluated": bool(fully_evaluated),
         "termination_reason": termination_reason,
         "elapsed_seconds": float(time.perf_counter() - started_at),
+        "process_resources": {
+            "user_cpu_seconds": float(
+                usage_finished.ru_utime - usage_started.ru_utime
+            ),
+            "system_cpu_seconds": float(
+                usage_finished.ru_stime - usage_started.ru_stime
+            ),
+            "peak_rss_kib": int(usage_finished.ru_maxrss),
+        },
         "maximum_actual_fire_chain_count": max(actual_fire_chain_counts, default=0),
         "actual_fire_chain_counts": actual_fire_chain_counts,
         "premature_fire_count": int(premature_fire_count),
@@ -615,6 +829,8 @@ def _load_completed_runs(output_dir: Path, contract: Any) -> list[dict[str, Any]
         payload = _read_json(path)
         if payload.get("schema_version") != RUN_SCHEMA_VERSION:
             raise ValueError(f"unsupported run schema: {path}")
+        if payload.get("ticket") != TICKET:
+            raise ValueError(f"benchmark ticket mismatch: {path}")
         if payload.get("run_id") != identity["run_id"]:
             raise ValueError(f"run identity mismatch: {path}")
         if payload.get("target_chain_count") != CANONICAL_TARGET_CHAIN_COUNT:
@@ -633,9 +849,11 @@ def run_pending_benchmark(
 
     if backend != CANONICAL_BACKEND:
         raise ValueError("canonical deep-chain benchmark requires backend=native")
+    _protect_historical_output(output_dir)
     if max_runs is not None and max_runs <= 0:
         raise ValueError("max_runs must be positive when provided")
     target = Path(output_dir)
+    _native_build_provenance(strict=True)
     config = load_deep_chain_builder_config()
     contract = config.benchmark
     completed_now = 0
@@ -693,6 +911,11 @@ def _aggregate_latency(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
 def _aggregate_search(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     counter_values: dict[str, list[float]] = defaultdict(list)
     flow_values: dict[str, list[float]] = defaultdict(list)
+    native_timing_values: dict[str, list[float]] = defaultdict(list)
+    telemetry_values: dict[str, list[float]] = defaultdict(list)
+    python_flow_values: list[float] = []
+    scenario_decision_count = 0
+    scenario_failure_count = 0
     for run in runs:
         for record in run.get("records", ()):
             for key, value in record.get("search", {}).get("counters", {}).items():
@@ -703,6 +926,31 @@ def _aggregate_search(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
                     flow_values[str(step["step_id"])].append(
                         float(step.get("elapsed_seconds", 0.0))
                     )
+            backend = record.get("search", {}).get("backend", {})
+            if isinstance(backend, Mapping):
+                timing = backend.get("timing", {})
+                if isinstance(timing, Mapping):
+                    for key, value in timing.items():
+                        if (
+                            str(key).endswith("_ns")
+                            and isinstance(value, (int, float))
+                            and not isinstance(value, bool)
+                        ):
+                            native_timing_values[str(key)].append(
+                                float(value) / 1_000_000_000.0
+                            )
+                    backend_seconds = float(timing.get("total_ns", 0.0)) / 1e9
+                    decision_seconds = float(record.get("elapsed_seconds", 0.0))
+                    python_flow_values.append(max(0.0, decision_seconds - backend_seconds))
+                telemetry = backend.get("telemetry", {})
+                if isinstance(telemetry, Mapping):
+                    for key, value in telemetry.items():
+                        if isinstance(value, (int, float)) and not isinstance(value, bool):
+                            telemetry_values[str(key)].append(float(value))
+            accounting = record.get("scenario_accounting", {})
+            if isinstance(accounting, Mapping):
+                scenario_decision_count += 1
+                scenario_failure_count += int(accounting.get("failure_count", 0))
     counters = {
         key: {
             "sample_count": len(values),
@@ -716,18 +964,84 @@ def _aggregate_search(runs: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
     hits = sum(counter_values.get("transposition_hits", ()))
     generated = sum(counter_values.get("generated_nodes", ()))
+    expanded = sum(counter_values.get("expanded_nodes", ()))
+    native_compute_seconds = sum(native_timing_values.get("native_compute_ns", ()))
+    native_serialization_seconds = sum(
+        native_timing_values.get("native_serialization_ns", ())
+    )
+    backend_total_seconds = sum(native_timing_values.get("total_ns", ()))
+
+    def distribution(values: Sequence[float]) -> dict[str, Any]:
+        return {
+            "sample_count": len(values),
+            "total": sum(values),
+            "mean": _mean(values),
+            "p50": percentile(values, 0.50),
+            "p95": percentile(values, 0.95),
+            "max": max(values) if values else None,
+        }
+
     return {
         "counters": counters,
+        "native_phase_latency_seconds": {
+            key.removesuffix("_ns"): distribution(values)
+            for key, values in sorted(native_timing_values.items())
+        },
+        "python_flow_latency_seconds": distribution(python_flow_values),
+        "native_telemetry": {
+            key: distribution(values)
+            for key, values in sorted(telemetry_values.items())
+        },
+        "expanded_nodes_per_native_compute_second": (
+            None
+            if native_compute_seconds <= 0
+            else float(expanded / native_compute_seconds)
+        ),
         "cache_hit_rate_per_generated_node": (
             None if generated <= 0 else float(hits / generated)
         ),
+        "cache_accounting": {
+            "transposition_hits": int(hits),
+            "transposition_hit_rate_per_generated_node": (
+                None if generated <= 0 else float(hits / generated)
+            ),
+            "evaluator_resolution_cache_hits": None,
+            "evaluator_cache_availability": (
+                "not_exported_by_the_production_long_horizon_hot_path; "
+                "the independent PUYO-221/227 evaluator profile remains authoritative"
+            ),
+        },
+        "native_serialization_ratio": (
+            None
+            if backend_total_seconds <= 0
+            else float(native_serialization_seconds / backend_total_seconds)
+        ),
+        "scenario_accounting": {
+            "decision_count": scenario_decision_count,
+            "failure_count": scenario_failure_count,
+            "passed": scenario_decision_count > 0 and scenario_failure_count == 0,
+        },
+        "process_resources": {
+            "run_count": len(runs),
+            "user_cpu_seconds": sum(
+                float(run.get("process_resources", {}).get("user_cpu_seconds", 0.0))
+                for run in runs
+            ),
+            "system_cpu_seconds": sum(
+                float(run.get("process_resources", {}).get("system_cpu_seconds", 0.0))
+                for run in runs
+            ),
+            "peak_rss_kib": max(
+                (
+                    int(run.get("process_resources", {}).get("peak_rss_kib", 0))
+                    for run in runs
+                ),
+                default=None,
+            ),
+        },
         "flow_step_latency_seconds": {
             key: {
-                "sample_count": len(values),
-                "mean": _mean(values),
-                "p50": percentile(values, 0.50),
-                "p95": percentile(values, 0.95),
-                "max": max(values) if values else None,
+                **distribution(values),
             }
             for key, values in sorted(flow_values.items())
         },
@@ -784,6 +1098,115 @@ def _check(name: str, passed: bool, actual: Any, expected: Any) -> dict[str, Any
     }
 
 
+def _dummy_gui_summary(
+    result_path: str | Path | None,
+    replay_path: str | Path | None,
+) -> dict[str, Any]:
+    if result_path is None or replay_path is None:
+        return {
+            "status": "not_recorded",
+            "passed": False,
+            "checks": [],
+        }
+    result = _read_json(result_path)
+    replay = _read_json(replay_path)
+    models = result.get("models", {})
+    player_model = models.get("player_0", {}) if isinstance(models, Mapping) else {}
+    diagnostics = result.get("diagnostics", {})
+    policies = diagnostics.get("policy", {}) if isinstance(diagnostics, Mapping) else {}
+    player = policies.get("player_0", {}) if isinstance(policies, Mapping) else {}
+    backend = player.get("backend", {}) if isinstance(player, Mapping) else {}
+    fallback = player.get("fallback", {}) if isinstance(player, Mapping) else {}
+    plan = player.get("plan", {}) if isinstance(player, Mapping) else {}
+    steps = plan.get("steps", ()) if isinstance(plan, Mapping) else ()
+    selected_action = player.get("selected_action") if isinstance(player, Mapping) else None
+    first_action = (
+        steps[0].get("action")
+        if steps and isinstance(steps[0], Mapping)
+        else None
+    )
+    controller = diagnostics.get("controller", {}) if isinstance(diagnostics, Mapping) else {}
+    player_controller = (
+        controller.get("player_0", {}) if isinstance(controller, Mapping) else {}
+    )
+    checks = [
+        _check(
+            "result_schema",
+            result.get("schema_version") == "puyo.gui_qa.v1",
+            result.get("schema_version"),
+            "puyo.gui_qa.v1",
+        ),
+        _check(
+            "replay_schema",
+            replay.get("format") == "puyo-realtime-match-v1",
+            replay.get("format"),
+            "puyo-realtime-match-v1",
+        ),
+        _check(
+            "reference_native_profile",
+            player_model.get("deep_chain_profile") == "reference"
+            and player_model.get("deep_chain_backend") == CANONICAL_BACKEND,
+            {
+                "profile": player_model.get("deep_chain_profile"),
+                "backend": player_model.get("deep_chain_backend"),
+            },
+            {"profile": "reference", "backend": CANONICAL_BACKEND},
+        ),
+        _check(
+            "canonical_target",
+            player_model.get("deep_chain_target_chain")
+            == CANONICAL_TARGET_CHAIN_COUNT,
+            player_model.get("deep_chain_target_chain"),
+            CANONICAL_TARGET_CHAIN_COUNT,
+        ),
+        _check(
+            "native_without_fallback",
+            isinstance(backend, Mapping)
+            and backend.get("backend") == CANONICAL_BACKEND
+            and isinstance(fallback, Mapping)
+            and fallback.get("used") is False,
+            {
+                "backend": backend.get("backend")
+                if isinstance(backend, Mapping)
+                else None,
+                "fallback": fallback.get("used")
+                if isinstance(fallback, Mapping)
+                else None,
+            },
+            {"backend": CANONICAL_BACKEND, "fallback": False},
+        ),
+        _check(
+            "plan_step_one_matches_action",
+            selected_action is not None and selected_action == first_action,
+            {"selected_action": selected_action, "plan_step_one": first_action},
+            "equal",
+        ),
+        _check(
+            "decisions_and_replan_observed",
+            int(player_controller.get("decisions_started", 0)) >= 3
+            and int(player_controller.get("replans", 0)) >= 1,
+            {
+                "decisions": player_controller.get("decisions_started"),
+                "replans": player_controller.get("replans"),
+            },
+            {"decisions": ">= 3", "replans": ">= 1"},
+        ),
+        _check(
+            "plan_overlay_enabled",
+            result.get("plan_overlay_player_0") is True,
+            result.get("plan_overlay_player_0"),
+            True,
+        ),
+    ]
+    return {
+        "status": "passed" if all(check["passed"] for check in checks) else "failed",
+        "passed": all(check["passed"] for check in checks),
+        "result_path": str(result_path),
+        "replay_path": str(replay_path),
+        "checks": checks,
+    }
+
+
 def _default_gui_qa() -> dict[str, Any]:
     checks = [
         "n_turn_ghost_matches_selected_action",
@@ -793,7 +1216,7 @@ def _default_gui_qa() -> dict[str, Any]:
     ]
     return {
         "schema_version": GUI_QA_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "automated": {
             "status": "not_recorded",
             "passed": False,
@@ -805,6 +1228,11 @@ def _default_gui_qa() -> dict[str, Any]:
             "reviewer": None,
             "checks": [{"name": name, "passed": None} for name in checks],
             "notes": "A normal-window python main.py review is still required.",
+        },
+        "dummy_replay": {
+            "status": "not_recorded",
+            "passed": False,
+            "checks": [],
         },
         "passed": False,
     }
@@ -818,7 +1246,10 @@ def record_gui_qa(
     manual_status: str,
     reviewer: str | None,
     notes: str,
+    dummy_result_path: str | Path | None = None,
+    dummy_replay_path: str | Path | None = None,
 ) -> dict[str, Any]:
+    _protect_historical_output(output_dir)
     if manual_status not in {"pending", "passed", "failed"}:
         raise ValueError("manual_status must be pending, passed, or failed")
     if manual_status == "passed" and not reviewer:
@@ -834,9 +1265,10 @@ def record_gui_qa(
         if manual_status == "passed"
         else (False if manual_status == "failed" else None)
     )
+    dummy_replay = _dummy_gui_summary(dummy_result_path, dummy_replay_path)
     payload = {
         "schema_version": GUI_QA_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "recorded_at_utc": utc_timestamp(),
         "automated": {
             "status": "passed" if automated_passed else "failed",
@@ -850,7 +1282,12 @@ def record_gui_qa(
             "checks": [{"name": name, "passed": manual_value} for name in check_names],
             "notes": notes,
         },
-        "passed": bool(automated_passed and manual_status == "passed"),
+        "dummy_replay": dummy_replay,
+        "passed": bool(
+            automated_passed
+            and dummy_replay.get("passed")
+            and manual_status == "passed"
+        ),
     }
     _write_json(Path(output_dir) / "gui_qa.json", payload)
     return payload
@@ -867,11 +1304,15 @@ def _tracked_worktree_clean() -> bool:
     return result.returncode == 0 and not result.stdout.strip()
 
 
-def _lineage_payload(config: Any) -> dict[str, Any]:
+def _lineage_payload(
+    config: Any,
+    *,
+    build_provenance: Mapping[str, Any],
+) -> dict[str, Any]:
     backend_config = load_long_horizon_backend_config()
     return {
         "schema_version": LINEAGE_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "evaluated_commit": git_commit(REPO_ROOT),
         "tracked_worktree_clean_at_finalize": _tracked_worktree_clean(),
         "configuration": {
@@ -894,6 +1335,8 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
             "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
             "environment": config.benchmark.environment,
         },
+        "native_build": _json_ready(build_provenance),
+        "host": _host_environment(),
         "reference_attribution": {
             "source_url": REFERENCE_SOURCE_URL,
             "source_commit": REFERENCE_SOURCE_COMMIT,
@@ -905,16 +1348,16 @@ def _lineage_payload(config: Any) -> dict[str, Any]:
             "canonical_run": (
                 ".venv/bin/python -m eval.deep_chain_builder_benchmark run "
                 "--backend native "
-                "--output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline"
+                "--output-dir docs/benchmarks/puyo-204-deep-chain-native-baseline"
             ),
             "resume_one_run": (
                 ".venv/bin/python -m eval.deep_chain_builder_benchmark run "
                 "--backend native --max-runs 1 --output-dir "
-                "docs/benchmarks/puyo-189-deep-chain-builder-baseline"
+                "docs/benchmarks/puyo-204-deep-chain-native-baseline"
             ),
             "verify": (
                 ".venv/bin/python -m eval.deep_chain_builder_benchmark verify "
-                "--output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline"
+                "--output-dir docs/benchmarks/puyo-204-deep-chain-native-baseline"
             ),
         },
         "promotion_constraints": {
@@ -932,42 +1375,80 @@ def _preflight_worker(
     profile: str,
     backend: str,
     max_steps: int,
+    execution_mode: str,
+    sample_labels: Sequence[str],
 ) -> None:
     observation, info = _initial_observation_and_info(seed, max_steps=max_steps)
-    started = time.perf_counter()
+    worker_started = time.perf_counter()
     try:
-        policy = _policy_factory(
-            seed,
-            profile,
-            backend,
-            CANONICAL_TARGET_CHAIN_COUNT,
-        )
-        action = int(policy.select_action(observation, info))
-        diagnostics = getattr(policy, "tactical_diagnostics", {})
+        samples = []
+        policy = None
+        for label in sample_labels:
+            if policy is not None:
+                policy.reset()
+            usage_started = resource.getrusage(resource.RUSAGE_SELF)
+            started = time.perf_counter()
+            if policy is None:
+                policy = _policy_factory(
+                    seed,
+                    profile,
+                    backend,
+                    CANONICAL_TARGET_CHAIN_COUNT,
+                    execution_mode,
+                )
+            action = int(policy.select_action(observation, info))
+            elapsed = time.perf_counter() - started
+            usage_finished = resource.getrusage(resource.RUSAGE_SELF)
+            diagnostics = getattr(policy, "tactical_diagnostics", {})
+            if not isinstance(diagnostics, Mapping):
+                diagnostics = {}
+            search = diagnostics.get("search", {})
+            plan = _plan_summary(diagnostics.get("plan", {}))
+            sample = {
+                "label": str(label),
+                "completed": True,
+                "execution_mode": execution_mode,
+                "action": action,
+                "elapsed_seconds": float(elapsed),
+                "fallback": _json_ready(diagnostics.get("fallback", {})),
+                "search": _json_ready(search),
+                "decision_trace": _json_ready(
+                    diagnostics.get("decision_trace", {})
+                ),
+                "backend": _json_ready(diagnostics.get("backend", {})),
+                "scenario_accounting": _scenario_accounting(diagnostics),
+                "plan_digest": _stable_digest(plan, prefix="puyo-204-preflight-plan"),
+                "decision_digest": _stable_digest(
+                    {
+                        "action": action,
+                        "plan": plan,
+                        "search_digest": (
+                            search.get("deterministic_digest", "")
+                            if isinstance(search, Mapping)
+                            else ""
+                        ),
+                    },
+                    prefix="puyo-204-preflight-decision",
+                ),
+                "resources": {
+                    "user_cpu_seconds": float(
+                        usage_finished.ru_utime - usage_started.ru_utime
+                    ),
+                    "system_cpu_seconds": float(
+                        usage_finished.ru_stime - usage_started.ru_stime
+                    ),
+                    "peak_rss_kib": int(usage_finished.ru_maxrss),
+                },
+            }
+            samples.append(sample)
         queue.put(
             {
                 "completed": True,
-                "action": action,
-                "elapsed_seconds": float(time.perf_counter() - started),
-                "fallback": _json_ready(
-                    diagnostics.get("fallback", {})
-                    if isinstance(diagnostics, Mapping)
-                    else {}
-                ),
-                "search": _json_ready(
-                    diagnostics.get("search", {})
-                    if isinstance(diagnostics, Mapping)
-                    else {}
-                ),
-                "decision_trace": _json_ready(
-                    diagnostics.get("decision_trace", {})
-                    if isinstance(diagnostics, Mapping)
-                    else {}
-                ),
-                "backend": _json_ready(
-                    diagnostics.get("backend", {})
-                    if isinstance(diagnostics, Mapping)
-                    else {}
+                "execution_mode": execution_mode,
+                "samples": samples,
+                "elapsed_seconds": float(time.perf_counter() - worker_started),
+                "peak_rss_kib": int(
+                    resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 ),
             }
         )
@@ -976,7 +1457,8 @@ def _preflight_worker(
             {
                 "completed": False,
                 "error": {"type": type(exc).__name__, "detail": str(exc)},
-                "elapsed_seconds": float(time.perf_counter() - started),
+                "execution_mode": execution_mode,
+                "elapsed_seconds": float(time.perf_counter() - worker_started),
             }
         )
 
@@ -988,10 +1470,12 @@ def run_preflight(
     seed: int | None = None,
     timeout_seconds: float = 5.0,
 ) -> dict[str, Any]:
-    """Run one non-canonical supervised decision latency probe."""
+    """Run cold/warm and one-thread non-canonical latency diagnostics."""
 
     if backend != CANONICAL_BACKEND:
         raise ValueError("reference preflight requires backend=native")
+    _protect_historical_output(output_dir)
+    build_provenance = _native_build_provenance(strict=True)
     config = load_deep_chain_builder_config()
     contract = config.benchmark
     selected_seed = contract.seed_start if seed is None else int(seed)
@@ -1000,37 +1484,112 @@ def run_preflight(
             "preflight timeout must be at least the locked decision p95 threshold"
         )
     context = multiprocessing.get_context("spawn")
-    queue = context.Queue()
-    process = context.Process(
-        target=_preflight_worker,
-        args=(queue, selected_seed, "reference", backend, contract.max_steps),
+
+    def supervised(
+        execution_mode: str,
+        labels: Sequence[str],
+    ) -> dict[str, Any]:
+        queue = context.Queue()
+        process = context.Process(
+            target=_preflight_worker,
+            args=(
+                queue,
+                selected_seed,
+                "reference",
+                backend,
+                contract.max_steps,
+                execution_mode,
+                tuple(labels),
+            ),
+        )
+        started = time.perf_counter()
+        process.start()
+        process.join(timeout=float(timeout_seconds))
+        timed_out = process.is_alive()
+        if timed_out:
+            process.terminate()
+            process.join()
+        observed = time.perf_counter() - started
+        result = None
+        if not timed_out:
+            try:
+                result = queue.get(timeout=1.0)
+            except Empty:
+                result = None
+        queue.close()
+        return {
+            "execution_mode": execution_mode,
+            "timed_out": timed_out,
+            "child_exit_code": process.exitcode,
+            "supervisor_elapsed_seconds": float(observed),
+            "result": result,
+        }
+
+    adopted = supervised(CANONICAL_EXECUTION_MODE, ("cold", "warm"))
+    adopted_result = adopted.get("result")
+    if not isinstance(adopted_result, Mapping):
+        adopted_result = {}
+    one_thread = (
+        supervised(DIAGNOSTIC_EXECUTION_MODE, ("one_thread",))
+        if adopted_result.get("completed")
+        else {
+            "execution_mode": DIAGNOSTIC_EXECUTION_MODE,
+            "timed_out": False,
+            "child_exit_code": None,
+            "supervisor_elapsed_seconds": 0.0,
+            "result": {
+                "completed": False,
+                "error": {
+                    "type": "Skipped",
+                    "detail": "adopted thread-mode diagnostic did not complete",
+                },
+            },
+        }
     )
-    started = time.perf_counter()
-    process.start()
-    process.join(timeout=float(timeout_seconds))
-    timed_out = process.is_alive()
-    if timed_out:
-        process.terminate()
-        process.join()
-    observed_elapsed = time.perf_counter() - started
-    result = None
-    if not timed_out:
-        try:
-            result = queue.get(timeout=1.0)
-        except Empty:
-            result = None
-    queue.close()
-    completed = bool(result and result.get("completed"))
-    measured_elapsed = float(result["elapsed_seconds"]) if completed else None
+    one_thread_result = one_thread.get("result")
+    if not isinstance(one_thread_result, Mapping):
+        one_thread_result = {}
+    adopted_samples = adopted_result.get("samples", ())
+    one_thread_samples = one_thread_result.get("samples", ())
+    completed = len(adopted_samples) == 2
+    measured_values = [
+        float(sample["elapsed_seconds"])
+        for sample in adopted_samples
+        if sample.get("completed") and sample.get("elapsed_seconds") is not None
+    ]
+    measured_elapsed = measured_values[0] if measured_values else None
+    timed_out = bool(adopted["timed_out"])
     latency_lower_bound = float(timeout_seconds) if timed_out else measured_elapsed
     performance_passed = bool(
         completed
-        and measured_elapsed is not None
-        and measured_elapsed <= contract.maximum_decision_p95_seconds
+        and len(measured_values) == 2
+        and all(
+            value <= contract.maximum_decision_p95_seconds
+            for value in measured_values
+        )
     )
+    adopted_digest_match = bool(
+        len(adopted_samples) == 2
+        and len({sample.get("decision_digest") for sample in adopted_samples}) == 1
+    )
+    one_thread_match = bool(
+        adopted_samples
+        and one_thread_samples
+        and adopted_samples[0].get("decision_digest")
+        == one_thread_samples[0].get("decision_digest")
+    )
+    thread_determinism = {
+        "adopted_mode": CANONICAL_EXECUTION_MODE,
+        "adopted_thread_count": 6,
+        "diagnostic_mode": DIAGNOSTIC_EXECUTION_MODE,
+        "diagnostic_thread_count": 1,
+        "cold_warm_digest_match": adopted_digest_match,
+        "one_thread_matches_adopted": one_thread_match,
+        "passed": adopted_digest_match and one_thread_match,
+    }
     payload = {
         "schema_version": PREFLIGHT_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "created_at_utc": utc_timestamp(),
         "canonical_quality_evidence": False,
         "purpose": "bounded latency diagnosis before the canonical resumable run",
@@ -1043,17 +1602,23 @@ def run_preflight(
         "backend": backend,
         "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
         "profile": config.profile("reference").to_dict(),
+        "build_provenance": build_provenance,
         "timeout_seconds": float(timeout_seconds),
         "timed_out": bool(timed_out),
-        "child_exit_code": process.exitcode,
-        "supervisor_elapsed_seconds": float(observed_elapsed),
+        "child_exit_code": adopted["child_exit_code"],
+        "supervisor_elapsed_seconds": adopted["supervisor_elapsed_seconds"],
         "decision_elapsed_seconds": measured_elapsed,
         "decision_latency_lower_bound_seconds": latency_lower_bound,
         "locked_maximum_decision_p95_seconds": float(
             contract.maximum_decision_p95_seconds
         ),
         "performance_gate_passed": performance_passed,
-        "result": result,
+        "thread_determinism": thread_determinism,
+        "diagnostics": {
+            CANONICAL_EXECUTION_MODE: adopted,
+            DIAGNOSTIC_EXECUTION_MODE: one_thread,
+        },
+        "result": adopted_samples[0] if adopted_samples else adopted.get("result"),
         "interpretation": (
             "reference decision exceeded the diagnostic budget; quality was not "
             "inferred from the terminated process"
@@ -1093,6 +1658,18 @@ def _failure_taxonomy(
                 else "actual-fire results are available in run artifacts"
             ),
         },
+        "transition": {
+            "status": "not_evaluable"
+            if no_complete_search
+            else ("mismatch" if parity_mismatches else "matched"),
+            "authoritative_parity_mismatch_count": int(parity_mismatches),
+        },
+        "boundary": {
+            "status": "not_evaluable"
+            if no_complete_search
+            else ("fallback" if fallback_count else "native_only"),
+            "fallback_count": int(fallback_count),
+        },
         "flow": {
             "status": "not_evaluable" if no_complete_search else "evaluated",
             "fallback_count": int(fallback_count),
@@ -1114,6 +1691,60 @@ def _failure_taxonomy(
     }
 
 
+def _historical_comparison(
+    *,
+    latency: Mapping[str, Any],
+    build_provenance: Mapping[str, Any],
+) -> dict[str, Any]:
+    prior_preflight_path = REPO_ROOT / PREVIOUS_OUTPUT_DIR / "preflight.json"
+    prior_preflight = (
+        _read_json(prior_preflight_path) if prior_preflight_path.is_file() else {}
+    )
+    prior_lower_bound = prior_preflight.get("decision_latency_lower_bound_seconds")
+    current_p95 = latency.get("p95_seconds")
+    speedup_lower_bound = (
+        None
+        if not isinstance(prior_lower_bound, (int, float))
+        or not isinstance(current_p95, (int, float))
+        or current_p95 <= 0
+        else float(prior_lower_bound / current_p95)
+    )
+    return {
+        "schema_version": HISTORICAL_COMPARISON_SCHEMA_VERSION,
+        "ticket": TICKET,
+        "compared_ticket": PREVIOUS_TICKET,
+        "profile_contract_equal": True,
+        "locked_conditions": {
+            "depth": 16,
+            "width": 250,
+            "scenarios": 6,
+            "max_expanded_nodes": 600_000,
+            "seeds": "123-152",
+            "repeats_per_seed": 2,
+            "placements_per_run": 40,
+        },
+        "previous": {
+            "backend": "python",
+            "decision_latency_lower_bound_seconds": prior_lower_bound,
+            "evaluated_commit": prior_preflight.get("evaluated_commit"),
+            "host": "not recorded in the PUYO-189 preflight schema",
+        },
+        "current": {
+            "backend": CANONICAL_BACKEND,
+            "decision_p95_seconds": current_p95,
+            "evaluated_commit": build_provenance.get("evaluated_commit"),
+            "host": build_provenance.get("host"),
+            "native_build": build_provenance.get("capabilities"),
+        },
+        "speedup_lower_bound_from_previous_timeout": speedup_lower_bound,
+        "direct_ratio_caveat": (
+            "The locked workload is equal, but PUYO-189 did not record equivalent "
+            "host/build provenance. The ratio is a lower-bound observation, not a "
+            "same-host microbenchmark comparison."
+        ),
+    }
+
+
 def _report(summary: Mapping[str, Any], lineage: Mapping[str, Any]) -> str:
     aggregate = summary["aggregate"]
     gates = summary["gates"]
@@ -1128,7 +1759,7 @@ def _report(summary: Mapping[str, Any], lineage: Mapping[str, Any]) -> str:
         return str(value)
 
     lines = [
-        "# PUYO-189 Deep-chain baseline evaluation",
+        "# PUYO-204 Deep-chain native baseline evaluation",
         "",
         f"Decision: **{baseline['decision']}**",
         "",
@@ -1151,7 +1782,20 @@ def _report(summary: Mapping[str, Any], lineage: Mapping[str, Any]) -> str:
         f"- Game overs: {aggregate['game_over_count']}",
         f"- Simulator parity mismatches: {aggregate['simulator_parity_mismatch_count']}",
         f"- Private future leaks: {aggregate['private_future_leak_count']}",
+        f"- Fallbacks: {aggregate['fallback_count']}",
+        (
+            "- Scenario accounting failures: "
+            f"{aggregate['search']['scenario_accounting']['failure_count']}"
+        ),
         f"- Decision p95 seconds: {display(aggregate['latency']['p95_seconds'])}",
+        (
+            "- Expanded nodes / native compute second: "
+            f"{display(aggregate['search']['expanded_nodes_per_native_compute_second'])}"
+        ),
+        (
+            "- Native serialization ratio: "
+            f"{display(aggregate['search']['native_serialization_ratio'])}"
+        ),
         f"- Preflight latency lower bound seconds: {display(preflight.get('decision_latency_lower_bound_seconds'))}",
         "",
         "## Gate results",
@@ -1201,6 +1845,7 @@ def _report(summary: Mapping[str, Any], lineage: Mapping[str, Any]) -> str:
 def finalize_evidence(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
 ) -> dict[str, Any]:
+    _protect_historical_output(output_dir)
     target = Path(output_dir)
     target.mkdir(parents=True, exist_ok=True)
     config = load_deep_chain_builder_config()
@@ -1210,6 +1855,8 @@ def finalize_evidence(
     expected = expected_run_identities(contract)
     runs = _load_completed_runs(target, contract)
     by_id = {str(run["run_id"]): run for run in runs}
+    build_provenance = _native_build_provenance(strict=False)
+    _write_json(target / "build_provenance.json", build_provenance)
     preflight_path = target / "preflight.json"
     preflight = _read_json(preflight_path) if preflight_path.is_file() else None
     gui_path = target / "gui_qa.json"
@@ -1244,6 +1891,7 @@ def finalize_evidence(
         )
     run_index = {
         "schema_version": RUN_INDEX_SCHEMA_VERSION,
+        "ticket": TICKET,
         "expected_run_count": len(expected),
         "executed_run_count": len(runs),
         "all_identities_accounted_for": len(run_index_records) == len(expected),
@@ -1271,9 +1919,36 @@ def finalize_evidence(
         and run.get("target_chain_count") == CANONICAL_TARGET_CHAIN_COUNT
         for run in runs
     )
+    matching_native_run_count = 0
+    for run in runs:
+        action_records = [
+            record for record in run.get("records", ()) if "action" in record
+        ]
+        native_records_match = bool(action_records)
+        for record in action_records:
+            native = record.get("search", {}).get("backend", {})
+            provenance = native.get("provenance", {}) if isinstance(native, Mapping) else {}
+            native_records_match = native_records_match and bool(
+                isinstance(native, Mapping)
+                and native.get("backend") == CANONICAL_BACKEND
+                and native.get("requested_backend") == CANONICAL_BACKEND
+                and native.get("execution_mode") == CANONICAL_EXECUTION_MODE
+                and native.get("boundary_call_count") == 1
+                and isinstance(provenance, Mapping)
+                and provenance.get("build_profile") == "release"
+                and provenance.get("source_revision") == run.get("evaluated_commit")
+                and provenance.get("thread_mode") == CANONICAL_EXECUTION_MODE
+                and provenance.get("thread_count") == 6
+            )
+        matching_native_run_count += int(native_records_match)
     latency = _aggregate_latency(runs)
     search = _aggregate_search(runs)
     determinism = _determinism_summary(runs, seeds=seeds)
+    historical_comparison = _historical_comparison(
+        latency=latency,
+        build_provenance=build_provenance,
+    )
+    _write_json(target / "historical_comparison.json", historical_comparison)
 
     coverage_checks = [
         _check(
@@ -1300,6 +1975,21 @@ def finalize_evidence(
             matching_lineage_count,
             len(expected),
         ),
+        _check(
+            "canonical_native_build_per_run",
+            matching_native_run_count == len(expected),
+            matching_native_run_count,
+            len(expected),
+        ),
+    ]
+    build_checks = [
+        _check(
+            name,
+            bool(passed),
+            passed,
+            True,
+        )
+        for name, passed in build_provenance.get("checks", {}).items()
     ]
     mean_maximum_chain = _mean(maximum_chains)
     quality_checks = [
@@ -1372,6 +2062,33 @@ def finalize_evidence(
             determinism["matching_pair_count"],
             contract.seed_count,
         ),
+        _check(
+            "cold_warm_and_one_thread_determinism",
+            bool(preflight)
+            and bool(preflight.get("thread_determinism", {}).get("passed")),
+            (
+                None
+                if preflight is None
+                else preflight.get("thread_determinism", {}).get("passed")
+            ),
+            True,
+        ),
+    ]
+    scenario_checks = [
+        _check(
+            "all_decisions_accounted_for",
+            search["scenario_accounting"]["decision_count"]
+            == latency["sample_count"],
+            search["scenario_accounting"]["decision_count"],
+            latency["sample_count"],
+        ),
+        _check(
+            "missing_duplicate_or_unexpected_scenarios",
+            search["scenario_accounting"]["failure_count"] == 0
+            and latency["sample_count"] > 0,
+            search["scenario_accounting"]["failure_count"],
+            0,
+        ),
     ]
     preflight_failed = bool(preflight and not preflight.get("performance_gate_passed"))
     p95 = latency["p95_seconds"]
@@ -1405,6 +2122,12 @@ def finalize_evidence(
             "passed",
         ),
         _check(
+            "dummy_gui_replay_contract",
+            bool(gui_qa.get("dummy_replay", {}).get("passed")),
+            gui_qa.get("dummy_replay", {}).get("status"),
+            "passed",
+        ),
+        _check(
             "manual_gui_review",
             gui_qa.get("manual", {}).get("status") == "passed",
             gui_qa.get("manual", {}).get("status"),
@@ -1419,11 +2142,13 @@ def finalize_evidence(
         }
 
     gates = {
+        "native_build": gate(build_checks),
         "coverage": gate(coverage_checks),
         "quality": gate(quality_checks),
         "simulator_parity": gate(parity_checks),
         "future_isolation": gate(isolation_checks),
         "determinism": gate(determinism_checks),
+        "scenario_accounting": gate(scenario_checks),
         "performance": gate(performance_checks),
         "gui_human_qa": gate(gui_checks),
     }
@@ -1438,7 +2163,7 @@ def finalize_evidence(
     )
     summary = {
         "schema_version": SUMMARY_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "generated_at_utc": utc_timestamp(),
         "configuration": {
             "policy_id": config.policy_id,
@@ -1464,14 +2189,17 @@ def finalize_evidence(
             ),
             "fallback_count": int(fallback_count),
             "matching_lineage_run_count": int(matching_lineage_count),
+            "matching_native_run_count": int(matching_native_run_count),
             "latency": latency,
             "search": search,
         },
         "determinism": determinism,
+        "historical_comparison": historical_comparison,
         "preflight": preflight,
         "gui_qa": {
             "passed": bool(gui_qa.get("passed")),
             "automated_status": gui_qa.get("automated", {}).get("status"),
+            "dummy_replay_status": gui_qa.get("dummy_replay", {}).get("status"),
             "manual_status": gui_qa.get("manual", {}).get("status"),
         },
         "gates": gates,
@@ -1496,7 +2224,7 @@ def finalize_evidence(
             "failure_taxonomy": summary["failure_taxonomy"],
             "baseline_decision": summary["baseline_decision"],
         },
-        prefix="puyo-189-benchmark-summary",
+        prefix="puyo-204-benchmark-summary",
     )
     _write_json(target / "benchmark_summary.json", summary)
 
@@ -1511,7 +2239,7 @@ def finalize_evidence(
         "configuration_sha256": backend_configuration_sha256,
     }
     _write_json(target / "configuration.json", configuration)
-    lineage = _lineage_payload(config)
+    lineage = _lineage_payload(config, build_provenance=build_provenance)
     _write_json(target / "lineage.json", lineage)
     (target / "benchmark_report.md").write_text(
         _report(summary, lineage),
@@ -1533,7 +2261,7 @@ def finalize_evidence(
     ]
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
-        "ticket": "PUYO-189",
+        "ticket": TICKET,
         "created_at_utc": utc_timestamp(),
         "evaluated_commit": lineage["evaluated_commit"],
         "configuration_sha256": lineage["configuration"]["sha256"],
@@ -1553,7 +2281,7 @@ def finalize_evidence(
             "baseline_decision": manifest["baseline_decision"],
             "artifacts": manifest["artifacts"],
         },
-        prefix="puyo-189-benchmark-manifest",
+        prefix="puyo-204-benchmark-manifest",
     )
     _write_json(target / "benchmark_manifest.json", manifest)
     return summary
@@ -1566,7 +2294,21 @@ def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
     if not manifest_path.is_file():
         return ["benchmark_manifest.json is missing"]
     manifest = _read_json(manifest_path)
-    if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
+    legacy = manifest.get("ticket") == PREVIOUS_TICKET
+    expected_manifest_schema = (
+        "puyo.deep_chain_builder.benchmark_manifest.v1"
+        if legacy
+        else MANIFEST_SCHEMA_VERSION
+    )
+    expected_summary_schema = (
+        "puyo.deep_chain_builder.benchmark_summary.v1"
+        if legacy
+        else SUMMARY_SCHEMA_VERSION
+    )
+    digest_ticket = "189" if legacy else "204"
+    if manifest.get("ticket") not in {TICKET, PREVIOUS_TICKET}:
+        issues.append("benchmark ticket mismatch")
+    if manifest.get("schema_version") != expected_manifest_schema:
         issues.append("benchmark manifest schema mismatch")
     for artifact in manifest.get("artifacts", ()):
         path = target / str(artifact.get("path", ""))
@@ -1583,8 +2325,10 @@ def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
     run_index_path = target / "run_index.json"
     if summary_path.is_file():
         summary = _read_json(summary_path)
-        if summary.get("schema_version") != SUMMARY_SCHEMA_VERSION:
+        if summary.get("schema_version") != expected_summary_schema:
             issues.append("benchmark summary schema mismatch")
+        if summary.get("ticket") != manifest.get("ticket"):
+            issues.append("manifest and summary tickets disagree")
         expected_digest = _stable_digest(
             {
                 "configuration": summary.get("configuration"),
@@ -1594,7 +2338,7 @@ def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
                 "failure_taxonomy": summary.get("failure_taxonomy"),
                 "baseline_decision": summary.get("baseline_decision"),
             },
-            prefix="puyo-189-benchmark-summary",
+            prefix=f"puyo-{digest_ticket}-benchmark-summary",
         )
         if summary.get("summary_digest") != expected_digest:
             issues.append("benchmark summary digest mismatch")
@@ -1633,7 +2377,7 @@ def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
             "baseline_decision": manifest.get("baseline_decision"),
             "artifacts": manifest.get("artifacts"),
         },
-        prefix="puyo-189-benchmark-manifest",
+        prefix=f"puyo-{digest_ticket}-benchmark-manifest",
     )
     if manifest.get("manifest_digest") != expected_manifest_digest:
         issues.append("benchmark manifest digest mismatch")
@@ -1673,6 +2417,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     gui.add_argument("--reviewer")
     gui.add_argument("--notes", default="")
+    gui.add_argument("--dummy-result", type=Path)
+    gui.add_argument("--dummy-replay", type=Path)
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -1704,6 +2450,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             manual_status=args.manual_status,
             reviewer=args.reviewer,
             notes=args.notes,
+            dummy_result_path=args.dummy_result,
+            dummy_replay_path=args.dummy_replay,
         )
     else:
         issues = verify_evidence(args.output_dir)

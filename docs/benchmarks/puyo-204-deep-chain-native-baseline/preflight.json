@@ -1,0 +1,2976 @@
+{
+  "backend": "native",
+  "backend_configuration_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+  "build_provenance": {
+    "capabilities": {
+      "abi_version": 1,
+      "build_profile": "release",
+      "compact_hot_result": {
+        "abi_version": 1,
+        "child_state_bytes": 80,
+        "flags_mask": 15,
+        "result_bytes": 24,
+        "schema": "puyo.native_compact_hot_result.v1"
+      },
+      "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "cpu_features": [
+        "scalar",
+        "sse2",
+        "ssse3",
+        "sse4.1",
+        "avx2"
+      ],
+      "crate_version": "0.4.0",
+      "gil_detach": true,
+      "limits": {
+        "max_request_bytes": 16777216,
+        "max_response_bytes": 16777216,
+        "max_sections": 64
+      },
+      "max_threads": 6,
+      "parallel": true,
+      "python_abi": "cp312",
+      "scalar_fallback": true,
+      "schema": {
+        "major": 1,
+        "minor_max": 0,
+        "minor_min": 0,
+        "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+        "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+      },
+      "simd_path": "scalar",
+      "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+      "target": "x86_64-unknown-linux-gnu",
+      "thread_modes": [
+        "oracle-1",
+        "scenario-6"
+      ],
+      "wheel_hash_hook": true,
+      "wire_name": "puyo.deep_chain_native.envelope.v1"
+    },
+    "checks": {
+      "capabilities_available": true,
+      "configured_thread_mode_available": true,
+      "configured_thread_mode_locked": true,
+      "gil_detached": true,
+      "python_abi_matches": true,
+      "release_build": true,
+      "single_release_wheel_present": true,
+      "source_revision_matches_commit": true,
+      "tracked_worktree_clean": true
+    },
+    "configuration": {
+      "backend_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+      "backend_version": "1.0",
+      "search_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+      "thread_count": 6,
+      "thread_mode": "scenario-6"
+    },
+    "error": null,
+    "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+    "host": {
+      "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+      "logical_cpu_count": 8,
+      "machine": "x86_64",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "python_abi": "cp312",
+      "python_implementation": "CPython",
+      "python_version": "3.12.3",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "system": "Linux"
+    },
+    "recorded_at_utc": "2026-09-06T01:50:48Z",
+    "schema_version": "puyo.deep_chain_builder.build_provenance.v1",
+    "ticket": "PUYO-204",
+    "tracked_worktree_clean": true,
+    "valid_for_canonical": true,
+    "wheels": [
+      {
+        "filename": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "path": "dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "d0b0696b49db9642ea8f46c56c668e9a555c2f80d2eed044c54cf72dac06ccfa",
+        "size_bytes": 1663098
+      }
+    ]
+  },
+  "canonical_quality_evidence": false,
+  "child_exit_code": 0,
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "created_at_utc": "2026-09-06T01:50:55Z",
+  "decision_elapsed_seconds": 0.6530682980001075,
+  "decision_latency_lower_bound_seconds": 0.6530682980001075,
+  "diagnostics": {
+    "oracle-1": {
+      "child_exit_code": 0,
+      "execution_mode": "oracle-1",
+      "result": {
+        "completed": true,
+        "elapsed_seconds": 2.0326573699999244,
+        "execution_mode": "oracle-1",
+        "peak_rss_kib": 254792,
+        "samples": [
+          {
+            "action": 16,
+            "backend": {
+              "backend": "native",
+              "boundary_call_count": 1,
+              "budget_exhausted": false,
+              "canonical": true,
+              "capabilities": {
+                "abi_version": 1,
+                "build_profile": "release",
+                "compact_hot_result": {
+                  "abi_version": 1,
+                  "child_state_bytes": 80,
+                  "flags_mask": 15,
+                  "result_bytes": 24,
+                  "schema": "puyo.native_compact_hot_result.v1"
+                },
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "cpu_features": [
+                  "scalar",
+                  "sse2",
+                  "ssse3",
+                  "sse4.1",
+                  "avx2"
+                ],
+                "crate_version": "0.4.0",
+                "gil_detach": true,
+                "limits": {
+                  "max_request_bytes": 16777216,
+                  "max_response_bytes": 16777216,
+                  "max_sections": 64
+                },
+                "max_threads": 6,
+                "parallel": true,
+                "python_abi": "cp312",
+                "scalar_fallback": true,
+                "schema": {
+                  "major": 1,
+                  "minor_max": 0,
+                  "minor_min": 0,
+                  "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                  "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                },
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_modes": [
+                  "oracle-1",
+                  "scenario-6"
+                ],
+                "wheel_hash_hook": true,
+                "wire_name": "puyo.deep_chain_native.envelope.v1"
+              },
+              "configuration": {
+                "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                "backend_config_version": "1.0",
+                "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                "evaluator_config_version": "v1.0",
+                "minimum_chain_count": 6,
+                "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                "search_config_version": "v1.0"
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "execution_mode": "oracle-1",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+              "profile": {
+                "name": "reference",
+                "version": "1.0"
+              },
+              "provenance": {
+                "backend": "native",
+                "build_profile": "release",
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "crate_version": "0.4.0",
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_count": 1,
+                "thread_mode": "oracle-1",
+                "wheel_hash": "external"
+              },
+              "record_counts": {
+                "diagnostics": 7,
+                "representatives": 22,
+                "root_evidence": 132
+              },
+              "request_id": 3582196622553071275,
+              "requested_backend": "native",
+              "result_contract": "puyo.long_horizon_search_result.v1",
+              "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+              "search_complete": true,
+              "telemetry": {
+                "aggregation_ns": 49733,
+                "arena_capacity_nodes": 6000,
+                "peak_live_nodes": 5750,
+                "pool_reuses": 0,
+                "scenario_jobs": 6,
+                "scenario_reruns": 0,
+                "search_ns": 1709767427,
+                "serialization_ns": 378903,
+                "tt_capacity_slots": 16384
+              },
+              "timing": {
+                "boundary_call_ns": 1710948912,
+                "materialization_ns": 139462766,
+                "native_aggregation_ns": 49733,
+                "native_compute_ns": 1709817160,
+                "native_search_ns": 1709767427,
+                "native_serialization_ns": 378903,
+                "native_total_ns": 1710196063,
+                "total_ns": 1850413380,
+                "total_seconds": 1.85041338
+              }
+            },
+            "completed": true,
+            "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+            "decision_trace": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "oracle-1",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 1,
+                  "thread_mode": "oracle-1",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 49733,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 1709767427,
+                  "serialization_ns": 378903,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 1710948912,
+                  "materialization_ns": 139462766,
+                  "native_aggregation_ns": 49733,
+                  "native_compute_ns": 1709817160,
+                  "native_search_ns": 1709767427,
+                  "native_serialization_ns": 378903,
+                  "native_total_ns": 1710196063,
+                  "total_ns": 1850413380,
+                  "total_seconds": 1.85041338
+                }
+              },
+              "decision_id": "deep_chain_builder-decision-00000001",
+              "elapsed_ms": 1889.5289519996368,
+              "elapsed_seconds": 1.8895289519996368,
+              "profile_id": "deep_chain_builder:reference@1.0",
+              "schema_version": "puyo.decision_trace.v1",
+              "step_count": 7,
+              "steps": [
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.008575000038035796,
+                  "elapsed_seconds": 8.575000038035796e-06,
+                  "index": 0,
+                  "input_summary": {
+                    "action_contract_version": "",
+                    "board_shape": [
+                      6,
+                      13,
+                      6
+                    ],
+                    "last_chain_end_score": 0,
+                    "last_chain_score_delta": 0,
+                    "legal_action_count": 22,
+                    "max_steps": 40,
+                    "max_ticks": null,
+                    "next_pairs_shape": [
+                      3,
+                      2,
+                      5
+                    ],
+                    "observation_schema_version": "",
+                    "step_count": 0,
+                    "visible_pair_count": 3
+                  },
+                  "output_keys": [
+                    "normalized_observation"
+                  ],
+                  "selection_reason": "visible_runtime_boundary_validated",
+                  "step_id": "normalize_observation",
+                  "step_type": "NormalizeObservationStep"
+                },
+                {
+                  "candidate_count": 6,
+                  "elapsed_ms": 0.42426299978615134,
+                  "elapsed_seconds": 0.00042426299978615134,
+                  "index": 1,
+                  "input_summary": {
+                    "available_artifact_count": 3,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "scenario_sequences"
+                  ],
+                  "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                  "step_id": "complete_visible_queue_scenarios",
+                  "step_type": "CompleteVisibleQueueScenariosStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.2596319998247054,
+                  "elapsed_seconds": 0.0002596319998247054,
+                  "index": 2,
+                  "input_summary": {
+                    "available_artifact_count": 4,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "root_placements"
+                  ],
+                  "selection_reason": "compact_kernel_legal_root_enumeration",
+                  "step_id": "enumerate_root_placements",
+                  "step_type": "EnumerateRootPlacementsStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 1851.3076830001864,
+                  "elapsed_seconds": 1.8513076830001864,
+                  "index": 3,
+                  "input_summary": {
+                    "available_artifact_count": 5,
+                    "backend": {
+                      "backend": "native",
+                      "capabilities": {
+                        "abi_version": 1,
+                        "build_profile": "release",
+                        "compact_hot_result": {
+                          "abi_version": 1,
+                          "child_state_bytes": 80,
+                          "flags_mask": 15,
+                          "result_bytes": 24,
+                          "schema": "puyo.native_compact_hot_result.v1"
+                        },
+                        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                        "cpu_features": [
+                          "scalar",
+                          "sse2",
+                          "ssse3",
+                          "sse4.1",
+                          "avx2"
+                        ],
+                        "crate_version": "0.4.0",
+                        "gil_detach": true,
+                        "limits": {
+                          "max_request_bytes": 16777216,
+                          "max_response_bytes": 16777216,
+                          "max_sections": 64
+                        },
+                        "max_threads": 6,
+                        "parallel": true,
+                        "python_abi": "cp312",
+                        "scalar_fallback": true,
+                        "schema": {
+                          "major": 1,
+                          "minor_max": 0,
+                          "minor_min": 0,
+                          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                        },
+                        "simd_path": "scalar",
+                        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                        "target": "x86_64-unknown-linux-gnu",
+                        "thread_modes": [
+                          "oracle-1",
+                          "scenario-6"
+                        ],
+                        "wheel_hash_hook": true,
+                        "wire_name": "puyo.deep_chain_native.envelope.v1"
+                      },
+                      "execution_mode": "oracle-1",
+                      "fallback": {
+                        "detail": "",
+                        "reason": null,
+                        "used": false
+                      },
+                      "requested_backend": "native",
+                      "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                    },
+                    "required_artifacts": [
+                      "normalized_observation",
+                      "scenario_sequences",
+                      "root_placements"
+                    ],
+                    "target_chain_count": 6
+                  },
+                  "output_keys": [
+                    "scenario_search_results"
+                  ],
+                  "selection_reason": "count_bounded_compact_long_range_search",
+                  "step_id": "run_long_range_search",
+                  "step_type": "RunLongRangeSearchStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.10379600007581757,
+                  "elapsed_seconds": 0.00010379600007581757,
+                  "index": 4,
+                  "input_summary": {
+                    "available_artifact_count": 6,
+                    "required_artifacts": [
+                      "scenario_search_results"
+                    ]
+                  },
+                  "output_keys": [
+                    "aggregated_root_scores"
+                  ],
+                  "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                  "step_id": "aggregate_scenario_scores",
+                  "step_type": "AggregateScenarioScoresStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 25.798279999889928,
+                  "elapsed_seconds": 0.025798279999889928,
+                  "index": 5,
+                  "input_summary": {
+                    "aggregated_root_count": 22,
+                    "root_actions": [
+                      16,
+                      10,
+                      7,
+                      11,
+                      6,
+                      0,
+                      19,
+                      12,
+                      14,
+                      8,
+                      13,
+                      9,
+                      15,
+                      3,
+                      18,
+                      4,
+                      2,
+                      20,
+                      5,
+                      1,
+                      17,
+                      21
+                    ]
+                  },
+                  "output_keys": [
+                    "selected_action",
+                    "selected_plan",
+                    "selection_evidence"
+                  ],
+                  "selection_reason": "highest_aggregated_root_ranking",
+                  "step_id": "select_placement",
+                  "step_type": "SelectPlacementStep"
+                },
+                {
+                  "candidate_count": 1,
+                  "elapsed_ms": 11.626722999835692,
+                  "elapsed_seconds": 0.011626722999835692,
+                  "index": 6,
+                  "input_summary": {
+                    "available_artifact_count": 10,
+                    "required_artifacts": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ]
+                  },
+                  "output_keys": [
+                    "decision_output"
+                  ],
+                  "selection_reason": "decision_payload_serialized",
+                  "step_id": "emit_decision_trace",
+                  "step_type": "EmitDecisionTraceStep"
+                }
+              ]
+            },
+            "elapsed_seconds": 1.9180136009999842,
+            "execution_mode": "oracle-1",
+            "fallback": {
+              "detail": "",
+              "reason": null,
+              "used": false
+            },
+            "label": "one_thread",
+            "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+            "resources": {
+              "peak_rss_kib": 251720,
+              "system_cpu_seconds": 0.012724000000000013,
+              "user_cpu_seconds": 1.8652999999999997
+            },
+            "scenario_accounting": {
+              "expected_scenario_count": 6,
+              "expected_scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "failure_count": 0,
+              "failures": [],
+              "passed": true,
+              "root_count": 22
+            },
+            "search": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "oracle-1",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 1,
+                  "thread_mode": "oracle-1",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 49733,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 1709767427,
+                  "serialization_ns": 378903,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 1710948912,
+                  "materialization_ns": 139462766,
+                  "native_aggregation_ns": 49733,
+                  "native_compute_ns": 1709817160,
+                  "native_search_ns": 1709767427,
+                  "native_serialization_ns": 378903,
+                  "native_total_ns": 1710196063,
+                  "total_ns": 1850413380,
+                  "total_seconds": 1.85041338
+                }
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+              "root_ids": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "schema_version": "puyo.deep_chain_builder.search_results.v1",
+              "target_chain_count": 6
+            }
+          }
+        ]
+      },
+      "supervisor_elapsed_seconds": 3.7203050529999473,
+      "timed_out": false
+    },
+    "scenario-6": {
+      "child_exit_code": 0,
+      "execution_mode": "scenario-6",
+      "result": {
+        "completed": true,
+        "elapsed_seconds": 1.3803495609997753,
+        "execution_mode": "scenario-6",
+        "peak_rss_kib": 339940,
+        "samples": [
+          {
+            "action": 16,
+            "backend": {
+              "backend": "native",
+              "boundary_call_count": 1,
+              "budget_exhausted": false,
+              "canonical": true,
+              "capabilities": {
+                "abi_version": 1,
+                "build_profile": "release",
+                "compact_hot_result": {
+                  "abi_version": 1,
+                  "child_state_bytes": 80,
+                  "flags_mask": 15,
+                  "result_bytes": 24,
+                  "schema": "puyo.native_compact_hot_result.v1"
+                },
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "cpu_features": [
+                  "scalar",
+                  "sse2",
+                  "ssse3",
+                  "sse4.1",
+                  "avx2"
+                ],
+                "crate_version": "0.4.0",
+                "gil_detach": true,
+                "limits": {
+                  "max_request_bytes": 16777216,
+                  "max_response_bytes": 16777216,
+                  "max_sections": 64
+                },
+                "max_threads": 6,
+                "parallel": true,
+                "python_abi": "cp312",
+                "scalar_fallback": true,
+                "schema": {
+                  "major": 1,
+                  "minor_max": 0,
+                  "minor_min": 0,
+                  "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                  "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                },
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_modes": [
+                  "oracle-1",
+                  "scenario-6"
+                ],
+                "wheel_hash_hook": true,
+                "wire_name": "puyo.deep_chain_native.envelope.v1"
+              },
+              "configuration": {
+                "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                "backend_config_version": "1.0",
+                "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                "evaluator_config_version": "v1.0",
+                "minimum_chain_count": 6,
+                "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                "search_config_version": "v1.0"
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "execution_mode": "scenario-6",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+              "profile": {
+                "name": "reference",
+                "version": "1.0"
+              },
+              "provenance": {
+                "backend": "native",
+                "build_profile": "release",
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "crate_version": "0.4.0",
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_count": 6,
+                "thread_mode": "scenario-6",
+                "wheel_hash": "external"
+              },
+              "record_counts": {
+                "diagnostics": 7,
+                "representatives": 22,
+                "root_evidence": 132
+              },
+              "request_id": 3582196622553071275,
+              "requested_backend": "native",
+              "result_contract": "puyo.long_horizon_search_result.v1",
+              "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+              "search_complete": true,
+              "telemetry": {
+                "aggregation_ns": 52231,
+                "arena_capacity_nodes": 6000,
+                "peak_live_nodes": 5750,
+                "pool_reuses": 0,
+                "scenario_jobs": 6,
+                "scenario_reruns": 0,
+                "search_ns": 462862261,
+                "serialization_ns": 585196,
+                "tt_capacity_slots": 16384
+              },
+              "timing": {
+                "boundary_call_ns": 464060684,
+                "materialization_ns": 124323881,
+                "native_aggregation_ns": 52231,
+                "native_compute_ns": 462914492,
+                "native_search_ns": 462862261,
+                "native_serialization_ns": 585196,
+                "native_total_ns": 463499688,
+                "total_ns": 588385827,
+                "total_seconds": 0.588385827
+              }
+            },
+            "completed": true,
+            "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+            "decision_trace": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 52231,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 462862261,
+                  "serialization_ns": 585196,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 464060684,
+                  "materialization_ns": 124323881,
+                  "native_aggregation_ns": 52231,
+                  "native_compute_ns": 462914492,
+                  "native_search_ns": 462862261,
+                  "native_serialization_ns": 585196,
+                  "native_total_ns": 463499688,
+                  "total_ns": 588385827,
+                  "total_seconds": 0.588385827
+                }
+              },
+              "decision_id": "deep_chain_builder-decision-00000001",
+              "elapsed_ms": 625.9840480001913,
+              "elapsed_seconds": 0.6259840480001913,
+              "profile_id": "deep_chain_builder:reference@1.0",
+              "schema_version": "puyo.decision_trace.v1",
+              "step_count": 7,
+              "steps": [
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.008964000016931095,
+                  "elapsed_seconds": 8.964000016931095e-06,
+                  "index": 0,
+                  "input_summary": {
+                    "action_contract_version": "",
+                    "board_shape": [
+                      6,
+                      13,
+                      6
+                    ],
+                    "last_chain_end_score": 0,
+                    "last_chain_score_delta": 0,
+                    "legal_action_count": 22,
+                    "max_steps": 40,
+                    "max_ticks": null,
+                    "next_pairs_shape": [
+                      3,
+                      2,
+                      5
+                    ],
+                    "observation_schema_version": "",
+                    "step_count": 0,
+                    "visible_pair_count": 3
+                  },
+                  "output_keys": [
+                    "normalized_observation"
+                  ],
+                  "selection_reason": "visible_runtime_boundary_validated",
+                  "step_id": "normalize_observation",
+                  "step_type": "NormalizeObservationStep"
+                },
+                {
+                  "candidate_count": 6,
+                  "elapsed_ms": 0.4596800001763768,
+                  "elapsed_seconds": 0.0004596800001763768,
+                  "index": 1,
+                  "input_summary": {
+                    "available_artifact_count": 3,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "scenario_sequences"
+                  ],
+                  "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                  "step_id": "complete_visible_queue_scenarios",
+                  "step_type": "CompleteVisibleQueueScenariosStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.25983799991990963,
+                  "elapsed_seconds": 0.00025983799991990963,
+                  "index": 2,
+                  "input_summary": {
+                    "available_artifact_count": 4,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "root_placements"
+                  ],
+                  "selection_reason": "compact_kernel_legal_root_enumeration",
+                  "step_id": "enumerate_root_placements",
+                  "step_type": "EnumerateRootPlacementsStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 589.1384560000006,
+                  "elapsed_seconds": 0.5891384560000006,
+                  "index": 3,
+                  "input_summary": {
+                    "available_artifact_count": 5,
+                    "backend": {
+                      "backend": "native",
+                      "capabilities": {
+                        "abi_version": 1,
+                        "build_profile": "release",
+                        "compact_hot_result": {
+                          "abi_version": 1,
+                          "child_state_bytes": 80,
+                          "flags_mask": 15,
+                          "result_bytes": 24,
+                          "schema": "puyo.native_compact_hot_result.v1"
+                        },
+                        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                        "cpu_features": [
+                          "scalar",
+                          "sse2",
+                          "ssse3",
+                          "sse4.1",
+                          "avx2"
+                        ],
+                        "crate_version": "0.4.0",
+                        "gil_detach": true,
+                        "limits": {
+                          "max_request_bytes": 16777216,
+                          "max_response_bytes": 16777216,
+                          "max_sections": 64
+                        },
+                        "max_threads": 6,
+                        "parallel": true,
+                        "python_abi": "cp312",
+                        "scalar_fallback": true,
+                        "schema": {
+                          "major": 1,
+                          "minor_max": 0,
+                          "minor_min": 0,
+                          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                        },
+                        "simd_path": "scalar",
+                        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                        "target": "x86_64-unknown-linux-gnu",
+                        "thread_modes": [
+                          "oracle-1",
+                          "scenario-6"
+                        ],
+                        "wheel_hash_hook": true,
+                        "wire_name": "puyo.deep_chain_native.envelope.v1"
+                      },
+                      "execution_mode": "scenario-6",
+                      "fallback": {
+                        "detail": "",
+                        "reason": null,
+                        "used": false
+                      },
+                      "requested_backend": "native",
+                      "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                    },
+                    "required_artifacts": [
+                      "normalized_observation",
+                      "scenario_sequences",
+                      "root_placements"
+                    ],
+                    "target_chain_count": 6
+                  },
+                  "output_keys": [
+                    "scenario_search_results"
+                  ],
+                  "selection_reason": "count_bounded_compact_long_range_search",
+                  "step_id": "run_long_range_search",
+                  "step_type": "RunLongRangeSearchStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.1003540000965586,
+                  "elapsed_seconds": 0.00010035400009655859,
+                  "index": 4,
+                  "input_summary": {
+                    "available_artifact_count": 6,
+                    "required_artifacts": [
+                      "scenario_search_results"
+                    ]
+                  },
+                  "output_keys": [
+                    "aggregated_root_scores"
+                  ],
+                  "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                  "step_id": "aggregate_scenario_scores",
+                  "step_type": "AggregateScenarioScoresStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 22.17298599998685,
+                  "elapsed_seconds": 0.02217298599998685,
+                  "index": 5,
+                  "input_summary": {
+                    "aggregated_root_count": 22,
+                    "root_actions": [
+                      16,
+                      10,
+                      7,
+                      11,
+                      6,
+                      0,
+                      19,
+                      12,
+                      14,
+                      8,
+                      13,
+                      9,
+                      15,
+                      3,
+                      18,
+                      4,
+                      2,
+                      20,
+                      5,
+                      1,
+                      17,
+                      21
+                    ]
+                  },
+                  "output_keys": [
+                    "selected_action",
+                    "selected_plan",
+                    "selection_evidence"
+                  ],
+                  "selection_reason": "highest_aggregated_root_ranking",
+                  "step_id": "select_placement",
+                  "step_type": "SelectPlacementStep"
+                },
+                {
+                  "candidate_count": 1,
+                  "elapsed_ms": 13.843769999994038,
+                  "elapsed_seconds": 0.013843769999994038,
+                  "index": 6,
+                  "input_summary": {
+                    "available_artifact_count": 10,
+                    "required_artifacts": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ]
+                  },
+                  "output_keys": [
+                    "decision_output"
+                  ],
+                  "selection_reason": "decision_payload_serialized",
+                  "step_id": "emit_decision_trace",
+                  "step_type": "EmitDecisionTraceStep"
+                }
+              ]
+            },
+            "elapsed_seconds": 0.6530682980001075,
+            "execution_mode": "scenario-6",
+            "fallback": {
+              "detail": "",
+              "reason": null,
+              "used": false
+            },
+            "label": "cold",
+            "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+            "resources": {
+              "peak_rss_kib": 328116,
+              "system_cpu_seconds": 0.23066300000000006,
+              "user_cpu_seconds": 2.4987760000000003
+            },
+            "scenario_accounting": {
+              "expected_scenario_count": 6,
+              "expected_scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "failure_count": 0,
+              "failures": [],
+              "passed": true,
+              "root_count": 22
+            },
+            "search": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 52231,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 462862261,
+                  "serialization_ns": 585196,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 464060684,
+                  "materialization_ns": 124323881,
+                  "native_aggregation_ns": 52231,
+                  "native_compute_ns": 462914492,
+                  "native_search_ns": 462862261,
+                  "native_serialization_ns": 585196,
+                  "native_total_ns": 463499688,
+                  "total_ns": 588385827,
+                  "total_seconds": 0.588385827
+                }
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+              "root_ids": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "schema_version": "puyo.deep_chain_builder.search_results.v1",
+              "target_chain_count": 6
+            }
+          },
+          {
+            "action": 16,
+            "backend": {
+              "backend": "native",
+              "boundary_call_count": 1,
+              "budget_exhausted": false,
+              "canonical": true,
+              "capabilities": {
+                "abi_version": 1,
+                "build_profile": "release",
+                "compact_hot_result": {
+                  "abi_version": 1,
+                  "child_state_bytes": 80,
+                  "flags_mask": 15,
+                  "result_bytes": 24,
+                  "schema": "puyo.native_compact_hot_result.v1"
+                },
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "cpu_features": [
+                  "scalar",
+                  "sse2",
+                  "ssse3",
+                  "sse4.1",
+                  "avx2"
+                ],
+                "crate_version": "0.4.0",
+                "gil_detach": true,
+                "limits": {
+                  "max_request_bytes": 16777216,
+                  "max_response_bytes": 16777216,
+                  "max_sections": 64
+                },
+                "max_threads": 6,
+                "parallel": true,
+                "python_abi": "cp312",
+                "scalar_fallback": true,
+                "schema": {
+                  "major": 1,
+                  "minor_max": 0,
+                  "minor_min": 0,
+                  "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                  "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                },
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_modes": [
+                  "oracle-1",
+                  "scenario-6"
+                ],
+                "wheel_hash_hook": true,
+                "wire_name": "puyo.deep_chain_native.envelope.v1"
+              },
+              "configuration": {
+                "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                "backend_config_version": "1.0",
+                "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                "evaluator_config_version": "v1.0",
+                "minimum_chain_count": 6,
+                "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                "search_config_version": "v1.0"
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "execution_mode": "scenario-6",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+              "profile": {
+                "name": "reference",
+                "version": "1.0"
+              },
+              "provenance": {
+                "backend": "native",
+                "build_profile": "release",
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "crate_version": "0.4.0",
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_count": 6,
+                "thread_mode": "scenario-6",
+                "wheel_hash": "external"
+              },
+              "record_counts": {
+                "diagnostics": 7,
+                "representatives": 22,
+                "root_evidence": 132
+              },
+              "request_id": 3582196622553071275,
+              "requested_backend": "native",
+              "result_contract": "puyo.long_horizon_search_result.v1",
+              "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+              "search_complete": true,
+              "telemetry": {
+                "aggregation_ns": 51842,
+                "arena_capacity_nodes": 6000,
+                "peak_live_nodes": 5750,
+                "pool_reuses": 1,
+                "scenario_jobs": 6,
+                "scenario_reruns": 0,
+                "search_ns": 373047218,
+                "serialization_ns": 331317,
+                "tt_capacity_slots": 16384
+              },
+              "timing": {
+                "boundary_call_ns": 373751957,
+                "materialization_ns": 129878083,
+                "native_aggregation_ns": 51842,
+                "native_compute_ns": 373099060,
+                "native_search_ns": 373047218,
+                "native_serialization_ns": 331317,
+                "native_total_ns": 373430377,
+                "total_ns": 503631841,
+                "total_seconds": 0.503631841
+              }
+            },
+            "completed": true,
+            "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+            "decision_trace": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 51842,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 1,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 373047218,
+                  "serialization_ns": 331317,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 373751957,
+                  "materialization_ns": 129878083,
+                  "native_aggregation_ns": 51842,
+                  "native_compute_ns": 373099060,
+                  "native_search_ns": 373047218,
+                  "native_serialization_ns": 331317,
+                  "native_total_ns": 373430377,
+                  "total_ns": 503631841,
+                  "total_seconds": 0.503631841
+                }
+              },
+              "decision_id": "deep_chain_builder-decision-00000001",
+              "elapsed_ms": 539.3263779999415,
+              "elapsed_seconds": 0.5393263779999415,
+              "profile_id": "deep_chain_builder:reference@1.0",
+              "schema_version": "puyo.decision_trace.v1",
+              "step_count": 7,
+              "steps": [
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.007702999937464483,
+                  "elapsed_seconds": 7.702999937464483e-06,
+                  "index": 0,
+                  "input_summary": {
+                    "action_contract_version": "",
+                    "board_shape": [
+                      6,
+                      13,
+                      6
+                    ],
+                    "last_chain_end_score": 0,
+                    "last_chain_score_delta": 0,
+                    "legal_action_count": 22,
+                    "max_steps": 40,
+                    "max_ticks": null,
+                    "next_pairs_shape": [
+                      3,
+                      2,
+                      5
+                    ],
+                    "observation_schema_version": "",
+                    "step_count": 0,
+                    "visible_pair_count": 3
+                  },
+                  "output_keys": [
+                    "normalized_observation"
+                  ],
+                  "selection_reason": "visible_runtime_boundary_validated",
+                  "step_id": "normalize_observation",
+                  "step_type": "NormalizeObservationStep"
+                },
+                {
+                  "candidate_count": 6,
+                  "elapsed_ms": 0.46777200009273656,
+                  "elapsed_seconds": 0.00046777200009273656,
+                  "index": 1,
+                  "input_summary": {
+                    "available_artifact_count": 3,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "scenario_sequences"
+                  ],
+                  "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                  "step_id": "complete_visible_queue_scenarios",
+                  "step_type": "CompleteVisibleQueueScenariosStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.25064499982363486,
+                  "elapsed_seconds": 0.00025064499982363486,
+                  "index": 2,
+                  "input_summary": {
+                    "available_artifact_count": 4,
+                    "required_artifacts": [
+                      "normalized_observation"
+                    ]
+                  },
+                  "output_keys": [
+                    "root_placements"
+                  ],
+                  "selection_reason": "compact_kernel_legal_root_enumeration",
+                  "step_id": "enumerate_root_placements",
+                  "step_type": "EnumerateRootPlacementsStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 504.4534510000176,
+                  "elapsed_seconds": 0.5044534510000176,
+                  "index": 3,
+                  "input_summary": {
+                    "available_artifact_count": 5,
+                    "backend": {
+                      "backend": "native",
+                      "capabilities": {
+                        "abi_version": 1,
+                        "build_profile": "release",
+                        "compact_hot_result": {
+                          "abi_version": 1,
+                          "child_state_bytes": 80,
+                          "flags_mask": 15,
+                          "result_bytes": 24,
+                          "schema": "puyo.native_compact_hot_result.v1"
+                        },
+                        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                        "cpu_features": [
+                          "scalar",
+                          "sse2",
+                          "ssse3",
+                          "sse4.1",
+                          "avx2"
+                        ],
+                        "crate_version": "0.4.0",
+                        "gil_detach": true,
+                        "limits": {
+                          "max_request_bytes": 16777216,
+                          "max_response_bytes": 16777216,
+                          "max_sections": 64
+                        },
+                        "max_threads": 6,
+                        "parallel": true,
+                        "python_abi": "cp312",
+                        "scalar_fallback": true,
+                        "schema": {
+                          "major": 1,
+                          "minor_max": 0,
+                          "minor_min": 0,
+                          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                        },
+                        "simd_path": "scalar",
+                        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                        "target": "x86_64-unknown-linux-gnu",
+                        "thread_modes": [
+                          "oracle-1",
+                          "scenario-6"
+                        ],
+                        "wheel_hash_hook": true,
+                        "wire_name": "puyo.deep_chain_native.envelope.v1"
+                      },
+                      "execution_mode": "scenario-6",
+                      "fallback": {
+                        "detail": "",
+                        "reason": null,
+                        "used": false
+                      },
+                      "requested_backend": "native",
+                      "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                    },
+                    "required_artifacts": [
+                      "normalized_observation",
+                      "scenario_sequences",
+                      "root_placements"
+                    ],
+                    "target_chain_count": 6
+                  },
+                  "output_keys": [
+                    "scenario_search_results"
+                  ],
+                  "selection_reason": "count_bounded_compact_long_range_search",
+                  "step_id": "run_long_range_search",
+                  "step_type": "RunLongRangeSearchStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 0.10316199995941133,
+                  "elapsed_seconds": 0.00010316199995941133,
+                  "index": 4,
+                  "input_summary": {
+                    "available_artifact_count": 6,
+                    "required_artifacts": [
+                      "scenario_search_results"
+                    ]
+                  },
+                  "output_keys": [
+                    "aggregated_root_scores"
+                  ],
+                  "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                  "step_id": "aggregate_scenario_scores",
+                  "step_type": "AggregateScenarioScoresStep"
+                },
+                {
+                  "candidate_count": 22,
+                  "elapsed_ms": 22.509428000148546,
+                  "elapsed_seconds": 0.022509428000148546,
+                  "index": 5,
+                  "input_summary": {
+                    "aggregated_root_count": 22,
+                    "root_actions": [
+                      16,
+                      10,
+                      7,
+                      11,
+                      6,
+                      0,
+                      19,
+                      12,
+                      14,
+                      8,
+                      13,
+                      9,
+                      15,
+                      3,
+                      18,
+                      4,
+                      2,
+                      20,
+                      5,
+                      1,
+                      17,
+                      21
+                    ]
+                  },
+                  "output_keys": [
+                    "selected_action",
+                    "selected_plan",
+                    "selection_evidence"
+                  ],
+                  "selection_reason": "highest_aggregated_root_ranking",
+                  "step_id": "select_placement",
+                  "step_type": "SelectPlacementStep"
+                },
+                {
+                  "candidate_count": 1,
+                  "elapsed_ms": 11.534216999962155,
+                  "elapsed_seconds": 0.011534216999962155,
+                  "index": 6,
+                  "input_summary": {
+                    "available_artifact_count": 10,
+                    "required_artifacts": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ]
+                  },
+                  "output_keys": [
+                    "decision_output"
+                  ],
+                  "selection_reason": "decision_payload_serialized",
+                  "step_id": "emit_decision_trace",
+                  "step_type": "EmitDecisionTraceStep"
+                }
+              ]
+            },
+            "elapsed_seconds": 0.5532641400000102,
+            "execution_mode": "scenario-6",
+            "fallback": {
+              "detail": "",
+              "reason": null,
+              "used": false
+            },
+            "label": "warm",
+            "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+            "resources": {
+              "peak_rss_kib": 337508,
+              "system_cpu_seconds": 0.037800000000000056,
+              "user_cpu_seconds": 2.2454279999999995
+            },
+            "scenario_accounting": {
+              "expected_scenario_count": 6,
+              "expected_scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "failure_count": 0,
+              "failures": [],
+              "passed": true,
+              "root_count": 22
+            },
+            "search": {
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 51842,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 1,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 373047218,
+                  "serialization_ns": 331317,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 373751957,
+                  "materialization_ns": 129878083,
+                  "native_aggregation_ns": 51842,
+                  "native_compute_ns": 373099060,
+                  "native_search_ns": 373047218,
+                  "native_serialization_ns": 331317,
+                  "native_total_ns": 373430377,
+                  "total_ns": 503631841,
+                  "total_seconds": 0.503631841
+                }
+              },
+              "counters": {
+                "budget_exhausted": false,
+                "evaluated_nodes": 465036,
+                "expanded_nodes": 465036,
+                "game_over_nodes": 0,
+                "generated_nodes": 465036,
+                "invalid_nodes": 0,
+                "pruned_nodes": 366605,
+                "reached_depth": 16,
+                "terminal_fire_nodes": 65622,
+                "transposition_hits": 10177
+              },
+              "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+              "root_ids": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "scenario_ids": [
+                2,
+                1,
+                4,
+                3,
+                5,
+                0
+              ],
+              "schema_version": "puyo.deep_chain_builder.search_results.v1",
+              "target_chain_count": 6
+            }
+          }
+        ]
+      },
+      "supervisor_elapsed_seconds": 3.2047399119999227,
+      "timed_out": false
+    }
+  },
+  "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+  "interpretation": "reference decision completed inside the diagnostic budget",
+  "locked_maximum_decision_p95_seconds": 1.0,
+  "performance_gate_passed": true,
+  "profile": {
+    "depth": 16,
+    "max_expanded_nodes": 600000,
+    "name": "reference",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "purpose": "canonical quality and benchmark execution",
+    "scenarios": 6,
+    "schema_version": "puyo.deep_chain_builder.profile.v1",
+    "version": "1.0",
+    "width": 250
+  },
+  "purpose": "bounded latency diagnosis before the canonical resumable run",
+  "result": {
+    "action": 16,
+    "backend": {
+      "backend": "native",
+      "boundary_call_count": 1,
+      "budget_exhausted": false,
+      "canonical": true,
+      "capabilities": {
+        "abi_version": 1,
+        "build_profile": "release",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "child_state_bytes": 80,
+          "flags_mask": 15,
+          "result_bytes": 24,
+          "schema": "puyo.native_compact_hot_result.v1"
+        },
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "crate_version": "0.4.0",
+        "gil_detach": true,
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "max_threads": 6,
+        "parallel": true,
+        "python_abi": "cp312",
+        "scalar_fallback": true,
+        "schema": {
+          "major": 1,
+          "minor_max": 0,
+          "minor_min": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+        },
+        "simd_path": "scalar",
+        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+        "target": "x86_64-unknown-linux-gnu",
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "wheel_hash_hook": true,
+        "wire_name": "puyo.deep_chain_native.envelope.v1"
+      },
+      "configuration": {
+        "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+        "backend_config_version": "1.0",
+        "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+        "evaluator_config_version": "v1.0",
+        "minimum_chain_count": 6,
+        "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+        "search_config_version": "v1.0"
+      },
+      "counters": {
+        "budget_exhausted": false,
+        "evaluated_nodes": 465036,
+        "expanded_nodes": 465036,
+        "game_over_nodes": 0,
+        "generated_nodes": 465036,
+        "invalid_nodes": 0,
+        "pruned_nodes": 366605,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 65622,
+        "transposition_hits": 10177
+      },
+      "execution_mode": "scenario-6",
+      "fallback": {
+        "detail": "",
+        "reason": null,
+        "used": false
+      },
+      "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+      "profile": {
+        "name": "reference",
+        "version": "1.0"
+      },
+      "provenance": {
+        "backend": "native",
+        "build_profile": "release",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "crate_version": "0.4.0",
+        "simd_path": "scalar",
+        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+        "target": "x86_64-unknown-linux-gnu",
+        "thread_count": 6,
+        "thread_mode": "scenario-6",
+        "wheel_hash": "external"
+      },
+      "record_counts": {
+        "diagnostics": 7,
+        "representatives": 22,
+        "root_evidence": 132
+      },
+      "request_id": 3582196622553071275,
+      "requested_backend": "native",
+      "result_contract": "puyo.long_horizon_search_result.v1",
+      "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+      "search_complete": true,
+      "telemetry": {
+        "aggregation_ns": 52231,
+        "arena_capacity_nodes": 6000,
+        "peak_live_nodes": 5750,
+        "pool_reuses": 0,
+        "scenario_jobs": 6,
+        "scenario_reruns": 0,
+        "search_ns": 462862261,
+        "serialization_ns": 585196,
+        "tt_capacity_slots": 16384
+      },
+      "timing": {
+        "boundary_call_ns": 464060684,
+        "materialization_ns": 124323881,
+        "native_aggregation_ns": 52231,
+        "native_compute_ns": 462914492,
+        "native_search_ns": 462862261,
+        "native_serialization_ns": 585196,
+        "native_total_ns": 463499688,
+        "total_ns": 588385827,
+        "total_seconds": 0.588385827
+      }
+    },
+    "completed": true,
+    "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+    "decision_trace": {
+      "backend": {
+        "backend": "native",
+        "boundary_call_count": 1,
+        "budget_exhausted": false,
+        "canonical": true,
+        "capabilities": {
+          "abi_version": 1,
+          "build_profile": "release",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "child_state_bytes": 80,
+            "flags_mask": 15,
+            "result_bytes": 24,
+            "schema": "puyo.native_compact_hot_result.v1"
+          },
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "crate_version": "0.4.0",
+          "gil_detach": true,
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "max_threads": 6,
+          "parallel": true,
+          "python_abi": "cp312",
+          "scalar_fallback": true,
+          "schema": {
+            "major": 1,
+            "minor_max": 0,
+            "minor_min": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+          },
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "wheel_hash_hook": true,
+          "wire_name": "puyo.deep_chain_native.envelope.v1"
+        },
+        "configuration": {
+          "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+          "backend_config_version": "1.0",
+          "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+          "evaluator_config_version": "v1.0",
+          "minimum_chain_count": 6,
+          "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+          "search_config_version": "v1.0"
+        },
+        "counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 465036,
+          "expanded_nodes": 465036,
+          "game_over_nodes": 0,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "pruned_nodes": 366605,
+          "reached_depth": 16,
+          "terminal_fire_nodes": 65622,
+          "transposition_hits": 10177
+        },
+        "execution_mode": "scenario-6",
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+        "profile": {
+          "name": "reference",
+          "version": "1.0"
+        },
+        "provenance": {
+          "backend": "native",
+          "build_profile": "release",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "crate_version": "0.4.0",
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_count": 6,
+          "thread_mode": "scenario-6",
+          "wheel_hash": "external"
+        },
+        "record_counts": {
+          "diagnostics": 7,
+          "representatives": 22,
+          "root_evidence": 132
+        },
+        "request_id": 3582196622553071275,
+        "requested_backend": "native",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "search_complete": true,
+        "telemetry": {
+          "aggregation_ns": 52231,
+          "arena_capacity_nodes": 6000,
+          "peak_live_nodes": 5750,
+          "pool_reuses": 0,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "search_ns": 462862261,
+          "serialization_ns": 585196,
+          "tt_capacity_slots": 16384
+        },
+        "timing": {
+          "boundary_call_ns": 464060684,
+          "materialization_ns": 124323881,
+          "native_aggregation_ns": 52231,
+          "native_compute_ns": 462914492,
+          "native_search_ns": 462862261,
+          "native_serialization_ns": 585196,
+          "native_total_ns": 463499688,
+          "total_ns": 588385827,
+          "total_seconds": 0.588385827
+        }
+      },
+      "decision_id": "deep_chain_builder-decision-00000001",
+      "elapsed_ms": 625.9840480001913,
+      "elapsed_seconds": 0.6259840480001913,
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "schema_version": "puyo.decision_trace.v1",
+      "step_count": 7,
+      "steps": [
+        {
+          "candidate_count": 22,
+          "elapsed_ms": 0.008964000016931095,
+          "elapsed_seconds": 8.964000016931095e-06,
+          "index": 0,
+          "input_summary": {
+            "action_contract_version": "",
+            "board_shape": [
+              6,
+              13,
+              6
+            ],
+            "last_chain_end_score": 0,
+            "last_chain_score_delta": 0,
+            "legal_action_count": 22,
+            "max_steps": 40,
+            "max_ticks": null,
+            "next_pairs_shape": [
+              3,
+              2,
+              5
+            ],
+            "observation_schema_version": "",
+            "step_count": 0,
+            "visible_pair_count": 3
+          },
+          "output_keys": [
+            "normalized_observation"
+          ],
+          "selection_reason": "visible_runtime_boundary_validated",
+          "step_id": "normalize_observation",
+          "step_type": "NormalizeObservationStep"
+        },
+        {
+          "candidate_count": 6,
+          "elapsed_ms": 0.4596800001763768,
+          "elapsed_seconds": 0.0004596800001763768,
+          "index": 1,
+          "input_summary": {
+            "available_artifact_count": 3,
+            "required_artifacts": [
+              "normalized_observation"
+            ]
+          },
+          "output_keys": [
+            "scenario_sequences"
+          ],
+          "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+          "step_id": "complete_visible_queue_scenarios",
+          "step_type": "CompleteVisibleQueueScenariosStep"
+        },
+        {
+          "candidate_count": 22,
+          "elapsed_ms": 0.25983799991990963,
+          "elapsed_seconds": 0.00025983799991990963,
+          "index": 2,
+          "input_summary": {
+            "available_artifact_count": 4,
+            "required_artifacts": [
+              "normalized_observation"
+            ]
+          },
+          "output_keys": [
+            "root_placements"
+          ],
+          "selection_reason": "compact_kernel_legal_root_enumeration",
+          "step_id": "enumerate_root_placements",
+          "step_type": "EnumerateRootPlacementsStep"
+        },
+        {
+          "candidate_count": 22,
+          "elapsed_ms": 589.1384560000006,
+          "elapsed_seconds": 0.5891384560000006,
+          "index": 3,
+          "input_summary": {
+            "available_artifact_count": 5,
+            "backend": {
+              "backend": "native",
+              "capabilities": {
+                "abi_version": 1,
+                "build_profile": "release",
+                "compact_hot_result": {
+                  "abi_version": 1,
+                  "child_state_bytes": 80,
+                  "flags_mask": 15,
+                  "result_bytes": 24,
+                  "schema": "puyo.native_compact_hot_result.v1"
+                },
+                "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                "cpu_features": [
+                  "scalar",
+                  "sse2",
+                  "ssse3",
+                  "sse4.1",
+                  "avx2"
+                ],
+                "crate_version": "0.4.0",
+                "gil_detach": true,
+                "limits": {
+                  "max_request_bytes": 16777216,
+                  "max_response_bytes": 16777216,
+                  "max_sections": 64
+                },
+                "max_threads": 6,
+                "parallel": true,
+                "python_abi": "cp312",
+                "scalar_fallback": true,
+                "schema": {
+                  "major": 1,
+                  "minor_max": 0,
+                  "minor_min": 0,
+                  "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                  "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                },
+                "simd_path": "scalar",
+                "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                "target": "x86_64-unknown-linux-gnu",
+                "thread_modes": [
+                  "oracle-1",
+                  "scenario-6"
+                ],
+                "wheel_hash_hook": true,
+                "wire_name": "puyo.deep_chain_native.envelope.v1"
+              },
+              "execution_mode": "scenario-6",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "requested_backend": "native",
+              "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+            },
+            "required_artifacts": [
+              "normalized_observation",
+              "scenario_sequences",
+              "root_placements"
+            ],
+            "target_chain_count": 6
+          },
+          "output_keys": [
+            "scenario_search_results"
+          ],
+          "selection_reason": "count_bounded_compact_long_range_search",
+          "step_id": "run_long_range_search",
+          "step_type": "RunLongRangeSearchStep"
+        },
+        {
+          "candidate_count": 22,
+          "elapsed_ms": 0.1003540000965586,
+          "elapsed_seconds": 0.00010035400009655859,
+          "index": 4,
+          "input_summary": {
+            "available_artifact_count": 6,
+            "required_artifacts": [
+              "scenario_search_results"
+            ]
+          },
+          "output_keys": [
+            "aggregated_root_scores"
+          ],
+          "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+          "step_id": "aggregate_scenario_scores",
+          "step_type": "AggregateScenarioScoresStep"
+        },
+        {
+          "candidate_count": 22,
+          "elapsed_ms": 22.17298599998685,
+          "elapsed_seconds": 0.02217298599998685,
+          "index": 5,
+          "input_summary": {
+            "aggregated_root_count": 22,
+            "root_actions": [
+              16,
+              10,
+              7,
+              11,
+              6,
+              0,
+              19,
+              12,
+              14,
+              8,
+              13,
+              9,
+              15,
+              3,
+              18,
+              4,
+              2,
+              20,
+              5,
+              1,
+              17,
+              21
+            ]
+          },
+          "output_keys": [
+            "selected_action",
+            "selected_plan",
+            "selection_evidence"
+          ],
+          "selection_reason": "highest_aggregated_root_ranking",
+          "step_id": "select_placement",
+          "step_type": "SelectPlacementStep"
+        },
+        {
+          "candidate_count": 1,
+          "elapsed_ms": 13.843769999994038,
+          "elapsed_seconds": 0.013843769999994038,
+          "index": 6,
+          "input_summary": {
+            "available_artifact_count": 10,
+            "required_artifacts": [
+              "selected_action",
+              "selected_plan",
+              "selection_evidence"
+            ]
+          },
+          "output_keys": [
+            "decision_output"
+          ],
+          "selection_reason": "decision_payload_serialized",
+          "step_id": "emit_decision_trace",
+          "step_type": "EmitDecisionTraceStep"
+        }
+      ]
+    },
+    "elapsed_seconds": 0.6530682980001075,
+    "execution_mode": "scenario-6",
+    "fallback": {
+      "detail": "",
+      "reason": null,
+      "used": false
+    },
+    "label": "cold",
+    "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+    "resources": {
+      "peak_rss_kib": 328116,
+      "system_cpu_seconds": 0.23066300000000006,
+      "user_cpu_seconds": 2.4987760000000003
+    },
+    "scenario_accounting": {
+      "expected_scenario_count": 6,
+      "expected_scenario_ids": [
+        2,
+        1,
+        4,
+        3,
+        5,
+        0
+      ],
+      "failure_count": 0,
+      "failures": [],
+      "passed": true,
+      "root_count": 22
+    },
+    "search": {
+      "backend": {
+        "backend": "native",
+        "boundary_call_count": 1,
+        "budget_exhausted": false,
+        "canonical": true,
+        "capabilities": {
+          "abi_version": 1,
+          "build_profile": "release",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "child_state_bytes": 80,
+            "flags_mask": 15,
+            "result_bytes": 24,
+            "schema": "puyo.native_compact_hot_result.v1"
+          },
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "crate_version": "0.4.0",
+          "gil_detach": true,
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "max_threads": 6,
+          "parallel": true,
+          "python_abi": "cp312",
+          "scalar_fallback": true,
+          "schema": {
+            "major": 1,
+            "minor_max": 0,
+            "minor_min": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+          },
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "wheel_hash_hook": true,
+          "wire_name": "puyo.deep_chain_native.envelope.v1"
+        },
+        "configuration": {
+          "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+          "backend_config_version": "1.0",
+          "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+          "evaluator_config_version": "v1.0",
+          "minimum_chain_count": 6,
+          "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+          "search_config_version": "v1.0"
+        },
+        "counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 465036,
+          "expanded_nodes": 465036,
+          "game_over_nodes": 0,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "pruned_nodes": 366605,
+          "reached_depth": 16,
+          "terminal_fire_nodes": 65622,
+          "transposition_hits": 10177
+        },
+        "execution_mode": "scenario-6",
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+        "profile": {
+          "name": "reference",
+          "version": "1.0"
+        },
+        "provenance": {
+          "backend": "native",
+          "build_profile": "release",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "crate_version": "0.4.0",
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_count": 6,
+          "thread_mode": "scenario-6",
+          "wheel_hash": "external"
+        },
+        "record_counts": {
+          "diagnostics": 7,
+          "representatives": 22,
+          "root_evidence": 132
+        },
+        "request_id": 3582196622553071275,
+        "requested_backend": "native",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "search_complete": true,
+        "telemetry": {
+          "aggregation_ns": 52231,
+          "arena_capacity_nodes": 6000,
+          "peak_live_nodes": 5750,
+          "pool_reuses": 0,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "search_ns": 462862261,
+          "serialization_ns": 585196,
+          "tt_capacity_slots": 16384
+        },
+        "timing": {
+          "boundary_call_ns": 464060684,
+          "materialization_ns": 124323881,
+          "native_aggregation_ns": 52231,
+          "native_compute_ns": 462914492,
+          "native_search_ns": 462862261,
+          "native_serialization_ns": 585196,
+          "native_total_ns": 463499688,
+          "total_ns": 588385827,
+          "total_seconds": 0.588385827
+        }
+      },
+      "counters": {
+        "budget_exhausted": false,
+        "evaluated_nodes": 465036,
+        "expanded_nodes": 465036,
+        "game_over_nodes": 0,
+        "generated_nodes": 465036,
+        "invalid_nodes": 0,
+        "pruned_nodes": 366605,
+        "reached_depth": 16,
+        "terminal_fire_nodes": 65622,
+        "transposition_hits": 10177
+      },
+      "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+      "root_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "scenario_ids": [
+        2,
+        1,
+        4,
+        3,
+        5,
+        0
+      ],
+      "schema_version": "puyo.deep_chain_builder.search_results.v1",
+      "target_chain_count": 6
+    }
+  },
+  "schema_version": "puyo.deep_chain_builder.preflight.v2",
+  "seed": 123,
+  "supervisor_elapsed_seconds": 3.2047399119999227,
+  "target_chain_count": 6,
+  "thread_determinism": {
+    "adopted_mode": "scenario-6",
+    "adopted_thread_count": 6,
+    "cold_warm_digest_match": true,
+    "diagnostic_mode": "oracle-1",
+    "diagnostic_thread_count": 1,
+    "one_thread_matches_adopted": true,
+    "passed": true
+  },
+  "ticket": "PUYO-204",
+  "timed_out": false,
+  "timeout_seconds": 5.0
+}

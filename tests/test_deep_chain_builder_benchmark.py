@@ -12,8 +12,10 @@ from eval.deep_chain_builder_benchmark import (
     MANIFEST_SCHEMA_VERSION,
     RUN_SCHEMA_VERSION,
     SUMMARY_SCHEMA_VERSION,
+    TICKET,
     _build_parser,
     _load_completed_runs,
+    _scenario_accounting,
     audit_future_isolation,
     finalize_evidence,
     percentile,
@@ -48,6 +50,7 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         )
 
         self.assertEqual(payload["schema_version"], RUN_SCHEMA_VERSION)
+        self.assertEqual(payload["ticket"], TICKET)
         self.assertTrue(payload["fully_evaluated"])
         self.assertEqual(payload["termination_reason"], "turn_limit")
         self.assertEqual(payload["completed_turns"], 1)
@@ -59,6 +62,31 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         self.assertEqual(len(payload["plan_digest"]), 64)
         self.assertEqual(len(payload["trajectory_digest"]), 64)
         self.assertTrue(payload["records"][0]["parity"]["passed"])
+        self.assertTrue(payload["records"][0]["scenario_accounting"]["passed"])
+
+    def test_scenario_accounting_rejects_missing_and_duplicate_ids(self):
+        payload = _scenario_accounting(
+            {
+                "search": {"scenario_ids": [0, 1]},
+                "scenario_aggregation": [
+                    {
+                        "root_action": 3,
+                        "evidence": {
+                            "requested_scenarios": 2,
+                            "scenario_values": [
+                                {"scenario_id": 0},
+                                {"scenario_id": 0},
+                            ],
+                        },
+                    }
+                ],
+            }
+        )
+
+        self.assertFalse(payload["passed"])
+        self.assertEqual(payload["failure_count"], 1)
+        self.assertEqual(payload["failures"][0]["missing_scenario_ids"], [1])
+        self.assertEqual(payload["failures"][0]["duplicate_scenario_ids"], [0])
 
     def test_canonical_commands_require_explicit_native_backend(self):
         parser = _build_parser()
@@ -104,6 +132,7 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
                 json.dumps(
                     {
                         "schema_version": RUN_SCHEMA_VERSION,
+                        "ticket": TICKET,
                         "run_id": "seed-123-repeat-01",
                         "target_chain_count": 10,
                     }
@@ -173,6 +202,61 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
             self.assertTrue(
                 any("checksum mismatch" in issue for issue in verify_evidence(target))
             )
+
+    def test_gui_qa_keeps_dummy_and_manual_results_independent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            result_path = target / "dummy-result.json"
+            replay_path = target / "dummy-replay.json"
+            result_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "puyo.gui_qa.v1",
+                        "models": {
+                            "player_0": {
+                                "deep_chain_profile": "reference",
+                                "deep_chain_backend": "native",
+                                "deep_chain_target_chain": 6,
+                            }
+                        },
+                        "diagnostics": {
+                            "policy": {
+                                "player_0": {
+                                    "selected_action": 4,
+                                    "plan": {"steps": [{"action": 4}]},
+                                    "backend": {"backend": "native"},
+                                    "fallback": {"used": False},
+                                }
+                            },
+                            "controller": {
+                                "player_0": {"decisions_started": 3, "replans": 2}
+                            },
+                        },
+                        "plan_overlay_player_0": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            replay_path.write_text(
+                json.dumps({"format": "puyo-realtime-match-v1"}),
+                encoding="utf-8",
+            )
+
+            payload = record_gui_qa(
+                target,
+                automated_passed=True,
+                automated_command="python -m unittest",
+                manual_status="pending",
+                reviewer=None,
+                notes="visual review remains pending",
+                dummy_result_path=result_path,
+                dummy_replay_path=replay_path,
+            )
+
+            self.assertTrue(payload["automated"]["passed"])
+            self.assertTrue(payload["dummy_replay"]["passed"])
+            self.assertEqual(payload["manual"]["status"], "pending")
+            self.assertFalse(payload["passed"])
 
 
 if __name__ == "__main__":

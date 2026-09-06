@@ -1,0 +1,112 @@
+{
+  "automated": {
+    "command": ".venv/bin/python -m unittest tests.test_deep_chain_builder_benchmark tests.test_deep_chain_builder tests.test_deep_chain_builder_smoke tests.test_deep_chain_search_backend tests.test_deep_chain_native_search tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_realtime_arena tests.test_launcher",
+    "notes": "ruff PASS; focused 121 tests PASS in 138.323s; dummy SDL seed 187 completed; dummy contract FAIL because controller abort/retry replans=0 while policy replan_reason=new_observation; normal-window visual review remains pending",
+    "passed": true,
+    "status": "passed"
+  },
+  "dummy_replay": {
+    "checks": [
+      {
+        "actual": "puyo.gui_qa.v1",
+        "expected": "puyo.gui_qa.v1",
+        "name": "result_schema",
+        "passed": true
+      },
+      {
+        "actual": "puyo-realtime-match-v1",
+        "expected": "puyo-realtime-match-v1",
+        "name": "replay_schema",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "expected": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "name": "reference_native_profile",
+        "passed": true
+      },
+      {
+        "actual": 6,
+        "expected": 6,
+        "name": "canonical_target",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "fallback": false
+        },
+        "expected": {
+          "backend": "native",
+          "fallback": false
+        },
+        "name": "native_without_fallback",
+        "passed": true
+      },
+      {
+        "actual": {
+          "plan_step_one": 3,
+          "selected_action": 3
+        },
+        "expected": "equal",
+        "name": "plan_step_one_matches_action",
+        "passed": true
+      },
+      {
+        "actual": {
+          "decisions": 10,
+          "replans": 0
+        },
+        "expected": {
+          "decisions": ">= 3",
+          "replans": ">= 1"
+        },
+        "name": "decisions_and_replan_observed",
+        "passed": false
+      },
+      {
+        "actual": true,
+        "expected": true,
+        "name": "plan_overlay_enabled",
+        "passed": true
+      }
+    ],
+    "passed": false,
+    "replay_path": "docs/benchmarks/puyo-204-deep-chain-native-baseline/gui_dummy_replay.json",
+    "result_path": "docs/benchmarks/puyo-204-deep-chain-native-baseline/gui_dummy_result.json",
+    "status": "failed"
+  },
+  "manual": {
+    "checks": [
+      {
+        "name": "n_turn_ghost_matches_selected_action",
+        "passed": null
+      },
+      {
+        "name": "selection_reason_and_decision_trace_visible",
+        "passed": null
+      },
+      {
+        "name": "replan_replaces_stale_ghosts",
+        "passed": null
+      },
+      {
+        "name": "overlay_toggle_preserves_policy_decision",
+        "passed": null
+      }
+    ],
+    "notes": "ruff PASS; focused 121 tests PASS in 138.323s; dummy SDL seed 187 completed; dummy contract FAIL because controller abort/retry replans=0 while policy replan_reason=new_observation; normal-window visual review remains pending",
+    "reviewer": null,
+    "status": "pending"
+  },
+  "passed": false,
+  "recorded_at_utc": "2026-09-06T02:25:42Z",
+  "schema_version": "puyo.deep_chain_builder.gui_qa.v2",
+  "ticket": "PUYO-204"
+}
