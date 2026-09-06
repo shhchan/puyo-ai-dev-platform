@@ -34,6 +34,7 @@ Run one pending identity and persist it immediately:
 
 ```bash
 .venv/bin/python -m eval.deep_chain_builder_benchmark run \
+  --backend native \
   --max-runs 1 \
   --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
 ```
@@ -45,6 +46,7 @@ Run a bounded, non-canonical first-decision latency diagnosis:
 
 ```bash
 .venv/bin/python -m eval.deep_chain_builder_benchmark preflight \
+  --backend native \
   --timeout-seconds 5 \
   --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
 ```

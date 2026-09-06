@@ -1,0 +1,209 @@
+{
+  "schema_version": "puyo.deep_chain_builder.native_integration_qa.v1",
+  "ticket": "PUYO-203",
+  "generated_at_utc": "2026-09-04T12:45:51Z",
+  "evaluated_commit": "df2a7c3e501a36b5eb176a2cc8e638f3935ed18a",
+  "base_commit": "aaea02cecc084c2c995aa3553ec3583dd160faed",
+  "automated_status": "passed",
+  "native_build": {
+    "command": "./scripts/build_deep_chain_native.sh",
+    "wheel": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "wheel_sha256": "8bd06df851e529df51aa8dc640a47e663ca2d38bc68287919114586b753341ff",
+    "source_revision": "df2a7c3e501a36b5eb176a2cc8e638f3935ed18a",
+    "crate_version": "0.4.0",
+    "abi_version": 1,
+    "python_abi": "cp312",
+    "build_profile": "release",
+    "target": "x86_64-unknown-linux-gnu",
+    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "gil_detach": true,
+    "thread_mode": "scenario-6",
+    "thread_count": 6,
+    "cpu_features": [
+      "scalar",
+      "sse2",
+      "ssse3",
+      "sse4.1",
+      "avx2"
+    ],
+    "simd_path": "scalar"
+  },
+  "configuration": {
+    "search": {
+      "path": "train/config/deep_chain_builder.yaml",
+      "version": "v1.0",
+      "sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d"
+    },
+    "backend": {
+      "path": "train/config/deep_chain_backend.yaml",
+      "version": "1.0",
+      "sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5"
+    },
+    "evaluator": {
+      "path": "train/config/v1_7_chain_structure.yaml",
+      "version": "v1.0",
+      "sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7"
+    },
+    "reference_profile": {
+      "depth": 16,
+      "width": 250,
+      "scenarios": 6,
+      "max_expanded_nodes": 600000,
+      "minimum_chain_count": 6
+    },
+    "runtime_target_control": {
+      "launcher_choices": [
+        6,
+        8,
+        10,
+        12
+      ],
+      "default": 6,
+      "puyo_204_canonical_target": 6,
+      "canonical_loader_rejects_other_targets": true,
+      "locked_search_config_unchanged": true
+    }
+  },
+  "verification": {
+    "lint": {
+      "status": "passed",
+      "command": ".venv/bin/ruff check agents/deep_chain_builder.py agents/deep_chain_search_backend.py eval/deep_chain_builder_benchmark.py eval/deep_chain_builder_smoke.py tests/test_deep_chain_search_backend.py"
+    },
+    "unit_and_integration_tests": {
+      "status": "passed",
+      "test_count": 119,
+      "elapsed_seconds": 140.718,
+      "command": ".venv/bin/python -m unittest tests.test_deep_chain_search_backend tests.test_deep_chain_builder tests.test_deep_chain_builder_benchmark tests.test_deep_chain_builder_smoke tests.test_deep_chain_native_search tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_realtime_arena tests.test_launcher"
+    },
+    "fixed_python_native_differential": {
+      "status": "passed",
+      "seeds": [
+        203,
+        204,
+        205,
+        206,
+        207,
+        208
+      ],
+      "action_mismatches": 0,
+      "root_ranking_mismatches": 0,
+      "counter_mismatches": 0,
+      "plan_mismatches": 0,
+      "trace_contract_mismatches": 0,
+      "native_boundary_calls_per_decision": 1,
+      "experimental_target_chain": 10,
+      "experimental_target_parity_seeds": [
+        203
+      ],
+      "experimental_target_mismatches": 0
+    },
+    "future_isolation_and_repeatability": {
+      "status": "passed",
+      "policy_seed_start": 123,
+      "policy_seed_end": 152,
+      "policy_seed_count": 30,
+      "private_future_leaks": 0,
+      "native_repeat_seed_count": 30,
+      "native_repeat_digest_mismatches": 0
+    },
+    "reference_preflight": {
+      "status": "passed",
+      "command": ".venv/bin/python -m eval.deep_chain_builder_benchmark preflight --backend native --seed 123 --timeout-seconds 5 --output-dir <temporary-directory>",
+      "seed": 123,
+      "selected_action": 16,
+      "decision_elapsed_seconds": 0.5585393960000147,
+      "supervisor_elapsed_seconds": 1.840682669999751,
+      "timed_out": false,
+      "performance_gate_passed": true,
+      "locked_maximum_decision_p95_seconds": 1.0,
+      "native_boundary_call_count": 1,
+      "fallback_used": false,
+      "native_total_ns": 320413582,
+      "adapter_total_ns": 427752617,
+      "search_digest": "long-horizon-search-931cb1d516b452a153c24268",
+      "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+      "search_counters": {
+        "expanded_nodes": 465036,
+        "evaluated_nodes": 465036,
+        "generated_nodes": 465036,
+        "pruned_nodes": 366605,
+        "terminal_fire_nodes": 65622,
+        "transposition_hits": 10177,
+        "invalid_nodes": 0,
+        "game_over_nodes": 0,
+        "reached_depth": 16,
+        "budget_exhausted": false
+      }
+    },
+    "native_smoke": {
+      "status": "passed",
+      "command": ".venv/bin/python -m eval.deep_chain_builder_smoke --seed 203 --turns 3 --repeats 2 --profile smoke --backend native --ticket PUYO-203 --output <temporary-file>",
+      "artifact_digest": "cfd040aaeedb69ad6c2783f669ee54f07a68a073c3e44ad2e230edfc2c2c5fa5",
+      "run_count": 2,
+      "decision_count": 6,
+      "fallback_count": 0,
+      "action_digest_mismatch_count": 0,
+      "plan_digest_mismatch_count": 0,
+      "final_board_digest_mismatch_count": 0,
+      "known_and_unknown_steps_present": true,
+      "predicted_boards_present": true,
+      "target_chain_count": 6,
+      "target_chain_recorded": true
+    },
+    "native_simulator_parity": {
+      "status": "passed",
+      "seed": 203,
+      "profile": "smoke",
+      "turns": 3,
+      "simulator_parity_mismatch_count": 0,
+      "fallback_count": 0,
+      "action_digest": "30771033d07359264512edff31ec02fe651d46ec7fdd253534d6a9006d41fe2b",
+      "plan_digest": "70ae94cae9b52e22c33549279150fcf8c5fade982e1b59b7589c45b2f153b7d6",
+      "trajectory_digest": "946341b86a7645d36df015696737f83ae50db511352d7b781c38bb31c3cabd40"
+    },
+    "dummy_gui_reference_native": {
+      "status": "passed",
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 10 --seed 187 --speed 4 --max-frames 240 --result-json <temporary-result> --replay <temporary-replay>",
+      "result_schema": "puyo.gui_qa.v1",
+      "replay_format": "puyo-realtime-match-v1",
+      "termination_reason": "game_over",
+      "winner": "player_0",
+      "ticks": 2175,
+      "decision_count": 10,
+      "replan_count": 9,
+      "step_1_action_mismatch_count": 0,
+      "non_native_decision_count": 0,
+      "fallback_count": 0,
+      "target_chain_count": 10,
+      "target_propagation_mismatch_count": 0,
+      "maximum_planned_chain_count": 10,
+      "plan_overlay_enabled": true,
+      "profile": "reference",
+      "backend": "native"
+    },
+    "target_chain_experiment": {
+      "status": "passed",
+      "artifact": "target_chain_experiment.json",
+      "canonical_benchmark_eligible": false,
+      "seed": 187,
+      "placements_per_run": 40,
+      "targets": [
+        6,
+        10,
+        12
+      ],
+      "maximum_actual_chain_by_target": {
+        "6": 6,
+        "10": 12,
+        "12": 12
+      },
+      "fallback_count": 0,
+      "larger_actual_chain_observed": true
+    }
+  },
+  "manual_normal_window": {
+    "status": "pending_human_visual_review",
+    "reason": "Dummy SDL validates the event/replay contract but cannot judge color, readability, ghost placement, or interactive overlay toggling.",
+    "checklist": "docs/development/puyo-203-deep-chain-native-integration.md#verification"
+  }
+}

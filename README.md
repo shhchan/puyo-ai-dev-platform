@@ -471,6 +471,16 @@ python3 -m eval.deep_chain_builder_smoke \
 探索品質を確認する場合は `--deep-chain-profile reference` に切り替えます．reference は探索量が
 大きいため、GUI の操作確認では既定の smoke profile を使います．
 
+PUYO-203 以降は `--deep-chain-backend python|native|auto` で探索実装を選択できます．既定の
+`python` は従来互換、`native` は release build と ABI を厳格検証、`auto` の Python fallback は
+smoke 診断時だけ許可されます．統合 launcher では `deep-chain 目標連鎖` を `6 / 8 / 10 / 12`
+から選べます．大連鎖を比較する場合は `reference/native` と 10 または 12 を選ぶと、HUD の
+`aim`（設定値）、`plan`（探索予測）、`actual`（実発火）を見比べられます．この実験値は
+PUYO-204 canonical benchmark の固定値 6 には伝播しません．build、canonical 実行、rollback、
+diagnostics、GUI 確認の詳細は
+[PUYO-203 native backend integration](docs/development/puyo-203-deep-chain-native-integration.md)
+を参照してください．
+
 ### PUYO-189 Deep Chain Builder baseline benchmark
 
 固定済みの 30 seeds × 2 repeats、40 placements、`reference` profile を評価する runner は、run ごとに
@@ -479,6 +489,7 @@ timeout で探索結果を置き換えません。
 
 ```bash
 .venv/bin/python -m eval.deep_chain_builder_benchmark run \
+  --backend native \
   --max-runs 1 \
   --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
 ```
@@ -488,6 +499,7 @@ timeout で探索結果を置き換えません。
 
 ```bash
 .venv/bin/python -m eval.deep_chain_builder_benchmark preflight \
+  --backend native \
   --timeout-seconds 5 \
   --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
 ```

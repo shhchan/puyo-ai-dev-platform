@@ -7,6 +7,10 @@ from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Mapping
 
+from agents.deep_chain_builder import (
+    DEEP_CHAIN_TARGET_CHAIN_CHOICES,
+    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+)
 from train.artifacts import CHECKPOINT_SCHEMA_VERSION, validate_checkpoint_payload
 
 try:
@@ -28,6 +32,7 @@ REALTIME_POLICY_CHOICES = POLICY_CHOICES
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
 LATENCY_MODE_CHOICES = ("measured", "configured")
 DEEP_CHAIN_PROFILE_CHOICES = ("smoke", "reference")
+DEEP_CHAIN_BACKEND_CHOICES = ("python", "native", "auto")
 QA_PROFILE_CHOICES = (None, "playability", "attack", "stress", "deterministic")
 TRAINING_OPERATIONS = ("submit", "status", "pause", "resume", "cancel")
 HUMAN_TRAINING_METHODS = ("imitation", "advantage_weighted", "mixed_replay")
@@ -79,6 +84,8 @@ class LauncherSettings:
     beam_minimum_chain_a: int | None = None
     beam_minimum_chain_b: int | None = None
     deep_chain_profile: str = "smoke"
+    deep_chain_backend: str = "python"
+    deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
     max_steps: int = 100
     max_ticks: int | None = None
     games: int = 1
@@ -171,6 +178,8 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "beam_minimum_chain_a": LauncherFieldSpec("beam_minimum_chain_a", "1P 最小連鎖", "--beam-minimum-chain-a", "1P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "beam_minimum_chain_b": LauncherFieldSpec("beam_minimum_chain_b", "2P 最小連鎖", "--beam-minimum-chain-b", "2P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "deep_chain_profile": LauncherFieldSpec("deep_chain_profile", "deep-chain profile", "--deep-chain-profile", "deep_chain_builder の探索設定です。GUI 確認は smoke、品質評価は reference を使います。beam 系の値はこの policy では使用しません。"),
+    "deep_chain_backend": LauncherFieldSpec("deep_chain_backend", "deep-chain backend", "--deep-chain-backend", "python は従来実装、native は release build を必須化、auto は smoke のみ明示的 fallback を許可します。"),
+    "deep_chain_target_chain": LauncherFieldSpec("deep_chain_target_chain", "deep-chain 目標連鎖", "--deep-chain-target-chain", "この連鎖数未満の発火を premature として扱います。大連鎖を目で確認する場合は reference/native と 10 または 12 を推奨します。値を上げても到達を保証するものではありません。"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
     "latency_mode": LauncherFieldSpec("latency_mode", "latency mode", "--latency-mode", "measured は実測完了 tick、configured は設定 tick だけで action の反映時刻を決めます。"),
     "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),
@@ -416,6 +425,8 @@ class LauncherSettingsManager:
                 "beam_minimum_chain_a",
                 "beam_minimum_chain_b",
                 "deep_chain_profile",
+                "deep_chain_backend",
+                "deep_chain_target_chain",
                 "keybindings_path",
                 "collection_enabled",
                 "dataset_root",
@@ -456,6 +467,8 @@ class LauncherSettingsManager:
                 "beam_minimum_chain_a",
                 "beam_minimum_chain_b",
                 "deep_chain_profile",
+                "deep_chain_backend",
+                "deep_chain_target_chain",
                 "inference_latency_ticks",
                 "latency_mode",
                 "timeout_ticks",
@@ -482,6 +495,9 @@ class LauncherSettingsManager:
                 "beam_width",
                 "beam_scenarios",
                 "beam_minimum_chain",
+                "deep_chain_profile",
+                "deep_chain_backend",
+                "deep_chain_target_chain",
                 "inference_latency_ticks",
                 "latency_mode",
                 "timeout_ticks",
@@ -537,6 +553,14 @@ class LauncherSettingsManager:
             return self.update(action_key, field, _cycle_value(value, LATENCY_MODE_CHOICES, delta))
         if field == "deep_chain_profile":
             return self.update(action_key, field, _cycle_value(value, DEEP_CHAIN_PROFILE_CHOICES, delta))
+        if field == "deep_chain_backend":
+            return self.update(action_key, field, _cycle_value(value, DEEP_CHAIN_BACKEND_CHOICES, delta))
+        if field == "deep_chain_target_chain":
+            return self.update(
+                action_key,
+                field,
+                _cycle_value(value, DEEP_CHAIN_TARGET_CHAIN_CHOICES, delta),
+            )
         if field == "qa_profile":
             return self.update(action_key, field, _cycle_value(value, QA_PROFILE_CHOICES, delta))
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
@@ -617,6 +641,10 @@ class LauncherSettingsManager:
             return LATENCY_MODE_CHOICES
         if field == "deep_chain_profile":
             return DEEP_CHAIN_PROFILE_CHOICES
+        if field == "deep_chain_backend":
+            return DEEP_CHAIN_BACKEND_CHOICES
+        if field == "deep_chain_target_chain":
+            return DEEP_CHAIN_TARGET_CHAIN_CHOICES
         if field == "qa_profile":
             return QA_PROFILE_CHOICES
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
@@ -678,6 +706,15 @@ class LauncherSettingsManager:
             if settings.deep_chain_profile not in DEEP_CHAIN_PROFILE_CHOICES:
                 errors.append(
                     f"deep_chain_profile must be one of: {', '.join(DEEP_CHAIN_PROFILE_CHOICES)}"
+                )
+            if settings.deep_chain_backend not in DEEP_CHAIN_BACKEND_CHOICES:
+                errors.append(
+                    f"deep_chain_backend must be one of: {', '.join(DEEP_CHAIN_BACKEND_CHOICES)}"
+                )
+            if settings.deep_chain_target_chain not in DEEP_CHAIN_TARGET_CHAIN_CHOICES:
+                errors.append(
+                    "deep_chain_target_chain must be one of: "
+                    f"{DEEP_CHAIN_TARGET_CHAIN_CHOICES}"
                 )
             if settings.qa_profile not in QA_PROFILE_CHOICES:
                 errors.append("qa_profile must be playability, attack, stress, deterministic, or auto")

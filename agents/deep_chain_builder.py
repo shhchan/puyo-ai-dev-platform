@@ -2,7 +2,8 @@
 
 PUYO-185 defines the replaceable decision-flow surface, PUYO-186 supplies the
 search core, and PUYO-187 connects selection, plans, diagnostics, and fallback
-into the headless placement-policy interface.
+into the headless placement-policy interface. PUYO-203 routes the search step
+through explicit Python/native backends without changing that public contract.
 """
 
 from __future__ import annotations
@@ -18,7 +19,11 @@ from typing import Any
 
 import yaml
 
-from agents.chain_structure import ChainStructureEvaluator
+from agents.chain_structure import (
+    DEFAULT_CHAIN_STRUCTURE_CONFIG_PATH,
+    ChainStructureConfig,
+    load_chain_structure_config,
+)
 from agents.compact_search import CompactSearchState, legal_action_indices, transition
 from agents.decision_flow import (
     DecisionContext,
@@ -28,11 +33,23 @@ from agents.decision_flow import (
     DecisionTraceEntry,
     StepResult,
 )
+from agents.deep_chain_native import DeepChainNativeError
+from agents.deep_chain_search_backend import (
+    DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH,
+    LONG_HORIZON_BACKEND_CHOICES,
+    LongHorizonBackendConfig,
+    LongHorizonBackendRequest,
+    LongHorizonSearchBackend,
+    PythonLongHorizonSearchBackend,
+    file_sha256,
+    load_long_horizon_backend_config,
+    make_long_horizon_search_backend,
+    semantic_sha256,
+)
 from agents.long_horizon_search import (
     FUTURE_SAMPLING_LEGACY_FIXED_SIX,
     LongHorizonSearchConfig,
     build_scenario_sequences_from_known_pairs,
-    run_compact_long_horizon_search,
 )
 from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
@@ -52,6 +69,9 @@ DEEP_CHAIN_BENCHMARK_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark.v1"
 DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
 DEEP_CHAIN_SELECTION_SCHEMA_VERSION = "puyo.deep_chain_builder.selection.v1"
 N_TURN_PLAN_SCHEMA_VERSION = "n-turn-plan-v1"
+DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT = 6
+DEEP_CHAIN_TARGET_CHAIN_CHOICES = (6, 8, 10, 12)
+MAX_DEEP_CHAIN_TARGET_CHAIN_COUNT = 255
 DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH = (
     Path(__file__).resolve().parents[1] / "train" / "config" / "deep_chain_builder.yaml"
 )
@@ -67,6 +87,7 @@ SELECTED_PLAN_ARTIFACT = "selected_plan"
 SELECTION_EVIDENCE_ARTIFACT = "selection_evidence"
 DECISION_OUTPUT_ARTIFACT = "decision_output"
 PREVIOUS_PLAN_ARTIFACT = "previous_plan"
+TARGET_CHAIN_COUNT_ARTIFACT = "target_chain_count"
 
 # Only these fields cross the runtime-to-policy boundary.  In particular, the
 # simulator objects in environment info are deliberately not retained.
@@ -537,6 +558,48 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
         ),
     )
 
+    def __init__(
+        self,
+        backend: LongHorizonSearchBackend | None = None,
+        *,
+        evaluator_config: ChainStructureConfig | None = None,
+        evaluator_config_sha256: str | None = None,
+        search_config_version: str = "v1.0",
+        search_config_sha256: str | None = None,
+        backend_config: LongHorizonBackendConfig | None = None,
+        backend_config_sha256: str | None = None,
+        canonical: bool = False,
+        allow_auto_fallback: bool = False,
+    ) -> None:
+        self.backend = backend or PythonLongHorizonSearchBackend()
+        self.evaluator_config = evaluator_config or load_chain_structure_config()
+        self.evaluator_config_sha256 = evaluator_config_sha256 or (
+            semantic_sha256(self.evaluator_config.to_dict())
+            if evaluator_config is not None
+            else file_sha256(DEFAULT_CHAIN_STRUCTURE_CONFIG_PATH)
+        )
+        self.search_config_version = str(search_config_version)
+        self.search_config_sha256 = search_config_sha256 or file_sha256(
+            DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH
+        )
+        self.backend_config = backend_config or load_long_horizon_backend_config()
+        self.backend_config_sha256 = backend_config_sha256 or file_sha256(
+            DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH
+        )
+        self.canonical = bool(canonical)
+        self.allow_auto_fallback = bool(allow_auto_fallback)
+
+    def summarize_inputs(self, context: DecisionContext) -> Mapping[str, Any]:
+        summary = dict(super().summarize_inputs(context))
+        summary["backend"] = _json_ready(self.backend.describe())
+        summary["target_chain_count"] = _validate_target_chain_count(
+            context.artifacts.get(
+                TARGET_CHAIN_COUNT_ARTIFACT,
+                DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+            )
+        )
+        return summary
+
     def run(self, context: DecisionContext) -> StepResult:
         observation = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
         sequences = context.require(SCENARIO_SEQUENCES_ARTIFACT)
@@ -546,22 +609,53 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
         if not sequences or not roots:
             raise ValueError("long-range search requires scenarios and roots")
         profile = context.profile
+        target_chain_count = _validate_target_chain_count(
+            context.artifacts.get(
+                TARGET_CHAIN_COUNT_ARTIFACT,
+                DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+            )
+        )
         config = LongHorizonSearchConfig(
             depth=int(profile.depth),
             width=int(profile.width),
             scenarios=int(profile.scenarios),
-            minimum_chain_count=6,
+            minimum_chain_count=target_chain_count,
             max_expanded_nodes=int(profile.max_expanded_nodes),
             decision_seed=_visible_decision_seed(observation),
             future_sampling_mode=FUTURE_SAMPLING_LEGACY_FIXED_SIX,
         )
         root_state = _compact_state_from_observation(observation)
-        result = run_compact_long_horizon_search(
-            root_state,
-            _decode_visible_pairs(observation.next_pairs),
-            config,
-            evaluator=ChainStructureEvaluator(),
+        execution = self.backend.search(
+            LongHorizonBackendRequest(
+                root_state=root_state,
+                known_pairs=_decode_visible_pairs(observation.next_pairs),
+                search_config=config,
+                evaluator_config=self.evaluator_config,
+                profile_name=str(profile.name),
+                profile_version=str(profile.version),
+                search_config_version=self.search_config_version,
+                search_config_sha256=self.search_config_sha256,
+                evaluator_config_version=self.evaluator_config.weight_version,
+                evaluator_config_sha256=self.evaluator_config_sha256,
+                backend_config_version=self.backend_config.config_version,
+                backend_config_sha256=self.backend_config_sha256,
+                request_id=_backend_request_id(context.decision_id),
+                canonical=self.canonical,
+                allow_auto_fallback=self.allow_auto_fallback,
+            )
         )
+        result = execution.result
+        if tuple(
+            sequence.sequence_digest for sequence in result.scenario_sequences
+        ) != tuple(sequence.sequence_digest for sequence in sequences):
+            raise ValueError("backend scenario sequences differ from the flow input")
+        result_root_ids = tuple(
+            sorted(int(evidence.root_action) for evidence in result.root_evidence)
+        )
+        expected_root_ids = tuple(sorted(int(root["action"]) for root in roots))
+        if result_root_ids != expected_root_ids:
+            raise ValueError("backend root identities differ from legal placements")
+        backend_diagnostics = _json_ready(execution.diagnostics)
         return StepResult(
             outputs={
                 SCENARIO_SEARCH_RESULTS_ARTIFACT: {
@@ -572,6 +666,8 @@ class RunLongRangeSearchStep(_DeferredDeepChainStep):
                         sequence.scenario_id for sequence in sequences
                     ),
                     "root_ids": tuple(int(root["action"]) for root in roots),
+                    "target_chain_count": target_chain_count,
+                    "backend": backend_diagnostics,
                 }
             },
             candidate_count=len(result.root_evidence),
@@ -599,9 +695,6 @@ class AggregateScenarioScoresStep(_DeferredDeepChainStep):
                 "ranking_key": tuple(evidence.ranking_key),
                 "score_breakdown": evidence.value_breakdown(),
                 "evidence": evidence,
-                "representative": _representative_payload(
-                    result, int(evidence.root_action), payload["root_state"]
-                ),
                 "search_diagnostics": result.root_diagnostics.get(
                     int(evidence.root_action), {}
                 ),
@@ -656,6 +749,16 @@ class SelectPlacementStep(_DeferredDeepChainStep):
         selected = ranked[0]
         action = int(selected["root_action"])
         representative = selected.get("representative")
+        search_payload = context.artifacts.get(SCENARIO_SEARCH_RESULTS_ARTIFACT)
+        if not isinstance(representative, Mapping) and isinstance(
+            search_payload, Mapping
+        ):
+            representative = _representative_payload(
+                search_payload.get("result"),
+                action,
+                search_payload.get("root_state"),
+            )
+            selected = {**selected, "representative": representative}
         if not isinstance(representative, Mapping):
             raise TypeError("selected deep-chain root has no representative trajectory")
         actions = representative.get("actions")
@@ -668,8 +771,26 @@ class SelectPlacementStep(_DeferredDeepChainStep):
             context.profile,
             selected,
             previous_plan=context.artifacts.get(PREVIOUS_PLAN_ARTIFACT),
+            target_chain_count=_target_chain_count_from_context(
+                context,
+                search_payload,
+            ),
+            backend=(
+                search_payload.get("backend", {})
+                if isinstance(search_payload, Mapping)
+                else {}
+            ),
         )
-        evidence = _selection_evidence(ranked, selected, plan)
+        evidence = _selection_evidence(
+            ranked,
+            selected,
+            plan,
+            backend=(
+                search_payload.get("backend", {})
+                if isinstance(search_payload, Mapping)
+                else {}
+            ),
+        )
         reason = "highest_aggregated_root_ranking"
         return StepResult(
             outputs={
@@ -708,7 +829,7 @@ class EmitDecisionTraceStep(_DeferredDeepChainStep):
                     action=action,
                     plan=plan,
                     evidence=evidence,
-                    decision_trace=context.trace.to_dict(),
+                    decision_trace=_decision_trace_payload(context),
                 )
             },
             candidate_count=1,
@@ -719,12 +840,21 @@ class EmitDecisionTraceStep(_DeferredDeepChainStep):
 class DeepChainBuildFlow(DecisionFlow):
     """Default inheritable flow for ``deep_chain_builder`` decisions."""
 
+    def __init__(
+        self,
+        steps: Sequence[DecisionStep] | None = None,
+        *,
+        search_step: RunLongRangeSearchStep | None = None,
+    ) -> None:
+        self._search_step = search_step or RunLongRangeSearchStep()
+        super().__init__(steps=steps)
+
     def default_steps(self) -> Sequence[DecisionStep]:
         return (
             NormalizeObservationStep(),
             CompleteVisibleQueueScenariosStep(),
             EnumerateRootPlacementsStep(),
-            RunLongRangeSearchStep(),
+            self._search_step,
             AggregateScenarioScoresStep(),
             SelectPlacementStep(),
             EmitDecisionTraceStep(),
@@ -743,6 +873,11 @@ class DeepChainBuilderPolicy:
         flow: DecisionFlow | None = None,
         config: DeepChainBuilderConfig | None = None,
         config_path: str | Path = DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH,
+        backend: str | None = None,
+        search_backend: LongHorizonSearchBackend | None = None,
+        backend_config: LongHorizonBackendConfig | None = None,
+        backend_config_path: str | Path = DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH,
+        target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     ) -> None:
         self.config = config or load_deep_chain_builder_config(config_path)
         self.profile = (
@@ -750,7 +885,58 @@ class DeepChainBuilderPolicy:
             if isinstance(profile, DeepChainBuilderProfile)
             else self.config.profile(profile)
         )
-        self.flow = flow or DeepChainBuildFlow()
+        self.backend_config = backend_config or load_long_horizon_backend_config(
+            backend_config_path
+        )
+        self.backend_mode = str(backend or self.backend_config.default_backend)
+        self.target_chain_count = _validate_target_chain_count(target_chain_count)
+        if self.backend_mode not in LONG_HORIZON_BACKEND_CHOICES:
+            raise ValueError(f"unsupported deep-chain backend: {self.backend_mode}")
+        canonical = self.backend_mode == "native" or (
+            self.backend_config.is_canonical_profile(self.profile.name)
+            and self.backend_mode == "auto"
+        )
+        allow_auto_fallback = (
+            self.backend_mode == "auto"
+            and self.backend_config.allows_auto_fallback(self.profile.name)
+        )
+        resolved_backend = search_backend
+        if flow is None and resolved_backend is None:
+            resolved_backend = make_long_horizon_search_backend(
+                self.backend_mode,
+                profile_name=self.profile.name,
+                config=self.backend_config,
+            )
+        self.search_backend = resolved_backend
+        search_config_sha256 = (
+            file_sha256(config_path)
+            if config is None
+            else semantic_sha256(self.config.to_dict())
+        )
+        backend_config_sha256 = (
+            file_sha256(backend_config_path)
+            if backend_config is None
+            else semantic_sha256(self.backend_config.to_dict())
+        )
+        if flow is None:
+            if resolved_backend is None:
+                raise RuntimeError("deep-chain search backend was not initialized")
+            flow = DeepChainBuildFlow(
+                search_step=RunLongRangeSearchStep(
+                    resolved_backend,
+                    evaluator_config=load_chain_structure_config(),
+                    evaluator_config_sha256=file_sha256(
+                        DEFAULT_CHAIN_STRUCTURE_CONFIG_PATH
+                    ),
+                    search_config_version=self.config.config_version,
+                    search_config_sha256=search_config_sha256,
+                    backend_config=self.backend_config,
+                    backend_config_sha256=backend_config_sha256,
+                    canonical=canonical,
+                    allow_auto_fallback=allow_auto_fallback,
+                )
+            )
+        self.flow = flow
         self.last_context: DecisionContext | None = None
         self._decision_count = 0
         self._last_plan: dict[str, Any] | None = None
@@ -767,7 +953,10 @@ class DeepChainBuilderPolicy:
     ) -> DecisionContext:
         self._decision_count += 1
         visible_input = build_visible_runtime_input(observation, info)
-        artifacts: dict[str, Any] = {RUNTIME_INPUT_ARTIFACT: visible_input}
+        artifacts: dict[str, Any] = {
+            RUNTIME_INPUT_ARTIFACT: visible_input,
+            TARGET_CHAIN_COUNT_ARTIFACT: self.target_chain_count,
+        }
         if self._last_plan is not None:
             artifacts[PREVIOUS_PLAN_ARTIFACT] = copy.deepcopy(self._last_plan)
         context = DecisionContext(
@@ -775,12 +964,22 @@ class DeepChainBuilderPolicy:
             profile=self.profile,
             artifacts=artifacts,
         )
+        # Native contract failures fail closed. Other evaluator/plugin failures
+        # retain the pre-existing deterministic legal fallback.
         try:
             result = self.flow.execute(context)
             _require_legal_selected_action(result, visible_input)
-        # A policy boundary must convert evaluator/plugin failures into the
-        # deterministic legal fallback required by the public contract.
-        except Exception as exc:  # noqa: BLE001
+        except DeepChainNativeError:
+            # Explicit native and canonical auto modes fail closed. The auto
+            # router has already handled any permitted smoke-only rollback.
+            raise
+        except Exception as exc:
+            # A native/auto decision must never be converted into the legacy
+            # legal-action fallback, including adapter contract failures that
+            # are not extension error types. Auto's only permitted rollback is
+            # handled inside AutoLongHorizonSearchBackend and is diagnostic.
+            if self.backend_mode != "python":
+                raise
             result = _fallback_context(context, visible_input, exc)
         result = _finalize_decision_output(result)
         self.last_context = result
@@ -805,6 +1004,8 @@ class DeepChainBuilderPolicy:
                 "schema_version": DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION,
                 "policy_id": self.policy_id,
                 "profile": self.profile.to_dict(),
+                "backend": self._backend_description(),
+                "target_chain_count": self.target_chain_count,
                 "decision_trace": {},
                 "selected_action": None,
                 "plan_id": "",
@@ -814,11 +1015,22 @@ class DeepChainBuilderPolicy:
             }
         return copy.deepcopy(_policy_diagnostics(context, self.profile))
 
+    def _backend_description(self) -> dict[str, Any]:
+        if self.search_backend is None:
+            return {
+                "requested_backend": self.backend_mode,
+                "backend": "custom_flow",
+                "fallback": {"used": False, "reason": None, "detail": ""},
+            }
+        return _json_ready(self.search_backend.describe())
+
 
 def _selection_evidence(
     ranked: Sequence[Mapping[str, Any]],
     selected: Mapping[str, Any],
     plan: Mapping[str, Any],
+    *,
+    backend: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     scenario_aggregates = []
     for value in ranked:
@@ -859,6 +1071,13 @@ def _selection_evidence(
         "selected_representative": representative_summary,
         "scenario_aggregation": scenario_aggregates,
         "plan_id": str(plan.get("plan_id", "")),
+        "target_chain_count": int(
+            plan.get("objective", {}).get(
+                "minimum_chain_count",
+                DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+            )
+        ),
+        "backend": _json_ready(backend or {}),
         "fallback": {"used": False, "reason": None, "detail": ""},
     }
 
@@ -868,7 +1087,10 @@ def _selected_plan(
     selected: Mapping[str, Any],
     *,
     previous_plan: Any = None,
+    target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    backend: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    target_chain_count = _validate_target_chain_count(target_chain_count)
     representative = selected.get("representative")
     if not isinstance(representative, Mapping):
         raise TypeError("selected root requires a representative mapping")
@@ -960,9 +1182,12 @@ def _selected_plan(
         ],
         "objective": {
             "kind": "deep_chain_construction",
-            "minimum_chain_count": 6,
+            "minimum_chain_count": target_chain_count,
         },
-        "search_control": _json_ready(profile_payload),
+        "search_control": {
+            **_json_ready(profile_payload),
+            "backend": _backend_plan_control(backend),
+        },
         "planner_request": {},
         "planner_latency_overrun": False,
         "scenario_id": representative.get("scenario_id"),
@@ -1005,6 +1230,12 @@ def _decision_output(
         "action": int(action),
         "plan_id": str(plan_payload.get("plan_id", "")),
         "plan": plan_payload,
+        "target_chain_count": int(
+            plan_payload.get("objective", {}).get(
+                "minimum_chain_count",
+                DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+            )
+        ),
         "selection_evidence": evidence_payload,
         "decision_trace": _json_ready(decision_trace),
         "fallback": evidence_payload.get(
@@ -1022,7 +1253,7 @@ def _finalize_decision_output(context: DecisionContext) -> DecisionContext:
         action=action,
         plan=plan,
         evidence=evidence,
-        decision_trace=context.trace.to_dict(),
+        decision_trace=_decision_trace_payload(context),
     )
     return DecisionContext(
         decision_id=context.decision_id,
@@ -1065,6 +1296,10 @@ def _fallback_context(
         context.profile,
         selected,
         previous_plan=context.artifacts.get(PREVIOUS_PLAN_ARTIFACT),
+        target_chain_count=context.artifacts.get(
+            TARGET_CHAIN_COUNT_ARTIFACT,
+            DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+        ),
     )
     plan["selection_reason"] = f"deterministic_fallback:{reason}"
     detail = f"{type(error).__name__}: {error}".strip()
@@ -1230,8 +1465,15 @@ def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any
             "schema_version": search_payload.get("schema_version"),
             "scenario_ids": _json_ready(search_payload.get("scenario_ids", ())),
             "root_ids": _json_ready(search_payload.get("root_ids", ())),
+            "target_chain_count": int(
+                search_payload.get(
+                    "target_chain_count",
+                    DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+                )
+            ),
             "deterministic_digest": getattr(result, "deterministic_digest", ""),
             "counters": (counters.to_dict() if hasattr(counters, "to_dict") else {}),
+            "backend": _json_ready(search_payload.get("backend", {})),
         }
     fallback = evidence_payload.get(
         "fallback", {"used": False, "reason": None, "detail": ""}
@@ -1240,13 +1482,24 @@ def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any
         "schema_version": DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION,
         "policy_id": DEEP_CHAIN_BUILDER_POLICY_ID,
         "profile": _json_ready(profile.to_dict()),
-        "decision_trace": context.trace.to_dict(),
+        "target_chain_count": _validate_target_chain_count(
+            context.artifacts.get(
+                TARGET_CHAIN_COUNT_ARTIFACT,
+                DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+            )
+        ),
+        "decision_trace": _decision_trace_payload(context),
         "selected_action": int(context.require(SELECTED_ACTION_ARTIFACT)),
         "candidate_count": evidence_payload.get("candidate_count"),
         "selection_reason": evidence_payload.get("selection_reason"),
         "scenario_aggregation": evidence_payload.get("scenario_aggregation", []),
         "selection_evidence": evidence_payload,
         "search": _json_ready(search_diagnostics),
+        "backend": _json_ready(
+            search_payload.get("backend", {})
+            if isinstance(search_payload, Mapping)
+            else {}
+        ),
         "plan_id": str(plan_payload.get("plan_id", "")),
         "plan": plan_payload,
         "replan_reason": str(plan_payload.get("replan_reason", "")),
@@ -1255,6 +1508,41 @@ def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any
             context.artifacts.get(DECISION_OUTPUT_ARTIFACT, {})
         ),
     }
+
+
+def _validate_target_chain_count(value: Any) -> int:
+    if isinstance(value, bool):
+        raise TypeError("deep-chain target chain count must be an integer")
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("deep-chain target chain count must be an integer") from exc
+    if parsed != value:
+        raise ValueError("deep-chain target chain count must be an integer")
+    if not 1 <= parsed <= MAX_DEEP_CHAIN_TARGET_CHAIN_COUNT:
+        raise ValueError(
+            "deep-chain target chain count must be in "
+            f"[1, {MAX_DEEP_CHAIN_TARGET_CHAIN_COUNT}]"
+        )
+    return parsed
+
+
+def _target_chain_count_from_context(
+    context: DecisionContext,
+    search_payload: Any,
+) -> int:
+    configured = _validate_target_chain_count(
+        context.artifacts.get(
+            TARGET_CHAIN_COUNT_ARTIFACT,
+            DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+        )
+    )
+    if not isinstance(search_payload, Mapping) or "target_chain_count" not in search_payload:
+        return configured
+    searched = _validate_target_chain_count(search_payload["target_chain_count"])
+    if searched != configured:
+        raise ValueError("deep-chain plan target differs from the search target")
+    return searched
 
 
 def _json_ready(value: Any) -> Any:
@@ -1281,6 +1569,41 @@ def _stable_payload_digest(value: Any, *, prefix: str) -> str:
         allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(prefix.encode("utf-8") + b":" + payload).hexdigest()
+
+
+def _backend_request_id(decision_id: str) -> int:
+    digest = hashlib.sha256(str(decision_id).encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "little")
+
+
+def _backend_plan_control(value: Mapping[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        return {}
+    return _json_ready(
+        {
+            key: value.get(key)
+            for key in (
+                "schema_version",
+                "requested_backend",
+                "backend",
+                "canonical",
+                "request_id",
+                "execution_mode",
+                "configuration",
+                "provenance",
+                "fallback",
+            )
+            if key in value
+        }
+    )
+
+
+def _decision_trace_payload(context: DecisionContext) -> dict[str, Any]:
+    payload = context.trace.to_dict()
+    search = context.artifacts.get(SCENARIO_SEARCH_RESULTS_ARTIFACT)
+    if isinstance(search, Mapping):
+        payload["backend"] = _json_ready(search.get("backend", {}))
+    return payload
 
 
 def _snapshot_value(value: Any) -> Any:
@@ -1604,7 +1927,11 @@ __all__ = [
     "DEEP_CHAIN_BUILDER_CONFIG_SCHEMA_VERSION",
     "DEEP_CHAIN_BUILDER_POLICY_ID",
     "DEEP_CHAIN_BUILDER_PROFILE_SCHEMA_VERSION",
+    "DEEP_CHAIN_TARGET_CHAIN_CHOICES",
     "DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH",
+    "DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT",
+    "DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH",
+    "TARGET_CHAIN_COUNT_ARTIFACT",
     "VISIBLE_INFO_FIELDS",
     "VISIBLE_OBSERVATION_FIELDS",
     "AggregateScenarioScoresStep",
