@@ -30,6 +30,10 @@ authoritative, while wall-clock time is observational evidence.
 
 ## Commands
 
+> **Archived evidence:** 以下はPUYO-189実施時の履歴コマンドです。現在のrunnerは
+> PUYO-204 v2専用で、PUYO-189 directoryへのwriteを拒否します。既存成果物の
+> `verify`だけは後方互換で利用できます。再実行は当時のcommitをcheckoutして行います。
+
 Run one pending identity and persist it immediately:
 
 ```bash
