@@ -1,0 +1,249 @@
+{
+  "automated": {
+    "command": ".venv/bin/python -m unittest tests.test_deep_chain_gui_qa tests.test_deep_chain_builder_benchmark tests.test_deep_chain_builder tests.test_deep_chain_builder_smoke tests.test_deep_chain_search_backend tests.test_deep_chain_native_search tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_realtime_arena tests.test_launcher",
+    "notes": "\u95a2\u9023129 tests PASS (219.482s)\u3001verify-gui-qa / historical write protection\u306e\u8ffd\u52a02 tests PASS\u3002\u901a\u5e38\u753b\u9762\u306e\u4eba\u9593 QA \u306f PUYO-235\u300160-run \u518d\u8a55\u4fa1\u306f PUYO-236\u3002",
+    "passed": true,
+    "status": "passed"
+  },
+  "dummy_replay": {
+    "checks": [
+      {
+        "actual": "puyo.gui_qa.v1",
+        "expected": "puyo.gui_qa.v1",
+        "name": "result_schema",
+        "passed": true
+      },
+      {
+        "actual": "puyo-realtime-match-v1",
+        "expected": "puyo-realtime-match-v1",
+        "name": "replay_schema",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "expected": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "name": "reference_native_profile",
+        "passed": true
+      },
+      {
+        "actual": 6,
+        "expected": 6,
+        "name": "canonical_target",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "fallback": false
+        },
+        "expected": {
+          "backend": "native",
+          "fallback": false
+        },
+        "name": "native_without_fallback",
+        "passed": true
+      },
+      {
+        "actual": {
+          "plan_step_one": 0,
+          "selected_action": 0
+        },
+        "expected": "equal",
+        "name": "plan_step_one_matches_action",
+        "passed": true
+      },
+      {
+        "actual": {
+          "applied_decisions": 10,
+          "controller_retries": 0,
+          "controller_stale_decisions": 0,
+          "duplicate_observation_queries": 0,
+          "errors": [],
+          "passed": true,
+          "placement_plan_replacements": 9,
+          "records": [
+            {
+              "controller_activation_tick": 132,
+              "controller_request_tick": 0,
+              "decision_id": "deep_chain_builder-decision-00000001",
+              "observation_digest": "ef4592b517e531b48034d3f37846661929586861ce2116441766689d4fd3b619",
+              "placement": 0,
+              "plan_id": "40f9336b1c54d1a7",
+              "plan_step_one_action": 1,
+              "replan_reason": "initial_plan",
+              "root_state_fingerprint": "73b38290ea9d0f50a114303e",
+              "selected_action": 1,
+              "tick": 132
+            },
+            {
+              "controller_activation_tick": 339,
+              "controller_request_tick": 197,
+              "decision_id": "deep_chain_builder-decision-00000002",
+              "observation_digest": "8a44e296756d1389189ac3a6613253ed9544cbafa653c2ad277afe0b7f38595b",
+              "placement": 1,
+              "plan_id": "eb2ccc8887ac6fc3",
+              "plan_step_one_action": 16,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "97bc407116115f0e3fbbc451",
+              "selected_action": 16,
+              "tick": 339
+            },
+            {
+              "controller_activation_tick": 545,
+              "controller_request_tick": 402,
+              "decision_id": "deep_chain_builder-decision-00000003",
+              "observation_digest": "8eab8d3ee42097c00263d2d07b4b3e6086a3b50b3828c72791d68d6524f51360",
+              "placement": 2,
+              "plan_id": "ab2fcc0f187d3d4a",
+              "plan_step_one_action": 11,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "afb417b0eb390c1b589148c0",
+              "selected_action": 11,
+              "tick": 545
+            },
+            {
+              "controller_activation_tick": 770,
+              "controller_request_tick": 606,
+              "decision_id": "deep_chain_builder-decision-00000004",
+              "observation_digest": "71512799f5bf89b5f1af50a40a13cb7a131299c44a2ae64da556325d816d5a02",
+              "placement": 3,
+              "plan_id": "014c1234082cecf7",
+              "plan_step_one_action": 9,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "651d4e78d609327d85c9605e",
+              "selected_action": 9,
+              "tick": 770
+            },
+            {
+              "controller_activation_tick": 998,
+              "controller_request_tick": 829,
+              "decision_id": "deep_chain_builder-decision-00000005",
+              "observation_digest": "99a0fa60e06f699b9f52141d403ad2ee388ab5a406304ec5d9ea9c1e4eb32a2f",
+              "placement": 4,
+              "plan_id": "c2ca927877ebb2f4",
+              "plan_step_one_action": 4,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "36d235f5b4054c10b08255a8",
+              "selected_action": 4,
+              "tick": 998
+            },
+            {
+              "controller_activation_tick": 1197,
+              "controller_request_tick": 1055,
+              "decision_id": "deep_chain_builder-decision-00000006",
+              "observation_digest": "f9366cda3ec38f8047bc4f837efe24e075963a0fa9594cf0b21372e6b8f32f42",
+              "placement": 5,
+              "plan_id": "7861544091cae9ae",
+              "plan_step_one_action": 18,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "73ef1b62f6b5d4d00d1b323d",
+              "selected_action": 18,
+              "tick": 1197
+            },
+            {
+              "controller_activation_tick": 1447,
+              "controller_request_tick": 1264,
+              "decision_id": "deep_chain_builder-decision-00000007",
+              "observation_digest": "6e502279760ba132a39ebc0f7e8a888365a09ac81263fc1458d8a7d5e9f27986",
+              "placement": 6,
+              "plan_id": "b72d8c324b834888",
+              "plan_step_one_action": 6,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "7b797b5d11ecd9ae586d3f05",
+              "selected_action": 6,
+              "tick": 1447
+            },
+            {
+              "controller_activation_tick": 1663,
+              "controller_request_tick": 1514,
+              "decision_id": "deep_chain_builder-decision-00000008",
+              "observation_digest": "bfdd55e7dd7019bc30f8da8f3f8b2f17370cf1948dbb4ca1dee7fd64e8ac2e97",
+              "placement": 7,
+              "plan_id": "6283c70651c6dc7e",
+              "plan_step_one_action": 16,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "72d387de200bec3336a131fb",
+              "selected_action": 16,
+              "tick": 1663
+            },
+            {
+              "controller_activation_tick": 1896,
+              "controller_request_tick": 1730,
+              "decision_id": "deep_chain_builder-decision-00000009",
+              "observation_digest": "a125152ba8dc7b24a0b5119718378d2cd886ce98bd1b62a2a48275e41927deb7",
+              "placement": 8,
+              "plan_id": "6a6cd014f767c6c6",
+              "plan_step_one_action": 6,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "e8515c57eeca523cc2c29b48",
+              "selected_action": 6,
+              "tick": 1896
+            },
+            {
+              "controller_activation_tick": 2112,
+              "controller_request_tick": 1959,
+              "decision_id": "deep_chain_builder-decision-00000010",
+              "observation_digest": "eb5557d11da61884118b6b4e05b862fb61f2515436304a9a045a40b8bd53c910",
+              "placement": 9,
+              "plan_id": "494352c5e69d0e8c",
+              "plan_step_one_action": 0,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "5e3ba6c909a829fc0ec3433b",
+              "selected_action": 0,
+              "tick": 2112
+            }
+          ],
+          "schema_version": "puyo.realtime_policy_decisions.v1"
+        },
+        "expected": "at least 3 applied decisions and 2 observation-bound plan replacements",
+        "name": "policy_decision_history",
+        "passed": true
+      },
+      {
+        "actual": true,
+        "expected": true,
+        "name": "plan_overlay_enabled",
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "replay_path": "docs/benchmarks/puyo-230-policy-replan-qa/gui_dummy_replay.json.gz",
+    "replay_sha256": "9ec9b4c74657c25ac7e5860f51629decbe88e0a4d2eca0d798bbcaa796557de0",
+    "result_path": "docs/benchmarks/puyo-230-policy-replan-qa/gui_dummy_result.json.gz",
+    "result_sha256": "80e70e80d1040db35498ed8130658cc079328b3bfcfc6a855c383c21d2719762",
+    "status": "passed"
+  },
+  "manual": {
+    "checks": [
+      {
+        "name": "n_turn_ghost_matches_selected_action",
+        "passed": null
+      },
+      {
+        "name": "selection_reason_and_decision_trace_visible",
+        "passed": null
+      },
+      {
+        "name": "replan_replaces_stale_ghosts",
+        "passed": null
+      },
+      {
+        "name": "overlay_toggle_preserves_policy_decision",
+        "passed": null
+      }
+    ],
+    "notes": "\u95a2\u9023129 tests PASS (219.482s)\u3001verify-gui-qa / historical write protection\u306e\u8ffd\u52a02 tests PASS\u3002\u901a\u5e38\u753b\u9762\u306e\u4eba\u9593 QA \u306f PUYO-235\u300160-run \u518d\u8a55\u4fa1\u306f PUYO-236\u3002",
+    "reviewer": null,
+    "status": "pending"
+  },
+  "passed": false,
+  "recorded_at_utc": "2026-09-06T13:52:06Z",
+  "schema_version": "puyo.deep_chain_builder.gui_qa.v3",
+  "ticket": "PUYO-230"
+}
