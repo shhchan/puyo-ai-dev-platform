@@ -465,6 +465,7 @@ def _plan_summary(plan: Any) -> dict[str, Any]:
         "schema_version": plan.get("schema_version"),
         "plan_id": str(plan.get("plan_id", "")),
         "replan_reason": str(plan.get("replan_reason", "")),
+        "objective": _json_ready(plan.get("objective", {})),
         "prediction_summary": _json_ready(plan.get("prediction_summary", {})),
         "steps": steps,
     }
@@ -666,6 +667,7 @@ def run_benchmark_run(
         record = {
             "turn": int(step_count),
             "action": int(action),
+            "target_chain_count": diagnostics.get("target_chain_count"),
             "elapsed_seconds": float(elapsed),
             "board_before": board_before,
             "board_after": board_after,

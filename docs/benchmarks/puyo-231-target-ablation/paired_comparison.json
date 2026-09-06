@@ -1,0 +1,3733 @@
+{
+  "paired_seeds": [
+    {
+      "seed": 123,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 124,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 125,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 126,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 2,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 2,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 127,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 128,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 129,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 130,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 3,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 3,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 131,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 14,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 14,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 132,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 133,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "game_over"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "game_over"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 1,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "game_over"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 1,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "game_over"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 134,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 135,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 136,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 38,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 38,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 27,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 27,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 137,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 2,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 2,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 138,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 139,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 32,
+            "first_quality_fire_placement": 32,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 2,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 2,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 140,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 141,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 142,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": 33,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 28,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 143,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 144,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 145,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 146,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native fixed-width tie-break selected a different best candidate",
+                "placement": 22,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native fixed-width tie-break selected a different best candidate",
+                "placement": 22,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 38,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 38,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 147,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "game_over"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "game_over"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 1,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 1,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 6,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 148,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 31,
+            "first_quality_fire_placement": 31,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 13,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 13,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 9,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 149,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 34,
+            "first_quality_fire_placement": 34,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": 37,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 150,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 13,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 35,
+            "first_quality_fire_placement": 35,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 13,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 33,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 8,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 151,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 1,
+            "termination_reason": "policy_error"
+          },
+          {
+            "decision_errors": [
+              {
+                "detail": "native aggregate ranking differs from Python",
+                "placement": 1,
+                "type": "InvalidNativeInputError"
+              }
+            ],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": false,
+            "game_over": null,
+            "internal_target_reached": null,
+            "maximum_actual_chain": null,
+            "no_fire": null,
+            "quality_floor_reached": null,
+            "repeat": 2,
+            "termination_reason": "policy_error"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 152,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 30,
+            "first_quality_fire_placement": 30,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 11,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "12": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 36,
+            "first_quality_fire_placement": 36,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "6": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 37,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 7,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ],
+        "8": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          },
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 12,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 2,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    }
+  ],
+  "quality_floor": 10,
+  "repeats_per_seed": 2,
+  "schema_version": "puyo.deep_chain_target_ablation.v1",
+  "target10_paired_differences": {
+    "12": {
+      "basis": "target10 minus comparator; completed repeat1 on common seeds only; repeats are not independent samples",
+      "common_seed_count": 28,
+      "common_seeds": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        147,
+        148,
+        149,
+        150,
+        152
+      ],
+      "equal_count": 7,
+      "excluded_seeds": [
+        146,
+        151
+      ],
+      "mean_maximum_actual_chain_delta": -0.21428571428571427,
+      "quality_floor_reached_rate_delta": 0.07142857142857142,
+      "target10_better_count": 5,
+      "target10_worse_count": 16
+    },
+    "6": {
+      "basis": "target10 minus comparator; completed repeat1 on common seeds only; repeats are not independent samples",
+      "common_seed_count": 27,
+      "common_seeds": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        138,
+        139,
+        140,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        152
+      ],
+      "equal_count": 0,
+      "excluded_seeds": [
+        137,
+        141,
+        151
+      ],
+      "mean_maximum_actual_chain_delta": 2.4444444444444446,
+      "quality_floor_reached_rate_delta": 0.7777777777777778,
+      "target10_better_count": 21,
+      "target10_worse_count": 6
+    },
+    "8": {
+      "basis": "target10 minus comparator; completed repeat1 on common seeds only; repeats are not independent samples",
+      "common_seed_count": 29,
+      "common_seeds": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        152
+      ],
+      "equal_count": 2,
+      "excluded_seeds": [
+        151
+      ],
+      "mean_maximum_actual_chain_delta": 0.0,
+      "quality_floor_reached_rate_delta": 0.4482758620689655,
+      "target10_better_count": 19,
+      "target10_worse_count": 8
+    }
+  },
+  "unique_seed_count": 30
+}

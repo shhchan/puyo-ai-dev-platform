@@ -10,6 +10,7 @@ from typing import Any, Mapping
 from agents.deep_chain_builder import (
     DEEP_CHAIN_TARGET_CHAIN_CHOICES,
     DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    validate_interactive_target_chain_count,
 )
 from train.artifacts import CHECKPOINT_SCHEMA_VERSION, validate_checkpoint_payload
 
@@ -179,7 +180,7 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "beam_minimum_chain_b": LauncherFieldSpec("beam_minimum_chain_b", "2P 最小連鎖", "--beam-minimum-chain-b", "2P 側だけ beam 最小 chain 数を上書きします。auto の場合は共通値を使います。"),
     "deep_chain_profile": LauncherFieldSpec("deep_chain_profile", "deep-chain profile", "--deep-chain-profile", "deep_chain_builder の探索設定です。GUI 確認は smoke、品質評価は reference を使います。beam 系の値はこの policy では使用しません。"),
     "deep_chain_backend": LauncherFieldSpec("deep_chain_backend", "deep-chain backend", "--deep-chain-backend", "python は従来実装、native は release build を必須化、auto は smoke のみ明示的 fallback を許可します。"),
-    "deep_chain_target_chain": LauncherFieldSpec("deep_chain_target_chain", "deep-chain 目標連鎖", "--deep-chain-target-chain", "この連鎖数未満の発火を premature として扱います。大連鎖を目で確認する場合は reference/native と 10 または 12 を推奨します。値を上げても到達を保証するものではありません。"),
+    "deep_chain_target_chain": LauncherFieldSpec("deep_chain_target_chain", "deep-chain 目標連鎖", "--deep-chain-target-chain", "1〜19の整数で探索の目標連鎖数を指定します。品質benchmarkの基準は目標値によらず10連鎖です。大連鎖を目で確認する場合は reference/native と 10 または 12 を推奨します。値を上げても到達を保証するものではありません。"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
     "latency_mode": LauncherFieldSpec("latency_mode", "latency mode", "--latency-mode", "measured は実測完了 tick、configured は設定 tick だけで action の反映時刻を決めます。"),
     "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),
@@ -711,11 +712,10 @@ class LauncherSettingsManager:
                 errors.append(
                     f"deep_chain_backend must be one of: {', '.join(DEEP_CHAIN_BACKEND_CHOICES)}"
                 )
-            if settings.deep_chain_target_chain not in DEEP_CHAIN_TARGET_CHAIN_CHOICES:
-                errors.append(
-                    "deep_chain_target_chain must be one of: "
-                    f"{DEEP_CHAIN_TARGET_CHAIN_CHOICES}"
-                )
+            try:
+                validate_interactive_target_chain_count(settings.deep_chain_target_chain)
+            except ValueError as exc:
+                errors.append(str(exc))
             if settings.qa_profile not in QA_PROFILE_CHOICES:
                 errors.append("qa_profile must be playability, attack, stress, deterministic, or auto")
             if settings.timeout_ticks is not None and settings.timeout_ticks < 0:
