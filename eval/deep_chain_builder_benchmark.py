@@ -189,7 +189,11 @@ def _native_build_provenance(*, strict: bool) -> dict[str, Any]:
     except Exception as exc:  # noqa: BLE001 - evidence must retain build failures
         capabilities = {}
         error = {"type": type(exc).__name__, "detail": str(exc)}
-    wheel_paths = sorted((REPO_ROOT / "dist" / "native").glob("*.whl"))
+    wheel_paths = sorted(
+        (REPO_ROOT / "dist" / "native").glob(
+            "puyo_deep_chain_native-*-cp312-*-manylinux_2_28_x86_64.whl"
+        )
+    )
     wheels = [
         {
             "path": str(path.relative_to(REPO_ROOT)),
