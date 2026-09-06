@@ -116,7 +116,7 @@ realtime arena:
 
 ## Experimenting with a larger target chain
 
-launcher の `deep-chain 目標連鎖` は `6 / 8 / 10 / 12` から選べる。これは探索の
+launcher の `deep-chain 目標連鎖` は PUYO-231 以降、`1〜19` のすべての整数から選べる。これは探索の
 `minimum_chain_count` に直接入り、設定値未満の安全時発火を `premature_fire`、設定値以上を
 `target_fire` として評価する。たとえば 10 を選ぶと 7 連鎖で妥協せず、10 連鎖以上になる候補を
 優先して組み続ける。探索で到達可能な候補や盤面状況に依存するため、設定値への到達自体を保証する
