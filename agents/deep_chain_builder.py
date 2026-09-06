@@ -13,7 +13,7 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any
 
@@ -68,6 +68,7 @@ DEEP_CHAIN_BUILDER_CONFIG_SCHEMA_VERSION = "puyo.deep_chain_builder.config.v1"
 DEEP_CHAIN_BUILDER_PROFILE_SCHEMA_VERSION = "puyo.deep_chain_builder.profile.v1"
 DEEP_CHAIN_BENCHMARK_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark.v1"
 DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
+DEEP_CHAIN_DECISION_INPUT_SCHEMA_VERSION = "puyo.deep_chain_builder.decision_input.v1"
 DEEP_CHAIN_SELECTION_SCHEMA_VERSION = "puyo.deep_chain_builder.selection.v1"
 N_TURN_PLAN_SCHEMA_VERSION = "n-turn-plan-v1"
 DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT = 6
@@ -1009,6 +1010,13 @@ class DeepChainBuilderPolicy:
         result = self.decide(observation, info)
         return int(result.require(SELECTED_ACTION_ARTIFACT))
 
+    @staticmethod
+    def decision_input_identity(
+        observation: Mapping[str, Any], info: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        """Identify the public request independently in controller and policy."""
+        return _decision_input_identity(build_visible_runtime_input(observation, info))
+
     @property
     def tactical_diagnostics(self) -> dict[str, Any]:
         context = self.last_context
@@ -1502,6 +1510,9 @@ def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any
             )
         ),
         "decision_trace": _decision_trace_payload(context),
+        "decision_input": _decision_input_identity(
+            context.require(RUNTIME_INPUT_ARTIFACT)
+        ),
         "selected_action": int(context.require(SELECTED_ACTION_ARTIFACT)),
         "candidate_count": evidence_payload.get("candidate_count"),
         "selection_reason": evidence_payload.get("selection_reason"),
@@ -1520,6 +1531,24 @@ def _policy_diagnostics(context: DecisionContext, profile: Any) -> dict[str, Any
         "decision_output": _json_ready(
             context.artifacts.get(DECISION_OUTPUT_ARTIFACT, {})
         ),
+    }
+
+
+def _decision_input_identity(value: VisibleRuntimeInput) -> dict[str, Any]:
+    payload = {
+        field.name: _plain_nested(getattr(value, field.name))
+        for field in fields(value)
+    }
+    # Injected flows and Python fallback can accept an incomplete board. Keep
+    # their diagnostics available; the GUI gate rejects an unbound root.
+    try:
+        root = _state_fingerprint(_compact_state_from_observation(value))
+    except (TypeError, ValueError):
+        root = None
+    return {
+        "schema_version": DEEP_CHAIN_DECISION_INPUT_SCHEMA_VERSION,
+        "observation_digest": _stable_payload_digest(payload, prefix="deep-chain-input-v1"),
+        "root_state_fingerprint": root,
     }
 
 

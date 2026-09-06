@@ -1,3 +1,4 @@
+import gzip
 import json
 import tempfile
 import unittest
@@ -9,6 +10,7 @@ from agents.deep_chain_builder import load_deep_chain_builder_config
 from eval.deep_chain_builder_benchmark import (
     CANONICAL_BACKEND,
     CANONICAL_TARGET_CHAIN_COUNT,
+    DEFAULT_GUI_QA_OUTPUT_DIR,
     MANIFEST_SCHEMA_VERSION,
     RUN_SCHEMA_VERSION,
     SUMMARY_SCHEMA_VERSION,
@@ -22,7 +24,9 @@ from eval.deep_chain_builder_benchmark import (
     record_gui_qa,
     run_benchmark_run,
     verify_evidence,
+    verify_gui_evidence,
 )
+from tests.test_deep_chain_gui_qa import gui_evidence
 
 
 class TestDeepChainBuilderBenchmark(unittest.TestCase):
@@ -207,40 +211,10 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory)
             result_path = target / "dummy-result.json"
-            replay_path = target / "dummy-replay.json"
-            result_path.write_text(
-                json.dumps(
-                    {
-                        "schema_version": "puyo.gui_qa.v1",
-                        "models": {
-                            "player_0": {
-                                "deep_chain_profile": "reference",
-                                "deep_chain_backend": "native",
-                                "deep_chain_target_chain": 6,
-                            }
-                        },
-                        "diagnostics": {
-                            "policy": {
-                                "player_0": {
-                                    "selected_action": 4,
-                                    "plan": {"steps": [{"action": 4}]},
-                                    "backend": {"backend": "native"},
-                                    "fallback": {"used": False},
-                                }
-                            },
-                            "controller": {
-                                "player_0": {"decisions_started": 3, "replans": 2}
-                            },
-                        },
-                        "plan_overlay_player_0": True,
-                    }
-                ),
-                encoding="utf-8",
-            )
-            replay_path.write_text(
-                json.dumps({"format": "puyo-realtime-match-v1"}),
-                encoding="utf-8",
-            )
+            replay_path = target / "dummy-replay.json.gz"
+            result, replay = gui_evidence()
+            result_path.write_text(json.dumps(result), encoding="utf-8")
+            replay_path.write_bytes(gzip.compress(json.dumps(replay).encode(), mtime=0))
 
             payload = record_gui_qa(
                 target,
@@ -253,10 +227,27 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
                 dummy_replay_path=replay_path,
             )
 
+            self.assertEqual(payload["schema_version"], "puyo.deep_chain_builder.gui_qa.v3")
+            self.assertEqual(payload["ticket"], "PUYO-230")
             self.assertTrue(payload["automated"]["passed"])
             self.assertTrue(payload["dummy_replay"]["passed"])
             self.assertEqual(payload["manual"]["status"], "pending")
             self.assertFalse(payload["passed"])
+            self.assertEqual(verify_gui_evidence(target), [])
+            result["diagnostics"]["policy"]["player_0"]["selected_action"] = 5
+            result_path.write_text(json.dumps(result), encoding="utf-8")
+            self.assertTrue(verify_gui_evidence(target))
+
+    def test_gui_contract_uses_new_output_and_preserves_historical_evidence(self):
+        args = _build_parser().parse_args(["record-gui-qa"])
+        self.assertEqual(args.output_dir, DEFAULT_GUI_QA_OUTPUT_DIR)
+        for ticket in ("puyo-189-deep-chain-builder-baseline", "puyo-204-deep-chain-native-baseline"):
+            with self.subTest(ticket=ticket), self.assertRaisesRegex(ValueError, "read-only"):
+                record_gui_qa(
+                    Path("docs/benchmarks") / ticket,
+                    automated_passed=True, automated_command="unittest",
+                    manual_status="pending", reviewer=None, notes="",
+                )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+{
+  "additional_verifier_tests": 2,
+  "automated_test_count": 129,
+  "dummy_command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 6 --seed 187 --speed 4 --max-frames 240 --result-json /tmp/puyo-230-gui-dummy-result.json --replay /tmp/puyo-230-gui-dummy-replay.json",
+  "implementation_revision": "d19dc6b3c6ffb16092970419fe45d95e3f2d6842",
+  "integration_base": "d5cf296",
+  "manual_qa_status": "pending",
+  "manual_qa_ticket": "PUYO-235",
+  "native_build": {
+    "backend": "native",
+    "build_profile": "release",
+    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "crate_version": "0.4.0",
+    "simd_path": "scalar",
+    "source_revision": "1b729f5c4d605340b9b8e4a60be28c260382c607",
+    "target": "x86_64-unknown-linux-gnu",
+    "thread_count": 6,
+    "thread_mode": "scenario-6",
+    "wheel_hash": "external"
+  },
+  "native_source_matches_build_revision": true,
+  "replay_compression": "gzip, mtime=0, original JSON bytes and all ticks preserved",
+  "source_sha256": {
+    ".github/workflows/native-extension.yml": "ba8cfd542b1b7972fea5df96f7f7d2a97d02bc8718850a7b979ba2a8648e675b",
+    "agents/deep_chain_builder.py": "2bcbb775de3d92b57105904e1e124082a630b64320faf5eba6da49629ebfd6f6",
+    "eval/deep_chain_builder_benchmark.py": "c33a2926458e5e6ccdcd819af071a1a0a4ceefbd19526c3f48867252b88b86f3",
+    "eval/deep_chain_gui_qa.py": "a9d9a43ec4edb3e388e81b291a0679b007bfb837a96c8ddb009869637361693a",
+    "eval/realtime_versus_ui.py": "72eeac8566e35f425735d67f4fb08cd68183099ab0530b6bd6d108038f4e01c5",
+    "puyo_env/realtime_ai.py": "7f21edd18019902c573cdce4e6f924da7323fb5ce591543ba308bb49ab893333",
+    "tests/test_deep_chain_builder.py": "5d50a997d14d986122666f41a7d34e5adf3c09cff738d86f44235a8da329fed3",
+    "tests/test_deep_chain_builder_benchmark.py": "82933478f84204c3d86dd2c546717fafd44840143307d0f27069ffb728e3526a",
+    "tests/test_deep_chain_gui_qa.py": "6a7674dc08ad66cb3f12284b5d22e35f1da2a1631c28ac3137b75c335c233658",
+    "tests/test_realtime_versus_ui.py": "8a7409937da0b93799e3de8757604096090cc206c546c6e3dbeb6838ba8e3177"
+  },
+  "ticket": "PUYO-230"
+}

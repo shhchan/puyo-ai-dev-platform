@@ -37,6 +37,7 @@ from human_data.collection import COLLECTION_CONTENTS, append_collection_audit
 from human_data.dataset import create_session
 from puyo_env.actions import placement_to_action_index
 from puyo_env.realtime_ai import (
+    POLICY_DECISION_REPLAY_SCHEMA_VERSION,
     REALTIME_LATENCY_MODES,
     PolicyProcessExecutor,
     RealtimeControllerDiagnostics,
@@ -822,6 +823,7 @@ class RealtimeVersusMatchController:
                 controller.decisions_started,
                 controller.decisions_activated,
                 plan_id,
+                diagnostics.get("decision_trace", {}).get("decision_id"),
             )
             if self._last_replay_diagnostic_tokens.get(agent) != token:
                 changed_diagnostics[agent] = diagnostics
@@ -839,6 +841,7 @@ class RealtimeVersusMatchController:
     ) -> dict[str, Any]:
         return {
             "format": "puyo-realtime-match-v1",
+            "policy_decision_schema_version": POLICY_DECISION_REPLAY_SCHEMA_VERSION,
             "seed": self.config.seed,
             "max_ticks": self.config.max_ticks,
             "initial_all_clear_diagnostics": self.initial_all_clear_diagnostics,
