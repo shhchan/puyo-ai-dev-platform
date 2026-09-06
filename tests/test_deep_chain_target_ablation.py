@@ -181,6 +181,16 @@ class TestTargetAblation(unittest.TestCase):
         baseline._write_json(self.root / "target-10/summary.json", payload)
         self.assertTrue(experiment.verify(self.root))
 
+    def test_verification_rejects_omitted_checksum_entries(self):
+        experiment.finalize(self.root)
+        baseline._write_json(self.root / "evidence_checksums.json", {})
+        self.assertTrue(
+            any(
+                "exact evidence inputs" in error
+                for error in experiment.verify(self.root)
+            )
+        )
+
     def test_per_condition_finalization_and_verification(self):
         experiment.finalize(self.root, 8)
         self.assertEqual(experiment.verify(self.root, 8), [])
@@ -213,6 +223,95 @@ class TestTargetAblation(unittest.TestCase):
         )
         self.assertEqual(summary["premature_fire_count_all_repeats"], 2)
         self.assertFalse(summary["gates"]["coverage"])
+
+    def test_partial_runs_are_null_not_zero_in_quality_and_paired_estimates(self):
+        partial = {
+            "run_id": "target-06/seed-123-repeat-01",
+            "seed": 123,
+            "repeat": 1,
+            "fully_evaluated": False,
+            "termination_reason": "policy_error",
+            "maximum_actual_fire_chain_count": 0,
+            "target_chain_count": 6,
+            "game_over": False,
+            "premature_fire_count": 0,
+            "simulator_parity_mismatch_count": 0,
+            "fallback_count": 0,
+            "records": [
+                {
+                    "turn": 0,
+                    "elapsed_seconds": 0.5,
+                    "decision_error": {
+                        "type": "InvalidNativeInputError",
+                        "detail": "native aggregate ranking differs from Python",
+                    },
+                }
+            ],
+        }
+        repeat = {**partial, "run_id": "target-06/seed-123-repeat-02", "repeat": 2}
+        summary = experiment.summarize_target(
+            self.root, 6, self.manifest, [partial, repeat]
+        )
+        self.assertEqual(summary["incomplete_runs"], 2)
+        accounting = summary["search"]["scenario_accounting"]
+        self.assertEqual(accounting["decision_count"], 0)
+        self.assertEqual(accounting["unverified_decision_error_count"], 2)
+        self.assertFalse(accounting["passed"])
+        self.assertEqual(summary["decision_error_latency_seconds"]["count"], 2)
+        self.assertEqual(summary["run_maximum_actual_chain_distribution"], {})
+        self.assertEqual(summary["no_fire_run_count"], 0)
+        self.assertEqual(summary["unique_seed_estimate"]["denominator"], 0)
+        self.assertEqual(summary["determinism"]["complete_pair_count"], 0)
+        self.assertEqual(summary["determinism"]["matching_pair_count"], 0)
+        self.assertFalse(summary["determinism"]["passed"])
+        self.assertTrue(summary["determinism"]["records"][0]["observed_digest_matches"])
+        metric = summary["runs"][0]
+        self.assertIsNone(metric["maximum_actual_chain"])
+        self.assertEqual(metric["observed_maximum_actual_chain"], 0)
+        self.assertIsNone(metric["no_fire"])
+        self.assertIsNone(metric["quality_floor_reached"])
+        self.assertIsNone(metric["game_over"])
+        self.assertIn(
+            "ranking differs", summary["coverage"][0]["decision_errors"][0]["detail"]
+        )
+        target10 = {
+            "runs": [
+                {
+                    **metric,
+                    "fully_evaluated": True,
+                    "maximum_actual_chain": 10,
+                    "quality_floor_reached": True,
+                }
+            ]
+        }
+        paired = experiment.paired_differences({"6": summary, "10": target10})["6"]
+        self.assertEqual(paired["common_seed_count"], 0)
+        self.assertIsNone(paired["mean_maximum_actual_chain_delta"])
+        self.assertIn(123, paired["excluded_seeds"])
+
+    def test_paired_differences_use_common_completed_seed_and_ignore_repeat_two(self):
+        def metric(seed, repeat, chain):
+            return {
+                "seed": seed,
+                "repeat": repeat,
+                "maximum_actual_chain": chain,
+                "quality_floor_reached": chain >= 10,
+                "fully_evaluated": True,
+            }
+
+        pair = experiment.paired_differences(
+            {
+                "10": {
+                    "runs": [metric(123, 1, 10), metric(123, 2, 19), metric(124, 1, 12)]
+                },
+                "6": {"runs": [metric(123, 1, 6), metric(123, 2, 1)]},
+            }
+        )["6"]
+        self.assertEqual(pair["common_seed_count"], 1)
+        self.assertEqual(pair["mean_maximum_actual_chain_delta"], 4)
+        self.assertEqual(pair["quality_floor_reached_rate_delta"], 1)
+        self.assertEqual(pair["target10_better_count"], 1)
+        self.assertIn(124, pair["excluded_seeds"])
 
     def test_historical_output_is_protected(self):
         with self.assertRaisesRegex(ValueError, "read-only"):
