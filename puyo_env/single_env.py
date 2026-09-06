@@ -82,7 +82,15 @@ class SinglePuyoEnv(_BaseEnv):
             action_mask=mask,
             include_action_mask=self.include_action_mask_in_observation,
         )
-        return observation, {"action_mask": mask, "simulator": self.simulator}
+        game = self.simulator.game
+        return observation, {
+            "action_mask": mask, "simulator": self.simulator,
+            "score": int(game.score), "step_count": self.step_count,
+            "max_steps": self.max_steps,
+            "last_chain_end_score": int(game.last_chain_end_score),
+            "all_clear_bonus_pending": bool(game.all_clear_bonus_pending),
+            "game_over": bool(game.game_over),
+        }
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         if gym is not None:

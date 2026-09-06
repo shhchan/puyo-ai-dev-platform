@@ -35,6 +35,7 @@ class Action(Enum):
 GRID_WIDTH = 6
 GRID_HEIGHT = 14  # visible 12 + hidden 1 + ghost 1
 VISIBLE_HEIGHT = 12
+GHOST_ROW_INDEX = GRID_HEIGHT - 1
 
 PUYO_SIZE = 32  # pixel size for rendering assumption, can be changed in renderer
 

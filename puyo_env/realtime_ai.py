@@ -19,7 +19,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from puyo_env.action_planner import PlannedPlacement, plan_placement_action
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS, action_to_placement
-from puyo_env.obs import encode_board, encode_next_pairs, encode_scalars
+from puyo_env.obs import encode_board, encode_ghost_row, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
 from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, RealtimeVersusMatch
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
@@ -1088,6 +1088,7 @@ def build_realtime_observation(
     observation = {
         "board": numpy.concatenate([own_board, opponent_board], axis=0).astype(numpy.float32, copy=False),
         "own_board": own_board,
+        "ghost_row": encode_ghost_row(state.simulator.game),
         "opponent_board": opponent_board,
         "next_pairs": encode_next_pairs(state.simulator.game),
         "scalars": encode_scalars(
@@ -1160,6 +1161,7 @@ def build_realtime_info(
         "schema_version": REALTIME_OBSERVATION_SCHEMA_VERSION,
         "action_contract_version": REALTIME_ACTION_CONTRACT_VERSION,
         "score": state.simulator.game.score,
+        "game_over": bool(state.simulator.game.game_over),
         "opponent_score": opponent_state.simulator.game.score,
         "pending_ojama": state.pending_ojama,
         "incoming_ojama": state.pending_ojama,

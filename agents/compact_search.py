@@ -88,6 +88,9 @@ class CompactSearchState:
     ``planes`` contains RED, BLUE, GREEN, YELLOW, PURPLE, and OJAMA masks in
     that order.  All 14 rows participate in equality, hashing, and canonical
     serialization.  The current/future pair is not part of this state.
+    Row 14 occupancy is permanent for the game, so its retained color planes
+    also encode which once-per-column slots have been used; no history mask is
+    needed. A 13-row projection alone is not a complete search state.
     """
 
     planes: tuple[int, ...] = _EMPTY_PLANES

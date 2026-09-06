@@ -26,6 +26,7 @@ from pathlib import Path
 from queue import Empty
 from typing import Any
 
+from agents.compact_search import CompactSearchState
 from agents.deep_chain_builder import (
     DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH,
     VISIBLE_INFO_FIELDS,
@@ -40,6 +41,7 @@ from agents.deep_chain_search_backend import (
     NativeLongHorizonSearchBackend,
     load_long_horizon_backend_config,
 )
+from eval.simulator_parity import PARITY_CONTRACT_VERSION, compare_transition
 from puyo_env.actions import action_to_placement, legal_action_mask
 from puyo_env.obs import encode_observation
 from selfplay.policies import make_policy
@@ -108,10 +110,12 @@ def _protect_historical_output(output_dir: str | Path) -> None:
     target = Path(output_dir)
     if not target.is_absolute():
         target = REPO_ROOT / target
-    if target.resolve() == (REPO_ROOT / PREVIOUS_OUTPUT_DIR).resolve():
-        raise ValueError(
-            "PUYO-189 evidence is read-only; use the dedicated PUYO-204 output directory"
-        )
+    for historical in (PREVIOUS_OUTPUT_DIR, DEFAULT_OUTPUT_DIR):
+        root = (REPO_ROOT / historical).resolve()
+        if target.resolve() == root or root in target.resolve().parents:
+            raise ValueError(
+                "PUYO-189/PUYO-204 evidence is read-only; specify a new --output-dir"
+            )
 
 
 def _json_ready(value: Any) -> Any:
@@ -313,6 +317,7 @@ def _board_snapshot(simulator: HeadlessPuyoSimulator) -> list[list[str]]:
 def _visible_input_payload(value: Any) -> dict[str, Any]:
     return {
         "board": _json_ready(value.board),
+        "ghost_row": _json_ready(value.ghost_row),
         "next_pairs": _json_ready(value.next_pairs),
         "action_mask": list(value.action_mask),
         "scalars": _json_ready(value.scalars),
@@ -326,6 +331,8 @@ def _visible_input_payload(value: Any) -> dict[str, Any]:
         "max_ticks": value.max_ticks,
         "last_chain_end_score": int(value.last_chain_end_score),
         "last_chain_score_delta": int(value.last_chain_score_delta),
+        "all_clear_bonus_pending": bool(value.all_clear_bonus_pending),
+        "game_over": bool(value.game_over),
     }
 
 
@@ -348,6 +355,7 @@ def _initial_observation_and_info(
         "step_count": 0,
         "max_steps": int(max_steps),
         "last_chain_end_score": int(simulator.game.last_chain_end_score),
+        "all_clear_bonus_pending": bool(simulator.game.all_clear_bonus_pending),
     }
     return observation, info
 
@@ -436,6 +444,9 @@ def _plan_summary(plan: Any) -> dict[str, Any]:
                     "game_over",
                     "placement_cells",
                     "state_fingerprint",
+                    "root_state_fingerprint",
+                    "predicted_board",
+                    "valid",
                     "reason",
                 )
             }
@@ -474,32 +485,17 @@ def _parity_result(
     plan: Mapping[str, Any],
     actual: Any,
     board_after: Sequence[Sequence[str]],
+    root_state: CompactSearchState,
+    actual_state: CompactSearchState,
 ) -> dict[str, Any]:
     steps = plan.get("steps", ()) if isinstance(plan, Mapping) else ()
     predicted = steps[0] if steps and isinstance(steps[0], Mapping) else None
-    mismatches = []
-    if predicted is None:
-        mismatches.append("selected_plan_step_missing")
-    else:
-        comparisons = {
-            "action": (predicted.get("action"), int(action)),
-            "chain_count": (
-                predicted.get("predicted_chain_count"),
-                int(actual.chain_count),
-            ),
-            "score_delta": (predicted.get("predicted_score"), int(actual.score_delta)),
-            "game_over": (predicted.get("game_over"), bool(actual.game_over)),
-            "board": (predicted.get("predicted_board"), _json_ready(board_after)),
-        }
-        for name, (expected, observed) in comparisons.items():
-            if expected != observed:
-                mismatches.append(name)
+    result = compare_transition(
+        action=action, predicted=predicted, actual=actual,
+        root_state=root_state, actual_state=actual_state, board_after=board_after,
+    )
     return {
-        "passed": not mismatches,
-        "mismatches": mismatches,
-        "predicted_state_fingerprint": (
-            "" if predicted is None else str(predicted.get("state_fingerprint", ""))
-        ),
+        **result,
         "actual_board_digest": _stable_digest(
             board_after,
             prefix="authoritative-board",
@@ -590,8 +586,10 @@ def run_benchmark_run(
             "step_count": int(step_count),
             "max_steps": int(max_steps),
             "last_chain_end_score": int(simulator.game.last_chain_end_score),
+            "all_clear_bonus_pending": bool(simulator.game.all_clear_bonus_pending),
         }
         board_before = _board_snapshot(simulator)
+        root_state = CompactSearchState.from_simulator(simulator)
         decision_started = time.perf_counter()
         try:
             action = int(policy.select_action(observation, info))
@@ -642,6 +640,8 @@ def run_benchmark_run(
             plan=plan if isinstance(plan, Mapping) else {},
             actual=actual,
             board_after=board_after,
+            root_state=root_state,
+            actual_state=CompactSearchState.from_simulator(simulator),
         )
         parity_mismatch_count += int(not parity["passed"])
         chain_count = int(actual.chain_count)
@@ -747,6 +747,7 @@ def run_benchmark_run(
     usage_finished = resource.getrusage(resource.RUSAGE_SELF)
     return {
         "schema_version": RUN_SCHEMA_VERSION,
+        "parity_contract_version": PARITY_CONTRACT_VERSION,
         "ticket": TICKET,
         "run_id": run_identity(seed, repeat),
         "evaluated_commit": evaluated_commit,
@@ -835,6 +836,13 @@ def _load_completed_runs(output_dir: Path, contract: Any) -> list[dict[str, Any]
             raise ValueError(f"run identity mismatch: {path}")
         if payload.get("target_chain_count") != CANONICAL_TARGET_CHAIN_COUNT:
             raise ValueError(f"canonical target chain count mismatch: {path}")
+        if payload.get("parity_contract_version") != PARITY_CONTRACT_VERSION:
+            raise ValueError(f"parity contract mismatch; historical runs cannot be resumed: {path}")
+        parities = [record.get("parity", {}) for record in payload.get("records", ()) if "action" in record]
+        if any(parity.get("contract_version") != PARITY_CONTRACT_VERSION for parity in parities):
+            raise ValueError(f"decision parity contract mismatch: {path}")
+        if sum(not parity.get("passed", False) for parity in parities) != payload.get("simulator_parity_mismatch_count"):
+            raise ValueError(f"decision parity mismatch count disagrees with run: {path}")
         runs.append(payload)
     return runs
 
@@ -856,6 +864,7 @@ def run_pending_benchmark(
     _native_build_provenance(strict=True)
     config = load_deep_chain_builder_config()
     contract = config.benchmark
+    _load_completed_runs(target, contract)
     completed_now = 0
     for identity in expected_run_identities(contract):
         path = _run_path(target, identity["seed"], identity["repeat"])
@@ -2163,9 +2172,11 @@ def finalize_evidence(
     )
     summary = {
         "schema_version": SUMMARY_SCHEMA_VERSION,
+        "parity_contract_version": PARITY_CONTRACT_VERSION,
         "ticket": TICKET,
         "generated_at_utc": utc_timestamp(),
         "configuration": {
+            "parity_contract_version": PARITY_CONTRACT_VERSION,
             "policy_id": config.policy_id,
             "profile": config.profile("reference").to_dict(),
             "target_chain_count": CANONICAL_TARGET_CHAIN_COUNT,
@@ -2261,6 +2272,7 @@ def finalize_evidence(
     ]
     manifest = {
         "schema_version": MANIFEST_SCHEMA_VERSION,
+        "parity_contract_version": PARITY_CONTRACT_VERSION,
         "ticket": TICKET,
         "created_at_utc": utc_timestamp(),
         "evaluated_commit": lineage["evaluated_commit"],
