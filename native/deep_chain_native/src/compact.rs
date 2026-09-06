@@ -1003,9 +1003,9 @@ fn place_reachable_state(
     match action.direction {
         Direction::Up => {
             let height = usize::from(child.drop_heights[axis_x]);
-            if height > HEIGHT - 2
-                || (height == HEIGHT - 2 && occupied & cell_bit(axis_x, HEIGHT - 1) != 0)
-            {
+            // UP starts at axis y=12 / child y=13. A permanent ghost blocks
+            // that input even when lower rows have space for the final pair.
+            if height > HEIGHT - 2 || occupied & cell_bit(axis_x, HEIGHT - 1) != 0 {
                 return None;
             }
             landing_y = height as u8;
@@ -2624,6 +2624,29 @@ mod tests {
         assert_eq!(hidden.column_heights(), [14, 0, 0, 0, 0, 0]);
         assert_ne!(hidden.board_key(), ojama.board_key());
         assert_ne!(hidden.board_fingerprint(), ojama.board_fingerprint());
+    }
+
+    #[test]
+    fn permanent_ghost_blocks_up_input_above_empty_lower_rows() {
+        let pair = Pair::from_ids(1, 1).expect("normal pair");
+        for x in 0..WIDTH {
+            let state = state_with_cells(&[(2, x, 13), (0, x, 0), (0, x, 1)]);
+            for (id, action) in ACTIONS.into_iter().enumerate() {
+                let expected_landing = find_landing_y(&state, action);
+                let result = transition(&state, pair, id as u8, None).expect("transition");
+                assert_eq!(result.axis_y, expected_landing);
+                assert_eq!(result.valid, expected_landing.is_some());
+                if action.axis_x as usize == x && action.direction == Direction::Up {
+                    assert!(expected_landing.is_none());
+                    assert_eq!(result.state, state);
+                    assert_eq!(result.score_delta, 0);
+                }
+                assert_eq!(
+                    result.state.wire_planes()[2] & wire_cell_bit(x, 13),
+                    wire_cell_bit(x, 13)
+                );
+            }
+        }
     }
 
     #[test]

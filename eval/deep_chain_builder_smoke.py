@@ -100,6 +100,7 @@ def run_headless_smoke(
             "step_count": int(step_count),
             "max_steps": int(turns),
             "last_chain_end_score": int(simulator.game.last_chain_end_score),
+            "all_clear_bonus_pending": bool(simulator.game.all_clear_bonus_pending),
         }
         before_board = _board_snapshot(simulator)
         visible_pairs = _visible_pairs(simulator)

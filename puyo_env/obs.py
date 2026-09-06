@@ -16,6 +16,7 @@ from src.core.headless import HeadlessPuyoSimulator
 
 
 BOARD_ROWS = GRID_HEIGHT - 1
+GHOST_ROW_SCHEMA_VERSION = "puyo.ghost_row.v1"
 BOARD_COLOR_CHANNELS = (
     PuyoColor.RED,
     PuyoColor.BLUE,
@@ -71,6 +72,22 @@ def visible_pairs(game: GameState, count: int = VISIBLE_PAIR_COUNT) -> list[tupl
         pairs.append((game.current_puyo_1, game.current_puyo_2))
     pairs.extend(list(game.next_puyo_queue))
     return pairs[:count]
+
+
+def encode_ghost_row(game: GameState, dtype: Any | None = None):
+    """Encode permanent y=13 cells as (color, column), separately from the CNN.
+
+    Together with ``board`` this is a lossless 14-row color board. An omitted
+    ghost_row means unknown, not empty. No future queue is exposed.
+    """
+
+    numpy = _require_numpy()
+    row = numpy.zeros((len(BOARD_COLOR_CHANNELS), GRID_WIDTH), dtype=dtype or numpy.float32)
+    for x in range(GRID_WIDTH):
+        channel = _BOARD_COLOR_TO_INDEX.get(game.field.get_puyo(x, BOARD_ROWS).color)
+        if channel is not None:
+            row[channel, x] = 1.0
+    return row
 
 
 def encode_next_pairs(game: GameState, count: int = VISIBLE_PAIR_COUNT, dtype: Any | None = None):
@@ -139,6 +156,7 @@ def encode_observation(
     game = simulator.game
     observation = {
         "board": encode_board(game),
+        "ghost_row": encode_ghost_row(game),
         "next_pairs": encode_next_pairs(game),
         "scalars": encode_scalars(game, step_count=step_count, max_steps=max_steps),
     }
@@ -154,6 +172,10 @@ def make_observation_space(spaces: Any, include_action_mask: bool = False, actio
 
     numpy = _require_numpy()
     entries = {
+        "ghost_row": spaces.Box(
+            low=0.0, high=1.0,
+            shape=(len(BOARD_COLOR_CHANNELS), GRID_WIDTH), dtype=numpy.float32,
+        ),
         "board": spaces.Box(
             low=0.0,
             high=1.0,

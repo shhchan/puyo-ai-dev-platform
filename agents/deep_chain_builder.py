@@ -52,6 +52,7 @@ from agents.long_horizon_search import (
     build_scenario_sequences_from_known_pairs,
 )
 from puyo_env.actions import action_to_placement
+from puyo_env.obs import GHOST_ROW_SCHEMA_VERSION
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS, PuyoColor
 
 VISIBLE_PAIR_COLORS = (
@@ -94,6 +95,7 @@ TARGET_CHAIN_COUNT_ARTIFACT = "target_chain_count"
 VISIBLE_OBSERVATION_FIELDS = (
     "own_board",
     "board",
+    "ghost_row",
     "next_pairs",
     "scalars",
     "realtime_scalars",
@@ -112,6 +114,8 @@ VISIBLE_INFO_FIELDS = (
     "max_ticks",
     "last_chain_end_score",
     "last_chain_score_delta",
+    "all_clear_bonus_pending",
+    "game_over",
 )
 
 
@@ -369,6 +373,7 @@ class VisibleRuntimeInput:
     board: Any
     next_pairs: Any
     action_mask: tuple[bool, ...]
+    ghost_row: Any = None
     scalars: Any = None
     realtime_scalars: Any = None
     observation_schema_version: str = ""
@@ -380,6 +385,8 @@ class VisibleRuntimeInput:
     max_ticks: int | None = None
     last_chain_end_score: int = 0
     last_chain_score_delta: int = 0
+    all_clear_bonus_pending: bool = False
+    game_over: bool = False
 
     @property
     def visible_pair_count(self) -> int:
@@ -392,6 +399,9 @@ class VisibleRuntimeInput:
     def summary(self) -> dict[str, Any]:
         return {
             "board_shape": list(_shape(self.board)),
+            "ghost_row_shape": list(_shape(self.ghost_row)),
+            "complete_board_observed": self.ghost_row is not None,
+            "ghost_row_schema_version": GHOST_ROW_SCHEMA_VERSION if self.ghost_row is not None else "",
             "next_pairs_shape": list(_shape(self.next_pairs)),
             "visible_pair_count": int(self.visible_pair_count),
             "legal_action_count": int(self.legal_action_count),
@@ -422,6 +432,7 @@ def build_visible_runtime_input(
         step_count = info.get("tick_count", 0)
     return VisibleRuntimeInput(
         board=_snapshot_value(board),
+        ghost_row=_snapshot_value(observation.get("ghost_row")),
         next_pairs=_snapshot_value(observation.get("next_pairs")),
         action_mask=tuple(
             bool(value) for value in (() if action_mask is None else action_mask)
@@ -439,6 +450,8 @@ def build_visible_runtime_input(
         max_ticks=_optional_int(info.get("max_ticks")),
         last_chain_end_score=int(info.get("last_chain_end_score") or 0),
         last_chain_score_delta=int(info.get("last_chain_score_delta") or 0),
+        all_clear_bonus_pending=bool(info.get("all_clear_bonus_pending", False)),
+        game_over=bool(info.get("game_over", False)),
     )
 
 
@@ -528,7 +541,7 @@ class EnumerateRootPlacementsStep(_DeferredDeepChainStep):
 
     def run(self, context: DecisionContext) -> StepResult:
         observation = context.require(NORMALIZED_OBSERVATION_ARTIFACT)
-        state = _compact_state_from_board(observation.board)
+        state = _compact_state_from_observation(observation)
         roots = tuple(
             {
                 "action": int(action),
@@ -1655,6 +1668,7 @@ def _visible_decision_seed(observation: VisibleRuntimeInput) -> int:
 
     payload = {
         "board": _plain_nested(observation.board),
+        "ghost_row": _plain_nested(observation.ghost_row),
         "next_pairs": _plain_nested(observation.next_pairs),
         "score": int(observation.score),
         "step_count": int(observation.step_count),
@@ -1721,23 +1735,31 @@ def _compact_state_from_observation(
     )
     return _compact_state_from_board(
         observation.board,
+        ghost_row=observation.ghost_row,
         score=score,
         last_chain_end_score=last_chain_end_score,
+        all_clear_bonus_pending=observation.all_clear_bonus_pending,
+        game_over=observation.game_over,
     )
 
 
 def _compact_state_from_board(
     board: Any,
     *,
+    ghost_row: Any,
     score: int = 0,
     last_chain_end_score: int = 0,
+    all_clear_bonus_pending: bool = False,
+    game_over: bool = False,
 ) -> CompactSearchState:
-    """Convert the public top-down one-hot board into the compact kernel."""
+    """Combine the 13-row CNN projection and required permanent row 14."""
 
     shape = _shape(board)
     expected = (6, GRID_HEIGHT - 1, GRID_WIDTH)
     if shape != expected:
         raise ValueError(f"visible board must have shape {expected}, got {shape}")
+    if _shape(ghost_row) != (6, GRID_WIDTH):
+        raise ValueError("ghost_row must have shape (6, 6); missing row 14 is unknown, not empty")
     planes = [0] * 6
     for channel in range(6):
         for encoded_row in range(GRID_HEIGHT - 1):
@@ -1748,8 +1770,19 @@ def _compact_state_from_board(
                     if any(plane & bit for plane in planes):
                         raise ValueError("visible board contains overlapping colors")
                     planes[channel] |= bit
+        for x in range(GRID_WIDTH):
+            value = float(ghost_row[channel][x])
+            if value not in (0.0, 1.0):
+                raise ValueError("ghost_row must contain binary one-hot colors")
+            if value:
+                bit = 1 << ((GRID_HEIGHT - 1) * GRID_WIDTH + x)
+                if any(plane & bit for plane in planes):
+                    raise ValueError("ghost_row contains overlapping colors")
+                planes[channel] |= bit
     return CompactSearchState(
         planes=tuple(planes),
+        all_clear_bonus_pending=bool(all_clear_bonus_pending),
+        game_over=bool(game_over),
         score=max(0, int(score)),
         last_chain_end_score=max(
             0,
@@ -1834,6 +1867,7 @@ def _transition_plan_step(
             "immediate_fire": int(result.chain_count) > 0,
         },
         "predicted_board": predicted_board,
+        "root_state_fingerprint": _state_fingerprint(state),
         "placement_cells": placement_cells,
         "state_fingerprint": _state_fingerprint(result.state),
         "chains": [

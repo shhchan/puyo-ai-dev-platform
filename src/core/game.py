@@ -148,8 +148,7 @@ class GameState:
         self.vertical_interpolation_progress = max(0.0, min(1.0, progress_cells))
 
     def can_place_pair(self, axis_x, axis_y, rot):
-        # Temporary investigation mode (PUYO-11):
-        # Axis is also allowed on row 14 (index 13) while sub remains in-bounds.
+        # Both cells may enter row 14 only while its permanent slot is empty.
         if not (0 <= axis_x < GRID_WIDTH and 0 <= axis_y < GRID_HEIGHT):
             return False
         if not self.field.get_puyo(axis_x, axis_y).is_empty():
@@ -467,6 +466,12 @@ class GameState:
                 self._clear_floor_kick_horizontal_grace()
 
     def lock_puyo(self):
+        # A spawn/rotation boundary can leave the active pair overlapping a
+        # permanent row-14 slot. Reject the entire lock without consuming it.
+        ox, oy = self.get_sub_puyo_offset(self.puyo_rot)
+        for x, y in ((self.puyo_x, self.puyo_y), (self.puyo_x + ox, self.puyo_y + oy)):
+            if y == GRID_HEIGHT - 1 and not self.field.get_puyo(x, y).is_empty():
+                return False
         if self.soft_drop_used_this_pair:
             self.score += 1
 
@@ -479,6 +484,7 @@ class GameState:
         self.state = "animate"
         self._clear_floor_kick_horizontal_grace()
         self._begin_chain_resolution()
+        return True
 
     def _snapshot_field_colors(self):
         snapshot = []
