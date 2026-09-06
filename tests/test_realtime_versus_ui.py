@@ -232,6 +232,54 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertIn("input", diagnostics)
         self.assertIn("plan", diagnostics)
 
+    def test_deep_chain_placements_replace_ghosts_and_overlay_toggle_preserves_decision(self):
+        from agents.deep_chain_builder import DeepChainBuilderPolicy
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(
+                policy_a="first", policy_b="random", seed=187,
+                max_ticks=600, replay_path="unused-replay.json",
+            ),
+            policy_factory=lambda policy_type, **kwargs: (
+                DeepChainBuilderPolicy(profile="smoke", backend="python")
+                if policy_type == "first" else FastTestPolicy()
+            ),
+        )
+        self.addCleanup(controller.shutdown)
+        applied_plans = []
+        for _ in range(600):
+            controller.advance_tick()
+            diagnostics = controller.controllers["player_0"].diagnostics
+            if diagnostics.decisions_activated <= len(applied_plans):
+                continue
+            policy = controller.tactical_diagnostics("player_0")
+            decision = diagnostics.last_decision
+            self.assertEqual(decision.decision_input, policy["decision_input"])
+            self.assertEqual(decision.policy_decision_id, policy["decision_trace"]["decision_id"])
+            self.assertEqual(decision.action_index, policy["plan"]["steps"][0]["action"])
+            self.assertNotIn(policy["plan_id"], applied_plans)
+            applied_plans.append(policy["plan_id"])
+            self.assertEqual(controller.plan_overlay("player_0"), policy["plan"])
+            counters = diagnostics.to_dict()
+            controller.handle_keydown(pygame.K_o)
+            self.assertEqual(controller.plan_overlay("player_0"), {})
+            self.assertEqual(controller.tactical_diagnostics("player_0"), policy)
+            controller.handle_keydown(pygame.K_o)
+            self.assertEqual(controller.plan_overlay("player_0"), policy["plan"])
+            self.assertEqual(controller.tactical_diagnostics("player_0"), policy)
+            self.assertEqual(diagnostics.to_dict(), counters)
+            if len(applied_plans) == 3:
+                break
+        self.assertEqual(len(applied_plans), 3)
+        self.assertEqual(diagnostics.replans, 0)
+        replay = controller.replay_payload()
+        self.assertEqual(replay["policy_decision_schema_version"], "puyo.realtime_policy_decisions.v1")
+        recorded_ids = {
+            tick["policy_diagnostics"]["player_0"].get("plan_id")
+            for tick in replay["ticks"] if "player_0" in tick["policy_diagnostics"]
+        }
+        self.assertTrue(set(applied_plans).issubset(recorded_ids))
+
     def test_controller_exposes_policy_plan_overlay_when_enabled(self):
         plan = {
             "schema_version": "n-turn-plan-v1",

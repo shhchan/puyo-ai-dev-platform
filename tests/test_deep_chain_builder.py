@@ -644,8 +644,36 @@ class TestDeepChainBuilder(unittest.TestCase):
         self.assertEqual(initial["replan_reason"], "initial_plan")
         self.assertEqual(initial["plan_id"], unchanged["plan_id"])
         self.assertEqual(unchanged["replan_reason"], "plan_unchanged")
+        self.assertEqual(initial["decision_input"], unchanged["decision_input"])
+        self.assertNotEqual(
+            initial["decision_trace"]["decision_id"],
+            unchanged["decision_trace"]["decision_id"],
+        )
+        self.assertNotEqual(initial["decision_input"], changed["decision_input"])
         self.assertNotEqual(initial["plan_id"], changed["plan_id"])
         self.assertEqual(changed["replan_reason"], "new_observation")
+
+    def test_request_identity_uses_public_board_and_visible_queue_only(self):
+        simulator = HeadlessPuyoSimulator(seed=187)
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        info = {"action_mask": legal_action_mask(simulator), "step_count": 0}
+        policy = DeepChainBuilderPolicy(profile="smoke", backend="python")
+        expected = policy.decision_input_identity(observation, info)
+        policy.select_action(observation, info)
+        diagnostics = policy.tactical_diagnostics
+        self.assertEqual(expected, diagnostics["decision_input"])
+        self.assertEqual(expected["root_state_fingerprint"], diagnostics["plan"]["root_state_fingerprint"])
+        self.assertEqual(
+            expected,
+            policy.decision_input_identity(
+                {**observation, "private_future": object()},
+                {**info, "simulator": object(), "private_future": object()},
+            ),
+        )
+        changed = {**observation, "ghost_row": observation["ghost_row"].copy()}
+        changed["ghost_row"][:, 0] = 0
+        changed["ghost_row"][1, 0] = 1
+        self.assertNotEqual(expected, policy.decision_input_identity(changed, info))
 
     def test_timeout_and_invalid_results_use_legal_deterministic_fallback(self):
         fixture = self.fixture

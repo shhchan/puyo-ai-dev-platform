@@ -10,6 +10,7 @@ without misrepresenting a terminated search as quality evidence.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import multiprocessing
@@ -41,6 +42,7 @@ from agents.deep_chain_search_backend import (
     NativeLongHorizonSearchBackend,
     load_long_horizon_backend_config,
 )
+from eval.deep_chain_gui_qa import validate_policy_decision_history
 from eval.simulator_parity import PARITY_CONTRACT_VERSION, compare_transition
 from puyo_env.actions import action_to_placement, legal_action_mask
 from puyo_env.obs import encode_observation
@@ -55,7 +57,9 @@ SUMMARY_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_summary.v2"
 MANIFEST_SCHEMA_VERSION = "puyo.deep_chain_builder.benchmark_manifest.v2"
 PREFLIGHT_SCHEMA_VERSION = "puyo.deep_chain_builder.preflight.v2"
 FUTURE_ISOLATION_SCHEMA_VERSION = "puyo.deep_chain_builder.future_isolation.v2"
-GUI_QA_SCHEMA_VERSION = "puyo.deep_chain_builder.gui_qa.v2"
+GUI_QA_SCHEMA_VERSION = "puyo.deep_chain_builder.gui_qa.v3"
+GUI_QA_TICKET = "PUYO-230"
+DEFAULT_GUI_QA_OUTPUT_DIR = Path("docs/benchmarks/puyo-230-policy-replan-qa")
 LINEAGE_SCHEMA_VERSION = "puyo.deep_chain_builder.lineage.v2"
 BUILD_PROVENANCE_SCHEMA_VERSION = "puyo.deep_chain_builder.build_provenance.v1"
 HISTORICAL_COMPARISON_SCHEMA_VERSION = "puyo.deep_chain_builder.comparison.v1"
@@ -100,7 +104,13 @@ def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    target = Path(path)
+    # Raw GUI replay evidence is large; gzip preserves every recorded tick.
+    if target.suffix == ".gz":
+        with gzip.open(target, "rt", encoding="utf-8") as stream:
+            payload = json.load(stream)
+    else:
+        payload = json.loads(target.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise TypeError(f"{path} must contain a JSON object")
     return payload
@@ -1134,10 +1144,7 @@ def _dummy_gui_summary(
         if steps and isinstance(steps[0], Mapping)
         else None
     )
-    controller = diagnostics.get("controller", {}) if isinstance(diagnostics, Mapping) else {}
-    player_controller = (
-        controller.get("player_0", {}) if isinstance(controller, Mapping) else {}
-    )
+    history = validate_policy_decision_history(replay, result)
     checks = [
         _check(
             "result_schema",
@@ -1191,14 +1198,10 @@ def _dummy_gui_summary(
             "equal",
         ),
         _check(
-            "decisions_and_replan_observed",
-            int(player_controller.get("decisions_started", 0)) >= 3
-            and int(player_controller.get("replans", 0)) >= 1,
-            {
-                "decisions": player_controller.get("decisions_started"),
-                "replans": player_controller.get("replans"),
-            },
-            {"decisions": ">= 3", "replans": ">= 1"},
+            "policy_decision_history",
+            history["passed"],
+            history,
+            "at least 3 applied decisions and 2 observation-bound plan replacements",
         ),
         _check(
             "plan_overlay_enabled",
@@ -1212,6 +1215,8 @@ def _dummy_gui_summary(
         "passed": all(check["passed"] for check in checks),
         "result_path": str(result_path),
         "replay_path": str(replay_path),
+        "result_sha256": file_sha256(result_path),
+        "replay_sha256": file_sha256(replay_path),
         "checks": checks,
     }
 
@@ -1225,7 +1230,7 @@ def _default_gui_qa() -> dict[str, Any]:
     ]
     return {
         "schema_version": GUI_QA_SCHEMA_VERSION,
-        "ticket": TICKET,
+        "ticket": GUI_QA_TICKET,
         "automated": {
             "status": "not_recorded",
             "passed": False,
@@ -1277,7 +1282,7 @@ def record_gui_qa(
     dummy_replay = _dummy_gui_summary(dummy_result_path, dummy_replay_path)
     payload = {
         "schema_version": GUI_QA_SCHEMA_VERSION,
-        "ticket": TICKET,
+        "ticket": GUI_QA_TICKET,
         "recorded_at_utc": utc_timestamp(),
         "automated": {
             "status": "passed" if automated_passed else "failed",
@@ -1300,6 +1305,28 @@ def record_gui_qa(
     }
     _write_json(Path(output_dir) / "gui_qa.json", payload)
     return payload
+
+
+def verify_gui_evidence(output_dir: str | Path) -> list[str]:
+    """Recheck stored replay evidence without changing pending human QA."""
+    payload = _read_json(Path(output_dir) / "gui_qa.json")
+    issues = []
+    if payload.get("schema_version") != GUI_QA_SCHEMA_VERSION:
+        issues.append("unsupported GUI QA schema; preserve historical evidence")
+    stored = payload.get("dummy_replay", {})
+    actual = _dummy_gui_summary(stored.get("result_path"), stored.get("replay_path"))
+    if not actual.get("passed"):
+        issues.append("dummy policy decision history did not pass")
+    if stored != actual:
+        issues.append("stored dummy QA differs from replay or checksums")
+    expected_passed = bool(
+        payload.get("automated", {}).get("passed")
+        and actual.get("passed")
+        and payload.get("manual", {}).get("status") == "passed"
+    )
+    if payload.get("passed") is not expected_passed:
+        issues.append("overall GUI QA does not preserve independent QA states")
+    return issues
 
 
 def _tracked_worktree_clean() -> bool:
@@ -2419,7 +2446,7 @@ def _build_parser() -> argparse.ArgumentParser:
     finalize.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
 
     gui = subparsers.add_parser("record-gui-qa")
-    gui.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    gui.add_argument("--output-dir", type=Path, default=DEFAULT_GUI_QA_OUTPUT_DIR)
     gui.add_argument("--automated-passed", action="store_true")
     gui.add_argument("--automated-command", default="")
     gui.add_argument(
@@ -2434,6 +2461,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    verify_gui = subparsers.add_parser("verify-gui-qa")
+    verify_gui.add_argument("--output-dir", type=Path, default=DEFAULT_GUI_QA_OUTPUT_DIR)
     return parser
 
 
@@ -2466,7 +2495,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             dummy_replay_path=args.dummy_replay,
         )
     else:
-        issues = verify_evidence(args.output_dir)
+        issues = (
+            verify_gui_evidence(args.output_dir)
+            if args.command == "verify-gui-qa" else verify_evidence(args.output_dir)
+        )
         result = {"passed": not issues, "issues": issues}
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0 if not issues else 1
