@@ -525,7 +525,6 @@ def _policy_factory(
             profile=profile,
             backend=CANONICAL_BACKEND,
             search_backend=search_backend,
-            backend_config=backend_config,
             target_chain_count=target_chain_count,
         )
     return make_policy(
