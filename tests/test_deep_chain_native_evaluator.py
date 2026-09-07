@@ -7,6 +7,7 @@ from agents.chain_structure import (
     ChainStructureBudget,
     ChainStructureEvaluator,
     load_chain_structure_config,
+    mirror_state,
 )
 from agents.compact_search import CompactSearchState, transition
 from agents.deep_chain_native import InvalidNativeInputError
@@ -22,7 +23,7 @@ from agents.deep_chain_native_evaluator import (
     materialize_native_chain_structure_result,
 )
 from src.core.constants import PuyoColor
-from tests.test_chain_structure import _fixture_states
+from tests.test_chain_structure import _candidate_alias_fixture, _fixture_states
 
 
 class TestNativeChainStructurePythonContract(unittest.TestCase):
@@ -132,6 +133,35 @@ class TestNativeChainStructureExtension(unittest.TestCase):
         ):
             with self.subTest(case=case_id):
                 self.assert_result_parity(state, record)
+
+    def test_seed146_alias_matches_python_and_rejects_corrupt_best(self):
+        state, expected = _candidate_alias_fixture()
+        for current in (state, mirror_state(state)):
+            with self.subTest(planes=current.planes):
+                inputs = [NativeChainStructureInput(current, target_chain_count=12)]
+                first = self.native_client.evaluate_batch(inputs, self.config)
+                second = self.native_client.evaluate_batch(inputs, self.config)
+                self.assertEqual(first.response_bytes, second.response_bytes)
+                record = first.records[0]
+                self.assertEqual(record.score, expected["score"])
+                self.assertEqual(record.best.trigger_protection, expected["trigger_protection"])
+                self.assertIn(record.best, record.candidates)
+                self.assert_result_parity(current, record)
+                self.assert_result_parity(
+                    current, replace(record, candidates=tuple(reversed(record.candidates)))
+                )
+                # Same signature with different protection used to pass validation.
+                with self.assertRaisesRegex(InvalidNativeInputError, "best attributes differ"):
+                    materialize_native_chain_structure_result(
+                        replace(record, best=replace(record.best, trigger_protection=1 / 3)),
+                        state=current,
+                        config=self.config,
+                    )
+                blue = next(c for c in record.candidates if c.trigger_color == PuyoColor.BLUE)
+                with self.assertRaisesRegex(InvalidNativeInputError, "different best candidate"):
+                    materialize_native_chain_structure_result(
+                        replace(record, best=blue), state=current, config=self.config
+                    )
 
     def test_action_features_match_python_without_changing_state_features(self):
         parent_state = _fixture_states()["fixed-trigger-root"]

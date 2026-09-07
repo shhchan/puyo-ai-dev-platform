@@ -53,12 +53,45 @@ def _fixture_states():
     return {case["id"]: _state(case["rows_bottom_up"]) for case in payload["cases"]}
 
 
+def _candidate_alias_fixture():
+    payload = json.loads(
+        Path("tests/fixtures/evaluator_candidate_alias.json").read_text(encoding="utf-8")
+    )
+    state = dict(payload["state"])
+    state["planes"] = tuple(state["planes"])
+    return CompactSearchState(**state), payload["expected"]
+
+
 class TestChainStructureEvaluator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = load_chain_structure_config()
         cls.evaluator = ChainStructureEvaluator(cls.config)
         cls.states = _fixture_states()
+
+    def test_canonical_alias_retains_strongest_complete_candidate(self):
+        state, expected = _candidate_alias_fixture()
+        for mirrored in (False, True):
+            with self.subTest(mirrored=mirrored):
+                current = mirror_state(state) if mirrored else state
+                result = self.evaluator.evaluate(current)
+                best = result.quiescence.best
+                self.assertEqual(result, self.evaluator.evaluate(current))
+                self.assertEqual(result.score, expected["score"])
+                self.assertEqual(best.trigger_color.name, expected["trigger_color"])
+                self.assertEqual(best.trigger_protection, expected["trigger_protection"])
+                placements = expected["placements"]
+                anchors = expected["anchor_cells"]
+                if mirrored:
+                    placements = sorted((5 - x, y) for x, y in placements)
+                    anchors = sorted((5 - x, y) for x, y in anchors)
+                self.assertEqual(best.placements, tuple(map(tuple, placements)))
+                self.assertEqual(best.anchor_cells, tuple(map(tuple, anchors)))
+                self.assertEqual(result.quiescence.pattern_nodes, expected["pattern_nodes"])
+                self.assertEqual(result.quiescence.resolution_nodes, expected["resolution_nodes"])
+                self.assertEqual(len(result.quiescence.candidates), expected["unique_candidates"])
+                signatures = [c.canonical_signature for c in result.quiescence.candidates]
+                self.assertEqual(len(signatures), len(set(signatures)))
 
     def test_config_and_result_contract_are_versioned_and_compact_only(self):
         source = inspect.getsource(chain_structure)

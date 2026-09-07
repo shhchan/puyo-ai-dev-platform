@@ -377,10 +377,17 @@ impl EvidenceMode for CollectEvidence {
 
     fn push(storage: &mut Self::Storage, candidate: QuiescenceCandidate) {
         let candidate_count = usize::from(storage.candidate_count);
-        if storage.candidates[..candidate_count]
-            .iter()
-            .any(|current| same_candidate_signature(current, &candidate))
+        if let Some(current) = storage.candidates[..candidate_count]
+            .iter_mut()
+            .find(|current| same_candidate_signature(current, &candidate))
         {
+            // Canonical geometry does not include board-local protection.
+            // All other rank fields (including the digest) match by signature.
+            // Keep the strongest whole representative, as the hot path does;
+            // exact ties retain the first candidate in enumeration order.
+            if compare_candidate_rank_suffix(&candidate, current) == Ordering::Greater {
+                *current = candidate;
+            }
             return;
         }
         debug_assert!(candidate_count < storage.candidates.len());
@@ -5223,6 +5230,62 @@ mod tests {
                     terminal_analysis.remaining, exact_analysis.remaining,
                     "terminal-remaining-{index}"
                 );
+            }
+        }
+    }
+
+    #[test]
+    fn canonical_alias_keeps_strongest_evidence_and_matches_hot() {
+        // PUYO-238: seed146/target12, decision22's survivor evaluator board.
+        // Opposite RED anchors have equal canonical signatures but protection
+        // 1/3 and 2/3. BLUE at 1/2 must not displace the stronger RED.
+        for mirrored in [false, true] {
+            let cells = [(0, 0, 1), (0, 1, 0), (5, 0, 1), (5, 1, 0), (5, 2, 2)]
+                .map(|(x, y, color)| (color, if mirrored { 5 - x } else { x }, y));
+            let state = state_with_cells(&cells);
+            let config = default_config();
+            let mut detailed = evaluate_evidence(&state, &config, None, None, 12);
+            let best = detailed.hot.best;
+            assert_eq!(best.trigger_color, 0);
+            assert_eq!(best.trigger_protection, 2.0 / 3.0);
+            assert_eq!(detailed.hot.pattern_nodes, 415);
+            assert_eq!(detailed.hot.resolution_nodes, 16);
+            assert_eq!(detailed.candidate_count, 10);
+            let candidates = &detailed.candidates[..usize::from(detailed.candidate_count)];
+            assert!(candidates.contains(&best));
+            for (index, candidate) in candidates.iter().enumerate() {
+                assert!(
+                    candidates[..index]
+                        .iter()
+                        .all(|previous| { !same_candidate_signature(previous, candidate) })
+                );
+            }
+            let (hot, allocations) =
+                count_allocations(|| evaluate_hot(&state, &config, None, None, 12));
+            detailed.hot.best.fixed_tie_break = 0;
+            assert_eq!(hot, detailed.hot);
+            assert_eq!(allocations, 0);
+
+            let weaker = QuiescenceCandidate {
+                trigger_protection: 1.0 / 3.0,
+                ..best
+            };
+            for ordered in [[weaker, best], [best, weaker]] {
+                let mut evidence = CollectEvidence::storage();
+                for candidate in ordered {
+                    CollectEvidence::push(&mut evidence, candidate);
+                }
+                assert_eq!(evidence.candidate_count, 1);
+                assert_eq!(evidence.candidates[0], best);
+                // Equal ranks retain the original board-local representative.
+                CollectEvidence::push(
+                    &mut evidence,
+                    QuiescenceCandidate {
+                        trigger_column: 2,
+                        ..best
+                    },
+                );
+                assert_eq!(evidence.candidates[0], best);
             }
         }
     }
