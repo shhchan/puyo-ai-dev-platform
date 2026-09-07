@@ -2303,6 +2303,15 @@ mod tests {
             dispersion(&[1.0, 2.0, 7.0, 13.0, 40.0, 61.0]).to_bits(),
             0x4036_4a7f_4816_db8d
         );
+        // seed141 roots 7/9: scenario position changes the last bit of the fold.
+        assert_eq!(
+            dispersion(&[0.0, 0.0, 10780.0, 0.0, 0.0, 0.0]).to_bits(),
+            0x40af_62f0_067f_72c3
+        );
+        assert_eq!(
+            dispersion(&[0.0, 0.0, 0.0, 0.0, 10780.0, 0.0]).to_bits(),
+            0x40af_62f0_067f_72c4
+        );
     }
 
     #[test]

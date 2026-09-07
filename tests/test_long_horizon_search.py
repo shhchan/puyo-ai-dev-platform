@@ -215,6 +215,16 @@ class TestLongHorizonSearch(unittest.TestCase):
             _dispersion((1.0, 2.0, 7.0, 13.0, 40.0, 61.0)).hex(),
             "0x1.64a7f4816db8dp+4",
         )
+        # seed141 roots 7/9: the same scores at different scenario IDs differ
+        # by one ULP under the specified fold; compensated sum erases it.
+        self.assertEqual(
+            _dispersion((0.0, 0.0, 10780.0, 0.0, 0.0, 0.0)).hex(),
+            "0x1.f62f0067f72c3p+11",
+        )
+        self.assertEqual(
+            _dispersion((0.0, 0.0, 0.0, 0.0, 10780.0, 0.0)).hex(),
+            "0x1.f62f0067f72c4p+11",
+        )
 
     def test_versioned_profiles_separate_runtime_and_quality_budgets(self):
         runtime = long_horizon_profile("runtime")
