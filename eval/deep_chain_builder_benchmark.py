@@ -16,6 +16,7 @@ import json
 import multiprocessing
 import os
 import platform
+import re
 import resource
 import subprocess
 import sys
@@ -2328,7 +2329,9 @@ def finalize_evidence(
     return summary
 
 
-def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
+def verify_evidence(
+    output_dir: str | Path = DEFAULT_OUTPUT_DIR, *, historical: bool = False
+) -> list[str]:
     target = Path(output_dir)
     issues = []
     manifest_path = target / "benchmark_manifest.json"
@@ -2357,9 +2360,19 @@ def verify_evidence(output_dir: str | Path = DEFAULT_OUTPUT_DIR) -> list[str]:
             issues.append(f"artifact is missing: {path}")
         elif artifact.get("sha256") != file_sha256(path):
             issues.append(f"artifact checksum mismatch: {path}")
-    if manifest.get("configuration_sha256") != file_sha256(
-        DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH
-    ):
+    configuration_checksum = file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH)
+    if historical:
+        revision = str(manifest.get("evaluated_commit", ""))
+        if not re.fullmatch(r"[0-9a-f]{40}", revision):
+            return issues + ["invalid historical evaluated commit"]
+        source = subprocess.run(
+            ["git", "show", f"{revision}:train/config/deep_chain_builder.yaml"],
+            cwd=REPO_ROOT, capture_output=True, check=False,
+        )
+        if source.returncode:
+            return issues + ["historical configuration is unavailable in git history"]
+        configuration_checksum = hashlib.sha256(source.stdout).hexdigest()
+    if manifest.get("configuration_sha256") != configuration_checksum:
         issues.append("configuration checksum mismatch")
 
     summary_path = target / "benchmark_summary.json"
@@ -2463,6 +2476,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    verify.add_argument("--historical", action="store_true")
     verify_gui = subparsers.add_parser("verify-gui-qa")
     verify_gui.add_argument("--output-dir", type=Path, default=DEFAULT_GUI_QA_OUTPUT_DIR)
     return parser
@@ -2499,7 +2513,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         issues = (
             verify_gui_evidence(args.output_dir)
-            if args.command == "verify-gui-qa" else verify_evidence(args.output_dir)
+            if args.command == "verify-gui-qa" else verify_evidence(
+                args.output_dir, historical=args.historical
+            )
         )
         result = {"passed": not issues, "issues": issues}
         print(json.dumps(result, indent=2, sort_keys=True))
