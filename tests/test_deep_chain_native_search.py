@@ -100,7 +100,7 @@ class TestDeepChainNativeSearch(unittest.TestCase):
             actual = materialize_native_long_horizon_result(first, current)
             repeated = materialize_native_long_horizon_result(second, current)
             self.assertEqual(actual.deterministic_digest, repeated.deterministic_digest)
-            self.assertEqual(actual.selected_action, first.selected_action)
+            self.assertEqual(actual.ranked_roots[0].root_action, first.selected_action)
             if reference is None:
                 reference = actual
             else:

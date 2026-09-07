@@ -137,6 +137,41 @@ def main():
             ticket="PUYO-238",
         )
         payload["semantic_corpus"] = semantic
+        observation, info = baseline._initial_observation_and_info(146, max_steps=40)
+        policy = baseline._policy_factory(146, "reference", "native", 12)
+        samples = []
+        for label in ("original", "private_counterfactual"):
+            obs, details = dict(observation), dict(info)
+            if label == "private_counterfactual":
+                obs["private_future_queue"] = "private-future-counterfactual"
+                details.update(
+                    simulator="private-simulator-counterfactual",
+                    future_queue="private-future-counterfactual",
+                )
+                policy.reset()
+            action = int(policy.select_action(obs, details))
+            diagnostics = policy.tactical_diagnostics
+            evidence = {
+                "action": action,
+                "plan": baseline._plan_summary(diagnostics["plan"]),
+                "search_digest": diagnostics["search"]["deterministic_digest"],
+            }
+            samples.append(
+                {
+                    "label": label,
+                    "evidence": evidence,
+                    "digest": ablation.digest(evidence),
+                    "fallback": diagnostics["fallback"],
+                    "scenario_accounting": baseline._scenario_accounting(diagnostics),
+                }
+            )
+        payload["private_counterfactual"] = {
+            "seed": 146,
+            "target": 12,
+            "samples": samples,
+            "matches": samples[0]["digest"] == samples[1]["digest"],
+            "boundary_audit": baseline.audit_future_isolation((146,), max_steps=40),
+        }
     # The same hot transition/evaluator work is timed on both builds, outside
     # the end-to-end trajectory denominator; one warmup then five raw samples.
     client.combined_profile(inputs, config, operations=10000)
