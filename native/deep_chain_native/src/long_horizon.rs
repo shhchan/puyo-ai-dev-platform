@@ -2284,8 +2284,9 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
 #[cfg(test)]
 mod tests {
     use super::{
-        Counters, Node, PruneWorkspace, PythonRandom, SamplingMode, SearchConfig, Tracker,
-        TranspositionTable, dispersion, mean, ordered_sum, prune_survivors, rollout_seed,
+        Counters, FireClass, Node, PruneWorkspace, PythonRandom, SamplingMode, SearchConfig,
+        Tracker, TranspositionTable, classify_fire, dispersion, mean, ordered_sum, prune_survivors,
+        rollout_seed,
     };
     use crate::allocation_probe;
     use crate::chain_structure::EvaluationHot;
@@ -2369,6 +2370,60 @@ mod tests {
             SearchStateKey::new(&state, 0, 0, 2, 3).expect("depth key"),
         ] {
             assert_ne!(key, keys[0]);
+        }
+    }
+
+    #[test]
+    fn target_ten_fire_boundaries_keep_safety_separate() {
+        let config = SearchConfig {
+            depth: 3,
+            width: 22,
+            scenarios: 1,
+            minimum_chain_count: 10,
+            terminal_fire_chain_count: 1,
+            max_expanded_nodes: 512,
+            root_survivor_quota: 1,
+            decision_seed: Some(1),
+            winning_score_threshold: None,
+            premature_target_gap_penalty: 1_000.0,
+            sampling_mode: SamplingMode::SeededAuthoritative,
+            record_and_stop: true,
+            forced_safety: false,
+            use_transposition_table: true,
+        };
+        let transition = TransitionHotResult {
+            score_delta: 0,
+            attack_score_delta: 0,
+            vanished_count: 0,
+            garbage_cleared_count: 0,
+            action_id: 0,
+            axis_y: 0,
+            chain_count: 0,
+            flags: 1,
+        };
+        for chain_count in 0..20 {
+            for forced_safety in [false, true] {
+                let expected = match chain_count {
+                    0 => FireClass::Quiet,
+                    10.. => FireClass::Target,
+                    _ if forced_safety => FireClass::ForcedSafety,
+                    _ => FireClass::Premature,
+                };
+                assert_eq!(
+                    classify_fire(
+                        SearchConfig {
+                            forced_safety,
+                            ..config
+                        },
+                        TransitionHotResult {
+                            chain_count,
+                            score_delta: 100_000,
+                            ..transition
+                        },
+                    ),
+                    expected,
+                );
+            }
         }
     }
 

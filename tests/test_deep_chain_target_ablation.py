@@ -38,7 +38,7 @@ class TestInteractiveTargets(unittest.TestCase):
 
     def test_python_and_native_preserve_targets_in_search_plan_and_diagnostics(self):
         observation, info = baseline._initial_observation_and_info(187, max_steps=40)
-        for target in (1, 7, 19):
+        for target in range(1, 20):
             for backend in ("python", "native"):
                 with self.subTest(target=target, backend=backend):
                     policy = DeepChainBuilderPolicy(

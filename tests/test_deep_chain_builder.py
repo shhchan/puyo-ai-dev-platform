@@ -576,7 +576,7 @@ class TestDeepChainBuilder(unittest.TestCase):
         experimental_policy = DeepChainBuilderPolicy(
             profile="smoke",
             config=self.config,
-            target_chain_count=10,
+            target_chain_count=7,
         )
 
         default_action = default_policy.select_action(observation, info)
@@ -594,17 +594,17 @@ class TestDeepChainBuilder(unittest.TestCase):
         self.assertEqual(
             default_diagnostics["plan_id"], explicit_diagnostics["plan_id"]
         )
-        self.assertEqual(experimental_diagnostics["target_chain_count"], 10)
-        self.assertEqual(experimental_diagnostics["search"]["target_chain_count"], 10)
+        self.assertEqual(experimental_diagnostics["target_chain_count"], 7)
+        self.assertEqual(experimental_diagnostics["search"]["target_chain_count"], 7)
         self.assertEqual(
             experimental_diagnostics["backend"]["configuration"][
                 "minimum_chain_count"
             ],
-            10,
+            7,
         )
         self.assertEqual(
             experimental_diagnostics["plan"]["objective"]["minimum_chain_count"],
-            10,
+            7,
         )
 
     def test_runtime_target_chain_rejects_values_outside_native_contract(self):

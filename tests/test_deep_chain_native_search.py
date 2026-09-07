@@ -88,6 +88,49 @@ class TestDeepChainNativeSearch(unittest.TestCase):
             max_response_bytes=16 * 1024 * 1024,
         )
 
+    def test_safe_quiet_target_and_safety_ranking_match_python(self):
+        from tests.test_long_horizon_search import _fire_fixture_simulator
+
+        cases = json.loads(
+            Path("tests/fixtures/build_main_fire_cases.json").read_text()
+        )["cases"]
+        for case in cases:
+            simulator = _fire_fixture_simulator(case)
+            state = CompactSearchState.from_simulator(simulator)
+            pairs = _pairs([case["current_pair"], *case["next_pairs"]])
+            config = LongHorizonSearchConfig(
+                depth=1,
+                width=24,
+                scenarios=1,
+                minimum_chain_count=case["target_chain_count"],
+                max_expanded_nodes=100,
+                fire_context=case["fire_context"],
+            )
+            expected = run_compact_long_horizon_search(state, pairs, config)
+            for mode in ("oracle-1", "scenario-6"):
+                with self.subTest(case=case["id"], mode=mode):
+                    request = self.request(
+                        state=state, pairs=pairs, config=config, execution_mode=mode
+                    )
+                    actual = materialize_native_long_horizon_result(
+                        self.backend.decide(request), request
+                    )
+                    self.assertEqual(actual.ranked_roots, expected.ranked_roots)
+                    self.assertEqual(
+                        actual.evidence_by_action[case["action"]].fire_class,
+                        case["expected_fire_class"],
+                    )
+                    if case["id"] == "premature-fire":
+                        quiet = next(
+                            e
+                            for e in actual.root_evidence
+                            if e.fire_class == "quiet_continuation"
+                        )
+                        self.assertGreater(
+                            quiet.ranking_key,
+                            actual.evidence_by_action[case["action"]].ranking_key,
+                        )
+
     def test_seed146_decision22_materializes_in_both_execution_modes(self):
         request = decode_request(bytes.fromhex(
             (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()
