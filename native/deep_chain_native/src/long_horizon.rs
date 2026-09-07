@@ -1732,11 +1732,18 @@ impl Aggregate {
     }
 }
 
+// Binary64 left fold shared with Python _ordered_sum. aggregate_root sorts by
+// scenario_id before filtering. Keep +0.0 and separately rounded operations;
+// compensated sums, reassociation, and fused multiply-add change exact ties.
+fn ordered_sum(values: impl Iterator<Item = f64>) -> f64 {
+    values.fold(0.0, |total, value| total + value)
+}
+
 fn mean(values: &[f64]) -> f64 {
     if values.is_empty() {
         0.0
     } else {
-        values.iter().sum::<f64>() / values.len() as f64
+        ordered_sum(values.iter().copied()) / values.len() as f64
     }
 }
 
@@ -1745,11 +1752,11 @@ fn dispersion(values: &[f64]) -> f64 {
         return 0.0;
     }
     let average = mean(values);
-    (values
-        .iter()
-        .map(|value| (value - average) * (value - average))
-        .sum::<f64>()
-        / values.len() as f64)
+    (ordered_sum(
+        values
+            .iter()
+            .map(|value| (value - average) * (value - average)),
+    ) / values.len() as f64)
         .sqrt()
 }
 
@@ -1813,8 +1820,8 @@ fn aggregate_root(
         evaluated_scenarios: evaluated.len() as u8,
         class,
         class_support,
-        chain_score_sum: chain_scores.iter().sum::<f64>() as u64,
-        chain_count_sum: chain_counts.iter().sum::<f64>() as u64,
+        chain_score_sum: ordered_sum(chain_scores.iter().copied()) as u64,
+        chain_count_sum: ordered_sum(chain_counts.iter().copied()) as u64,
         support,
         worst_chain_score: chain_scores.iter().copied().reduce(f64::min).unwrap_or(0.0) as u64,
         worst_chain_count: chain_counts.iter().copied().reduce(f64::min).unwrap_or(0.0) as u8,
@@ -1822,7 +1829,7 @@ fn aggregate_root(
         chain_count_dispersion: dispersion(&chain_counts),
         continuation_score_mean: (!continuations.is_empty()).then(|| mean(&continuations)),
         quiet_support: class_support[FireClass::Quiet as usize],
-        terminal_score_sum: terminal_scores.iter().sum(),
+        terminal_score_sum: ordered_sum(terminal_scores.iter().copied()),
         best_fire,
     }
 }
@@ -2278,11 +2285,34 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
 mod tests {
     use super::{
         Counters, Node, PruneWorkspace, PythonRandom, SamplingMode, SearchConfig, Tracker,
-        TranspositionTable, prune_survivors, rollout_seed,
+        TranspositionTable, dispersion, mean, ordered_sum, prune_survivors, rollout_seed,
     };
     use crate::allocation_probe;
     use crate::chain_structure::EvaluationHot;
     use crate::compact::{CompactState, SearchStateKey, TransitionHotResult};
+
+    #[test]
+    fn aggregation_matches_python_binary64_vectors() {
+        let values = [9_007_199_254_740_992.0, 1.0, -9_007_199_254_740_992.0, 1.0];
+        assert_eq!(ordered_sum(values.into_iter()), 1.0);
+        assert_eq!(mean(&values), 0.25);
+        assert_eq!(ordered_sum([].into_iter()).to_bits(), 0);
+        assert_eq!(dispersion(&[]).to_bits(), 0);
+        assert_eq!(dispersion(&[4.0]).to_bits(), 0);
+        assert_eq!(
+            dispersion(&[1.0, 2.0, 7.0, 13.0, 40.0, 61.0]).to_bits(),
+            0x4036_4a7f_4816_db8d
+        );
+        // seed141 roots 7/9: scenario position changes the last bit of the fold.
+        assert_eq!(
+            dispersion(&[0.0, 0.0, 10780.0, 0.0, 0.0, 0.0]).to_bits(),
+            0x40af_62f0_067f_72c3
+        );
+        assert_eq!(
+            dispersion(&[0.0, 0.0, 0.0, 0.0, 10780.0, 0.0]).to_bits(),
+            0x40af_62f0_067f_72c4
+        );
+    }
 
     #[test]
     fn python_random_matches_cpython_getrandbits_choice_vectors() {

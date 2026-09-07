@@ -1,0 +1,9 @@
+   Compiling puyo-deep-chain-native v0.4.0 (/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native)
+    Finished `release` profile [optimized + debuginfo] target(s) in 22.73s
+     Running unittests src/lib.rs (native/deep_chain_native/target/release/deps/_puyo_deep_chain_native-d41f951dd0bd23f7)
+
+running 1 test
+test long_horizon::tests::aggregation_matches_python_binary64_vectors ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 47 filtered out; finished in 0.00s
+

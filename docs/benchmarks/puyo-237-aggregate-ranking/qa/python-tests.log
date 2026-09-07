@@ -1,0 +1,9 @@
+/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+............................................................./home/sion2/workspaces/dev/puyo_ai_dev_platform/src/ui/keybindings.py:69: Warning: pygame.init() has not been called. This function may return incorrect results
+  pygame.key.key_code(name)
+............
+----------------------------------------------------------------------
+Ran 73 tests in 158.848s
+
+OK

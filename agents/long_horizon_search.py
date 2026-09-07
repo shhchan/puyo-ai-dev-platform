@@ -14,7 +14,7 @@ import json
 import math
 import random
 from collections import Counter
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -1502,15 +1502,31 @@ class _ScenarioTracker:
         )
 
 
+def _ordered_sum(values: Iterable[float]) -> float:
+    """Binary64 left fold shared with native long_horizon::ordered_sum.
+
+    Root inputs are ordered by scenario_id before filtering. Each addition
+    rounds separately, starting at +0.0; do not use compensated/reassociated
+    sums (including Python 3.12's sum), which can change exact ranking ties.
+    """
+    total = 0.0
+    for value in values:
+        total += value
+    return total
+
+
 def _mean(values: Sequence[float]) -> float:
-    return 0.0 if not values else sum(values) / float(len(values))
+    return 0.0 if not values else _ordered_sum(values) / float(len(values))
 
 
 def _dispersion(values: Sequence[float]) -> float:
     if not values:
         return 0.0
     mean = _mean(values)
-    return math.sqrt(sum((value - mean) ** 2 for value in values) / len(values))
+    # Match native subtraction/multiplication, without pow or fused operations.
+    return math.sqrt(
+        _ordered_sum((value - mean) * (value - mean) for value in values) / len(values)
+    )
 
 
 def aggregate_expected_chain_evidence(
@@ -1595,9 +1611,9 @@ def aggregate_expected_chain_evidence(
         root_action=int(root_action),
         requested_scenarios=int(requested_scenarios),
         scenario_values=raw,
-        chain_score_sum=int(sum(scores)),
+        chain_score_sum=int(_ordered_sum(scores)),
         chain_score_mean=_mean(scores),
-        chain_count_sum=int(sum(counts)),
+        chain_count_sum=int(_ordered_sum(counts)),
         chain_count_mean=_mean(counts),
         support=sum(int(value.max_chain_count > 0) for value in evaluated),
         worst_chain_score=int(min(scores, default=0.0)),
@@ -1623,7 +1639,7 @@ def aggregate_expected_chain_evidence(
             candidate_class: int(class_counts.get(candidate_class, 0))
             for candidate_class in FIRE_CLASSES
         },
-        terminal_score_sum=float(sum(terminal_scores)),
+        terminal_score_sum=_ordered_sum(terminal_scores),
         terminal_score_mean=(None if not terminal_scores else _mean(terminal_scores)),
         terminal_score_worst=(None if not terminal_scores else min(terminal_scores)),
         terminal_score_dispersion=_dispersion(terminal_scores),
