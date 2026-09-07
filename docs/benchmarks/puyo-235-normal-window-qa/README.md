@@ -10,7 +10,7 @@ reference/native/target10、seed187。
 | 自動テスト | PASS: 92 tests | `automated_tests.log` |
 | dummy replay | PASS: 10 decision、計画更新9回、retry 0 | `gui_qa.json`, `gui_dummy_{result,replay}.json.gz` |
 | 通常画面 replay | 19 decision、計画更新18回、retry 0、action/plan整合 | `normal_replay_qa.json`, `gui_normal_{result,replay}.json.gz` |
-| 人間の目視 | pending: 実施者・各項目の回答待ち | `human_review.json` |
+| 人間の目視 | 一部確認済み: ghost/配置一致・再計画後の配置。文字・O往復・再開後応答は pending | `human_review.json` |
 | GUI 全体 | pending（`passed=false`） | `gui_qa.json` |
 
 `execution.json` は build/config/commit、取り込んだ PR、実行コマンド、表示条件を保持する。
@@ -57,5 +57,15 @@ print('Artifact checksums and normal-window replay contract passed; human QA is 
 PY
 ```
 
-人間の回答受領後に `human_review.json` と `gui_qa.json` の manual を更新する。
+2026-09-08、ユーザーから「N 手先のゴースト表示に対して配置できており、
+再計画後のところにきちんと設置できているように見えた」と観察報告を受領した。
+この自然文の回答を `human_review.json` に保持し、確認できた項目を manual へ反映した。
+診断文字の可読性・O往復・再開後応答は追加回答待ち。
+
+別件として報告された「窒息時に相手の連鎖を打ち切って終了する」は
+[PUYO-239](https://shhchan.atlassian.net/browse/PUYO-239)へ起票し、
+ユーザー指定でBacklogへ置いた。今回の保存replayの終端は0連鎖のanimationだったため、
+連鎖中の症状は別の最小fixtureで再現・診断し、詳細を同Bugに記録している。
+
+追加回答の受領後に `human_review.json` と `gui_qa.json` の manual を更新する。
 未確認・failed を自動 PASS にせず、後続の PUYO-236 へ状態を引き継ぐ。

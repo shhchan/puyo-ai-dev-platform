@@ -4,10 +4,13 @@
   "run_id": "puyo-235-seed-187-normal-01",
   "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
   "status": "pending",
-  "reviewer": null,
+  "reviewer": "ユーザー（本会話の報告者）",
   "observed_at": null,
-  "reported_at_utc": null,
-  "display_conditions": null,
+  "reported_at_utc": "2026-09-07T22:26:25.651955+00:00",
+  "display_conditions": {
+    "recorded_runtime": "X11/Weston, 1120x780, speed1",
+    "observer_details": "OS側の表示倍率等は未申告"
+  },
   "result": {
     "path": "gui_normal_result.json.gz",
     "sha256": "98bab7f64ea12b4291064d27b6aec2253f6395fd08efcf63c166a5ec3c982cd3"
@@ -20,8 +23,8 @@
     {
       "id": "ghost_action",
       "description": "先頭ghostと実際の選択・実行手が一致する",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "ユーザー:「N 手先のゴースト表示に対して配置できており」"
     },
     {
       "id": "diagnostics_readability",
@@ -32,8 +35,8 @@
     {
       "id": "plan_replacement",
       "description": "3 decision以上を観察し、次decisionで古いghostが置換される",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "ユーザー:「再計画後のところにきちんと設置できているように見えました」。更新回数19 decision/18 replacementsは別途replayで機械確認。"
     },
     {
       "id": "overlay_toggle",
@@ -50,11 +53,19 @@
     {
       "id": "replay_correspondence",
       "description": "画面で観察したrunとreference/native/target10/fallback=falseのreplayが対応する",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "本会話で提示したnormal runへの観察回答として対応付けた。提示候補/seed/buildとresult/replay checksumはexecution.jsonに固定済み。全2175 tickのstate hashも再現一致。"
     }
   ],
-  "source_response": null,
+  "source_response": "人間の観察記録をどのようにっ耐えたらいいのか分かりませんが，動作を見てみて良さそうな感じはしています．\nN 手先のゴースト表示に対して配置できており，再計画後のところにきちんと設置できているように見えました．",
   "blocking_ticket": "PUYO-236",
-  "notes": "Awaiting the human observer; automated tests, X11 window existence and dummy evidence do not mark these checks passed."
+  "notes": "ghost/配置一致と再計画後の配置を確認した自然文の観察報告を受領。診断文字・O往復・再開後応答は追加回答待ち。全体はpendingを維持。",
+  "observed_at_context": "PUYO-235通常画面runへの回答として2026-09-08に受領。正確な観察時刻は未申告。",
+  "reported_bugs": [
+    {
+      "key": "PUYO-239",
+      "url": "https://shhchan.atlassian.net/browse/PUYO-239",
+      "scope": "片側窒息時に相手の連鎖完了を待たず終了する別件。ユーザー指定でBacklog。"
+    }
+  ]
 }

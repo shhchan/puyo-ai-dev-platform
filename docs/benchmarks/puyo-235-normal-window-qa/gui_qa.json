@@ -224,7 +224,7 @@
     "checks": [
       {
         "name": "n_turn_ghost_matches_selected_action",
-        "passed": null
+        "passed": true
       },
       {
         "name": "selection_reason_and_decision_trace_visible",
@@ -232,16 +232,18 @@
       },
       {
         "name": "replan_replaces_stale_ghosts",
-        "passed": null
+        "passed": true
       },
       {
         "name": "overlay_toggle_preserves_policy_decision",
         "passed": null
       }
     ],
-    "notes": "92 automated tests and target10 dummy replay passed. Normal-window human observation is pending; see human_review.json and execution.json.",
-    "reviewer": null,
-    "status": "pending"
+    "notes": "ghost/配置一致と再計画後の配置を確認した自然文の観察報告を受領。診断文字・O往復・再開後応答は追加回答待ち。全体はpendingを維持。 詳細はhuman_review.json。",
+    "reviewer": "ユーザー（本会話の報告者）",
+    "status": "pending",
+    "reported_at_utc": "2026-09-07T22:26:25.651955+00:00",
+    "evidence_path": "human_review.json"
   },
   "passed": false,
   "recorded_at_utc": "2026-09-07T14:59:59Z",

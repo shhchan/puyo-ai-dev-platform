@@ -2,12 +2,12 @@
   "schema_version": "puyo.deep_chain_builder.gui_artifact_manifest.v1",
   "ticket": "PUYO-235",
   "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
-  "recorded_at_utc": "2026-09-07T15:04:48.674580+00:00",
+  "recorded_at_utc": "2026-09-07T22:26:55.263264+00:00",
   "artifacts": [
     {
       "path": "README.md",
-      "sha256": "6a42d63e8b3633bcb69b368591807668d6e50aa0e39c85d1e02a8ff6eb410e64",
-      "bytes": 3285
+      "sha256": "6237423f5d42d43403ed826d41b1e0f3319546f0147c14bc14b518fa6543dc10",
+      "bytes": 4146
     },
     {
       "path": "automated_tests.log",
@@ -21,8 +21,8 @@
     },
     {
       "path": "execution.json",
-      "sha256": "f84d5e35fc18488bf31f142449b4f1174b2f9b04aa1e2aed563c70e0a9a4abb1",
-      "bytes": 4504
+      "sha256": "8ac7cae675904c5e3fc7a2a16fe9515a9f182b621a3344ae50cde2aecd1aff8c",
+      "bytes": 4576
     },
     {
       "path": "gui_dummy_replay.json.gz",
@@ -46,13 +46,13 @@
     },
     {
       "path": "gui_qa.json",
-      "sha256": "59f7cc33c036e601d4aa6dd248f13cbf83cba1eec916a881ff67c1d316cf6592",
-      "bytes": 9493
+      "sha256": "a7db51540d96c87e1533c1ac56c1db5cda7dee29db4de66496004ca90fbc8826",
+      "bytes": 9708
     },
     {
       "path": "human_review.json",
-      "sha256": "f19ea80480d9a770d410eaf6551962e889380af33f93045bafc8ca1b5f4bebd9",
-      "bytes": 1967
+      "sha256": "cdf4a01b353b756f9112f58d620ff4cd25369d15a626dd92d34aef0424f1e641",
+      "bytes": 3357
     },
     {
       "path": "native_build.log",

@@ -72,7 +72,8 @@
     "replay": "gui_normal_replay.json.gz",
     "replay_validation": "normal_replay_qa.json",
     "process_exit_code": 0,
-    "recorded_at_utc": "2026-09-07T15:01:24.373411+00:00"
+    "recorded_at_utc": "2026-09-07T15:01:24.373411+00:00",
+    "human_review_received_at_utc": "2026-09-07T22:26:25.651955+00:00"
   },
   "revalidation": "PUYO-236 must compare commit/build/config and rerun affected human checks after GUI, plan, search or adopted PUYO-233 changes.",
   "build_command": "PUYO_NATIVE_PYTHON=/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/bin/python CARGO_TARGET_DIR=/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/target /tmp/puyo-235-build/scripts/build_deep_chain_native.sh"
