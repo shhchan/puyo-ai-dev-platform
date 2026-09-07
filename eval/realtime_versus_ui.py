@@ -23,6 +23,7 @@ except ImportError:  # pragma: no cover - dependency guard
 from agents.deep_chain_builder import (
     DEEP_CHAIN_TARGET_CHAIN_CHOICES,
     DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+    validate_interactive_target_chain_count,
 )
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from eval.lifecycle_audit import audit_realtime_lifecycle
@@ -217,11 +218,7 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError(
             f"deep_chain_backend must be one of: {DEEP_CHAIN_BACKEND_CHOICES}"
         )
-    if config.deep_chain_target_chain not in DEEP_CHAIN_TARGET_CHAIN_CHOICES:
-        raise ValueError(
-            "deep_chain_target_chain must be one of: "
-            f"{DEEP_CHAIN_TARGET_CHAIN_CHOICES}"
-        )
+    validate_interactive_target_chain_count(config.deep_chain_target_chain)
     if config.max_ticks is not None and config.max_ticks <= 0:
         raise ValueError("max_ticks must be positive")
     if config.inference_latency_ticks < 0:

@@ -72,7 +72,9 @@ DEEP_CHAIN_DECISION_INPUT_SCHEMA_VERSION = "puyo.deep_chain_builder.decision_inp
 DEEP_CHAIN_SELECTION_SCHEMA_VERSION = "puyo.deep_chain_builder.selection.v1"
 N_TURN_PLAN_SCHEMA_VERSION = "n-turn-plan-v1"
 DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT = 6
-DEEP_CHAIN_TARGET_CHAIN_CHOICES = (6, 8, 10, 12)
+# Interactive input range; benchmark conditions are declared by each experiment.
+DEEP_CHAIN_TARGET_CHAIN_CHOICES = tuple(range(1, 20))
+# Native ABI representation, independent of the interactive input range.
 MAX_DEEP_CHAIN_TARGET_CHAIN_COUNT = 255
 DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH = (
     Path(__file__).resolve().parents[1] / "train" / "config" / "deep_chain_builder.yaml"
@@ -1550,6 +1552,14 @@ def _decision_input_identity(value: VisibleRuntimeInput) -> dict[str, Any]:
         "observation_digest": _stable_payload_digest(payload, prefix="deep-chain-input-v1"),
         "root_state_fingerprint": root,
     }
+
+
+def validate_interactive_target_chain_count(value: Any) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError("deep_chain_target_chain must be an integer in [1, 19]")  # noqa: TRY004 - UI validation reports ValueError
+    if value not in DEEP_CHAIN_TARGET_CHAIN_CHOICES:
+        raise ValueError("deep_chain_target_chain must be an integer in [1, 19]")
+    return value
 
 
 def _validate_target_chain_count(value: Any) -> int:

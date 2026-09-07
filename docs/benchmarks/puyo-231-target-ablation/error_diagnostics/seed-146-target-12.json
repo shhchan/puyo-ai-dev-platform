@@ -1,0 +1,951 @@
+{
+  "captures": [
+    {
+      "error": {
+        "detail": "native fixed-width tie-break selected a different best candidate",
+        "type": "InvalidNativeInputError"
+      },
+      "evaluator": {
+        "exported_candidates": [
+          {
+            "anchor_cells": [
+              [
+                0,
+                1
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "RED",
+                "source_component_ids": [
+                  "624472bbcb169a93:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 0,
+              "height": 2,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "RED"
+          },
+          {
+            "anchor_cells": [
+              [
+                5,
+                2
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                5,
+                3
+              ],
+              [
+                5,
+                4
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "GREEN",
+                "source_component_ids": [
+                  "5b6bc59ce883fc49:0"
+                ],
+                "vanished_cells": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    5,
+                    3
+                  ],
+                  [
+                    5,
+                    4
+                  ],
+                  [
+                    5,
+                    5
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 5,
+              "height": 3,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "GREEN"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                1
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                0,
+                2
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "RED",
+                "source_component_ids": [
+                  "624472bbcb169a93:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 0,
+              "height": 0,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "RED"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                1
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "RED",
+                "source_component_ids": [
+                  "624472bbcb169a93:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "RED"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "BLUE",
+                "source_component_ids": [
+                  "1e0ded7ef96fdeaf:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.5
+            },
+            "trigger_color": "BLUE"
+          },
+          {
+            "anchor_cells": [
+              [
+                5,
+                2
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "GREEN",
+                "source_component_ids": [
+                  "5b6bc59ce883fc49:0"
+                ],
+                "vanished_cells": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 4,
+              "height": 0,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "GREEN"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                1
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "RED",
+                "source_component_ids": [
+                  "624472bbcb169a93:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.3333333333333333
+            },
+            "trigger_color": "RED"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "BLUE",
+                "source_component_ids": [
+                  "1e0ded7ef96fdeaf:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.5
+            },
+            "trigger_color": "BLUE"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                1
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "BLUE",
+                "source_component_ids": [
+                  "1e0ded7ef96fdeaf:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.5
+            },
+            "trigger_color": "BLUE"
+          },
+          {
+            "anchor_cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "chain_count": 1,
+            "chain_score": 40,
+            "extension_space": 4,
+            "placements": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "relations": [
+              {
+                "caused_by_chain_index": null,
+                "chain_index": 1,
+                "color": "BLUE",
+                "source_component_ids": [
+                  "1e0ded7ef96fdeaf:0"
+                ],
+                "vanished_cells": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              }
+            ],
+            "remaining_links": {
+              "connection_edges": 0,
+              "link_2": 0,
+              "link_3": 0
+            },
+            "required_key_count": 3,
+            "trigger": {
+              "column": 1,
+              "height": 0,
+              "protection": 0.5
+            },
+            "trigger_color": "BLUE"
+          }
+        ],
+        "max_candidates": 12,
+        "native_best": {
+          "anchor_cells": [
+            [
+              5,
+              1
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              3,
+              0
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              4,
+              1
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "RED",
+              "source_component_ids": [
+                "624472bbcb169a93:1"
+              ],
+              "vanished_cells": [
+                [
+                  3,
+                  0
+                ],
+                [
+                  4,
+                  0
+                ],
+                [
+                  4,
+                  1
+                ],
+                [
+                  5,
+                  1
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 3,
+            "height": 0,
+            "protection": 0.6666666666666666
+          },
+          "trigger_color": "RED"
+        },
+        "native_best_in_exported_candidates": true,
+        "native_best_key": [
+          1,
+          -3,
+          40,
+          0,
+          0,
+          0,
+          4,
+          0.6666666666666666,
+          0,
+          "ab1ffcdd2222535ef2855c887bfe3af780c8873f233b5eac1af99574f36085af"
+        ],
+        "native_best_signature": [
+          "RED",
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ]
+          ],
+          1,
+          40,
+          3,
+          0,
+          0,
+          0,
+          0,
+          4
+        ],
+        "python_best": {
+          "anchor_cells": [
+            [
+              0,
+              0
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "BLUE",
+              "source_component_ids": [
+                "1e0ded7ef96fdeaf:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  1
+                ],
+                [
+                  2,
+                  0
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 1,
+            "height": 0,
+            "protection": 0.5
+          },
+          "trigger_color": "BLUE"
+        },
+        "python_best_key": [
+          1,
+          -3,
+          40,
+          0,
+          0,
+          0,
+          4,
+          0.5,
+          0,
+          "c6fb44158fb0caebcd5b78072e23cb69cff1eb31391d0d58ed3af5993f396593"
+        ],
+        "python_best_signature": [
+          "BLUE",
+          [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              0
+            ]
+          ],
+          1,
+          40,
+          3,
+          0,
+          0,
+          0,
+          0,
+          4
+        ],
+        "state": {
+          "_occupied": 133217,
+          "all_clear_bonus_pending": false,
+          "column_heights": [
+            2,
+            0,
+            0,
+            0,
+            0,
+            3
+          ],
+          "game_over": false,
+          "last_chain_end_score": 69040,
+          "planes": [
+            2112,
+            33,
+            131072,
+            0,
+            0,
+            0
+          ],
+          "score": 69040
+        }
+      },
+      "search_config": {
+        "decision_seed": 3939985071450792057,
+        "depth": 16,
+        "fire_context": "safe_build",
+        "future_sampling_mode": "legacy-fixed-six",
+        "max_expanded_nodes": 600000,
+        "minimum_chain_count": 12,
+        "premature_target_gap_penalty": 1000.0,
+        "root_survivor_quota": 1,
+        "scenario_seed": null,
+        "scenarios": 6,
+        "terminal_fire_chain_count": 1,
+        "terminal_fire_rule": "record_and_stop",
+        "use_transposition_table": true,
+        "width": 250,
+        "winning_score_threshold": null
+      },
+      "state": {
+        "_occupied": 293413369266831359,
+        "all_clear_bonus_pending": false,
+        "column_heights": [
+          5,
+          9,
+          7,
+          8,
+          10,
+          3
+        ],
+        "game_over": false,
+        "last_chain_end_score": 0,
+        "planes": [
+          598134376400144,
+          288231209445949507,
+          21474970284,
+          4584003969511424,
+          0,
+          0
+        ],
+        "score": 0
+      }
+    }
+  ],
+  "completed_turns": 21,
+  "kind": "failure_diagnostic_excluded_from_quality_and_performance",
+  "seed": 146,
+  "source_commit": "195b41415324bb27643c59fbef8d8799d59a6296",
+  "target": 12,
+  "termination": "policy_error"
+}

@@ -473,7 +473,7 @@ python3 -m eval.deep_chain_builder_smoke \
 
 PUYO-203 以降は `--deep-chain-backend python|native|auto` で探索実装を選択できます．既定の
 `python` は従来互換、`native` は release build と ABI を厳格検証、`auto` の Python fallback は
-smoke 診断時だけ許可されます．統合 launcher では `deep-chain 目標連鎖` を `6 / 8 / 10 / 12`
+smoke 診断時だけ許可されます．統合 launcher では `deep-chain 目標連鎖` を `1〜19` のすべての整数
 から選べます．大連鎖を比較する場合は `reference/native` と 10 または 12 を選ぶと、HUD の
 `aim`（設定値）、`plan`（探索予測）、`actual`（実発火）を見比べられます．この実験値は
 PUYO-204 canonical benchmark の固定値 6 には伝播しません．build、canonical 実行、rollback、

@@ -171,7 +171,21 @@ class TestLauncherService(unittest.TestCase):
         cycled = service.settings.cycle(
             "spectate", "deep_chain_target_chain", delta=-1
         )
-        self.assertEqual(cycled.deep_chain_target_chain, 10)
+        self.assertEqual(cycled.deep_chain_target_chain, 11)
+
+    def test_all_interactive_targets_round_trip_and_invalid_values_are_reported(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "deep_chain_builder")
+        for target in range(1, 20):
+            with self.subTest(target=target):
+                service.update_setting("spectate", "deep_chain_target_chain", target)
+                self.assertEqual(service.validate_action("spectate"), [])
+                config = parse_realtime_config(service.command_for("spectate")[3:])
+                self.assertEqual(config.deep_chain_target_chain, target)
+        for target in (0, 20, True, 7.0, 7.5, "7"):
+            with self.subTest(invalid=target):
+                service.update_setting("spectate", "deep_chain_target_chain", target)
+                self.assertTrue(any("integer in [1, 19]" in e for e in service.validate_action("spectate")))
 
     def test_v1_7_bootstrap_manager_requires_and_round_trips_checkpoint(self):
         service = self.make_service()
