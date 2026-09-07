@@ -1123,6 +1123,8 @@ def _check(name: str, passed: bool, actual: Any, expected: Any) -> dict[str, Any
 def _dummy_gui_summary(
     result_path: str | Path | None,
     replay_path: str | Path | None,
+    *,
+    expected_target_chain_count: int = CANONICAL_TARGET_CHAIN_COUNT,
 ) -> dict[str, Any]:
     if result_path is None or replay_path is None:
         return {
@@ -1147,7 +1149,9 @@ def _dummy_gui_summary(
         if steps and isinstance(steps[0], Mapping)
         else None
     )
-    history = validate_policy_decision_history(replay, result)
+    history = validate_policy_decision_history(
+        replay, result, expected_target_chain_count=expected_target_chain_count,
+    )
     checks = [
         _check(
             "result_schema",
@@ -1174,9 +1178,9 @@ def _dummy_gui_summary(
         _check(
             "canonical_target",
             player_model.get("deep_chain_target_chain")
-            == CANONICAL_TARGET_CHAIN_COUNT,
+            == expected_target_chain_count,
             player_model.get("deep_chain_target_chain"),
-            CANONICAL_TARGET_CHAIN_COUNT,
+            expected_target_chain_count,
         ),
         _check(
             "native_without_fallback",
@@ -1265,8 +1269,17 @@ def record_gui_qa(
     notes: str,
     dummy_result_path: str | Path | None = None,
     dummy_replay_path: str | Path | None = None,
+    expected_target_chain_count: int = CANONICAL_TARGET_CHAIN_COUNT,
+    ticket: str = GUI_QA_TICKET,
 ) -> dict[str, Any]:
     _protect_historical_output(output_dir)
+    if type(expected_target_chain_count) is not int or not 1 <= expected_target_chain_count <= 19:
+        raise ValueError("expected_target_chain_count must be an integer from 1 to 19")
+    if (
+        (expected_target_chain_count != CANONICAL_TARGET_CHAIN_COUNT or ticket != GUI_QA_TICKET)
+        and Path(output_dir).resolve() == (REPO_ROOT / DEFAULT_GUI_QA_OUTPUT_DIR).resolve()
+    ):
+        raise ValueError("a new GUI QA contract requires a separate output directory")
     if manual_status not in {"pending", "passed", "failed"}:
         raise ValueError("manual_status must be pending, passed, or failed")
     if manual_status == "passed" and not reviewer:
@@ -1282,10 +1295,14 @@ def record_gui_qa(
         if manual_status == "passed"
         else (False if manual_status == "failed" else None)
     )
-    dummy_replay = _dummy_gui_summary(dummy_result_path, dummy_replay_path)
+    dummy_replay = _dummy_gui_summary(
+        dummy_result_path, dummy_replay_path,
+        expected_target_chain_count=expected_target_chain_count,
+    )
     payload = {
         "schema_version": GUI_QA_SCHEMA_VERSION,
-        "ticket": GUI_QA_TICKET,
+        "ticket": ticket,
+        "expected_target_chain_count": expected_target_chain_count,
         "recorded_at_utc": utc_timestamp(),
         "automated": {
             "status": "passed" if automated_passed else "failed",
@@ -1317,7 +1334,12 @@ def verify_gui_evidence(output_dir: str | Path) -> list[str]:
     if payload.get("schema_version") != GUI_QA_SCHEMA_VERSION:
         issues.append("unsupported GUI QA schema; preserve historical evidence")
     stored = payload.get("dummy_replay", {})
-    actual = _dummy_gui_summary(stored.get("result_path"), stored.get("replay_path"))
+    actual = _dummy_gui_summary(
+        stored.get("result_path"), stored.get("replay_path"),
+        expected_target_chain_count=payload.get(
+            "expected_target_chain_count", CANONICAL_TARGET_CHAIN_COUNT,
+        ),
+    )
     if not actual.get("passed"):
         issues.append("dummy policy decision history did not pass")
     if stored != actual:
@@ -2473,6 +2495,9 @@ def _build_parser() -> argparse.ArgumentParser:
     gui.add_argument("--notes", default="")
     gui.add_argument("--dummy-result", type=Path)
     gui.add_argument("--dummy-replay", type=Path)
+    gui.add_argument("--expected-target-chain", type=int, choices=range(1, 20),
+                     default=CANONICAL_TARGET_CHAIN_COUNT)
+    gui.add_argument("--ticket", default=GUI_QA_TICKET)
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -2509,6 +2534,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             notes=args.notes,
             dummy_result_path=args.dummy_result,
             dummy_replay_path=args.dummy_replay,
+            expected_target_chain_count=args.expected_target_chain,
+            ticket=args.ticket,
         )
     else:
         issues = (
