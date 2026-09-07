@@ -474,47 +474,46 @@ python3 -m eval.deep_chain_builder_smoke \
 PUYO-203 以降は `--deep-chain-backend python|native|auto` で探索実装を選択できます．既定の
 `python` は従来互換、`native` は release build と ABI を厳格検証、`auto` の Python fallback は
 smoke 診断時だけ許可されます．統合 launcher では `deep-chain 目標連鎖` を `1〜19` のすべての整数
-から選べます．大連鎖を比較する場合は `reference/native` と 10 または 12 を選ぶと、HUD の
+から選べます（既定値10）．明示指定した値は policy・探索・plan・replay に保持され、品質基準10とは別に記録されます．大連鎖を比較する場合は `reference/native` と 10 または 12 を選ぶと、HUD の
 `aim`（設定値）、`plan`（探索予測）、`actual`（実発火）を見比べられます．この実験値は
 PUYO-204 canonical benchmark の固定値 6 には伝播しません．build、canonical 実行、rollback、
 diagnostics、GUI 確認の詳細は
 [PUYO-203 native backend integration](docs/development/puyo-203-deep-chain-native-integration.md)
 を参照してください．
 
-### PUYO-189 Deep Chain Builder baseline benchmark
+### Deep Chain Builder safe-build benchmark
 
-固定済みの 30 seeds × 2 repeats、40 placements、`reference` profile を評価する runner は、run ごとに
-結果を保存して再開できます。canonical run は node 数を基準とする探索契約を保つため、wall-clock
-timeout で探索結果を置き換えません。
+PUYO-232 以降の既定 target と品質基準はともに10です。新しい canonical 契約は
+`puyo.deep_chain_builder.safe_build.v2`、reference depth16 / width250 / scenarios6 /
+600,000 nodes、30 seeds × 2 repeats、40 placements を維持します。
+実発火1〜9は、明示 target や forced-safety 理由にかかわらず品質統計では premature と数えます。
 
-```bash
-.venv/bin/python -m eval.deep_chain_builder_benchmark run \
-  --backend native \
-  --max-runs 1 \
-  --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
-```
-
-`--max-runs` を省略すると未実行の全 run を継続します。reference の開始前に latency gate だけを
-有界に診断する場合は、品質証跡には数えない `preflight` を使用します。
+clean commit の release extension を build/install 後、次のコマンドで新規評価・再開・検証できます。
+出力先の既定値は `docs/benchmarks/puyo-236-safe-build-baseline` です。
 
 ```bash
-.venv/bin/python -m eval.deep_chain_builder_benchmark preflight \
-  --backend native \
-  --timeout-seconds 5 \
-  --output-dir docs/benchmarks/puyo-189-deep-chain-builder-baseline
+bash scripts/build_deep_chain_native.sh
+.venv/bin/python -m eval.deep_chain_safe_build_benchmark init
+.venv/bin/python -m eval.deep_chain_safe_build_benchmark diagnostic --target 10
+.venv/bin/python -m eval.deep_chain_safe_build_benchmark run
+.venv/bin/python -m eval.deep_chain_safe_build_benchmark verify
 ```
 
-途中状態を含めて gate と manifest を再生成し、checksum と schema を検証する場合:
+`run --max-runs 1` で部分実行できます。未実行・未完了をPASSにせず、全60runの品質・性能と
+通常GUI QAを確認してからbaselineを判断します。正式な再評価はPUYO-236で行います。
+
+PUYO-204 の target6 定数と過去artifactは保持しています。過去証跡は測定commitの設定で検証します。
 
 ```bash
-.venv/bin/python -m eval.deep_chain_builder_benchmark finalize
-.venv/bin/python -m eval.deep_chain_builder_benchmark verify
+.venv/bin/python -m eval.deep_chain_builder_benchmark verify --historical
+.venv/bin/python -m eval.deep_chain_target_ablation verify
 ```
 
-未実行 run、未完了 repeat、未確認の GUI 人間 QA はゼロ値へ読み替えず、対応する gate を明示的に
-FAIL にします。結果と人間確認手順は
-[PUYO-189 baseline evaluation](docs/development/puyo-189-deep-chain-builder-baseline.md)
-を参照してください。
+過去結果を再実行するときは、manifestの測定commitを別worktreeでcheckoutし、release buildと
+新しい空の出力先を使用してください。GUIで過去のtarget値を試す場合は
+`--deep-chain-target-chain 6` を明示します。
+変更理由・境界テスト・残課題は
+[PUYO-232 safe-build contract](docs/development/puyo-232-safe-build-target-contract.md) を参照してください。
 
 ### v1.7.1 Bootstrap Manager checkpoint
 

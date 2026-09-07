@@ -1,0 +1,273 @@
+{
+  "paired_seeds": [
+    {
+      "seed": 123,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 39,
+            "first_quality_fire_placement": 39,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": true,
+            "maximum_actual_chain": 10,
+            "no_fire": false,
+            "quality_floor_reached": true,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 124,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 125,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 126,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 2,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 127,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 128,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 129,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 130,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": 40,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 3,
+            "no_fire": false,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 131,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 132,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 133,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "game_over"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 134,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 135,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": false,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "turn_limit"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 136,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 137,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 138,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 139,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 140,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 141,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 142,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 143,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 144,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 145,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 146,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 147,
+      "targets": {
+        "10": [
+          {
+            "decision_errors": [],
+            "first_fire_placement": null,
+            "first_quality_fire_placement": null,
+            "fully_evaluated": true,
+            "game_over": true,
+            "internal_target_reached": false,
+            "maximum_actual_chain": 0,
+            "no_fire": true,
+            "quality_floor_reached": false,
+            "repeat": 1,
+            "termination_reason": "game_over"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 148,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 149,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 150,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 151,
+      "targets": {
+        "10": []
+      }
+    },
+    {
+      "seed": 152,
+      "targets": {
+        "10": []
+      }
+    }
+  ],
+  "quality_floor": 10,
+  "repeats_per_seed": 2,
+  "schema_version": "puyo.deep_chain_safe_build_benchmark.v2",
+  "target10_paired_differences": {},
+  "unique_seed_count": 30
+}

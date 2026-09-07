@@ -71,7 +71,9 @@ DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
 DEEP_CHAIN_DECISION_INPUT_SCHEMA_VERSION = "puyo.deep_chain_builder.decision_input.v1"
 DEEP_CHAIN_SELECTION_SCHEMA_VERSION = "puyo.deep_chain_builder.selection.v1"
 N_TURN_PLAN_SCHEMA_VERSION = "n-turn-plan-v1"
-DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT = 6
+DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT = 10
+SAFE_BUILD_QUALITY_FLOOR = 10
+SAFE_BUILD_CONTRACT_VERSION = "puyo.deep_chain_builder.safe_build.v2"
 # Interactive input range; benchmark conditions are declared by each experiment.
 DEEP_CHAIN_TARGET_CHAIN_CHOICES = tuple(range(1, 20))
 # Native ABI representation, independent of the interactive input range.
@@ -293,6 +295,9 @@ class DeepChainBuilderConfig:
     config_version: str
     profiles: Mapping[str, DeepChainBuilderProfile]
     benchmark: DeepChainBenchmarkContract
+    default_target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
+    quality_floor: int = SAFE_BUILD_QUALITY_FLOOR
+    quality_contract_version: str = SAFE_BUILD_CONTRACT_VERSION
     policy_id: str = DEEP_CHAIN_BUILDER_POLICY_ID
     schema_version: str = DEEP_CHAIN_BUILDER_CONFIG_SCHEMA_VERSION
 
@@ -305,6 +310,11 @@ class DeepChainBuilderConfig:
             raise ValueError(f"unsupported deep-chain policy id: {self.policy_id}")
         if not self.config_version:
             raise ValueError("deep-chain config version is required")
+        _validate_target_chain_count(self.default_target_chain_count)
+        if self.quality_floor != SAFE_BUILD_QUALITY_FLOOR:
+            raise ValueError("safe-build quality floor must remain 10")
+        if self.quality_contract_version != SAFE_BUILD_CONTRACT_VERSION:
+            raise ValueError("unsupported safe-build quality contract")
         if "reference" not in self.profiles or "smoke" not in self.profiles:
             raise ValueError("deep-chain config requires reference and smoke profiles")
         if any(name != profile.name for name, profile in self.profiles.items()):
@@ -338,6 +348,13 @@ class DeepChainBuilderConfig:
             config_version=str(value.get("config_version", "")),
             profiles=profiles,
             benchmark=DeepChainBenchmarkContract.from_dict(benchmark_value),
+            default_target_chain_count=value.get(
+                "default_target_chain_count", DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
+            ),
+            quality_floor=value.get("quality_floor", SAFE_BUILD_QUALITY_FLOOR),
+            quality_contract_version=value.get(
+                "quality_contract_version", SAFE_BUILD_CONTRACT_VERSION
+            ),
             policy_id=str(value.get("policy_id", "")),
             schema_version=str(value.get("schema_version", "")),
         )
@@ -353,6 +370,9 @@ class DeepChainBuilderConfig:
             "schema_version": self.schema_version,
             "config_version": self.config_version,
             "policy_id": self.policy_id,
+            "default_target_chain_count": self.default_target_chain_count,
+            "quality_floor": self.quality_floor,
+            "quality_contract_version": self.quality_contract_version,
             "profiles": {
                 name: profile.to_dict() for name, profile in self.profiles.items()
             },
@@ -893,7 +913,7 @@ class DeepChainBuilderPolicy:
         search_backend: LongHorizonSearchBackend | None = None,
         backend_config: LongHorizonBackendConfig | None = None,
         backend_config_path: str | Path = DEFAULT_LONG_HORIZON_BACKEND_CONFIG_PATH,
-        target_chain_count: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
+        target_chain_count: int | None = None,
     ) -> None:
         self.config = config or load_deep_chain_builder_config(config_path)
         self.profile = (
@@ -905,7 +925,11 @@ class DeepChainBuilderPolicy:
             backend_config_path
         )
         self.backend_mode = str(backend or self.backend_config.default_backend)
-        self.target_chain_count = _validate_target_chain_count(target_chain_count)
+        self.target_chain_count = _validate_target_chain_count(
+            self.config.default_target_chain_count
+            if target_chain_count is None
+            else target_chain_count
+        )
         if self.backend_mode not in LONG_HORIZON_BACKEND_CHOICES:
             raise ValueError(f"unsupported deep-chain backend: {self.backend_mode}")
         canonical = self.backend_mode == "native" or (
@@ -1029,6 +1053,8 @@ class DeepChainBuilderPolicy:
                 "profile": self.profile.to_dict(),
                 "backend": self._backend_description(),
                 "target_chain_count": self.target_chain_count,
+                "quality_floor": self.config.quality_floor,
+                "quality_contract_version": self.config.quality_contract_version,
                 "decision_trace": {},
                 "selected_action": None,
                 "plan_id": "",
@@ -1036,7 +1062,11 @@ class DeepChainBuilderPolicy:
                 "replan_reason": "",
                 "fallback": {"used": False, "reason": None, "detail": ""},
             }
-        return copy.deepcopy(_policy_diagnostics(context, self.profile))
+        return {
+            **copy.deepcopy(_policy_diagnostics(context, self.profile)),
+            "quality_floor": self.config.quality_floor,
+            "quality_contract_version": self.config.quality_contract_version,
+        }
 
     def _backend_description(self) -> dict[str, Any]:
         if self.search_backend is None:

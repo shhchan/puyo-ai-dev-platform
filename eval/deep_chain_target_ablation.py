@@ -16,9 +16,11 @@ import sys
 import tempfile
 import time
 from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from agents.deep_chain_builder import SAFE_BUILD_CONTRACT_VERSION
 from eval import deep_chain_builder_benchmark as baseline
 from train.artifacts import file_sha256
 
@@ -37,11 +39,29 @@ CONFIG_PATHS = (
 )
 
 
+@dataclass(frozen=True)
+class ExperimentContract:
+    """Explicit run identity; the historical ablation remains the default."""
+
+    ticket: str = TICKET
+    schema: str = SCHEMA
+    targets: tuple[int, ...] = TARGETS
+    output_dir: Path = DEFAULT_OUTPUT_DIR
+    module: str = "eval.deep_chain_target_ablation"
+    title: str = "PUYO-231 target 固定探索予算比較"
+    canonical_safe_build: bool = False
+
+
+ABLATION_CONTRACT = ExperimentContract()
+
+
 def digest(value: Any) -> str:
     return baseline._stable_digest(value, prefix=SCHEMA)
 
 
-def identities() -> list[dict[str, int | str]]:
+def identities(
+    *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> list[dict[str, int | str]]:
     # Interleave conditions within each seed/repeat to reduce temporal drift.
     return [
         {
@@ -52,25 +72,42 @@ def identities() -> list[dict[str, int | str]]:
         }
         for seed in SEEDS
         for repeat in REPEATS
-        for target in TARGETS
+        for target in contract.targets
     ]
 
 
-def configuration() -> dict[str, Any]:
+def configuration(
+    *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> dict[str, Any]:
     config = baseline.load_deep_chain_builder_config()
     profile = config.profiles["reference"].to_dict()
     expected = {"depth": 16, "width": 250, "scenarios": 6, "max_expanded_nodes": 600000}
     if any(profile.get(k) != v for k, v in expected.items()):
         raise ValueError("reference search budget changed")
-    contract = config.benchmark
+    benchmark = config.benchmark
     if (
-        contract.seed_start,
-        contract.seed_count,
-        contract.repeats_per_seed,
-        contract.max_steps,
+        benchmark.seed_start,
+        benchmark.seed_count,
+        benchmark.repeats_per_seed,
+        benchmark.max_steps,
     ) != (123, 30, 2, 40):
         raise ValueError("fixed benchmark identities changed")
+    if contract.canonical_safe_build and (
+        contract.targets != (QUALITY_FLOOR,)
+        or config.default_target_chain_count != QUALITY_FLOOR
+        or config.quality_floor != QUALITY_FLOOR
+        or config.quality_contract_version != SAFE_BUILD_CONTRACT_VERSION
+    ):
+        raise ValueError("canonical safe-build target and quality floor must be 10")
     return {
+        **(
+            {
+                "quality_contract_version": config.quality_contract_version,
+                "target_chain_count": config.default_target_chain_count,
+            }
+            if contract.canonical_safe_build
+            else {}
+        ),
         "profile": profile,
         "backend": "native",
         "execution_mode": "scenario-6",
@@ -89,30 +126,48 @@ def configuration() -> dict[str, Any]:
     }
 
 
-def load_manifest(root: Path) -> dict[str, Any]:
+def load_manifest(
+    root: Path, *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> dict[str, Any]:
     manifest = baseline._read_json(root / "experiment_manifest.json")
     payload = {k: v for k, v in manifest.items() if k != "manifest_sha256"}
     if manifest.get("manifest_sha256") != digest(payload):
         raise ValueError("experiment manifest checksum mismatch")
-    if manifest.get("schema_version") != SCHEMA or manifest.get("ticket") != TICKET:
-        raise ValueError("unsupported experiment manifest")
     if (
-        manifest.get("targets") != list(TARGETS)
-        or manifest.get("identities") != identities()
+        manifest.get("schema_version") != contract.schema
+        or manifest.get("ticket") != contract.ticket
     ):
+        raise ValueError("unsupported experiment manifest")
+    if manifest.get("targets") != list(contract.targets) or manifest.get(
+        "identities"
+    ) != identities(contract=contract):
         raise ValueError(
-            "experiment identities must be the fixed 240 target/seed/repeat combinations"
+            "experiment identities must match the declared target/seed/repeat combinations"
         )
+    if contract.canonical_safe_build:
+        common = manifest["common_configuration"]
+        if (
+            common.get("target_chain_count") != QUALITY_FLOOR
+            or common.get("quality_floor") != QUALITY_FLOOR
+            or common.get("quality_contract_version") != SAFE_BUILD_CONTRACT_VERSION
+        ):
+            raise ValueError("canonical manifest target/quality contract mismatch")
     return manifest
 
 
-def initialize(root: Path) -> dict[str, Any]:
+def initialize(
+    root: Path, *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> dict[str, Any]:
     baseline._protect_historical_output(root)
+    if contract.canonical_safe_build and root.resolve().is_relative_to(
+        (baseline.REPO_ROOT / DEFAULT_OUTPUT_DIR).resolve()
+    ):
+        raise ValueError("PUYO-231 evidence is read-only; specify a new --output-dir")
     provenance = baseline._native_build_provenance(strict=True)
-    common = configuration()
+    common = configuration(contract=contract)
     path = root / "experiment_manifest.json"
     if path.exists():
-        manifest = load_manifest(root)
+        manifest = load_manifest(root, contract=contract)
         old = manifest["build_provenance"]
         for key in (
             "evaluated_commit",
@@ -129,18 +184,19 @@ def initialize(root: Path) -> dict[str, Any]:
     if root.exists() and any(root.iterdir()):
         raise ValueError("new experiment requires an empty output directory")
     manifest = {
-        "schema_version": SCHEMA,
-        "ticket": TICKET,
-        "targets": list(TARGETS),
-        "identities": identities(),
-        "run_count": 240,
+        "schema_version": contract.schema,
+        "ticket": contract.ticket,
+        "targets": list(contract.targets),
+        "identities": identities(contract=contract),
+        "run_count": len(identities(contract=contract)),
         "unique_seed_count": 30,
         "created_at_utc": baseline.utc_timestamp(),
         "build_provenance": provenance,
         "common_configuration": common,
         "common_configuration_sha256": digest(common),
         "condition_configuration_sha256": {
-            str(t): digest({"common": common, "target_chain_count": t}) for t in TARGETS
+            str(t): digest({"common": common, "target_chain_count": t})
+            for t in contract.targets
         },
         "historical_target6": str(baseline.DEFAULT_OUTPUT_DIR),
     }
@@ -166,10 +222,16 @@ def write_run(path: Path, payload: dict) -> None:
     os.replace(temporary, path)
 
 
-def validate_run(run: dict, identity: dict, manifest: dict) -> None:
+def validate_run(
+    run: dict,
+    identity: dict,
+    manifest: dict,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> None:
     expected = {
-        "schema_version": SCHEMA,
-        "ticket": TICKET,
+        "schema_version": contract.schema,
+        "ticket": contract.ticket,
         "run_id": identity["run_id"],
         "seed": identity["seed"],
         "repeat": identity["repeat"],
@@ -226,29 +288,50 @@ def validate_run(run: dict, identity: dict, manifest: dict) -> None:
             raise ValueError("decision parity contract mismatch")
         if record["search"]["counters"].get("expanded_nodes", 0) > 600000:
             raise ValueError("expanded node budget exceeded")
+        if (
+            contract.canonical_safe_build
+            and record["search"]["backend"]
+            .get("configuration", {})
+            .get("minimum_chain_count")
+            != identity["target"]
+        ):
+            raise ValueError("backend target propagation mismatch")
 
 
-def load_runs(root: Path, manifest: dict, target: int | None = None) -> list[dict]:
+def load_runs(
+    root: Path,
+    manifest: dict,
+    target: int | None = None,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> list[dict]:
     runs = []
-    expected_paths = {run_path(root, i) for i in identities()}
+    expected_paths = {run_path(root, i) for i in identities(contract=contract)}
     if set(root.glob("target-*/*.json.gz")) - expected_paths:
         raise ValueError("unexpected run identity")
-    for identity in identities():
+    for identity in identities(contract=contract):
         if target is not None and identity["target"] != target:
             continue
         path = run_path(root, identity)
         if path.exists():
             run = baseline._read_json(path)
-            validate_run(run, identity, manifest)
+            validate_run(run, identity, manifest, contract=contract)
             runs.append(run)
     return runs
 
 
-def execute_identity(root: Path, target: int, seed: int, repeat: int) -> dict:
-    manifest = initialize(root)
+def execute_identity(
+    root: Path,
+    target: int,
+    seed: int,
+    repeat: int,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> dict:
+    manifest = initialize(root, contract=contract)
     identity = next(
         i
-        for i in identities()
+        for i in identities(contract=contract)
         if (i["target"], i["seed"], i["repeat"]) == (target, seed, repeat)
     )
     path = run_path(root, identity)
@@ -263,13 +346,13 @@ def execute_identity(root: Path, target: int, seed: int, repeat: int) -> dict:
         target_chain_count=target,
     )
     run.update(
-        schema_version=SCHEMA,
-        ticket=TICKET,
+        schema_version=contract.schema,
+        ticket=contract.ticket,
         run_id=identity["run_id"],
         quality_floor=QUALITY_FLOOR,
         manifest_sha256=manifest["manifest_sha256"],
     )
-    validate_run(run, identity, manifest)
+    validate_run(run, identity, manifest, contract=contract)
     write_run(path, run)
     return {
         "run_id": run["run_id"],
@@ -280,9 +363,13 @@ def execute_identity(root: Path, target: int, seed: int, repeat: int) -> dict:
     }
 
 
-def diagnostic(root: Path, target: int) -> dict:
+def diagnostic(
+    root: Path, target: int, *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> dict:
     """Cold + warm same-root decisions, separate from closed-loop trajectories."""
-    manifest = initialize(root)
+    if target not in contract.targets:
+        raise ValueError("target is outside the declared experiment contract")
+    manifest = initialize(root, contract=contract)
     path = root / f"diagnostic-target-{target:02d}.json"
     if path.exists():
         raise ValueError("refusing to overwrite existing diagnostic")
@@ -329,7 +416,7 @@ def diagnostic(root: Path, target: int) -> dict:
             }
         )
     payload = {
-        "schema_version": SCHEMA,
+        "schema_version": contract.schema,
         "manifest_sha256": manifest["manifest_sha256"],
         "target_chain_count": target,
         "seed": 123,
@@ -349,12 +436,18 @@ def diagnostic(root: Path, target: int) -> dict:
     }
 
 
-def run_pending(root: Path, target: int | None, max_runs: int | None) -> dict:
-    initialize(root)
-    manifest = load_manifest(root)
-    load_runs(root, manifest)
+def run_pending(
+    root: Path,
+    target: int | None,
+    max_runs: int | None,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> dict:
+    initialize(root, contract=contract)
+    manifest = load_manifest(root, contract=contract)
+    load_runs(root, manifest, contract=contract)
     completed = 0
-    for identity in identities():
+    for identity in identities(contract=contract):
         if target is not None and identity["target"] != target:
             continue
         if run_path(root, identity).exists():
@@ -365,7 +458,7 @@ def run_pending(root: Path, target: int | None, max_runs: int | None) -> dict:
             [
                 sys.executable,
                 "-m",
-                "eval.deep_chain_target_ablation",
+                contract.module,
                 "worker",
                 "--output-dir",
                 str(root),
@@ -380,7 +473,7 @@ def run_pending(root: Path, target: int | None, max_runs: int | None) -> dict:
             cwd=baseline.REPO_ROOT,
         )
         completed += 1
-    return finalize(root, target)
+    return finalize(root, target, contract=contract)
 
 
 def distribution(values: list[int | float]) -> dict:
@@ -470,7 +563,14 @@ def run_metrics(run: dict) -> dict:
     }
 
 
-def summarize_target(root: Path, target: int, manifest: dict, runs: list[dict]) -> dict:
+def summarize_target(
+    root: Path,
+    target: int,
+    manifest: dict,
+    runs: list[dict],
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> dict:
     metrics = [run_metrics(run) for run in runs]
     # Repeat 1 is the prespecified quality estimate; repeat 2 checks determinism.
     unique = [m for m in metrics if m["repeat"] == 1 and m["fully_evaluated"]]
@@ -552,14 +652,37 @@ def summarize_target(root: Path, target: int, manifest: dict, runs: list[dict]) 
             if i["run_id"] in by_id
             else "identity_not_executed; excluded_from_quality_and_latency_estimates",
         }
-        for i in identities()
+        for i in identities(contract=contract)
         if i["target"] == target
     ]
     return {
-        "schema_version": SCHEMA,
+        "schema_version": contract.schema,
         "manifest_sha256": manifest["manifest_sha256"],
         "target_chain_count": target,
         "quality_floor": QUALITY_FLOOR,
+        **(
+            {
+                "quality_contract_version": SAFE_BUILD_CONTRACT_VERSION,
+                "forced_safety_fires": [
+                    {
+                        "run_id": run["run_id"],
+                        "placement": record["turn"] + 1,
+                        "actual_chain_count": record["actual_result"]["chain_count"],
+                        "reason": record["selection"]["selection_reason"],
+                    }
+                    for run in runs
+                    for record in run["records"]
+                    if "action" in record
+                    and record["actual_result"]["chain_count"] > 0
+                    and record["selection"]["selected_score"]
+                    .get("evidence", {})
+                    .get("fire_class")
+                    == "forced_safety_fire"
+                ],
+            }
+            if contract.canonical_safe_build
+            else {}
+        ),
         "coverage": coverage,
         "executed_runs": len(runs),
         "fully_evaluated_runs": sum(r["fully_evaluated"] for r in runs),
@@ -654,16 +777,29 @@ def summarize_target(root: Path, target: int, manifest: dict, runs: list[dict]) 
     }
 
 
-def summaries(root: Path, target: int | None = None) -> dict[str, dict]:
-    manifest = load_manifest(root)
+def summaries(
+    root: Path,
+    target: int | None = None,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> dict[str, dict]:
+    manifest = load_manifest(root, contract=contract)
     return {
-        str(t): summarize_target(root, t, manifest, load_runs(root, manifest, t))
-        for t in TARGETS
+        str(t): summarize_target(
+            root,
+            t,
+            manifest,
+            load_runs(root, manifest, t, contract=contract),
+            contract=contract,
+        )
+        for t in contract.targets
         if target is None or t == target
     }
 
 
-def comparison(summaries: dict[str, dict]) -> dict:
+def comparison(
+    summaries: dict[str, dict], *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> dict:
     pairs = []
     for seed in SEEDS:
         rows = {}
@@ -690,7 +826,7 @@ def comparison(summaries: dict[str, dict]) -> dict:
             ]
         pairs.append({"seed": seed, "targets": rows})
     return {
-        "schema_version": SCHEMA,
+        "schema_version": contract.schema,
         "quality_floor": QUALITY_FLOOR,
         "unique_seed_count": 30,
         "repeats_per_seed": 2,
@@ -738,9 +874,11 @@ def paired_differences(summaries: dict[str, dict]) -> dict:
     return result
 
 
-def report(payload: dict[str, dict]) -> str:
+def report(
+    payload: dict[str, dict], *, contract: ExperimentContract = ABLATION_CONTRACT
+) -> str:
     lines = [
-        "# PUYO-231 target 固定探索予算比較",
+        f"# {contract.title}",
         "",
         "品質の分母は事前指定の repeat 1（最大30固有seed）。repeat 2 は決定論検証用。",
         "欠損・未完了を0やPASSに補完しない。全条件で品質基準10、p95上限1.0秒。",
@@ -786,14 +924,21 @@ def evidence_paths(
     return paths
 
 
-def finalize(root: Path, target: int | None = None) -> dict:
+def finalize(
+    root: Path,
+    target: int | None = None,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> dict:
     baseline._protect_historical_output(root)
-    payload = summaries(root, target)
+    payload = summaries(root, target, contract=contract)
     for t, summary in payload.items():
         baseline._write_json(root / f"target-{int(t):02d}" / "summary.json", summary)
     if target is None:
-        baseline._write_json(root / "paired_comparison.json", comparison(payload))
-        (root / "benchmark_report.md").write_text(report(payload))
+        baseline._write_json(
+            root / "paired_comparison.json", comparison(payload, contract=contract)
+        )
+        (root / "benchmark_report.md").write_text(report(payload, contract=contract))
     paths = evidence_paths(root, list(payload), include_shared=target is None)
     name = (
         "evidence_checksums.json"
@@ -809,7 +954,12 @@ def finalize(root: Path, target: int | None = None) -> dict:
     }
 
 
-def verify(root: Path, target: int | None = None) -> list[str]:
+def verify(
+    root: Path,
+    target: int | None = None,
+    *,
+    contract: ExperimentContract = ABLATION_CONTRACT,
+) -> list[str]:
     errors = []
     try:
         name = (
@@ -822,7 +972,7 @@ def verify(root: Path, target: int | None = None) -> list[str]:
             path = root / name
             if not path.is_file() or file_sha256(path) != checksum:
                 errors.append(f"checksum mismatch: {name}")
-        payload = summaries(root, target)
+        payload = summaries(root, target, contract=contract)
         expected_paths = {
             str(p.relative_to(root))
             for p in evidence_paths(root, list(payload), include_shared=target is None)
@@ -837,23 +987,25 @@ def verify(root: Path, target: int | None = None) -> list[str]:
                 errors.append(f"summary mismatch: target {t}")
         if target is None:
             if baseline._read_json(root / "paired_comparison.json") != comparison(
-                payload
+                payload, contract=contract
             ):
                 errors.append("paired comparison mismatch")
-            if (root / "benchmark_report.md").read_text() != report(payload):
+            if (root / "benchmark_report.md").read_text() != report(
+                payload, contract=contract
+            ):
                 errors.append("report mismatch")
     except (ValueError, KeyError, OSError, TypeError) as exc:
         errors.append(str(exc))
     return errors
 
 
-def main() -> int:
+def main(*, contract: ExperimentContract = ABLATION_CONTRACT) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command", choices=("init", "run", "worker", "diagnostic", "finalize", "verify")
     )
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--target", type=int, choices=TARGETS)
+    parser.add_argument("--output-dir", type=Path, default=contract.output_dir)
+    parser.add_argument("--target", type=int, choices=contract.targets)
     parser.add_argument("--seed", type=int, choices=SEEDS)
     parser.add_argument("--repeat", type=int, choices=REPEATS)
     parser.add_argument("--max-runs", type=int)
@@ -862,23 +1014,27 @@ def main() -> int:
         parser.error("--max-runs must be positive")
     root = args.output_dir.resolve()
     if args.command == "init":
-        result = {"manifest_sha256": initialize(root)["manifest_sha256"]}
+        result = {
+            "manifest_sha256": initialize(root, contract=contract)["manifest_sha256"]
+        }
     elif args.command == "run":
-        result = run_pending(root, args.target, args.max_runs)
+        result = run_pending(root, args.target, args.max_runs, contract=contract)
     elif args.command == "worker":
         if None in (args.target, args.seed, args.repeat):
             parser.error("worker requires --target, --seed and --repeat")
-        result = execute_identity(root, args.target, args.seed, args.repeat)
+        result = execute_identity(
+            root, args.target, args.seed, args.repeat, contract=contract
+        )
     elif args.command == "diagnostic":
         if args.target is None:
             parser.error(
                 "diagnostic requires --target (one fresh process per condition)"
             )
-        result = diagnostic(root, args.target)
+        result = diagnostic(root, args.target, contract=contract)
     elif args.command == "finalize":
-        result = finalize(root, args.target)
+        result = finalize(root, args.target, contract=contract)
     else:
-        errors = verify(root, args.target)
+        errors = verify(root, args.target, contract=contract)
         print(
             json.dumps(
                 {"evidence_valid": not errors, "errors": errors}, ensure_ascii=False

@@ -1,6 +1,10 @@
 schema_version: puyo.deep_chain_builder.config.v1
-config_version: v1.0
+config_version: v1.1
 policy_id: deep_chain_builder
+quality_contract_version: puyo.deep_chain_builder.safe_build.v2
+default_target_chain_count: 10
+# Actual fires below this floor remain premature even for an explicit target <10.
+quality_floor: 10
 
 profiles:
   reference:
