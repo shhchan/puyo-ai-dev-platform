@@ -40,6 +40,17 @@ seed137 target6 は2 decision目、seed141 target6 と seed151 target10 は1 dec
 | 141 / 6 | 9 → 13 → 7 → 11 | 7 → 11 → 9 → 13 |
 | 151 / 10 | 7 → 9 | 9 → 7 |
 
+seed137では旧Pythonのroot8/14の継続平均がともに `153244.8152958153` で、action順に
+root8が上だった。逐次加算ではroot14が `153244.81529581532` となり、平均で先に順位が決まる。
+seed151では旧root7/9がともに `140076.44444444444` だったが、逐次加算のroot7は
+`140076.4444444444` となりroot9が上になる。
+
+seed141のroot7/9のchain score列は、それぞれscenario ID 2/4だけが10780、他は0。
+旧Pythonの標準偏差は両方 `4017.4687995746226` だが、逐次加算のroot7は
+`4017.468799574622` になる。小さい標準偏差を優先する比較項目でroot7が先に決まり、
+旧同点時にroot9を上位にした継続平均の比較まで進まなくなる。このケースでは `** 2` を
+乗算に変えるだけでは差は解消せず、分散の加算方法が直接の原因。乗算も共通契約として固定した。
+
 `before/*.json` に全rootの旧key・各scenario値・逐次加算key・両順位を保持する。
 `tests/fixtures/aggregate_ranking_requests.json` は同じ失敗時に取得した未加工のwire request、
 旧native全22root順位、選択action。release extension がある場合、元の3ケースとseed151の
@@ -78,6 +89,53 @@ cargo fmt --manifest-path native/deep_chain_native/Cargo.toml -- --check
 cargo clippy --locked --manifest-path native/deep_chain_native/Cargo.toml -- -D warnings
 cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml
 ```
+
+## 2026-09-07 測定結果
+
+12/12 run が各40手を完了し、policy error 0、正当なgame over 0。
+全480 decisionで全root順位検証が通り、simulator parity mismatch / fallback / scenario accounting異常は0。
+6組すべてでaction・plan・trajectory digestが一致した。
+対象3seedのprivate sentinel境界監査と、seed151全4targetの実policy counterfactualも一致し、fallbackは0。
+
+| target | seed | 完全評価run | 最大実連鎖（各repeat共通） | premature（両repeat） | game over | decision p95秒 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 6 | 137 / 141 / 151 | 6 / 6 | 6 / 7 / 6 | 6 | 0 | 0.665888 |
+| 8 | 151 | 2 / 2 | 2 | 2 | 0 | 0.699364 |
+| 10 | 151 | 2 / 2 | 10 | 0 | 0 | 0.678843 |
+| 12 | 151 | 2 / 2 | 13 | 0 | 0 | 0.722445 |
+
+全targetでこの回帰集合のp95は1秒以下。最大expanded nodesは465,036で予算600,000以下、
+最大RSSは351,192 KiB。品質基準10に対してtarget6/8は未達で、prematureが計8件ある。
+seed151 target8の最大実連鎖2もそのまま残す。今回の12runを全60-runの採用判定に流用しない。
+PUYO-238の独立修正、PUYO-235の通常画面QA、PUYO-236の全体再評価が残る。
+
+測定は `0a535ea5f74333b044c722185b7a4fd12f373afb` のclean worktree
+`/tmp/puyo-237-release-build` で実施した。release wheel SHA-256は
+`8958c2d01ca1e7c400d58238549d62a7699f64092d306f2d1e046761edfcf5bd`。
+元PUYO-231のcommit/buildは元manifestへのlineageで保持し、configuration完全一致を確認した。
+測定後に追加したseed141の固定bit列assertionはテストのみで、探索・集約処理には追加変更がない。
+
+`docs/benchmarks/puyo-237-aggregate-ranking/after/` にmanifest、12raw、再計算可能なsummaryを保存した。
+`diagnostics.json.gz` は6再現条件×2実行modeの全root key/scenario値と4targetのprivate比較。
+`comparison.json` は旧Python/native順位と新順位の照合を記録する。
+3元ケースの選択action・native全22root順位は旧nativeと同一で、Pythonの全66 keyが
+修正前診断の逐次加算keyに厳密一致した。追加診断は軌跡の品質・性能には算入していない。
+
+診断を再作成する場合、測定commitのcheckoutを作業ディレクトリにして本変更のスクリプトを使う。
+既存証跡の上書きは拒否する。
+
+```bash
+PYTHONPATH=. <python> <checkout>/docs/benchmarks/puyo-237-aggregate-ranking/diagnose.py /tmp/puyo-237-regression-new
+# 保存済み証跡の整合性確認はrelease rebuild不要
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-237-aggregate-ranking/run_regression.py verify docs/benchmarks/puyo-237-aggregate-ranking/after
+sha256sum -c docs/benchmarks/puyo-237-aggregate-ranking/evidence.sha256
+```
+
+関連Python suiteは73 tests成功。seed141のassertion補強後は変更した2 testsを再実行して成功。
+Rustは46 tests成功（手動profile 2件は既定でignored）、fmt / clippy成功、
+release最適化下の数値契約1 testも補強後に成功した。実行情報は `qa.json` とログに保存。
+旧PUYO-231の証跡は変更していない。人間は本表、`comparison.json`、PRの集約関数と
+検証器を拒否させる回帰テストを確認できる。通常window QAはPUYO-235で実施する。
 
 ## References
 
