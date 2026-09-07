@@ -1,0 +1,1905 @@
+{
+  "future_boundary": {
+    "method": "counterfactual_private_sentinel_boundary_audit",
+    "passed": true,
+    "private_future_leak_count": 0,
+    "records": [
+      {
+        "digests_match": true,
+        "leaked": false,
+        "left_digest": "03f5887c42f9487d85f0d2e8852e96e29dad64e3668af0f373b79bca3a935a26",
+        "private_marker_absent": true,
+        "right_digest": "03f5887c42f9487d85f0d2e8852e96e29dad64e3668af0f373b79bca3a935a26",
+        "seed": 146
+      }
+    ],
+    "schema_version": "puyo.deep_chain_builder.future_isolation.v2",
+    "seed_count": 1,
+    "ticket": "PUYO-204",
+    "visible_info_fields": [
+      "action_mask",
+      "action_mask_source",
+      "schema_version",
+      "action_contract_version",
+      "score",
+      "step_count",
+      "tick_count",
+      "max_steps",
+      "max_ticks",
+      "last_chain_end_score",
+      "last_chain_score_delta",
+      "all_clear_bonus_pending",
+      "game_over"
+    ],
+    "visible_observation_fields": [
+      "own_board",
+      "board",
+      "ghost_row",
+      "next_pairs",
+      "scalars",
+      "realtime_scalars",
+      "action_mask",
+      "schema_version"
+    ]
+  },
+  "manifest_sha256": "7ac0c1e8831b810f1d9e59d1560839d2ec55b8bb107aa4c776c1891359ecb0ef",
+  "raw_sha256": {
+    "target-12/seed-146-repeat-01.json.gz": "f42e66a2d76782d71459120f233cd6a5102b9bf9b7195f15afe5b991684f84e6",
+    "target-12/seed-146-repeat-02.json.gz": "be5850b8d69a32a63e1242f4c006c7ab35937530873228d7d4438e95ddd6e68e"
+  },
+  "scope": "2 failure regressions; excludes full baseline adoption",
+  "targets": {
+    "12": {
+      "completed_runs": 2,
+      "decisions": 80,
+      "determinism": {
+        "complete_pair_count": 1,
+        "matching_pair_count": 1,
+        "passed": true,
+        "records": [
+          {
+            "action_digests": [
+              "fb0ceda271d4e886fd9b5ff64ea1d66599768929fa413e4eed8562cdf25a432e",
+              "fb0ceda271d4e886fd9b5ff64ea1d66599768929fa413e4eed8562cdf25a432e"
+            ],
+            "complete_pair": true,
+            "matches": true,
+            "plan_digests": [
+              "81c09517d3d9ddd7956a0c92f641b3c4e411554b02e63de3694c42fe05f174fb",
+              "81c09517d3d9ddd7956a0c92f641b3c4e411554b02e63de3694c42fe05f174fb"
+            ],
+            "repeat_count": 2,
+            "seed": 146,
+            "trajectory_digests": [
+              "ff250f083a3b7c6755b227f76a25f20bb39a7a926c29f4ea2f8a48e8a345731f",
+              "ff250f083a3b7c6755b227f76a25f20bb39a7a926c29f4ea2f8a48e8a345731f"
+            ]
+          }
+        ],
+        "seed_count": 1
+      },
+      "errors": [],
+      "fallback_count": 0,
+      "fully_evaluated": true,
+      "game_over_count": 0,
+      "latency": {
+        "max_seconds": 0.7428188029880403,
+        "mean_seconds": 0.4958274548755071,
+        "p50_seconds": 0.5505844189974596,
+        "p95_seconds": 0.6635843372889212,
+        "sample_count": 80,
+        "wall_clock_mode": "observational_no_timeout"
+      },
+      "maximum_expanded_nodes": 465036,
+      "maximum_rss_kib": 348552,
+      "parity_mismatches": 0,
+      "premature_fire_count": 0,
+      "run_count": 2,
+      "runs": [
+        {
+          "decision_errors": [],
+          "first_fire_placement": 34,
+          "first_quality_fire_placement": 34,
+          "forecast_followthrough": [
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 1,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 2,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 3,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 4,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 5,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 6,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 7,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 8,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 9,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 10,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 11,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 12,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 13,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 14,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 15,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 16,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 17,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 18,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 19,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 20,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 21,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 22,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 23,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 24,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 25,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 26,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 27,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 28,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 29,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 30,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 31,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 32,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 33,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 34,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 35,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 36,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 37,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 38,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 39,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 40,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            }
+          ],
+          "fully_evaluated": true,
+          "game_over": false,
+          "internal_target_reached": true,
+          "maximum_actual_chain": 12,
+          "no_fire": false,
+          "observed_maximum_actual_chain": 12,
+          "observed_no_fire": false,
+          "premature_fires": [],
+          "quality_floor_reached": true,
+          "repeat": 1,
+          "run_id": "target-12/seed-146-repeat-01",
+          "seed": 146,
+          "termination_reason": "turn_limit"
+        },
+        {
+          "decision_errors": [],
+          "first_fire_placement": 34,
+          "first_quality_fire_placement": 34,
+          "forecast_followthrough": [
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 1,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 2,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 3,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 4,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 5,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 6,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 7,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 8,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 9,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 10,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 11,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 12,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 13,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 14,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 15,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 16,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 17,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 18,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 19,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 20,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 21,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 22,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 23,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 24,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 25,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 26,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 27,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 28,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 29,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": true,
+              "placement": 30,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 12
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 31,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 32,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 33,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 12,
+              "horizon_complete": true,
+              "placement": 34,
+              "predicted_maximum": 12,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 35,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 36,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 37,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 38,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 39,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            },
+            {
+              "actual_maximum_in_plan_horizon": 0,
+              "horizon_complete": false,
+              "placement": 40,
+              "predicted_maximum": 0,
+              "predicted_minus_actual": 0
+            }
+          ],
+          "fully_evaluated": true,
+          "game_over": false,
+          "internal_target_reached": true,
+          "maximum_actual_chain": 12,
+          "no_fire": false,
+          "observed_maximum_actual_chain": 12,
+          "observed_no_fire": false,
+          "premature_fires": [],
+          "quality_floor_reached": true,
+          "repeat": 2,
+          "run_id": "target-12/seed-146-repeat-02",
+          "seed": 146,
+          "termination_reason": "turn_limit"
+        }
+      ],
+      "scenario_accounting": [
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            1,
+            2,
+            5,
+            4,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            0,
+            3,
+            4,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            3,
+            1,
+            5,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            3,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            1,
+            4,
+            0,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            3,
+            0,
+            2,
+            5,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            5,
+            2,
+            3,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            5,
+            3,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            1,
+            4,
+            3,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            5,
+            3,
+            4,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            3,
+            5,
+            4,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            5,
+            0,
+            3,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            1,
+            0,
+            3,
+            5,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            0,
+            3,
+            5,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            5,
+            4,
+            3,
+            0,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            5,
+            2,
+            4,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            0,
+            2,
+            1,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            3,
+            5,
+            1,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            0,
+            3,
+            5,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            1,
+            4,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            3,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            1,
+            5,
+            2,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            2,
+            1,
+            0,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            4,
+            1,
+            0,
+            2,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            2,
+            0,
+            1,
+            5,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            0,
+            4,
+            2,
+            1,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            4,
+            1,
+            0,
+            2,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            2,
+            1,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            1,
+            4,
+            2,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            2,
+            4,
+            1,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            4,
+            0,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 20
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            4,
+            5,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 16
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            4,
+            2,
+            0,
+            1,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 16
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            4,
+            3,
+            5,
+            2,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            4,
+            2,
+            1,
+            3,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            5,
+            3,
+            1,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            5,
+            3,
+            4,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            4,
+            1,
+            5,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            1,
+            2,
+            5,
+            4,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            0,
+            3,
+            4,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            3,
+            1,
+            5,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            3,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            1,
+            4,
+            0,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            3,
+            0,
+            2,
+            5,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            5,
+            2,
+            3,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            5,
+            3,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            1,
+            4,
+            3,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            5,
+            3,
+            4,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            3,
+            5,
+            4,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            5,
+            0,
+            3,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            1,
+            0,
+            3,
+            5,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            0,
+            3,
+            5,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            5,
+            4,
+            3,
+            0,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            1,
+            5,
+            2,
+            4,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            0,
+            2,
+            1,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            3,
+            5,
+            1,
+            0,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            2,
+            4,
+            0,
+            3,
+            5,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            1,
+            4,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            3,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            1,
+            5,
+            2,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            2,
+            1,
+            0,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            4,
+            1,
+            0,
+            2,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            2,
+            0,
+            1,
+            5,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            0,
+            4,
+            2,
+            1,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            5,
+            4,
+            1,
+            0,
+            2,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            5,
+            0,
+            2,
+            1,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            1,
+            4,
+            2,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            2,
+            4,
+            1,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 21
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            5,
+            4,
+            0,
+            2,
+            1
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 20
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            4,
+            5,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 16
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            4,
+            2,
+            0,
+            1,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 16
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            1,
+            4,
+            3,
+            5,
+            2,
+            0
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            4,
+            2,
+            1,
+            3,
+            5
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            2,
+            5,
+            3,
+            1,
+            4
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            0,
+            5,
+            3,
+            4,
+            1,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        },
+        {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            3,
+            0,
+            4,
+            1,
+            5,
+            2
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        }
+      ]
+    }
+  },
+  "ticket": "PUYO-238"
+}

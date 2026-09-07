@@ -1,0 +1,14 @@
+...........................E............................................
+======================================================================
+ERROR: test_seed146_decision22_materializes_in_both_execution_modes (tests.test_deep_chain_native_search.TestDeepChainNativeSearch.test_seed146_decision22_materializes_in_both_execution_modes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2/workspaces/dev/puyo_ai_dev_platform/tests/test_deep_chain_native_search.py", line 103, in test_seed146_decision22_materializes_in_both_execution_modes
+    self.assertEqual(actual.selected_action, first.selected_action)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'LongHorizonSearchResult' object has no attribute 'selected_action'
+
+----------------------------------------------------------------------
+Ran 72 tests in 110.165s
+
+FAILED (errors=1)
