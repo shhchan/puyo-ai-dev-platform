@@ -891,6 +891,10 @@ def materialize_native_chain_structure_result(
             raise InvalidNativeInputError(
                 "native fixed-width tie-break selected a different best candidate"
             )
+        if native_best != best:
+            raise InvalidNativeInputError(
+                "native scalar best attributes differ from the evidence candidate"
+            )
     quiescence = QuiescenceSummary(
         best=best,
         candidates=retained,

@@ -88,6 +88,26 @@ class TestDeepChainNativeSearch(unittest.TestCase):
             max_response_bytes=16 * 1024 * 1024,
         )
 
+    def test_seed146_decision22_materializes_in_both_execution_modes(self):
+        request = decode_request(bytes.fromhex(
+            (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()
+        ))
+        reference = None
+        for mode in ("oracle-1", "scenario-6"):
+            current = replace(request, execution_mode=mode)
+            first = self.backend.decide(current)
+            second = self.backend.decide(current)
+            self.assertEqual(first.deterministic_digest, second.deterministic_digest)
+            actual = materialize_native_long_horizon_result(first, current)
+            repeated = materialize_native_long_horizon_result(second, current)
+            self.assertEqual(actual.deterministic_digest, repeated.deterministic_digest)
+            self.assertEqual(actual.ranked_roots[0].root_action, first.selected_action)
+            if reference is None:
+                reference = actual
+            else:
+                self.assertEqual(actual.deterministic_digest, reference.deterministic_digest)
+                self.assertEqual(actual.ranked_roots, reference.ranked_roots)
+
     def test_frozen_corpus_matches_python_oracle_in_both_execution_modes(self):
         search_payload = self.corpus["search_case"]["config"]
         for case in self.corpus["cases"]:

@@ -1,0 +1,55 @@
+   Compiling puyo-deep-chain-native v0.4.0 (/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.69s
+     Running unittests src/lib.rs (native/deep_chain_native/target/debug/deps/_puyo_deep_chain_native-9f727ecd6f40ff8b)
+
+running 48 tests
+test chain_structure::tests::candidate_json_capacity_covers_largest_valid_identity ... ok
+test chain_structure::tests::candidate_tie_break_matches_python_canonical_sha256 ... ok
+test chain_structure::tests::candidate_tie_break_workspace_reuses_canonical_best ... ok
+test chain_structure::tests::action_features_use_parent_without_state_cache_pollution ... ok
+test chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing ... ok
+test chain_structure::tests::bit_parallel_compact_check_matches_exact_lane_scan ... ok
+test chain_structure::tests::hot_workspaces_stay_below_stack_probe_boundary ... ok
+test chain_structure::tests::empty_state_matches_python_zero_contract ... ok
+test chain_structure::tests::canonical_alias_keeps_strongest_evidence_and_matches_hot ... ok
+test chain_structure::tests::hot_and_evidence_paths_match_and_allocate_nothing ... ok
+test chain_structure::tests::one_key_trigger_matches_python_feature_contract ... ok
+test chain_structure::tests::packed_candidate_rank_matches_fieldwise_ordering ... ok
+test chain_structure::tests::placement_catalog_preserves_exhaustive_orbit_layout ... ok
+test chain_structure::tests::profile_hot_evaluator ... ignored, manual release-mode evaluator profile
+test chain_structure::tests::profiled_path_matches_hot_result_and_reports_exact_work ... ok
+test chain_structure::tests::trigger_frontier_cache_reuses_exact_board_work ... ok
+test chain_structure_batch::tests::schema_constants_are_versioned ... ok
+test compact::tests::adjacent_ojama_is_cleared_without_scoring ... ok
+test compact::tests::empty_legal_and_equal_pair_reduction_preserve_action_ids ... ok
+test compact::tests::fixed_hot_result_materializes_the_same_detailed_trace_summary ... ok
+test compact::tests::normal_hot_transition_performs_no_heap_allocation ... ok
+test compact::tests::one_chain_all_clear_matches_python_lifecycle ... ok
+test chain_structure::tests::bit_parallel_trigger_protection_matches_exact_property_corpus ... ok
+test compact::tests::permanent_ghost_blocks_up_input_above_empty_lower_rows ... ok
+test compact::tests::profile_quiet_transition_components ... ignored, manual release-only component profile
+test compact::tests::qa_profile_modes_preserve_semantics_and_publish_fixed_sizes ... ok
+test compact::tests::score_overflow_is_typed_and_does_not_wrap ... ok
+test compact::tests::search_key_requires_external_coordinates_and_exact_board ... ok
+test compact::tests::state_round_trip_and_derived_values_include_hidden_ojama ... ok
+test compact_batch::tests::deterministic_success_omits_timing_by_default ... ok
+test compact_batch::tests::invalid_action_returns_typed_error_with_record_index ... ok
+test compact_batch::tests::malformed_length_is_rejected_without_index ... ok
+test compact_batch::tests::score_overflow_returns_typed_error_instead_of_panicking ... ok
+test long_horizon::tests::preallocated_survivor_prune_performs_no_heap_allocation ... ok
+test long_horizon::tests::python_random_matches_cpython_getrandbits_choice_vectors ... ok
+test long_horizon::tests::rollout_seed_matches_locked_python_sha256_derivation ... ok
+test long_horizon::tests::transposition_table_resolves_collisions_with_full_identity ... ok
+test tests::guarded_boundary_catches_panics_as_internal_errors ... ok
+test tests::guarded_boundary_converts_malformed_input_to_error_envelope ... ok
+test tests::internal_error_is_stable_and_never_resource_exhausted ... ok
+test tests::state_validator_rejects_overlap_and_score_regression ... ok
+test chain_structure::tests::resolution_prefilter_and_remaining_bitsets_match_exact_property_corpus ... ok
+test chain_structure::tests::component_metadata_aggregation_matches_exact_property_corpus ... ok
+test compact::tests::poppable_prefilter_matches_reference_components ... ok
+test chain_structure::tests::frontier_search_matches_exhaustive_property_corpus ... ok
+test chain_structure::tests::incremental_resolution_matches_exact_property_corpus ... ok
+test chain_structure::tests::candidate_workspace_matches_full_digest_ordering_property_corpus ... ok
+test compact::tests::inserted_component_fast_path_matches_full_scanner ... ok
+
+test result: ok. 46 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.26s
