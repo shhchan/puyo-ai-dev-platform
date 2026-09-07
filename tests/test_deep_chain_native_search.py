@@ -9,9 +9,11 @@ from agents.chain_structure import load_chain_structure_config
 from agents.compact_search import CompactSearchState
 from agents.deep_chain_native import (
     NATIVE_MODULE_NAME,
+    InvalidNativeInputError,
     NativeDecisionRequest,
     NativeDeepChainBackend,
     NativeResourceExhaustedError,
+    decode_request,
 )
 from agents.deep_chain_native_search import materialize_native_long_horizon_result
 from agents.long_horizon_search import (
@@ -154,6 +156,51 @@ class TestDeepChainNativeSearch(unittest.TestCase):
                         for action, node in python.representatives.items()
                     },
                 )
+
+    def test_aggregate_ranking_failure_requests_match_all_roots_in_both_modes(self):
+        fixture = json.loads(
+            (ROOT / "tests/fixtures/aggregate_ranking_requests.json").read_text()
+        )
+        for case in fixture["cases"]:
+            original = decode_request(bytes.fromhex(case["request_hex"]))
+            targets = (6, 8, 10, 12) if case["seed"] == 151 else (case["target"],)
+            for target in targets:
+                previous = None
+                for mode in ("oracle-1", "scenario-6"):
+                    with self.subTest(seed=case["seed"], target=target, mode=mode):
+                        request = replace(
+                            original,
+                            search_config=replace(
+                                original.search_config, minimum_chain_count=target
+                            ),
+                            execution_mode=mode,
+                        )
+                        native = self.backend.decide(request)
+                        python = materialize_native_long_horizon_result(native, request)
+                        ranking = tuple(e.root_action for e in python.ranked_roots)
+                        self.assertEqual(ranking, native.ranked_root_actions)
+                        self.assertEqual(ranking[0], native.selected_action)
+                        if target == case["target"]:
+                            self.assertEqual(list(ranking), case["native_ranking"])
+                            self.assertEqual(ranking[0], case["native_selected_action"])
+                        evidence = (
+                            [e.to_dict() for e in python.ranked_roots],
+                            native.deterministic_digest,
+                            dict(native.counters),
+                        )
+                        if previous is not None:
+                            self.assertEqual(evidence, previous)
+                        previous = evidence
+                        # A wrong non-selected rank must still fail strict validation.
+                        corrupt = list(native.ranked_root_actions)
+                        corrupt[-2:] = reversed(corrupt[-2:])
+                        with self.assertRaisesRegex(
+                            InvalidNativeInputError, "aggregate ranking differs"
+                        ):
+                            materialize_native_long_horizon_result(
+                                replace(native, ranked_root_actions=tuple(corrupt)),
+                                request,
+                            )
 
     def test_parallel_coordinator_reruns_only_budget_crossing_scenario(self):
         config = LongHorizonSearchConfig(

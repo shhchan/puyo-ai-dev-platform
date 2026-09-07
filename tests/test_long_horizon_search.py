@@ -2,6 +2,7 @@ import json
 import math
 import unittest
 from collections import deque
+from dataclasses import replace
 from pathlib import Path
 
 from agents.beam_search import (
@@ -29,6 +30,8 @@ from agents.long_horizon_search import (
     ChainFireEvidence,
     LongHorizonSearchConfig,
     ScenarioRootEvidence,
+    _dispersion,
+    _ordered_sum,
     aggregate_expected_chain_evidence,
     build_scenario_sequences,
     classify_build_main_fire,
@@ -49,7 +52,6 @@ from src.core.constants import (
 from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 from src.core.puyo import Puyo
 from src.core.tsumo import PuyoSequence
-
 
 FIRE_FIXTURE_PATH = Path("tests/fixtures/build_main_fire_cases.json")
 FIRE_FIXTURE_COLORS = {
@@ -177,6 +179,43 @@ def _scenario_value(scenario_id, chain_count, chain_score):
 
 
 class TestLongHorizonSearch(unittest.TestCase):
+    def test_aggregation_uses_scenario_order_and_binary64_left_fold(self):
+        # Compensated summation gives 2.0; separately rounded additions give 1.0.
+        scores = (float(2**53), 1.0, -float(2**53), 1.0)
+        self.assertEqual(_ordered_sum(scores), 1.0)
+        self.assertEqual(_ordered_sum(()).hex(), "0x0.0p+0")
+        quiet = tuple(
+            replace(_scenario_value(i, 0, 0), survivor_evaluator_score=score)
+            for i, score in enumerate(scores)
+        )
+        terminal = tuple(
+            replace(
+                value := _scenario_value(i, 6, 100),
+                best_fire=replace(value.best_fire, terminal_score=score),
+            )
+            for i, score in enumerate(scores)
+        )
+        for values, expected in ((quiet, 0.25), (terminal, 1.0)):
+            for ordered in (values, tuple(reversed(values))):
+                with self.subTest(quiet=values is quiet, reversed=ordered != values):
+                    evidence = aggregate_expected_chain_evidence(
+                        3, ordered, requested_scenarios=6
+                    )
+                    self.assertEqual(evidence.candidate_value, expected)
+                    self.assertEqual(evidence.evaluated_scenarios, 4)
+                    self.assertEqual(evidence.coverage, 4 / 6)
+                    # An exactly tied value still reaches the lower-action tie-break.
+                    other = replace(evidence, root_action=4)
+                    self.assertGreater(evidence.ranking_key, other.ranking_key)
+
+    def test_dispersion_matches_native_binary64_vector(self):
+        self.assertEqual(_dispersion(()).hex(), "0x0.0p+0")
+        self.assertEqual(_dispersion((4.0,)).hex(), "0x0.0p+0")
+        self.assertEqual(
+            _dispersion((1.0, 2.0, 7.0, 13.0, 40.0, 61.0)).hex(),
+            "0x1.64a7f4816db8dp+4",
+        )
+
     def test_versioned_profiles_separate_runtime_and_quality_budgets(self):
         runtime = long_horizon_profile("runtime")
         smoke = long_horizon_profile(SMOKE_PROFILE)
