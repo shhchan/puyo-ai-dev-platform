@@ -1,0 +1,333 @@
+{
+  "status": "passed",
+  "passed": true,
+  "result_path": "docs/benchmarks/puyo-235-normal-window-qa/gui_normal_result.json.gz",
+  "replay_path": "docs/benchmarks/puyo-235-normal-window-qa/gui_normal_replay.json.gz",
+  "result_sha256": "98bab7f64ea12b4291064d27b6aec2253f6395fd08efcf63c166a5ec3c982cd3",
+  "replay_sha256": "6fd8f5db277ac1d9c21d9c719cb15bfe28fa0e8d4cebaa5934531ad33e26c10f",
+  "checks": [
+    {
+      "name": "result_schema",
+      "passed": true,
+      "actual": "puyo.gui_qa.v1",
+      "expected": "puyo.gui_qa.v1"
+    },
+    {
+      "name": "replay_schema",
+      "passed": true,
+      "actual": "puyo-realtime-match-v1",
+      "expected": "puyo-realtime-match-v1"
+    },
+    {
+      "name": "reference_native_profile",
+      "passed": true,
+      "actual": {
+        "profile": "reference",
+        "backend": "native"
+      },
+      "expected": {
+        "profile": "reference",
+        "backend": "native"
+      }
+    },
+    {
+      "name": "canonical_target",
+      "passed": true,
+      "actual": 10,
+      "expected": 10
+    },
+    {
+      "name": "native_without_fallback",
+      "passed": true,
+      "actual": {
+        "backend": "native",
+        "fallback": false
+      },
+      "expected": {
+        "backend": "native",
+        "fallback": false
+      }
+    },
+    {
+      "name": "plan_step_one_matches_action",
+      "passed": true,
+      "actual": {
+        "selected_action": 6,
+        "plan_step_one": 6
+      },
+      "expected": "equal"
+    },
+    {
+      "name": "policy_decision_history",
+      "passed": true,
+      "actual": {
+        "schema_version": "puyo.realtime_policy_decisions.v1",
+        "passed": true,
+        "errors": [],
+        "applied_decisions": 19,
+        "placement_plan_replacements": 18,
+        "duplicate_observation_queries": 0,
+        "controller_retries": 0,
+        "controller_stale_decisions": 0,
+        "records": [
+          {
+            "tick": 56,
+            "decision_id": "deep_chain_builder-decision-00000001",
+            "observation_digest": "ef4592b517e531b48034d3f37846661929586861ce2116441766689d4fd3b619",
+            "root_state_fingerprint": "73b38290ea9d0f50a114303e",
+            "plan_id": "e10cc08971dc58a7",
+            "replan_reason": "initial_plan",
+            "selected_action": 1,
+            "plan_step_one_action": 1,
+            "placement": 0,
+            "controller_request_tick": 0,
+            "controller_activation_tick": 56
+          },
+          {
+            "tick": 171,
+            "decision_id": "deep_chain_builder-decision-00000002",
+            "observation_digest": "33fc08ecfdea0a7de9d1f6c390774841a3f4f53916e0725efe4ba0700f61fadb",
+            "root_state_fingerprint": "97bc407116115f0e3fbbc451",
+            "plan_id": "d7a4c1dbd5a35ce0",
+            "replan_reason": "new_observation",
+            "selected_action": 19,
+            "plan_step_one_action": 19,
+            "placement": 1,
+            "controller_request_tick": 121,
+            "controller_activation_tick": 171
+          },
+          {
+            "tick": 294,
+            "decision_id": "deep_chain_builder-decision-00000003",
+            "observation_digest": "d3730454c25f0276cfe5a1be6ca133fb69483e3bbe4db8562a679a237b04a431",
+            "root_state_fingerprint": "b4e9064b5fd724c051cd7931",
+            "plan_id": "d259b3c2a81d8c67",
+            "replan_reason": "new_observation",
+            "selected_action": 18,
+            "plan_step_one_action": 18,
+            "placement": 2,
+            "controller_request_tick": 236,
+            "controller_activation_tick": 294
+          },
+          {
+            "tick": 414,
+            "decision_id": "deep_chain_builder-decision-00000004",
+            "observation_digest": "29562df7fa03568944a26ca93bde4ef9342b52eb6e93f4f93c9b3d8956c2b915",
+            "root_state_fingerprint": "0d7be1f1b7b1af13c7a62b7f",
+            "plan_id": "a7237c427e50088d",
+            "replan_reason": "new_observation",
+            "selected_action": 8,
+            "plan_step_one_action": 8,
+            "placement": 3,
+            "controller_request_tick": 359,
+            "controller_activation_tick": 414
+          },
+          {
+            "tick": 550,
+            "decision_id": "deep_chain_builder-decision-00000005",
+            "observation_digest": "83a8bda3ca070a012f4fa79d83f717c77cc2ebb15c51d5bc5c4d114003a9379a",
+            "root_state_fingerprint": "3cd1cda6b53e50f75cee4718",
+            "plan_id": "8827df43a20b181b",
+            "replan_reason": "new_observation",
+            "selected_action": 4,
+            "plan_step_one_action": 4,
+            "placement": 4,
+            "controller_request_tick": 483,
+            "controller_activation_tick": 550
+          },
+          {
+            "tick": 672,
+            "decision_id": "deep_chain_builder-decision-00000006",
+            "observation_digest": "27d53e121501e17e227a965d09209d23eac146bed087b138ca0be0dc8974c0f1",
+            "root_state_fingerprint": "d2251f4f16dd00d61c0a79de",
+            "plan_id": "19a21e0c10a735d8",
+            "replan_reason": "new_observation",
+            "selected_action": 12,
+            "plan_step_one_action": 12,
+            "placement": 5,
+            "controller_request_tick": 619,
+            "controller_activation_tick": 672
+          },
+          {
+            "tick": 802,
+            "decision_id": "deep_chain_builder-decision-00000007",
+            "observation_digest": "0f40e77e98705fe6767b2db518279973f82e9665bdce1081e45ebeec20cef55b",
+            "root_state_fingerprint": "4862be5bbd11669b31ef98f8",
+            "plan_id": "5afe44360acc2756",
+            "replan_reason": "new_observation",
+            "selected_action": 18,
+            "plan_step_one_action": 18,
+            "placement": 6,
+            "controller_request_tick": 741,
+            "controller_activation_tick": 802
+          },
+          {
+            "tick": 932,
+            "decision_id": "deep_chain_builder-decision-00000008",
+            "observation_digest": "add1a6cb6938b840626e546f60c397ad71ac5651dc51bf5780556ed968ee4547",
+            "root_state_fingerprint": "4df92ce070c5c9ee520dad17",
+            "plan_id": "e490a44e2d47db6b",
+            "replan_reason": "new_observation",
+            "selected_action": 1,
+            "plan_step_one_action": 1,
+            "placement": 7,
+            "controller_request_tick": 871,
+            "controller_activation_tick": 932
+          },
+          {
+            "tick": 1053,
+            "decision_id": "deep_chain_builder-decision-00000009",
+            "observation_digest": "6fd45a5738cd9778d0bfd1d38a1dfe562883b3f1985d312106f45bc0493640aa",
+            "root_state_fingerprint": "7df3bf7740e5afe62674783a",
+            "plan_id": "d535da823ca0e486",
+            "replan_reason": "new_observation",
+            "selected_action": 9,
+            "plan_step_one_action": 9,
+            "placement": 8,
+            "controller_request_tick": 997,
+            "controller_activation_tick": 1053
+          },
+          {
+            "tick": 1165,
+            "decision_id": "deep_chain_builder-decision-00000010",
+            "observation_digest": "98c534a6b4a8943e2bf62537b88b9336feb21d18c4e4ab32766c4548406c45fe",
+            "root_state_fingerprint": "a330b68ea4586f45ffbb1dfd",
+            "plan_id": "6702190c3ea2d31d",
+            "replan_reason": "new_observation",
+            "selected_action": 15,
+            "plan_step_one_action": 15,
+            "placement": 9,
+            "controller_request_tick": 1108,
+            "controller_activation_tick": 1165
+          },
+          {
+            "tick": 1275,
+            "decision_id": "deep_chain_builder-decision-00000011",
+            "observation_digest": "c1a8f79b4504bfb19b26ebcb495c4411fa364b7d3e2abb58939c71ca4b998a68",
+            "root_state_fingerprint": "88575857cc12c3a8df7cd70c",
+            "plan_id": "37a33446d70457e1",
+            "replan_reason": "new_observation",
+            "selected_action": 8,
+            "plan_step_one_action": 8,
+            "placement": 10,
+            "controller_request_tick": 1220,
+            "controller_activation_tick": 1275
+          },
+          {
+            "tick": 1382,
+            "decision_id": "deep_chain_builder-decision-00000012",
+            "observation_digest": "96a566f46496ae5f9f70f5b4fe2b594177238b490de2fa4ad9c98062217bea88",
+            "root_state_fingerprint": "21fc5ee2a9a9d8affe33bad4",
+            "plan_id": "0dfd6cf5825cc552",
+            "replan_reason": "new_observation",
+            "selected_action": 18,
+            "plan_step_one_action": 18,
+            "placement": 11,
+            "controller_request_tick": 1326,
+            "controller_activation_tick": 1382
+          },
+          {
+            "tick": 1498,
+            "decision_id": "deep_chain_builder-decision-00000013",
+            "observation_digest": "b60bdd48d229de88697c84e28b81bec37b2a7b1c7bee2f02f86d3bab2217a21c",
+            "root_state_fingerprint": "38e744141a6bcd32ef9542b5",
+            "plan_id": "cd52e0b9f7ef5df6",
+            "replan_reason": "new_observation",
+            "selected_action": 15,
+            "plan_step_one_action": 15,
+            "placement": 12,
+            "controller_request_tick": 1435,
+            "controller_activation_tick": 1498
+          },
+          {
+            "tick": 1600,
+            "decision_id": "deep_chain_builder-decision-00000014",
+            "observation_digest": "ee7767438f8ffb52138475742cde65e459123a81ea6de850cd4eb2aef53d8c17",
+            "root_state_fingerprint": "eccd83acf0b06c5ce831c38e",
+            "plan_id": "809c913e3e2de3ba",
+            "replan_reason": "new_observation",
+            "selected_action": 10,
+            "plan_step_one_action": 10,
+            "placement": 13,
+            "controller_request_tick": 1547,
+            "controller_activation_tick": 1600
+          },
+          {
+            "tick": 1723,
+            "decision_id": "deep_chain_builder-decision-00000015",
+            "observation_digest": "17d55b6ec570ddad25eafaad8cd96a575d164b39f94918992b5441ab930857b3",
+            "root_state_fingerprint": "e09adc30584514de3c29e82e",
+            "plan_id": "9e307d8e10992052",
+            "replan_reason": "new_observation",
+            "selected_action": 17,
+            "plan_step_one_action": 17,
+            "placement": 14,
+            "controller_request_tick": 1659,
+            "controller_activation_tick": 1723
+          },
+          {
+            "tick": 1824,
+            "decision_id": "deep_chain_builder-decision-00000016",
+            "observation_digest": "e541c8b242c52a275cf6d5b92fafd170eff3dccb0b8c8bc04017bf712ff24714",
+            "root_state_fingerprint": "d741ee4cf38a5ece1706dd07",
+            "plan_id": "609e5106a4ef58d2",
+            "replan_reason": "new_observation",
+            "selected_action": 5,
+            "plan_step_one_action": 5,
+            "placement": 15,
+            "controller_request_tick": 1770,
+            "controller_activation_tick": 1824
+          },
+          {
+            "tick": 1925,
+            "decision_id": "deep_chain_builder-decision-00000017",
+            "observation_digest": "6bec1b515173c42f94faa23182472dc4bc61d63cb45181f6338c3d37b14a9c4d",
+            "root_state_fingerprint": "624e76337ecd7f2f9b814959",
+            "plan_id": "dd7bf7d351621fc8",
+            "replan_reason": "new_observation",
+            "selected_action": 8,
+            "plan_step_one_action": 8,
+            "placement": 16,
+            "controller_request_tick": 1875,
+            "controller_activation_tick": 1925
+          },
+          {
+            "tick": 2029,
+            "decision_id": "deep_chain_builder-decision-00000018",
+            "observation_digest": "686f5cd714512b8f049542cf93b7e758a1f6a9a0a2a53aba97af87a6d09507a9",
+            "root_state_fingerprint": "6cfbe6bc1fcb8ce0c3ccc263",
+            "plan_id": "8eea5f883134b2c8",
+            "replan_reason": "new_observation",
+            "selected_action": 10,
+            "plan_step_one_action": 10,
+            "placement": 17,
+            "controller_request_tick": 1980,
+            "controller_activation_tick": 2029
+          },
+          {
+            "tick": 2125,
+            "decision_id": "deep_chain_builder-decision-00000019",
+            "observation_digest": "c68908d8050e476e1e55d73bf0b62e9eee208aeee458af978f3c4c4d9427674b",
+            "root_state_fingerprint": "7617711a61e7fd0167ffe7ee",
+            "plan_id": "87a781647ae2389f",
+            "replan_reason": "new_observation",
+            "selected_action": 6,
+            "plan_step_one_action": 6,
+            "placement": 18,
+            "controller_request_tick": 2082,
+            "controller_activation_tick": 2125
+          }
+        ]
+      },
+      "expected": "at least 3 applied decisions and 2 observation-bound plan replacements"
+    }
+  ],
+  "presentation_state": {
+    "final_overlay_enabled": false,
+    "human_overlay_round_trip_status": "pending"
+  },
+  "schema_version": "puyo.deep_chain_builder.normal_window_replay_qa.v1",
+  "ticket": "PUYO-235",
+  "expected_target_chain_count": 10,
+  "scope": "Automatic replay contract only. Unlike the unattended dummy run, final overlay visibility is informational in an interactive run. Human visibility/round-trip results remain separate and pending."
+}

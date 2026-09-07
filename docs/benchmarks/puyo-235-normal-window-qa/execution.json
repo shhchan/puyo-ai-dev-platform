@@ -1,0 +1,79 @@
+{
+  "schema_version": "puyo.deep_chain_builder.normal_window_execution.v1",
+  "ticket": "PUYO-235",
+  "recorded_at_utc": "2026-09-07T14:59:59.515416+00:00",
+  "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+  "evidence_tool_commit": "5a777c1bbed6a1046cf85020effd07c761dc97cd",
+  "integration_branch": "integration/puyo-113-v1-7-2",
+  "included_prs": {
+    "PUYO-230": 123,
+    "PUYO-232": 127,
+    "PUYO-237": 125,
+    "PUYO-238": 126
+  },
+  "runtime_worktree": "/tmp/puyo-235-build",
+  "source_sha256": {
+    "eval/realtime_versus_ui.py": "5332a8bb751a4839e295e3e5aeb511688fbd43c4320b1ceedb24e97147da84a3",
+    "src/ui/versus_renderer.py": "3ac8a8d0ba5f3007535ab549456c9530d2b20ce15a8fcac10aa9db9267501711",
+    "agents/deep_chain_builder.py": "99d3a5be8682c5d66ac282f92dbb9f801201a9e6445475178e7b1413506cf9b0",
+    "agents/deep_chain_native.py": "5ebb00781cb57c3804deaa89954e79dc16d5913eea75189f2465ddd653c4d2b3",
+    "agents/deep_chain_native_search.py": "02a8b38194ced0bb5cd6af9fdb4be77275afe5fe57403596f926196e71af9f21",
+    "agents/deep_chain_native_evaluator.py": "389c000c7673eb154dcc0471194dad81695fd0dbc98a5c95abc1ef3e266c3d03",
+    "agents/long_horizon_search.py": "a844113de7ff186b2f4ed2fcaf6ef6049ac727b3286da157389579cc78d2292c",
+    "puyo_env/realtime_ai.py": "7f21edd18019902c573cdce4e6f924da7323fb5ce591543ba308bb49ab893333",
+    "train/config/deep_chain_builder.yaml": "77e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a",
+    "train/config/deep_chain_backend.yaml": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5"
+  },
+  "configuration": {
+    "seed": 187,
+    "policy_a": "deep_chain_builder",
+    "policy_b": "random",
+    "profile": "reference",
+    "backend": "native",
+    "target_chain_count": 10,
+    "depth": 16,
+    "width": 250,
+    "scenarios": 6,
+    "node_cap": 600000,
+    "thread_mode": "scenario-6",
+    "fallback_allowed": false
+  },
+  "automated": {
+    "command": ".venv/bin/python -m unittest tests.test_deep_chain_gui_qa tests.test_deep_chain_builder_benchmark tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_launcher",
+    "test_count": 92,
+    "passed": true,
+    "log": "automated_tests.log"
+  },
+  "dummy": {
+    "run_id": "puyo-235-seed-187-dummy-01",
+    "speed": 4,
+    "max_frames": 240,
+    "result": "gui_dummy_result.json.gz",
+    "replay": "gui_dummy_replay.json.gz",
+    "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy /home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 10 --seed 187 --speed 4 --max-frames 240 --result-json /tmp/puyo-235-gui-dummy-result.json --replay /tmp/puyo-235-gui-dummy-replay.json"
+  },
+  "normal_window": {
+    "run_id": "puyo-235-seed-187-normal-01",
+    "speed": 1,
+    "start_paused": true,
+    "display": ":0",
+    "wayland_display": "wayland-0",
+    "driver_evidence": "X11 window 0x600002 detected by xwininfo; Weston WM",
+    "window_title": "Puyo AI Realtime Versus",
+    "window_size": [
+      1120,
+      780
+    ],
+    "result_pending_path": "/tmp/puyo-235-gui-normal-result.json",
+    "replay_pending_path": "/tmp/puyo-235-gui-normal-replay.json",
+    "human_status": "pending",
+    "command": "env -u SDL_VIDEODRIVER -u SDL_AUDIODRIVER /home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 10 --seed 187 --speed 1 --start-paused --result-json /tmp/puyo-235-gui-normal-result.json --replay /tmp/puyo-235-gui-normal-replay.json --qa-notes 'PUYO-235 normal-window human QA; candidate c1267a9d70c09c8257f4fe2546d3daee3b4424eb; reference/native/target10/seed187'",
+    "result": "gui_normal_result.json.gz",
+    "replay": "gui_normal_replay.json.gz",
+    "replay_validation": "normal_replay_qa.json",
+    "process_exit_code": 0,
+    "recorded_at_utc": "2026-09-07T15:01:24.373411+00:00"
+  },
+  "revalidation": "PUYO-236 must compare commit/build/config and rerun affected human checks after GUI, plan, search or adopted PUYO-233 changes.",
+  "build_command": "PUYO_NATIVE_PYTHON=/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/bin/python CARGO_TARGET_DIR=/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/target /tmp/puyo-235-build/scripts/build_deep_chain_native.sh"
+}

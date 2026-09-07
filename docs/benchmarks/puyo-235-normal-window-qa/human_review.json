@@ -1,0 +1,60 @@
+{
+  "schema_version": "puyo.deep_chain_builder.normal_window_human_review.v1",
+  "ticket": "PUYO-235",
+  "run_id": "puyo-235-seed-187-normal-01",
+  "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+  "status": "pending",
+  "reviewer": null,
+  "observed_at": null,
+  "reported_at_utc": null,
+  "display_conditions": null,
+  "result": {
+    "path": "gui_normal_result.json.gz",
+    "sha256": "98bab7f64ea12b4291064d27b6aec2253f6395fd08efcf63c166a5ec3c982cd3"
+  },
+  "replay": {
+    "path": "gui_normal_replay.json.gz",
+    "sha256": "6fd8f5db277ac1d9c21d9c719cb15bfe28fa0e8d4cebaa5934531ad33e26c10f"
+  },
+  "checks": [
+    {
+      "id": "ghost_action",
+      "description": "先頭ghostと実際の選択・実行手が一致する",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "diagnostics_readability",
+      "description": "選択理由/backend/target/node/timingが読める",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "plan_replacement",
+      "description": "3 decision以上を観察し、次decisionで古いghostが置換される",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "overlay_toggle",
+      "description": "Pで停止した同一decisionでOをOFF/ONすると同じaction/planが戻る",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "input_render_response",
+      "description": "Pで再開後も入力・描画・UI応答が継続する",
+      "status": "pending",
+      "evidence": null
+    },
+    {
+      "id": "replay_correspondence",
+      "description": "画面で観察したrunとreference/native/target10/fallback=falseのreplayが対応する",
+      "status": "pending",
+      "evidence": null
+    }
+  ],
+  "source_response": null,
+  "blocking_ticket": "PUYO-236",
+  "notes": "Awaiting the human observer; automated tests, X11 window existence and dummy evidence do not mark these checks passed."
+}

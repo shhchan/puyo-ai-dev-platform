@@ -1,0 +1,250 @@
+{
+  "automated": {
+    "command": ".venv/bin/python -m unittest tests.test_deep_chain_gui_qa tests.test_deep_chain_builder_benchmark tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_launcher",
+    "notes": "92 automated tests and target10 dummy replay passed. Normal-window human observation is pending; see human_review.json and execution.json.",
+    "passed": true,
+    "status": "passed"
+  },
+  "dummy_replay": {
+    "checks": [
+      {
+        "actual": "puyo.gui_qa.v1",
+        "expected": "puyo.gui_qa.v1",
+        "name": "result_schema",
+        "passed": true
+      },
+      {
+        "actual": "puyo-realtime-match-v1",
+        "expected": "puyo-realtime-match-v1",
+        "name": "replay_schema",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "expected": {
+          "backend": "native",
+          "profile": "reference"
+        },
+        "name": "reference_native_profile",
+        "passed": true
+      },
+      {
+        "actual": 10,
+        "expected": 10,
+        "name": "canonical_target",
+        "passed": true
+      },
+      {
+        "actual": {
+          "backend": "native",
+          "fallback": false
+        },
+        "expected": {
+          "backend": "native",
+          "fallback": false
+        },
+        "name": "native_without_fallback",
+        "passed": true
+      },
+      {
+        "actual": {
+          "plan_step_one": 7,
+          "selected_action": 7
+        },
+        "expected": "equal",
+        "name": "plan_step_one_matches_action",
+        "passed": true
+      },
+      {
+        "actual": {
+          "applied_decisions": 10,
+          "controller_retries": 0,
+          "controller_stale_decisions": 0,
+          "duplicate_observation_queries": 0,
+          "errors": [],
+          "passed": true,
+          "placement_plan_replacements": 9,
+          "records": [
+            {
+              "controller_activation_tick": 132,
+              "controller_request_tick": 0,
+              "decision_id": "deep_chain_builder-decision-00000001",
+              "observation_digest": "ef4592b517e531b48034d3f37846661929586861ce2116441766689d4fd3b619",
+              "placement": 0,
+              "plan_id": "e10cc08971dc58a7",
+              "plan_step_one_action": 1,
+              "replan_reason": "initial_plan",
+              "root_state_fingerprint": "73b38290ea9d0f50a114303e",
+              "selected_action": 1,
+              "tick": 132
+            },
+            {
+              "controller_activation_tick": 343,
+              "controller_request_tick": 197,
+              "decision_id": "deep_chain_builder-decision-00000002",
+              "observation_digest": "8a44e296756d1389189ac3a6613253ed9544cbafa653c2ad277afe0b7f38595b",
+              "placement": 1,
+              "plan_id": "dfc1a32d37be837c",
+              "plan_step_one_action": 15,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "97bc407116115f0e3fbbc451",
+              "selected_action": 15,
+              "tick": 343
+            },
+            {
+              "controller_activation_tick": 564,
+              "controller_request_tick": 404,
+              "decision_id": "deep_chain_builder-decision-00000003",
+              "observation_digest": "0d11f3d46a2494a690386a9f0129b31f7499d8f2be6a452590b1e438dfeae3ca",
+              "placement": 2,
+              "plan_id": "7772286045b24070",
+              "plan_step_one_action": 9,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "4ab33308081ba0baab3477f4",
+              "selected_action": 9,
+              "tick": 564
+            },
+            {
+              "controller_activation_tick": 795,
+              "controller_request_tick": 625,
+              "decision_id": "deep_chain_builder-decision-00000004",
+              "observation_digest": "ac193c6a474bf8c5d840b7c3b3c78f3b0757a2d748a9b6a7b78f29770379155f",
+              "placement": 3,
+              "plan_id": "a42405cab0cd7d61",
+              "plan_step_one_action": 11,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "f97846d0e910c9fa3e4dc4c3",
+              "selected_action": 11,
+              "tick": 795
+            },
+            {
+              "controller_activation_tick": 1022,
+              "controller_request_tick": 856,
+              "decision_id": "deep_chain_builder-decision-00000005",
+              "observation_digest": "3cf5dae19b6ead35f0db2a188875b24b27136649c277b5ad2cfd5ffe2329aceb",
+              "placement": 4,
+              "plan_id": "a48a9a031d8a762e",
+              "plan_step_one_action": 3,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "b1d56a822d285618b6f34f54",
+              "selected_action": 3,
+              "tick": 1022
+            },
+            {
+              "controller_activation_tick": 1205,
+              "controller_request_tick": 1077,
+              "decision_id": "deep_chain_builder-decision-00000006",
+              "observation_digest": "155de55ba099eaae1a948cda2b3ef826d25e076dd0cd3338ad08296b10bd6fd9",
+              "placement": 5,
+              "plan_id": "c7de80a650bbc935",
+              "plan_step_one_action": 15,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "df94e3e041320b8d842891bd",
+              "selected_action": 15,
+              "tick": 1205
+            },
+            {
+              "controller_activation_tick": 1416,
+              "controller_request_tick": 1260,
+              "decision_id": "deep_chain_builder-decision-00000007",
+              "observation_digest": "191cb15a096e60af4cb60a48266853672609e8133bb822f64921d150547f1a1a",
+              "placement": 6,
+              "plan_id": "18fcf810137b0b43",
+              "plan_step_one_action": 14,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "45ec60f261eddeec171d9a35",
+              "selected_action": 14,
+              "tick": 1416
+            },
+            {
+              "controller_activation_tick": 1620,
+              "controller_request_tick": 1473,
+              "decision_id": "deep_chain_builder-decision-00000008",
+              "observation_digest": "053683d55d4ddab2051abbdd3aa85a9e1f13a0e9d202ba3952f33917e27edf3f",
+              "placement": 7,
+              "plan_id": "f5705efff80bc087",
+              "plan_step_one_action": 0,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "b22d6554df89d469c4d0a0d6",
+              "selected_action": 0,
+              "tick": 1620
+            },
+            {
+              "controller_activation_tick": 1826,
+              "controller_request_tick": 1679,
+              "decision_id": "deep_chain_builder-decision-00000009",
+              "observation_digest": "acdb311c4f2e5698e6da1559f6d1f3b8b68ab940ab091a797e1e0255cf8fb05d",
+              "placement": 8,
+              "plan_id": "892d31be3b7c828c",
+              "plan_step_one_action": 21,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "f240b76bbe2cd1d8363a83c1",
+              "selected_action": 21,
+              "tick": 1826
+            },
+            {
+              "controller_activation_tick": 2044,
+              "controller_request_tick": 1889,
+              "decision_id": "deep_chain_builder-decision-00000010",
+              "observation_digest": "4a43eb8c55e6a8fcf95f350108a6c7ee5c4401a1fe0245097aeefe0e42e25a95",
+              "placement": 9,
+              "plan_id": "15cef6a42fa9f01a",
+              "plan_step_one_action": 7,
+              "replan_reason": "new_observation",
+              "root_state_fingerprint": "1a4636933d94e1c422a7f144",
+              "selected_action": 7,
+              "tick": 2044
+            }
+          ],
+          "schema_version": "puyo.realtime_policy_decisions.v1"
+        },
+        "expected": "at least 3 applied decisions and 2 observation-bound plan replacements",
+        "name": "policy_decision_history",
+        "passed": true
+      },
+      {
+        "actual": true,
+        "expected": true,
+        "name": "plan_overlay_enabled",
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "replay_path": "docs/benchmarks/puyo-235-normal-window-qa/gui_dummy_replay.json.gz",
+    "replay_sha256": "6c82335cd1924ceddc2d485920c0a349f6c6195f29ed4f613d27df6a4b2cbe1a",
+    "result_path": "docs/benchmarks/puyo-235-normal-window-qa/gui_dummy_result.json.gz",
+    "result_sha256": "61b2ef9248294f7d798a8657263547a23b0b2ca92574c0e1b0e664b2de3f806d",
+    "status": "passed"
+  },
+  "expected_target_chain_count": 10,
+  "manual": {
+    "checks": [
+      {
+        "name": "n_turn_ghost_matches_selected_action",
+        "passed": null
+      },
+      {
+        "name": "selection_reason_and_decision_trace_visible",
+        "passed": null
+      },
+      {
+        "name": "replan_replaces_stale_ghosts",
+        "passed": null
+      },
+      {
+        "name": "overlay_toggle_preserves_policy_decision",
+        "passed": null
+      }
+    ],
+    "notes": "92 automated tests and target10 dummy replay passed. Normal-window human observation is pending; see human_review.json and execution.json.",
+    "reviewer": null,
+    "status": "pending"
+  },
+  "passed": false,
+  "recorded_at_utc": "2026-09-07T14:59:59Z",
+  "schema_version": "puyo.deep_chain_builder.gui_qa.v3",
+  "ticket": "PUYO-235"
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": "puyo.deep_chain_builder.gui_artifact_manifest.v1",
+  "ticket": "PUYO-235",
+  "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+  "recorded_at_utc": "2026-09-07T15:04:48.674580+00:00",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "6a42d63e8b3633bcb69b368591807668d6e50aa0e39c85d1e02a8ff6eb410e64",
+      "bytes": 3285
+    },
+    {
+      "path": "automated_tests.log",
+      "sha256": "aede267fc63d88c7bbc7aa84bee3c2756e39613362dde125f9e5d4f3d8d3af8d",
+      "bytes": 1416
+    },
+    {
+      "path": "build_provenance.json",
+      "sha256": "78341e46168d6086afca6ef7d5e6d6f49b471eb131bd73a0cf39580366806d1c",
+      "bytes": 2982
+    },
+    {
+      "path": "execution.json",
+      "sha256": "f84d5e35fc18488bf31f142449b4f1174b2f9b04aa1e2aed563c70e0a9a4abb1",
+      "bytes": 4504
+    },
+    {
+      "path": "gui_dummy_replay.json.gz",
+      "sha256": "6c82335cd1924ceddc2d485920c0a349f6c6195f29ed4f613d27df6a4b2cbe1a",
+      "bytes": 3275925
+    },
+    {
+      "path": "gui_dummy_result.json.gz",
+      "sha256": "61b2ef9248294f7d798a8657263547a23b0b2ca92574c0e1b0e664b2de3f806d",
+      "bytes": 156910
+    },
+    {
+      "path": "gui_normal_replay.json.gz",
+      "sha256": "6fd8f5db277ac1d9c21d9c719cb15bfe28fa0e8d4cebaa5934531ad33e26c10f",
+      "bytes": 5944168
+    },
+    {
+      "path": "gui_normal_result.json.gz",
+      "sha256": "98bab7f64ea12b4291064d27b6aec2253f6395fd08efcf63c166a5ec3c982cd3",
+      "bytes": 143703
+    },
+    {
+      "path": "gui_qa.json",
+      "sha256": "59f7cc33c036e601d4aa6dd248f13cbf83cba1eec916a881ff67c1d316cf6592",
+      "bytes": 9493
+    },
+    {
+      "path": "human_review.json",
+      "sha256": "f19ea80480d9a770d410eaf6551962e889380af33f93045bafc8ca1b5f4bebd9",
+      "bytes": 1967
+    },
+    {
+      "path": "native_build.log",
+      "sha256": "6707700c6bbbc1c1e1def91b37eb412ef56ba5030afebf72817787e4bd857385",
+      "bytes": 2059
+    },
+    {
+      "path": "normal_replay_qa.json",
+      "sha256": "f8ac05b9c9ab55e8bf7d4ca603e6dd20be5df8a1c8565a21a5aa938a4733d06b",
+      "bytes": 13305
+    }
+  ]
+}
