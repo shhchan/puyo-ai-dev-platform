@@ -1,7 +1,7 @@
 {
   "automated": {
     "command": ".venv/bin/python -m unittest tests.test_deep_chain_gui_qa tests.test_deep_chain_builder_benchmark tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_launcher",
-    "notes": "92 automated tests and target10 dummy replay passed. Normal-window human observation is pending; see human_review.json and execution.json.",
+    "notes": "92 automated tests and target10 dummy replay passed. Human observations are recorded separately in human_review.json.",
     "passed": true,
     "status": "passed"
   },
@@ -228,7 +228,7 @@
       },
       {
         "name": "selection_reason_and_decision_trace_visible",
-        "passed": null
+        "passed": true
       },
       {
         "name": "replan_replaces_stale_ghosts",
@@ -236,17 +236,19 @@
       },
       {
         "name": "overlay_toggle_preserves_policy_decision",
-        "passed": null
+        "passed": true
       }
     ],
-    "notes": "ghost/配置一致と再計画後の配置を確認した自然文の観察報告を受領。診断文字・O往復・再開後応答は追加回答待ち。全体はpendingを維持。 詳細はhuman_review.json。",
+    "notes": "2026-09-08のghost/配置一致・再計画後の配置の観察報告と、2026-09-09の残る3項目の追加回答を受領し、全確認項目をpassedとした。別件の窒息時の連鎖打切りはPUYO-239でBacklog管理。 詳細はhuman_review.json。",
     "reviewer": "ユーザー（本会話の報告者）",
-    "status": "pending",
+    "status": "passed",
     "reported_at_utc": "2026-09-07T22:26:25.651955+00:00",
-    "evidence_path": "human_review.json"
+    "evidence_path": "human_review.json",
+    "review_completed_at_utc": "2026-09-08T23:52:02.817777+00:00"
   },
-  "passed": false,
+  "passed": true,
   "recorded_at_utc": "2026-09-07T14:59:59Z",
   "schema_version": "puyo.deep_chain_builder.gui_qa.v3",
-  "ticket": "PUYO-235"
+  "ticket": "PUYO-235",
+  "updated_at_utc": "2026-09-08T23:52:02.817777+00:00"
 }

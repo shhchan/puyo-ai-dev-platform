@@ -3,7 +3,7 @@
   "ticket": "PUYO-235",
   "run_id": "puyo-235-seed-187-normal-01",
   "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
-  "status": "pending",
+  "status": "passed",
   "reviewer": "ユーザー（本会話の報告者）",
   "observed_at": null,
   "reported_at_utc": "2026-09-07T22:26:25.651955+00:00",
@@ -29,8 +29,8 @@
     {
       "id": "diagnostics_readability",
       "description": "選択理由/backend/target/node/timingが読める",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
     },
     {
       "id": "plan_replacement",
@@ -41,14 +41,14 @@
     {
       "id": "overlay_toggle",
       "description": "Pで停止した同一decisionでOをOFF/ONすると同じaction/planが戻る",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
     },
     {
       "id": "input_render_response",
       "description": "Pで再開後も入力・描画・UI応答が継続する",
-      "status": "pending",
-      "evidence": null
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
     },
     {
       "id": "replay_correspondence",
@@ -59,7 +59,7 @@
   ],
   "source_response": "人間の観察記録をどのようにっ耐えたらいいのか分かりませんが，動作を見てみて良さそうな感じはしています．\nN 手先のゴースト表示に対して配置できており，再計画後のところにきちんと設置できているように見えました．",
   "blocking_ticket": "PUYO-236",
-  "notes": "ghost/配置一致と再計画後の配置を確認した自然文の観察報告を受領。診断文字・O往復・再開後応答は追加回答待ち。全体はpendingを維持。",
+  "notes": "2026-09-08のghost/配置一致・再計画後の配置の観察報告と、2026-09-09の残る3項目の追加回答を受領し、全確認項目をpassedとした。別件の窒息時の連鎖打切りはPUYO-239でBacklog管理。",
   "observed_at_context": "PUYO-235通常画面runへの回答として2026-09-08に受領。正確な観察時刻は未申告。",
   "reported_bugs": [
     {
@@ -67,5 +67,17 @@
       "url": "https://shhchan.atlassian.net/browse/PUYO-239",
       "scope": "片側窒息時に相手の連鎖完了を待たず終了する別件。ユーザー指定でBacklog。"
     }
-  ]
+  ],
+  "additional_responses": [
+    {
+      "received_at_utc": "2026-09-08T23:52:02.817777+00:00",
+      "source_response": "診断文字の可読性・P停止中のO往復・P再開後の操作応答は追加回答待ちです。\nこれらもすべて問題なさそうであることを確認しましたので，チケット・PR の更新をお願いします．",
+      "confirmed_checks": [
+        "diagnostics_readability",
+        "overlay_toggle",
+        "input_render_response"
+      ]
+    }
+  ],
+  "review_completed_at_utc": "2026-09-08T23:52:02.817777+00:00"
 }

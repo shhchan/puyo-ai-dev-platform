@@ -324,10 +324,11 @@
   ],
   "presentation_state": {
     "final_overlay_enabled": false,
-    "human_overlay_round_trip_status": "pending"
+    "human_overlay_round_trip_status": "passed",
+    "human_evidence_path": "human_review.json"
   },
   "schema_version": "puyo.deep_chain_builder.normal_window_replay_qa.v1",
   "ticket": "PUYO-235",
   "expected_target_chain_count": 10,
-  "scope": "Automatic replay contract only. Unlike the unattended dummy run, final overlay visibility is informational in an interactive run. Human visibility/round-trip results remain separate and pending."
+  "scope": "Automatic replay contract only. Unlike the unattended dummy run, final overlay visibility is informational in an interactive run. Human visibility/round-trip results are recorded separately in human_review.json."
 }

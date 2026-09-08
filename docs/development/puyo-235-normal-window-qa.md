@@ -4,6 +4,9 @@
 正本は [証跡ディレクトリ](../benchmarks/puyo-235-normal-window-qa/README.md)。
 自動テスト・dummy 実行・通常画面の起動成功だけで、人間の確認項目を PASS にしない。
 
+2026-09-09 にユーザーから残る可読性・O往復・再開後応答の確認結果を受領し、
+通常画面の全確認項目と GUI 全体を PASS として記録した。
+
 ## 対象候補
 
 - 統合ブランチ: `integration/puyo-113-v1-7-2`
@@ -75,7 +78,8 @@ result のモデル設定と採用された全 decision の target を照合す�
   --automated-command ".venv/bin/python -m unittest tests.test_deep_chain_gui_qa tests.test_deep_chain_builder_benchmark tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_launcher" \
   --dummy-result docs/benchmarks/puyo-235-normal-window-qa/gui_dummy_result.json.gz \
   --dummy-replay docs/benchmarks/puyo-235-normal-window-qa/gui_dummy_replay.json.gz \
-  --manual-status pending --notes "人間の回答待ち。human_review.json を参照"
+  --manual-status passed --reviewer "ユーザー（本会話の報告者）" \
+  --notes "2026-09-09に全確認項目の観察結果を受領。human_review.json を参照"
 
 .venv/bin/python -m eval.deep_chain_builder_benchmark verify-gui-qa \
   --output-dir docs/benchmarks/puyo-235-normal-window-qa
@@ -83,7 +87,8 @@ result のモデル設定と採用された全 decision の target を照合す�
 
 通常画面の replay 自動検証は `normal_replay_qa.json` に分ける。
 これは人間による可読性・ghost・操作感の判定を代替しない。
-上記 record コマンドは結果を置換するので、人間の回答を記録した後は pending のまま再実行しない。
+上記 record コマンドは今回の受領済み観察結果に対応する記録例で、結果を置換する。
+別の run の人間 QA が未実施の場合は必ず pending とし、今回の PASS を転用しない。
 
 ## 人間の結果と後続評価
 
