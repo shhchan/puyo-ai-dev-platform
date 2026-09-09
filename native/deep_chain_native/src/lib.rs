@@ -121,7 +121,7 @@ const SCHEMA_IDENTITIES: [&str; 7] = [
     "puyo.placement_actions.v1",
     "puyo.compact_search_state.v1",
     "puyo.future_tsumo_sampling.v1",
-    "puyo.expected_chain_ranking.v2",
+    "puyo.expected_chain_ranking.v3",
     "puyo.build_main_terminal_score.v1",
     "puyo.deep_chain_builder.diagnostics.v1",
     "puyo.deep_chain_native.result.v1",

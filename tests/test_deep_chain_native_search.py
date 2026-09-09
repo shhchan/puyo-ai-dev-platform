@@ -20,6 +20,7 @@ from agents.long_horizon_search import (
     LongHorizonSearchConfig,
     run_compact_long_horizon_search,
 )
+from eval.puyo242_request_migration import migrate_frozen_request
 from src.core.constants import PuyoColor
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -157,9 +158,9 @@ class TestDeepChainNativeSearch(unittest.TestCase):
                                                  root.best_fire.fire_class == "target_fire" and root.best_fire.depth <= known)
 
     def test_seed146_decision22_materializes_in_both_execution_modes(self):
-        request = decode_request(bytes.fromhex(
+        request = decode_request(migrate_frozen_request(bytes.fromhex(
             (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()
-        ))
+        ))[0])
         reference = None
         for mode in ("oracle-1", "scenario-6"):
             current = replace(request, execution_mode=mode)
@@ -250,7 +251,7 @@ class TestDeepChainNativeSearch(unittest.TestCase):
             (ROOT / "tests/fixtures/aggregate_ranking_requests.json").read_text()
         )
         for case in fixture["cases"]:
-            original = decode_request(bytes.fromhex(case["request_hex"]))
+            original = decode_request(migrate_frozen_request(bytes.fromhex(case["request_hex"]))[0])
             targets = (6, 8, 10, 12) if case["seed"] == 151 else (case["target"],)
             for target in targets:
                 previous = None

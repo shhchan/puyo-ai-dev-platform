@@ -10,6 +10,8 @@ import time
 from dataclasses import asdict
 from pathlib import Path
 
+from puyo242_request_migration import migrate_frozen_request
+
 from agents.chain_structure import load_chain_structure_config
 from agents.deep_chain_native import NativeDeepChainBackend, decode_request
 from agents.deep_chain_native_search import materialize_native_long_horizon_result
@@ -173,7 +175,8 @@ def fixed(root, condition, repeat):
     requests = baseline._read_json(root / "fixed-inputs.json")
     samples = []
     for case in requests["cases"]:
-        request = decode_request(bytes.fromhex(case["request_hex"]))
+        migrated, migration = migrate_frozen_request(bytes.fromhex(case["request_hex"]))
+        request = decode_request(migrated)
         assert request.evaluator_config == config
         for label in ("first", "repeat"):
             start = time.perf_counter()
@@ -183,6 +186,7 @@ def fixed(root, condition, repeat):
             end = time.perf_counter()
             samples.append({
                 "seed": case["seed"], "turn": case["turn"], "label": label,
+                "request_migration": migration,
                 "elapsed_seconds": end - start, "materialization_seconds": end - middle,
                 "native_telemetry": dict(native.telemetry), "counters": result.counters.to_dict(),
                 "native_ranking": list(native.ranked_root_actions),
@@ -241,4 +245,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,5 +1,8 @@
+import hashlib
 import importlib
+import json
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from agents.compact_search import CompactSearchState
@@ -179,7 +182,14 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
         self.assertEqual(result["property_corpus"]["mismatch_count"], 0)
 
     def test_frozen_search_measures_one_transition_per_expanded_node(self):
-        result = measure_call_count_model()
+        fixture = Path("tests/fixtures/known_prefix_target_search_case.json")
+        current = json.loads(fixture.read_text())
+        source = Path(current["source"])
+        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), current["source_sha256"])
+        original = json.loads(source.read_text())["search_case"]
+        for name in ("state", "known_pairs", "config"):
+            self.assertEqual(current["search_case"][name], original[name])
+        result = measure_call_count_model(fixture)
 
         self.assertTrue(result["expected_search_matches"])
         self.assertTrue(result["assumption_600k_is_one_transition_each"])

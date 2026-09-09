@@ -35,10 +35,7 @@ from src.core.tsumo import PuyoSequence
 
 LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
-EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
-# The wire identity stays v2: existing depth/prefix fields suffice. The
-# materialized ranking identifies this experimental semantic refinement.
-KNOWN_PREFIX_TARGET_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v3"
+EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v3"
 SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
 FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
 FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
@@ -1006,7 +1003,7 @@ class ExpectedChainRootEvidence:
     quiet_support: int = 0
     target_not_reached_fire_count: int = 0
     root_survivor_quota: int = 1
-    ranking_rule_version: str = KNOWN_PREFIX_TARGET_RANKING_RULE_VERSION
+    ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
 
     @property

@@ -5,7 +5,7 @@ import struct
 import threading
 import time
 import unittest
-from dataclasses import fields
+from dataclasses import fields, replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -31,6 +31,7 @@ from agents.deep_chain_native import (
 )
 from agents.deep_chain_native_search import materialize_native_long_horizon_result
 from agents.long_horizon_search import LongHorizonSearchConfig
+from eval.puyo242_request_migration import migrate_frozen_request
 from src.core.constants import PuyoColor
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -311,7 +312,9 @@ class TestDeepChainNativePythonContract(NativeRequestFixture, unittest.TestCase)
                     "case_id": case["case_id"],
                     "request_id": request_id,
                     "request_bytes": len(encode_request(request)),
-                    "request_sha256": request_sha256(request),
+                    "request_sha256": hashlib.sha256(migrate_frozen_request(
+                        encode_request(request), target="puyo.expected_chain_ranking.v2"
+                    )[0]).hexdigest(),
                 }
             )
 
@@ -327,6 +330,18 @@ except (ImportError, OSError):
 
 @unittest.skipIf(NATIVE_MODULE is None, "release native extension is not installed")
 class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
+    def test_v2_ranking_request_and_nonroot_cursors_are_rejected(self):
+        request = self.make_request(self.corpus["cases"][0])
+        legacy, receipt = migrate_frozen_request(encode_request(request), target="puyo.expected_chain_ranking.v2")
+        self.assertTrue(receipt["root_known_pairs_search_evaluator_execution_bytes_unchanged"])
+        with self.assertRaises(IncompatibleSchemaError):
+            decode_request(legacy)
+        with self.assertRaises(IncompatibleSchemaError):
+            decode_response(NATIVE_MODULE.decide(legacy))
+        for changes in ({"pair_cursor": 1}, {"scenario_cursor": 1}):
+            with self.subTest(changes=changes), self.assertRaises(native_boundary.UnsupportedNativeConfigError):
+                self.backend.decide(replace(request, **changes))
+
     def setUp(self):
         self.backend = NativeDeepChainBackend(NATIVE_MODULE)
 
