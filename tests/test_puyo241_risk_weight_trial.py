@@ -12,6 +12,11 @@ from eval import puyo241_risk_weight_trial as trial
 from tests.test_chain_structure import _fixture_states
 from agents.deep_chain_search_backend import semantic_sha256
 
+try:
+    import _puyo_deep_chain_native as NATIVE_MODULE
+except (ImportError, OSError):
+    NATIVE_MODULE = None
+
 
 class TestRiskWeightTrial(unittest.TestCase):
     def test_only_prefixed_weight_and_version_change(self):
@@ -28,13 +33,12 @@ class TestRiskWeightTrial(unittest.TestCase):
         with self.assertRaises(ValueError):
             trial.evaluator_config("unprefixed")
 
+    @unittest.skipIf(NATIVE_MODULE is None, "release native extension is not installed")
     def test_adjusted_weight_full_evaluator_parity_and_fatal_floor(self):
-        import _puyo_deep_chain_native as native
-
         config = trial.evaluator_config("danger2")
         evaluator = ChainStructureEvaluator(config)
         states = _fixture_states()
-        batch = NativeChainStructureBatchClient(native).evaluate_batch(
+        batch = NativeChainStructureBatchClient(NATIVE_MODULE).evaluate_batch(
             [NativeChainStructureInput(state, target_chain_count=10) for state in states.values()], config,
         )
         saw_fatal = False
@@ -49,6 +53,7 @@ class TestRiskWeightTrial(unittest.TestCase):
                     self.assertEqual(expected.score, ChainStructureEvaluator().evaluate(state).score)
         self.assertTrue(saw_fatal)
 
+    @unittest.skipIf(NATIVE_MODULE is None, "release native extension is not installed")
     def test_real_native_request_receipt_and_diagnostics_use_injected_checksum(self):
         for condition in trial.CONDITIONS:
             with self.subTest(condition=condition):
