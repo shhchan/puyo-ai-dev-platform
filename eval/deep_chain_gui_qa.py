@@ -19,8 +19,12 @@ def _mapping(value: Any) -> Mapping[str, Any]:
 
 
 def validate_policy_decision_history(
-    replay: Mapping[str, Any], result: Mapping[str, Any], *, agent: str = "player_0"
+    replay: Mapping[str, Any], result: Mapping[str, Any], *, agent: str = "player_0",
+    expected_target_chain_count: int = 6,
 ) -> dict[str, Any]:
+    # Keep PUYO-230's historical target unless the caller locks a new contract.
+    if type(expected_target_chain_count) is not int or not 1 <= expected_target_chain_count <= 19:
+        raise ValueError("expected_target_chain_count must be an integer from 1 to 19")
     errors: list[str] = []
     records: list[dict[str, Any]] = []
     policy: Mapping[str, Any] = {}
@@ -110,7 +114,7 @@ def validate_policy_decision_history(
             and _mapping(policy.get("profile")).get("name") == "reference"
             and _mapping(policy.get("backend")).get("backend") == "native"
             and _mapping(policy.get("fallback")).get("used") is False
-            and policy.get("target_chain_count") == 6,
+            and policy.get("target_chain_count") == expected_target_chain_count,
             prefix + "noncanonical_policy_decision",
         )
         require(

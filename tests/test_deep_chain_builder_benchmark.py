@@ -249,6 +249,35 @@ class TestDeepChainBuilderBenchmark(unittest.TestCase):
                     manual_status="pending", reviewer=None, notes="",
                 )
 
+    def test_target_ten_gui_evidence_records_and_rechecks_its_explicit_contract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            result, replay = gui_evidence(target_chain_count=10)
+            result_path, replay_path = target / "result.json", target / "replay.json"
+            result_path.write_text(json.dumps(result), encoding="utf-8")
+            replay_path.write_text(json.dumps(replay), encoding="utf-8")
+            payload = record_gui_qa(
+                target, automated_passed=True, automated_command="unittest",
+                manual_status="pending", reviewer=None, notes="human review pending",
+                dummy_result_path=result_path, dummy_replay_path=replay_path,
+                expected_target_chain_count=10, ticket="PUYO-235",
+            )
+            self.assertEqual(payload["ticket"], "PUYO-235")
+            self.assertEqual(payload["expected_target_chain_count"], 10)
+            self.assertTrue(payload["dummy_replay"]["passed"])
+            self.assertFalse(payload["passed"])
+            self.assertEqual(verify_gui_evidence(target), [])
+            payload["expected_target_chain_count"] = 6
+            (target / "gui_qa.json").write_text(json.dumps(payload), encoding="utf-8")
+            self.assertTrue(verify_gui_evidence(target))
+
+        with self.assertRaisesRegex(ValueError, "separate output directory"):
+            record_gui_qa(
+                DEFAULT_GUI_QA_OUTPUT_DIR, automated_passed=True,
+                automated_command="unittest", manual_status="pending",
+                reviewer=None, notes="", expected_target_chain_count=10,
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

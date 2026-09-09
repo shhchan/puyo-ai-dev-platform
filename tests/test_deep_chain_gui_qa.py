@@ -6,7 +6,7 @@ from eval.deep_chain_gui_qa import validate_policy_decision_history
 from puyo_env.realtime_ai import POLICY_DECISION_REPLAY_SCHEMA_VERSION
 
 
-def gui_evidence():
+def gui_evidence(target_chain_count=6):
     """Three placements, sparse diagnostic ticks, and no controller recovery."""
     ticks = []
     for index in range(3):
@@ -20,7 +20,7 @@ def gui_evidence():
             "policy_id": "deep_chain_builder",
             "profile": {"name": "reference"},
             "backend": {"backend": "native"},
-            "target_chain_count": 6,
+            "target_chain_count": target_chain_count,
             "fallback": {"used": False},
             "decision_trace": {"decision_id": f"decision-{index}"},
             "decision_input": identity,
@@ -70,7 +70,7 @@ def gui_evidence():
         "models": {"player_0": {
             "deep_chain_profile": "reference",
             "deep_chain_backend": "native",
-            "deep_chain_target_chain": 6,
+            "deep_chain_target_chain": target_chain_count,
         }},
         "diagnostics": {
             "policy": {"player_0": copy.deepcopy(policy)},
@@ -87,6 +87,18 @@ def gui_evidence():
 
 
 class TestDeepChainGuiQa(unittest.TestCase):
+    def test_explicit_target_ten_rejects_historical_or_mixed_target_history(self):
+        result, replay = gui_evidence(target_chain_count=10)
+        self.assertTrue(validate_policy_decision_history(
+            replay, result, expected_target_chain_count=10,
+        )["passed"])
+        self.assertFalse(validate_policy_decision_history(replay, result)["passed"])
+        replay["ticks"][2]["policy_diagnostics"]["player_0"]["target_chain_count"] = 6
+        summary = validate_policy_decision_history(
+            replay, result, expected_target_chain_count=10,
+        )
+        self.assertIn("tick 11: noncanonical_policy_decision", summary["errors"])
+
     def test_normal_placements_pass_with_zero_retries_and_sparse_diagnostics(self):
         result, replay = gui_evidence()
         summary = validate_policy_decision_history(replay, result)
