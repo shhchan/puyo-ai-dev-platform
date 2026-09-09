@@ -1,0 +1,22 @@
+Requirement already satisfied: maturin==1.14.1 in ./.venv/lib/python3.12/site-packages (from maturin[zig]==1.14.1->-r requirements-native.txt (line 1)) (1.14.1)
+Requirement already satisfied: ziglang==0.15.2 in ./.venv/lib/python3.12/site-packages (from -r requirements-native.txt (line 2)) (0.15.2)
+🐍 Found CPython 3.12 at /home/sion2/workspaces/puyo-small-quality-20260909/puyo-240/.venv/bin/python
+🔗 Found pyo3 bindings
+📡 Using build options bindings from pyproject.toml
+🛠️ Using zig for cross-compiling to x86_64-unknown-linux-gnu
+   Compiling puyo-deep-chain-native v0.4.0 (/home/sion2/workspaces/puyo-small-quality-20260909/puyo-240/native/deep_chain_native)
+warning: linker stderr: ignoring deprecated linker optimization setting '1'
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `puyo-deep-chain-native` (lib) generated 1 warning
+    Finished `release` profile [optimized + debuginfo] target(s) in 13.38s
+📦 Built wheel for CPython 3.12 to /home/sion2/workspaces/puyo-small-quality-20260909/puyo-240/dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
+Processing ./dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
+Installing collected packages: puyo-deep-chain-native
+  Attempting uninstall: puyo-deep-chain-native
+    Found existing installation: puyo-deep-chain-native 0.4.0
+    Uninstalling puyo-deep-chain-native-0.4.0:
+      Successfully uninstalled puyo-deep-chain-native-0.4.0
+Successfully installed puyo-deep-chain-native-0.4.0
+e4956ac115bea4bd01e404f514e9baeca631eb3c2cc32def03e0adad3f381571  /home/sion2/workspaces/puyo-small-quality-20260909/puyo-240/dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl

@@ -1,0 +1,40 @@
+3ad2bcbf4db3ad170113fa27c1148ecf7c410af20318e044cce8381178f22744
+9592cd4b59a73a29b62ffeb3252ebcb0cf52cea523834c95e9aeb9d1266cb2f7
+{"condition": "baseline", "seed": 123, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 18.972618966989103}
+{"condition": "candidate2", "seed": 123, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 19.766987483002595}
+{"condition": "baseline", "seed": 123, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 20.535639267007355}
+{"condition": "candidate2", "seed": 123, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 20.833688480997807}
+{"condition": "baseline", "seed": 126, "repeat": 1, "maximum_chain": 2, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 20.13776394899469}
+{"condition": "candidate2", "seed": 126, "repeat": 1, "maximum_chain": 2, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 20.321054842992453}
+{"condition": "baseline", "seed": 126, "repeat": 2, "maximum_chain": 2, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 20.403758132000803}
+{"condition": "candidate2", "seed": 126, "repeat": 2, "maximum_chain": 2, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 20.11858361400664}
+{"condition": "baseline", "seed": 130, "repeat": 1, "maximum_chain": 3, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 19.49428515699401}
+{"condition": "candidate2", "seed": 130, "repeat": 1, "maximum_chain": 11, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 22.85422964100144}
+{"condition": "baseline", "seed": 130, "repeat": 2, "maximum_chain": 3, "premature": 1, "game_over": false, "termination": "turn_limit", "seconds": 19.384517195998342}
+{"condition": "candidate2", "seed": 130, "repeat": 2, "maximum_chain": 11, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 23.243447665998247}
+{"condition": "baseline", "seed": 133, "repeat": 1, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.195072410002467}
+{"condition": "candidate2", "seed": 133, "repeat": 1, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.11141478799982}
+{"condition": "baseline", "seed": 133, "repeat": 2, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.323209455003962}
+{"condition": "candidate2", "seed": 133, "repeat": 2, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.24593807499332}
+{"condition": "baseline", "seed": 135, "repeat": 1, "maximum_chain": 0, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 18.20639361499343}
+{"condition": "candidate2", "seed": 135, "repeat": 1, "maximum_chain": 0, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 18.099606272997335}
+{"condition": "baseline", "seed": 135, "repeat": 2, "maximum_chain": 0, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 18.21575731599296}
+{"condition": "candidate2", "seed": 135, "repeat": 2, "maximum_chain": 0, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 18.259636039991165}
+{"condition": "baseline", "seed": 138, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.674935096001718}
+{"condition": "candidate2", "seed": 138, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.587354386996594}
+{"condition": "baseline", "seed": 138, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.770042939999257}
+{"condition": "candidate2", "seed": 138, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.92221422199509}
+{"condition": "baseline", "seed": 147, "repeat": 1, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.196228171000257}
+{"condition": "candidate2", "seed": 147, "repeat": 1, "maximum_chain": 11, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.098530647999723}
+{"condition": "baseline", "seed": 147, "repeat": 2, "maximum_chain": 0, "premature": 0, "game_over": true, "termination": "game_over", "seconds": 19.04337618200225}
+{"condition": "candidate2", "seed": 147, "repeat": 2, "maximum_chain": 11, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 24.148140796998632}
+{"condition": "baseline", "seed": 151, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 23.89961385499919}
+{"condition": "candidate2", "seed": 151, "repeat": 1, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 23.69036739000876}
+{"condition": "baseline", "seed": 151, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 23.78926281898748}
+{"condition": "candidate2", "seed": 151, "repeat": 2, "maximum_chain": 10, "premature": 0, "game_over": false, "termination": "turn_limit", "seconds": 23.71692524800892}
+{"condition": "baseline", "fixed_repeat": 1, "private_matches": true}
+{"condition": "candidate2", "fixed_repeat": 1, "private_matches": true}
+{"condition": "baseline", "fixed_repeat": 2, "private_matches": true}
+{"condition": "candidate2", "fixed_repeat": 2, "private_matches": true}
+{"condition": "baseline", "fixed_repeat": 3, "private_matches": true}
+{"condition": "candidate2", "fixed_repeat": 3, "private_matches": true}

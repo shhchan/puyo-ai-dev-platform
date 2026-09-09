@@ -1,0 +1,16 @@
+...................F...................................................
+======================================================================
+FAIL: test_decide_executes_one_call_native_search_contract (tests.test_deep_chain_native.TestDeepChainNativeExtension.test_decide_executes_one_call_native_search_contract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2/workspaces/puyo-small-quality-20260909/puyo-240/tests/test_deep_chain_native.py", line 382, in test_decide_executes_one_call_native_search_contract
+    self.assertEqual(
+AssertionError: 'long-horizon-search-54e6574c124c3c8bac97c294' != 'long-horizon-search-de7a005aef42310f30c07a46'
+- long-horizon-search-54e6574c124c3c8bac97c294
++ long-horizon-search-de7a005aef42310f30c07a46
+
+
+----------------------------------------------------------------------
+Ran 71 tests in 119.811s
+
+FAILED (failures=1)
