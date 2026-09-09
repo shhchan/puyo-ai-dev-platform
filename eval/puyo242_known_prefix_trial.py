@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import resource
 import subprocess
 import time
@@ -29,6 +30,18 @@ CONTRACT = ablation.ExperimentContract(
     ticket="PUYO-242", schema="puyo.known_prefix_trial.v1", targets=(10,),
     canonical_safe_build=True,
 )
+
+
+def encode_ranking_key(values):
+    """Represent ordered +/-Infinity sentinels in strict JSON, rejecting NaN."""
+    result = []
+    for value in values:
+        if isinstance(value, float) and not math.isfinite(value):
+            if math.isnan(value):
+                raise ValueError("NaN is not a valid ranking sentinel")
+            value = "-Infinity" if value < 0 else "Infinity"
+        result.append(value)
+    return result
 
 
 def evaluator_config(condition):
@@ -200,7 +213,7 @@ def fixed(root, condition, repeat):
                 "native_digest": native.deterministic_digest,
                 "python_digest": result.deterministic_digest,
                 "evaluator_config_sha256": semantic_sha256(request.evaluator_config.to_dict()),
-                "roots": [dict(r.to_dict(), ranking_key=baseline._json_ready(r.ranking_key)) for r in result.ranked_roots],
+                "roots": [dict(r.to_dict(), ranking_key=encode_ranking_key(r.ranking_key)) for r in result.ranked_roots],
                 "representatives": {str(a): {"path": list(n.path), "state": n.state.to_bytes().hex()} for a, n in result.representatives.items()},
             })
     private = []
