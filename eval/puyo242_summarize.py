@@ -60,7 +60,7 @@ def summarize(root):
                 assert len(samples) == 3
                 assert samples[0]["semantic"] == samples[1]["semantic"] == samples[2]["semantic"]
                 assert all(not s["fallback"]["used"] and s["scenario_accounting"]["failure_count"] == 0 for s in samples)
-                assert all(s["backend"]["configuration"]["evaluator_config_sha256"] == manifest["effective_evaluator_config_sha256"] for s in samples)
+                assert all(s["backend"]["configuration"]["evaluator_config_sha256"] == manifest["common_configuration"]["configuration_sha256"]["train/config/v1_7_chain_structure.yaml"] for s in samples)
         summary["conditions"][condition] = {
             "evaluated_commit": manifest["build_provenance"]["evaluated_commit"],
             "runner": manifest["runner"], "manifest_sha256": manifest["manifest_sha256"],

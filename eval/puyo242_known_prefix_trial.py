@@ -39,6 +39,7 @@ def evaluator_config(condition):
 def policy_factory(condition, receipts):
     config = evaluator_config(condition)
     checksum = semantic_sha256(config.to_dict())
+    file_checksum = baseline.file_sha256(Path("train/config/v1_7_chain_structure.yaml"))
 
     def factory(seed, profile):
         policy = baseline._policy_factory(seed, profile, "native", 10)
@@ -47,7 +48,7 @@ def policy_factory(condition, receipts):
 
         def checked_search(request):
             assert request.evaluator_config == config
-            assert request.evaluator_config_sha256 == checksum
+            assert request.evaluator_config_sha256 == file_checksum
             assert (request.search_config.depth, request.search_config.width,
                     request.search_config.scenarios, request.search_config.max_expanded_nodes,
                     request.search_config.minimum_chain_count) == (16, 250, 6, 600000, 10)
@@ -63,6 +64,7 @@ def policy_factory(condition, receipts):
                 }),
                 "known_pair_count": len(request.known_pairs),
                 "evaluator_config_sha256": checksum,
+                "declared_evaluator_config_file_sha256": file_checksum,
                 "strict_all_root_parity_passed": True,
                 "ranked_root_actions": [r.root_action for r in result.ranked_roots],
                 "root_count": len(result.root_evidence),
@@ -132,7 +134,9 @@ def validate_evaluator(run, manifest):
     assert len(run["request_receipts"]) == len(records)
     for record, receipt in zip(records, run["request_receipts"], strict=True):
         config = record["search"]["backend"]["configuration"]
-        assert config["evaluator_config_sha256"] == checksum == receipt["evaluator_config_sha256"]
+        source_checksum = manifest["common_configuration"]["configuration_sha256"]["train/config/v1_7_chain_structure.yaml"]
+        assert config["evaluator_config_sha256"] == source_checksum == receipt["declared_evaluator_config_file_sha256"]
+        assert receipt["evaluator_config_sha256"] == checksum
         assert config["evaluator_config_version"] == manifest["effective_evaluator_config"]["weight_version"]
         assert receipt["strict_all_root_parity_passed"]
         assert receipt["root_count"] == record["selection"]["candidate_count"]
@@ -159,6 +163,8 @@ def worker(root, condition, seed, repeat):
     ablation.validate_run(run, identity, manifest, contract=CONTRACT)
     validate_evaluator(run, manifest)
     ablation.write_run(path, run)
+    if not run["fully_evaluated"]:
+        raise RuntimeError(f"Incomplete identity saved at {path}: {run['termination_reason']}")
     print(json.dumps({"condition": condition, "seed": seed, "repeat": repeat,
                       "maximum_chain": run["maximum_actual_fire_chain_count"],
                       "premature": run["premature_fire_count"], "game_over": run["game_over"],
