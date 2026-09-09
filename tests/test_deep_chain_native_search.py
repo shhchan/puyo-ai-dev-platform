@@ -131,6 +131,31 @@ class TestDeepChainNativeSearch(unittest.TestCase):
                             actual.evidence_by_action[case["action"]].ranking_key,
                         )
 
+    def test_short_public_prefix_matches_python_through_completed_suffix(self):
+        from tests.test_long_horizon_search import _fire_fixture_simulator
+
+        case = json.loads((ROOT / "tests/fixtures/build_main_fire_cases.json").read_text())["cases"][0]
+        state = CompactSearchState.from_simulator(_fire_fixture_simulator(case))
+        visible = _pairs([case["current_pair"], *case["next_pairs"]])
+        for known in (1, 2, 3):
+            for depth in (known, known + 1):
+                config = LongHorizonSearchConfig(
+                    depth=depth, width=4, scenarios=2, minimum_chain_count=1,
+                    max_expanded_nodes=200, decision_seed=123,
+                )
+                expected = run_compact_long_horizon_search(state, visible[:known], config)
+                for mode in ("oracle-1", "scenario-6"):
+                    with self.subTest(known=known, depth=depth, mode=mode):
+                        request = self.request(state=state, pairs=visible[:known], config=config, execution_mode=mode)
+                        actual = materialize_native_long_horizon_result(self.backend.decide(request), request)
+                        self.assertEqual(actual.deterministic_digest, expected.deterministic_digest)
+                        self.assertEqual(actual.ranked_roots, expected.ranked_roots)
+                        for root in actual.root_evidence:
+                            if root.best_fire is not None:
+                                self.assertEqual(root.best_fire.known_pair_count, known)
+                                self.assertEqual(root.best_fire.known_prefix_target,
+                                                 root.best_fire.fire_class == "target_fire" and root.best_fire.depth <= known)
+
     def test_seed146_decision22_materializes_in_both_execution_modes(self):
         request = decode_request(bytes.fromhex(
             (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()

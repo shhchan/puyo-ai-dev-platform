@@ -36,6 +36,9 @@ from src.core.tsumo import PuyoSequence
 LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
 EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
+# The wire identity stays v2: existing depth/prefix fields suffice. The
+# materialized ranking identifies this experimental semantic refinement.
+KNOWN_PREFIX_TARGET_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v3"
 SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
 FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
 FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
@@ -826,11 +829,18 @@ class ChainFireEvidence:
     terminal_score: float | None = None
     terminal_score_breakdown: Mapping[str, float] = field(default_factory=dict)
     terminal_evaluation: Mapping[str, Any] = field(default_factory=dict)
+    # Decision-relative public prefix; never the completed scenario length.
+    known_pair_count: int = 0
+
+    @property
+    def known_prefix_target(self) -> bool:
+        return self.fire_class == FIRE_CLASS_TARGET and self.depth <= self.known_pair_count
 
     @property
     def rank_key(self) -> tuple[Any, ...]:
         return (
             int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
+            int(self.known_prefix_target),
             (
                 float("-inf")
                 if self.terminal_score is None
@@ -996,7 +1006,7 @@ class ExpectedChainRootEvidence:
     quiet_support: int = 0
     target_not_reached_fire_count: int = 0
     root_survivor_quota: int = 1
-    ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
+    ranking_rule_version: str = KNOWN_PREFIX_TARGET_RANKING_RULE_VERSION
     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
 
     @property
@@ -1035,6 +1045,7 @@ class ExpectedChainRootEvidence:
             int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             float(self.coverage),
             class_support,
+            int(self.best_fire is not None and self.best_fire.known_prefix_target),
             float(self.candidate_value),
             int(self.chain_score_sum),
             int(self.chain_count_sum),
@@ -1316,6 +1327,7 @@ class _ScenarioTracker:
     terminal_fire_rule: str
     terminal_fire_chain_count: int
     root_survivor_quota: int
+    known_pair_count: int = 0
     evaluated: bool = False
     search_complete: bool = True
     reached_depth: int = 0
@@ -1372,6 +1384,7 @@ class _ScenarioTracker:
             terminal_score=float(terminal_score),
             terminal_score_breakdown=dict(terminal_score_breakdown),
             terminal_evaluation=details,
+            known_pair_count=self.known_pair_count,
         )
         self.fire_count += 1
         self.terminal_fire_count += int(terminal)
@@ -1918,6 +1931,7 @@ def _run_long_horizon_search(
                 terminal_fire_rule=config.terminal_fire_rule,
                 terminal_fire_chain_count=config.terminal_fire_chain_count,
                 root_survivor_quota=config.root_survivor_quota,
+                known_pair_count=sequence.known_pair_count,
             )
             for action in roots
         }

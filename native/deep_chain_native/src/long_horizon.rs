@@ -246,6 +246,7 @@ struct Tracker {
     root_action: u8,
     scenario_id: u8,
     evaluated: bool,
+    known_pair_count: usize,
     search_complete: bool,
     reached_depth: u16,
     max_chain_count: u8,
@@ -273,6 +274,7 @@ impl Tracker {
             root_action: 0,
             scenario_id: 0,
             evaluated: false,
+            known_pair_count: 0,
             search_complete: true,
             reached_depth: 0,
             max_chain_count: 0,
@@ -315,7 +317,9 @@ impl Tracker {
             self.best_fire = Some(fire);
         }
         let slot = &mut self.fires_by_class[fire.class as usize];
-        if slot.is_none_or(|previous| fire_rank_cmp(&fire, &previous).is_gt()) {
+        if slot
+            .is_none_or(|previous| fire_rank_cmp(&fire, &previous, self.known_pair_count).is_gt())
+        {
             *slot = Some(fire);
         }
     }
@@ -971,9 +975,17 @@ fn fire_official_cmp(left: &Fire, right: &Fire) -> Ordering {
         .then_with(|| inverse_path_cmp(left.path(), right.path()))
 }
 
-fn fire_rank_cmp(left: &Fire, right: &Fire) -> Ordering {
+fn known_prefix_target(fire: &Fire, known_pair_count: usize) -> bool {
+    fire.class == FireClass::Target && usize::from(fire.path_len) <= known_pair_count
+}
+
+fn fire_rank_cmp(left: &Fire, right: &Fire, known_pair_count: usize) -> Ordering {
     (left.class as u8)
         .cmp(&(right.class as u8))
+        .then_with(|| {
+            known_prefix_target(left, known_pair_count)
+                .cmp(&known_prefix_target(right, known_pair_count))
+        })
         .then_with(|| {
             left.terminal_score
                 .partial_cmp(&right.terminal_score)
@@ -1157,11 +1169,14 @@ fn transition_hot(
     Ok(unsafe { (child.assume_init(), transition.assume_init()) })
 }
 
-fn initialize_trackers(root_mask: u32, scenario_id: u8) -> Vec<Tracker> {
+fn initialize_trackers(root_mask: u32, scenario_id: u8, known_pair_count: usize) -> Vec<Tracker> {
     (0..ACTION_COUNT)
         .map(|action| {
             if root_mask & (1_u32 << action) != 0 {
-                Tracker::new(action as u8, scenario_id)
+                Tracker {
+                    known_pair_count,
+                    ..Tracker::new(action as u8, scenario_id)
+                }
             } else {
                 Tracker::inactive()
             }
@@ -1250,7 +1265,8 @@ fn run_scenario(
 ) -> ContractResult<ScenarioResult> {
     let config = request.search;
     let root_mask = legal_actions_mask(&request.root_state);
-    let mut trackers = initialize_trackers(root_mask, sequence.scenario_id);
+    let mut trackers =
+        initialize_trackers(root_mask, sequence.scenario_id, request.known_pairs.len());
     let maximum_candidates = config
         .width
         .checked_mul(ACTION_COUNT)
@@ -1608,7 +1624,7 @@ fn scenario_pool() -> ContractResult<&'static ScenarioPool> {
 
 fn empty_scenario(request: &Request, sequence: ScenarioSequence, root_mask: u32) -> ScenarioResult {
     ScenarioResult {
-        trackers: initialize_trackers(root_mask, sequence.scenario_id),
+        trackers: initialize_trackers(root_mask, sequence.scenario_id, request.known_pairs.len()),
         counters: Counters::default(),
         peak_live_nodes: 0,
         tt_capacity: if request.search.use_transposition_table {
@@ -1713,6 +1729,7 @@ struct Aggregate {
     quiet_support: u8,
     terminal_score_sum: f64,
     best_fire: Option<Fire>,
+    known_prefix_target: bool,
 }
 
 impl Aggregate {
@@ -1764,6 +1781,7 @@ fn aggregate_root(
     root_action: u8,
     scenarios: &[ScenarioResult],
     requested_scenarios: usize,
+    known_pair_count: usize,
 ) -> Aggregate {
     let mut evaluated: Vec<&Tracker> = scenarios
         .iter()
@@ -1809,7 +1827,9 @@ fn aggregate_root(
         }
         if let Some(fire) = selected_fire {
             terminal_scores.push(fire.terminal_score);
-            if best_fire.is_none_or(|previous| fire_rank_cmp(&fire, &previous).is_gt()) {
+            if best_fire
+                .is_none_or(|previous| fire_rank_cmp(&fire, &previous, known_pair_count).is_gt())
+            {
                 best_fire = Some(fire);
             }
         }
@@ -1831,6 +1851,8 @@ fn aggregate_root(
         quiet_support: class_support[FireClass::Quiet as usize],
         terminal_score_sum: ordered_sum(terminal_scores.iter().copied()),
         best_fire,
+        known_prefix_target: best_fire
+            .is_some_and(|fire| known_prefix_target(&fire, known_pair_count)),
     }
 }
 
@@ -1854,6 +1876,7 @@ fn aggregate_cmp(left: &Aggregate, right: &Aggregate) -> Ordering {
         .then_with(|| {
             left.class_support[left.class as usize].cmp(&right.class_support[right.class as usize])
         })
+        .then_with(|| left.known_prefix_target.cmp(&right.known_prefix_target))
         .then_with(|| {
             left.candidate_value()
                 .partial_cmp(&right.candidate_value())
@@ -2233,7 +2256,14 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
     let aggregates: Vec<Aggregate> = root_actions
         .iter()
         .copied()
-        .map(|action| aggregate_root(action, &scenarios, request.search.scenarios))
+        .map(|action| {
+            aggregate_root(
+                action,
+                &scenarios,
+                request.search.scenarios,
+                request.known_pairs.len(),
+            )
+        })
         .collect();
     let mut ranked = aggregates.clone();
     ranked.sort_by(|left, right| aggregate_cmp(right, left));
@@ -2291,6 +2321,61 @@ mod tests {
     use crate::allocation_probe;
     use crate::chain_structure::EvaluationHot;
     use crate::compact::{CompactState, SearchStateKey, TransitionHotResult};
+
+    #[test]
+    fn prefix_target_boundary_retains_near_fire_without_changing_official_max() {
+        let mut encoded = [0_u8; 87];
+        encoded[..4].copy_from_slice(b"CSK1");
+        let base = super::Fire {
+            scenario_id: 0,
+            class: FireClass::Target,
+            chain_count: 10,
+            chain_score: 1000,
+            state: CompactState::from_bytes(&encoded).expect("empty state"),
+            path: [3; super::MAX_SEARCH_DEPTH],
+            path_len: 1,
+            terminal: true,
+            terminal_score: 1.0,
+            terminal_breakdown: [0.0; 5],
+            evaluation: EvaluationHot::default(),
+        };
+        for known_pair_count in 1..=3 {
+            let near = super::Fire {
+                path_len: known_pair_count as u8,
+                ..base
+            };
+            let far = super::Fire {
+                path_len: known_pair_count as u8 + 1,
+                chain_score: 100_000,
+                terminal_score: 100_000.0,
+                ..base
+            };
+            assert!(super::known_prefix_target(&near, known_pair_count));
+            assert!(!super::known_prefix_target(&far, known_pair_count));
+            assert!(super::fire_rank_cmp(&near, &far, known_pair_count).is_gt());
+            for order in [[near, far], [far, near]] {
+                let mut tracker = Tracker {
+                    known_pair_count,
+                    ..Tracker::new(3, 0)
+                };
+                for fire in order {
+                    tracker.record_fire(fire);
+                }
+                assert_eq!(tracker.selected_fire().unwrap().path_len, near.path_len);
+                assert_eq!(tracker.best_fire.unwrap().path_len, far.path_len);
+            }
+            for class in [
+                FireClass::Winning,
+                FireClass::ForcedSafety,
+                FireClass::Premature,
+            ] {
+                let near = super::Fire { class, ..near };
+                let far = super::Fire { class, ..far };
+                assert!(!super::known_prefix_target(&near, known_pair_count));
+                assert!(super::fire_rank_cmp(&far, &near, known_pair_count).is_gt());
+            }
+        }
+    }
 
     #[test]
     fn aggregation_matches_python_binary64_vectors() {

@@ -231,6 +231,7 @@ def _decode_fire(
         terminal_score=terminal_score,
         terminal_score_breakdown=breakdown,
         terminal_evaluation=_fire_evaluation_details(evaluation),
+        known_pair_count=len(request.known_pairs),
     )
 
 

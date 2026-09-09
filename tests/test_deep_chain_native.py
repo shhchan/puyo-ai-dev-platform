@@ -1,3 +1,4 @@
+import hashlib
 import importlib
 import json
 import struct
@@ -371,6 +372,11 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
         native = self.backend.decide(request)
         materialized = materialize_native_long_horizon_result(native, request)
         expected = self.corpus["search_case"]["expected"]
+        prefix_expected = json.loads(
+            (ROOT / "tests/fixtures/known_prefix_target_semantics.json").read_text()
+        )
+        self.assertEqual(hashlib.sha256(CORPUS_PATH.read_bytes()).hexdigest(),
+                         prefix_expected["source_sha256"])
 
         self.assertEqual(
             native.selected_action, self.corpus["search_case"]["expected_action_id"]
@@ -380,7 +386,7 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
             tuple(expected["ranked_root_actions"]),
         )
         self.assertEqual(
-            materialized.deterministic_digest, expected["deterministic_digest"]
+            materialized.deterministic_digest, prefix_expected["deterministic_digest"]
         )
         self.assertEqual(materialized.counters.to_dict(), expected["counters"])
         self.assertEqual(native.provenance["thread_mode"], "oracle-1")
