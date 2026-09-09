@@ -1,0 +1,901 @@
+{
+  "fixed_comparisons": [
+    {
+      "seed": 123,
+      "turn_1based": 30,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 12,
+      "candidate_action": 1,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 6,
+        "fire_class": "target_fire",
+        "official_chain_score": 48460,
+        "path": [
+          12,
+          0,
+          11,
+          20,
+          8,
+          4
+        ],
+        "root_action": 12,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-9565196483a9077d0fd2d09f",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 48460.0,
+            "structural_score": 81123.0,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 129583.0
+          },
+          "evaluation": {
+            "danger": 0.3125,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 810.0,
+              "connection_potential": 2650.0,
+              "danger": -6250.0,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 90018.0,
+              "remaining_links": 1470.0,
+              "shape": 1185.0,
+              "tear": -0.0,
+              "total": 81123.0,
+              "trigger_damage": -0.0,
+              "trigger_position": 240.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 2,
+              "chain_score": 360,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 129583.0
+        },
+        "trigger_action": 4
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 1,
+        "fire_class": "target_fire",
+        "official_chain_score": 45520,
+        "path": [
+          1
+        ],
+        "root_action": 1,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-39523fd49d8deee55deb5371",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 45520.0,
+            "structural_score": 26473.666666666668,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 71993.66666666667
+          },
+          "evaluation": {
+            "danger": 0.17916666666666667,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 270.0,
+              "connection_potential": 550.0,
+              "danger": -3583.3333333333335,
+              "fatal": 0.0,
+              "key_cost": -18000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 920.0,
+              "shape": 1095.0,
+              "tear": -0.0,
+              "total": 26473.666666666668,
+              "trigger_damage": -0.0,
+              "trigger_position": 220.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 2
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 71993.66666666667
+        },
+        "trigger_action": 1
+      }
+    },
+    {
+      "seed": 126,
+      "turn_1based": 23,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 21,
+      "candidate_action": 6,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 11,
+        "depth": 9,
+        "fire_class": "target_fire",
+        "official_chain_score": 53440,
+        "path": [
+          21,
+          21,
+          12,
+          21,
+          20,
+          0,
+          2,
+          1,
+          6
+        ],
+        "root_action": 21,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-91ecc36d99142f620d445d52",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 53440.0,
+            "structural_score": 80574.81818181818,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 134014.81818181818
+          },
+          "evaluation": {
+            "danger": 0.175,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 450.0,
+              "connection_potential": 1950.0,
+              "danger": -3500.0,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 90018.0,
+              "remaining_links": 230.0,
+              "shape": 585.0,
+              "tear": -0.0,
+              "total": 80574.81818181818,
+              "trigger_damage": -0.0,
+              "trigger_position": -158.1818181818182,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 2,
+              "chain_score": 360,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 134014.81818181818
+        },
+        "trigger_action": 6
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 1,
+        "fire_class": "target_fire",
+        "official_chain_score": 40220,
+        "path": [
+          6
+        ],
+        "root_action": 6,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-43c28b4c563f04511ca77aad",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 40220.0,
+            "structural_score": 17108.666666666668,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 57328.66666666667
+          },
+          "evaluation": {
+            "danger": 0.10416666666666666,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 0.0,
+              "connection_potential": 0.0,
+              "danger": -2083.333333333333,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 0.0,
+              "shape": 990.0,
+              "tear": -0.0,
+              "total": 17108.666666666668,
+              "trigger_damage": -0.0,
+              "trigger_position": 200.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 3
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 57328.66666666667
+        },
+        "trigger_action": 6
+      }
+    },
+    {
+      "seed": 130,
+      "turn_1based": 25,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 2,
+      "candidate_action": 2,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 11,
+        "depth": 6,
+        "fire_class": "target_fire",
+        "official_chain_score": 52500,
+        "path": [
+          2,
+          8,
+          5,
+          21,
+          15,
+          19
+        ],
+        "root_action": 2,
+        "scenario_id": 5,
+        "state_fingerprint": "compact-63f0c5cd151099e6c1053d34",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 52500.0,
+            "structural_score": 106708.0,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 159208.0
+          },
+          "evaluation": {
+            "danger": 0.23750000000000002,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 450.0,
+              "connection_potential": 1250.0,
+              "danger": -4750.0,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 135063.0,
+              "remaining_links": 230.0,
+              "shape": 1245.0,
+              "tear": -0.0,
+              "total": 106708.0,
+              "trigger_damage": -0.0,
+              "trigger_position": 220.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 3,
+              "chain_score": 1260,
+              "required_key_count": 3
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 159208.0
+        },
+        "trigger_action": 19
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 11,
+        "depth": 6,
+        "fire_class": "target_fire",
+        "official_chain_score": 52500,
+        "path": [
+          2,
+          8,
+          5,
+          21,
+          15,
+          19
+        ],
+        "root_action": 2,
+        "scenario_id": 5,
+        "state_fingerprint": "compact-63f0c5cd151099e6c1053d34",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 52500.0,
+            "structural_score": 106708.0,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 159208.0
+          },
+          "evaluation": {
+            "danger": 0.23750000000000002,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 450.0,
+              "connection_potential": 1250.0,
+              "danger": -4750.0,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 135063.0,
+              "remaining_links": 230.0,
+              "shape": 1245.0,
+              "tear": -0.0,
+              "total": 106708.0,
+              "trigger_damage": -0.0,
+              "trigger_position": 220.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 3,
+              "chain_score": 1260,
+              "required_key_count": 3
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 159208.0
+        },
+        "trigger_action": 19
+      }
+    },
+    {
+      "seed": 135,
+      "turn_1based": 34,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 11,
+      "candidate_action": 20,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 12,
+        "depth": 5,
+        "fire_class": "target_fire",
+        "official_chain_score": 87640,
+        "path": [
+          11,
+          21,
+          20,
+          16,
+          7
+        ],
+        "root_action": 11,
+        "scenario_id": 2,
+        "state_fingerprint": "compact-a2fb495d07fe63c5003fc47d",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 87640.0,
+            "structural_score": -1000000000000.0,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": -999999912360.0
+          },
+          "evaluation": {
+            "danger": 0.5458333333333334,
+            "evaluation_status": "not_found",
+            "score_breakdown": {
+              "component_connectivity": 180.0,
+              "connection_potential": 550.0,
+              "danger": -10916.666666666668,
+              "fatal": -1000000000000.0,
+              "key_cost": -0.0,
+              "nuisance": -3000.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 0.0,
+              "remaining_links": 0.0,
+              "shape": -70.0,
+              "tear": -0.0,
+              "total": -1000000000000.0,
+              "trigger_damage": -0.0,
+              "trigger_position": 0.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 0,
+              "chain_score": 0,
+              "required_key_count": null
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": -999999912360.0
+        },
+        "trigger_action": 7
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 12,
+        "depth": 3,
+        "fire_class": "target_fire",
+        "official_chain_score": 75940,
+        "path": [
+          20,
+          20,
+          8
+        ],
+        "root_action": 20,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-f64f0bef98778c0b4c066b42",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 75940.0,
+            "structural_score": -1000000000000.0,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": -999999924060.0
+          },
+          "evaluation": {
+            "danger": 0.5,
+            "evaluation_status": "not_found",
+            "score_breakdown": {
+              "component_connectivity": 360.0,
+              "connection_potential": 1250.0,
+              "danger": -10000.0,
+              "fatal": -1000000000000.0,
+              "key_cost": -0.0,
+              "nuisance": -3000.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 0.0,
+              "remaining_links": 0.0,
+              "shape": -50.0,
+              "tear": -0.0,
+              "total": -1000000000000.0,
+              "trigger_damage": -0.0,
+              "trigger_position": 0.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 0,
+              "chain_score": 0,
+              "required_key_count": null
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": -999999924060.0
+        },
+        "trigger_action": 8
+      }
+    },
+    {
+      "seed": 138,
+      "turn_1based": 31,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 10,
+      "candidate_action": 5,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 12,
+        "depth": 4,
+        "fire_class": "target_fire",
+        "official_chain_score": 70640,
+        "path": [
+          10,
+          9,
+          5,
+          3
+        ],
+        "root_action": 10,
+        "scenario_id": 5,
+        "state_fingerprint": "compact-a747de38d04cf891e79382dc",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 70640.0,
+            "structural_score": 124523.33333333333,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 195163.3333333333
+          },
+          "evaluation": {
+            "danger": 0.29583333333333334,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 630.0,
+              "connection_potential": 2650.0,
+              "danger": -5916.666666666667,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 135050.0,
+              "remaining_links": 230.0,
+              "shape": 840.0,
+              "tear": -0.0,
+              "total": 124523.33333333333,
+              "trigger_damage": -0.0,
+              "trigger_position": 40.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 3,
+              "chain_score": 1000,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 195163.3333333333
+        },
+        "trigger_action": 3
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 12,
+        "depth": 3,
+        "fire_class": "target_fire",
+        "official_chain_score": 61680,
+        "path": [
+          5,
+          9,
+          1
+        ],
+        "root_action": 5,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-437ff82377c7d20e2b307932",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 61680.0,
+            "structural_score": 125853.33333333333,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 187533.3333333333
+          },
+          "evaluation": {
+            "danger": 0.29583333333333334,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 720.0,
+              "connection_potential": 3350.0,
+              "danger": -5916.666666666667,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 135050.0,
+              "remaining_links": 620.0,
+              "shape": 990.0,
+              "tear": -0.0,
+              "total": 125853.33333333333,
+              "trigger_damage": -0.0,
+              "trigger_position": 40.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 3,
+              "chain_score": 1000,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 187533.3333333333
+        },
+        "trigger_action": 1
+      }
+    },
+    {
+      "seed": 147,
+      "turn_1based": 28,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 2,
+      "candidate_action": 19,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 4,
+        "fire_class": "target_fire",
+        "official_chain_score": 47520,
+        "path": [
+          2,
+          1,
+          16,
+          21
+        ],
+        "root_action": 2,
+        "scenario_id": 1,
+        "state_fingerprint": "compact-47c3c29eec1a74254c89209e",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 47520.0,
+            "structural_score": 61816.333333333336,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 109336.33333333334
+          },
+          "evaluation": {
+            "danger": 0.20833333333333331,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 360.0,
+              "connection_potential": 700.0,
+              "danger": -4166.666666666666,
+              "fatal": 0.0,
+              "key_cost": -27000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 90018.0,
+              "remaining_links": 460.0,
+              "shape": 1405.0,
+              "tear": -0.0,
+              "total": 61816.333333333336,
+              "trigger_damage": -0.0,
+              "trigger_position": 40.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 2,
+              "chain_score": 360,
+              "required_key_count": 3
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 109336.33333333334
+        },
+        "trigger_action": 21
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 1,
+        "fire_class": "target_fire",
+        "official_chain_score": 47100,
+        "path": [
+          19
+        ],
+        "root_action": 19,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-03c2b583a18a38fa7513cdf9",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 47100.0,
+            "structural_score": 24825.333333333336,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 71925.33333333334
+          },
+          "evaluation": {
+            "danger": 0.20833333333333331,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 180.0,
+              "connection_potential": 0.0,
+              "danger": -4166.666666666666,
+              "fatal": 0.0,
+              "key_cost": -18000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 45002.0,
+              "remaining_links": 230.0,
+              "shape": 1180.0,
+              "tear": -0.0,
+              "total": 24825.333333333336,
+              "trigger_damage": -0.0,
+              "trigger_position": 400.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 1,
+              "chain_score": 40,
+              "required_key_count": 2
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 71925.33333333334
+        },
+        "trigger_action": 19
+      }
+    },
+    {
+      "seed": 151,
+      "turn_1based": 32,
+      "counters_equal": true,
+      "scenario_search_facts_equal_except_selected_fire": true,
+      "baseline_action": 11,
+      "candidate_action": 11,
+      "baseline_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 4,
+        "fire_class": "target_fire",
+        "official_chain_score": 49880,
+        "path": [
+          11,
+          1,
+          19,
+          18
+        ],
+        "root_action": 11,
+        "scenario_id": 2,
+        "state_fingerprint": "compact-58958f21913daf54b02ea0a6",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 49880.0,
+            "structural_score": 168446.66666666666,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 218326.66666666666
+          },
+          "evaluation": {
+            "danger": 0.3291666666666667,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 630.0,
+              "connection_potential": 1800.0,
+              "danger": -6583.333333333334,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 180130.0,
+              "remaining_links": 0.0,
+              "shape": 1170.0,
+              "tear": -0.0,
+              "total": 168446.66666666666,
+              "trigger_damage": -0.0,
+              "trigger_position": 300.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 4,
+              "chain_score": 2600,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 218326.66666666666
+        },
+        "trigger_action": 18
+      },
+      "candidate_fire": {
+        "allowed": true,
+        "chain_count": 10,
+        "depth": 2,
+        "fire_class": "target_fire",
+        "official_chain_score": 42200,
+        "path": [
+          11,
+          12
+        ],
+        "root_action": 11,
+        "scenario_id": 0,
+        "state_fingerprint": "compact-abfb5427dc478b70df041470",
+        "target_chain_count": 10,
+        "target_chain_gap": 0,
+        "terminal": true,
+        "terminal_reason": "chain_count_gte_1",
+        "terminal_score": {
+          "breakdown": {
+            "official_score": 42200.0,
+            "structural_score": 123703.33333333333,
+            "target_chain_gap": 0.0,
+            "target_gap_penalty": 0.0,
+            "total": 165903.3333333333
+          },
+          "evaluation": {
+            "danger": 0.35833333333333334,
+            "evaluation_status": "available",
+            "score_breakdown": {
+              "component_connectivity": 540.0,
+              "connection_potential": 1950.0,
+              "danger": -7166.666666666667,
+              "fatal": 0.0,
+              "key_cost": -9000.0,
+              "nuisance": -0.0,
+              "premature_fire": 0.0,
+              "quiescence_chain": 135050.0,
+              "remaining_links": 1240.0,
+              "shape": 950.0,
+              "tear": -0.0,
+              "total": 123703.33333333333,
+              "trigger_damage": -0.0,
+              "trigger_position": 140.0,
+              "waste": -0.0
+            },
+            "structural_potential": {
+              "chain_count": 3,
+              "chain_score": 1000,
+              "required_key_count": 1
+            },
+            "trigger_damage": 0,
+            "trigger_preserved": true
+          },
+          "schema_version": "puyo.build_main_terminal_score.v1",
+          "value": 165903.3333333333
+        },
+        "trigger_action": 12
+      }
+    }
+  ],
+  "request_identity_migration_checked": true,
+  "all_fixed_terminal_representative_paths_match": true
+}
