@@ -1,0 +1,2547 @@
+{
+  "adoption": {
+    "additional_conditions_evaluated": false,
+    "decision": "No-Go",
+    "default_adopted": false,
+    "final_puyo236_60_run_started": false,
+    "no_automatic_go": "Manual review is required even when neither rejection is detected",
+    "previous_target10_success_quality_regression_seeds": [
+      138,
+      151
+    ],
+    "reasons": [
+      "Repeated trajectory time increase accompanied by more actual expanded/evaluated nodes",
+      "Previously successful target10 seeds now have additional premature fire or other quality regression"
+    ],
+    "repeat_stable_compute_regression_seeds": [
+      123,
+      126,
+      130,
+      133,
+      135,
+      147
+    ]
+  },
+  "comparison": {
+    "decision_p95_ratio": 1.014355947231157,
+    "fixed_mean_ratios": {
+      "seed123-turn30": 0.9387046481219192,
+      "seed126-turn30": 1.0552874694138952,
+      "seed130-turn25": 1.0374804813290106,
+      "seed133-turn25": 0.9839505624287953
+    },
+    "mean_maximum_actual_chain_delta": 4.875,
+    "per_seed": [
+      {
+        "evaluated_nodes_delta_repeat1": 3433699,
+        "expanded_nodes_delta_repeat1": 3975904,
+        "first_action_divergence_turn_1based": 1,
+        "game_over_delta": 0,
+        "maximum_chain_delta": 0,
+        "premature_delta": 0,
+        "seed": 123,
+        "trajectory_seconds_ratios": [
+          1.3011310267793983,
+          1.2433512429973137
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": 2314495,
+        "expanded_nodes_delta_repeat1": 1628153,
+        "first_action_divergence_turn_1based": 8,
+        "game_over_delta": 0,
+        "maximum_chain_delta": 8,
+        "premature_delta": -1,
+        "seed": 126,
+        "trajectory_seconds_ratios": [
+          1.1425446766139518,
+          1.1612586685046327
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": 2268913,
+        "expanded_nodes_delta_repeat1": 2454439,
+        "first_action_divergence_turn_1based": 1,
+        "game_over_delta": 0,
+        "maximum_chain_delta": 8,
+        "premature_delta": -1,
+        "seed": 130,
+        "trajectory_seconds_ratios": [
+          1.1367482252312966,
+          1.1366869878107038
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": 679105,
+        "expanded_nodes_delta_repeat1": 255947,
+        "first_action_divergence_turn_1based": 1,
+        "game_over_delta": -1,
+        "maximum_chain_delta": 7,
+        "premature_delta": 1,
+        "seed": 133,
+        "trajectory_seconds_ratios": [
+          1.0958807347962507,
+          1.0799465733623501
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": 3433860,
+        "expanded_nodes_delta_repeat1": 3561752,
+        "first_action_divergence_turn_1based": 5,
+        "game_over_delta": 0,
+        "maximum_chain_delta": 10,
+        "premature_delta": 0,
+        "seed": 135,
+        "trajectory_seconds_ratios": [
+          1.3098931276805574,
+          1.3094084053960493
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": -1131540,
+        "expanded_nodes_delta_repeat1": -1314524,
+        "first_action_divergence_turn_1based": 1,
+        "game_over_delta": 0,
+        "maximum_chain_delta": 2,
+        "premature_delta": 1,
+        "seed": 138,
+        "trajectory_seconds_ratios": [
+          0.9565856417631717,
+          0.9650141360969463
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": 5046032,
+        "expanded_nodes_delta_repeat1": 3924518,
+        "first_action_divergence_turn_1based": 1,
+        "game_over_delta": -1,
+        "maximum_chain_delta": 12,
+        "premature_delta": 0,
+        "seed": 147,
+        "trajectory_seconds_ratios": [
+          1.42263338417611,
+          1.4171198332097068
+        ]
+      },
+      {
+        "evaluated_nodes_delta_repeat1": -1559122,
+        "expanded_nodes_delta_repeat1": -1696921,
+        "first_action_divergence_turn_1based": 2,
+        "game_over_delta": 0,
+        "maximum_chain_delta": -8,
+        "premature_delta": 1,
+        "seed": 151,
+        "trajectory_seconds_ratios": [
+          0.8661873707224537,
+          0.8696233715589224
+        ]
+      }
+    ],
+    "target10_seed_count_delta": 3,
+    "trajectory_mean_seconds_ratio": 1.1349375599207796
+  },
+  "conditions": {
+    "baseline": {
+      "decision_count": 638,
+      "effective_evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+      "evaluated_commit": "73ab4e8ce066555042f1a20e1b3b59be3a2a8968",
+      "fallbacks": 0,
+      "fixed": {
+        "seed123-turn30": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 141139,
+            "expanded_nodes": 164647,
+            "game_over_nodes": 23508,
+            "generated_nodes": 164647,
+            "invalid_nodes": 0,
+            "pruned_nodes": 101819,
+            "reached_depth": 12,
+            "terminal_fire_nodes": 21151,
+            "transposition_hits": 4797
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.2891616566630546,
+            "p50": 0.282767476994195,
+            "p95": 0.3195145644931472
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.14509817799747302,
+            "p50": 0.14290551349404268,
+            "p95": 0.16878246574196965
+          },
+          "native_ranking": [
+            12,
+            18,
+            11,
+            13,
+            19,
+            20,
+            16,
+            21,
+            15,
+            17,
+            1,
+            4,
+            6,
+            10,
+            0,
+            2,
+            7,
+            9,
+            3,
+            8,
+            14
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.14284374283333334,
+            "p50": 0.134985082,
+            "p95": 0.17432628349999998
+          },
+          "per_process_mean_seconds": [
+            0.3000620769962552,
+            0.2739775284935604,
+            0.2934453644993482
+          ]
+        },
+        "seed126-turn30": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 121286,
+            "expanded_nodes": 163700,
+            "game_over_nodes": 42414,
+            "generated_nodes": 163700,
+            "invalid_nodes": 0,
+            "pruned_nodes": 80036,
+            "reached_depth": 12,
+            "terminal_fire_nodes": 22504,
+            "transposition_hits": 5677
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.20972925316406568,
+            "p50": 0.21092171599593712,
+            "p95": 0.21901647849881556
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.10477045466541313,
+            "p50": 0.10508351199678145,
+            "p95": 0.11156694124656497
+          },
+          "native_ranking": [
+            0,
+            2,
+            1,
+            6,
+            4,
+            10,
+            3,
+            5,
+            8,
+            11,
+            13,
+            14,
+            16,
+            21,
+            12,
+            18,
+            19,
+            15,
+            17,
+            7,
+            9
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.10372742950000001,
+            "p50": 0.10361382050000001,
+            "p95": 0.1088580185
+          },
+          "per_process_mean_seconds": [
+            0.21049581900297198,
+            0.20373267849208787,
+            0.21495926199713722
+          ]
+        },
+        "seed130-turn25": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 257216,
+            "expanded_nodes": 341829,
+            "game_over_nodes": 84613,
+            "generated_nodes": 341829,
+            "invalid_nodes": 0,
+            "pruned_nodes": 197478,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 32995,
+            "transposition_hits": 5351
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.34500876300201827,
+            "p50": 0.34493161150749074,
+            "p95": 0.3528491819924966
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.13525288983267578,
+            "p50": 0.13509004750085296,
+            "p95": 0.14294455374329118
+          },
+          "native_ranking": [
+            2,
+            5,
+            3,
+            6,
+            17,
+            12,
+            15,
+            1,
+            8,
+            14,
+            0,
+            4,
+            10,
+            18,
+            16,
+            20,
+            19,
+            21,
+            11,
+            13,
+            7,
+            9
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.2086334215,
+            "p50": 0.2077344195,
+            "p95": 0.214737801
+          },
+          "per_process_mean_seconds": [
+            0.3498570390001987,
+            0.34512701150379144,
+            0.3400422385020647
+          ]
+        },
+        "seed133-turn25": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 276369,
+            "expanded_nodes": 350474,
+            "game_over_nodes": 74105,
+            "generated_nodes": 350474,
+            "invalid_nodes": 0,
+            "pruned_nodes": 188029,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 55631,
+            "transposition_hits": 11234
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.3925235264978255,
+            "p50": 0.38201113749528304,
+            "p95": 0.4389148647496768
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.1452627839971683,
+            "p50": 0.14539343399519566,
+            "p95": 0.15676390100634308
+          },
+          "native_ranking": [
+            0,
+            4,
+            3,
+            9,
+            6,
+            2,
+            14,
+            11,
+            7,
+            8,
+            13,
+            19,
+            21,
+            12,
+            18,
+            15,
+            17,
+            5,
+            1,
+            10,
+            16,
+            20
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.2463411223333333,
+            "p50": 0.2365778335,
+            "p95": 0.28315226925
+          },
+          "per_process_mean_seconds": [
+            0.38214765500015346,
+            0.4156082354966202,
+            0.3798146889967029
+          ]
+        }
+      },
+      "fully_evaluated": 16,
+      "game_overs_both_repeats": 4,
+      "initial_fixed": {
+        "seed123-cold": {
+          "count": 3,
+          "mean": 0.6169827086608469,
+          "p50": 0.6145108669879846,
+          "p95": 0.6219869320950238
+        },
+        "seed123-warm": {
+          "count": 3,
+          "mean": 0.6177365680002064,
+          "p50": 0.6074599080020562,
+          "p95": 0.6564782351983013
+        },
+        "seed135-cold": {
+          "count": 3,
+          "mean": 0.5115525846631499,
+          "p50": 0.508488949999446,
+          "p95": 0.5364522451971424
+        },
+        "seed135-warm": {
+          "count": 3,
+          "mean": 0.49633170999974635,
+          "p50": 0.49646161899727304,
+          "p95": 0.5088189403046272
+        }
+      },
+      "latency": {
+        "max_seconds": 0.7747173630050384,
+        "mean_seconds": 0.45645542868845845,
+        "p50_seconds": 0.5486797295016004,
+        "p95_seconds": 0.702193850493495,
+        "sample_count": 638,
+        "wall_clock_mode": "observational_no_timeout"
+      },
+      "manifest_sha256": "ac8238a14b2dfc7bbe6c9b23d84c8a2aa00e78d73b515b290d731303b061265f",
+      "mean_maximum_actual_chain": 4.375,
+      "no_fire_unique_seeds": 3,
+      "parity_mismatches": 0,
+      "peak_rss_kib": 170804,
+      "per_seed": [
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 39
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.628605172807147,
+            0.680003675896296
+          ],
+          "evaluated_nodes_repeat1": 12365317,
+          "expanded_nodes_repeat1": 12767315,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 123,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            18.808712578000268,
+            20.479737294997904
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 2,
+              "turn_1based": 40
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7071040106049622,
+            0.7106130536958517
+          ],
+          "evaluated_nodes_repeat1": 11515797,
+          "expanded_nodes_repeat1": 12738972,
+          "game_over": false,
+          "maximum_chain": 2,
+          "premature": 1,
+          "seed": 126,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            20.523528050995083,
+            20.680219339003088
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 3,
+              "turn_1based": 40
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6791433564452745,
+            0.6910034312524658
+          ],
+          "evaluated_nodes_repeat1": 11397088,
+          "expanded_nodes_repeat1": 12480545,
+          "game_over": false,
+          "maximum_chain": 3,
+          "premature": 1,
+          "seed": 130,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            19.581286904998706,
+            19.63377640399267
+          ]
+        },
+        {
+          "actual_fires": [],
+          "completed_turns": 39,
+          "decision_p95_repeats": [
+            0.6710128254926531,
+            0.6733451651991345
+          ],
+          "evaluated_nodes_repeat1": 11371806,
+          "expanded_nodes_repeat1": 12358981,
+          "game_over": true,
+          "maximum_chain": 0,
+          "premature": 0,
+          "seed": 133,
+          "termination": "game_over",
+          "trajectory_seconds_repeats": [
+            19.10130926599959,
+            19.21985606600356
+          ]
+        },
+        {
+          "actual_fires": [],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6596974818996386,
+            0.6414653260966588
+          ],
+          "evaluated_nodes_repeat1": 10977648,
+          "expanded_nodes_repeat1": 11949239,
+          "game_over": false,
+          "maximum_chain": 0,
+          "premature": 0,
+          "seed": 135,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            18.22577520601044,
+            18.309444337006425
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 34
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7219122219947166,
+            0.7190987170899462
+          ],
+          "evaluated_nodes_repeat1": 14403016,
+          "expanded_nodes_repeat1": 15278666,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 138,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            24.82395460299449,
+            24.910993262994452
+          ]
+        },
+        {
+          "actual_fires": [],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6765838744468055,
+            0.6880185134112253
+          ],
+          "evaluated_nodes_repeat1": 11073153,
+          "expanded_nodes_repeat1": 12559213,
+          "game_over": true,
+          "maximum_chain": 0,
+          "premature": 0,
+          "seed": 147,
+          "termination": "game_over",
+          "trajectory_seconds_repeats": [
+            18.969616247006343,
+            18.939667520011426
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 36
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7098010891517333,
+            0.7325181391533988
+          ],
+          "evaluated_nodes_repeat1": 13629697,
+          "expanded_nodes_repeat1": 14430138,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 151,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            24.089125042999513,
+            23.98753192499862
+          ]
+        }
+      ],
+      "premature_fires_both_repeats": 4,
+      "private_boundary_passed": true,
+      "repeat_determinism": [
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 123,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 126,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 130,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 133,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 135,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 138,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 147,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 151,
+          "trajectory_digest": true
+        }
+      ],
+      "run_count": 16,
+      "runner": {
+        "file": "eval/puyo241_risk_weight_trial.py",
+        "git_commit": "1eadf7bf9e00f1ccade13acfe730b29724888860",
+        "sha256": "411eaea918dc058a56e48c7280bcba9976b4e0f58a6fabeb03003cde95628837"
+      },
+      "search": {
+        "cache_accounting": {
+          "evaluator_cache_availability": "not_exported_by_the_production_long_horizon_hot_path; the independent PUYO-221/227 evaluator profile remains authoritative",
+          "evaluator_resolution_cache_hits": null,
+          "transposition_hit_rate_per_generated_node": 0.03110759880240317,
+          "transposition_hits": 6505412
+        },
+        "cache_hit_rate_per_generated_node": 0.03110759880240317,
+        "counters": {
+          "evaluated_nodes": {
+            "max": 465036.0,
+            "mean": 303239.88087774295,
+            "p50": 394241.0,
+            "p95": 464916.4,
+            "sample_count": 638,
+            "total": 193467044.0
+          },
+          "expanded_nodes": {
+            "max": 465036.0,
+            "mean": 327783.91536050156,
+            "p50": 433001.0,
+            "p95": 464992.10000000003,
+            "sample_count": 638,
+            "total": 209126138.0
+          },
+          "game_over_nodes": {
+            "max": 106650.0,
+            "mean": 24544.03448275862,
+            "p50": 15404.0,
+            "p95": 74436.04999999997,
+            "sample_count": 638,
+            "total": 15659094.0
+          },
+          "generated_nodes": {
+            "max": 465036.0,
+            "mean": 327783.91536050156,
+            "p50": 433001.0,
+            "p95": 464992.10000000003,
+            "sample_count": 638,
+            "total": 209126138.0
+          },
+          "invalid_nodes": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "sample_count": 638,
+            "total": 0.0
+          },
+          "pruned_nodes": {
+            "max": 372252.0,
+            "mean": 223330.61128526647,
+            "p50": 280668.0,
+            "p95": 359000.75,
+            "sample_count": 638,
+            "total": 142484930.0
+          },
+          "reached_depth": {
+            "max": 16.0,
+            "mean": 13.695924764890282,
+            "p50": 16.0,
+            "p95": 16.0,
+            "sample_count": 638,
+            "total": 8738.0
+          },
+          "terminal_fire_nodes": {
+            "max": 114467.0,
+            "mean": 51860.45768025079,
+            "p50": 61577.0,
+            "p95": 96646.89999999997,
+            "sample_count": 638,
+            "total": 33086972.0
+          },
+          "transposition_hits": {
+            "max": 29388.0,
+            "mean": 10196.57053291536,
+            "p50": 9768.0,
+            "p95": 23478.19999999998,
+            "sample_count": 638,
+            "total": 6505412.0
+          }
+        },
+        "expanded_nodes_per_native_compute_second": 1240965.509294632,
+        "flow_step_latency_seconds": {
+          "aggregate_scenario_scores": {
+            "max": 0.0008502470009261742,
+            "mean": 0.00011423315217796579,
+            "p50": 9.851300274021924e-05,
+            "p95": 0.00025041740373126203,
+            "sample_count": 638,
+            "total": 0.07288075108954217
+          },
+          "complete_visible_queue_scenarios": {
+            "max": 0.005831703994772397,
+            "mean": 0.0004149070945884054,
+            "p50": 0.00035395449231145903,
+            "p95": 0.000725242758198874,
+            "sample_count": 638,
+            "total": 0.26471072634740267
+          },
+          "emit_decision_trace": {
+            "max": 0.06594002101337537,
+            "mean": 0.012441582178374384,
+            "p50": 0.01258912100456655,
+            "p95": 0.020170600800338414,
+            "sample_count": 638,
+            "total": 7.937729429802857
+          },
+          "enumerate_root_placements": {
+            "max": 0.005563945000176318,
+            "mean": 0.0002514758667062682,
+            "p50": 0.00021107899374328554,
+            "p95": 0.00045506180176744225,
+            "sample_count": 638,
+            "total": 0.1604416029585991
+          },
+          "normalize_observation": {
+            "max": 9.437599510420114e-05,
+            "mean": 7.174631875763037e-06,
+            "p50": 6.069007213227451e-06,
+            "p95": 9.62835110840387e-06,
+            "sample_count": 638,
+            "total": 0.004577415136736818
+          },
+          "run_long_range_search": {
+            "max": 0.7022562500060303,
+            "mean": 0.40869004400454767,
+            "p50": 0.4955225049998262,
+            "p95": 0.6439528670547587,
+            "sample_count": 638,
+            "total": 260.7442480749014
+          },
+          "select_placement": {
+            "max": 0.05672044100356288,
+            "mean": 0.01899324370063491,
+            "p50": 0.019918890502594877,
+            "p95": 0.028491327898518645,
+            "sample_count": 638,
+            "total": 12.117689481005073
+          }
+        },
+        "native_phase_latency_seconds": {
+          "boundary_call": {
+            "max": 0.507273865,
+            "mean": 0.2649389314200627,
+            "p50": 0.3186175495,
+            "p95": 0.45266179944999996,
+            "sample_count": 638,
+            "total": 169.031038246
+          },
+          "materialization": {
+            "max": 0.252230086,
+            "mean": 0.13571653547178683,
+            "p50": 0.154834632,
+            "p95": 0.2088587496,
+            "sample_count": 638,
+            "total": 86.587149631
+          },
+          "native_aggregation": {
+            "max": 0.000449011,
+            "mean": 7.726585579937304e-05,
+            "p50": 6.504199999999999e-05,
+            "p95": 0.00020579179999999998,
+            "sample_count": 638,
+            "total": 0.049295616
+          },
+          "native_compute": {
+            "max": 0.506468737,
+            "mean": 0.2641362011316614,
+            "p50": 0.317627027,
+            "p95": 0.45200088084999995,
+            "sample_count": 638,
+            "total": 168.518896322
+          },
+          "native_search": {
+            "max": 0.506384479,
+            "mean": 0.26405893527586205,
+            "p50": 0.317423536,
+            "p95": 0.45180321025,
+            "sample_count": 638,
+            "total": 168.469600706
+          },
+          "native_serialization": {
+            "max": 0.002415913,
+            "mean": 0.0004595373009404389,
+            "p50": 0.00038953800000000004,
+            "p95": 0.0011947968499999998,
+            "sample_count": 638,
+            "total": 0.293184798
+          },
+          "native_total": {
+            "max": 0.507008626,
+            "mean": 0.26459573843260187,
+            "p50": 0.318345212,
+            "p95": 0.45238964495,
+            "sample_count": 638,
+            "total": 168.81208112
+          },
+          "total": {
+            "max": 0.691545124,
+            "mean": 0.40065702902194356,
+            "p50": 0.485254676,
+            "p95": 0.63595383155,
+            "sample_count": 638,
+            "total": 255.619184516
+          }
+        },
+        "native_serialization_ratio": 0.001146959288502263,
+        "native_telemetry": {
+          "aggregation_ns": {
+            "max": 449011.0,
+            "mean": 77265.85579937304,
+            "p50": 65042.0,
+            "p95": 205791.79999999996,
+            "sample_count": 638,
+            "total": 49295616.0
+          },
+          "arena_capacity_nodes": {
+            "max": 6000.0,
+            "mean": 6000.0,
+            "p50": 6000.0,
+            "p95": 6000.0,
+            "sample_count": 638,
+            "total": 3828000.0
+          },
+          "peak_live_nodes": {
+            "max": 5750.0,
+            "mean": 4321.968652037617,
+            "p50": 5281.0,
+            "p95": 5750.0,
+            "sample_count": 638,
+            "total": 2757416.0
+          },
+          "pool_reuses": {
+            "max": 1.0,
+            "mean": 0.9749216300940439,
+            "p50": 1.0,
+            "p95": 1.0,
+            "sample_count": 638,
+            "total": 622.0
+          },
+          "scenario_jobs": {
+            "max": 6.0,
+            "mean": 6.0,
+            "p50": 6.0,
+            "p95": 6.0,
+            "sample_count": 638,
+            "total": 3828.0
+          },
+          "scenario_reruns": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "sample_count": 638,
+            "total": 0.0
+          },
+          "search_ns": {
+            "max": 506384479.0,
+            "mean": 264058935.27586207,
+            "p50": 317423536.0,
+            "p95": 451803210.25,
+            "sample_count": 638,
+            "total": 168469600706.0
+          },
+          "serialization_ns": {
+            "max": 2415913.0,
+            "mean": 459537.3009404389,
+            "p50": 389538.0,
+            "p95": 1194796.8499999999,
+            "sample_count": 638,
+            "total": 293184798.0
+          },
+          "tt_capacity_slots": {
+            "max": 16384.0,
+            "mean": 16384.0,
+            "p50": 16384.0,
+            "p95": 16384.0,
+            "sample_count": 638,
+            "total": 10452992.0
+          }
+        },
+        "process_resources": {
+          "peak_rss_kib": 170804,
+          "run_count": 16,
+          "system_cpu_seconds": 3.9763219999999997,
+          "user_cpu_seconds": 1111.550092
+        },
+        "python_flow_latency_seconds": {
+          "max": 0.12421204500561633,
+          "mean": 0.05579839966651491,
+          "p50": 0.059395004492440145,
+          "p95": 0.07848864300165044,
+          "sample_count": 638,
+          "total": 35.59937898723651
+        },
+        "scenario_accounting": {
+          "decision_count": 638,
+          "failure_count": 0,
+          "passed": true
+        }
+      },
+      "selected_forced_safety_decisions": 0,
+      "target10_seed_count": 3,
+      "trajectory_seconds": {
+        "count": 16,
+        "mean": 20.642783378000786,
+        "p50": 19.607531654495688,
+        "p95": 24.84571426799448
+      },
+      "unique_seed_count": 8
+    },
+    "danger2": {
+      "decision_count": 640,
+      "effective_evaluator_config_sha256": "2fe3a23bee61bca203ded263879f65bdf2a96fa4f647b166209ba00c7309b05b",
+      "evaluated_commit": "73ab4e8ce066555042f1a20e1b3b59be3a2a8968",
+      "fallbacks": 0,
+      "fixed": {
+        "seed123-turn30": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 141122,
+            "expanded_nodes": 164621,
+            "game_over_nodes": 23499,
+            "generated_nodes": 164621,
+            "invalid_nodes": 0,
+            "pruned_nodes": 101771,
+            "reached_depth": 12,
+            "terminal_fire_nodes": 21182,
+            "transposition_hits": 4797
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.2714373911682439,
+            "p50": 0.2700330185034545,
+            "p95": 0.28811360274994513
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.1309873266654904,
+            "p50": 0.1330020070017781,
+            "p95": 0.13498789124787436
+          },
+          "native_ranking": [
+            12,
+            18,
+            11,
+            13,
+            19,
+            20,
+            16,
+            21,
+            15,
+            17,
+            1,
+            4,
+            6,
+            10,
+            0,
+            2,
+            7,
+            9,
+            3,
+            8,
+            14
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.13927143816666668,
+            "p50": 0.135678358,
+            "p95": 0.15360930849999999
+          },
+          "per_process_mean_seconds": [
+            0.2658348390032188,
+            0.28327537450240925,
+            0.26520195999910356
+          ]
+        },
+        "seed126-turn30": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 121365,
+            "expanded_nodes": 164276,
+            "game_over_nodes": 42911,
+            "generated_nodes": 164276,
+            "invalid_nodes": 0,
+            "pruned_nodes": 80954,
+            "reached_depth": 12,
+            "terminal_fire_nodes": 21871,
+            "transposition_hits": 5405
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.22132465283357305,
+            "p50": 0.217669574500178,
+            "p95": 0.25181463150147465
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.11200163483105523,
+            "p50": 0.10600152899860404,
+            "p95": 0.13757818549856893
+          },
+          "native_ranking": [
+            0,
+            2,
+            1,
+            6,
+            4,
+            10,
+            3,
+            5,
+            8,
+            11,
+            13,
+            14,
+            16,
+            21,
+            12,
+            18,
+            19,
+            15,
+            17,
+            7,
+            9
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.10866863933333333,
+            "p50": 0.108706447,
+            "p95": 0.11532998075
+          },
+          "per_process_mean_seconds": [
+            0.21026183100184426,
+            0.24092725649825297,
+            0.21278487100062193
+          ]
+        },
+        "seed130-turn25": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 258001,
+            "expanded_nodes": 341673,
+            "game_over_nodes": 83672,
+            "generated_nodes": 341673,
+            "invalid_nodes": 0,
+            "pruned_nodes": 198324,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 32939,
+            "transposition_hits": 5341
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.3579398575020605,
+            "p50": 0.34834832950582495,
+            "p95": 0.3822145192461903
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.14473410833064312,
+            "p50": 0.14508621649292763,
+            "p95": 0.15729185125019285
+          },
+          "native_ranking": [
+            2,
+            5,
+            3,
+            6,
+            17,
+            12,
+            15,
+            1,
+            8,
+            0,
+            14,
+            4,
+            10,
+            18,
+            16,
+            20,
+            19,
+            21,
+            11,
+            13,
+            7,
+            9
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.21199596083333336,
+            "p50": 0.21171596399999998,
+            "p95": 0.22390818724999997
+          },
+          "per_process_mean_seconds": [
+            0.34816017350385664,
+            0.38060698749904986,
+            0.3450524115032749
+          ]
+        },
+        "seed133-turn25": {
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 275217,
+            "expanded_nodes": 350366,
+            "game_over_nodes": 75149,
+            "generated_nodes": 350366,
+            "invalid_nodes": 0,
+            "pruned_nodes": 190568,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 51814,
+            "transposition_hits": 11378
+          },
+          "elapsed_seconds": {
+            "count": 6,
+            "mean": 0.38622374466406956,
+            "p50": 0.38703197699942393,
+            "p95": 0.39575838325254153
+          },
+          "materialization_seconds": {
+            "count": 6,
+            "mean": 0.14642307149673192,
+            "p50": 0.14707040499342838,
+            "p95": 0.15429552800560487
+          },
+          "native_ranking": [
+            0,
+            3,
+            4,
+            9,
+            6,
+            2,
+            14,
+            11,
+            7,
+            8,
+            13,
+            21,
+            19,
+            18,
+            12,
+            15,
+            17,
+            5,
+            1,
+            10,
+            16,
+            20
+          ],
+          "native_search_seconds": {
+            "count": 6,
+            "mean": 0.238846247,
+            "p50": 0.23772266250000001,
+            "p95": 0.24506721999999997
+          },
+          "per_process_mean_seconds": [
+            0.38054671049758326,
+            0.39509329450083897,
+            0.3830312289937865
+          ]
+        }
+      },
+      "fully_evaluated": 16,
+      "game_overs_both_repeats": 0,
+      "initial_fixed": {
+        "seed123-cold": {
+          "count": 3,
+          "mean": 0.6525119926664047,
+          "p50": 0.6602236689941492,
+          "p95": 0.671350461707334
+        },
+        "seed123-warm": {
+          "count": 3,
+          "mean": 0.5917325173310625,
+          "p50": 0.5904447299981257,
+          "p95": 0.5965839656957542
+        },
+        "seed135-cold": {
+          "count": 3,
+          "mean": 0.48133969300154905,
+          "p50": 0.4790061899984721,
+          "p95": 0.4927264785015723
+        },
+        "seed135-warm": {
+          "count": 3,
+          "mean": 0.4888126660031655,
+          "p50": 0.4878389630030142,
+          "p95": 0.49226056309853444
+        }
+      },
+      "latency": {
+        "max_seconds": 0.8153602940001292,
+        "mean_seconds": 0.5193257561469636,
+        "p50_seconds": 0.5859142304980196,
+        "p95_seconds": 0.7122745083572226,
+        "sample_count": 640,
+        "wall_clock_mode": "observational_no_timeout"
+      },
+      "manifest_sha256": "8a109bd01fcc61d226a337e9af97b2edde1c877a40923fa9e75bff770237881e",
+      "mean_maximum_actual_chain": 9.25,
+      "no_fire_unique_seeds": 0,
+      "parity_mismatches": 0,
+      "peak_rss_kib": 170804,
+      "per_seed": [
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 30
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.665350242707791,
+            0.7006318037943856
+          ],
+          "evaluated_nodes_repeat1": 15799016,
+          "expanded_nodes_repeat1": 16743219,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 123,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            24.47259950901207,
+            25.463506821994088
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 36
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7026172526624577,
+            0.7327484387591539
+          ],
+          "evaluated_nodes_repeat1": 13830292,
+          "expanded_nodes_repeat1": 14367125,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 126,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            23.449047720001545,
+            24.01508397399448
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 11,
+              "turn_1based": 35
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6883826210505503,
+            0.6698709874901396
+          ],
+          "evaluated_nodes_repeat1": 13666001,
+          "expanded_nodes_repeat1": 14934984,
+          "game_over": false,
+          "maximum_chain": 11,
+          "premature": 0,
+          "seed": 130,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            22.258993137002108,
+            22.317458160003298
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 7,
+              "turn_1based": 40
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7144926674074666,
+            0.7141424345965788
+          ],
+          "evaluated_nodes_repeat1": 12050911,
+          "expanded_nodes_repeat1": 12614928,
+          "game_over": false,
+          "maximum_chain": 7,
+          "premature": 1,
+          "seed": 133,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            20.932756833994063,
+            20.75641769899812
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 10,
+              "turn_1based": 32
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6629077591060194,
+            0.7096563995561155
+          ],
+          "evaluated_nodes_repeat1": 14411508,
+          "expanded_nodes_repeat1": 15510991,
+          "game_over": false,
+          "maximum_chain": 10,
+          "premature": 0,
+          "seed": 135,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            23.873817689003772,
+            23.97454031300731
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 12,
+              "turn_1based": 35
+            },
+            {
+              "chain_count": 1,
+              "turn_1based": 37
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7165634463483002,
+            0.7273174522008048
+          ],
+          "evaluated_nodes_repeat1": 13271476,
+          "expanded_nodes_repeat1": 13964142,
+          "game_over": false,
+          "maximum_chain": 12,
+          "premature": 1,
+          "seed": 138,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            23.746238545005326,
+            24.03946064300544
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 12,
+              "turn_1based": 31
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.7279718837948166,
+            0.7010069830066641
+          ],
+          "evaluated_nodes_repeat1": 16119185,
+          "expanded_nodes_repeat1": 16483731,
+          "game_over": false,
+          "maximum_chain": 12,
+          "premature": 0,
+          "seed": 147,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            26.986809358000755,
+            26.839778477005893
+          ]
+        },
+        {
+          "actual_fires": [
+            {
+              "chain_count": 2,
+              "turn_1based": 40
+            }
+          ],
+          "completed_turns": 40,
+          "decision_p95_repeats": [
+            0.6797866911510936,
+            0.6886565910557692
+          ],
+          "evaluated_nodes_repeat1": 12070575,
+          "expanded_nodes_repeat1": 12733217,
+          "game_over": false,
+          "maximum_chain": 2,
+          "premature": 1,
+          "seed": 151,
+          "termination": "turn_limit",
+          "trajectory_seconds_repeats": [
+            20.86569588400016,
+            20.86011838799459
+          ]
+        }
+      ],
+      "premature_fires_both_repeats": 6,
+      "private_boundary_passed": true,
+      "repeat_determinism": [
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 123,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 126,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 130,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 133,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 135,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 138,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 147,
+          "trajectory_digest": true
+        },
+        {
+          "action_digest": true,
+          "plan_digest": true,
+          "request_receipts": true,
+          "seed": 151,
+          "trajectory_digest": true
+        }
+      ],
+      "run_count": 16,
+      "runner": {
+        "file": "eval/puyo241_risk_weight_trial.py",
+        "git_commit": "1eadf7bf9e00f1ccade13acfe730b29724888860",
+        "sha256": "411eaea918dc058a56e48c7280bcba9976b4e0f58a6fabeb03003cde95628837"
+      },
+      "search": {
+        "cache_accounting": {
+          "evaluator_cache_availability": "not_exported_by_the_production_long_horizon_hot_path; the independent PUYO-221/227 evaluator profile remains authoritative",
+          "evaluator_resolution_cache_hits": null,
+          "transposition_hit_rate_per_generated_node": 0.032600023977366555,
+          "transposition_hits": 7651378
+        },
+        "cache_hit_rate_per_generated_node": 0.032600023977366555,
+        "counters": {
+          "evaluated_nodes": {
+            "max": 465036.0,
+            "mean": 347559.2625,
+            "p50": 426296.5,
+            "p95": 464929.4,
+            "sample_count": 640,
+            "total": 222437928.0
+          },
+          "expanded_nodes": {
+            "max": 465036.0,
+            "mean": 366726.053125,
+            "p50": 448432.5,
+            "p95": 465016.2,
+            "sample_count": 640,
+            "total": 234704674.0
+          },
+          "game_over_nodes": {
+            "max": 84583.0,
+            "mean": 19166.790625,
+            "p50": 8177.5,
+            "p95": 67869.49999999996,
+            "sample_count": 640,
+            "total": 12266746.0
+          },
+          "generated_nodes": {
+            "max": 465036.0,
+            "mean": 366726.053125,
+            "p50": 448432.5,
+            "p95": 465016.2,
+            "sample_count": 640,
+            "total": 234704674.0
+          },
+          "invalid_nodes": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "sample_count": 640,
+            "total": 0.0
+          },
+          "pruned_nodes": {
+            "max": 380087.0,
+            "mean": 260615.925,
+            "p50": 315353.0,
+            "p95": 368347.6,
+            "sample_count": 640,
+            "total": 166794192.0
+          },
+          "reached_depth": {
+            "max": 16.0,
+            "mean": 14.596875,
+            "p50": 16.0,
+            "p95": 16.0,
+            "sample_count": 640,
+            "total": 9342.0
+          },
+          "terminal_fire_nodes": {
+            "max": 126126.0,
+            "mean": 55434.825,
+            "p50": 60437.5,
+            "p95": 99134.04999999997,
+            "sample_count": 640,
+            "total": 35478288.0
+          },
+          "transposition_hits": {
+            "max": 30566.0,
+            "mean": 11955.278125,
+            "p50": 11169.0,
+            "p95": 24430.899999999976,
+            "sample_count": 640,
+            "total": 7651378.0
+          }
+        },
+        "expanded_nodes_per_native_compute_second": 1220730.0640006962,
+        "flow_step_latency_seconds": {
+          "aggregate_scenario_scores": {
+            "max": 0.0008974060037871823,
+            "mean": 0.00011592628750349832,
+            "p50": 0.00010149750596610829,
+            "p95": 0.00021845359733561022,
+            "sample_count": 640,
+            "total": 0.07419282400223892
+          },
+          "complete_visible_queue_scenarios": {
+            "max": 0.0021102870086906478,
+            "mean": 0.0003989096467876152,
+            "p50": 0.00035898750502383336,
+            "p95": 0.0006345357549434992,
+            "sample_count": 640,
+            "total": 0.25530217394407373
+          },
+          "emit_decision_trace": {
+            "max": 0.038296939004794694,
+            "mean": 0.01368588664647632,
+            "p50": 0.013129942999512423,
+            "p95": 0.0219022278928605,
+            "sample_count": 640,
+            "total": 8.758967453744845
+          },
+          "enumerate_root_placements": {
+            "max": 0.0011475889914436266,
+            "mean": 0.00023595456254952297,
+            "p50": 0.00021356849174480885,
+            "p95": 0.0003983015507401432,
+            "sample_count": 640,
+            "total": 0.1510109200316947
+          },
+          "normalize_observation": {
+            "max": 7.189399912022054e-05,
+            "mean": 7.3648971010698006e-06,
+            "p50": 6.262001988943666e-06,
+            "p95": 1.0038604523288083e-05,
+            "sample_count": 640,
+            "total": 0.004713534144684672
+          },
+          "run_long_range_search": {
+            "max": 0.7462786859978223,
+            "mean": 0.4671742296012553,
+            "p50": 0.5324927900001057,
+            "p95": 0.657710438050708,
+            "sample_count": 640,
+            "total": 298.9915069448034
+          },
+          "select_placement": {
+            "max": 0.044581968992133625,
+            "mean": 0.02073890120905162,
+            "p50": 0.020913961503538303,
+            "p95": 0.029169150601228457,
+            "sample_count": 640,
+            "total": 13.272896773793036
+          }
+        },
+        "native_phase_latency_seconds": {
+          "boundary_call": {
+            "max": 0.5323658,
+            "mean": 0.301296507465625,
+            "p50": 0.3462793935,
+            "p95": 0.44538982479999994,
+            "sample_count": 640,
+            "total": 192.829764778
+          },
+          "materialization": {
+            "max": 0.253497708,
+            "mean": 0.1568839305859375,
+            "p50": 0.1667310415,
+            "p95": 0.21681072485,
+            "sample_count": 640,
+            "total": 100.405715575
+          },
+          "native_aggregation": {
+            "max": 0.000685338,
+            "mean": 8.811348125e-05,
+            "p50": 6.7896e-05,
+            "p95": 0.00023483114999999974,
+            "sample_count": 640,
+            "total": 0.056392628
+          },
+          "native_compute": {
+            "max": 0.531630292,
+            "mean": 0.300415353025,
+            "p50": 0.345299566,
+            "p95": 0.44472996434999995,
+            "sample_count": 640,
+            "total": 192.265825936
+          },
+          "native_search": {
+            "max": 0.531554465,
+            "mean": 0.30032723954375,
+            "p50": 0.345246547,
+            "p95": 0.44467306025,
+            "sample_count": 640,
+            "total": 192.209433308
+          },
+          "native_serialization": {
+            "max": 0.003446643,
+            "mean": 0.000532501809375,
+            "p50": 0.000417678,
+            "p95": 0.0014575624999999992,
+            "sample_count": 640,
+            "total": 0.340801158
+          },
+          "native_total": {
+            "max": 0.532076196,
+            "mean": 0.30094785483437503,
+            "p50": 0.346019513,
+            "p95": 0.4451014164499999,
+            "sample_count": 640,
+            "total": 192.606627094
+          },
+          "total": {
+            "max": 0.738121796,
+            "mean": 0.45818216779687504,
+            "p50": 0.524292126,
+            "p95": 0.6476844749999999,
+            "sample_count": 640,
+            "total": 293.23658739
+          }
+        },
+        "native_serialization_ratio": 0.0011622054431657256,
+        "native_telemetry": {
+          "aggregation_ns": {
+            "max": 685338.0,
+            "mean": 88113.48125,
+            "p50": 67896.0,
+            "p95": 234831.14999999973,
+            "sample_count": 640,
+            "total": 56392628.0
+          },
+          "arena_capacity_nodes": {
+            "max": 6000.0,
+            "mean": 6000.0,
+            "p50": 6000.0,
+            "p95": 6000.0,
+            "sample_count": 640,
+            "total": 3840000.0
+          },
+          "peak_live_nodes": {
+            "max": 5750.0,
+            "mean": 4874.3625,
+            "p50": 5434.5,
+            "p95": 5750.0,
+            "sample_count": 640,
+            "total": 3119592.0
+          },
+          "pool_reuses": {
+            "max": 1.0,
+            "mean": 0.975,
+            "p50": 1.0,
+            "p95": 1.0,
+            "sample_count": 640,
+            "total": 624.0
+          },
+          "scenario_jobs": {
+            "max": 6.0,
+            "mean": 6.0,
+            "p50": 6.0,
+            "p95": 6.0,
+            "sample_count": 640,
+            "total": 3840.0
+          },
+          "scenario_reruns": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "sample_count": 640,
+            "total": 0.0
+          },
+          "search_ns": {
+            "max": 531554465.0,
+            "mean": 300327239.54375,
+            "p50": 345246547.0,
+            "p95": 444673060.24999994,
+            "sample_count": 640,
+            "total": 192209433308.0
+          },
+          "serialization_ns": {
+            "max": 3446643.0,
+            "mean": 532501.809375,
+            "p50": 417678.0,
+            "p95": 1457562.4999999993,
+            "sample_count": 640,
+            "total": 340801158.0
+          },
+          "tt_capacity_slots": {
+            "max": 16384.0,
+            "mean": 16384.0,
+            "p50": 16384.0,
+            "p95": 16384.0,
+            "sample_count": 640,
+            "total": 10485760.0
+          }
+        },
+        "process_resources": {
+          "peak_rss_kib": 170804,
+          "run_count": 16,
+          "system_cpu_seconds": 4.180681,
+          "user_cpu_seconds": 1267.450703
+        },
+        "python_flow_latency_seconds": {
+          "max": 0.11319500901138813,
+          "mean": 0.06114358835008861,
+          "p50": 0.061922979497261554,
+          "p95": 0.08330877279268167,
+          "sample_count": 640,
+          "total": 39.13189654405671
+        },
+        "scenario_accounting": {
+          "decision_count": 640,
+          "failure_count": 0,
+          "passed": true
+        }
+      },
+      "selected_forced_safety_decisions": 0,
+      "target10_seed_count": 6,
+      "trajectory_seconds": {
+        "count": 16,
+        "mean": 23.42827019700144,
+        "p50": 23.81002811700455,
+        "p95": 26.87653619725461
+      },
+      "unique_seed_count": 8
+    }
+  },
+  "source_sha256": {
+    "baseline/experiment_manifest.json": "3e42d31d8dfe032d655a0155d744c7cb38f425ddf5fbff137d7a2ead8914f902",
+    "baseline/fixed-01.json": "2a3a1961e659738eba1e7355dd9c40ee8dec1bfec4f9a964ccb09e9b5ff496a1",
+    "baseline/fixed-02.json": "d15c7292e2327037a5cf4aba09b9150f6f0e3f9565da01e8a27b1ac3ee69d711",
+    "baseline/fixed-03.json": "bf90c26c3e8142aacb99801d3986c9ac03a880f05502b9412891f59e69142298",
+    "baseline/target-10/seed-123-repeat-01.json.gz": "09f7ece2767dcedf8ba0e18c7d5e8e4fc6bde31bb575137962078d56688644a3",
+    "baseline/target-10/seed-123-repeat-02.json.gz": "8c530c1e82b79f84d5941e990bf7e7449f418c19743b7018779b2a18475d28e7",
+    "baseline/target-10/seed-126-repeat-01.json.gz": "c007b4f8f26321a26061e8934f0f4f748dfaa75d2c72b9a0b5e3e7c04456386c",
+    "baseline/target-10/seed-126-repeat-02.json.gz": "61f601b85079b5a0edd175b042de4f997ce150671ccb25a55b6a70b83732ac12",
+    "baseline/target-10/seed-130-repeat-01.json.gz": "8c315bc472bcd7151b2694b7a0213e9803996e32f77a7c3cdce698eda59f63e9",
+    "baseline/target-10/seed-130-repeat-02.json.gz": "aacb9998df8b6e408df9cb2d6f2aa79bac7d6c3c71a55a75bb9e5edd6770d6f6",
+    "baseline/target-10/seed-133-repeat-01.json.gz": "0c4a7b11fcd75f2f851fd80d760214fa4f861f41634b7a326efb2fbab34ac670",
+    "baseline/target-10/seed-133-repeat-02.json.gz": "9668840d49f380a98c1ee439413b66314a34f5d77c54833189c6096bb5949f41",
+    "baseline/target-10/seed-135-repeat-01.json.gz": "c513b0ffbc5deb3476dc4f9aa1b63ded39758ecfb01c11f11fe397ff163eae9f",
+    "baseline/target-10/seed-135-repeat-02.json.gz": "7f6747321c7adc64ef6639b7b417924430f51e10027cfc8e314e8a197912aa68",
+    "baseline/target-10/seed-138-repeat-01.json.gz": "737b23bc2fcd6ac1e6b5a163f442d795923ae9eedbc6a74456e206ae739c1da2",
+    "baseline/target-10/seed-138-repeat-02.json.gz": "ffaaa9ef68ecfe388e303cc8d600a4525df7b2babcb849f034eacdb2d640834d",
+    "baseline/target-10/seed-147-repeat-01.json.gz": "33af9e68e2a4c3fbe22b668ae12eaaf9577603997e0c5acaa59f4a4259bc1658",
+    "baseline/target-10/seed-147-repeat-02.json.gz": "9b5288d3424aecdf36ced24d9012c462a4c0e86341b30c3ae088f4536bb13852",
+    "baseline/target-10/seed-151-repeat-01.json.gz": "a1f25edaf45ed7b097f6fbcfd367572d5be1a8c385cf8d43b2991b8082b2c036",
+    "baseline/target-10/seed-151-repeat-02.json.gz": "433b4abb60a9cc5f3bc7f8d109de152fa468ea64b609a4e0e595e17601b6bb6d",
+    "danger2/experiment_manifest.json": "c4868984c0b10e02f3afd9c63646b41a2c616d78e8b1280ee392696cf4f502a1",
+    "danger2/fixed-01.json": "bd82793f9adaf16fd7ef6bbc575f722ecfb3c7b9c7f358016d5e84958d40f27c",
+    "danger2/fixed-02.json": "e9369c090a3fe8cecaf1cf3bab4e6b619e693808fea61aabf862a8c8fba29db7",
+    "danger2/fixed-03.json": "22f96fa75db1923b2ebb98df92ae0e22bba027ebef63fb05c719d14afae9b903",
+    "danger2/target-10/seed-123-repeat-01.json.gz": "2ac9451472e36a7a67351e3238cb2d19092ece39a22d41270698453d437071f3",
+    "danger2/target-10/seed-123-repeat-02.json.gz": "254b35734379b3160bf07c69e95ca31397cdb8cd477c2502b53bbee93463a79d",
+    "danger2/target-10/seed-126-repeat-01.json.gz": "952d6428123aed60d7190f5416c127ff599781d95ebe8ab1423792b297b05037",
+    "danger2/target-10/seed-126-repeat-02.json.gz": "9d39a6f3f5591942b0fb45e89d6b2f012969dfa47b6df2b0736e9912d8a727fe",
+    "danger2/target-10/seed-130-repeat-01.json.gz": "4f642c059fbe0135b290f80c3a461e66d164f8eb7fe889c2c962e989238224ea",
+    "danger2/target-10/seed-130-repeat-02.json.gz": "a196050d49d61557abd72c1ce08c67e22223c12b4716c08524cc6d2861af9eb1",
+    "danger2/target-10/seed-133-repeat-01.json.gz": "4a0939c1a47cf80ad544ad0d12c9ae84ea30e9044cdee4d830a4291a9e0f33a0",
+    "danger2/target-10/seed-133-repeat-02.json.gz": "5a39ac763771d7f3686066d059dd4aee869feddaa5ea0794213e15ad6781a29f",
+    "danger2/target-10/seed-135-repeat-01.json.gz": "0805b45e638944bf613ba4c8a025d7a185c10851996c7add0bf4a2ec564431a0",
+    "danger2/target-10/seed-135-repeat-02.json.gz": "79f3daa3d21dad3afd021903e29c44ba868e5fd0554848cb9b12d935148fbafa",
+    "danger2/target-10/seed-138-repeat-01.json.gz": "0b8be609d0ec32f2216ae697c97453cd4349f143e90ce60f3be6b0f3d97f7f9d",
+    "danger2/target-10/seed-138-repeat-02.json.gz": "6815f7327eb98cfc259d0254e7ab98b28264541c2615d44341ac42005508a39e",
+    "danger2/target-10/seed-147-repeat-01.json.gz": "adbb62ed81b98bd7295c7ab2c6a1a2c0a0ed78531102d1c9cacc159618b4440f",
+    "danger2/target-10/seed-147-repeat-02.json.gz": "c51e6855bdb5c8b4c2bdf2f23894119ceac8071c94de8857688df236380caecb",
+    "danger2/target-10/seed-151-repeat-01.json.gz": "1280f955c85eed24c9b7db4d6047e9b01f214eb1510a911d487829b82d3a6b4d",
+    "danger2/target-10/seed-151-repeat-02.json.gz": "2154dfbf8d0a28292357ada22f02d91349d31d55ee97678065168eacfe9a4745",
+    "final-python-tests.log": "27c286e03aaadf7b3c9196cb23d9a88957fd3b4426bf3fc97a5ed9905e6cc869",
+    "fixed-inputs.json": "56aa35db9415abb0c2d600c72db3cfd464d4a124e346bdd7e9069356d1749fc8",
+    "pretrial-diagnosis.json.gz": "edcf74032890d3cfacff57819d66ad57fca13f36825cfa3b872514b81dd87f88",
+    "python-tests.log": "3a68ec4b89bb350204907a5b2e65e0b16560237b4ac8fc8733d71fff8ceaba9a"
+  },
+  "ticket": "PUYO-241",
+  "trajectory_windows": [
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 123,
+      "split_turn_1based": 30,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 10,
+          "decision_seconds": 1.0049334729992552,
+          "evaluated_nodes": 585949,
+          "expanded_nodes": 675216
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 30,
+          "decision_seconds": 15.5622517009906,
+          "evaluated_nodes": 11779368,
+          "expanded_nodes": 12092099
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 123,
+      "split_turn_1based": 30,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 10,
+          "decision_seconds": 1.0919326380389975,
+          "evaluated_nodes": 585949,
+          "expanded_nodes": 675216
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 30,
+          "decision_seconds": 16.976769505999982,
+          "evaluated_nodes": 11779368,
+          "expanded_nodes": 12092099
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 123,
+      "split_turn_1based": 30,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 10,
+          "decision_seconds": 6.086691377000534,
+          "evaluated_nodes": 4394687,
+          "expanded_nodes": 4428416
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 30,
+          "decision_seconds": 15.753711703044246,
+          "evaluated_nodes": 11404329,
+          "expanded_nodes": 12314803
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 123,
+      "split_turn_1based": 30,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 10,
+          "decision_seconds": 6.287904338998487,
+          "evaluated_nodes": 4394687,
+          "expanded_nodes": 4428416
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 30,
+          "decision_seconds": 16.48607139097294,
+          "evaluated_nodes": 11404329,
+          "expanded_nodes": 12314803
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 126,
+      "split_turn_1based": 36,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 4,
+          "decision_seconds": 0.08417405499494635,
+          "evaluated_nodes": 524,
+          "expanded_nodes": 1122
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 36,
+          "decision_seconds": 17.933315904039773,
+          "evaluated_nodes": 11515273,
+          "expanded_nodes": 12737850
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 126,
+      "split_turn_1based": 36,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 4,
+          "decision_seconds": 0.09590228600427508,
+          "evaluated_nodes": 524,
+          "expanded_nodes": 1122
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 36,
+          "decision_seconds": 18.04985389302601,
+          "evaluated_nodes": 11515273,
+          "expanded_nodes": 12737850
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 126,
+      "split_turn_1based": 36,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 4,
+          "decision_seconds": 2.437806169007672,
+          "evaluated_nodes": 1781944,
+          "expanded_nodes": 1782208
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 36,
+          "decision_seconds": 18.339258798994706,
+          "evaluated_nodes": 12048348,
+          "expanded_nodes": 12584917
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 126,
+      "split_turn_1based": 36,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 4,
+          "decision_seconds": 2.462533115016413,
+          "evaluated_nodes": 1781944,
+          "expanded_nodes": 1782208
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 36,
+          "decision_seconds": 18.79457825300051,
+          "evaluated_nodes": 12048348,
+          "expanded_nodes": 12584917
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 130,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 0.08847188900108449,
+          "evaluated_nodes": 3882,
+          "expanded_nodes": 5600
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 17.168098704976728,
+          "evaluated_nodes": 11393206,
+          "expanded_nodes": 12474945
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 130,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 0.09279175900155678,
+          "evaluated_nodes": 3882,
+          "expanded_nodes": 5600
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 17.233199461974436,
+          "evaluated_nodes": 11393206,
+          "expanded_nodes": 12474945
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 130,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 3.049100328978966,
+          "evaluated_nodes": 2301923,
+          "expanded_nodes": 2305847
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 16.609019026975147,
+          "evaluated_nodes": 11364078,
+          "expanded_nodes": 12629137
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 130,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 3.0700866430124734,
+          "evaluated_nodes": 2301923,
+          "expanded_nodes": 2305847
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 16.65775541101175,
+          "evaluated_nodes": 11364078,
+          "expanded_nodes": 12629137
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 133,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 39,
+          "decision_seconds": 16.855671762968996,
+          "evaluated_nodes": 11371806,
+          "expanded_nodes": 12358981
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 133,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 39,
+          "decision_seconds": 16.98867711397179,
+          "evaluated_nodes": 11371806,
+          "expanded_nodes": 12358981
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 133,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 18.506597737010452,
+          "evaluated_nodes": 12050911,
+          "expanded_nodes": 12614928
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 133,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 18.441331543028355,
+          "evaluated_nodes": 12050911,
+          "expanded_nodes": 12614928
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 135,
+      "split_turn_1based": 32,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 8,
+          "decision_seconds": 0.36174835602287203,
+          "evaluated_nodes": 65332,
+          "expanded_nodes": 98303
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 32,
+          "decision_seconds": 15.525188589992467,
+          "evaluated_nodes": 10912316,
+          "expanded_nodes": 11850936
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 135,
+      "split_turn_1based": 32,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 8,
+          "decision_seconds": 0.36604438700305764,
+          "evaluated_nodes": 65332,
+          "expanded_nodes": 98303
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 32,
+          "decision_seconds": 15.697791047015926,
+          "evaluated_nodes": 10912316,
+          "expanded_nodes": 11850936
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 135,
+      "split_turn_1based": 32,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 8,
+          "decision_seconds": 5.192348529031733,
+          "evaluated_nodes": 3648610,
+          "expanded_nodes": 3671376
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 32,
+          "decision_seconds": 15.93078968700138,
+          "evaluated_nodes": 10762898,
+          "expanded_nodes": 11839615
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 135,
+      "split_turn_1based": 32,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 8,
+          "decision_seconds": 5.342452176977531,
+          "evaluated_nodes": 3648610,
+          "expanded_nodes": 3671376
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 32,
+          "decision_seconds": 15.864707831016858,
+          "evaluated_nodes": 10762898,
+          "expanded_nodes": 11839615
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 138,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 3.03451697298442,
+          "evaluated_nodes": 2207030,
+          "expanded_nodes": 2253246
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 19.078984571024193,
+          "evaluated_nodes": 12195986,
+          "expanded_nodes": 13025420
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 138,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 3.0211552499968093,
+          "evaluated_nodes": 2207030,
+          "expanded_nodes": 2253246
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 19.039660612965235,
+          "evaluated_nodes": 12195986,
+          "expanded_nodes": 13025420
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 138,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 2.057919207974919,
+          "evaluated_nodes": 1377935,
+          "expanded_nodes": 1377935
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 18.976041654968867,
+          "evaluated_nodes": 11893541,
+          "expanded_nodes": 12586207
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 138,
+      "split_turn_1based": 35,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 5,
+          "decision_seconds": 2.0133356650039786,
+          "evaluated_nodes": 1377935,
+          "expanded_nodes": 1377935
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 35,
+          "decision_seconds": 19.27485360999708,
+          "evaluated_nodes": 11893541,
+          "expanded_nodes": 12586207
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 147,
+      "split_turn_1based": 31,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 9,
+          "decision_seconds": 0.5250986440223642,
+          "evaluated_nodes": 120903,
+          "expanded_nodes": 231707
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 31,
+          "decision_seconds": 16.146125195009517,
+          "evaluated_nodes": 10952250,
+          "expanded_nodes": 12327506
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 147,
+      "split_turn_1based": 31,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 9,
+          "decision_seconds": 0.530157692002831,
+          "evaluated_nodes": 120903,
+          "expanded_nodes": 231707
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 31,
+          "decision_seconds": 16.167217221081955,
+          "evaluated_nodes": 10952250,
+          "expanded_nodes": 12327506
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 147,
+      "split_turn_1based": 31,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 9,
+          "decision_seconds": 5.805109438006184,
+          "evaluated_nodes": 4107110,
+          "expanded_nodes": 4112003
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 31,
+          "decision_seconds": 18.14371003404085,
+          "evaluated_nodes": 12012075,
+          "expanded_nodes": 12371728
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 147,
+      "split_turn_1based": 31,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 9,
+          "decision_seconds": 5.777564090007218,
+          "evaluated_nodes": 4107110,
+          "expanded_nodes": 4112003
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 31,
+          "decision_seconds": 18.158216179013834,
+          "evaluated_nodes": 12012075,
+          "expanded_nodes": 12371728
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 1,
+      "seed": 151,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 21.25210868906288,
+          "evaluated_nodes": 13629697,
+          "expanded_nodes": 14430138
+        }
+      }
+    },
+    {
+      "condition": "baseline",
+      "repeat": 2,
+      "seed": 151,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 21.24672212706355,
+          "evaluated_nodes": 13629697,
+          "expanded_nodes": 14430138
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 1,
+      "seed": 151,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 18.431404650953482,
+          "evaluated_nodes": 12070575,
+          "expanded_nodes": 12733217
+        }
+      }
+    },
+    {
+      "condition": "danger2",
+      "repeat": 2,
+      "seed": 151,
+      "split_turn_1based": 40,
+      "windows": {
+        "after_candidate_first_fire": {
+          "decision_count": 0,
+          "decision_seconds": 0,
+          "evaluated_nodes": 0,
+          "expanded_nodes": 0
+        },
+        "through_candidate_first_fire": {
+          "decision_count": 40,
+          "decision_seconds": 18.41758534401015,
+          "evaluated_nodes": 12070575,
+          "expanded_nodes": 12733217
+        }
+      }
+    }
+  ]
+}
