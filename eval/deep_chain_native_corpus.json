@@ -1386,7 +1386,7 @@
         "terminal_fire_nodes": 0,
         "transposition_hits": 0
       },
-      "deterministic_digest": "long-horizon-search-de7a005aef42310f30c07a46",
+      "deterministic_digest": "long-horizon-search-54e6574c124c3c8bac97c294",
       "ranked_root_actions": [
         0,
         3,
