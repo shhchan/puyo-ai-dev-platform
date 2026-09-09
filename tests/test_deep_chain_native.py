@@ -243,7 +243,7 @@ class TestDeepChainNativePythonContract(NativeRequestFixture, unittest.TestCase)
                 EnvelopeSection(
                     native_boundary.RESULT_ROOT_EVIDENCE_TAG,
                     1,
-                    empty_record_section,
+                    struct.pack("<HHII", 2, 0, 0, 0),
                 ),
                 EnvelopeSection(
                     native_boundary.RESULT_REPRESENTATIVES_TAG,

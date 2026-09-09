@@ -15,7 +15,7 @@ import math
 import random
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from agents.chain_structure import (
@@ -36,6 +36,9 @@ from src.core.tsumo import PuyoSequence
 LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
 EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
+WEAK_SCENARIO_SUPPORT_RULE_VERSION = "puyo.weak_scenario_support.v1.min2of6"
+EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v3"
+MINIMUM_TARGET_SCENARIO_SUPPORT = 2
 SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
 FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
 FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
@@ -912,6 +915,7 @@ class ScenarioRootEvidence:
     survivor_shortfalls: tuple[tuple[int, str], ...] = ()
     invalid_nodes: int = 0
     game_over_nodes: int = 0
+    survivor_evaluator_depth: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         candidate_counts = {
@@ -946,6 +950,7 @@ class ScenarioRootEvidence:
             "fire_count": int(self.fire_count),
             "terminal_fire_count": int(self.terminal_fire_count),
             "survivor_evaluator_score": self.survivor_evaluator_score,
+            "survivor_evaluator_depth": int(self.survivor_evaluator_depth),
             "quiet_survivor": bool(self.quiet_survivor),
             "survivor_coverage": {
                 "schema_version": ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION,
@@ -998,6 +1003,7 @@ class ExpectedChainRootEvidence:
     root_survivor_quota: int = 1
     ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
+    weak_support_priority: float | None = None
 
     @property
     def evaluated_scenarios(self) -> int:
@@ -1032,7 +1038,11 @@ class ExpectedChainRootEvidence:
     def ranking_key(self) -> tuple[Any, ...]:
         class_support = int(self.fire_class_support.get(self.fire_class, 0))
         return (
-            int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
+            (
+                int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1))
+                if self.weak_support_priority is None
+                else self.weak_support_priority
+            ),
             float(self.coverage),
             class_support,
             float(self.candidate_value),
@@ -1087,6 +1097,14 @@ class ExpectedChainRootEvidence:
         return {
             "schema_version": self.schema_version,
             "ranking_rule_version": self.ranking_rule_version,
+            **(
+                {
+                    "weak_scenario_support_rule": WEAK_SCENARIO_SUPPORT_RULE_VERSION,
+                    "weak_support_priority": self.weak_support_priority,
+                }
+                if self.ranking_rule_version == EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION
+                else {}
+            ),
             "root_action": int(self.root_action),
             "fire_class": self.fire_class,
             "fire_class_priority": int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
@@ -1491,6 +1509,9 @@ class _ScenarioTracker:
             selected_fire=self.selected_fire,
             observed_fire_classes=tuple(sorted(self.fires_by_class)),
             quiet_survivor=self.best_survivor is not None,
+            survivor_evaluator_depth=(
+                0 if self.best_survivor is None else len(self.best_survivor.path)
+            ),
             survivor_quota=int(self.root_survivor_quota),
             survivor_candidate_counts=tuple(
                 sorted(self.survivor_candidate_counts.items())
@@ -1649,6 +1670,76 @@ def aggregate_expected_chain_evidence(
             (value.survivor_quota for value in evaluated),
             default=1,
         ),
+    )
+
+
+def apply_weak_scenario_support_guard(
+    evidence: Sequence[ExpectedChainRootEvidence],
+    *,
+    config: LongHorizonSearchConfig,
+    fatal_score: float,
+) -> tuple[ExpectedChainRootEvidence, ...]:
+    """Order weak forecasts below proven full-depth quiet alternatives only.
+
+    The existing ranking tuple and its exact numeric tie-breaks follow this
+    class priority. No search, survivor choice, fire class or plan is changed.
+    """
+    roots = tuple(evidence)
+    if (
+        config.fire_context != FIRE_CONTEXT_SAFE_BUILD
+        or config.scenarios != 6
+        or config.terminal_fire_rule != TERMINAL_FIRE_RECORD_AND_STOP
+        or not roots
+        or any(
+            root.evaluated_scenarios != 6
+            or root.fire_class in {FIRE_CLASS_WINNING, FIRE_CLASS_FORCED_SAFETY}
+            for root in roots
+        )
+    ):
+        return roots
+    weak = {
+        root.root_action
+        for root in roots
+        if root.fire_class == FIRE_CLASS_TARGET
+        and root.fire_class_support.get(FIRE_CLASS_TARGET, 0)
+        < MINIMUM_TARGET_SCENARIO_SUPPORT
+    }
+    if not weak:
+        return roots
+    alternatives = {
+        root.root_action
+        for root in roots
+        if root.fire_class == FIRE_CLASS_QUIET
+        and len(root.scenario_values) == 6
+        and all(
+            value.evaluated
+            and value.search_complete
+            and value.selected_fire_class == FIRE_CLASS_QUIET
+            and value.quiet_survivor
+            and value.survivor_evaluator_score is not None
+            and math.isfinite(value.survivor_evaluator_score)
+            and value.survivor_evaluator_score > fatal_score
+            and value.survivor_evaluator_depth == config.depth
+            and value.reached_depth == config.depth
+            and dict(value.survivor_counts).get(config.depth, 0) > 0
+            for value in root.scenario_values
+        )
+    }
+    if not alternatives:
+        return roots
+    # Exact binary64 quarters insert two priorities between quiet and forced.
+    # Every non-applicable v2 key retains its original value.
+    return tuple(
+        replace(
+            root,
+            ranking_rule_version=EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION,
+            weak_support_priority=(
+                2.25 if root.root_action in weak
+                else 2.5 if root.root_action in alternatives
+                else None
+            ),
+        )
+        for root in roots
     )
 
 
@@ -2227,8 +2318,13 @@ def _run_long_horizon_search(
             tracker.scenario_id for tracker in trackers if tracker.evaluated
         )
 
+    guarded_evidence = apply_weak_scenario_support_guard(
+        evidence,
+        config=config,
+        fatal_score=float(getattr(getattr(selected_evaluator, "config", None), "fatal_score", -1e12)),
+    )
     return LongHorizonSearchResult(
-        root_evidence=tuple(sorted(evidence, key=lambda value: value.root_action)),
+        root_evidence=tuple(sorted(guarded_evidence, key=lambda value: value.root_action)),
         representatives=representatives,
         scenario_sequences=sequences,
         root_evaluation=root_evaluation,
