@@ -11,6 +11,7 @@ from agents.deep_chain_search_backend import semantic_sha256
 from eval import puyo236_four_pattern_trial as trial
 from eval.puyo236_fixture_migration import migrate_frozen_request
 from eval.puyo236_run_comparison import balanced_counts, schedule
+from eval.puyo236_summarize import quality
 
 
 class TestFourPatternComparison(unittest.TestCase):
@@ -30,6 +31,17 @@ class TestFourPatternComparison(unittest.TestCase):
                          {"roots": [[1, "-Infinity"], [2, "Infinity"]]})
         with self.assertRaisesRegex(ValueError, "NaN"):
             trial.strict_json_value({"rank": [math.nan]})
+
+    def test_quality_count_and_clean_success_use_the_supplied_unique_seed_denominator(self):
+        runs = [{"maximum_actual_fire_chain_count": c, "premature_fire_count": p,
+                 "game_over": g, "actual_fire_chain_counts": fires}
+                for c, p, g, fires in ((10, 0, False, [10]), (12, 1, False, [2, 12]), (0, 0, True, []))]
+        result = quality(runs)
+        self.assertEqual(result["unique_seed_count"], 3)
+        self.assertEqual(result["target10_seed_count"], 2)
+        self.assertEqual(result["clean_target10_seed_count"], 1)
+        self.assertAlmostEqual(result["target10_rate_percent"], 200 / 3)
+        self.assertEqual(result["maximum_actual_chain_distribution"], {0: 1, 10: 1, 12: 1})
 
     def test_fixture_migration_preserves_every_nonidentity_byte_and_is_reversible(self):
         raw = bytes.fromhex(Path("tests/fixtures/evaluator_candidate_alias_request.hex").read_text())

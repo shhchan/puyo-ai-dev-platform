@@ -45,7 +45,8 @@ RUNTIME_FILES = (
     "eval/simulator_parity.py", *ablation.CONFIG_PATHS,
 )
 RUNNER_FILES = ("eval/puyo236_four_pattern_trial.py", "eval/puyo236_fixture_migration.py",
-                "eval/puyo236_run_comparison.py")
+                "eval/puyo236_run_comparison.py", "eval/puyo236_summarize.py",
+                "eval/puyo236_prepare_inputs.py")
 
 
 def strict_json_value(value):

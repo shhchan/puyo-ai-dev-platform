@@ -1,0 +1,3064 @@
+diff --git a/agents/deep_chain_native.py b/agents/deep_chain_native.py
+index 39e82c2..e268726 100644
+--- a/agents/deep_chain_native.py
++++ b/agents/deep_chain_native.py
+@@ -32,7 +32,7 @@ RESULT_SCHEMA_VERSION = "puyo.deep_chain_native.result.v1"
+ ACTION_LAYOUT_VERSION = "puyo.placement_actions.v1"
+ COMPACT_SEARCH_SCHEMA_VERSION = "puyo.compact_search_state.v1"
+ FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
+-EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
++EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v4"
+ TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
+ DEEP_CHAIN_DIAGNOSTICS_SCHEMA_VERSION = "puyo.deep_chain_builder.diagnostics.v1"
+ CHAIN_STRUCTURE_FEATURE_VERSION = "puyo.chain_structure_features.v1"
+@@ -50,7 +50,7 @@ REQUEST_SCHEMA_DIGEST = (
+     "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e"
+ )
+ RESULT_SCHEMA_DIGEST = (
+-    "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
++    "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+ )
+ 
+ _MAGIC = b"PDCN"
+@@ -1199,7 +1199,8 @@ def _decode_record_section(payload: bytes, *, tag: int, name: str) -> tuple[byte
+     body_bytes = reader.u32(f"{name} body bytes")
+     body = reader.take(body_bytes, f"{name} body")
+     reader.finish()
+-    if schema_version != 1 or reserved:
++    expected_version = 2 if tag == RESULT_ROOT_EVIDENCE_TAG else 1
++    if schema_version != expected_version or reserved:
+         raise IncompatibleSchemaError(
+             f"unsupported {name} record framing",
+             failing_tag=tag,
+diff --git a/agents/deep_chain_native_search.py b/agents/deep_chain_native_search.py
+index fa48b2c..dc917a5 100644
+--- a/agents/deep_chain_native_search.py
++++ b/agents/deep_chain_native_search.py
+@@ -41,13 +41,14 @@ from agents.long_horizon_search import (
+     ScenarioRootEvidence,
+     _root_build_diagnostics,
+     aggregate_expected_chain_evidence,
++    apply_weak_scenario_support_guard,
+     build_scenario_sequences_from_known_pairs,
+     compact_state_fingerprint,
+ )
+ from puyo_env.actions import NUM_ACTIONS
+ from src.core.constants import PuyoColor
+ 
+-NATIVE_LONG_HORIZON_RECORD_SCHEMA_VERSION = "puyo.native_long_horizon_records.v1"
++NATIVE_LONG_HORIZON_RECORD_SCHEMA_VERSION = "puyo.native_long_horizon_records.v2"
+ 
+ _FIRE_CLASSES = (
+     FIRE_CLASS_UNAVAILABLE,
+@@ -231,6 +232,7 @@ def _decode_fire(
+         terminal_score=terminal_score,
+         terminal_score_breakdown=breakdown,
+         terminal_evaluation=_fire_evaluation_details(evaluation),
++        known_pair_count=len(request.known_pairs),
+     )
+ 
+ 
+@@ -260,7 +262,7 @@ def _decode_tracker(
+     invalid_nodes = reader.u64("tracker invalid nodes")
+     game_over_nodes = reader.u64("tracker game-over nodes")
+     coverage_count = reader.u16("tracker coverage count")
+-    reserved_2 = reader.u16("tracker coverage reserved")
++    survivor_evaluator_depth = reader.u16("tracker survivor evaluator depth")
+     best_fire = _decode_fire(reader, root_action=root_action, request=request)
+     selected_fire = _decode_fire(reader, root_action=root_action, request=request)
+     candidate_counts = []
+@@ -287,7 +289,7 @@ def _decode_tracker(
+         or raw_truncation not in _TRUNCATION_REASONS
+         or observed_mask & ~0x3F
+         or reserved
+-        or reserved_2
++        or survivor_evaluator_depth > reached_depth
+         or reached_depth > request.search_config.depth
+         or terminal_fire_chain_count != request.search_config.terminal_fire_chain_count
+         or survivor_quota != request.search_config.root_survivor_quota
+@@ -302,6 +304,8 @@ def _decode_tracker(
+     survivor_score = raw_survivor_score if flags & 0x4 else None
+     if survivor_score is None and raw_survivor_score != 0.0:
+         raise InvalidNativeInputError("native absent survivor score is non-zero")
++    if bool(survivor_evaluator_depth) != bool(flags & 0x4):
++        raise InvalidNativeInputError("native survivor evaluator depth is inconsistent")
+     selected_class = _FIRE_CLASSES[raw_selected_class]
+     if selected_fire is not None and selected_fire.fire_class != selected_class:
+         raise InvalidNativeInputError("native selected fire class is inconsistent")
+@@ -357,6 +361,7 @@ def _decode_tracker(
+         selected_fire=selected_fire,
+         observed_fire_classes=observed_classes,
+         quiet_survivor=bool(flags & 0x4),
++        survivor_evaluator_depth=survivor_evaluator_depth,
+         survivor_quota=survivor_quota,
+         survivor_candidate_counts=tuple(candidate_counts),
+         survivor_counts=tuple(retained_counts),
+@@ -542,6 +547,11 @@ def materialize_native_long_horizon_result(
+         for root_action in root_actions
+     )
+     evidence_by_action = {item.root_action: item for item in evidence}
++    evidence = apply_weak_scenario_support_guard(
++        evidence,
++        config=request.search_config,
++        fatal_score=request.evaluator_config.fatal_score,
++    )
+     for root_action, representative in representatives.items():
+         if (
+             root_action not in evidence_by_action
+diff --git a/agents/long_horizon_search.py b/agents/long_horizon_search.py
+index d4eac33..003c0b3 100644
+--- a/agents/long_horizon_search.py
++++ b/agents/long_horizon_search.py
+@@ -15,7 +15,7 @@ import math
+ import random
+ from collections import Counter
+ from collections.abc import Iterable, Mapping, Sequence
+-from dataclasses import dataclass, field
++from dataclasses import dataclass, field, replace
+ from typing import Any
+ 
+ from agents.chain_structure import (
+@@ -35,7 +35,10 @@ from src.core.tsumo import PuyoSequence
+ 
+ LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
+ EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
+-EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
++EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v4"
++WEAK_SCENARIO_SUPPORT_RULE_VERSION = "puyo.weak_scenario_support.v1.min2of6"
++EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v4.guarded"
++MINIMUM_TARGET_SCENARIO_SUPPORT = 2
+ SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
+ FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
+ FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
+@@ -826,11 +829,18 @@ class ChainFireEvidence:
+     terminal_score: float | None = None
+     terminal_score_breakdown: Mapping[str, float] = field(default_factory=dict)
+     terminal_evaluation: Mapping[str, Any] = field(default_factory=dict)
++    # Decision-relative public prefix; never the completed scenario length.
++    known_pair_count: int = 0
++
++    @property
++    def known_prefix_target(self) -> bool:
++        return self.fire_class == FIRE_CLASS_TARGET and self.depth <= self.known_pair_count
+ 
+     @property
+     def rank_key(self) -> tuple[Any, ...]:
+         return (
+             int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
++            int(self.known_prefix_target),
+             (
+                 float("-inf")
+                 if self.terminal_score is None
+@@ -912,6 +922,7 @@ class ScenarioRootEvidence:
+     survivor_shortfalls: tuple[tuple[int, str], ...] = ()
+     invalid_nodes: int = 0
+     game_over_nodes: int = 0
++    survivor_evaluator_depth: int = 0
+ 
+     def to_dict(self) -> dict[str, Any]:
+         candidate_counts = {
+@@ -946,6 +957,7 @@ class ScenarioRootEvidence:
+             "fire_count": int(self.fire_count),
+             "terminal_fire_count": int(self.terminal_fire_count),
+             "survivor_evaluator_score": self.survivor_evaluator_score,
++            "survivor_evaluator_depth": int(self.survivor_evaluator_depth),
+             "quiet_survivor": bool(self.quiet_survivor),
+             "survivor_coverage": {
+                 "schema_version": ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION,
+@@ -998,6 +1010,7 @@ class ExpectedChainRootEvidence:
+     root_survivor_quota: int = 1
+     ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
+     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
++    weak_support_priority: float | None = None
+ 
+     @property
+     def evaluated_scenarios(self) -> int:
+@@ -1032,9 +1045,14 @@ class ExpectedChainRootEvidence:
+     def ranking_key(self) -> tuple[Any, ...]:
+         class_support = int(self.fire_class_support.get(self.fire_class, 0))
+         return (
+-            int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
++            (
++                int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1))
++                if self.weak_support_priority is None
++                else self.weak_support_priority
++            ),
+             float(self.coverage),
+             class_support,
++            int(self.best_fire is not None and self.best_fire.known_prefix_target),
+             float(self.candidate_value),
+             int(self.chain_score_sum),
+             int(self.chain_count_sum),
+@@ -1087,6 +1105,14 @@ class ExpectedChainRootEvidence:
+         return {
+             "schema_version": self.schema_version,
+             "ranking_rule_version": self.ranking_rule_version,
++            **(
++                {
++                    "weak_scenario_support_rule": WEAK_SCENARIO_SUPPORT_RULE_VERSION,
++                    "weak_support_priority": self.weak_support_priority,
++                }
++                if self.ranking_rule_version == EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION
++                else {}
++            ),
+             "root_action": int(self.root_action),
+             "fire_class": self.fire_class,
+             "fire_class_priority": int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
+@@ -1316,6 +1342,7 @@ class _ScenarioTracker:
+     terminal_fire_rule: str
+     terminal_fire_chain_count: int
+     root_survivor_quota: int
++    known_pair_count: int = 0
+     evaluated: bool = False
+     search_complete: bool = True
+     reached_depth: int = 0
+@@ -1372,6 +1399,7 @@ class _ScenarioTracker:
+             terminal_score=float(terminal_score),
+             terminal_score_breakdown=dict(terminal_score_breakdown),
+             terminal_evaluation=details,
++            known_pair_count=self.known_pair_count,
+         )
+         self.fire_count += 1
+         self.terminal_fire_count += int(terminal)
+@@ -1491,6 +1519,9 @@ class _ScenarioTracker:
+             selected_fire=self.selected_fire,
+             observed_fire_classes=tuple(sorted(self.fires_by_class)),
+             quiet_survivor=self.best_survivor is not None,
++            survivor_evaluator_depth=(
++                0 if self.best_survivor is None else len(self.best_survivor.path)
++            ),
+             survivor_quota=int(self.root_survivor_quota),
+             survivor_candidate_counts=tuple(
+                 sorted(self.survivor_candidate_counts.items())
+@@ -1652,6 +1683,76 @@ def aggregate_expected_chain_evidence(
+     )
+ 
+ 
++def apply_weak_scenario_support_guard(
++    evidence: Sequence[ExpectedChainRootEvidence],
++    *,
++    config: LongHorizonSearchConfig,
++    fatal_score: float,
++) -> tuple[ExpectedChainRootEvidence, ...]:
++    """Order weak forecasts below proven full-depth quiet alternatives only.
++
++    The existing ranking tuple and its exact numeric tie-breaks follow this
++    class priority. No search, survivor choice, fire class or plan is changed.
++    """
++    roots = tuple(evidence)
++    if (
++        config.fire_context != FIRE_CONTEXT_SAFE_BUILD
++        or config.scenarios != 6
++        or config.terminal_fire_rule != TERMINAL_FIRE_RECORD_AND_STOP
++        or not roots
++        or any(
++            root.evaluated_scenarios != 6
++            or root.fire_class in {FIRE_CLASS_WINNING, FIRE_CLASS_FORCED_SAFETY}
++            for root in roots
++        )
++    ):
++        return roots
++    weak = {
++        root.root_action
++        for root in roots
++        if root.fire_class == FIRE_CLASS_TARGET
++        and root.fire_class_support.get(FIRE_CLASS_TARGET, 0)
++        < MINIMUM_TARGET_SCENARIO_SUPPORT
++    }
++    if not weak:
++        return roots
++    alternatives = {
++        root.root_action
++        for root in roots
++        if root.fire_class == FIRE_CLASS_QUIET
++        and len(root.scenario_values) == 6
++        and all(
++            value.evaluated
++            and value.search_complete
++            and value.selected_fire_class == FIRE_CLASS_QUIET
++            and value.quiet_survivor
++            and value.survivor_evaluator_score is not None
++            and math.isfinite(value.survivor_evaluator_score)
++            and value.survivor_evaluator_score > fatal_score
++            and value.survivor_evaluator_depth == config.depth
++            and value.reached_depth == config.depth
++            and dict(value.survivor_counts).get(config.depth, 0) > 0
++            for value in root.scenario_values
++        )
++    }
++    if not alternatives:
++        return roots
++    # Exact binary64 quarters insert two priorities between quiet and forced.
++    # Every non-applicable v2 key retains its original value.
++    return tuple(
++        replace(
++            root,
++            ranking_rule_version=EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION,
++            weak_support_priority=(
++                2.25 if root.root_action in weak
++                else 2.5 if root.root_action in alternatives
++                else None
++            ),
++        )
++        for root in roots
++    )
++
++
+ def _survivor_sort_key(node: LongHorizonNode) -> tuple[Any, ...]:
+     return (
+         -float(node.evaluator_score),
+@@ -1918,6 +2019,7 @@ def _run_long_horizon_search(
+                 terminal_fire_rule=config.terminal_fire_rule,
+                 terminal_fire_chain_count=config.terminal_fire_chain_count,
+                 root_survivor_quota=config.root_survivor_quota,
++                known_pair_count=sequence.known_pair_count,
+             )
+             for action in roots
+         }
+@@ -2227,8 +2329,13 @@ def _run_long_horizon_search(
+             tracker.scenario_id for tracker in trackers if tracker.evaluated
+         )
+ 
++    guarded_evidence = apply_weak_scenario_support_guard(
++        evidence,
++        config=config,
++        fatal_score=float(getattr(getattr(selected_evaluator, "config", None), "fatal_score", -1e12)),
++    )
+     return LongHorizonSearchResult(
+-        root_evidence=tuple(sorted(evidence, key=lambda value: value.root_action)),
++        root_evidence=tuple(sorted(guarded_evidence, key=lambda value: value.root_action)),
+         representatives=representatives,
+         scenario_sequences=sequences,
+         root_evaluation=root_evaluation,
+diff --git a/eval/puyo242_request_migration.py b/eval/puyo242_request_migration.py
+new file mode 100644
+index 0000000..5e9b5df
+--- /dev/null
++++ b/eval/puyo242_request_migration.py
+@@ -0,0 +1,46 @@
++"""Explicit fixture-only identity migration; no runtime compatibility fallback."""
++
++import hashlib
++from dataclasses import replace
++
++from agents.deep_chain_native import (
++    EXPECTED_CHAIN_RANKING_RULE_VERSION,
++    REQUEST_SCHEMA_IDENTITIES_TAG,
++    EnvelopeKind,
++    decode_envelope,
++    encode_envelope,
++)
++
++
++def migrate_frozen_request(raw, target=EXPECTED_CHAIN_RANKING_RULE_VERSION):
++    envelope = decode_envelope(raw)
++    assert envelope.kind == EnvelopeKind.REQUEST
++    assert target in ("puyo.expected_chain_ranking.v2", "puyo.expected_chain_ranking.v3", "puyo.expected_chain_ranking.v4")
++    identity = envelope.section_map[REQUEST_SCHEMA_IDENTITIES_TAG]
++    old = next(name for name in (b"puyo.expected_chain_ranking.v2", b"puyo.expected_chain_ranking.v3", b"puyo.expected_chain_ranking.v4")
++               if identity.payload.count(name) == 1)
++    sections = tuple(
++        replace(section, payload=section.payload.replace(old, target.encode()))
++        if section.tag == REQUEST_SCHEMA_IDENTITIES_TAG else section
++        for section in envelope.sections
++    )
++    encoded = encode_envelope(envelope.kind, envelope.request_id, sections,
++                              schema_major=envelope.schema_major, schema_minor=envelope.schema_minor)
++    migrated = decode_envelope(encoded)
++    assert (envelope.kind, envelope.request_id, envelope.schema_major, envelope.schema_minor) == (
++        migrated.kind, migrated.request_id, migrated.schema_major, migrated.schema_minor)
++    for before, after in zip(envelope.sections, migrated.sections, strict=True):
++        assert before.tag == after.tag and before.version == after.version
++        if before.tag != REQUEST_SCHEMA_IDENTITIES_TAG:
++            assert before.payload == after.payload
++        else:
++            assert after.payload.replace(target.encode(), old) == before.payload
++    receipt = {
++        "source_sha256": hashlib.sha256(raw).hexdigest(),
++        "effective_sha256": hashlib.sha256(encoded).hexdigest(),
++        "from_identity": old.decode(), "to_identity": target,
++        "only_ranking_identity_changed": True,
++        "root_known_pairs_search_evaluator_execution_bytes_unchanged": True,
++        "request_id_unchanged": True,
++    }
++    return encoded, receipt
+diff --git a/native/deep_chain_native/src/lib.rs b/native/deep_chain_native/src/lib.rs
+index 0d5f4b8..9f39755 100644
+--- a/native/deep_chain_native/src/lib.rs
++++ b/native/deep_chain_native/src/lib.rs
+@@ -114,14 +114,14 @@ const WIRE_NAME: &str = "puyo.deep_chain_native.envelope.v1";
+ const REQUEST_SCHEMA_DIGEST: &str =
+     "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e";
+ const RESULT_SCHEMA_DIGEST: &str =
+-    "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b";
++    "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211";
+ const CHAIN_STRUCTURE_WEIGHT_SCHEMA: &str = "puyo.chain_structure_weights.v1";
+ const CHAIN_STRUCTURE_FEATURE_SCHEMA: &str = "puyo.chain_structure_features.v1";
+ const SCHEMA_IDENTITIES: [&str; 7] = [
+     "puyo.placement_actions.v1",
+     "puyo.compact_search_state.v1",
+     "puyo.future_tsumo_sampling.v1",
+-    "puyo.expected_chain_ranking.v2",
++    "puyo.expected_chain_ranking.v4",
+     "puyo.build_main_terminal_score.v1",
+     "puyo.deep_chain_builder.diagnostics.v1",
+     "puyo.deep_chain_native.result.v1",
+diff --git a/native/deep_chain_native/src/long_horizon.rs b/native/deep_chain_native/src/long_horizon.rs
+index 3901287..3b9c6c0 100644
+--- a/native/deep_chain_native/src/long_horizon.rs
++++ b/native/deep_chain_native/src/long_horizon.rs
+@@ -246,6 +246,7 @@ struct Tracker {
+     root_action: u8,
+     scenario_id: u8,
+     evaluated: bool,
++    known_pair_count: usize,
+     search_complete: bool,
+     reached_depth: u16,
+     max_chain_count: u8,
+@@ -273,6 +274,7 @@ impl Tracker {
+             root_action: 0,
+             scenario_id: 0,
+             evaluated: false,
++            known_pair_count: 0,
+             search_complete: true,
+             reached_depth: 0,
+             max_chain_count: 0,
+@@ -315,7 +317,9 @@ impl Tracker {
+             self.best_fire = Some(fire);
+         }
+         let slot = &mut self.fires_by_class[fire.class as usize];
+-        if slot.is_none_or(|previous| fire_rank_cmp(&fire, &previous).is_gt()) {
++        if slot
++            .is_none_or(|previous| fire_rank_cmp(&fire, &previous, self.known_pair_count).is_gt())
++        {
+             *slot = Some(fire);
+         }
+     }
+@@ -971,9 +975,17 @@ fn fire_official_cmp(left: &Fire, right: &Fire) -> Ordering {
+         .then_with(|| inverse_path_cmp(left.path(), right.path()))
+ }
+ 
+-fn fire_rank_cmp(left: &Fire, right: &Fire) -> Ordering {
++fn known_prefix_target(fire: &Fire, known_pair_count: usize) -> bool {
++    fire.class == FireClass::Target && usize::from(fire.path_len) <= known_pair_count
++}
++
++fn fire_rank_cmp(left: &Fire, right: &Fire, known_pair_count: usize) -> Ordering {
+     (left.class as u8)
+         .cmp(&(right.class as u8))
++        .then_with(|| {
++            known_prefix_target(left, known_pair_count)
++                .cmp(&known_prefix_target(right, known_pair_count))
++        })
+         .then_with(|| {
+             left.terminal_score
+                 .partial_cmp(&right.terminal_score)
+@@ -1157,11 +1169,14 @@ fn transition_hot(
+     Ok(unsafe { (child.assume_init(), transition.assume_init()) })
+ }
+ 
+-fn initialize_trackers(root_mask: u32, scenario_id: u8) -> Vec<Tracker> {
++fn initialize_trackers(root_mask: u32, scenario_id: u8, known_pair_count: usize) -> Vec<Tracker> {
+     (0..ACTION_COUNT)
+         .map(|action| {
+             if root_mask & (1_u32 << action) != 0 {
+-                Tracker::new(action as u8, scenario_id)
++                Tracker {
++                    known_pair_count,
++                    ..Tracker::new(action as u8, scenario_id)
++                }
+             } else {
+                 Tracker::inactive()
+             }
+@@ -1250,7 +1265,8 @@ fn run_scenario(
+ ) -> ContractResult<ScenarioResult> {
+     let config = request.search;
+     let root_mask = legal_actions_mask(&request.root_state);
+-    let mut trackers = initialize_trackers(root_mask, sequence.scenario_id);
++    let mut trackers =
++        initialize_trackers(root_mask, sequence.scenario_id, request.known_pairs.len());
+     let maximum_candidates = config
+         .width
+         .checked_mul(ACTION_COUNT)
+@@ -1608,7 +1624,7 @@ fn scenario_pool() -> ContractResult<&'static ScenarioPool> {
+ 
+ fn empty_scenario(request: &Request, sequence: ScenarioSequence, root_mask: u32) -> ScenarioResult {
+     ScenarioResult {
+-        trackers: initialize_trackers(root_mask, sequence.scenario_id),
++        trackers: initialize_trackers(root_mask, sequence.scenario_id, request.known_pairs.len()),
+         counters: Counters::default(),
+         peak_live_nodes: 0,
+         tt_capacity: if request.search.use_transposition_table {
+@@ -1713,6 +1729,8 @@ struct Aggregate {
+     quiet_support: u8,
+     terminal_score_sum: f64,
+     best_fire: Option<Fire>,
++    weak_support_priority: Option<f64>,
++    known_prefix_target: bool,
+ }
+ 
+ impl Aggregate {
+@@ -1764,6 +1782,7 @@ fn aggregate_root(
+     root_action: u8,
+     scenarios: &[ScenarioResult],
+     requested_scenarios: usize,
++    known_pair_count: usize,
+ ) -> Aggregate {
+     let mut evaluated: Vec<&Tracker> = scenarios
+         .iter()
+@@ -1809,7 +1828,9 @@ fn aggregate_root(
+         }
+         if let Some(fire) = selected_fire {
+             terminal_scores.push(fire.terminal_score);
+-            if best_fire.is_none_or(|previous| fire_rank_cmp(&fire, &previous).is_gt()) {
++            if best_fire
++                .is_none_or(|previous| fire_rank_cmp(&fire, &previous, known_pair_count).is_gt())
++            {
+                 best_fire = Some(fire);
+             }
+         }
+@@ -1831,6 +1852,69 @@ fn aggregate_root(
+         quiet_support: class_support[FireClass::Quiet as usize],
+         terminal_score_sum: ordered_sum(terminal_scores.iter().copied()),
+         best_fire,
++        known_prefix_target: best_fire
++            .is_some_and(|fire| known_prefix_target(&fire, known_pair_count)),
++        weak_support_priority: None,
++    }
++}
++
++fn apply_weak_support_guard(
++    aggregates: &mut [Aggregate],
++    scenarios: &[ScenarioResult],
++    config: SearchConfig,
++    fatal_score: f64,
++) {
++    if config.forced_safety
++        || config.scenarios != 6
++        || !config.record_and_stop
++        || aggregates.iter().any(|root| {
++            root.evaluated_scenarios != 6
++                || matches!(root.class, FireClass::Winning | FireClass::ForcedSafety)
++        })
++    {
++        return;
++    }
++    let weak = |root: &Aggregate| {
++        root.class == FireClass::Target && root.class_support[FireClass::Target as usize] < 2
++    };
++    if !aggregates.iter().any(weak) {
++        return;
++    }
++    let alternative = |root: &Aggregate| {
++        root.class == FireClass::Quiet
++            && scenarios.len() == 6
++            && scenarios.iter().all(|scenario| {
++                let tracker = &scenario.trackers[usize::from(root.root_action)];
++                tracker.evaluated
++                    && tracker.search_complete
++                    && tracker.selected_class() == FireClass::Quiet
++                    && usize::from(tracker.reached_depth) == config.depth
++                    && tracker.best_survivor.is_some_and(|node| {
++                        usize::from(node.path_len) == config.depth
++                            && node.evaluator_score.is_finite()
++                            && node.evaluator_score > fatal_score
++                    })
++                    && tracker
++                        .coverage
++                        .iter()
++                        .take(usize::from(tracker.coverage_len))
++                        .any(|coverage| {
++                            usize::from(coverage.depth) == config.depth
++                                && coverage.retained_count > 0
++                        })
++            })
++    };
++    if !aggregates.iter().any(alternative) {
++        return;
++    }
++    for root in aggregates {
++        root.weak_support_priority = if weak(root) {
++            Some(2.25)
++        } else if alternative(root) {
++            Some(2.5)
++        } else {
++            None
++        };
+     }
+ }
+ 
+@@ -1844,8 +1928,14 @@ fn optional_f64_cmp(left: Option<f64>, right: Option<f64>) -> Ordering {
+ }
+ 
+ fn aggregate_cmp(left: &Aggregate, right: &Aggregate) -> Ordering {
+-    (left.class as u8)
+-        .cmp(&(right.class as u8))
++    left.weak_support_priority
++        .unwrap_or(f64::from(left.class as u8))
++        .partial_cmp(
++            &right
++                .weak_support_priority
++                .unwrap_or(f64::from(right.class as u8)),
++        )
++        .unwrap_or(Ordering::Equal)
+         .then_with(|| {
+             left.coverage()
+                 .partial_cmp(&right.coverage())
+@@ -1854,6 +1944,7 @@ fn aggregate_cmp(left: &Aggregate, right: &Aggregate) -> Ordering {
+         .then_with(|| {
+             left.class_support[left.class as usize].cmp(&right.class_support[right.class as usize])
+         })
++        .then_with(|| left.known_prefix_target.cmp(&right.known_prefix_target))
+         .then_with(|| {
+             left.candidate_value()
+                 .partial_cmp(&right.candidate_value())
+@@ -1992,7 +2083,11 @@ fn encode_tracker(output: &mut Bytes, tracker: &Tracker, config: SearchConfig) {
+         output.u64(value);
+     }
+     output.u16(u16::from(tracker.coverage_len));
+-    output.u16(0);
++    output.u16(
++        tracker
++            .best_survivor
++            .map_or(0, |node| u16::from(node.path_len)),
++    );
+     encode_fire(output, tracker.best_fire, config);
+     encode_fire(output, tracker.selected_fire(), config);
+     for coverage in tracker
+@@ -2008,9 +2103,9 @@ fn encode_tracker(output: &mut Bytes, tracker: &Tracker, config: SearchConfig) {
+     }
+ }
+ 
+-fn record_section(record_count: usize, body: Vec<u8>) -> Vec<u8> {
++fn record_section(version: u16, record_count: usize, body: Vec<u8>) -> Vec<u8> {
+     let mut output = Bytes::default();
+-    output.u16(1);
++    output.u16(version);
+     output.u16(0);
+     output.u32(record_count as u32);
+     output.u32(body.len() as u32);
+@@ -2034,7 +2129,7 @@ fn encode_root_evidence(
+             encode_tracker(&mut body, tracker, request.search);
+         }
+     }
+-    record_section(root_actions.len() * scenarios.len(), body.0)
++    record_section(2, root_actions.len() * scenarios.len(), body.0)
+ }
+ 
+ fn encode_representatives(
+@@ -2070,7 +2165,7 @@ fn encode_representatives(
+         body.u32(encoded.len() as u32);
+         body.raw(&encoded);
+     }
+-    record_section(count, body.0)
++    record_section(1, count, body.0)
+ }
+ 
+ fn encode_diagnostics(
+@@ -2105,7 +2200,7 @@ fn encode_diagnostics(
+     let encoded = encode_evaluation(&evidence, true);
+     body.u32(encoded.len() as u32);
+     body.raw(&encoded);
+-    record_section(1 + sequences.len(), body.0)
++    record_section(1, 1 + sequences.len(), body.0)
+ }
+ 
+ fn semantic_digest(root_evidence: &[u8], representatives: &[u8], diagnostics: &[u8]) -> String {
+@@ -2230,11 +2325,24 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
+         .filter(|action| root_mask & (1_u32 << action) != 0)
+         .map(|action| action as u8)
+         .collect();
+-    let aggregates: Vec<Aggregate> = root_actions
++    let mut aggregates: Vec<Aggregate> = root_actions
+         .iter()
+         .copied()
+-        .map(|action| aggregate_root(action, &scenarios, request.search.scenarios))
++        .map(|action| {
++            aggregate_root(
++                action,
++                &scenarios,
++                request.search.scenarios,
++                request.known_pairs.len(),
++            )
++        })
+         .collect();
++    apply_weak_support_guard(
++        &mut aggregates,
++        &scenarios,
++        request.search,
++        request.evaluator.fatal_score,
++    );
+     let mut ranked = aggregates.clone();
+     ranked.sort_by(|left, right| aggregate_cmp(right, left));
+     let ranked_actions: Vec<u8> = ranked.iter().map(|value| value.root_action).collect();
+@@ -2292,6 +2400,61 @@ mod tests {
+     use crate::chain_structure::EvaluationHot;
+     use crate::compact::{CompactState, SearchStateKey, TransitionHotResult};
+ 
++    #[test]
++    fn prefix_target_boundary_retains_near_fire_without_changing_official_max() {
++        let mut encoded = [0_u8; 87];
++        encoded[..4].copy_from_slice(b"CSK1");
++        let base = super::Fire {
++            scenario_id: 0,
++            class: FireClass::Target,
++            chain_count: 10,
++            chain_score: 1000,
++            state: CompactState::from_bytes(&encoded).expect("empty state"),
++            path: [3; super::MAX_SEARCH_DEPTH],
++            path_len: 1,
++            terminal: true,
++            terminal_score: 1.0,
++            terminal_breakdown: [0.0; 5],
++            evaluation: EvaluationHot::default(),
++        };
++        for known_pair_count in 1..=3 {
++            let near = super::Fire {
++                path_len: known_pair_count as u8,
++                ..base
++            };
++            let far = super::Fire {
++                path_len: known_pair_count as u8 + 1,
++                chain_score: 100_000,
++                terminal_score: 100_000.0,
++                ..base
++            };
++            assert!(super::known_prefix_target(&near, known_pair_count));
++            assert!(!super::known_prefix_target(&far, known_pair_count));
++            assert!(super::fire_rank_cmp(&near, &far, known_pair_count).is_gt());
++            for order in [[near, far], [far, near]] {
++                let mut tracker = Tracker {
++                    known_pair_count,
++                    ..Tracker::new(3, 0)
++                };
++                for fire in order {
++                    tracker.record_fire(fire);
++                }
++                assert_eq!(tracker.selected_fire().unwrap().path_len, near.path_len);
++                assert_eq!(tracker.best_fire.unwrap().path_len, far.path_len);
++            }
++            for class in [
++                FireClass::Winning,
++                FireClass::ForcedSafety,
++                FireClass::Premature,
++            ] {
++                let near = super::Fire { class, ..near };
++                let far = super::Fire { class, ..far };
++                assert!(!super::known_prefix_target(&near, known_pair_count));
++                assert!(super::fire_rank_cmp(&far, &near, known_pair_count).is_gt());
++            }
++        }
++    }
++
+     #[test]
+     fn aggregation_matches_python_binary64_vectors() {
+         let values = [9_007_199_254_740_992.0, 1.0, -9_007_199_254_740_992.0, 1.0];
+diff --git a/tests/fixtures/experimental_search_case.json b/tests/fixtures/experimental_search_case.json
+new file mode 100644
+index 0000000..6bc1a7a
+--- /dev/null
++++ b/tests/fixtures/experimental_search_case.json
+@@ -0,0 +1,920 @@
++{
++  "ticket": "PUYO-236",
++  "source": "eval/deep_chain_native_corpus.json",
++  "source_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
++  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
++  "search_case": {
++    "state": {
++      "all_clear_bonus_pending": false,
++      "bytes_sha256": "73b38290ea9d0f50a114303e9e552241af571b2c3e4524253c719bbe0bef03e8",
++      "column_heights": [
++        0,
++        0,
++        0,
++        0,
++        0,
++        0
++      ],
++      "game_over": false,
++      "last_chain_end_score": 0,
++      "plane_order": [
++        "RED",
++        "BLUE",
++        "GREEN",
++        "YELLOW",
++        "PURPLE",
++        "OJAMA"
++      ],
++      "planes_hex": [
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000"
++      ],
++      "schema_version": "puyo.compact_search_state.v1",
++      "score": 0
++    },
++    "known_pairs": [
++      [
++        "RED",
++        "GREEN"
++      ],
++      [
++        "RED",
++        "YELLOW"
++      ],
++      [
++        "GREEN",
++        "RED"
++      ]
++    ],
++    "config": {
++      "decision_seed": 123,
++      "depth": 3,
++      "future_sampling_mode": "legacy-fixed-six",
++      "max_expanded_nodes": 512,
++      "minimum_chain_count": 6,
++      "scenarios": 2,
++      "width": 4
++    },
++    "expected": {
++      "counters": {
++        "budget_exhausted": false,
++        "evaluated_nodes": 396,
++        "expanded_nodes": 396,
++        "game_over_nodes": 0,
++        "generated_nodes": 396,
++        "invalid_nodes": 0,
++        "pruned_nodes": 372,
++        "reached_depth": 3,
++        "terminal_fire_nodes": 0,
++        "transposition_hits": 0
++      },
++      "deterministic_digest": "long-horizon-search-b23b431c66db1da5cf3be2c0",
++      "ranked_root_actions": [
++        0,
++        3,
++        2,
++        1,
++        4,
++        5,
++        6,
++        7,
++        8,
++        9,
++        10,
++        11,
++        12,
++        13,
++        14,
++        15,
++        16,
++        17,
++        18,
++        19,
++        20,
++        21
++      ],
++      "root_values": [
++        {
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36628.666666666664,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36628.666666666664,
++            2,
++            0
++          ],
++          "root_action": 0,
++          "value_breakdown": {
++            "continuation_evaluator": 36628.666666666664,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": 36628.666666666664
++          }
++        },
++        {
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36628.666666666664,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36628.666666666664,
++            2,
++            -3
++          ],
++          "root_action": 3,
++          "value_breakdown": {
++            "continuation_evaluator": 36628.666666666664,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": 36628.666666666664
++          }
++        },
++        {
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36533.36363636364,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36533.36363636364,
++            2,
++            -2
++          ],
++          "root_action": 2,
++          "value_breakdown": {
++            "continuation_evaluator": 36533.36363636364,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": 36533.36363636364
++          }
++        },
++        {
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36392,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36392,
++            2,
++            -1
++          ],
++          "root_action": 1,
++          "value_breakdown": {
++            "continuation_evaluator": 36392,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": 36392
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -4
++          ],
++          "root_action": 4,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -5
++          ],
++          "root_action": 5,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -6
++          ],
++          "root_action": 6,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -7
++          ],
++          "root_action": 7,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -8
++          ],
++          "root_action": 8,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -9
++          ],
++          "root_action": 9,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -10
++          ],
++          "root_action": 10,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -11
++          ],
++          "root_action": 11,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -12
++          ],
++          "root_action": 12,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -13
++          ],
++          "root_action": 13,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -14
++          ],
++          "root_action": 14,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -15
++          ],
++          "root_action": 15,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -16
++          ],
++          "root_action": 16,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -17
++          ],
++          "root_action": 17,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -18
++          ],
++          "root_action": 18,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -19
++          ],
++          "root_action": 19,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -20
++          ],
++          "root_action": 20,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -21
++          ],
++          "root_action": 21,
++          "value_breakdown": {
++            "continuation_evaluator": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_score_dispersion": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_score_sum": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "terminal_score_mean": 0,
++            "terminal_score_sum": 0,
++            "total": -1000000000000
++          }
++        }
++      ],
++      "selected_action": 0
++    }
++  },
++  "condition": "both"
++}
+diff --git a/tests/fixtures/experimental_search_semantics.json b/tests/fixtures/experimental_search_semantics.json
+new file mode 100644
+index 0000000..5aedd97
+--- /dev/null
++++ b/tests/fixtures/experimental_search_semantics.json
+@@ -0,0 +1,9 @@
++{
++  "ticket": "PUYO-236",
++  "condition": "both",
++  "ranking_rule": "puyo.expected_chain_ranking.v4",
++  "source": "eval/deep_chain_native_corpus.json",
++  "source_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
++  "deterministic_digest": "long-horizon-search-b23b431c66db1da5cf3be2c0",
++  "note": "Independent expected semantics; original corpus and artifact bytes are immutable."
++}
+diff --git a/tests/fixtures/known_prefix_target_search_case.json b/tests/fixtures/known_prefix_target_search_case.json
+new file mode 100644
+index 0000000..5126435
+--- /dev/null
++++ b/tests/fixtures/known_prefix_target_search_case.json
+@@ -0,0 +1,919 @@
++{
++  "ticket": "PUYO-242",
++  "source": "eval/deep_chain_native_corpus.json",
++  "source_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
++  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
++  "search_case": {
++    "state": {
++      "all_clear_bonus_pending": false,
++      "bytes_sha256": "73b38290ea9d0f50a114303e9e552241af571b2c3e4524253c719bbe0bef03e8",
++      "column_heights": [
++        0,
++        0,
++        0,
++        0,
++        0,
++        0
++      ],
++      "game_over": false,
++      "last_chain_end_score": 0,
++      "plane_order": [
++        "RED",
++        "BLUE",
++        "GREEN",
++        "YELLOW",
++        "PURPLE",
++        "OJAMA"
++      ],
++      "planes_hex": [
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000",
++        "000000000000000000000"
++      ],
++      "schema_version": "puyo.compact_search_state.v1",
++      "score": 0
++    },
++    "known_pairs": [
++      [
++        "RED",
++        "GREEN"
++      ],
++      [
++        "RED",
++        "YELLOW"
++      ],
++      [
++        "GREEN",
++        "RED"
++      ]
++    ],
++    "config": {
++      "decision_seed": 123,
++      "depth": 3,
++      "future_sampling_mode": "legacy-fixed-six",
++      "max_expanded_nodes": 512,
++      "minimum_chain_count": 6,
++      "scenarios": 2,
++      "width": 4
++    },
++    "expected": {
++      "selected_action": 0,
++      "ranked_root_actions": [
++        0,
++        3,
++        2,
++        1,
++        4,
++        5,
++        6,
++        7,
++        8,
++        9,
++        10,
++        11,
++        12,
++        13,
++        14,
++        15,
++        16,
++        17,
++        18,
++        19,
++        20,
++        21
++      ],
++      "deterministic_digest": "long-horizon-search-fcec2d2ed9c40ac59ba1215b",
++      "counters": {
++        "expanded_nodes": 396,
++        "generated_nodes": 396,
++        "invalid_nodes": 0,
++        "game_over_nodes": 0,
++        "evaluated_nodes": 396,
++        "pruned_nodes": 372,
++        "transposition_hits": 0,
++        "terminal_fire_nodes": 0,
++        "reached_depth": 3,
++        "budget_exhausted": false
++      },
++      "root_values": [
++        {
++          "root_action": 0,
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36628.666666666664,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36628.666666666664,
++            2,
++            0
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 36628.666666666664,
++            "total": 36628.666666666664
++          }
++        },
++        {
++          "root_action": 3,
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36628.666666666664,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36628.666666666664,
++            2,
++            -3
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 36628.666666666664,
++            "total": 36628.666666666664
++          }
++        },
++        {
++          "root_action": 2,
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36533.36363636364,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36533.36363636364,
++            2,
++            -2
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 36533.36363636364,
++            "total": 36533.36363636364
++          }
++        },
++        {
++          "root_action": 1,
++          "ranking_key": [
++            2,
++            1,
++            2,
++            0,
++            36392,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            36392,
++            2,
++            -1
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 2,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 1,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 36392,
++            "total": 36392
++          }
++        },
++        {
++          "root_action": 4,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -4
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 5,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -5
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 6,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -6
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 7,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -7
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 8,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -8
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 9,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -9
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 10,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -10
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 11,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -11
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 12,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -12
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 13,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -13
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 14,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -14
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 15,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -15
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 16,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -16
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 17,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -17
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 18,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -18
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 19,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -19
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 20,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -20
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        },
++        {
++          "root_action": 21,
++          "ranking_key": [
++            0,
++            1,
++            2,
++            0,
++            -1000000000000,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            0,
++            "-Infinity",
++            0,
++            -21
++          ],
++          "value_breakdown": {
++            "expected_chain_score_sum": 0,
++            "expected_chain_score_mean": 0,
++            "expected_chain_count_sum": 0,
++            "expected_chain_count_mean": 0,
++            "expected_chain_support": 0,
++            "expected_chain_worst_score": 0,
++            "expected_chain_score_dispersion": 0,
++            "fire_class_priority": 0,
++            "fire_class_support": 2,
++            "terminal_score_sum": 0,
++            "terminal_score_mean": 0,
++            "quiet_candidate_coverage": 0,
++            "target_not_reached_fire_count": 0,
++            "continuation_evaluator": 0,
++            "total": -1000000000000
++          }
++        }
++      ]
++    }
++  }
++}
+diff --git a/tests/fixtures/known_prefix_target_semantics.json b/tests/fixtures/known_prefix_target_semantics.json
+new file mode 100644
+index 0000000..ca01dae
+--- /dev/null
++++ b/tests/fixtures/known_prefix_target_semantics.json
+@@ -0,0 +1,8 @@
++{
++  "ticket": "PUYO-242",
++  "ranking_rule": "puyo.expected_chain_ranking.v3",
++  "source": "eval/deep_chain_native_corpus.json",
++  "source_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
++  "deterministic_digest": "long-horizon-search-fcec2d2ed9c40ac59ba1215b",
++  "note": "New materialized semantics for search_case; immutable historical input and expected fields are retained."
++}
+diff --git a/tests/test_deep_chain_native.py b/tests/test_deep_chain_native.py
+index 55d81ae..8cf9f09 100644
+--- a/tests/test_deep_chain_native.py
++++ b/tests/test_deep_chain_native.py
+@@ -1,10 +1,11 @@
++import hashlib
+ import importlib
+ import json
+ import struct
+ import threading
+ import time
+ import unittest
+-from dataclasses import fields
++from dataclasses import fields, replace
+ from pathlib import Path
+ from types import SimpleNamespace
+ from unittest import mock
+@@ -30,6 +31,7 @@ from agents.deep_chain_native import (
+ )
+ from agents.deep_chain_native_search import materialize_native_long_horizon_result
+ from agents.long_horizon_search import LongHorizonSearchConfig
++from eval.puyo242_request_migration import migrate_frozen_request
+ from src.core.constants import PuyoColor
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -243,7 +245,7 @@ class TestDeepChainNativePythonContract(NativeRequestFixture, unittest.TestCase)
+                 EnvelopeSection(
+                     native_boundary.RESULT_ROOT_EVIDENCE_TAG,
+                     1,
+-                    empty_record_section,
++                    struct.pack("<HHII", 2, 0, 0, 0),
+                 ),
+                 EnvelopeSection(
+                     native_boundary.RESULT_REPRESENTATIVES_TAG,
+@@ -310,7 +312,9 @@ class TestDeepChainNativePythonContract(NativeRequestFixture, unittest.TestCase)
+                     "case_id": case["case_id"],
+                     "request_id": request_id,
+                     "request_bytes": len(encode_request(request)),
+-                    "request_sha256": request_sha256(request),
++                    "request_sha256": hashlib.sha256(migrate_frozen_request(
++                        encode_request(request), target="puyo.expected_chain_ranking.v2"
++                    )[0]).hexdigest(),
+                 }
+             )
+ 
+@@ -326,6 +330,23 @@ except (ImportError, OSError):
+ 
+ @unittest.skipIf(NATIVE_MODULE is None, "release native extension is not installed")
+ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
++    def test_v2_ranking_request_and_nonroot_cursors_are_rejected(self):
++        request = self.make_request(self.corpus["cases"][0])
++        legacy, receipt = migrate_frozen_request(encode_request(request), target="puyo.expected_chain_ranking.v2")
++        self.assertTrue(receipt["root_known_pairs_search_evaluator_execution_bytes_unchanged"])
++        with self.assertRaises(IncompatibleSchemaError):
++            decode_request(legacy)
++        with self.assertRaises(IncompatibleSchemaError):
++            decode_response(NATIVE_MODULE.decide(legacy))
++        previous, _ = migrate_frozen_request(encode_request(request), target="puyo.expected_chain_ranking.v3")
++        with self.assertRaises(IncompatibleSchemaError):
++            decode_request(previous)
++        with self.assertRaises(IncompatibleSchemaError):
++            decode_response(NATIVE_MODULE.decide(previous))
++        for changes in ({"pair_cursor": 1}, {"scenario_cursor": 1}):
++            with self.subTest(changes=changes), self.assertRaises(native_boundary.UnsupportedNativeConfigError):
++                self.backend.decide(replace(request, **changes))
++
+     def setUp(self):
+         self.backend = NativeDeepChainBackend(NATIVE_MODULE)
+ 
+@@ -371,6 +392,11 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
+         native = self.backend.decide(request)
+         materialized = materialize_native_long_horizon_result(native, request)
+         expected = self.corpus["search_case"]["expected"]
++        prefix_expected = json.loads(
++            (ROOT / "tests/fixtures/experimental_search_semantics.json").read_text()
++        )
++        self.assertEqual(hashlib.sha256(CORPUS_PATH.read_bytes()).hexdigest(),
++                         prefix_expected["source_sha256"])
+ 
+         self.assertEqual(
+             native.selected_action, self.corpus["search_case"]["expected_action_id"]
+@@ -380,7 +406,7 @@ class TestDeepChainNativeExtension(NativeRequestFixture, unittest.TestCase):
+             tuple(expected["ranked_root_actions"]),
+         )
+         self.assertEqual(
+-            materialized.deterministic_digest, expected["deterministic_digest"]
++            materialized.deterministic_digest, prefix_expected["deterministic_digest"]
+         )
+         self.assertEqual(materialized.counters.to_dict(), expected["counters"])
+         self.assertEqual(native.provenance["thread_mode"], "oracle-1")
+diff --git a/tests/test_deep_chain_native_search.py b/tests/test_deep_chain_native_search.py
+index 626725d..4c39617 100644
+--- a/tests/test_deep_chain_native_search.py
++++ b/tests/test_deep_chain_native_search.py
+@@ -1,5 +1,6 @@
+ import importlib
+ import json
++import struct
+ import threading
+ import unittest
+ from dataclasses import replace
+@@ -20,6 +21,7 @@ from agents.long_horizon_search import (
+     LongHorizonSearchConfig,
+     run_compact_long_horizon_search,
+ )
++from eval.puyo242_request_migration import migrate_frozen_request
+ from src.core.constants import PuyoColor
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+@@ -88,6 +90,24 @@ class TestDeepChainNativeSearch(unittest.TestCase):
+             max_response_bytes=16 * 1024 * 1024,
+         )
+ 
++    def test_survivor_evaluator_depth_is_validated(self):
++        request = self.request()
++        native = self.backend.decide(request)
++        result = materialize_native_long_horizon_result(native, request)
++        survivors = [
++            value for root in result.root_evidence for value in root.scenario_values
++            if value.quiet_survivor
++        ]
++        self.assertTrue(survivors)
++        self.assertTrue(all(0 < value.survivor_evaluator_depth <= value.reached_depth
++                            for value in survivors))
++        malformed = bytearray(native.root_evidence)
++        struct.pack_into("<H", malformed, 82, request.search_config.depth + 1)
++        with self.assertRaisesRegex(InvalidNativeInputError, "tracker is inconsistent"):
++            materialize_native_long_horizon_result(
++                replace(native, root_evidence=bytes(malformed)), request
++            )
++
+     def test_safe_quiet_target_and_safety_ranking_match_python(self):
+         from tests.test_long_horizon_search import _fire_fixture_simulator
+ 
+@@ -131,10 +151,35 @@ class TestDeepChainNativeSearch(unittest.TestCase):
+                             actual.evidence_by_action[case["action"]].ranking_key,
+                         )
+ 
++    def test_short_public_prefix_matches_python_through_completed_suffix(self):
++        from tests.test_long_horizon_search import _fire_fixture_simulator
++
++        case = json.loads((ROOT / "tests/fixtures/build_main_fire_cases.json").read_text())["cases"][0]
++        state = CompactSearchState.from_simulator(_fire_fixture_simulator(case))
++        visible = _pairs([case["current_pair"], *case["next_pairs"]])
++        for known in (1, 2, 3):
++            for depth in (known, known + 1):
++                config = LongHorizonSearchConfig(
++                    depth=depth, width=4, scenarios=2, minimum_chain_count=1,
++                    max_expanded_nodes=200, decision_seed=123,
++                )
++                expected = run_compact_long_horizon_search(state, visible[:known], config)
++                for mode in ("oracle-1", "scenario-6"):
++                    with self.subTest(known=known, depth=depth, mode=mode):
++                        request = self.request(state=state, pairs=visible[:known], config=config, execution_mode=mode)
++                        actual = materialize_native_long_horizon_result(self.backend.decide(request), request)
++                        self.assertEqual(actual.deterministic_digest, expected.deterministic_digest)
++                        self.assertEqual(actual.ranked_roots, expected.ranked_roots)
++                        for root in actual.root_evidence:
++                            if root.best_fire is not None:
++                                self.assertEqual(root.best_fire.known_pair_count, known)
++                                self.assertEqual(root.best_fire.known_prefix_target,
++                                                 root.best_fire.fire_class == "target_fire" and root.best_fire.depth <= known)
++
+     def test_seed146_decision22_materializes_in_both_execution_modes(self):
+-        request = decode_request(bytes.fromhex(
++        request = decode_request(migrate_frozen_request(bytes.fromhex(
+             (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()
+-        ))
++        ))[0])
+         reference = None
+         for mode in ("oracle-1", "scenario-6"):
+             current = replace(request, execution_mode=mode)
+@@ -225,7 +270,7 @@ class TestDeepChainNativeSearch(unittest.TestCase):
+             (ROOT / "tests/fixtures/aggregate_ranking_requests.json").read_text()
+         )
+         for case in fixture["cases"]:
+-            original = decode_request(bytes.fromhex(case["request_hex"]))
++            original = decode_request(migrate_frozen_request(bytes.fromhex(case["request_hex"]))[0])
+             targets = (6, 8, 10, 12) if case["seed"] == 151 else (case["target"],)
+             for target in targets:
+                 previous = None
+diff --git a/tests/test_deep_chain_native_transition_profile.py b/tests/test_deep_chain_native_transition_profile.py
+index 376b584..5ab8a74 100644
+--- a/tests/test_deep_chain_native_transition_profile.py
++++ b/tests/test_deep_chain_native_transition_profile.py
+@@ -1,5 +1,8 @@
++import hashlib
+ import importlib
++import json
+ import unittest
++from pathlib import Path
+ from unittest.mock import patch
+ 
+ from agents.compact_search import CompactSearchState
+@@ -179,7 +182,14 @@ class TestDeepChainNativeTransitionProfile(unittest.TestCase):
+         self.assertEqual(result["property_corpus"]["mismatch_count"], 0)
+ 
+     def test_frozen_search_measures_one_transition_per_expanded_node(self):
+-        result = measure_call_count_model()
++        fixture = Path("tests/fixtures/experimental_search_case.json")
++        current = json.loads(fixture.read_text())
++        source = Path(current["source"])
++        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), current["source_sha256"])
++        original = json.loads(source.read_text())["search_case"]
++        for name in ("state", "known_pairs", "config"):
++            self.assertEqual(current["search_case"][name], original[name])
++        result = measure_call_count_model(fixture)
+ 
+         self.assertTrue(result["expected_search_matches"])
+         self.assertTrue(result["assumption_600k_is_one_transition_each"])
+diff --git a/tests/test_known_prefix_target_fire.py b/tests/test_known_prefix_target_fire.py
+new file mode 100644
+index 0000000..87eef43
+--- /dev/null
++++ b/tests/test_known_prefix_target_fire.py
+@@ -0,0 +1,119 @@
++"""The one PUYO-242 preference, its public boundary, and tracker retention."""
++
++import unittest
++from dataclasses import replace
++from types import SimpleNamespace
++
++from agents.compact_search import CompactSearchState
++from agents.decision_flow import DecisionContext
++from agents.deep_chain_builder import (
++    CompleteVisibleQueueScenariosStep,
++    _decode_visible_pairs,
++    build_visible_runtime_input,
++    load_deep_chain_builder_config,
++)
++from agents.long_horizon_search import (
++    FIRE_CLASS_TARGET,
++    ChainFireEvidence,
++    _ScenarioTracker,
++    aggregate_expected_chain_evidence,
++    classify_build_main_fire,
++)
++from puyo_env.obs import encode_observation
++from src.core.headless import HeadlessPuyoSimulator
++from tests.test_long_horizon_search import _scenario_value
++
++
++def fire(depth, score, *, known=3, kind=FIRE_CLASS_TARGET):
++    return ChainFireEvidence(
++        root_action=3, scenario_id=0, chain_count=10, chain_score=1000,
++        depth=depth, trigger_action=3, state_fingerprint="test-state",
++        path=(3,) * depth, terminal=True, terminal_reason="chain_count_gte_1",
++        fire_class=kind, target_chain_count=10, allowed=True,
++        terminal_score=score, known_pair_count=known,
++    )
++
++
++class TestKnownPrefixTargetFire(unittest.TestCase):
++    def test_public_current_next_next2_and_short_queue_define_prefix(self):
++        simulator = HeadlessPuyoSimulator(seed=123)
++        observation = encode_observation(simulator, step_count=0, max_steps=40)
++        expected = ((simulator.game.current_puyo_1.color, simulator.game.current_puyo_2.color),) + tuple(
++            (a.color, b.color) for a, b in tuple(simulator.game.next_puyo_queue)[:2]
++        )
++        self.assertEqual(_decode_visible_pairs(observation["next_pairs"]), expected)
++        for known in (1, 2, 3):
++            visible = build_visible_runtime_input(
++                {**observation, "next_pairs": observation["next_pairs"][:known], "private_future": object()},
++                {"simulator": object(), "future_queue": object()},
++            )
++            context = DecisionContext(
++                decision_id="public-prefix", profile=load_deep_chain_builder_config().profile("smoke"),
++                artifacts={"normalized_observation": visible},
++            )
++            result = CompleteVisibleQueueScenariosStep().run(context)
++            for sequence in result.outputs["scenario_sequences"]:
++                self.assertEqual(sequence.known_pairs, expected[:known])
++                self.assertEqual(sequence.known_pair_count, known)
++                self.assertEqual(sequence.to_dict()["pairs"][known]["source"], "unknown")
++
++    def test_depth_is_one_based_and_uses_actual_short_queue_length(self):
++        for known in (1, 2, 3):
++            with self.subTest(known=known):
++                near, far = fire(known, 1, known=known), fire(known + 1, 100000, known=known)
++                self.assertTrue(near.known_prefix_target)
++                self.assertFalse(far.known_prefix_target)
++                self.assertGreater(near.rank_key, far.rank_key)
++                # Being closer within the prefix adds no extra preference.
++                self.assertGreater(fire(known, 2, known=known).rank_key,
++                                   fire(1, 1, known=known).rank_key)
++        self.assertFalse(fire(1, 10, known=0).known_prefix_target)
++
++    def test_preference_is_target_only_and_existing_class_order_is_preserved(self):
++        for kind in ("winning_fire", "forced_safety_fire", "premature_fire"):
++            near, far = fire(1, 1, kind=kind), fire(4, 100, kind=kind)
++            self.assertFalse(near.known_prefix_target)
++            self.assertGreater(far.rank_key, near.rank_key)
++        self.assertGreater(fire(4, 1, kind="winning_fire").rank_key, fire(1, 100).rank_key)
++        self.assertGreater(fire(4, 1).rank_key, fire(1, 100, kind="forced_safety_fire").rank_key)
++        self.assertEqual(classify_build_main_fire(chain_count=9, chain_score=1000,
++                         target_chain_count=10, fire_context="safe_build"), "premature_fire")
++
++    def test_tracker_keeps_near_target_and_its_terminal_but_official_max_remains(self):
++        for depths in ((4, 3), (3, 4)):
++            tracker = _ScenarioTracker(3, 0, "record_and_stop", 1, 1, known_pair_count=3)
++            nodes = {}
++            for depth in depths:
++                node = SimpleNamespace(path=(3,) * depth)
++                nodes[depth] = node
++                evidence = tracker.record_fire(
++                    result=SimpleNamespace(chain_count=10, score_delta=depth * 1000,
++                                           state=CompactSearchState(planes=(0,) * 6)),
++                    evaluation=None, fire_class=FIRE_CLASS_TARGET,
++                    terminal_score=depth * 1000, terminal_score_breakdown={},
++                    target_chain_count=10, path=node.path,
++                    terminal=True, terminal_reason="chain_count_gte_1",
++                )
++                tracker.record_terminal(node, evidence)
++            self.assertEqual(tracker.selected_fire.depth, 3)
++            self.assertEqual(tracker.best_fire.depth, 4)
++            self.assertIs(tracker.representative, nodes[3])
++            self.assertEqual(tracker.fire_count, 2)
++
++    def test_root_and_representative_prefer_near_target_after_coverage_and_support(self):
++        def root(fires, requested=2):
++            return aggregate_expected_chain_evidence(3, [
++                replace(_scenario_value(i, 10, 1000), selected_fire=f,
++                        selected_fire_class=FIRE_CLASS_TARGET)
++                for i, f in enumerate(fires)
++            ], requested_scenarios=requested)
++        near = root([fire(3, 1), fire(4, 1000)])
++        far = root([fire(4, 100000), fire(4, 100000)])
++        self.assertEqual(near.best_fire.depth, 3)
++        self.assertGreater(near.ranking_key, far.ranking_key)
++        self.assertGreater(far.ranking_key, root([fire(1, 1)]).ranking_key)
++        self.assertGreater(root([fire(3, 2)]).ranking_key, root([fire(1, 1)]).ranking_key)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_long_horizon_search.py b/tests/test_long_horizon_search.py
+index bead521..d81180b 100644
+--- a/tests/test_long_horizon_search.py
++++ b/tests/test_long_horizon_search.py
+@@ -20,6 +20,7 @@ from agents.long_horizon_search import (
+     FIRE_CLASS_PREMATURE,
+     FIRE_CLASS_QUIET,
+     FIRE_CLASS_TARGET,
++    FIRE_CLASS_WINNING,
+     FIRE_CONTEXT_FORCED_SAFETY,
+     FUTURE_SAMPLING_LEGACY_FIXED_SIX,
+     FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+@@ -33,6 +34,7 @@ from agents.long_horizon_search import (
+     _dispersion,
+     _ordered_sum,
+     aggregate_expected_chain_evidence,
++    apply_weak_scenario_support_guard,
+     build_scenario_sequences,
+     classify_build_main_fire,
+     long_horizon_profile,
+@@ -179,6 +181,73 @@ def _scenario_value(scenario_id, chain_count, chain_score):
+ 
+ 
+ class TestLongHorizonSearch(unittest.TestCase):
++    def test_weak_target_guard_requires_full_depth_nonfatal_quiet_evidence(self):
++        config = LongHorizonSearchConfig(
++            depth=16, width=250, scenarios=6, minimum_chain_count=10,
++            max_expanded_nodes=600_000,
++        )
++        quiet_values = tuple(
++            replace(
++                _scenario_value(i, 0, 0), root_action=4,
++                selected_fire_class=FIRE_CLASS_QUIET, quiet_survivor=True,
++                reached_depth=16, survivor_evaluator_depth=16,
++                survivor_counts=((16, 1),),
++            )
++            for i in range(6)
++        )
++        quiet = aggregate_expected_chain_evidence(4, quiet_values, requested_scenarios=6)
++        weak_values = list(quiet_values)
++        fire = replace(_scenario_value(0, 10, 1000).best_fire,
++                       root_action=3, fire_class=FIRE_CLASS_TARGET, known_pair_count=3, depth=1)
++        weak_values[0] = replace(
++            weak_values[0], root_action=3, best_fire=fire, selected_fire=fire,
++            selected_fire_class=FIRE_CLASS_TARGET,
++        )
++        weak = aggregate_expected_chain_evidence(3, weak_values, requested_scenarios=6)
++
++        def guard(roots, active=config):
++            return apply_weak_scenario_support_guard(roots, config=active, fatal_score=-1e12)
++
++        self.assertGreater(weak.ranking_key, quiet.ranking_key)
++        self.assertTrue(weak.best_fire.known_prefix_target)
++        changed = guard((weak, quiet))
++        self.assertGreater(changed[1].ranking_key, changed[0].ranking_key)
++        self.assertEqual(changed[0].ranking_key[1:], weak.ranking_key[1:])
++        self.assertEqual(changed[1].ranking_key[1:], quiet.ranking_key[1:])
++        self.assertEqual(changed[0].ranking_rule_version, "puyo.expected_chain_ranking.v4.guarded")
++        self.assertEqual(changed[0].best_fire, weak.best_fire)
++        self.assertEqual(changed[1].scenario_values, quiet.scenario_values)
++        # A historical best, fatal floor, missing coverage, or unevaluated
++        # scenario is not successful continuation support.
++        for change in (
++            {"survivor_evaluator_depth": 15},
++            {"reached_depth": 15},
++            {"survivor_evaluator_score": -1e12},
++            {"survivor_evaluator_score": None},
++            {"survivor_evaluator_score": float("nan")},
++            {"survivor_counts": ((15, 1), (16, 0))},
++            {"quiet_survivor": False},
++            {"search_complete": False},
++            {"evaluated": False},
++        ):
++            with self.subTest(change=change):
++                invalid = replace(quiet, scenario_values=(replace(quiet_values[0], **change), *quiet_values[1:]))
++                self.assertEqual(guard((weak, invalid)), (weak, invalid))
++        self.assertEqual(guard((weak,)), (weak,))
++        self.assertEqual(guard((quiet,)), (quiet,))
++        strong = replace(weak, fire_class_support={FIRE_CLASS_TARGET: 2})
++        self.assertEqual(guard((strong, quiet)), (strong, quiet))
++        unanimous = replace(weak, fire_class_support={FIRE_CLASS_TARGET: 6})
++        self.assertEqual(guard((unanimous, quiet)), (unanimous, quiet))
++        for fire_class in (FIRE_CLASS_WINNING, FIRE_CLASS_FORCED_SAFETY):
++            protected = replace(weak, root_action=5, fire_class=fire_class)
++            self.assertEqual(guard((weak, quiet, protected)), (weak, quiet, protected))
++        self.assertEqual(
++            guard((weak, quiet), replace(config, fire_context=FIRE_CONTEXT_FORCED_SAFETY)),
++            (weak, quiet),
++        )
++        self.assertEqual(guard((weak, quiet), replace(config, scenarios=5)), (weak, quiet))
++
+     def test_aggregation_uses_scenario_order_and_binary64_left_fold(self):
+         # Compensated summation gives 2.0; separately rounded additions give 1.0.
+         scores = (float(2**53), 1.0, -float(2**53), 1.0)
