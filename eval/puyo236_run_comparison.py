@@ -84,7 +84,8 @@ def execute(workspace, output, mode):
             response = invoke(workspace, output, "init", arm)
             if response["returncode"]:
                 raise RuntimeError(response)
-        declaration = frozen_declaration(workspace, output)
+        # JSON object keys must have their persisted string type before comparison.
+        declaration = trial.strict_json_value(frozen_declaration(workspace, output))
         declared = output / "four-arm-manifest.json"
         if declared.exists():
             assert baseline._read_json(declared) == declaration

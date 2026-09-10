@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
+import importlib.machinery
 import json
 import math
 import os
 import resource
 import subprocess
 import time
+import zipfile
 from dataclasses import asdict
 from pathlib import Path
 
@@ -70,12 +73,32 @@ def command(*args, cwd=None):
     return subprocess.check_output(args, cwd=cwd, text=True).strip()
 
 
+def native_binary_receipt(wrapper, extension, wheel):
+    wrapper_path, binary_path = Path(wrapper.__file__), Path(extension.__file__)
+    assert any(str(binary_path).endswith(suffix) for suffix in importlib.machinery.EXTENSION_SUFFIXES)
+    assert binary_path != wrapper_path
+    with zipfile.ZipFile(wheel) as archive:
+        members = [name for name in archive.namelist() if Path(name).name == binary_path.name]
+        assert len(members) == 1
+        wheel_binary_sha = hashlib.sha256(archive.read(members[0])).hexdigest()
+    installed_binary_sha = baseline.file_sha256(binary_path)
+    assert installed_binary_sha == wheel_binary_sha, "Installed extension differs from the frozen wheel"
+    return {"native_wrapper_sha256": baseline.file_sha256(wrapper_path),
+            "native_extension_sha256": installed_binary_sha,
+            "native_extension_wheel_member": members[0],
+            "wheel_native_extension_sha256": wheel_binary_sha,
+            "installed_binary_matches_wheel": True}
+
+
 def runtime_receipt():
-    import _puyo_deep_chain_native as native
+    wrapper = importlib.import_module("_puyo_deep_chain_native")
+    extension = importlib.import_module("_puyo_deep_chain_native._puyo_deep_chain_native")
+    wheels = list(Path("dist/native").glob("*.whl"))
+    assert len(wheels) == 1
     return {
         "source_tree": command("git", "rev-parse", "HEAD^{tree}"),
         "runtime_file_sha256": {p: baseline.file_sha256(Path(p)) for p in RUNTIME_FILES},
-        "native_extension_sha256": baseline.file_sha256(Path(native.__file__)),
+        **native_binary_receipt(wrapper, extension, wheels[0]),
         "dependencies": command(str(Path.cwd() / ".venv/bin/python"), "-m", "pip", "freeze").splitlines(),
         "thread_environment": {k: os.environ.get(k) for k in
                                ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "RAYON_NUM_THREADS")},

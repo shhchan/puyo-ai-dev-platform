@@ -3,9 +3,13 @@
 import copy
 import json
 import math
+import tempfile
 import unittest
+import zipfile
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from agents.deep_chain_native import (
     REQUEST_SCHEMA_IDENTITIES_TAG,
@@ -15,7 +19,7 @@ from agents.deep_chain_native import (
 from agents.deep_chain_search_backend import semantic_sha256
 from eval import puyo236_four_pattern_trial as trial
 from eval.puyo236_fixture_migration import migrate_frozen_request
-from eval.puyo236_run_comparison import balanced_counts, schedule
+from eval.puyo236_run_comparison import balanced_counts, execute, schedule
 from eval.puyo236_summarize import quality
 
 
@@ -47,6 +51,40 @@ class TestFourPatternComparison(unittest.TestCase):
         self.assertEqual(result["clean_target10_seed_count"], 1)
         self.assertAlmostEqual(result["target10_rate_percent"], 200 / 3)
         self.assertEqual(result["maximum_actual_chain_distribution"], {0: 1, 10: 1, 12: 1})
+
+    def test_initialization_and_resume_compare_the_persisted_json_key_types(self):
+        declaration = {"position_counts": balanced_counts(schedule()), "schedule": schedule()}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with patch("eval.puyo236_run_comparison.invoke", return_value={"returncode": 0}), \
+                    patch("eval.puyo236_run_comparison.frozen_declaration", return_value=declaration), \
+                    patch.object(trial, "OLD_SEEDS", ()):
+                execute(root, root / "out", "init")
+                execute(root, root / "out", "init")
+                execute(root, root / "out", "reproduce")
+            saved = json.loads((root / "out/four-arm-manifest.json").read_text())
+            self.assertEqual(saved["position_counts"]["none"], {str(i): 15 for i in range(4)})
+
+    def test_native_provenance_hashes_the_binary_and_rejects_wrapper_or_wheel_mismatch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wrapper = root / "__init__.py"
+            binary = root / "_puyo_deep_chain_native.so"
+            wrapper.write_bytes(b"python wrapper")
+            binary.write_bytes(b"native binary bytes")
+            wheel = root / "frozen.whl"
+            with zipfile.ZipFile(wheel, "w") as archive:
+                archive.write(binary, "_puyo_deep_chain_native/" + binary.name)
+            package = SimpleNamespace(__file__=str(wrapper))
+            extension = SimpleNamespace(__file__=str(binary))
+            receipt = trial.native_binary_receipt(package, extension, wheel)
+            self.assertNotEqual(receipt["native_wrapper_sha256"], receipt["native_extension_sha256"])
+            self.assertEqual(receipt["native_extension_sha256"], receipt["wheel_native_extension_sha256"])
+            with self.assertRaises(AssertionError):
+                trial.native_binary_receipt(package, package, wheel)
+            binary.write_bytes(b"changed native binary")
+            with self.assertRaises(AssertionError):
+                trial.native_binary_receipt(package, extension, wheel)
 
     def test_fixture_migration_preserves_every_nonidentity_byte_and_is_reversible(self):
         raw = bytes.fromhex(Path("tests/fixtures/evaluator_candidate_alias_request.hex").read_text())
