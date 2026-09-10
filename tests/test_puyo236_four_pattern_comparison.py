@@ -1,6 +1,7 @@
 """Protocol failures must stay failures; no quality threshold tuning here."""
 
 import copy
+import hashlib
 import json
 import math
 import tempfile
@@ -108,11 +109,13 @@ class TestFourPatternComparison(unittest.TestCase):
             "evaluator_yaml_sha256": "yaml-sha", "evaluator_semantic_sha256": semantic_sha256(evaluator),
             "strict_all_root_parity_passed": True, "candidate_representatives_match": True,
             "ranked_root_actions": [3, 2], "search_digest": "search",
-            "representatives": {"3": {"path": [3, 7], "state_fingerprint": "final"}},
+            "representatives": {"3": {"path": [3, 7], "state_sha256": "a" * 64,
+                                      "search_state_fingerprint": "compact-" + "a" * 24,
+                                      "plan_state_fingerprint": "a" * 24}},
         }
         record = {"action": 3, "search": {"backend": {"configuration": {"evaluator_config_sha256": "yaml-sha"}},
                                            "deterministic_digest": "search"},
-                  "selection": {"candidate_count": 2}, "plan": {"steps": [{"action": 3}, {"action": 7, "state_fingerprint": "final"}]},
+                  "selection": {"candidate_count": 2}, "plan": {"steps": [{"action": 3}, {"action": 7, "state_fingerprint": "a" * 24}]},
                   "scenario_accounting": {"failure_count": 0}, "parity": {"passed": True},
                   "actual_result": {"valid": True, "game_over": False}, "fallback": {"used": False}}
         run = {"records": [record], "request_receipts": [receipt], "simulator_parity_mismatch_count": 0,
@@ -175,6 +178,33 @@ class TestFourPatternComparison(unittest.TestCase):
                 step["predicted_chain_count"] += 1
             with self.subTest(mutation=mutation), self.assertRaises(AssertionError):
                 trial.validate_receipts(broken, manifest)
+
+    def test_real_representative_and_builder_plan_use_explicitly_different_fingerprint_formats(self):
+        from agents.compact_search import CompactSearchState
+        from agents.long_horizon_search import (
+            LongHorizonSearchConfig,
+            run_compact_long_horizon_search,
+        )
+        from src.core.constants import PuyoColor
+
+        request = trial.NativeDecisionRequest(
+            state=CompactSearchState(planes=(0,) * 6), known_pairs=((PuyoColor.RED, PuyoColor.GREEN),),
+            search_config=LongHorizonSearchConfig(depth=1, width=4, scenarios=1, max_expanded_nodes=22,
+                                                 minimum_chain_count=10, decision_seed=123),
+            evaluator_config=trial.load_chain_structure_config(),
+            config_digest=trial.baseline.file_sha256(Path("train/config/deep_chain_builder.yaml")),
+            profile_name="reference", profile_version="1.0", config_version="v1.1",
+        )
+        result = run_compact_long_horizon_search(request.state, request.known_pairs, request.search_config)
+        receipt = trial.result_receipt(request, result)
+        selected = result.ranked_roots[0].root_action
+        representative = receipt["representatives"][str(selected)]
+        binary_sha = hashlib.sha256(result.representatives[selected].state.to_bytes()).hexdigest()
+        self.assertEqual(representative["search_state_fingerprint"], "compact-" + binary_sha[:24])
+        self.assertEqual(representative["plan_state_fingerprint"], binary_sha[:24])
+        plan = trial._representative_payload(result, selected, request.state)
+        self.assertEqual(plan["steps"][-1]["state_fingerprint"], representative["plan_state_fingerprint"])
+        self.assertNotEqual(representative["search_state_fingerprint"], representative["plan_state_fingerprint"])
 
     def test_receipts_distinguish_yaml_from_semantics_and_bind_candidate_plan(self):
         run, manifest = self.receipt_fixture()

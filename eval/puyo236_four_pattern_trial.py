@@ -184,11 +184,17 @@ def result_receipt(request, result):
             assert node is not None
             assert tuple(node.path) == tuple(fire.path)
             assert node.scenario_id == fire.scenario_id
-        representatives[str(root.root_action)] = None if node is None else {
-            "path": list(node.path), "scenario_id": node.scenario_id,
-            "state_sha256": hashlib.sha256(node.state.to_bytes()).hexdigest(),
-            "state_fingerprint": node.state_fingerprint,
-        }
+        if node is None:
+            representatives[str(root.root_action)] = None
+        else:
+            state_sha256 = hashlib.sha256(node.state.to_bytes()).hexdigest()
+            assert node.state_fingerprint == "compact-" + state_sha256[:24]
+            representatives[str(root.root_action)] = {
+                "path": list(node.path), "scenario_id": node.scenario_id,
+                "state_sha256": state_sha256,
+                "search_state_fingerprint": node.state_fingerprint,
+                "plan_state_fingerprint": state_sha256[:24],
+            }
     selected_action = result.ranked_roots[0].root_action
     recovery = None
     if result.representatives.get(selected_action) is None:
@@ -277,7 +283,9 @@ def validate_receipts(run, manifest):
         else:
             assert receipt.get("selected_root_only_recovery") is None
             assert representative["path"] == [s["action"] for s in record["plan"]["steps"]]
-            assert representative["state_fingerprint"] == record["plan"]["steps"][-1]["state_fingerprint"]
+            assert representative["search_state_fingerprint"] == "compact-" + representative["state_sha256"][:24]
+            assert representative["plan_state_fingerprint"] == representative["state_sha256"][:24]
+            assert representative["plan_state_fingerprint"] == record["plan"]["steps"][-1]["state_fingerprint"]
         assert record["scenario_accounting"]["failure_count"] == 0
         assert record["parity"]["passed"] and record["actual_result"]["valid"]
         assert not record["fallback"]["used"]
