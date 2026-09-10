@@ -10,7 +10,7 @@ def prepare(previous, output):
     path = output / "fixed-inputs.json"
     if path.exists():
         raise ValueError(f"Refusing to overwrite {path}")
-    selected = ((123, 29), (126, 22), (130, 7), (130, 24), (135, 10),
+    selected = ((123, 29), (126, 22), (130, 7), (130, 24), (133, 38), (135, 10),
                 (135, 11), (135, 33), (138, 30), (147, 7), (147, 27), (151, 31))
     cases = []
     for seed, turn in selected:

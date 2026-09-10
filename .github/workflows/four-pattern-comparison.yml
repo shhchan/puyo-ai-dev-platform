@@ -5,6 +5,7 @@ on:
     paths:
       - 'eval/puyo236_*.py'
       - 'tests/test_puyo236_four_pattern_comparison.py'
+      - 'tests/fixtures/puyo236_*.json'
       - '.github/workflows/four-pattern-comparison.yml'
   workflow_dispatch:
 

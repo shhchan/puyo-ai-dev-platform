@@ -108,11 +108,11 @@ class TestFourPatternComparison(unittest.TestCase):
             "evaluator_yaml_sha256": "yaml-sha", "evaluator_semantic_sha256": semantic_sha256(evaluator),
             "strict_all_root_parity_passed": True, "candidate_representatives_match": True,
             "ranked_root_actions": [3, 2], "search_digest": "search",
-            "representatives": {"3": {"path": [3, 7]}},
+            "representatives": {"3": {"path": [3, 7], "state_fingerprint": "final"}},
         }
         record = {"action": 3, "search": {"backend": {"configuration": {"evaluator_config_sha256": "yaml-sha"}},
                                            "deterministic_digest": "search"},
-                  "selection": {"candidate_count": 2}, "plan": {"steps": [{"action": 3}, {"action": 7}]},
+                  "selection": {"candidate_count": 2}, "plan": {"steps": [{"action": 3}, {"action": 7, "state_fingerprint": "final"}]},
                   "scenario_accounting": {"failure_count": 0}, "parity": {"passed": True},
                   "actual_result": {"valid": True, "game_over": False}, "fallback": {"used": False}}
         run = {"records": [record], "request_receipts": [receipt], "simulator_parity_mismatch_count": 0,
@@ -142,6 +142,39 @@ class TestFourPatternComparison(unittest.TestCase):
         self.assertEqual(trial.request_receipt_context(backend), context)
         with self.assertRaises(TypeError):
             trial.request_receipt_context(object())
+
+    def test_legitimate_gameover_recovery_matches_the_existing_plan_and_rejects_corruption(self):
+        from agents.long_horizon_search import run_compact_long_horizon_search
+
+        fixture = json.loads(Path("tests/fixtures/puyo236_root_only_recovery.json").read_text())
+        request = decode_request(bytes.fromhex(fixture["request_hex"]))
+        result = run_compact_long_horizon_search(request.state, request.known_pairs, request.search_config)
+        receipt = trial.result_receipt(request, result)
+        self.assertIsNone(receipt["representatives"][str(fixture["record"]["action"])])
+        quiet_root = replace(result.ranked_roots[0], fire_class="quiet_continuation")
+        with self.assertRaises(AssertionError):
+            trial.result_receipt(request, replace(result, root_evidence=(quiet_root,)))
+        self.assertEqual(receipt["selected_root_only_recovery"]["steps"], fixture["record"]["plan"]["steps"])
+        run = {"records": [fixture["record"]], "request_receipts": [receipt], "simulator_parity_mismatch_count": 0,
+               "fallback_count": 0, "termination_reason": "game_over", "game_over": True}
+        manifest = {"effective_evaluator_config": request.evaluator_config.to_dict(), "common_configuration": {
+            "configuration_sha256": {"train/config/v1_7_chain_structure.yaml": receipt["evaluator_yaml_sha256"]}}}
+        trial.validate_receipts(run, manifest)
+        for mutation in ("missing_recovery", "action", "state", "prediction", "quiet_evidence"):
+            broken = copy.deepcopy(run)
+            step = broken["records"][0]["plan"]["steps"][0]
+            if mutation == "missing_recovery":
+                broken["request_receipts"][0]["selected_root_only_recovery"] = None
+            elif mutation == "action":
+                step["action"] += 1
+            elif mutation == "state":
+                step["state_fingerprint"] = "corrupt"
+            elif mutation == "quiet_evidence":
+                broken["records"][0]["selection"]["selected_score"]["evidence"]["fire_class"] = "quiet_continuation"
+            else:
+                step["predicted_chain_count"] += 1
+            with self.subTest(mutation=mutation), self.assertRaises(AssertionError):
+                trial.validate_receipts(broken, manifest)
 
     def test_receipts_distinguish_yaml_from_semantics_and_bind_candidate_plan(self):
         run, manifest = self.receipt_fixture()

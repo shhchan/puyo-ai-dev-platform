@@ -22,6 +22,7 @@ else:
     from puyo236_fixture_migration import migrate_frozen_request
 
 from agents.chain_structure import load_chain_structure_config
+from agents.deep_chain_builder import _representative_payload
 from agents.deep_chain_native import (
     NativeDecisionRequest,
     NativeDeepChainBackend,
@@ -186,7 +187,23 @@ def result_receipt(request, result):
         representatives[str(root.root_action)] = None if node is None else {
             "path": list(node.path), "scenario_id": node.scenario_id,
             "state_sha256": hashlib.sha256(node.state.to_bytes()).hexdigest(),
+            "state_fingerprint": node.state_fingerprint,
         }
+    selected_action = result.ranked_roots[0].root_action
+    recovery = None
+    if result.representatives.get(selected_action) is None:
+        selected_root = result.ranked_roots[0]
+        assert selected_root.fire_class == "unavailable" and selected_root.best_fire is None
+        assert all(not value.quiet_survivor and value.selected_fire is None
+                   and value.survivor_evaluator_score is None for value in selected_root.scenario_values)
+        root_state = request.state if isinstance(request, NativeDecisionRequest) else request.root_state
+        payload = _representative_payload(result, selected_action, root_state)
+        assert payload is not None and payload["trajectory_source"] == "root_only_recovery_trajectory"
+        assert payload["actions"] == [selected_action]
+        recovery = {"steps": baseline._plan_summary({"steps": payload["steps"]})["steps"],
+                    "source": "root_only_recovery_trajectory",
+                    "evidence_basis": {"fire_class": selected_root.fire_class,
+                                       "best_fire_absent": True, "quiet_survivor_absent": True}}
     return {
         **request_receipt_context(request),
         "strict_all_root_parity_passed": True,
@@ -195,6 +212,7 @@ def result_receipt(request, result):
         "root_ranking_keys": [strict_json_value(r.ranking_key) for r in result.ranked_roots],
         "root_evidence_sha256": semantic_sha256(strict_json_value([r.to_dict() for r in result.ranked_roots])),
         "representatives": representatives,
+        "selected_root_only_recovery": recovery,
         "search_digest": result.deterministic_digest,
     }
 
@@ -244,8 +262,22 @@ def validate_receipts(run, manifest):
         assert receipt["ranked_root_actions"][0] == record["action"]
         assert receipt["search_digest"] == record["search"]["deterministic_digest"]
         representative = receipt["representatives"][str(record["action"])]
-        assert representative is not None
-        assert representative["path"] == [s["action"] for s in record["plan"]["steps"]]
+        if representative is None:
+            recovery = receipt["selected_root_only_recovery"]
+            assert recovery is not None and recovery["source"] == "root_only_recovery_trajectory"
+            evidence = record["selection"]["selected_score"]["evidence"]
+            assert recovery["evidence_basis"] == {"fire_class": "unavailable", "best_fire_absent": True,
+                                                 "quiet_survivor_absent": True}
+            assert evidence["fire_class"] == "unavailable" and evidence["best_fire"] is None
+            assert all(not value["quiet_survivor"] and value["selected_fire"] is None
+                       and value["survivor_evaluator_score"] is None for value in evidence["scenario_values"])
+            assert record["plan"]["steps"] == recovery["steps"]
+            assert [s["action"] for s in recovery["steps"]] == [record["action"]]
+            assert recovery["steps"][0]["reason"] == "root_only_recovery_trajectory"
+        else:
+            assert receipt.get("selected_root_only_recovery") is None
+            assert representative["path"] == [s["action"] for s in record["plan"]["steps"]]
+            assert representative["state_fingerprint"] == record["plan"]["steps"][-1]["state_fingerprint"]
         assert record["scenario_accounting"]["failure_count"] == 0
         assert record["parity"]["passed"] and record["actual_result"]["valid"]
         assert not record["fallback"]["used"]

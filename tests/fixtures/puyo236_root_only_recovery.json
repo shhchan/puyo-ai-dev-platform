@@ -1,0 +1,589 @@
+{
+  "ticket": "PUYO-236",
+  "source_raw_sha256": "7655526759352afcfc4db74d35d2787f78c79c3df243379fb5e1d1153b007910",
+  "source_requests_sha256": "bbf7347101fba4f5eb822ff8b98234586f56052b523954cb7403ce60234f3cd6",
+  "seed": 133,
+  "turn": 38,
+  "request_hex": "5044434e01000000010100002000000058030000060000009b347bd7fd7816e3018001005700000043534b3190061a014a20009428080001802008a1c2010a8403004c31411410113221402000224884e2040ccc40031000000000000000000000000000000000000000000000000000000000000000000000000000000000000280010008000000030003030104040103800100730000001000fa00060a0100c027090001000000000001000100af142c0fc416becd00000000000000000000000000408f4010006c65676163792d66697865642d7369780f007265636f72645f616e645f73746f700a00736166655f6275696c6409007265666572656e63650300312e30040076312e31000000000004800100250100001f007075796f2e636861696e5f7374727563747572655f776569676874732e763120007075796f2e636861696e5f7374727563747572655f66656174757265732e7631040076312e300300000000020000600000000c000000180000000000000000f9e5409a9999999999a93f000000000094c1c000000000008066c00000000000c0824000000000008061400000000000807b40000000000080564000000000003081400000000000e085400000000000c052400000000000003940000000000000344000000000008041c000000000000039c00000000000804bc000000000008051c0000000000088d3c00000000000006ec000000000007097c0000000000040afc00000000000409fc000000000004cddc0000000000088c3c0000000a2941a6dc200000005800100090100000700000019007075796f2e706c6163656d656e745f616374696f6e732e76311c007075796f2e636f6d706163745f7365617263685f73746174652e76311d007075796f2e6675747572655f7473756d6f5f73616d706c696e672e76311e007075796f2e65787065637465645f636861696e5f72616e6b696e672e763221007075796f2e6275696c645f6d61696e5f7465726d696e616c5f73636f72652e763126007075796f2e646565705f636861696e5f6275696c6465722e646961676e6f73746963732e763120007075796f2e646565705f636861696e5f6e61746976652e726573756c742e763177e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a0000000000000006800100180000000a007363656e6172696f2d36000000000000000100010000",
+  "record": {
+    "action": 7,
+    "elapsed_seconds": 0.007188104005763307,
+    "plan": {
+      "objective": {
+        "kind": "deep_chain_construction",
+        "minimum_chain_count": 10
+      },
+      "plan_id": "459d654e743cb82f",
+      "prediction_summary": {
+        "cumulative_attack": 0,
+        "cumulative_score": 0,
+        "final_state_fingerprint": "9d18b4f26e11fcb83f6559db",
+        "maximum_chain_count": 0
+      },
+      "replan_reason": "new_observation",
+      "schema_version": "n-turn-plan-v1",
+      "steps": [
+        {
+          "action": 7,
+          "game_over": true,
+          "known_tsumo": true,
+          "placement_cells": [
+            {
+              "color": "GREEN",
+              "x": 2,
+              "y": 11
+            },
+            {
+              "color": "GREEN",
+              "x": 2,
+              "y": 12
+            }
+          ],
+          "predicted_attack": 0,
+          "predicted_board": [
+            [
+              "BLUE",
+              "YELLOW",
+              "GREEN",
+              "GREEN",
+              "RED",
+              "YELLOW"
+            ],
+            [
+              "GREEN",
+              "RED",
+              "GREEN",
+              "RED",
+              "RED",
+              "YELLOW"
+            ],
+            [
+              "GREEN",
+              "GREEN",
+              "YELLOW",
+              "BLUE",
+              "GREEN",
+              "RED"
+            ],
+            [
+              "YELLOW",
+              "RED",
+              "RED",
+              "BLUE",
+              "GREEN",
+              "YELLOW"
+            ],
+            [
+              "RED",
+              "YELLOW",
+              "GREEN",
+              "BLUE",
+              "GREEN",
+              "YELLOW"
+            ],
+            [
+              "YELLOW",
+              "YELLOW",
+              "BLUE",
+              "RED",
+              "YELLOW",
+              "RED"
+            ],
+            [
+              "GREEN",
+              "BLUE",
+              "RED",
+              "BLUE",
+              "GREEN",
+              "BLUE"
+            ],
+            [
+              "YELLOW",
+              "YELLOW",
+              "GREEN",
+              "RED",
+              "BLUE",
+              "BLUE"
+            ],
+            [
+              "BLUE",
+              "GREEN",
+              "YELLOW",
+              "YELLOW",
+              "GREEN",
+              "GREEN"
+            ],
+            [
+              "YELLOW",
+              "YELLOW",
+              "GREEN",
+              "BLUE",
+              "RED",
+              "BLUE"
+            ],
+            [
+              "RED",
+              "GREEN",
+              "YELLOW",
+              "RED",
+              "YELLOW",
+              "YELLOW"
+            ],
+            [
+              "BLUE",
+              "RED",
+              "GREEN",
+              "RED",
+              "GREEN",
+              "BLUE"
+            ],
+            [
+              "BLUE",
+              "BLUE",
+              "GREEN",
+              "RED",
+              "YELLOW",
+              "GREEN"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ]
+          ],
+          "predicted_chain_count": 0,
+          "predicted_score": 0,
+          "reason": "root_only_recovery_trajectory",
+          "root_state_fingerprint": "c802903e5819b3cce48dff5d",
+          "scenario_id": 5,
+          "state_fingerprint": "9d18b4f26e11fcb83f6559db",
+          "step_index": 0,
+          "tsumo": [
+            "GREEN",
+            "GREEN"
+          ],
+          "valid": true
+        }
+      ]
+    },
+    "parity": {
+      "actual_board_digest": "928305892fe6f2e76872a095402b45fd43696f64103ec3801d408458198a328a",
+      "actual_state_fingerprint": "9d18b4f26e11fcb83f6559db",
+      "board_state_contract_version": "puyo.board_state.ghost_row.v1",
+      "cell_differences": [],
+      "components": {
+        "action": true,
+        "authoritative_board": true,
+        "board_shape": true,
+        "chain_count": true,
+        "complete_state": true,
+        "game_over": true,
+        "ghost_row": true,
+        "public_board": true,
+        "root_state": true,
+        "score_delta": true,
+        "selected_plan_step": true,
+        "valid": true
+      },
+      "contract_version": "puyo.simulator_parity.v2",
+      "mismatches": [],
+      "passed": true,
+      "predicted_state_fingerprint": "9d18b4f26e11fcb83f6559db"
+    },
+    "actual_result": {
+      "chain_count": 0,
+      "game_over": true,
+      "score_delta": 0,
+      "valid": true
+    },
+    "fallback": {
+      "detail": "",
+      "reason": null,
+      "used": false
+    },
+    "scenario_accounting": {
+      "expected_scenario_count": 6,
+      "expected_scenario_ids": [
+        5,
+        3,
+        2,
+        4,
+        0,
+        1
+      ],
+      "failure_count": 0,
+      "failures": [],
+      "passed": true,
+      "root_count": 2
+    },
+    "selection": {
+      "candidate_count": 2,
+      "selected_score": {
+        "evidence": {
+          "best_fire": null,
+          "candidate_value": -1000000000000,
+          "chain_count": {
+            "dispersion": 0,
+            "maximum": 0,
+            "mean": 0,
+            "sum": 0,
+            "worst": 0
+          },
+          "chain_score": {
+            "dispersion": 0,
+            "maximum": 0,
+            "mean": 0,
+            "sum": 0,
+            "worst": 0
+          },
+          "continuation_score_mean": null,
+          "coverage": 1,
+          "evaluated_scenarios": 6,
+          "fire_class": "unavailable",
+          "fire_class_priority": 0,
+          "fire_class_support": {
+            "forced_safety_fire": 0,
+            "premature_fire": 0,
+            "quiet_continuation": 0,
+            "target_fire": 0,
+            "unavailable": 6,
+            "winning_fire": 0
+          },
+          "quiet_candidate_coverage": 0,
+          "quiet_support": 0,
+          "ranking_rule_version": "puyo.expected_chain_ranking.v2",
+          "requested_scenarios": 6,
+          "root_action": 7,
+          "root_survivor_quota": 1,
+          "scenario_values": [
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 0,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            },
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 1,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            },
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 2,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            },
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 3,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            },
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 4,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            },
+            {
+              "best_fire": null,
+              "evaluated": true,
+              "expanded_nodes": 1,
+              "fire_count": 0,
+              "game_over_nodes": 1,
+              "invalid_nodes": 0,
+              "max_chain_count": 0,
+              "max_chain_score": 0,
+              "observed_fire_classes": [],
+              "pruned_nodes": 0,
+              "quiet_survivor": false,
+              "reached_depth": 1,
+              "root_action": 7,
+              "scenario_id": 5,
+              "search_complete": true,
+              "selected_fire": null,
+              "selected_fire_class": "unavailable",
+              "survivor_coverage": {
+                "attempted_depths": [
+                  1
+                ],
+                "candidate_counts": {
+                  "1": 0
+                },
+                "quota": 1,
+                "quota_satisfied": false,
+                "retained_counts": {
+                  "1": 0
+                },
+                "schema_version": "puyo.root_survivor_coverage.v1",
+                "shortfalls": {
+                  "1": "game_over_without_survivor"
+                }
+              },
+              "survivor_evaluator_score": null,
+              "terminal_fire": {
+                "minimum_chain_count": 1,
+                "rule": "record_and_stop"
+              },
+              "terminal_fire_count": 0,
+              "transposition_hits": 0,
+              "truncation_reason": null
+            }
+          ],
+          "schema_version": "puyo.expected_chain_evidence.v2",
+          "support": 0,
+          "target_not_reached_fire_count": 0,
+          "terminal_score": {
+            "dispersion": 0,
+            "mean": null,
+            "schema_version": "puyo.build_main_terminal_score.v1",
+            "sum": 0,
+            "worst": null
+          }
+        },
+        "ranking_key": [
+          0,
+          1,
+          6,
+          -1000000000000,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          "-Infinity",
+          0,
+          -7
+        ],
+        "root_action": 7,
+        "score_breakdown": {
+          "continuation_evaluator": 0,
+          "expected_chain_count_mean": 0,
+          "expected_chain_count_sum": 0,
+          "expected_chain_score_dispersion": 0,
+          "expected_chain_score_mean": 0,
+          "expected_chain_score_sum": 0,
+          "expected_chain_support": 0,
+          "expected_chain_worst_score": 0,
+          "fire_class_priority": 0,
+          "fire_class_support": 6,
+          "quiet_candidate_coverage": 0,
+          "target_not_reached_fire_count": 0,
+          "terminal_score_mean": 0,
+          "terminal_score_sum": 0,
+          "total": -1000000000000
+        }
+      }
+    },
+    "search": {
+      "deterministic_digest": "long-horizon-search-900ce1a68fcb58186b8d586c",
+      "backend": {
+        "configuration": {
+          "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+          "backend_config_version": "1.0",
+          "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+          "evaluator_config_version": "v1.0",
+          "minimum_chain_count": 10,
+          "search_config_sha256": "77e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a",
+          "search_config_version": "v1.1"
+        }
+      }
+    }
+  }
+}
