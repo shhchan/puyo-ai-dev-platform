@@ -4,9 +4,14 @@ import copy
 import json
 import math
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
-from agents.deep_chain_native import REQUEST_SCHEMA_IDENTITIES_TAG, decode_envelope
+from agents.deep_chain_native import (
+    REQUEST_SCHEMA_IDENTITIES_TAG,
+    decode_envelope,
+    decode_request,
+)
 from agents.deep_chain_search_backend import semantic_sha256
 from eval import puyo236_four_pattern_trial as trial
 from eval.puyo236_fixture_migration import migrate_frozen_request
@@ -75,6 +80,30 @@ class TestFourPatternComparison(unittest.TestCase):
         run = {"records": [record], "request_receipts": [receipt], "simulator_parity_mismatch_count": 0,
                "fallback_count": 0, "termination_reason": "turn_limit", "game_over": False}
         return run, manifest
+
+    def test_native_fixture_adapter_keeps_search_and_evaluator_file_hashes_separate(self):
+        raw = bytes.fromhex(Path("tests/fixtures/evaluator_candidate_alias_request.hex").read_text())
+        request = decode_request(raw)
+        # This historical fixture declares an older search YAML; it must be rejected.
+        with self.assertRaises(AssertionError):
+            trial.request_receipt_context(request)
+        request = replace(request, config_digest=trial.baseline.file_sha256(Path("train/config/deep_chain_builder.yaml")),
+                          evaluator_config=trial.load_chain_structure_config())
+        context = trial.request_receipt_context(request)
+        self.assertEqual(context["evaluator_yaml_sha256"], trial.baseline.file_sha256(Path("train/config/v1_7_chain_structure.yaml")))
+        self.assertNotEqual(context["evaluator_yaml_sha256"], request.config_digest)
+        self.assertNotEqual(context["evaluator_yaml_sha256"], context["evaluator_semantic_sha256"])
+        backend = trial.LongHorizonBackendRequest(
+            root_state=request.state, known_pairs=request.known_pairs, search_config=request.search_config,
+            evaluator_config=request.evaluator_config, profile_name="reference", profile_version="1.0",
+            search_config_version="1.0", search_config_sha256=request.config_digest,
+            evaluator_config_version="1.0", evaluator_config_sha256=context["evaluator_yaml_sha256"],
+            backend_config_version="1.0", backend_config_sha256=trial.baseline.file_sha256(Path("train/config/deep_chain_backend.yaml")),
+            request_id=request.request_id, canonical=True, allow_auto_fallback=False,
+        )
+        self.assertEqual(trial.request_receipt_context(backend), context)
+        with self.assertRaises(TypeError):
+            trial.request_receipt_context(object())
 
     def test_receipts_distinguish_yaml_from_semantics_and_bind_candidate_plan(self):
         run, manifest = self.receipt_fixture()

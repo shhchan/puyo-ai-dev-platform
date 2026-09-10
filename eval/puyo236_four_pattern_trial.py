@@ -19,9 +19,13 @@ else:
     from puyo236_fixture_migration import migrate_frozen_request
 
 from agents.chain_structure import load_chain_structure_config
-from agents.deep_chain_native import NativeDeepChainBackend, decode_request
+from agents.deep_chain_native import (
+    NativeDecisionRequest,
+    NativeDeepChainBackend,
+    decode_request,
+)
 from agents.deep_chain_native_search import materialize_native_long_horizon_result
-from agents.deep_chain_search_backend import semantic_sha256
+from agents.deep_chain_search_backend import LongHorizonBackendRequest, semantic_sha256
 from eval import deep_chain_builder_benchmark as baseline
 from eval import deep_chain_target_ablation as ablation
 
@@ -122,6 +126,31 @@ def initialize(root, arm):
     return manifest
 
 
+def request_receipt_context(request):
+    """Explicitly adapt wire fixtures; config_digest describes search YAML only."""
+    if isinstance(request, NativeDecisionRequest):
+        assert request.config_digest == baseline.file_sha256(Path("train/config/deep_chain_builder.yaml"))
+        assert request.evaluator_config == load_chain_structure_config()
+        root_state = request.state
+        evaluator_yaml_sha256 = baseline.file_sha256(Path("train/config/v1_7_chain_structure.yaml"))
+    elif isinstance(request, LongHorizonBackendRequest):
+        root_state = request.root_state
+        evaluator_yaml_sha256 = request.evaluator_config_sha256
+    else:
+        raise TypeError("Receipt requires an explicit backend request or native fixture request")
+    return {
+        "request_digest": semantic_sha256({
+            "root": root_state.to_bytes().hex(),
+            "known_pairs": [[c.name for c in pair] for pair in request.known_pairs],
+            "search": asdict(request.search_config), "evaluator": request.evaluator_config.to_dict(),
+            "request_id": request.request_id,
+        }),
+        "known_pair_count": len(request.known_pairs),
+        "evaluator_semantic_sha256": semantic_sha256(request.evaluator_config.to_dict()),
+        "evaluator_yaml_sha256": evaluator_yaml_sha256,
+    }
+
+
 def result_receipt(request, result):
     representatives = {}
     for root in result.ranked_roots:
@@ -136,15 +165,7 @@ def result_receipt(request, result):
             "state_sha256": hashlib.sha256(node.state.to_bytes()).hexdigest(),
         }
     return {
-        "request_digest": semantic_sha256({
-            "root": request.root_state.to_bytes().hex(),
-            "known_pairs": [[c.name for c in pair] for pair in request.known_pairs],
-            "search": asdict(request.search_config), "evaluator": request.evaluator_config.to_dict(),
-            "request_id": request.request_id,
-        }),
-        "known_pair_count": len(request.known_pairs),
-        "evaluator_semantic_sha256": semantic_sha256(request.evaluator_config.to_dict()),
-        "evaluator_yaml_sha256": request.evaluator_config_sha256,
+        **request_receipt_context(request),
         "strict_all_root_parity_passed": True,
         "candidate_representatives_match": True,
         "ranked_root_actions": [r.root_action for r in result.ranked_roots],
