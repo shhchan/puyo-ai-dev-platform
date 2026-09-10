@@ -152,6 +152,11 @@ def summarize(root, preparation):
         assert prepared["runtime"] == manifest["runtime"] and prepared["runner"] == manifest["runner"]
         assert preflight["manifest_sha256"] == prepared["manifest_sha256"]
         assert preflight["future_isolation"]["passed"]
+        diagnostic_path = preparation / arm / "diagnostic-target-10.json"
+        assert baseline.file_sha256(diagnostic_path) == preflight["cold_warm_diagnostic_sha256"]
+        diagnostic = baseline._read_json(diagnostic_path)
+        assert diagnostic["manifest_sha256"] == prepared["manifest_sha256"]
+        assert diagnostic["cold_warm_matches"] and diagnostic["counterfactual_matches"]
         assert [r["seed"] for r in preflight["private_counterfactuals"]] == list(trial.SEEDS)
         assert all(r["counterfactual_matches"] for r in preflight["private_counterfactuals"])
         records = [r for run in runs for r in run["records"]]
@@ -168,11 +173,17 @@ def summarize(root, preparation):
             "game_overs_both_repeats": sum(r["game_over"] for r in runs),
             "per_seed": seed_rows, "search": baseline._aggregate_search(runs),
             "timing": {"decision_seconds": stats(decisions), "receipt_audit_seconds": stats(audit),
+                       "first_trajectory_decision_seconds": stats([r["records"][0]["elapsed_seconds"] for r in runs]),
+                       "later_trajectory_decision_seconds": stats([d["elapsed_seconds"] for r in runs for d in r["records"][1:]]),
                        "decision_minus_receipt_audit_reference_seconds": stats([d - a for d, a in zip(decisions, audit, strict=True)]),
                        "run_seconds": stats([r["elapsed_seconds"] for r in runs]),
                        "run_minus_receipt_audit_reference_seconds": stats([r["elapsed_seconds"] - sum(r["request_audit_seconds"]) for r in runs])},
             "rss_kib": stats([r["process_resources"]["peak_rss_kib"] for r in runs]),
             "preflight_sha256": baseline.file_sha256(preflight_path),
+            "cold_warm_diagnostic": {"sha256": baseline.file_sha256(diagnostic_path),
+                                     "kind": diagnostic["kind"],
+                                     "samples": [{"label": s["label"], "elapsed_seconds": s["elapsed_seconds"],
+                                                  "decision_digest": s["decision_digest"]} for s in diagnostic["samples"]]},
             "absolute_gates": {
                 "mean_maximum_actual_chain_at_least10": "PASS" if q["maximum_actual_chain"]["mean"] >= 10 else "FAIL",
                 "premature_zero": "PASS" if q["premature_fires_repeat1"] == 0 else "FAIL",

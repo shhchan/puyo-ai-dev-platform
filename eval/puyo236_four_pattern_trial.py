@@ -243,6 +243,8 @@ def preflight(root, arm):
     manifest = initialize(root, arm)
     path = root / arm / "preflight.json.gz"
     assert not path.exists()
+    diagnostic = ablation.diagnostic(root / arm, 10, contract=CONTRACT)
+    assert diagnostic["cold_warm_matches"] and diagnostic["counterfactual_matches"]
     backend = NativeDeepChainBackend(canonical=True)
     inputs = baseline._read_json(root / "fixed-inputs.json")
     samples = []
@@ -279,6 +281,8 @@ def preflight(root, arm):
                               "inputs_sha256": baseline.file_sha256(root / "fixed-inputs.json"),
                               "fixed_samples": samples, "private_counterfactuals": private,
                               "future_isolation": audit,
+                              "cold_warm_diagnostic": diagnostic,
+                              "cold_warm_diagnostic_sha256": baseline.file_sha256(root / arm / "diagnostic-target-10.json"),
                               "peak_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss})
     print(json.dumps({"arm": arm, "preflight": "passed", "fixed": len(samples), "private_seeds": len(private)}), flush=True)
 
