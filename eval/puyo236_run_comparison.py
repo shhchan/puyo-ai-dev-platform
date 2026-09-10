@@ -118,6 +118,8 @@ def execute(workspace, output, mode):
                 assert old["returncode"] == 0 and old["raw_sha256"] == baseline.file_sha256(path)
                 assert old["schedule_entry"] == entry
                 continue
+            if receipt_path.exists():
+                raise ValueError(f"Prior process attempt cannot be overwritten or reused: {receipt_path}")
             receipt = invoke(workspace, output, "worker", arm, "--seed", entry["seed"], "--repeat", entry["repeat"])
             receipt["schedule_entry"] = entry
             receipt["raw_sha256"] = baseline.file_sha256(path) if path.exists() else None

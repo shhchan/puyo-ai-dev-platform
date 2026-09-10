@@ -46,7 +46,7 @@ RUNTIME_FILES = (
 )
 RUNNER_FILES = ("eval/puyo236_four_pattern_trial.py", "eval/puyo236_fixture_migration.py",
                 "eval/puyo236_run_comparison.py", "eval/puyo236_summarize.py",
-                "eval/puyo236_prepare_inputs.py")
+                "eval/puyo236_prepare_inputs.py", "eval/puyo236_verify_preparation.py")
 
 
 def strict_json_value(value):
