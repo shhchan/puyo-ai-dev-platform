@@ -1,0 +1,21 @@
+name: Four-pattern comparison protocol
+
+on:
+  pull_request:
+    paths:
+      - 'eval/puyo236_*.py'
+      - 'tests/test_puyo236_four_pattern_comparison.py'
+      - '.github/workflows/four-pattern-comparison.yml'
+  workflow_dispatch:
+
+jobs:
+  protocol:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy pygame gymnasium PyYAML Pillow ruff==0.16.0
+      - run: ruff check eval/puyo236_*.py tests/test_puyo236_four_pattern_comparison.py
+      - run: python -m unittest tests.test_puyo236_four_pattern_comparison
