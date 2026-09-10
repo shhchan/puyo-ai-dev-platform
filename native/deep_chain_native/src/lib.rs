@@ -114,7 +114,7 @@ const WIRE_NAME: &str = "puyo.deep_chain_native.envelope.v1";
 const REQUEST_SCHEMA_DIGEST: &str =
     "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e";
 const RESULT_SCHEMA_DIGEST: &str =
-    "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b";
+    "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211";
 const CHAIN_STRUCTURE_WEIGHT_SCHEMA: &str = "puyo.chain_structure_weights.v1";
 const CHAIN_STRUCTURE_FEATURE_SCHEMA: &str = "puyo.chain_structure_features.v1";
 const SCHEMA_IDENTITIES: [&str; 7] = [

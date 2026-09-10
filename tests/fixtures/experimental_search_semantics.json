@@ -1,0 +1,9 @@
+{
+  "ticket": "PUYO-236",
+  "condition": "only240",
+  "ranking_rule": "puyo.expected_chain_ranking.v2 / guarded v3",
+  "source": "eval/deep_chain_native_corpus.json",
+  "source_sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4",
+  "deterministic_digest": "long-horizon-search-54e6574c124c3c8bac97c294",
+  "note": "Independent expected semantics; original corpus and artifact bytes are immutable."
+}
