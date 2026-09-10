@@ -1,0 +1,121 @@
+{
+  "adoption": "pending_user_choice",
+  "all_archive_member_bytes_match_original": true,
+  "offline_restore_verification": {
+    "comparison_bytes_equal": true,
+    "comparison_sha256": "9a4e293451c185fd0c316ba100f15b21135993cfff8f1adf5f3d35a31c4767b7",
+    "restored_under": "/home/sion2/workspaces/puyo-236-four-patterns-20260910/archive-verify.gXs57M",
+    "runner_files_unchanged": true,
+    "invocation": "PYTHONPATH=. python eval/puyo236_summarize.py RESTORED/measurement RESTORED/preparation-v5",
+    "initial_invocation_correction": "The first offline invocation omitted PYTHONPATH and stopped at import before reading runs. The documented PYTHONPATH=. invocation completed; no measurement or runner was changed."
+  },
+  "files": {
+    "audit/parent-final-comparison-audit.json": {
+      "bytes": 52708,
+      "sha256": "2c539104a69b3ec0024fefa6964b35ecf68b21d6bf5266fc45f3221ee76ce97e"
+    },
+    "audit/parent-gui-lineage.md": {
+      "bytes": 1902,
+      "sha256": "64f5c5746cee3b4899a8fd079bfcbc563148b365468c341989ee6c6cc62f0ee2"
+    },
+    "audit/parent-measurement-manifest-audit.json": {
+      "bytes": 5418,
+      "sha256": "7bc9c4e97bad2627753a331e0fa7d0a0a1e33fac3de08142c9bcbea2fd4b4b44"
+    },
+    "audit/parent-measurement-raw-audit.json": {
+      "bytes": 108735,
+      "sha256": "763f2d32367d3646bdcd7351f3431c410579f6f213415f099868084fe7345c6b"
+    },
+    "audit/parent-postmeasurement-manifest-audit.json": {
+      "bytes": 5418,
+      "sha256": "7bc9c4e97bad2627753a331e0fa7d0a0a1e33fac3de08142c9bcbea2fd4b4b44"
+    },
+    "audit/parent-preparation-v3-manifest-audit.json": {
+      "bytes": 5421,
+      "sha256": "3b028d8d42a91a5d65a594e8e19bedcd08ce570b83d6f97e99b21f4f28d6315c"
+    },
+    "audit/parent-preparation-v5-manifest-audit.json": {
+      "bytes": 5421,
+      "sha256": "94dcba453d1c9fcb956aae2434a990f55a44bfddc820c015a5ca0d8016aa65ec"
+    },
+    "audit/parent-preparation-v5-result-audit.json": {
+      "bytes": 10334,
+      "sha256": "16b4233192e6411b50d2d6926ab4107e34b27450b0e19d5f712b4de695814dba"
+    },
+    "audit/parent-review-checklist.md": {
+      "bytes": 4117,
+      "sha256": "9aa2a9fcdf1e0ec42d2333dd0150da6a629318b9673b07cdf537a05083974878"
+    },
+    "audit/parent_audit.py": {
+      "bytes": 12127,
+      "sha256": "7b20ddfe444ddc594a777a1b6f55be1a9d6d871f8af374f13b0da95f3fd3b2b6"
+    },
+    "audit/parent_final_comparison_audit.py": {
+      "bytes": 6718,
+      "sha256": "0dfb995a65026b7d42e2eec392d153789f5c23effb784a2f722acf1c2d869f8e"
+    },
+    "audit/parent_manifest_audit.py": {
+      "bytes": 6301,
+      "sha256": "2cd6b670163ffa9dd7411292ca2fee0c8e625a4e32cd6149070ef01db40de967"
+    },
+    "audit/parent_preparation_audit.py": {
+      "bytes": 5773,
+      "sha256": "d87b94ca097f5e3f16ec8afbbef3ee66b6ffa975605cd4fe17f0a83c5f0194a1"
+    },
+    "comparison.json": {
+      "bytes": 335866,
+      "sha256": "9a4e293451c185fd0c316ba100f15b21135993cfff8f1adf5f3d35a31c4767b7"
+    },
+    "four-arm-manifest.json": {
+      "bytes": 29875,
+      "sha256": "3a02b3e19a73f97b394a86b733077d0eafc8a4998c06e90545de2d1f1e643989"
+    },
+    "measurement-both.tar.gz": {
+      "bytes": 15895961,
+      "regular_file_members": 61,
+      "sha256": "6efcbda70dfdd1cca2ebb53cd5f229cc7830b6b82a9c5d0c3ffe23e0ae747c99"
+    },
+    "measurement-none.tar.gz": {
+      "bytes": 15264929,
+      "regular_file_members": 61,
+      "sha256": "113971ae65059a809534d1623c5de1312217115663c089ae05350f53588d707c"
+    },
+    "measurement-only240.tar.gz": {
+      "bytes": 15525922,
+      "regular_file_members": 61,
+      "sha256": "b925fe5277dd20708b8378e9aa405bcf73952baf88239c68e64e908cb5c547b6"
+    },
+    "measurement-only242.tar.gz": {
+      "bytes": 15564981,
+      "regular_file_members": 61,
+      "sha256": "6fc0731d709677198a293b0374d4a079cccfd3ad543cb6800ff9c9d4f7f7f4bc"
+    },
+    "measurement-processes.tar.gz": {
+      "bytes": 47349,
+      "regular_file_members": 242,
+      "sha256": "7c2b1102d62bb9ab29e647b2e9def823af73e543af2375175da53005619b91ce"
+    },
+    "native-wheels.tar.gz": {
+      "bytes": 6623286,
+      "regular_file_members": 4,
+      "sha256": "479adb56227f25efd18f077b9107d43f2348b318439b34a62d8fbb50af0a0c34"
+    },
+    "preparation-history.tar.gz": {
+      "bytes": 11094280,
+      "regular_file_members": 179,
+      "sha256": "e443b69c50aca86ec3c2cc701ea822ea804269eda837b0a867a35f5556d372c3"
+    },
+    "qa-logs.tar.gz": {
+      "bytes": 4706,
+      "regular_file_members": 24,
+      "sha256": "4da4c08cf9c89650537c161fbbd8c7e78b649d46cebd637fbc8ac4e272ccbeaa"
+    },
+    "source-arms.bundle": {
+      "bytes": 31185,
+      "sha256": "78411519ed4846e5dee52a1483168e4635a4a016722ad7f5dff73ffbe194acef"
+    }
+  },
+  "frozen_runner_commit": "29dc88e807aafba7a1d17196d7384a441d25b318",
+  "schema": "puyo236.artifact_index.v1",
+  "ticket": "PUYO-236"
+}

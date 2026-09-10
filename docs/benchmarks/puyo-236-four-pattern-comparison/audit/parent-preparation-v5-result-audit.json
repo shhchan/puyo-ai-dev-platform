@@ -1,0 +1,307 @@
+{
+  "schema": "puyo236.parent_preparation_audit.v1",
+  "passed": true,
+  "preparation": "/home/sion2/workspaces/puyo-236-four-patterns-20260910/preparation-v5",
+  "arm_manifest_identities": {
+    "none": "4f55f34ea48a64aa19beb792145e915884de52e96ce2468dc60535db60dc0efb",
+    "only240": "af76ac9e0d3e6e074b838eae0bf32df03483848ea1c686e7f8dfeb2cf32558cd",
+    "only242": "e5e8926f3a098294917e121d177ef06dca5908e2927a82f326252497427ba7b5",
+    "both": "0801689972029ddc708d39e4adbafc1a7ef4628515b750fefb6d4ac9f6ae3919"
+  },
+  "reproduction_count": 24,
+  "decisions_independently_audited": 957,
+  "reproduction": [
+    {
+      "arm": "none",
+      "seed": 123,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "4249e36f82e5b84873249aca58bc3e61721dbd088ab510a66941b7e81b8141a9",
+      "previous_sha256": "1e939998a8bd29130c38a1aa1b54911372048467fc5f642d8170b2113b69b8ae"
+    },
+    {
+      "arm": "none",
+      "seed": 126,
+      "maximum_chain": 2,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "0a5a3ac3861cf678686db9fca7b54bc0a1dcb6058d37d4ec1b5006ff4d9e2c23",
+      "previous_sha256": "118cb8fe65fcd9b44050a7c189dc3154e0a24cab53580fdfa869847792555612"
+    },
+    {
+      "arm": "none",
+      "seed": 130,
+      "maximum_chain": 3,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "63a49c35c60e05f702d192a5fee06fa380d1e73aa21c315a49f2b199efd40306",
+      "previous_sha256": "078b4823559bed19664ea7d7fc83bc8afe5a897ed51d34690b957df673086779"
+    },
+    {
+      "arm": "none",
+      "seed": 133,
+      "maximum_chain": 0,
+      "decisions_audited": 39,
+      "passed": true,
+      "current_sha256": "2725d6eb317b3e0a446baeb89bd4b1eab6eef8590236be795c081e1e592bcb67",
+      "previous_sha256": "7655526759352afcfc4db74d35d2787f78c79c3df243379fb5e1d1153b007910"
+    },
+    {
+      "arm": "none",
+      "seed": 135,
+      "maximum_chain": 0,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "df1e189fbad729f66934180f34bfb904546b3f06a03bcedb54c6b295bbe6f088",
+      "previous_sha256": "8f4a9271318279a6f883512b59e45c9ffda8c8ff92cca5e083dfad37a0c4f49a"
+    },
+    {
+      "arm": "none",
+      "seed": 138,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "a8a8452a17d0d5e6e37eb9b689d6282c8c11f7a155be6b4985261e0dea44bd11",
+      "previous_sha256": "9c44bbe59266bd2d227225c623cfb66c9ce00018ea3b8014345d5c016f01fc9b"
+    },
+    {
+      "arm": "none",
+      "seed": 147,
+      "maximum_chain": 0,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "6d95ad8d756305266f2a9e335d6f91b610803307e87683ab811c9c307c5e9329",
+      "previous_sha256": "4359fd4c24b8e04fd0df629e8e84cdf03f57bbd119203c2f4fcabbb13d762f0e"
+    },
+    {
+      "arm": "none",
+      "seed": 151,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "8cc474da5cc3aedb037f9ec74dcb8806092083481f762bbfacc7f80360a79b14",
+      "previous_sha256": "924fba363c8fad96229a72fead6fa681941e1e5588ce076961745d2df202f667"
+    },
+    {
+      "arm": "only240",
+      "seed": 123,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "fdb40c3d467ad008c42849231e05b0ddd854edd516b53a1519cc534ae6374f18",
+      "previous_sha256": "4bd9e1535fd910948702a820e61bf38aaef166f93f15b5ca8e8063b6c2274d38"
+    },
+    {
+      "arm": "only240",
+      "seed": 126,
+      "maximum_chain": 2,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "12f4a16f432b42d0c313db025ea17ccafc0afb221a7b86b0abf213dea99d052b",
+      "previous_sha256": "f0194456087d3bf009b2d9cca37e4a27360f296262b7500ad8805469ead99588"
+    },
+    {
+      "arm": "only240",
+      "seed": 130,
+      "maximum_chain": 11,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "d58509248596ed724542214705cb86a0e95cf9b79db881dca8218d1fbb5d0e31",
+      "previous_sha256": "9f0493ec5b12f2e23b13d86ee0149a72bcd2378db08ad2c46c7f28e3ab99b9c7"
+    },
+    {
+      "arm": "only240",
+      "seed": 133,
+      "maximum_chain": 0,
+      "decisions_audited": 39,
+      "passed": true,
+      "current_sha256": "ee106d351a6eb1551119aa2636ad45da962fd4828fa6d0aa2d09a4e8f33b652f",
+      "previous_sha256": "a43b1732b82a3e34002ddcbb85df417f5c74fffa2cf9e3b124611d248df30b70"
+    },
+    {
+      "arm": "only240",
+      "seed": 135,
+      "maximum_chain": 0,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "e2aa5eb1a035f2c80270d0d9995b5ae3875419f30be853e6c917e8d8dd9cff2b",
+      "previous_sha256": "676341da883b45ffa9824a6a7956c56ce039656e5b90ae60d14abab8cdc103a0"
+    },
+    {
+      "arm": "only240",
+      "seed": 138,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "39ee005649be7fc3ce110f5b73531a1cbd1de780965b95e5eadd0dfafde399a1",
+      "previous_sha256": "2e410e4e344cd255db45faabdd8789b6af968e1ad75ec663d43acd4933368284"
+    },
+    {
+      "arm": "only240",
+      "seed": 147,
+      "maximum_chain": 11,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "2e15bdf2c00ae949993c994081c96709ad6cdbd54e46b5e73b274c6499f5dfe4",
+      "previous_sha256": "cf2adece4bf366c26cb9f9ca218381a04d3566757cdf86d7f83bf863a25c0f34"
+    },
+    {
+      "arm": "only240",
+      "seed": 151,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "936a4cbe5eb59b4dcef7566b882619c8d5125c29b6668e15037d76abc857f962",
+      "previous_sha256": "f3df26fdbe8d009e77cae70b01eae45021db6e4daa6a37431f1543a2839f9973"
+    },
+    {
+      "arm": "only242",
+      "seed": 123,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "d0a8d63075ada71eaa08286ffb2fda5a790b7bda812a5e5c5b2ed289f8ecd504",
+      "previous_sha256": "5bb7f0e80c3ce83fb5b87509466c723c6f656612f65d64bf8b78b0f31cdd29ae"
+    },
+    {
+      "arm": "only242",
+      "seed": 126,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "3de1d560d520779f6d5562880648901449bad6ff089d9c9ab070271f3815aced",
+      "previous_sha256": "7811ff5a6bd401a595b9d3609adc7893320b2df9c56ceee54230b9e7cc662519"
+    },
+    {
+      "arm": "only242",
+      "seed": 130,
+      "maximum_chain": 3,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "fbcb6a6a0539704b7d651fb19a16ef0fa91be77b0728636d66134628cc4a2b4c",
+      "previous_sha256": "6f06f2daa76ac8c76462616cc7155257b55dba9051604af877272dc0d18e9488"
+    },
+    {
+      "arm": "only242",
+      "seed": 133,
+      "maximum_chain": 0,
+      "decisions_audited": 39,
+      "passed": true,
+      "current_sha256": "fcc6f08ead6a0da04f1a7fb17c6495da529fe2c583799fe516fc8a4e3a7f8ab5",
+      "previous_sha256": "95801318f11b03f3a45ebbb4d3082b7df34324b34993b44aaf91e0dd1a255945"
+    },
+    {
+      "arm": "only242",
+      "seed": 135,
+      "maximum_chain": 12,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "2062b7444c7e244943f8dd5d78531372a1b4ff2af508ab32b06762aab50b970c",
+      "previous_sha256": "8a5f88bb4d65f439bf5532f485243eba3ed243899c989f90c92886b2e6ad9535"
+    },
+    {
+      "arm": "only242",
+      "seed": 138,
+      "maximum_chain": 12,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "d143f6831d8e2f3d44b9e21cf52ece569cda81fdf165bb5f6aff1776bf179e5f",
+      "previous_sha256": "5aa255faf7b2aac7084f1bf2c00206847f2c65437ce6dcad058e1c9999272d81"
+    },
+    {
+      "arm": "only242",
+      "seed": 147,
+      "maximum_chain": 11,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "41dbc314160243f8b4eacdad8345df603643256a7f1e368d65cc2293bd6261d5",
+      "previous_sha256": "133b97cc752de4eb84aefe62bccc4bd67610d4ac2b33859d2a57256cc7ac4328"
+    },
+    {
+      "arm": "only242",
+      "seed": 151,
+      "maximum_chain": 10,
+      "decisions_audited": 40,
+      "passed": true,
+      "current_sha256": "33695206f3500c950d44ec30f15d2a74b258fc139a7403e62fec2e0c4a996811",
+      "previous_sha256": "7537cc81ad46ae8ff427fab3b6c9fcbea0748c9b5c9b07c3d6f28edca01ffd61"
+    }
+  ],
+  "preflight": {
+    "none": {
+      "passed": true,
+      "fixed_count": 12,
+      "private_seeds": 30,
+      "cold_warm_matches": true,
+      "preflight_sha256": "c7396ff26ed95528c16b81c5002d133d6ed6e782e38df4f983df6fc7882c39a0",
+      "diagnostic_sha256": "5c3779fa4cc03dd79c2bb3544d5518bd6125085b8ece6fb2a4e4abba5fc0b1d0"
+    },
+    "only240": {
+      "passed": true,
+      "fixed_count": 12,
+      "private_seeds": 30,
+      "cold_warm_matches": true,
+      "preflight_sha256": "dbcfc4abdc89a74e54de45fadf0da344361d5140f181722a88a0a3c640211f41",
+      "diagnostic_sha256": "cb1b09b2b7e90d899336fa32a4485a8cec754ab603e5a53cb7d75b16287e2243"
+    },
+    "only242": {
+      "passed": true,
+      "fixed_count": 12,
+      "private_seeds": 30,
+      "cold_warm_matches": true,
+      "preflight_sha256": "da8683377cbce87b3234d6314e7d9964238e09ddfc4dc6f182256da337fe4300",
+      "diagnostic_sha256": "9bf8b8d8ba950381b7ed4b9831ebde626a0c0dc7b0995c1da5b629ee4325ebe4"
+    },
+    "both": {
+      "passed": true,
+      "fixed_count": 12,
+      "private_seeds": 30,
+      "cold_warm_matches": true,
+      "preflight_sha256": "411a412c0660521cc8d81dcc580558c2774d952572e8cf458670e599f8230d4e",
+      "diagnostic_sha256": "57225b3eca9a6006d6eb063801069d6a5849feacdd991122a4eb74936cdafd2a"
+    }
+  },
+  "combined_rule_exercise": [
+    {
+      "seed_turn_zero_based": [
+        130,
+        7
+      ],
+      "actions": {
+        "none": 2,
+        "only240": 18,
+        "only242": 2,
+        "both": 18
+      },
+      "passed": true
+    },
+    {
+      "seed_turn_zero_based": [
+        147,
+        7
+      ],
+      "actions": {
+        "none": 15,
+        "only240": 0,
+        "only242": 15,
+        "both": 0
+      },
+      "passed": true
+    },
+    {
+      "seed_turn_zero_based": [
+        126,
+        22
+      ],
+      "actions": {
+        "none": 21,
+        "only240": 21,
+        "only242": 6,
+        "both": 6
+      },
+      "passed": true
+    }
+  ],
+  "limits": "This verifies preparation only. No 240-run result, new human QA, adoption or CI completion is claimed."
+}

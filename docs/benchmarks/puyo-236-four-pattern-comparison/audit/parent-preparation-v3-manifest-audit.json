@@ -1,0 +1,111 @@
+{
+  "schema": "puyo236.parent_manifest_audit.v1",
+  "passed": true,
+  "declaration_file_sha256": "0ca08faef52c9f88880361175846cf4ee21065b6ece3e8af690210dd395d20df",
+  "declaration_dir": "/home/sion2/workspaces/puyo-236-four-patterns-20260910/preparation-v3",
+  "runner": {
+    "commit": "bcc8fdb181e4f6e873de4ff1b659147f421ff4f5",
+    "files": {
+      "eval/puyo236_fixture_migration.py": "bc8c80b14369b0d6e2dcf3a9ec1475f515453b5358252f1a1a209992ab2a6236",
+      "eval/puyo236_four_pattern_trial.py": "b435ba2693ad798a392f71727db2539769cc36a823698c4852af661e24d303b0",
+      "eval/puyo236_prepare_inputs.py": "7af00adf25fb169bb61c58d8b419332073d8deea4c89b59a8f86f4c4a2791293",
+      "eval/puyo236_run_comparison.py": "ca92958e6469cf7e2f02dff9389d37013156105e2f2835e7348d7f61312f57d6",
+      "eval/puyo236_summarize.py": "f797a5a035491c51131413b22dca49bf9c5e24eae8eeee0bcbd4e778f2d6d854",
+      "eval/puyo236_verify_preparation.py": "201e583b03751c054e2a7d298a519d77eea51309110666e2ef8a89dd7bcf6c17"
+    }
+  },
+  "arms": {
+    "none": {
+      "commit": "73ab4e8ce066555042f1a20e1b3b59be3a2a8968",
+      "tree": "4bc3df8a9b74dccbd5af2e3090d25841352c2443",
+      "wheel_sha256": "a6c775ab75ca707ed1819313fa8fdd3afeb1d1fe533296c73dde394b9c14cdd6",
+      "native_extension_sha256": "99e367e25df0e5b2d75150b89b9f2df07f71b9ab3ed418314a1f8eb04c7d6e1c",
+      "manifest_file_sha256": "5a04f8838fbf087d0101e8002cde5f881b31052be315e77b3be7f0b84c5efb0e",
+      "manifest_identity": "41cf2ab8bb1011f313d9a519d4b7b3286b572db8288011cd1eb183972cec01ba",
+      "result_schema_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b",
+      "passed": true
+    },
+    "only240": {
+      "commit": "6fb0e68c8ba20958e7d9bb40d936eb0ce4f990ce",
+      "tree": "2635c82ef403375308411ee697730254716e5231",
+      "wheel_sha256": "40459e8ce07f9092592895585767b08f66ec73f5f8eef071a8f0e87d81d6e9e5",
+      "native_extension_sha256": "0ed41ea872b7c13aa7ab5b0924ccf8534b52b623d96dc2aeafa7fb62f669321c",
+      "manifest_file_sha256": "b295a85c35ed0bd2f62031c0f01dd7bf150110da37c5a9e9c7edc7815fedccb4",
+      "manifest_identity": "cfa0de50b14a2c05d5e7cd2334d7bf6f73a56a68b5ecbd5750b067fa2f52ebc3",
+      "result_schema_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211",
+      "passed": true
+    },
+    "only242": {
+      "commit": "f9f9b3b7bcc526b9b990edf7a9ca9ebd926699f8",
+      "tree": "08921d1c9f46ea133e390b3048c1b96f80bce1e4",
+      "wheel_sha256": "5113e7253d5394b62c069adc9bdb3f4b14e4dd212ca6a060b65be35a933fabf0",
+      "native_extension_sha256": "b0eebfc4e4f286f49baf5f0b1ceabd3fb07bbfd6ae5e14b71b3d258cdd45ead7",
+      "manifest_file_sha256": "af45a25ccb82c17f41ae211d2eec5f612ed50f73a55d28dab5ab68ef4be39c9e",
+      "manifest_identity": "49000f75f98fcb04f647b1664be89cdbf48a9e80c90715fb694795a97dc0bbcf",
+      "result_schema_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b",
+      "passed": true
+    },
+    "both": {
+      "commit": "429f3b2204ece3a51e3b92d0c36099f5ebdb0897",
+      "tree": "7ad2f0c7c466effd4c8d5055e671d922f80d0c5d",
+      "wheel_sha256": "523394f67b491b13fcca0c76eb640eac06266a0b6225565a4d105395d08c51ef",
+      "native_extension_sha256": "a3e56ce81ecb4226e82cbe9e40c068e46b1b1f2070e5dfe3d6fbd98ee93af257",
+      "manifest_file_sha256": "ef6ff6b9e56a27532d0e7626358b44fe07aff32cc580d15279d73544b64cf528",
+      "manifest_identity": "263893cf34d9ab8e3d1c72dc108bdc6682389a0cd20eb0b76b4ab025f120e5df",
+      "result_schema_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211",
+      "passed": true
+    }
+  },
+  "common_configuration": {
+    "backend": "native",
+    "configuration_sha256": {
+      "train/config/deep_chain_backend.yaml": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+      "train/config/deep_chain_builder.yaml": "77e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a",
+      "train/config/v1_7_chain_structure.yaml": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7"
+    },
+    "environment": "safe_no_threat",
+    "execution_mode": "scenario-6",
+    "max_steps": 40,
+    "maximum_decision_p95_seconds": 1.0,
+    "maximum_game_overs": 0,
+    "maximum_premature_fires": 0,
+    "minimum_mean_maximum_actual_chain": 10.0,
+    "parity_contract_version": "puyo.simulator_parity.v2",
+    "process_mode": "fresh_process_per_identity_sequential",
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    },
+    "quality_contract_version": "puyo.deep_chain_builder.safe_build.v2",
+    "quality_floor": 10,
+    "target_chain_count": 10
+  },
+  "common_dependencies": [
+    "cloudpickle==3.1.2",
+    "Farama-Notifications==0.0.6",
+    "gymnasium==1.3.0",
+    "maturin==1.14.1",
+    "numpy==2.5.3",
+    "pillow==12.3.0",
+    "pygame==2.6.1",
+    "PyYAML==6.0.3",
+    "ruff==0.16.0",
+    "typing_extensions==4.16.0",
+    "ziglang==0.15.2"
+  ],
+  "schedule_count": 240,
+  "positions_per_arm": [
+    15,
+    15,
+    15,
+    15
+  ],
+  "scope": "Source/build/config/schedule correspondence only; QA/reproduction results reviewed separately; not measurement launch approval or adoption."
+}
