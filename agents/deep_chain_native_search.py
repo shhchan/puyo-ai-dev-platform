@@ -41,13 +41,14 @@ from agents.long_horizon_search import (
     ScenarioRootEvidence,
     _root_build_diagnostics,
     aggregate_expected_chain_evidence,
+    apply_weak_scenario_support_guard,
     build_scenario_sequences_from_known_pairs,
     compact_state_fingerprint,
 )
 from puyo_env.actions import NUM_ACTIONS
 from src.core.constants import PuyoColor
 
-NATIVE_LONG_HORIZON_RECORD_SCHEMA_VERSION = "puyo.native_long_horizon_records.v1"
+NATIVE_LONG_HORIZON_RECORD_SCHEMA_VERSION = "puyo.native_long_horizon_records.v2"
 
 _FIRE_CLASSES = (
     FIRE_CLASS_UNAVAILABLE,
@@ -260,7 +261,7 @@ def _decode_tracker(
     invalid_nodes = reader.u64("tracker invalid nodes")
     game_over_nodes = reader.u64("tracker game-over nodes")
     coverage_count = reader.u16("tracker coverage count")
-    reserved_2 = reader.u16("tracker coverage reserved")
+    survivor_evaluator_depth = reader.u16("tracker survivor evaluator depth")
     best_fire = _decode_fire(reader, root_action=root_action, request=request)
     selected_fire = _decode_fire(reader, root_action=root_action, request=request)
     candidate_counts = []
@@ -287,7 +288,7 @@ def _decode_tracker(
         or raw_truncation not in _TRUNCATION_REASONS
         or observed_mask & ~0x3F
         or reserved
-        or reserved_2
+        or survivor_evaluator_depth > reached_depth
         or reached_depth > request.search_config.depth
         or terminal_fire_chain_count != request.search_config.terminal_fire_chain_count
         or survivor_quota != request.search_config.root_survivor_quota
@@ -302,6 +303,8 @@ def _decode_tracker(
     survivor_score = raw_survivor_score if flags & 0x4 else None
     if survivor_score is None and raw_survivor_score != 0.0:
         raise InvalidNativeInputError("native absent survivor score is non-zero")
+    if bool(survivor_evaluator_depth) != bool(flags & 0x4):
+        raise InvalidNativeInputError("native survivor evaluator depth is inconsistent")
     selected_class = _FIRE_CLASSES[raw_selected_class]
     if selected_fire is not None and selected_fire.fire_class != selected_class:
         raise InvalidNativeInputError("native selected fire class is inconsistent")
@@ -357,6 +360,7 @@ def _decode_tracker(
         selected_fire=selected_fire,
         observed_fire_classes=observed_classes,
         quiet_survivor=bool(flags & 0x4),
+        survivor_evaluator_depth=survivor_evaluator_depth,
         survivor_quota=survivor_quota,
         survivor_candidate_counts=tuple(candidate_counts),
         survivor_counts=tuple(retained_counts),
@@ -542,6 +546,11 @@ def materialize_native_long_horizon_result(
         for root_action in root_actions
     )
     evidence_by_action = {item.root_action: item for item in evidence}
+    evidence = apply_weak_scenario_support_guard(
+        evidence,
+        config=request.search_config,
+        fatal_score=request.evaluator_config.fatal_score,
+    )
     for root_action, representative in representatives.items():
         if (
             root_action not in evidence_by_action

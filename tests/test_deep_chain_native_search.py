@@ -1,5 +1,6 @@
 import importlib
 import json
+import struct
 import threading
 import unittest
 from dataclasses import replace
@@ -87,6 +88,24 @@ class TestDeepChainNativeSearch(unittest.TestCase):
             execution_mode=execution_mode,
             max_response_bytes=16 * 1024 * 1024,
         )
+
+    def test_survivor_evaluator_depth_is_validated(self):
+        request = self.request()
+        native = self.backend.decide(request)
+        result = materialize_native_long_horizon_result(native, request)
+        survivors = [
+            value for root in result.root_evidence for value in root.scenario_values
+            if value.quiet_survivor
+        ]
+        self.assertTrue(survivors)
+        self.assertTrue(all(0 < value.survivor_evaluator_depth <= value.reached_depth
+                            for value in survivors))
+        malformed = bytearray(native.root_evidence)
+        struct.pack_into("<H", malformed, 82, request.search_config.depth + 1)
+        with self.assertRaisesRegex(InvalidNativeInputError, "tracker is inconsistent"):
+            materialize_native_long_horizon_result(
+                replace(native, root_evidence=bytes(malformed)), request
+            )
 
     def test_safe_quiet_target_and_safety_ranking_match_python(self):
         from tests.test_long_horizon_search import _fire_fixture_simulator

@@ -1713,6 +1713,7 @@ struct Aggregate {
     quiet_support: u8,
     terminal_score_sum: f64,
     best_fire: Option<Fire>,
+    weak_support_priority: Option<f64>,
 }
 
 impl Aggregate {
@@ -1831,6 +1832,67 @@ fn aggregate_root(
         quiet_support: class_support[FireClass::Quiet as usize],
         terminal_score_sum: ordered_sum(terminal_scores.iter().copied()),
         best_fire,
+        weak_support_priority: None,
+    }
+}
+
+fn apply_weak_support_guard(
+    aggregates: &mut [Aggregate],
+    scenarios: &[ScenarioResult],
+    config: SearchConfig,
+    fatal_score: f64,
+) {
+    if config.forced_safety
+        || config.scenarios != 6
+        || !config.record_and_stop
+        || aggregates.iter().any(|root| {
+            root.evaluated_scenarios != 6
+                || matches!(root.class, FireClass::Winning | FireClass::ForcedSafety)
+        })
+    {
+        return;
+    }
+    let weak = |root: &Aggregate| {
+        root.class == FireClass::Target && root.class_support[FireClass::Target as usize] < 2
+    };
+    if !aggregates.iter().any(weak) {
+        return;
+    }
+    let alternative = |root: &Aggregate| {
+        root.class == FireClass::Quiet
+            && scenarios.len() == 6
+            && scenarios.iter().all(|scenario| {
+                let tracker = &scenario.trackers[usize::from(root.root_action)];
+                tracker.evaluated
+                    && tracker.search_complete
+                    && tracker.selected_class() == FireClass::Quiet
+                    && usize::from(tracker.reached_depth) == config.depth
+                    && tracker.best_survivor.is_some_and(|node| {
+                        usize::from(node.path_len) == config.depth
+                            && node.evaluator_score.is_finite()
+                            && node.evaluator_score > fatal_score
+                    })
+                    && tracker
+                        .coverage
+                        .iter()
+                        .take(usize::from(tracker.coverage_len))
+                        .any(|coverage| {
+                            usize::from(coverage.depth) == config.depth
+                                && coverage.retained_count > 0
+                        })
+            })
+    };
+    if !aggregates.iter().any(alternative) {
+        return;
+    }
+    for root in aggregates {
+        root.weak_support_priority = if weak(root) {
+            Some(2.25)
+        } else if alternative(root) {
+            Some(2.5)
+        } else {
+            None
+        };
     }
 }
 
@@ -1844,8 +1906,14 @@ fn optional_f64_cmp(left: Option<f64>, right: Option<f64>) -> Ordering {
 }
 
 fn aggregate_cmp(left: &Aggregate, right: &Aggregate) -> Ordering {
-    (left.class as u8)
-        .cmp(&(right.class as u8))
+    left.weak_support_priority
+        .unwrap_or(f64::from(left.class as u8))
+        .partial_cmp(
+            &right
+                .weak_support_priority
+                .unwrap_or(f64::from(right.class as u8)),
+        )
+        .unwrap_or(Ordering::Equal)
         .then_with(|| {
             left.coverage()
                 .partial_cmp(&right.coverage())
@@ -1992,7 +2060,11 @@ fn encode_tracker(output: &mut Bytes, tracker: &Tracker, config: SearchConfig) {
         output.u64(value);
     }
     output.u16(u16::from(tracker.coverage_len));
-    output.u16(0);
+    output.u16(
+        tracker
+            .best_survivor
+            .map_or(0, |node| u16::from(node.path_len)),
+    );
     encode_fire(output, tracker.best_fire, config);
     encode_fire(output, tracker.selected_fire(), config);
     for coverage in tracker
@@ -2008,9 +2080,9 @@ fn encode_tracker(output: &mut Bytes, tracker: &Tracker, config: SearchConfig) {
     }
 }
 
-fn record_section(record_count: usize, body: Vec<u8>) -> Vec<u8> {
+fn record_section(version: u16, record_count: usize, body: Vec<u8>) -> Vec<u8> {
     let mut output = Bytes::default();
-    output.u16(1);
+    output.u16(version);
     output.u16(0);
     output.u32(record_count as u32);
     output.u32(body.len() as u32);
@@ -2034,7 +2106,7 @@ fn encode_root_evidence(
             encode_tracker(&mut body, tracker, request.search);
         }
     }
-    record_section(root_actions.len() * scenarios.len(), body.0)
+    record_section(2, root_actions.len() * scenarios.len(), body.0)
 }
 
 fn encode_representatives(
@@ -2070,7 +2142,7 @@ fn encode_representatives(
         body.u32(encoded.len() as u32);
         body.raw(&encoded);
     }
-    record_section(count, body.0)
+    record_section(1, count, body.0)
 }
 
 fn encode_diagnostics(
@@ -2105,7 +2177,7 @@ fn encode_diagnostics(
     let encoded = encode_evaluation(&evidence, true);
     body.u32(encoded.len() as u32);
     body.raw(&encoded);
-    record_section(1 + sequences.len(), body.0)
+    record_section(1, 1 + sequences.len(), body.0)
 }
 
 fn semantic_digest(root_evidence: &[u8], representatives: &[u8], diagnostics: &[u8]) -> String {
@@ -2230,11 +2302,17 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
         .filter(|action| root_mask & (1_u32 << action) != 0)
         .map(|action| action as u8)
         .collect();
-    let aggregates: Vec<Aggregate> = root_actions
+    let mut aggregates: Vec<Aggregate> = root_actions
         .iter()
         .copied()
         .map(|action| aggregate_root(action, &scenarios, request.search.scenarios))
         .collect();
+    apply_weak_support_guard(
+        &mut aggregates,
+        &scenarios,
+        request.search,
+        request.evaluator.fatal_score,
+    );
     let mut ranked = aggregates.clone();
     ranked.sort_by(|left, right| aggregate_cmp(right, left));
     let ranked_actions: Vec<u8> = ranked.iter().map(|value| value.root_action).collect();

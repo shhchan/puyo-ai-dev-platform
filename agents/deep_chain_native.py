@@ -50,7 +50,7 @@ REQUEST_SCHEMA_DIGEST = (
     "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e"
 )
 RESULT_SCHEMA_DIGEST = (
-    "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+    "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
 )
 
 _MAGIC = b"PDCN"
@@ -1199,7 +1199,8 @@ def _decode_record_section(payload: bytes, *, tag: int, name: str) -> tuple[byte
     body_bytes = reader.u32(f"{name} body bytes")
     body = reader.take(body_bytes, f"{name} body")
     reader.finish()
-    if schema_version != 1 or reserved:
+    expected_version = 2 if tag == RESULT_ROOT_EVIDENCE_TAG else 1
+    if schema_version != expected_version or reserved:
         raise IncompatibleSchemaError(
             f"unsupported {name} record framing",
             failing_tag=tag,

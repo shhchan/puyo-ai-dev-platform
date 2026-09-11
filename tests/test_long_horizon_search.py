@@ -20,6 +20,7 @@ from agents.long_horizon_search import (
     FIRE_CLASS_PREMATURE,
     FIRE_CLASS_QUIET,
     FIRE_CLASS_TARGET,
+    FIRE_CLASS_WINNING,
     FIRE_CONTEXT_FORCED_SAFETY,
     FUTURE_SAMPLING_LEGACY_FIXED_SIX,
     FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
@@ -33,6 +34,7 @@ from agents.long_horizon_search import (
     _dispersion,
     _ordered_sum,
     aggregate_expected_chain_evidence,
+    apply_weak_scenario_support_guard,
     build_scenario_sequences,
     classify_build_main_fire,
     long_horizon_profile,
@@ -179,6 +181,72 @@ def _scenario_value(scenario_id, chain_count, chain_score):
 
 
 class TestLongHorizonSearch(unittest.TestCase):
+    def test_weak_target_guard_requires_full_depth_nonfatal_quiet_evidence(self):
+        config = LongHorizonSearchConfig(
+            depth=16, width=250, scenarios=6, minimum_chain_count=10,
+            max_expanded_nodes=600_000,
+        )
+        quiet_values = tuple(
+            replace(
+                _scenario_value(i, 0, 0), root_action=4,
+                selected_fire_class=FIRE_CLASS_QUIET, quiet_survivor=True,
+                reached_depth=16, survivor_evaluator_depth=16,
+                survivor_counts=((16, 1),),
+            )
+            for i in range(6)
+        )
+        quiet = aggregate_expected_chain_evidence(4, quiet_values, requested_scenarios=6)
+        weak_values = list(quiet_values)
+        fire = replace(_scenario_value(0, 10, 1000).best_fire,
+                       root_action=3, fire_class=FIRE_CLASS_TARGET)
+        weak_values[0] = replace(
+            weak_values[0], root_action=3, best_fire=fire, selected_fire=fire,
+            selected_fire_class=FIRE_CLASS_TARGET,
+        )
+        weak = aggregate_expected_chain_evidence(3, weak_values, requested_scenarios=6)
+
+        def guard(roots, active=config):
+            return apply_weak_scenario_support_guard(roots, config=active, fatal_score=-1e12)
+
+        self.assertGreater(weak.ranking_key, quiet.ranking_key)
+        changed = guard((weak, quiet))
+        self.assertGreater(changed[1].ranking_key, changed[0].ranking_key)
+        self.assertEqual(changed[0].ranking_key[1:], weak.ranking_key[1:])
+        self.assertEqual(changed[1].ranking_key[1:], quiet.ranking_key[1:])
+        self.assertEqual(changed[0].ranking_rule_version, "puyo.expected_chain_ranking.v3")
+        self.assertEqual(changed[0].best_fire, weak.best_fire)
+        self.assertEqual(changed[1].scenario_values, quiet.scenario_values)
+        # A historical best, fatal floor, missing coverage, or unevaluated
+        # scenario is not successful continuation support.
+        for change in (
+            {"survivor_evaluator_depth": 15},
+            {"reached_depth": 15},
+            {"survivor_evaluator_score": -1e12},
+            {"survivor_evaluator_score": None},
+            {"survivor_evaluator_score": float("nan")},
+            {"survivor_counts": ((15, 1), (16, 0))},
+            {"quiet_survivor": False},
+            {"search_complete": False},
+            {"evaluated": False},
+        ):
+            with self.subTest(change=change):
+                invalid = replace(quiet, scenario_values=(replace(quiet_values[0], **change), *quiet_values[1:]))
+                self.assertEqual(guard((weak, invalid)), (weak, invalid))
+        self.assertEqual(guard((weak,)), (weak,))
+        self.assertEqual(guard((quiet,)), (quiet,))
+        strong = replace(weak, fire_class_support={FIRE_CLASS_TARGET: 2})
+        self.assertEqual(guard((strong, quiet)), (strong, quiet))
+        unanimous = replace(weak, fire_class_support={FIRE_CLASS_TARGET: 6})
+        self.assertEqual(guard((unanimous, quiet)), (unanimous, quiet))
+        for fire_class in (FIRE_CLASS_WINNING, FIRE_CLASS_FORCED_SAFETY):
+            protected = replace(weak, root_action=5, fire_class=fire_class)
+            self.assertEqual(guard((weak, quiet, protected)), (weak, quiet, protected))
+        self.assertEqual(
+            guard((weak, quiet), replace(config, fire_context=FIRE_CONTEXT_FORCED_SAFETY)),
+            (weak, quiet),
+        )
+        self.assertEqual(guard((weak, quiet), replace(config, scenarios=5)), (weak, quiet))
+
     def test_aggregation_uses_scenario_order_and_binary64_left_fold(self):
         # Compensated summation gives 2.0; separately rounded additions give 1.0.
         scores = (float(2**53), 1.0, -float(2**53), 1.0)
