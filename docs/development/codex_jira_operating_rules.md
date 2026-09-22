@@ -4,7 +4,7 @@
 
 ## 基本方針
 
-- Jira は `atlassian` MCP サーバー経由で操作する。
+- Jira は現行の Atlassian Rovo MCP v2 接続経由で操作する。Codex のプラグイン利用時は `Atlassian Rovo` を選び、`Atlassian Rovo (Legacy)` は使わない。
 - Codex は参照・コメント・更新・遷移・起票を実行可能とする。
 - 非自明な実装依頼では、`AGENTS.md` に従って Codex が機能単位で起票する。
 - Jira / GitHub / Git の操作に失敗した場合は、理由を隠さずユーザーに報告する。
@@ -13,16 +13,16 @@
 
 - Jira site: `https://shhchan.atlassian.net`
 - cloudId: `46424ed5-7d42-4bff-bc2a-da4c296f8b5b`
-- Codex CLI の MCP サーバー名: `atlassian`
-- MCP URL: `https://mcp.atlassian.com/v1/mcp/authv2`
-- 必要 scope: `read:jira-work`, `write:jira-work`
+- Codex CLI でカスタム MCP 接続を使う場合のサーバー名: `atlassian`
+- カスタム MCP URL: `https://mcp.atlassian.com/v2/mcp`
+- v1 からの移行時は旧接続を削除または無効化し、v2 で再認証する（OAuth resource が異なるため旧認証は引き継がれない）。手順は [セットアップ文書](vscode_codex_jira_setup.md) を参照する。
 
 ## Jira 操作手順
 
-1. まず `getAccessibleAtlassianResources` で Jira site と scope を確認する。
+1. まず `getAccessibleAtlassianResources` で Jira site、cloudId、Jira へのアクセス可否を確認する。
 2. `PUYO-12` のようなチケットキーが分かっている場合は、Rovo Search に頼らず `getJiraIssue` を使う。
-3. コメントは `addCommentToJiraIssue` を使う。
-4. ステータス遷移は `getTransitionsForJiraIssue` で transition id を確認してから `transitionJiraIssue` を使う。
+3. コメントは `addOrEditJiraIssueComment` を使う。
+4. ステータス遷移は `listJiraIssueTransitions` で遷移先と transition id を確認してから `transitionJiraIssue` を使う。
 5. Rovo Search が `403` / `The app is not installed on this instance` を返しても、cloudId 指定の Jira issue API が使える場合があるため直接 API を試す。
 6. 直接 API も認証エラーになる場合は、`codex mcp login atlassian` を案内する。
 
@@ -64,7 +64,7 @@
 ## Pull Request 運用
 
 - 作業がすべて完了したら、ブランチを push して PR を作成する。
-- PR 作成後はレビュー依頼を出す。
+- PR 作成時に reviewer / review request は指定しない。
 - PR タイトルは `[PUYO-13] タイトル（日本語）` の形式にする。
 - PR description は日本語で、以下のフォーマットを使う。
 
