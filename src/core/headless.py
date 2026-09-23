@@ -42,9 +42,9 @@ class HeadlessStepResult:
 
 
 class HeadlessPuyoSimulator:
-    def __init__(self, seed=None, game_state=None):
+    def __init__(self, seed=None, game_state=None, *, auto_spawn=True):
         self.game = game_state or GameState(seed=seed)
-        if self.game.state == "ready":
+        if auto_spawn and self.game.state == "ready":
             self.game.spawn_puyo()
 
     def legal_actions(self):

@@ -712,11 +712,19 @@ class RealtimeVersusMatchController:
 
     def advance_one(self, include_human: bool = False) -> bool:
         _ = include_human
-        if not self.env.agents:
+        if not self.env.agents and self.presentation_finished:
             return False
         # A paused step advances one simulation tick and the same visual time.
         self._advance_visual_events(self.env.match.timing.tick_seconds / self.speed)
-        return self.advance_tick()
+        advanced = self.advance_tick()
+        return advanced or not self.env.agents
+
+    @property
+    def presentation_finished(self) -> bool:
+        return not self.env.agents and not any(
+            self.current_events[agent] is not None or self.event_queues[agent]
+            for agent in REALTIME_AGENTS
+        )
 
     def advance_tick(self) -> bool:
         if not self.env.agents:
@@ -725,7 +733,7 @@ class RealtimeVersusMatchController:
             agent: self._current_board(agent) for agent in REALTIME_AGENTS
         }
         inputs = {}
-        for agent in self.env.agents:
+        for agent in (() if self.env.match.ending else self.env.agents):
             inputs[agent] = self.controllers[agent].next_input(
                 self.env.match,
                 agent,
@@ -869,10 +877,7 @@ class RealtimeVersusMatchController:
             agent: int(self.infos[agent]["score"])
             for agent in REALTIME_AGENTS
         }
-        terminal = any(
-            self.env.player_states[agent].simulator.game.game_over
-            for agent in REALTIME_AGENTS
-        )
+        terminal = self.env.match.finished
         if terminal:
             termination_reason = "game_over"
         elif not interrupted:
@@ -1529,7 +1534,7 @@ def run_ui(
             if frame_callback is not None:
                 frame_callback(screen, frames)
             frames += 1
-            if not controller.env.agents:
+            if controller.presentation_finished:
                 finish_frames += 1
                 if (
                     config.exit_after_finish_frames is not None

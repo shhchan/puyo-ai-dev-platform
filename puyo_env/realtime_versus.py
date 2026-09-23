@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Mapping
 
 from src.core.constants import VISIBLE_HEIGHT
@@ -111,10 +112,21 @@ class RealtimeVersusMatch:
     ) -> RealtimeMatchTickResult:
         inputs = inputs or {}
         current_tick = self.tick
+        ending = self.ending
         player_results = {
-            agent: self.player_states[agent].simulator.step(inputs.get(agent))
+            agent: self.player_states[agent].simulator.step(
+                inputs.get(agent), resolution_only=ending, spawn_next=False,
+            )
             for agent in self.possible_agents
         }
+
+        # Resolve both players before checking top-out or spawning either next pair.
+        # This keeps simultaneous boundaries independent of player iteration order.
+        for state in self.player_states.values():
+            game = state.simulator.game
+            if game.state == "ready" and not game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
+                game.game_over = True
+                game.state = "gameover"
 
         attack_metadata = {
             agent: self._attack_metadata_from_step(player_results[agent])
@@ -132,13 +144,31 @@ class RealtimeVersusMatch:
         diagnostics = self.resolve_generated_attacks(generated)
         for agent in self.possible_agents:
             diagnostics[agent].update(attack_metadata[agent])
+        # Once a player tops out, only the already running resolution may finish.
+        # Remaining incoming packets are notices, never another garbage drop.
+        ending = self.ending
         dropped = {
-            agent: self._apply_due_ojama(
+            agent: 0 if ending else self._apply_due_ojama(
                 agent,
                 placement_boundary=self._completed_placement(player_results[agent]),
             )
             for agent in self.possible_agents
         }
+        for agent, state in self.player_states.items():
+            game = state.simulator.game
+            if not self.ending and game.state == "ready":
+                game.spawn_puyo()
+            result = player_results[agent]
+            player_results[agent] = replace(
+                result,
+                state_after=game.state,
+                snapshot_hash=state.simulator.state_hash(),
+                events=tuple(
+                    replace(event, data={**event.data, "game_over": game.game_over})
+                    if event.type == "resolution_complete" else event
+                    for event in result.events
+                ),
+            )
         winner = self._winner_from_game_over()
         self._last_winner = winner
 
@@ -360,7 +390,37 @@ class RealtimeVersusMatch:
             game.state = "gameover"
         return placed
 
+    @property
+    def ending(self) -> bool:
+        """Whether top-out has frozen new play (including a completed match)."""
+        return any(state.simulator.game.game_over for state in self.player_states.values())
+
+    @property
+    def resolution_pending(self) -> bool:
+        if not self.ending:
+            return False
+        for state in self.player_states.values():
+            game = state.simulator.game
+            if game.game_over or game.state != "animate":
+                continue
+            if game.chain_count or game.animation_state == "vanish_flash":
+                return True
+            # A just-locked pair may still be falling into its first clear.
+            # Pure placement/drop animation without a clear must not delay end.
+            settled = copy.deepcopy(game.field)
+            settled.drop_puyo()
+            if settled.get_vanish_groups():
+                return True
+        return False
+
+    @property
+    def finished(self) -> bool:
+        # Derive this from authoritative player state so replay/clone need no latch.
+        return self.ending and not self.resolution_pending
+
     def _winner_from_game_over(self) -> str | None:
+        if not self.finished:
+            return None
         over_0 = self.player_states["player_0"].simulator.game.game_over
         over_1 = self.player_states["player_1"].simulator.game.game_over
         if over_0 and not over_1:

@@ -195,7 +195,7 @@ def run_realtime_match(
     last_infos = infos
     while env.agents:
         inputs: dict[str, TickInput] = {}
-        for agent in env.agents:
+        for agent in (() if env.match.ending else env.agents):
             inputs[agent] = controllers[agent].next_input(
                 env.match,
                 agent,

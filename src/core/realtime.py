@@ -210,17 +210,27 @@ class RealtimeHeadlessSimulator:
     def state_hash(self) -> str:
         return self.snapshot().hash()
 
-    def step(self, tick_input: TickInput | None = None) -> RealtimeStepResult:
-        tick_input = tick_input or TickInput()
+    def step(
+        self,
+        tick_input: TickInput | None = None,
+        *,
+        resolution_only: bool = False,
+        spawn_next: bool = True,
+    ) -> RealtimeStepResult:
+        tick_input = TickInput() if resolution_only else (tick_input or TickInput())
         current_tick = self.tick
         state_before = self.game.state
         score_before = self.game.score
         events: list[RealtimeEvent] = []
 
-        fired_actions = self._collect_fired_actions(current_tick, tick_input)
+        fired_actions = (
+            [] if resolution_only else self._collect_fired_actions(current_tick, tick_input)
+        )
 
-        if self.game.state == "animate":
-            self.game.advance_animation(self.timing.tick_seconds)
+        if self.game.state == "animate" and not self.game.game_over:
+            self.game.advance_animation(self.timing.tick_seconds, spawn_next=spawn_next)
+        elif resolution_only:
+            pass
         elif self.game.state == "countdown":
             self.game.advance_countdown(self.timing.tick_seconds)
         else:

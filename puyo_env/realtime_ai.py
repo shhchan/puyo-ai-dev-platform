@@ -475,6 +475,9 @@ class RealtimePolicyController:
         """Return the input for the current match tick."""
 
         simulator = match.player_states[agent].simulator
+        if match.ending:
+            self.diagnostics.last_event = "waiting_for_match_end"
+            return TickInput()
         if self._active_plan is not None:
             if self._should_abort_active_plan(simulator):
                 self._active_plan = None
@@ -986,10 +989,7 @@ class RealtimePuyoEnv:
             rewards[agent] = reward
             components[agent] = component
 
-        terminal = any(
-            self.match.player_states[agent].simulator.game.game_over
-            for agent in self.possible_agents
-        )
+        terminal = self.match.finished
         truncated = self.max_ticks is not None and self.match.tick >= self.max_ticks and not terminal
         winner = result.winner if terminal else None
         if truncated:
@@ -1130,7 +1130,11 @@ def build_realtime_observation(
         "schema_version": REALTIME_OBSERVATION_SCHEMA_VERSION,
     }
     if include_action_mask:
-        observation["action_mask"] = realtime_reachable_action_mask(state.simulator).astype(numpy.int8)
+        observation["action_mask"] = (
+            numpy.zeros(NUM_ACTIONS, dtype=numpy.int8)
+            if match.ending
+            else realtime_reachable_action_mask(state.simulator).astype(numpy.int8)
+        )
     return observation
 
 
@@ -1175,11 +1179,14 @@ def build_realtime_info(
     state = match.player_states[agent]
     opponent = _opponent(agent)
     opponent_state = match.player_states[opponent]
-    action_mask = (
-        realtime_reachable_action_mask(state.simulator)
-        if use_reachable_action_mask
-        else _turn_based_action_mask(state.simulator)
-    )
+    if match.ending:
+        action_mask = _require_numpy().zeros(NUM_ACTIONS, dtype=_require_numpy().bool_)
+    else:
+        action_mask = (
+            realtime_reachable_action_mask(state.simulator)
+            if use_reachable_action_mask
+            else _turn_based_action_mask(state.simulator)
+        )
     incoming_ticks = _incoming_ticks(match, agent)
     opponent_incoming_ticks = _incoming_ticks(match, opponent)
     feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
@@ -1190,6 +1197,8 @@ def build_realtime_info(
         "action_contract_version": REALTIME_ACTION_CONTRACT_VERSION,
         "score": state.simulator.game.score,
         "game_over": bool(state.simulator.game.game_over),
+        "match_finished": match.finished,
+        "resolution_pending": match.resolution_pending,
         "opponent_score": opponent_state.simulator.game.score,
         "pending_ojama": state.pending_ojama,
         "incoming_ojama": state.pending_ojama,
@@ -1237,14 +1246,13 @@ def realtime_reward_components(
 ) -> dict[str, float]:
     reward_config = config or RealtimeRewardConfig()
     step_result = match_result.player_results[agent]
-    score_delta = 0
+    # Scores are applied during each vanish/soft drop. The resolution event
+    # repeats the whole chain total for diagnostics, not another score award.
+    score_delta = max(0, int(step_result.score_delta))
     chain_count = 0
     for event in step_result.events:
         if event.type == "resolution_complete":
-            score_delta += int(event.data.get("score_delta", 0))
             chain_count = max(chain_count, int(event.data.get("chain_count", 0)))
-    if score_delta == 0:
-        score_delta = max(0, int(step_result.score_delta))
     attack = match_result.attack_diagnostics.get(agent, {})
     dropped = int(match_result.dropped_ojama.get(agent, 0))
     score_reward = reward_config.score_reward * score_to_ojama(
@@ -1333,7 +1341,7 @@ def _turn_based_action_mask(simulator):
 
 
 def _placement_simulator_snapshot(game) -> HeadlessPuyoSimulator:
-    return HeadlessPuyoSimulator(game_state=copy.deepcopy(game))
+    return HeadlessPuyoSimulator(game_state=copy.deepcopy(game), auto_spawn=False)
 
 
 def _incoming_ticks(match: RealtimeVersusMatch, agent: str) -> int | None:

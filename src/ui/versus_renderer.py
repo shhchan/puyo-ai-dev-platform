@@ -786,7 +786,7 @@ class VersusRenderer:
             color = (255, 230, 120) if event.kind == "chain" else (255, 170, 120)
             self._draw_text(event.label, self.font, color, (field.centerx, field.y + 18), center=True)
 
-        if game.game_over:
+        if game.game_over and getattr(controller, "presentation_finished", True):
             shade = pygame.Surface(field.size, pygame.SRCALPHA)
             shade.fill((10, 10, 14, 145))
             self.screen.blit(shade, field.topleft)
@@ -866,7 +866,7 @@ class VersusRenderer:
         self._draw_player(controller, "player_0", 0)
         self._draw_player(controller, "player_1", 1)
         self._draw_footer(controller)
-        if not controller.env.agents:
+        if getattr(controller, "presentation_finished", not controller.env.agents):
             winner = controller.winner
             label = winner_banner_label(winner)
             banner = pygame.Surface((520, 82), pygame.SRCALPHA)
