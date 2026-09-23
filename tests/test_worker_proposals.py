@@ -4,6 +4,8 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
+import numpy as np
+
 from agents.state_analyzer import StateAnalyzer
 from agents.beam_search import (
     BeamSearchConfig,
@@ -47,7 +49,7 @@ class TestWorkerProposals(unittest.TestCase):
         cls.analyzer_input = scenario_input(load_scenarios()[0])
         cls.analyzer_diagnostics = StateAnalyzer().analyze(cls.analyzer_input)
 
-    def _proposal(self, tactic_id="build_main", *, candidate_count=4, seed=9):
+    def _proposal(self, tactic_id="build_main", *, candidate_count=4, seed=9, simulator=None):
         request = build_planner_request(
             self.registry.tactic(tactic_id),
             self.analyzer_input,
@@ -60,7 +62,7 @@ class TestWorkerProposals(unittest.TestCase):
                 }
             },
         )
-        simulator = HeadlessPuyoSimulator(seed=seed)
+        simulator = simulator if simulator is not None else HeadlessPuyoSimulator(seed=seed)
         mask = legal_action_mask(simulator)
         proposal = StrategyOrchestrator(smoke_worker_profiles()).propose(
             0 if tactic_id == "build_main" else 4,
@@ -116,10 +118,11 @@ class TestWorkerProposals(unittest.TestCase):
             shared["search_config"]["scenario_count"],
             2,
         )
-        self.assertIn(
+        self.assertEqual(
             shared["search_config"]["decision_seed_source"],
-            {"explicit", "derived_from_simulator_decision_state"},
+            "visible_observation_default",
         )
+        self.assertEqual(shared["search_config"]["decision_seed"], 0)
         self.assertNotIn("search_latency_ms", CANDIDATE_RANKER_FEATURE_NAMES)
         self.assertNotIn("expanded_nodes", CANDIDATE_RANKER_FEATURE_NAMES)
 
@@ -150,6 +153,25 @@ class TestWorkerProposals(unittest.TestCase):
         self.assertEqual(
             changed_deadline.deterministic_digest,
             same_deadline_budget.deterministic_digest,
+        )
+
+    def test_default_proposal_does_not_depend_on_private_sequence_seed(self):
+        simulator = HeadlessPuyoSimulator(seed=9)
+        first, _ = self._proposal(simulator=simulator)
+        observation = encode_observation(simulator, step_count=0, max_steps=40)
+        # Change the private generator identity without changing current/NEXT/NEXT2.
+        simulator.game.puyo_sequence.seed = 987654321
+        second, _ = self._proposal(simulator=simulator)
+        np.testing.assert_equal(
+            encode_observation(simulator, step_count=0, max_steps=40), observation,
+        )
+        self.assertEqual(
+            first.worker_proposal.deterministic_digest,
+            second.worker_proposal.deterministic_digest,
+        )
+        self.assertEqual(
+            first.worker_proposal.shared_context.scenario_sequences,
+            second.worker_proposal.shared_context.scenario_sequences,
         )
 
     def test_serialization_round_trip_preserves_selection_and_value_breakdown(self):
@@ -412,6 +434,7 @@ class TestWorkerProposals(unittest.TestCase):
         policy = BeamSearchPolicy(
             BeamSearchConfig.for_profile(
                 "quality-d12",
+                decision_seed=179,
                 depth=1,
                 width=24,
                 max_expanded_nodes=132,
@@ -448,6 +471,8 @@ class TestWorkerProposals(unittest.TestCase):
             )
 
         batch = build(candidates)
+        self.assertEqual(batch.shared_context.search_config["decision_seed_source"], "explicit")
+        self.assertEqual(batch.shared_context.search_config["decision_seed"], 179)
         self.assertEqual(batch.shared_context.scenario_count, 6)
         self.assertTrue(all(batch.shared_context.scenario_mask))
         self.assertEqual(
