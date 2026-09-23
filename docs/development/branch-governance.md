@@ -38,6 +38,10 @@ master                         # 完了・リリース済みバージョンの�
 
 複数バージョンを並行して進める必要があり、後続バージョンが前バージョンに依存する場合は、後続の統合ブランチを先行バージョンの統合ブランチから切ってよい。ただし、先行バージョンの release PR をマージした直後に `master` を取り込む PR を作り、依存関係とマージ順を Jira に明記する。
 
+## 自律開発での stacked PR の例外
+
+複数チケットをまとめて委任し `github/gh-stack` でレビューする場合は，stack の最下段の PR を対象の `integration/...` へ向け，後続 PR は直前のチケットブランチを base とする．親セッションが順序・起点 SHA・層ごとの差分を確認する．独立した作業の並列化と，レビュー時に PR を積む順序は区別する．手順は [自律開発手順](codex_autonomous_workflow.md) を参照する．`master` への直接 PR，無断の履歴書換え，レビュー前の PR merge は許可しない．
+
 ## 緊急修正
 
 `master` のリリース済み内容を直ちに直す必要がある場合だけ、最新の `origin/master` から `hotfix/PUYO-<task-key>/<description>` を作る。hotfix は PR 経由で `master` に取り込む。
