@@ -245,6 +245,7 @@ def run_realtime_match(
     if record_replay:
         replay = {
             "format": "puyo-realtime-match-v1",
+            "match_rules": env.match.replay_rules(),
             "seed": seed,
             "max_ticks": max_ticks,
             "initial_all_clear_diagnostics": initial_all_clear_diagnostics,
@@ -345,10 +346,20 @@ def run_realtime_paired_series(
     return RealtimeArenaResult(matches=tuple(matches))
 
 
-def replay_realtime_match(replay: Mapping[str, Any]) -> str:
+def match_from_replay(replay: Mapping[str, Any]):
+    """Restore rule timing, including the pre-garbage-phase replay contract."""
     from puyo_env.realtime_versus import RealtimeVersusMatch
 
-    match = RealtimeVersusMatch(seed=replay.get("seed"))
+    rules = replay.get("match_rules", {})
+    return RealtimeVersusMatch(
+        seed=replay.get("seed"),
+        garbage_drop_ticks=int(rules.get("garbage_drop_ticks", 0)),
+        attack_delay_ticks=int(rules.get("attack_delay_ticks", 60)),
+    )
+
+
+def replay_realtime_match(replay: Mapping[str, Any]) -> str:
+    match = match_from_replay(replay)
     expected_initial = replay.get("initial_all_clear_diagnostics")
     if expected_initial is not None:
         actual_initial = match.all_clear_diagnostics()

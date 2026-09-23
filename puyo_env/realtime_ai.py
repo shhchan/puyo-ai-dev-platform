@@ -39,6 +39,7 @@ REALTIME_LATENCY_MODES = ("configured", "measured")
 _PHASE_CODES = {
     "control": 0.0,
     "animate": 0.25,
+    "garbage": 0.25,
     "countdown": 0.5,
     "ready": 0.75,
     "gameover": 1.0,

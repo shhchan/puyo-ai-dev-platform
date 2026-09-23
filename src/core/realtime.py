@@ -231,6 +231,9 @@ class RealtimeHeadlessSimulator:
             self.game.advance_animation(self.timing.tick_seconds, spawn_next=spawn_next)
         elif resolution_only:
             pass
+        elif self.game.state == "garbage" or (self.game.state == "ready" and not spawn_next):
+            # Keep input releases current without operating an unspawned pair.
+            fired_actions = []
         elif self.game.state == "countdown":
             self.game.advance_countdown(self.timing.tick_seconds)
         else:

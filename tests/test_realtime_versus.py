@@ -76,8 +76,11 @@ class TestRealtimeVersusMatch(unittest.TestCase):
         self.assertEqual(result.dropped_ojama["player_1"], 3)
         self.assertEqual(match.player_states["player_1"].received_ojama_total, 3)
         self.assertEqual(match.player_states["player_1"].pending_ojama, 0)
-        self.assertIsNotNone(game.current_puyo_1)
-        self.assertIsNotNone(game.current_puyo_2)
+        self.assertIsNone(game.current_puyo_1)
+        self.assertIsNone(game.current_puyo_2)
+        self.assertEqual(game.state, "garbage")
+        match.advance_ticks(match.garbage_drop_ticks)
+        self.assertEqual(game.state, "control")
 
     def test_due_ojama_overflow_waits_for_next_placement_boundary(self):
         match = RealtimeVersusMatch(seed=123, attack_delay_ticks=0)
@@ -97,6 +100,7 @@ class TestRealtimeVersusMatch(unittest.TestCase):
         self.assertEqual(between.dropped_ojama["player_1"], 0)
         self.assertEqual(match.player_states["player_1"].pending_ojama, 5)
 
+        match.advance_ticks(match.garbage_drop_ticks - 1)
         self._lock_pair(game, PuyoColor.YELLOW, PuyoColor.PURPLE, axis_x=0)
         match.player_states["player_1"].simulator = RealtimeHeadlessSimulator(
             game_state=game,
@@ -125,6 +129,51 @@ class TestRealtimeVersusMatch(unittest.TestCase):
         self.assertEqual(result.dropped_ojama["player_1"], 0)
         self.assertEqual(state.pending_ojama, 0)
         self.assertEqual(state.received_ojama_total, 0)
+
+    def test_attack_becomes_due_only_when_opponent_chain_completes(self):
+        for attacker, defender in (("player_0", "player_1"), ("player_1", "player_0")):
+            with self.subTest(attacker=attacker):
+                match = RealtimeVersusMatch(seed=123, target_score_per_ojama=1)
+                source = match.player_states[attacker].simulator.game
+                target = match.player_states[defender].simulator.game
+                self._place_group(source, PuyoColor.RED, ((1, 0), (1, 1)))
+                self._lock_pair(source, PuyoColor.RED, PuyoColor.RED)
+                self._lock_pair(target, PuyoColor.BLUE, PuyoColor.YELLOW, axis_x=0)
+                first = match.step()
+                self.assertEqual(first.dropped_ojama[defender], 0)
+                self.assertEqual(match.player_states[defender].pending_ojama, 0)
+                self.assertEqual(source.state, "animate")
+                drawn_pair = (target.current_puyo_1, target.current_puyo_2)
+                upcoming = tuple(target.next_puyo_queue)
+                for _ in range(100):
+                    completed = match.step()
+                    if completed.generated_attacks[attacker]:
+                        break
+                else:
+                    self.fail("attacker chain did not complete")
+                self.assertEqual(completed.generated_attacks[attacker], 40)
+                self.assertEqual(completed.dropped_ojama[defender], 0)
+                self.assertEqual((target.current_puyo_1, target.current_puyo_2), drawn_pair)
+                self._lock_pair(target, PuyoColor.BLUE, PuyoColor.YELLOW, axis_x=1)
+                boundary = match.step()
+                self.assertEqual(boundary.tick, completed.tick + 1)
+                self.assertEqual(boundary.dropped_ojama[defender], 30)
+                self.assertEqual(tuple(target.next_puyo_queue), upcoming)
+                self.assertEqual(target.state, "garbage")
+                self.assertEqual(match.player_states[defender].pending_ojama, 10)
+
+    def test_placement_topout_does_not_drop_garbage_or_advance_next(self):
+        match = RealtimeVersusMatch(seed=123)
+        game = match.player_states["player_1"].simulator.game
+        self._place_group(game, PuyoColor.OJAMA, tuple((2, y) for y in range(11)))
+        next_queue = tuple(game.next_puyo_queue)
+        self._lock_pair(game, PuyoColor.RED, PuyoColor.BLUE)
+        match.schedule_attack("player_0", 35)
+        result = match.step()
+        self.assertTrue(game.game_over)
+        self.assertEqual(result.dropped_ojama["player_1"], 0)
+        self.assertEqual(tuple(game.next_puyo_queue), next_queue)
+        self.assertIsNone(game.current_puyo_1)
 
     def test_boundary_drop_is_side_symmetric_and_deterministic(self):
         def run_match():
