@@ -15,7 +15,9 @@ import multiprocessing
 import os
 import platform
 import pstats
+import re
 import resource
+import subprocess
 import sys
 import threading
 import time
@@ -457,6 +459,7 @@ def verify_frozen_corpus(
     path: str | Path = DEFAULT_CORPUS_PATH,
     *,
     execute_search: bool = True,
+    config_revision: str | None = None,
 ) -> list[str]:
     issues: list[str] = []
     payload = _read_json(path)
@@ -471,9 +474,21 @@ def verify_frozen_corpus(
     )
     if expected_digest != actual_digest:
         issues.append("corpus_digest mismatch")
-    if payload.get("config_sha256") != file_sha256(
-        DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH
-    ):
+    # A frozen workload records the configuration at measurement time. Do not
+    # silently substitute today's target/budget configuration for that evidence.
+    if config_revision is not None:
+        if not re.fullmatch(r"[0-9a-f]{40}", config_revision):
+            return issues + ["invalid historical config revision"]
+        source = subprocess.run(
+            ["git", "show", f"{config_revision}:train/config/deep_chain_builder.yaml"],
+            cwd=REPO_ROOT, capture_output=True, check=False,
+        )
+        if source.returncode:
+            return issues + ["historical configuration is unavailable in git history"]
+        configuration_checksum = hashlib.sha256(source.stdout).hexdigest()
+    else:
+        configuration_checksum = file_sha256(DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH)
+    if payload.get("config_sha256") != configuration_checksum:
         issues.append("deep-chain config checksum mismatch")
     evaluator = ChainStructureEvaluator()
     for case in payload.get("cases", ()):
@@ -1634,6 +1649,8 @@ def _write_manifest(root: Path, summary: Mapping[str, Any]) -> dict[str, Any]:
 
 def verify_evidence(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
+    *,
+    historical: bool = False,
 ) -> list[str]:
     root = Path(output_dir)
     issues: list[str] = []
@@ -1676,7 +1693,12 @@ def verify_evidence(
     if corpus_path.exists():
         issues.extend(
             f"corpus: {issue}"
-            for issue in verify_frozen_corpus(corpus_path, execute_search=False)
+            for issue in verify_frozen_corpus(
+                corpus_path,
+                execute_search=False,
+                config_revision=str(manifest.get("evaluated_commit", ""))
+                if historical else None,
+            )
         )
     return issues
 
@@ -1798,6 +1820,10 @@ def _build_parser() -> argparse.ArgumentParser:
     corpus = subparsers.add_parser("verify-corpus")
     corpus.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS_PATH)
     corpus.add_argument("--skip-search", action="store_true")
+    corpus.add_argument(
+        "--config-revision",
+        help="Full measurement commit SHA for historical configuration verification",
+    )
 
     profile = subparsers.add_parser("profile")
     profile.add_argument("profile", choices=("smoke", "intermediate"))
@@ -1818,6 +1844,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     verify = subparsers.add_parser("verify")
     verify.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    verify.add_argument("--historical", action="store_true")
 
     all_parser = subparsers.add_parser("all")
     all_parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -1835,6 +1862,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         issues = verify_frozen_corpus(
             args.corpus,
             execute_search=not args.skip_search,
+            config_revision=args.config_revision,
         )
         result = {"passed": not issues, "issues": issues}
         print(json.dumps(result, indent=2, sort_keys=True))
@@ -1866,7 +1894,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             sample_interval_seconds=args.sample_interval,
         )
     else:
-        issues = verify_evidence(args.output_dir)
+        issues = verify_evidence(args.output_dir, historical=args.historical)
         result = {"passed": not issues, "issues": issues}
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0 if not issues else 1
