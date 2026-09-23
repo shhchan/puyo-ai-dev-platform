@@ -1,0 +1,63 @@
+{
+  "checks": {
+    "before_reproduces_decision22": true,
+    "both_old_21_step_prefixes_preserved": true,
+    "decision_p95_under_one_second": true,
+    "evaluator_repeat_bytes": true,
+    "existing_semantic_corpus": true,
+    "expanded_node_budget": true,
+    "fallback": true,
+    "future_boundary": true,
+    "hot_profile_checksums": true,
+    "native_features_and_score_unchanged": true,
+    "native_scalar_best_unchanged": true,
+    "no_premature_or_game_over": true,
+    "original_request_preserved": true,
+    "private_counterfactual": true,
+    "python_native_full_result_parity": true,
+    "quality_floor10_for_regression_set": true,
+    "repeat_digests": true,
+    "scenario_accounting": true,
+    "simulator_parity": true,
+    "two_completed_40_placement_runs": true
+  },
+  "ci": "See PR required linux-cp312-release check for final head",
+  "measurement_commit": "013c91cf2e890d4e02e8478d425aad1b352fb3fa",
+  "prefix_comparison": [
+    {
+      "actions_match": true,
+      "plans_match": true,
+      "prefix_placements": 21,
+      "repeat": 1,
+      "source_raw": "docs/benchmarks/puyo-231-target-ablation/target-12/seed-146-repeat-01.json.gz",
+      "source_sha256": "5b4f7a61a30058b074c87feeabd5235958728794e0d99f8477074041c8357f67"
+    },
+    {
+      "actions_match": true,
+      "plans_match": true,
+      "prefix_placements": 21,
+      "repeat": 2,
+      "source_raw": "docs/benchmarks/puyo-231-target-ablation/target-12/seed-146-repeat-02.json.gz",
+      "source_sha256": "12b07a471d4374c3c6cd2d091c9848787cbba55479fabc3df84a082f5cf9fb20"
+    }
+  ],
+  "python_tests": {
+    "corrected_test_rerun_passed": 1,
+    "initial_passed": 71,
+    "initial_test_assertion_error": 1,
+    "logs": [
+      "logs/python-tests.log",
+      "logs/search-regression.log"
+    ],
+    "test_count": 72
+  },
+  "ruff": "CI-covered modified Python files and new scripts passed; legacy chain_structure files retain existing lint findings",
+  "rust_tests": {
+    "clippy": "passed",
+    "fmt": "passed",
+    "ignored_manual_profiles": 2,
+    "passed": 46
+  },
+  "scope": "One seed / two repeats; full baseline adoption remains PUYO-236",
+  "ticket": "PUYO-238"
+}

@@ -1,6 +1,6 @@
 import random
 
-from .constants import GRID_WIDTH, GRID_HEIGHT, VISIBLE_HEIGHT, PuyoColor
+from .constants import GRID_WIDTH, GRID_HEIGHT, VISIBLE_HEIGHT, GHOST_ROW_INDEX, PuyoColor
 from .puyo import Puyo
 
 class Field:
@@ -17,6 +17,9 @@ class Field:
 
     def place_puyo(self, x, y, puyo):
         if 0 <= x < self.width and 0 <= y < self.height:
+            # Row 14 is a permanent, once-per-column slot until a new Field.
+            if y == GHOST_ROW_INDEX and not self.grid[y][x].is_empty():
+                return False
             self.grid[y][x] = puyo
             return True
         return False
@@ -27,9 +30,7 @@ class Field:
     def drop_puyo(self):
         """
         Apply gravity. Puyo falls from Higher Y to Lower Y.
-        Index 13 (Top-most) does NOT fall?
-        User said "14段目(Ind 13)... 落下してこない".
-        So we process 0..12.
+        Row 14 (y=13) is permanent. Only rows y=0..12 fall.
         """
         moved = False
         for x in range(self.width):
@@ -120,6 +121,8 @@ class Field:
         return vanish_groups
 
     def remove_puyos(self, coords):
+        # Hidden rows cannot vanish, even when a caller supplies coordinates.
+        coords = {(x, y) for x, y in coords if 0 <= x < self.width and 0 <= y < VISIBLE_HEIGHT}
         ojama_to_clear = set()
         for (x, y) in coords:
             for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:

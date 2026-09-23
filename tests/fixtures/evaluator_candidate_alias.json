@@ -1,0 +1,25 @@
+{
+  "ticket": "PUYO-238",
+  "source": "docs/benchmarks/puyo-231-target-ablation/error_diagnostics/seed-146-target-12.json",
+  "source_commit": "195b41415324bb27643c59fbef8d8799d59a6296",
+  "seed": 146,
+  "target": 12,
+  "decision": 22,
+  "state": {
+    "planes": [2112, 33, 131072, 0, 0, 0],
+    "score": 69040,
+    "last_chain_end_score": 69040,
+    "all_clear_bonus_pending": false,
+    "game_over": false
+  },
+  "expected": {
+    "score": 17927.0,
+    "trigger_color": "RED",
+    "placements": [[3, 0], [4, 0], [4, 1]],
+    "anchor_cells": [[5, 1]],
+    "trigger_protection": 0.6666666666666666,
+    "pattern_nodes": 415,
+    "resolution_nodes": 16,
+    "unique_candidates": 10
+  }
+}

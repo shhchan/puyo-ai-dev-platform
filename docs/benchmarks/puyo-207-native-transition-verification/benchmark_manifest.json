@@ -1,0 +1,118 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "alternative_contracts.json",
+      "required": true,
+      "role": "alternative_contracts",
+      "sha256": "b8a0071e00ff1d2005ce25f130dea8018394bccd8c4c45e8af7e0789c5794d5f",
+      "size_bytes": 4966
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "2ba866745eb6784f42ade407bcef10039dd4b19549717278064456a1ed4f82d7",
+      "size_bytes": 4219
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "89423373e8149daf56004eba398d0dbdf3959e2f1ee1c1d78ae2eda4adfefa50",
+      "size_bytes": 66330
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "cachegrind.json",
+      "required": true,
+      "role": "cachegrind",
+      "sha256": "79979dc8081b79fd254deaefaa87582e7fb73b598790e47631c7dc4e7baefaa4",
+      "size_bytes": 19133
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_count.json",
+      "required": true,
+      "role": "call_count",
+      "sha256": "a980f486bfe9e6fff341dfba790b905cf77b498d43b1a92017679e5ce272d69b",
+      "size_bytes": 1629
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "go_no_go_decision.json",
+      "required": true,
+      "role": "go_no_go_decision",
+      "sha256": "94c0e715a4d8b9b53d29ec5fdce79f0e4c928efba7e1d393c7c2d6206a43d92b",
+      "size_bytes": 3644
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "058fe07068e375f484c4017d9566611659c726cdd4bcd7a61ea84318a07bca10",
+      "size_bytes": 1022
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "memory_verification.json",
+      "required": true,
+      "role": "memory_verification",
+      "sha256": "04508b54910db37d7f6ba314f8879ab9ec717458f7ee4eb0ca008d0720c69e58",
+      "size_bytes": 819
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "d3bdbdabb1db8726b97f81c7aa98f87551584d06fd80a24d2abd32a3b4b9365b",
+      "size_bytes": 1058778
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "01378f30751129dd5be76920dfe626ee21f8cef80992c2ca582dccac5ded7de7",
+      "size_bytes": 4491
+    }
+  ],
+  "command": "python -m eval.deep_chain_native_transition_profile run --ticket PUYO-207 --corpus eval/deep_chain_native_transition_corpus.json --search-corpus eval/deep_chain_native_corpus.json --output-dir docs/benchmarks/puyo-207-native-transition-verification --mixed-samples 120 --outcome-samples 40 --stage-samples 30 --alternative-samples 40 --warmup 5 --mixed-batch-size 10000 --outcome-batch-size 4096 --cachegrind-records 256 --cachegrind-repeats 512 --cpu 0",
+  "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+  "created_at_utc": "2026-08-27T00:05:43Z",
+  "evaluated_commit": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+  "inputs": [
+    {
+      "logical_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+      "path": "eval/deep_chain_native_transition_corpus.json",
+      "role": "transition_corpus",
+      "sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356"
+    },
+    {
+      "logical_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+      "path": "eval/deep_chain_native_corpus.json",
+      "role": "search_corpus",
+      "sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4"
+    }
+  ],
+  "measurement_contract_digest": "bab61eba363cb75f1fadadf7a0dedb189342803b37a2f381fa7ff9c0a377ff18",
+  "passed": false,
+  "schema_version": "puyo.native_compact_profile_benchmark.v1",
+  "source_tree": "e8f73fcaaa868909e56fcc71eef6fd7a29f1dcb5",
+  "ticket": "PUYO-207",
+  "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+}

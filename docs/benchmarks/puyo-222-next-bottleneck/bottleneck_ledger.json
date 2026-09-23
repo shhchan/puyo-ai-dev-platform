@@ -1,0 +1,13 @@
+{
+  "baseline_attributed_share": 0.9996697022601803,
+  "baseline_largest_unimproved_stage": "base_feature_component_extraction",
+  "baseline_target_stage_evaluator_share": 0.30906558469084966,
+  "current_attributed_share": 0.9995912736933531,
+  "current_combined_budget_gap_ms": 1097.551355,
+  "current_largest_unimproved_stage": "candidate_ranking_sha256",
+  "current_largest_unimproved_stage_600k_ms": 672.3551011768379,
+  "follow_up_required": true,
+  "follow_up_ticket": "PUYO-224",
+  "remaining_if_next_stage_free_600k_ms": 1245.8212538231621,
+  "schema_version": "puyo.native_next_bottleneck_ledger.v1"
+}

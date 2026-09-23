@@ -1,0 +1,134 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "before_after.json",
+      "required": true,
+      "role": "before_after",
+      "sha256": "8330018c10324ff0e28cc03bcc2728c9838455ebef2eb01951447d0bae875427",
+      "size_bytes": 639
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "e853c9b1abcf40dba014d184cd77d8f93e409179547d24901dc071eefab9d289",
+      "size_bytes": 628
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "be97453124f5c63f50a59bc3c6d988a6b40cab425ae7e0c26321e5071241da1d",
+      "size_bytes": 7022
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "exact_oracle.json",
+      "required": true,
+      "role": "exact_oracle",
+      "sha256": "ea9da4f29e27200aa8e28c6b92cff0bf0674e0d977cdc85f424d057ec49a3391",
+      "size_bytes": 983
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "a4dd5f81c2b7fb95c88f7632a268bfb7a15b42fdaa3f8510fec0ad5fb917bc92",
+      "size_bytes": 1734
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "4af3fb9cdfaed6479a16feecf3410fb23b71f0c488e32162662ef3e516f64600",
+      "size_bytes": 133794
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "33250604a7b43490198b098eaef15a8392a4e0d29cd94360554e4e855f4f52a3",
+      "size_bytes": 100590
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "563db02f472e7c7f4b47a43d5fd0f6c357d6dc05367abf43fadd3445d2878768",
+      "size_bytes": 10238
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+      "size_bytes": 1824
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "74eab41e81a3736889f8d73bf1722fc303425045e9f081add846864e59071839",
+      "size_bytes": 12559
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "395dccdc1c83853a0b9160193a07c53e692f62ade7e05eca81f5cf1081621d6b",
+      "size_bytes": 5311
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "puyo-219-compatible-profile/stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "f1feba67feb15d8d768b2a6eb6f8616323ee851a29de24664907e379df7e6a23",
+      "size_bytes": 9142
+    }
+  ],
+  "baseline_summary_path": "docs/benchmarks/puyo-223-quiescence-frontier/puyo-219-compatible-profile/benchmark_summary.json",
+  "baseline_summary_sha256": "00d8b904c41c20106ace1b4ecd903fc0d887a1247e1e29e1ecb73170260a4a14",
+  "budget_summary_path": "docs/benchmarks/puyo-219-evaluator-hot-path/benchmark_summary.json",
+  "budget_summary_sha256": "ae43f3fd8f4b04468c6ae543e6bc1555bc2603b8e3d7f65226fb2b0288b4c676",
+  "created_at_utc": "2026-09-01T10:09:23Z",
+  "decision": "PASS",
+  "measurement_commit": "ebe5acbbaa8f62616e9e8b36a8a3c271cb83fc8a",
+  "passed": true,
+  "raw_profile_manifest_sha256": "0c2f0378324dd77164e3823093d5df4bd9d7ea016d499b0a235b3500e52bfc4b",
+  "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "release_wheel_sha256": "b3b8e2fcf5ac3dc6b46b10b9a2a717b1e8de6375d850358971c14fe5f8018999",
+  "schema_version": "puyo.native_incremental_resolution_manifest.v1",
+  "ticket": "PUYO-220"
+}

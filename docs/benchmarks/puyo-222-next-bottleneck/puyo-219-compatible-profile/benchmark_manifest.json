@@ -1,0 +1,107 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "8b55ce0d0f54a581c1032dbc70d2ac83d8a30e3ec2c50c0e56b33592954768d6",
+      "size_bytes": 1824
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "ee3d9f51ad7e1901e8851bdade92726e414d1223d83eadadda5413c0a1f580b5",
+      "size_bytes": 12544
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "5aec7b3426dee5b7672c95ba8d3a2c48b07ef3d911389794dfd1b5b8a5ca1f40",
+      "size_bytes": 9134
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "33250604a7b43490198b098eaef15a8392a4e0d29cd94360554e4e855f4f52a3",
+      "size_bytes": 100590
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "b3c7ef3d2d37194a71fc58d305fccdf0e5764e5db55d4c1eb761bb0142f38dcc",
+      "size_bytes": 10251
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "478ec896ed310ff50fa3cfc889b2fd45ba57c6096e47dc9c6304a159139ac8e2",
+      "size_bytes": 5288
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "debf281bb9de2d3cd8972dc17b9ae699607333453e4fdf199b396ac6c9179c13",
+      "size_bytes": 133770
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "e0d73dde0801fa59f3521a3001f0784b6d0705175f67544a41fbd7c05694b534",
+      "size_bytes": 1732
+    }
+  ],
+  "created_at_utc": "2026-09-01T15:43:02Z",
+  "decision": "PROFILE_COMPLETE_OPTIMIZATION_REQUIRED",
+  "environment": {
+    "canonical_evaluator_thread_count": 1,
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+    "native_module_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "native_module_sha256": "c4e964108e57a25fc0439e96bf48003df49b79cfc0f1e47f6113ee9ed31c0659",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "release_wheel_sha256": "0e391e0d9b87b1911e1caabd4fde3cbba4f668af1c880e0590de01f1b46127e6",
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)"
+  },
+  "input_digest": "aa3216f560f92c6ec4be338544ce91c3ce6377ba5bbd79862ffad15d759f8874",
+  "measurement_commit": "d17a3f9883a9a050257d113fc6110845c1ae5f24",
+  "passed": true,
+  "schema_version": "puyo.native_chain_structure_hot_path_manifest.v1",
+  "source_implementation_commit": "c66d3ab054626b4015c203c790d136deb9b44a26",
+  "source_tracked_diff_before_run": false,
+  "source_tree_dirty_before_run": false,
+  "source_untracked_paths_before_run": [],
+  "ticket": "PUYO-219"
+}

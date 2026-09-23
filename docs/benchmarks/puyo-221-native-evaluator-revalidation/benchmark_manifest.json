@@ -1,0 +1,88 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "78c32edaca83de964db31393e30f44f7db04bad109c205cf91352b062ee69976",
+      "size_bytes": 1774
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "41097a109301c1c783c017f10d04a44cc992a4caae8ba45f2909074b4d6a0a2e",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "source_verification.json",
+      "required": true,
+      "role": "source_verification",
+      "sha256": "9699c548306da9eb5b32983d4c59b59e1b9d241232377944276ae7d78f9b8207",
+      "size_bytes": 454
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "release_wheel_verification.json",
+      "required": true,
+      "role": "release_wheel_verification",
+      "sha256": "e97d8cf1f583ee04eaa0fb9e389edcbe1009df81acc8c961cfae887f0a593ae5",
+      "size_bytes": 1019
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "a7d1fa66121de3c00c791bbc535cc3e1410e294fd86fd20f1f728da10acd2473",
+      "size_bytes": 2652
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "62bfe46edc25d78cc7ff8947a2c7821c75c00b2b8f53683b7aa3d66289f65b6b",
+      "size_bytes": 6607
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "cc4cfdb9e2596adb87ede01f163e18a0b7eea7cd08e5329f083e5cf29bcb60c1",
+      "size_bytes": 1650
+    }
+  ],
+  "created_at_utc": "2026-09-02T23:46:33Z",
+  "decision": "GO",
+  "environment": {
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+    "native_module_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "native_module_sha256": "4c95c2bbdc8ebb888a4b8e1f1cf648cd1d32a1e11d626136d8aa8533f428e651",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "release_wheel_sha256": "073766e650cdcccab789c510911d84f0e0f9673d839256c47659d5d6eb8d4ac4",
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "thread_count": 1
+  },
+  "input_digest": "d7f29bf95a07a1af5e4e1d05aaab22924907f7bd13b6cc9820fc88d35d02c3ea",
+  "passed": true,
+  "schema_version": "puyo.native_evaluator_revalidation_manifest.v1",
+  "source_commit": "f24ace63c1d8b25fad032874740bd6e437b1b08c",
+  "source_tracked_diff_before_run": false,
+  "source_tree_dirty_before_run": false,
+  "source_untracked_paths_before_run": [],
+  "ticket": "PUYO-221"
+}

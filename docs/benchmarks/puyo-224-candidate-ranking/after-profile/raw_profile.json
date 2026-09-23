@@ -1,0 +1,356 @@
+{
+  "combined": {
+    "aggregate": {
+      "checksum": 6517067855075167553,
+      "determinism_mismatch_count": 0,
+      "end_to_end_p50_ms": 1580.926075,
+      "end_to_end_p95_ms": 1593.815081,
+      "native_call_total_p50_ms": 1580.00706,
+      "native_call_total_p95_ms": 1592.901243,
+      "operations_exact": true,
+      "operations_per_sample": 600000,
+      "outlier_removal": "none",
+      "record_count": 512,
+      "sample_count": 5,
+      "transition_evaluator_p50_ms": 1578.76312,
+      "transition_evaluator_p95_ms": 1591.628655
+    },
+    "samples": [
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 1580.926075,
+        "end_to_end_ns": 1580926075,
+        "native_call_total_ms": 1580.00706,
+        "native_call_total_ns": 1580007060,
+        "ns_per_operation": 2631.2718666666665,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 0,
+        "transition_evaluator_ms": 1578.76312,
+        "transition_evaluator_ns": 1578763120
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 1564.286591,
+        "end_to_end_ns": 1564286591,
+        "native_call_total_ms": 1563.382834,
+        "native_call_total_ns": 1563382834,
+        "ns_per_operation": 2603.6290483333332,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 1,
+        "transition_evaluator_ms": 1562.177429,
+        "transition_evaluator_ns": 1562177429
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 1574.481149,
+        "end_to_end_ns": 1574481149,
+        "native_call_total_ms": 1573.494346,
+        "native_call_total_ns": 1573494346,
+        "ns_per_operation": 2620.334746666667,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 2,
+        "transition_evaluator_ms": 1572.200848,
+        "transition_evaluator_ns": 1572200848
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 1583.59888,
+        "end_to_end_ns": 1583598880,
+        "native_call_total_ms": 1582.709127,
+        "native_call_total_ns": 1582709127,
+        "ns_per_operation": 2635.9018366666664,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 3,
+        "transition_evaluator_ms": 1581.541102,
+        "transition_evaluator_ns": 1581541102
+      },
+      {
+        "checksum": 6517067855075167553,
+        "end_to_end_ms": 1593.815081,
+        "end_to_end_ns": 1593815081,
+        "native_call_total_ms": 1592.901243,
+        "native_call_total_ns": 1592901243,
+        "ns_per_operation": 2652.714425,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 4,
+        "transition_evaluator_ms": 1591.628655,
+        "transition_evaluator_ns": 1591628655
+      }
+    ]
+  },
+  "schema_version": "puyo.native_chain_structure_hot_path_raw.v1",
+  "stage": {
+    "aggregate": {
+      "aggregate_counts_per_sample": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1383996
+      },
+      "cycle_counter_available": true,
+      "cycles_p50": 5394794954.0,
+      "cycles_p95": 5412003124.0,
+      "determinism_mismatch_count": 0,
+      "elapsed_p50_ms": 1636.030039,
+      "elapsed_p95_ms": 1639.477972,
+      "operations_exact": true,
+      "operations_per_sample": 600000,
+      "outlier_removal": "none",
+      "profile_sample_count": 5,
+      "profiled_result_mismatch_count": 0,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "sampler_sample_count": 47118,
+      "stage_entries_per_sample": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_sample_shares": {
+        "base_feature_component_extraction": 0.26590687210832376,
+        "candidate_ranking_sha256": 0.1778937985483255,
+        "driver_unattributed": 0.0009974956492211045,
+        "placement_enumeration_trigger_qualification": 0.41652871514071055,
+        "remaining_structure_scan": 0.0,
+        "transition": 0.038053397852200854,
+        "virtual_resolve_gravity": 0.10061972070121822
+      },
+      "stage_sample_totals": {
+        "base_feature_component_extraction": 12529,
+        "candidate_ranking_sha256": 8382,
+        "driver_unattributed": 47,
+        "placement_enumeration_trigger_qualification": 19626,
+        "remaining_structure_scan": 0,
+        "transition": 1793,
+        "virtual_resolve_gravity": 4741
+      }
+    },
+    "method": "QA-only 100us user-space interval sampler over explicit native stage markers, with exact inner-loop call counters",
+    "samples": [
+      {
+        "aggregate_counts": {
+          "executed_pattern_probes": 10444966,
+          "pattern_nodes": 249000000,
+          "rank_comparison_calls": 9846138,
+          "rank_tie_calls": 1028918,
+          "resolution_nodes": 10444966,
+          "sha256_calls": 1383996
+        },
+        "checksum": 6517067855075167553,
+        "cycle_counter_available": true,
+        "cycles": 5345641998,
+        "cycles_per_operation": 8909.40333,
+        "elapsed_ms": 1618.547673,
+        "elapsed_ns": 1618547673,
+        "mismatch_count": 0,
+        "ns_per_operation": 2697.579455,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 0,
+        "sample_count": 9398,
+        "sample_interval_us": 100,
+        "sampler_available": true,
+        "stage_entries": {
+          "base_feature_component_extraction": 1200000,
+          "candidate_ranking_sha256": 10444966,
+          "driver_unattributed": 600000,
+          "placement_enumeration_trigger_qualification": 11044966,
+          "remaining_structure_scan": 0,
+          "transition": 600000,
+          "virtual_resolve_gravity": 3025785
+        },
+        "stage_samples": {
+          "base_feature_component_extraction": 2529,
+          "candidate_ranking_sha256": 1637,
+          "driver_unattributed": 11,
+          "placement_enumeration_trigger_qualification": 3919,
+          "remaining_structure_scan": 0,
+          "transition": 358,
+          "virtual_resolve_gravity": 944
+        }
+      },
+      {
+        "aggregate_counts": {
+          "executed_pattern_probes": 10444966,
+          "pattern_nodes": 249000000,
+          "rank_comparison_calls": 9846138,
+          "rank_tie_calls": 1028918,
+          "resolution_nodes": 10444966,
+          "sha256_calls": 1383996
+        },
+        "checksum": 6517067855075167553,
+        "cycle_counter_available": true,
+        "cycles": 5412003124,
+        "cycles_per_operation": 9020.005206666667,
+        "elapsed_ms": 1639.477972,
+        "elapsed_ns": 1639477972,
+        "mismatch_count": 0,
+        "ns_per_operation": 2732.4632866666666,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 1,
+        "sample_count": 9503,
+        "sample_interval_us": 100,
+        "sampler_available": true,
+        "stage_entries": {
+          "base_feature_component_extraction": 1200000,
+          "candidate_ranking_sha256": 10444966,
+          "driver_unattributed": 600000,
+          "placement_enumeration_trigger_qualification": 11044966,
+          "remaining_structure_scan": 0,
+          "transition": 600000,
+          "virtual_resolve_gravity": 3025785
+        },
+        "stage_samples": {
+          "base_feature_component_extraction": 2528,
+          "candidate_ranking_sha256": 1696,
+          "driver_unattributed": 6,
+          "placement_enumeration_trigger_qualification": 3939,
+          "remaining_structure_scan": 0,
+          "transition": 377,
+          "virtual_resolve_gravity": 957
+        }
+      },
+      {
+        "aggregate_counts": {
+          "executed_pattern_probes": 10444966,
+          "pattern_nodes": 249000000,
+          "rank_comparison_calls": 9846138,
+          "rank_tie_calls": 1028918,
+          "resolution_nodes": 10444966,
+          "sha256_calls": 1383996
+        },
+        "checksum": 6517067855075167553,
+        "cycle_counter_available": true,
+        "cycles": 5409416396,
+        "cycles_per_operation": 9015.693993333334,
+        "elapsed_ms": 1639.445531,
+        "elapsed_ns": 1639445531,
+        "mismatch_count": 0,
+        "ns_per_operation": 2732.4092183333332,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 2,
+        "sample_count": 9454,
+        "sample_interval_us": 100,
+        "sampler_available": true,
+        "stage_entries": {
+          "base_feature_component_extraction": 1200000,
+          "candidate_ranking_sha256": 10444966,
+          "driver_unattributed": 600000,
+          "placement_enumeration_trigger_qualification": 11044966,
+          "remaining_structure_scan": 0,
+          "transition": 600000,
+          "virtual_resolve_gravity": 3025785
+        },
+        "stage_samples": {
+          "base_feature_component_extraction": 2493,
+          "candidate_ranking_sha256": 1679,
+          "driver_unattributed": 18,
+          "placement_enumeration_trigger_qualification": 3955,
+          "remaining_structure_scan": 0,
+          "transition": 389,
+          "virtual_resolve_gravity": 920
+        }
+      },
+      {
+        "aggregate_counts": {
+          "executed_pattern_probes": 10444966,
+          "pattern_nodes": 249000000,
+          "rank_comparison_calls": 9846138,
+          "rank_tie_calls": 1028918,
+          "resolution_nodes": 10444966,
+          "sha256_calls": 1383996
+        },
+        "checksum": 6517067855075167553,
+        "cycle_counter_available": true,
+        "cycles": 5374829160,
+        "cycles_per_operation": 8958.0486,
+        "elapsed_ms": 1629.539863,
+        "elapsed_ns": 1629539863,
+        "mismatch_count": 0,
+        "ns_per_operation": 2715.8997716666668,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 3,
+        "sample_count": 9390,
+        "sample_interval_us": 100,
+        "sampler_available": true,
+        "stage_entries": {
+          "base_feature_component_extraction": 1200000,
+          "candidate_ranking_sha256": 10444966,
+          "driver_unattributed": 600000,
+          "placement_enumeration_trigger_qualification": 11044966,
+          "remaining_structure_scan": 0,
+          "transition": 600000,
+          "virtual_resolve_gravity": 3025785
+        },
+        "stage_samples": {
+          "base_feature_component_extraction": 2449,
+          "candidate_ranking_sha256": 1616,
+          "driver_unattributed": 7,
+          "placement_enumeration_trigger_qualification": 3997,
+          "remaining_structure_scan": 0,
+          "transition": 340,
+          "virtual_resolve_gravity": 981
+        }
+      },
+      {
+        "aggregate_counts": {
+          "executed_pattern_probes": 10444966,
+          "pattern_nodes": 249000000,
+          "rank_comparison_calls": 9846138,
+          "rank_tie_calls": 1028918,
+          "resolution_nodes": 10444966,
+          "sha256_calls": 1383996
+        },
+        "checksum": 6517067855075167553,
+        "cycle_counter_available": true,
+        "cycles": 5394794954,
+        "cycles_per_operation": 8991.324923333334,
+        "elapsed_ms": 1636.030039,
+        "elapsed_ns": 1636030039,
+        "mismatch_count": 0,
+        "ns_per_operation": 2726.716731666667,
+        "operations": 600000,
+        "record_count": 512,
+        "sample": 4,
+        "sample_count": 9373,
+        "sample_interval_us": 100,
+        "sampler_available": true,
+        "stage_entries": {
+          "base_feature_component_extraction": 1200000,
+          "candidate_ranking_sha256": 10444966,
+          "driver_unattributed": 600000,
+          "placement_enumeration_trigger_qualification": 11044966,
+          "remaining_structure_scan": 0,
+          "transition": 600000,
+          "virtual_resolve_gravity": 3025785
+        },
+        "stage_samples": {
+          "base_feature_component_extraction": 2530,
+          "candidate_ranking_sha256": 1754,
+          "driver_unattributed": 5,
+          "placement_enumeration_trigger_qualification": 3816,
+          "remaining_structure_scan": 0,
+          "transition": 329,
+          "virtual_resolve_gravity": 939
+        }
+      }
+    ],
+    "schema_version": "puyo.native_chain_structure_stage_analysis.v1",
+    "ticket": "PUYO-219"
+  },
+  "ticket": "PUYO-219"
+}

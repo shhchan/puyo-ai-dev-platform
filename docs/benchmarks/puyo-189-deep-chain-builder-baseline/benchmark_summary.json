@@ -1,0 +1,594 @@
+{
+  "aggregate": {
+    "executed_run_count": 0,
+    "expected_run_count": 60,
+    "fallback_count": 0,
+    "fully_evaluated_run_count": 0,
+    "game_over_count": 0,
+    "latency": {
+      "max_seconds": null,
+      "mean_seconds": null,
+      "p50_seconds": null,
+      "p95_seconds": null,
+      "sample_count": 0,
+      "wall_clock_mode": "observational_no_timeout"
+    },
+    "matching_lineage_run_count": 0,
+    "mean_maximum_actual_fire_chain_count": null,
+    "premature_fire_count": 0,
+    "private_future_leak_count": 0,
+    "search": {
+      "cache_hit_rate_per_generated_node": null,
+      "counters": {},
+      "flow_step_latency_seconds": {}
+    },
+    "simulator_parity_mismatch_count": 0
+  },
+  "baseline_decision": {
+    "accepted_as_experimental_baseline": false,
+    "decision": "FAIL",
+    "next_human_decision": "review failure evidence before creating any corrective task",
+    "promotion_performed": false
+  },
+  "configuration": {
+    "benchmark": {
+      "environment": "safe_no_threat",
+      "max_steps": 40,
+      "maximum_decision_p95_seconds": 1.0,
+      "maximum_game_overs": 0,
+      "maximum_premature_fires": 0,
+      "maximum_private_future_leaks": 0,
+      "maximum_simulator_parity_mismatches": 0,
+      "minimum_mean_actual_fire_chain_count": 10.0,
+      "repeats_per_seed": 2,
+      "require_repeat_digest_match": true,
+      "run_count": 60,
+      "schema_version": "puyo.deep_chain_builder.benchmark.v1",
+      "seed_count": 30,
+      "seed_start": 123,
+      "seeds": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152
+      ]
+    },
+    "policy_id": "deep_chain_builder",
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    }
+  },
+  "determinism": {
+    "complete_pair_count": 0,
+    "matching_pair_count": 0,
+    "passed": false,
+    "records": [
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 123,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 124,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 125,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 126,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 127,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 128,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 129,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 130,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 131,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 132,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 133,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 134,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 135,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 136,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 137,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 138,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 139,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 140,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 141,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 142,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 143,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 144,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 145,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 146,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 147,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 148,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 149,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 150,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 151,
+        "trajectory_digests": []
+      },
+      {
+        "action_digests": [],
+        "complete_pair": false,
+        "matches": false,
+        "plan_digests": [],
+        "repeat_count": 0,
+        "seed": 152,
+        "trajectory_digests": []
+      }
+    ],
+    "seed_count": 30
+  },
+  "failure_taxonomy": {
+    "evaluator": {
+      "evidence": "search did not emit candidates for quality calibration",
+      "status": "not_evaluable"
+    },
+    "flow": {
+      "fallback_count": 0,
+      "status": "not_evaluable"
+    },
+    "performance": {
+      "decision_p95_seconds": null,
+      "expected_run_count": 60,
+      "preflight_timed_out": true,
+      "status": "confirmed_fail"
+    },
+    "search": {
+      "evidence": "no canonical trajectories completed",
+      "status": "not_evaluable"
+    },
+    "simulator": {
+      "parity_mismatch_count": 0,
+      "status": "not_evaluable"
+    }
+  },
+  "gates": {
+    "coverage": {
+      "checks": [
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "expected_run_identities_present",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": 60,
+          "name": "canonical_runs_executed",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": 60,
+          "name": "canonical_runs_fully_evaluated",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": 60,
+          "name": "run_lineage_consistent",
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "determinism": {
+      "checks": [
+        {
+          "actual": 0,
+          "expected": 30,
+          "name": "complete_repeat_pairs",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": 30,
+          "name": "matching_action_and_plan_digests",
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "future_isolation": {
+      "checks": [
+        {
+          "actual": 30,
+          "expected": 30,
+          "name": "seed_coverage",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": "<= 0",
+          "name": "private_future_leak_count",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "gui_human_qa": {
+      "checks": [
+        {
+          "actual": "passed",
+          "expected": "passed",
+          "name": "automated_gui_contract",
+          "passed": true
+        },
+        {
+          "actual": "pending",
+          "expected": "passed",
+          "name": "manual_gui_review",
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "performance": {
+      "checks": [
+        {
+          "actual": 0,
+          "expected": "> 0 across 60 fully evaluated runs",
+          "name": "canonical_latency_coverage",
+          "passed": false
+        },
+        {
+          "actual": 300.0,
+          "expected": "<= 1.0",
+          "name": "preflight_within_gate",
+          "passed": false
+        },
+        {
+          "actual": null,
+          "expected": "<= 1.0",
+          "name": "decision_p95_seconds",
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "quality": {
+      "checks": [
+        {
+          "actual": 0,
+          "expected": 60,
+          "name": "coverage_complete",
+          "passed": false
+        },
+        {
+          "actual": null,
+          "expected": ">= 10.0",
+          "name": "mean_maximum_actual_fire_chain_count",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": "<= 0",
+          "name": "premature_fire_count",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": "<= 0",
+          "name": "game_over_count",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": 0,
+          "name": "fallback_count",
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    "simulator_parity": {
+      "checks": [
+        {
+          "actual": 0,
+          "expected": 60,
+          "name": "coverage_complete",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": "<= 0",
+          "name": "simulator_parity_mismatch_count",
+          "passed": true
+        }
+      ],
+      "passed": false
+    }
+  },
+  "generated_at_utc": "2026-08-20T09:15:53Z",
+  "gui_qa": {
+    "automated_status": "passed",
+    "manual_status": "pending",
+    "passed": false
+  },
+  "preflight": {
+    "canonical_quality_evidence": false,
+    "child_exit_code": -15,
+    "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+    "created_at_utc": "2026-08-20T09:11:45Z",
+    "decision_elapsed_seconds": null,
+    "decision_latency_lower_bound_seconds": 300.0,
+    "evaluated_commit": "76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67",
+    "interpretation": "reference decision exceeded the diagnostic budget; quality was not inferred from the terminated process",
+    "locked_maximum_decision_p95_seconds": 1.0,
+    "performance_gate_passed": false,
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    },
+    "purpose": "bounded latency diagnosis before the canonical resumable run",
+    "result": null,
+    "schema_version": "puyo.deep_chain_builder.preflight.v1",
+    "seed": 123,
+    "supervisor_elapsed_seconds": 300.11050492899994,
+    "ticket": "PUYO-189",
+    "timed_out": true,
+    "timeout_seconds": 300.0
+  },
+  "schema_version": "puyo.deep_chain_builder.benchmark_summary.v1",
+  "summary_digest": "5f3c0118c0a1d225c3d26a34e53d42a1b67738288d1a2c651515bacb1c063ec5",
+  "ticket": "PUYO-189"
+}

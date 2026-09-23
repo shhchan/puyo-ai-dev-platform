@@ -1,0 +1,3629 @@
+{
+  "distribution": {
+    "pattern_nodes": {
+      "exact_600k_total": 249000000,
+      "maximum_per_node": 415,
+      "mean_per_node": 415.0,
+      "p50_per_node": 415,
+      "p95_per_node": 415
+    },
+    "rank_comparison_calls": {
+      "exact_600k_total": 9846138,
+      "maximum_per_node": 29,
+      "mean_per_node": 16.41015625,
+      "p50_per_node": 17,
+      "p95_per_node": 24
+    },
+    "rank_tie_calls": {
+      "exact_600k_total": 1028918,
+      "maximum_per_node": 13,
+      "mean_per_node": 1.71484375,
+      "p50_per_node": 1,
+      "p95_per_node": 10
+    },
+    "resolution_nodes": {
+      "exact_600k_total": 10444966,
+      "maximum_per_node": 30,
+      "mean_per_node": 17.408203125,
+      "p50_per_node": 18,
+      "p95_per_node": 25
+    },
+    "sha256_calls": {
+      "exact_600k_total": 1415633,
+      "maximum_per_node": 14,
+      "mean_per_node": 2.359375,
+      "p50_per_node": 2,
+      "p95_per_node": 11
+    }
+  },
+  "operations": 600000,
+  "per_source_state": [
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 26,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 14,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 18,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 19,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 0,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 0,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 25,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 16,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 20,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 25,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 21,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 23,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 27,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 28,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 23,
+      "sha256_calls": 7
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 6,
+      "resolution_nodes": 8,
+      "sha256_calls": 7
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 16,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 16,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 23,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 8,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 8,
+      "resolution_nodes": 22,
+      "sha256_calls": 10
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 28,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 29,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 16,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 2,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 3,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 9,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 10,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 8,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 9,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 9,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 10,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 26,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 18,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 17,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 8,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 8,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 9,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 23,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 26,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 23,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 4,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 5,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 8,
+      "resolution_nodes": 25,
+      "sha256_calls": 9
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 26,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 8,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 9,
+      "resolution_nodes": 16,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 13,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 11,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 11,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 8,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 13,
+      "sha256_calls": 7
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 25,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 22,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 13,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 26,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 26,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 8,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 9,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 23,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 11,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 15,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 20,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 20,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 22,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 19,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 16,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 24,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 6,
+      "resolution_nodes": 17,
+      "sha256_calls": 7
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 27,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 28,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 28,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 29,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 29,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 30,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 8,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 6,
+      "resolution_nodes": 21,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 12,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 21,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 11,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 16,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 8,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 7,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 11,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 24,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 24,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 25,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 20,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 24,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 20,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 16,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 22,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 22,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 24,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 3,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 4,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 8,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 9,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 8,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 12,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 24,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 25,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 20,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 19,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 8,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 16,
+      "sha256_calls": 13
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 6,
+      "resolution_nodes": 8,
+      "sha256_calls": 7
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 17,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 5,
+      "resolution_nodes": 16,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 13,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 12,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 8,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 11,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 18,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 8,
+      "resolution_nodes": 24,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 22,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 22,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 22,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 21,
+      "sha256_calls": 9
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 11,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 24,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 25,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 8,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 17,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 21,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 20,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 20,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 24,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 23,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 25,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 3,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 4,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 20,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 22,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 10,
+      "resolution_nodes": 18,
+      "sha256_calls": 11
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 12,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 21,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 18,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 26,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 26,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 27,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 28,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 29,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 17,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 25,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 26,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 8,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 17,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 9,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 10,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 13,
+      "resolution_nodes": 20,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 18,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 20,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 28,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 29,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 22,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 23,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 24,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 6,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 7,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 16,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 13,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 13,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 14,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 18,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 18,
+      "sha256_calls": 12
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 20,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 17,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 3,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 4,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 14,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 16,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 15,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 22,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 23,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 17,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 18,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 14,
+      "sha256_calls": 3
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 3,
+      "resolution_nodes": 8,
+      "sha256_calls": 5
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 11,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 12,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 21,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 19,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 13,
+      "rank_tie_calls": 7,
+      "resolution_nodes": 14,
+      "sha256_calls": 8
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 20,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 21,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 16,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 17,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 19,
+      "rank_tie_calls": 2,
+      "resolution_nodes": 20,
+      "sha256_calls": 4
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 14,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 15,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 10,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 11,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 7,
+      "rank_tie_calls": 4,
+      "resolution_nodes": 8,
+      "sha256_calls": 6
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 15,
+      "rank_tie_calls": 11,
+      "resolution_nodes": 16,
+      "sha256_calls": 14
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 21,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 22,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 19,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 24,
+      "rank_tie_calls": 1,
+      "resolution_nodes": 25,
+      "sha256_calls": 2
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 18,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 19,
+      "sha256_calls": 0
+    },
+    {
+      "pattern_nodes": 415,
+      "rank_comparison_calls": 12,
+      "rank_tie_calls": 0,
+      "resolution_nodes": 13,
+      "sha256_calls": 0
+    }
+  ],
+  "schema_version": "puyo.native_chain_structure_call_counts.v1",
+  "source_state_count": 512,
+  "ticket": "PUYO-219"
+}

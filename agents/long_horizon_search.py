@@ -14,8 +14,9 @@ import json
 import math
 import random
 from collections import Counter
-from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
+from typing import Any
 
 from agents.chain_structure import (
     ChainStructureAction,
@@ -32,10 +33,12 @@ from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.tsumo import PuyoSequence
 
-
 LONG_HORIZON_PROFILE_SCHEMA_VERSION = "puyo.long_horizon_profile.v3"
 EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION = "puyo.expected_chain_evidence.v2"
 EXPECTED_CHAIN_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v2"
+WEAK_SCENARIO_SUPPORT_RULE_VERSION = "puyo.weak_scenario_support.v1.min2of6"
+EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION = "puyo.expected_chain_ranking.v3"
+MINIMUM_TARGET_SCENARIO_SUPPORT = 2
 SCENARIO_SEQUENCE_SCHEMA_VERSION = "puyo.long_horizon_scenario_sequence.v2"
 FUTURE_SAMPLING_SCHEMA_VERSION = "puyo.future_tsumo_sampling.v1"
 FUTURE_SAMPLING_SEEDED_AUTHORITATIVE = "seeded-authoritative"
@@ -47,6 +50,7 @@ FUTURE_SAMPLING_MODES = {
 FUTURE_ROLLOUT_SEED_DERIVATION = "sha256-decision-seed-sample-index-v1"
 FUTURE_QUEUE_GENERATOR = "src.core.tsumo.PuyoSequence"
 LONG_HORIZON_PROPOSAL_DIGEST_VERSION = "puyo.long_horizon_proposal_digest.v1"
+LONG_HORIZON_SURVIVOR_TIE_BREAK_VERSION = "puyo.long_horizon_survivor_tie_break.v2"
 TERMINAL_FIRE_SCORE_VERSION = "puyo.build_main_terminal_score.v1"
 ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION = "puyo.root_survivor_coverage.v1"
 ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION = "puyo.build_main_root_diagnostics.v1"
@@ -208,7 +212,9 @@ class LongHorizonSearchProfile:
             not math.isfinite(self.premature_target_gap_penalty)
             or self.premature_target_gap_penalty < 0.0
         ):
-            raise ValueError("premature target-gap penalty must be finite and non-negative")
+            raise ValueError(
+                "premature target-gap penalty must be finite and non-negative"
+            )
         if (
             self.winning_score_threshold is not None
             and self.winning_score_threshold <= 0
@@ -251,14 +257,12 @@ class LongHorizonSearchProfile:
                 "known_queue": "current_plus_next2",
                 "rollout_seed_derivation": (
                     FUTURE_ROLLOUT_SEED_DERIVATION
-                    if self.future_sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.future_sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else None
                 ),
                 "generator": (
                     FUTURE_QUEUE_GENERATOR
-                    if self.future_sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.future_sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "ama-representative-two-pair-cycle"
                 ),
                 "unknown_pairs_per_sample": max(0, int(self.depth) - 3),
@@ -385,9 +389,7 @@ class ScenarioPairSequence:
         if not self.known_pairs:
             raise ValueError("scenario sequence requires the known current/NEXT queue")
         if self.sampling_mode not in FUTURE_SAMPLING_MODES:
-            raise ValueError(
-                f"unsupported future sampling mode: {self.sampling_mode}"
-            )
+            raise ValueError(f"unsupported future sampling mode: {self.sampling_mode}")
         if not self.sample_id or not self.decision_seed_source:
             raise ValueError("scenario sequence requires sample and seed provenance")
         if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
@@ -398,7 +400,9 @@ class ScenarioPairSequence:
             if self.depth > self.known_pair_count + len(self.hidden_pairs):
                 raise ValueError("seeded future sample is shorter than search depth")
         elif not self.repeats_hidden_pairs or not self.hidden_pairs:
-            raise ValueError("legacy fixed-six samples require a repeating hidden cycle")
+            raise ValueError(
+                "legacy fixed-six samples require a repeating hidden cycle"
+            )
         for pair in (*self.known_pairs, *self.hidden_pairs):
             _pair_colors(pair)
 
@@ -461,14 +465,12 @@ class ScenarioPairSequence:
                 "mode": self.sampling_mode,
                 "generator": (
                     FUTURE_QUEUE_GENERATOR
-                    if self.sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "ama-representative-two-pair-cycle"
                 ),
                 "distribution": (
                     "independent_uniform_normal_colors"
-                    if self.sampling_mode
-                    == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
+                    if self.sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE
                     else "fixed_representative_pairing"
                 ),
                 "decision_seed": int(self.decision_seed),
@@ -590,24 +592,63 @@ def build_scenario_sequences(
         and int(scenario_seed) != int(decision_seed)
     ):
         raise ValueError("scenario_seed and decision_seed must agree when both are set")
-    configured_seed = (
-        decision_seed if decision_seed is not None else scenario_seed
-    )
     known_pairs = _known_scenario_pairs(simulator)
+    configured_seed = decision_seed if decision_seed is not None else scenario_seed
     resolved_seed, seed_source = _resolve_decision_seed(
         simulator,
         decision_seed=configured_seed,
         known_pairs=known_pairs,
     )
-    hidden_pair_count = max(0, int(depth) - len(known_pairs))
+    return build_scenario_sequences_from_known_pairs(
+        known_pairs,
+        scenarios=scenarios,
+        depth=depth,
+        decision_seed=resolved_seed,
+        sampling_mode=sampling_mode,
+        decision_seed_source=seed_source,
+    )
+
+
+def build_scenario_sequences_from_known_pairs(
+    known_pairs: Sequence[Sequence[Any]],
+    *,
+    scenarios: int,
+    depth: int,
+    scenario_seed: int | None = None,
+    decision_seed: int | None = None,
+    sampling_mode: str = FUTURE_SAMPLING_SEEDED_AUTHORITATIVE,
+    decision_seed_source: str | None = None,
+) -> tuple[ScenarioPairSequence, ...]:
+    """Complete a visible queue without requiring a simulator or private queue."""
+
+    if not 1 <= scenarios <= len(REPRESENTATIVE_SCENARIO_BAGS):
+        raise ValueError("future sample count is outside the supported set")
+    if depth <= 0:
+        raise ValueError("future sample depth must be positive")
+    if sampling_mode not in FUTURE_SAMPLING_MODES:
+        raise ValueError(f"unsupported future sampling mode: {sampling_mode}")
+    if (
+        scenario_seed is not None
+        and decision_seed is not None
+        and int(scenario_seed) != int(decision_seed)
+    ):
+        raise ValueError("scenario_seed and decision_seed must agree when both are set")
+    known = tuple(_pair_colors(pair) for pair in known_pairs)
+    if not known:
+        raise ValueError("known queue must contain at least one pair")
+    configured_seed = decision_seed if decision_seed is not None else scenario_seed
+    resolved_seed = 0 if configured_seed is None else int(configured_seed)
+    seed_source = decision_seed_source or (
+        "explicit" if configured_seed is not None else "visible_observation_default"
+    )
+    hidden_pair_count = max(0, int(depth) - len(known))
 
     if sampling_mode == FUTURE_SAMPLING_SEEDED_AUTHORITATIVE:
         result = []
         for sample_index in range(scenarios):
             rollout_seed = _rollout_seed(resolved_seed, sample_index)
             hidden_pairs = _authoritative_hidden_pairs(
-                rollout_seed=rollout_seed,
-                count=hidden_pair_count,
+                rollout_seed=rollout_seed, count=hidden_pair_count
             )
             sample_id = _stable_digest(
                 {
@@ -620,16 +661,16 @@ def build_scenario_sequences(
             )
             result.append(
                 ScenarioPairSequence(
-                    scenario_id=int(sample_index),
-                    known_pairs=known_pairs,
+                    scenario_id=sample_index,
+                    known_pairs=known,
                     hidden_pairs=hidden_pairs,
-                    depth=int(depth),
+                    depth=depth,
                     sampling_mode=sampling_mode,
-                    sample_index=int(sample_index),
+                    sample_index=sample_index,
                     sample_id=sample_id,
-                    decision_seed=int(resolved_seed),
+                    decision_seed=resolved_seed,
                     decision_seed_source=seed_source,
-                    rollout_seed=int(rollout_seed),
+                    rollout_seed=rollout_seed,
                 )
             )
         return tuple(result)
@@ -655,14 +696,14 @@ def build_scenario_sequences(
         )
         result.append(
             ScenarioPairSequence(
-                scenario_id=int(scenario_id),
-                known_pairs=known_pairs,
+                scenario_id=scenario_id,
+                known_pairs=known,
                 hidden_pairs=hidden_pairs,
-                depth=int(depth),
+                depth=depth,
                 sampling_mode=sampling_mode,
-                sample_index=int(sample_index),
-                sample_id=f"legacy-fixed-six-{int(scenario_id)}",
-                decision_seed=int(resolved_seed),
+                sample_index=sample_index,
+                sample_id=f"legacy-fixed-six-{scenario_id}",
+                decision_seed=resolved_seed,
                 decision_seed_source=seed_source,
                 rollout_seed=None,
                 repeats_hidden_pairs=True,
@@ -685,9 +726,8 @@ def classify_build_main_fire(
         raise ValueError(f"unsupported fire context: {fire_context}")
     if chain_count <= 0:
         return FIRE_CLASS_QUIET
-    if (
-        winning_score_threshold is not None
-        and int(chain_score) >= int(winning_score_threshold)
+    if winning_score_threshold is not None and int(chain_score) >= int(
+        winning_score_threshold
     ):
         return FIRE_CLASS_WINNING
     if int(chain_count) >= int(target_chain_count):
@@ -711,7 +751,7 @@ def _terminal_fire_score(
     result: Any,
     evaluation: Any,
     fire_class: str,
-    config: "LongHorizonSearchConfig",
+    config: LongHorizonSearchConfig,
 ) -> tuple[float, dict[str, float]]:
     structural_score = _evaluation_score(evaluation)
     if not math.isfinite(structural_score):
@@ -741,9 +781,7 @@ def _evaluation_fire_details(evaluation: Any) -> dict[str, Any]:
     score_breakdown = _mapping_from(getattr(evaluation, "score_breakdown", None))
     trigger_damage = max(0, int(getattr(action, "trigger_damage", 0)))
     return {
-        "evaluation_status": str(
-            getattr(evaluation, "evaluation_status", "available")
-        ),
+        "evaluation_status": str(getattr(evaluation, "evaluation_status", "available")),
         "danger": float(getattr(evaluation, "danger", 1.0)),
         "trigger_damage": trigger_damage,
         "trigger_preserved": bool(trigger_damage == 0),
@@ -759,7 +797,9 @@ def _evaluation_fire_details(evaluation: Any) -> dict[str, Any]:
                 else int(getattr(features, "potential_chain_score", 0))
             ),
             "required_key_count": (
-                None if features is None else getattr(features, "required_key_count", None)
+                None
+                if features is None
+                else getattr(features, "required_key_count", None)
             ),
         },
         "score_breakdown": {
@@ -875,18 +915,16 @@ class ScenarioRootEvidence:
     survivor_shortfalls: tuple[tuple[int, str], ...] = ()
     invalid_nodes: int = 0
     game_over_nodes: int = 0
+    survivor_evaluator_depth: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         candidate_counts = {
-            str(depth): int(count)
-            for depth, count in self.survivor_candidate_counts
+            str(depth): int(count) for depth, count in self.survivor_candidate_counts
         }
         retained_counts = {
             str(depth): int(count) for depth, count in self.survivor_counts
         }
-        shortfalls = {
-            str(depth): reason for depth, reason in self.survivor_shortfalls
-        }
+        shortfalls = {str(depth): reason for depth, reason in self.survivor_shortfalls}
         attempted_depths = sorted(
             {
                 *candidate_counts,
@@ -912,6 +950,7 @@ class ScenarioRootEvidence:
             "fire_count": int(self.fire_count),
             "terminal_fire_count": int(self.terminal_fire_count),
             "survivor_evaluator_score": self.survivor_evaluator_score,
+            "survivor_evaluator_depth": int(self.survivor_evaluator_depth),
             "quiet_survivor": bool(self.quiet_survivor),
             "survivor_coverage": {
                 "schema_version": ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION,
@@ -964,6 +1003,7 @@ class ExpectedChainRootEvidence:
     root_survivor_quota: int = 1
     ranking_rule_version: str = EXPECTED_CHAIN_RANKING_RULE_VERSION
     schema_version: str = EXPECTED_CHAIN_EVIDENCE_SCHEMA_VERSION
+    weak_support_priority: float | None = None
 
     @property
     def evaluated_scenarios(self) -> int:
@@ -998,7 +1038,11 @@ class ExpectedChainRootEvidence:
     def ranking_key(self) -> tuple[Any, ...]:
         class_support = int(self.fire_class_support.get(self.fire_class, 0))
         return (
-            int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
+            (
+                int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1))
+                if self.weak_support_priority is None
+                else self.weak_support_priority
+            ),
             float(self.coverage),
             class_support,
             float(self.candidate_value),
@@ -1027,26 +1071,20 @@ class ExpectedChainRootEvidence:
             "expected_chain_support": float(self.support),
             "expected_chain_worst_score": float(self.worst_chain_score),
             "expected_chain_score_dispersion": -float(self.chain_score_dispersion),
-            "fire_class_priority": float(
-                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
-            ),
+            "fire_class_priority": float(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             "fire_class_support": float(
                 self.fire_class_support.get(self.fire_class, 0)
             ),
             "terminal_score_sum": float(self.terminal_score_sum),
             "terminal_score_mean": float(
-                0.0
-                if self.terminal_score_mean is None
-                else self.terminal_score_mean
+                0.0 if self.terminal_score_mean is None else self.terminal_score_mean
             ),
             "quiet_candidate_coverage": (
                 0.0
                 if self.requested_scenarios <= 0
                 else self.quiet_support / float(self.requested_scenarios)
             ),
-            "target_not_reached_fire_count": float(
-                self.target_not_reached_fire_count
-            ),
+            "target_not_reached_fire_count": float(self.target_not_reached_fire_count),
             "continuation_evaluator": float(
                 0.0
                 if self.continuation_score_mean is None
@@ -1059,11 +1097,17 @@ class ExpectedChainRootEvidence:
         return {
             "schema_version": self.schema_version,
             "ranking_rule_version": self.ranking_rule_version,
+            **(
+                {
+                    "weak_scenario_support_rule": WEAK_SCENARIO_SUPPORT_RULE_VERSION,
+                    "weak_support_priority": self.weak_support_priority,
+                }
+                if self.ranking_rule_version == EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION
+                else {}
+            ),
             "root_action": int(self.root_action),
             "fire_class": self.fire_class,
-            "fire_class_priority": int(
-                FIRE_CLASS_PRIORITY.get(self.fire_class, -1)
-            ),
+            "fire_class_priority": int(FIRE_CLASS_PRIORITY.get(self.fire_class, -1)),
             "fire_class_support": {
                 fire_class: int(self.fire_class_support.get(fire_class, 0))
                 for fire_class in sorted(FIRE_CLASSES)
@@ -1093,9 +1137,7 @@ class ExpectedChainRootEvidence:
                 else self.quiet_support / float(self.requested_scenarios)
             ),
             "quiet_support": int(self.quiet_support),
-            "target_not_reached_fire_count": int(
-                self.target_not_reached_fire_count
-            ),
+            "target_not_reached_fire_count": int(self.target_not_reached_fire_count),
             "terminal_score": {
                 "schema_version": TERMINAL_FIRE_SCORE_VERSION,
                 "sum": float(self.terminal_score_sum),
@@ -1166,7 +1208,9 @@ class LongHorizonSearchConfig:
             not math.isfinite(self.premature_target_gap_penalty)
             or self.premature_target_gap_penalty < 0.0
         ):
-            raise ValueError("premature target-gap penalty must be finite and non-negative")
+            raise ValueError(
+                "premature target-gap penalty must be finite and non-negative"
+            )
         if (
             self.winning_score_threshold is not None
             and self.winning_score_threshold <= 0
@@ -1176,9 +1220,7 @@ class LongHorizonSearchConfig:
     @property
     def resolved_decision_seed(self) -> int | None:
         return (
-            self.decision_seed
-            if self.decision_seed is not None
-            else self.scenario_seed
+            self.decision_seed if self.decision_seed is not None else self.scenario_seed
         )
 
 
@@ -1427,8 +1469,7 @@ class _ScenarioTracker:
         if self.selected_fire_class == FIRE_CLASS_QUIET:
             return self.best_survivor
         return (
-            self.terminals_by_class.get(self.selected_fire_class)
-            or self.best_survivor
+            self.terminals_by_class.get(self.selected_fire_class) or self.best_survivor
         )
 
     def finish(self, *, budget_exhausted: bool, target_depth: int) -> None:
@@ -1468,6 +1509,9 @@ class _ScenarioTracker:
             selected_fire=self.selected_fire,
             observed_fire_classes=tuple(sorted(self.fires_by_class)),
             quiet_survivor=self.best_survivor is not None,
+            survivor_evaluator_depth=(
+                0 if self.best_survivor is None else len(self.best_survivor.path)
+            ),
             survivor_quota=int(self.root_survivor_quota),
             survivor_candidate_counts=tuple(
                 sorted(self.survivor_candidate_counts.items())
@@ -1479,15 +1523,31 @@ class _ScenarioTracker:
         )
 
 
+def _ordered_sum(values: Iterable[float]) -> float:
+    """Binary64 left fold shared with native long_horizon::ordered_sum.
+
+    Root inputs are ordered by scenario_id before filtering. Each addition
+    rounds separately, starting at +0.0; do not use compensated/reassociated
+    sums (including Python 3.12's sum), which can change exact ranking ties.
+    """
+    total = 0.0
+    for value in values:
+        total += value
+    return total
+
+
 def _mean(values: Sequence[float]) -> float:
-    return 0.0 if not values else sum(values) / float(len(values))
+    return 0.0 if not values else _ordered_sum(values) / float(len(values))
 
 
 def _dispersion(values: Sequence[float]) -> float:
     if not values:
         return 0.0
     mean = _mean(values)
-    return math.sqrt(sum((value - mean) ** 2 for value in values) / len(values))
+    # Match native subtraction/multiplication, without pow or fused operations.
+    return math.sqrt(
+        _ordered_sum((value - mean) * (value - mean) for value in values) / len(values)
+    )
 
 
 def aggregate_expected_chain_evidence(
@@ -1572,9 +1632,9 @@ def aggregate_expected_chain_evidence(
         root_action=int(root_action),
         requested_scenarios=int(requested_scenarios),
         scenario_values=raw,
-        chain_score_sum=int(sum(scores)),
+        chain_score_sum=int(_ordered_sum(scores)),
         chain_score_mean=_mean(scores),
-        chain_count_sum=int(sum(counts)),
+        chain_count_sum=int(_ordered_sum(counts)),
         chain_count_mean=_mean(counts),
         support=sum(int(value.max_chain_count > 0) for value in evaluated),
         worst_chain_score=int(min(scores, default=0.0)),
@@ -1600,13 +1660,9 @@ def aggregate_expected_chain_evidence(
             candidate_class: int(class_counts.get(candidate_class, 0))
             for candidate_class in FIRE_CLASSES
         },
-        terminal_score_sum=float(sum(terminal_scores)),
-        terminal_score_mean=(
-            None if not terminal_scores else _mean(terminal_scores)
-        ),
-        terminal_score_worst=(
-            None if not terminal_scores else min(terminal_scores)
-        ),
+        terminal_score_sum=_ordered_sum(terminal_scores),
+        terminal_score_mean=(None if not terminal_scores else _mean(terminal_scores)),
+        terminal_score_worst=(None if not terminal_scores else min(terminal_scores)),
         terminal_score_dispersion=_dispersion(terminal_scores),
         quiet_support=quiet_support,
         target_not_reached_fire_count=int(target_not_reached_fire_count),
@@ -1617,11 +1673,81 @@ def aggregate_expected_chain_evidence(
     )
 
 
+def apply_weak_scenario_support_guard(
+    evidence: Sequence[ExpectedChainRootEvidence],
+    *,
+    config: LongHorizonSearchConfig,
+    fatal_score: float,
+) -> tuple[ExpectedChainRootEvidence, ...]:
+    """Order weak forecasts below proven full-depth quiet alternatives only.
+
+    The existing ranking tuple and its exact numeric tie-breaks follow this
+    class priority. No search, survivor choice, fire class or plan is changed.
+    """
+    roots = tuple(evidence)
+    if (
+        config.fire_context != FIRE_CONTEXT_SAFE_BUILD
+        or config.scenarios != 6
+        or config.terminal_fire_rule != TERMINAL_FIRE_RECORD_AND_STOP
+        or not roots
+        or any(
+            root.evaluated_scenarios != 6
+            or root.fire_class in {FIRE_CLASS_WINNING, FIRE_CLASS_FORCED_SAFETY}
+            for root in roots
+        )
+    ):
+        return roots
+    weak = {
+        root.root_action
+        for root in roots
+        if root.fire_class == FIRE_CLASS_TARGET
+        and root.fire_class_support.get(FIRE_CLASS_TARGET, 0)
+        < MINIMUM_TARGET_SCENARIO_SUPPORT
+    }
+    if not weak:
+        return roots
+    alternatives = {
+        root.root_action
+        for root in roots
+        if root.fire_class == FIRE_CLASS_QUIET
+        and len(root.scenario_values) == 6
+        and all(
+            value.evaluated
+            and value.search_complete
+            and value.selected_fire_class == FIRE_CLASS_QUIET
+            and value.quiet_survivor
+            and value.survivor_evaluator_score is not None
+            and math.isfinite(value.survivor_evaluator_score)
+            and value.survivor_evaluator_score > fatal_score
+            and value.survivor_evaluator_depth == config.depth
+            and value.reached_depth == config.depth
+            and dict(value.survivor_counts).get(config.depth, 0) > 0
+            for value in root.scenario_values
+        )
+    }
+    if not alternatives:
+        return roots
+    # Exact binary64 quarters insert two priorities between quiet and forced.
+    # Every non-applicable v2 key retains its original value.
+    return tuple(
+        replace(
+            root,
+            ranking_rule_version=EXPECTED_CHAIN_GUARDED_RANKING_RULE_VERSION,
+            weak_support_priority=(
+                2.25 if root.root_action in weak
+                else 2.5 if root.root_action in alternatives
+                else None
+            ),
+        )
+        for root in roots
+    )
+
+
 def _survivor_sort_key(node: LongHorizonNode) -> tuple[Any, ...]:
     return (
         -float(node.evaluator_score),
         int(node.root_action),
-        node.state_fingerprint,
+        node.state.to_bytes(),
         int(node.last_action),
         tuple(int(action) for action in node.path),
     )
@@ -1775,8 +1901,7 @@ def _root_build_diagnostics(
         return right - left
 
     scenario_coverage = [
-        value.to_dict()["survivor_coverage"]
-        for value in evidence.scenario_values
+        value.to_dict()["survivor_coverage"] for value in evidence.scenario_values
     ]
     trigger_damage = (
         None if action is None else max(0, int(getattr(action, "trigger_damage", 0)))
@@ -1791,9 +1916,7 @@ def _root_build_diagnostics(
             if evidence.requested_scenarios <= 0
             else evidence.quiet_support / float(evidence.requested_scenarios)
         ),
-        "target_not_reached_fire_count": int(
-            evidence.target_not_reached_fire_count
-        ),
+        "target_not_reached_fire_count": int(evidence.target_not_reached_fire_count),
         "survivor_coverage": {
             "quota": int(evidence.root_survivor_quota),
             "scenarios": scenario_coverage,
@@ -1828,14 +1951,47 @@ def run_long_horizon_search(
 ) -> LongHorizonSearchResult:
     """Run compact expected-chain search without simulator clones."""
 
+    return _run_long_horizon_search(
+        CompactSearchState.from_simulator(simulator),
+        _known_scenario_pairs(simulator),
+        config,
+        evaluator=evaluator,
+    )
+
+
+def run_compact_long_horizon_search(
+    root_state: CompactSearchState,
+    known_pairs: Sequence[Sequence[Any]],
+    config: LongHorizonSearchConfig,
+    *,
+    evaluator: CompactNodeEvaluator | None = None,
+) -> LongHorizonSearchResult:
+    """Run the search from an allowlisted observation snapshot."""
+
+    return _run_long_horizon_search(
+        root_state,
+        known_pairs,
+        config,
+        evaluator=evaluator,
+    )
+
+
+def _run_long_horizon_search(
+    root_state: CompactSearchState,
+    known_pairs: Sequence[Sequence[Any]],
+    config: LongHorizonSearchConfig,
+    *,
+    evaluator: CompactNodeEvaluator | None = None,
+) -> LongHorizonSearchResult:
+    """Shared search implementation for simulator and visible-input callers."""
+
     selected_evaluator = evaluator or ChainStructureEvaluator()
-    root_state = CompactSearchState.from_simulator(simulator)
     root_evaluation = selected_evaluator.evaluate(
         root_state,
         target_chain_count=config.minimum_chain_count,
     )
-    sequences = build_scenario_sequences(
-        simulator,
+    sequences = build_scenario_sequences_from_known_pairs(
+        known_pairs,
         scenarios=config.scenarios,
         depth=config.depth,
         decision_seed=config.resolved_decision_seed,
@@ -2162,8 +2318,13 @@ def run_long_horizon_search(
             tracker.scenario_id for tracker in trackers if tracker.evaluated
         )
 
+    guarded_evidence = apply_weak_scenario_support_guard(
+        evidence,
+        config=config,
+        fatal_score=float(getattr(getattr(selected_evaluator, "config", None), "fatal_score", -1e12)),
+    )
     return LongHorizonSearchResult(
-        root_evidence=tuple(sorted(evidence, key=lambda value: value.root_action)),
+        root_evidence=tuple(sorted(guarded_evidence, key=lambda value: value.root_action)),
         representatives=representatives,
         scenario_sequences=sequences,
         root_evaluation=root_evaluation,
@@ -2198,16 +2359,17 @@ __all__ = [
     "FUTURE_SAMPLING_SCHEMA_VERSION",
     "FUTURE_SAMPLING_SEEDED_AUTHORITATIVE",
     "LEGACY_FIXED_SIX_PROFILE",
-    "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_PROFILE_SCHEMA_VERSION",
+    "LONG_HORIZON_PROPOSAL_DIGEST_VERSION",
     "LONG_HORIZON_SEARCH_PROFILES",
+    "LONG_HORIZON_SURVIVOR_TIE_BREAK_VERSION",
     "QUALITY_D12_PROFILE",
     "QUALITY_D16_PROFILE",
     "REPRESENTATIVE_SCENARIO_BAGS",
-    "RUNTIME_PROFILE",
-    "SCENARIO_SEQUENCE_SCHEMA_VERSION",
     "ROOT_BUILD_DIAGNOSTICS_SCHEMA_VERSION",
     "ROOT_SURVIVOR_COVERAGE_SCHEMA_VERSION",
+    "RUNTIME_PROFILE",
+    "SCENARIO_SEQUENCE_SCHEMA_VERSION",
     "SMOKE_PROFILE",
     "TERMINAL_FIRE_CONTINUE",
     "TERMINAL_FIRE_RECORD_AND_STOP",
@@ -2222,9 +2384,11 @@ __all__ = [
     "ScenarioRootEvidence",
     "aggregate_expected_chain_evidence",
     "build_scenario_sequences",
+    "build_scenario_sequences_from_known_pairs",
     "classify_build_main_fire",
     "compact_state_fingerprint",
-    "long_horizon_proposal_digest",
     "long_horizon_profile",
+    "long_horizon_proposal_digest",
+    "run_compact_long_horizon_search",
     "run_long_horizon_search",
 ]

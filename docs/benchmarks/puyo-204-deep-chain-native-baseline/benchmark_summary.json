@@ -1,0 +1,4318 @@
+{
+  "aggregate": {
+    "executed_run_count": 60,
+    "expected_run_count": 60,
+    "fallback_count": 0,
+    "fully_evaluated_run_count": 60,
+    "game_over_count": 2,
+    "latency": {
+      "max_seconds": 1.2905786629999056,
+      "mean_seconds": 0.5792656989133366,
+      "p50_seconds": 0.6283249444998091,
+      "p95_seconds": 0.7830860263998146,
+      "sample_count": 2400,
+      "wall_clock_mode": "observational_no_timeout"
+    },
+    "matching_lineage_run_count": 60,
+    "matching_native_run_count": 60,
+    "mean_maximum_actual_fire_chain_count": 7.066666666666666,
+    "premature_fire_count": 50,
+    "private_future_leak_count": 0,
+    "search": {
+      "cache_accounting": {
+        "evaluator_cache_availability": "not_exported_by_the_production_long_horizon_hot_path; the independent PUYO-221/227 evaluator profile remains authoritative",
+        "evaluator_resolution_cache_hits": null,
+        "transposition_hit_rate_per_generated_node": 0.031420814823539575,
+        "transposition_hits": 28172062
+      },
+      "cache_hit_rate_per_generated_node": 0.031420814823539575,
+      "counters": {
+        "evaluated_nodes": {
+          "max": 465036.0,
+          "mean": 348571.38666666666,
+          "p50": 410317.0,
+          "p95": 464974.15,
+          "sample_count": 2400,
+          "total": 836571328.0
+        },
+        "expanded_nodes": {
+          "max": 465036.0,
+          "mean": 373585.4475,
+          "p50": 441075.0,
+          "p95": 465016.0,
+          "sample_count": 2400,
+          "total": 896605074.0
+        },
+        "game_over_nodes": {
+          "max": 103295.0,
+          "mean": 25014.060833333333,
+          "p50": 16803.0,
+          "p95": 74637.94999999992,
+          "sample_count": 2400,
+          "total": 60033746.0
+        },
+        "generated_nodes": {
+          "max": 465036.0,
+          "mean": 373585.4475,
+          "p50": 441075.0,
+          "p95": 465016.0,
+          "sample_count": 2400,
+          "total": 896605074.0
+        },
+        "invalid_nodes": {
+          "max": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "sample_count": 2400,
+          "total": 0.0
+        },
+        "pruned_nodes": {
+          "max": 378070.0,
+          "mean": 256670.03416666668,
+          "p50": 300941.5,
+          "p95": 359917.7,
+          "sample_count": 2400,
+          "total": 616008082.0
+        },
+        "reached_depth": {
+          "max": 16.0,
+          "mean": 14.973333333333333,
+          "p50": 16.0,
+          "p95": 16.0,
+          "sample_count": 2400,
+          "total": 35936.0
+        },
+        "terminal_fire_nodes": {
+          "max": 113220.0,
+          "mean": 60065.38916666667,
+          "p50": 66890.5,
+          "p95": 95762.05,
+          "sample_count": 2400,
+          "total": 144156934.0
+        },
+        "transposition_hits": {
+          "max": 31131.0,
+          "mean": 11738.359166666667,
+          "p50": 10908.5,
+          "p95": 24419.399999999987,
+          "sample_count": 2400,
+          "total": 28172062.0
+        }
+      },
+      "expanded_nodes_per_native_compute_second": 1053581.707493248,
+      "flow_step_latency_seconds": {
+        "aggregate_scenario_scores": {
+          "max": 0.004242143999817927,
+          "mean": 0.00012693862625458982,
+          "p50": 9.974799991141481e-05,
+          "p95": 0.0002518468501193633,
+          "sample_count": 2400,
+          "total": 0.30465270301101555
+        },
+        "complete_visible_queue_scenarios": {
+          "max": 0.05908805299986852,
+          "mean": 0.0006344206537517986,
+          "p50": 0.0003855060000432786,
+          "p95": 0.0010644237502219756,
+          "sample_count": 2400,
+          "total": 1.5226095690043167
+        },
+        "emit_decision_trace": {
+          "max": 0.12761510500013173,
+          "mean": 0.017792779944166264,
+          "p50": 0.016076177500053745,
+          "p95": 0.026209181750164137,
+          "sample_count": 2400,
+          "total": 42.70267186599904
+        },
+        "enumerate_root_placements": {
+          "max": 0.011610543999722722,
+          "mean": 0.0002710596766693622,
+          "p50": 0.0002241214999685326,
+          "p95": 0.0004904696498783776,
+          "sample_count": 2400,
+          "total": 0.6505432240064692
+        },
+        "normalize_observation": {
+          "max": 0.0004011280002487183,
+          "mean": 9.088599999245161e-06,
+          "p50": 7.266000011441065e-06,
+          "p95": 1.2404949802657934e-05,
+          "sample_count": 2400,
+          "total": 0.021812639998188388
+        },
+        "run_long_range_search": {
+          "max": 1.2095919700000195,
+          "mean": 0.5132836938008358,
+          "p50": 0.5610512410000865,
+          "p95": 0.7048486780499613,
+          "sample_count": 2400,
+          "total": 1231.880865122006
+        },
+        "select_placement": {
+          "max": 0.11847203200022705,
+          "mean": 0.02535954908208557,
+          "p50": 0.023841743499815493,
+          "p95": 0.037176572050156995,
+          "sample_count": 2400,
+          "total": 60.862917797005366
+        }
+      },
+      "native_phase_latency_seconds": {
+        "boundary_call": {
+          "max": 0.958325289,
+          "mean": 0.3554909085670833,
+          "p50": 0.395140832,
+          "p95": 0.5247876747499999,
+          "sample_count": 2400,
+          "total": 853.178180561
+        },
+        "materialization": {
+          "max": 0.289174452,
+          "mean": 0.15678755652166668,
+          "p50": 0.1599401425,
+          "p95": 0.22347878454999998,
+          "sample_count": 2400,
+          "total": 376.290135652
+        },
+        "native_aggregation": {
+          "max": 0.000543795,
+          "mean": 8.69760825e-05,
+          "p50": 6.93125e-05,
+          "p95": 0.00022241904999999973,
+          "sample_count": 2400,
+          "total": 0.208742598
+        },
+        "native_compute": {
+          "max": 0.957342176,
+          "mean": 0.3545861178520833,
+          "p50": 0.3943493805,
+          "p95": 0.5234755743499999,
+          "sample_count": 2400,
+          "total": 851.006682845
+        },
+        "native_search": {
+          "max": 0.957262394,
+          "mean": 0.35449914176958336,
+          "p50": 0.394271853,
+          "p95": 0.5233581018999999,
+          "sample_count": 2400,
+          "total": 850.797940247
+        },
+        "native_serialization": {
+          "max": 0.003020267,
+          "mean": 0.0005304266958333333,
+          "p50": 0.00043202949999999996,
+          "p95": 0.0014020359999999993,
+          "sample_count": 2400,
+          "total": 1.27302407
+        },
+        "native_total": {
+          "max": 0.957931429,
+          "mean": 0.3551165445479167,
+          "p50": 0.394836052,
+          "p95": 0.52424802045,
+          "sample_count": 2400,
+          "total": 852.279706915
+        },
+        "total": {
+          "max": 1.2082281,
+          "mean": 0.51228007724,
+          "p50": 0.5596752970000001,
+          "p95": 0.7037830636499997,
+          "sample_count": 2400,
+          "total": 1229.472185376
+        }
+      },
+      "native_serialization_ratio": 0.001035423237013435,
+      "native_telemetry": {
+        "aggregation_ns": {
+          "max": 543795.0,
+          "mean": 86976.0825,
+          "p50": 69312.5,
+          "p95": 222419.04999999976,
+          "sample_count": 2400,
+          "total": 208742598.0
+        },
+        "arena_capacity_nodes": {
+          "max": 6000.0,
+          "mean": 6000.0,
+          "p50": 6000.0,
+          "p95": 6000.0,
+          "sample_count": 2400,
+          "total": 14400000.0
+        },
+        "peak_live_nodes": {
+          "max": 5750.0,
+          "mean": 4827.0825,
+          "p50": 5333.0,
+          "p95": 5750.0,
+          "sample_count": 2400,
+          "total": 11584998.0
+        },
+        "pool_reuses": {
+          "max": 1.0,
+          "mean": 0.9991666666666666,
+          "p50": 1.0,
+          "p95": 1.0,
+          "sample_count": 2400,
+          "total": 2398.0
+        },
+        "scenario_jobs": {
+          "max": 6.0,
+          "mean": 6.0,
+          "p50": 6.0,
+          "p95": 6.0,
+          "sample_count": 2400,
+          "total": 14400.0
+        },
+        "scenario_reruns": {
+          "max": 0.0,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "sample_count": 2400,
+          "total": 0.0
+        },
+        "search_ns": {
+          "max": 957262394.0,
+          "mean": 354499141.76958334,
+          "p50": 394271853.0,
+          "p95": 523358101.8999999,
+          "sample_count": 2400,
+          "total": 850797940247.0
+        },
+        "serialization_ns": {
+          "max": 3020267.0,
+          "mean": 530426.6958333333,
+          "p50": 432029.5,
+          "p95": 1402035.9999999995,
+          "sample_count": 2400,
+          "total": 1273024070.0
+        },
+        "tt_capacity_slots": {
+          "max": 16384.0,
+          "mean": 16384.0,
+          "p50": 16384.0,
+          "p95": 16384.0,
+          "sample_count": 2400,
+          "total": 39321600.0
+        }
+      },
+      "process_resources": {
+        "peak_rss_kib": 363460,
+        "run_count": 60,
+        "system_cpu_seconds": 30.250857000000003,
+        "user_cpu_seconds": 5383.744325000001
+      },
+      "python_flow_latency_seconds": {
+        "max": 0.19902659900032071,
+        "mean": 0.06698562167333656,
+        "p50": 0.06308425049998692,
+        "p95": 0.12099075265002722,
+        "sample_count": 2400,
+        "total": 160.76549201600776
+      },
+      "scenario_accounting": {
+        "decision_count": 2400,
+        "failure_count": 0,
+        "passed": true
+      }
+    },
+    "simulator_parity_mismatch_count": 34
+  },
+  "baseline_decision": {
+    "accepted_as_experimental_baseline": false,
+    "decision": "FAIL",
+    "next_human_decision": "review failure evidence before creating any corrective task",
+    "promotion_performed": false
+  },
+  "configuration": {
+    "backend": {
+      "auto": {
+        "fallback_profiles": [
+          "smoke"
+        ]
+      },
+      "canonical": {
+        "profiles": [
+          "reference"
+        ],
+        "required_backend": "native"
+      },
+      "config_version": "1.0",
+      "configuration_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+      "default_backend": "python",
+      "native": {
+        "execution_mode": "scenario-6",
+        "max_response_bytes": 16777216
+      },
+      "schema_version": "puyo.deep_chain_builder.backend_config.v1",
+      "selected_backend": "native"
+    },
+    "benchmark": {
+      "environment": "safe_no_threat",
+      "max_steps": 40,
+      "maximum_decision_p95_seconds": 1.0,
+      "maximum_game_overs": 0,
+      "maximum_premature_fires": 0,
+      "maximum_private_future_leaks": 0,
+      "maximum_simulator_parity_mismatches": 0,
+      "minimum_mean_actual_fire_chain_count": 10.0,
+      "repeats_per_seed": 2,
+      "require_repeat_digest_match": true,
+      "run_count": 60,
+      "schema_version": "puyo.deep_chain_builder.benchmark.v1",
+      "seed_count": 30,
+      "seed_start": 123,
+      "seeds": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152
+      ]
+    },
+    "policy_id": "deep_chain_builder",
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    },
+    "target_chain_count": 6
+  },
+  "determinism": {
+    "complete_pair_count": 30,
+    "matching_pair_count": 30,
+    "passed": true,
+    "records": [
+      {
+        "action_digests": [
+          "d80b73277d7f85b31d05087037863a76e3878441d29ab111d52747a379f0d450",
+          "d80b73277d7f85b31d05087037863a76e3878441d29ab111d52747a379f0d450"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "6deb6277e01f79edeb65a28946d60fe8f3e69e7e21017cf5498d35660d0fd907",
+          "6deb6277e01f79edeb65a28946d60fe8f3e69e7e21017cf5498d35660d0fd907"
+        ],
+        "repeat_count": 2,
+        "seed": 123,
+        "trajectory_digests": [
+          "38ad02d6353a68cc487b2b722caeb2443b383b42a846ae3a9134c12793b9589e",
+          "38ad02d6353a68cc487b2b722caeb2443b383b42a846ae3a9134c12793b9589e"
+        ]
+      },
+      {
+        "action_digests": [
+          "911ad579bae0bd56f07c3f43595874f3ff49026839c7b313f3855a64f85879c8",
+          "911ad579bae0bd56f07c3f43595874f3ff49026839c7b313f3855a64f85879c8"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "298ed67bda1974f93824aa6856eb9908080c2e9a8e409eaa8fee49ccf490c038",
+          "298ed67bda1974f93824aa6856eb9908080c2e9a8e409eaa8fee49ccf490c038"
+        ],
+        "repeat_count": 2,
+        "seed": 124,
+        "trajectory_digests": [
+          "f8b27f72bbf6a1f5e30aac9d64e8a0ce07527f9395a39de1cdc50086136c606c",
+          "f8b27f72bbf6a1f5e30aac9d64e8a0ce07527f9395a39de1cdc50086136c606c"
+        ]
+      },
+      {
+        "action_digests": [
+          "30aaf99c009018071bf9cda83caa2b1867e198754eb2bd281f3ceed3be55db86",
+          "30aaf99c009018071bf9cda83caa2b1867e198754eb2bd281f3ceed3be55db86"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "5ef0beb910ea2091a2a599ee8ff6195e0a7e7d2b7634a254972c48a1f6b97706",
+          "5ef0beb910ea2091a2a599ee8ff6195e0a7e7d2b7634a254972c48a1f6b97706"
+        ],
+        "repeat_count": 2,
+        "seed": 125,
+        "trajectory_digests": [
+          "600a8f739e00b7ba299165cdb92ccd61404ec7905086de8522ec2701088324da",
+          "600a8f739e00b7ba299165cdb92ccd61404ec7905086de8522ec2701088324da"
+        ]
+      },
+      {
+        "action_digests": [
+          "5970047d69b7c275acf93ce138c36a9892f8ce2f892f7d12ab89dc64f98501c3",
+          "5970047d69b7c275acf93ce138c36a9892f8ce2f892f7d12ab89dc64f98501c3"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "cdbc539cd62aa687496d0d915b8426fe805a3bfdd71859d21a14e3c761c608d2",
+          "cdbc539cd62aa687496d0d915b8426fe805a3bfdd71859d21a14e3c761c608d2"
+        ],
+        "repeat_count": 2,
+        "seed": 126,
+        "trajectory_digests": [
+          "fd0bd1f95d7a0ed9095cdd3ca1040644cda54ae15704a602d490ae2b84e2a9f7",
+          "fd0bd1f95d7a0ed9095cdd3ca1040644cda54ae15704a602d490ae2b84e2a9f7"
+        ]
+      },
+      {
+        "action_digests": [
+          "a2a6b94638e3167132a0f8e8ea7843270c877a759678f73b0e3404af9614d433",
+          "a2a6b94638e3167132a0f8e8ea7843270c877a759678f73b0e3404af9614d433"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "a2bcb5eff96f5d38a2565dde6753a41912dcf61d9003d1d34a364d68b94803f9",
+          "a2bcb5eff96f5d38a2565dde6753a41912dcf61d9003d1d34a364d68b94803f9"
+        ],
+        "repeat_count": 2,
+        "seed": 127,
+        "trajectory_digests": [
+          "76aa3df2f901a0ccbba85cf7e9bc83fc43a309f0af21049f66f552879ab2cd50",
+          "76aa3df2f901a0ccbba85cf7e9bc83fc43a309f0af21049f66f552879ab2cd50"
+        ]
+      },
+      {
+        "action_digests": [
+          "5fa354513e28c80a09c656327d10ce6736fe711d0a376cd1feaaa8c2b7bcf12c",
+          "5fa354513e28c80a09c656327d10ce6736fe711d0a376cd1feaaa8c2b7bcf12c"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "7dca7a73c7cd6f03de883375668789c7ab3e401126ddd985c7b007490719cac9",
+          "7dca7a73c7cd6f03de883375668789c7ab3e401126ddd985c7b007490719cac9"
+        ],
+        "repeat_count": 2,
+        "seed": 128,
+        "trajectory_digests": [
+          "59b6a8f2c1eb000237bced19d4c5bd3cd1ed277933c8e84ce3261536bbdd97be",
+          "59b6a8f2c1eb000237bced19d4c5bd3cd1ed277933c8e84ce3261536bbdd97be"
+        ]
+      },
+      {
+        "action_digests": [
+          "c4cf9e501114fd0e65717331e8252995513ff9b16e8f7c946f5aba56fdffe712",
+          "c4cf9e501114fd0e65717331e8252995513ff9b16e8f7c946f5aba56fdffe712"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "f97fbde84e3a5abd68ba2a6fcebcf72b838e92fd80d8df787ce3d77ae06a5e3f",
+          "f97fbde84e3a5abd68ba2a6fcebcf72b838e92fd80d8df787ce3d77ae06a5e3f"
+        ],
+        "repeat_count": 2,
+        "seed": 129,
+        "trajectory_digests": [
+          "6a19e7ce721f93d8c16282411a98d06081d7b1db8687559fb3500670f7d975ac",
+          "6a19e7ce721f93d8c16282411a98d06081d7b1db8687559fb3500670f7d975ac"
+        ]
+      },
+      {
+        "action_digests": [
+          "be0b16274bda5f7a12bd661bde578b3499a43487192ea336e14fe597823a4dce",
+          "be0b16274bda5f7a12bd661bde578b3499a43487192ea336e14fe597823a4dce"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "ba27bbe36f7414be8bf8fcee9206af0c1db4e40b8278f51ced739dc024af9b5c",
+          "ba27bbe36f7414be8bf8fcee9206af0c1db4e40b8278f51ced739dc024af9b5c"
+        ],
+        "repeat_count": 2,
+        "seed": 130,
+        "trajectory_digests": [
+          "2234bbf962904f2ee3dfe8b90a216f75cd09e521d21d5fd176c8691da694d430",
+          "2234bbf962904f2ee3dfe8b90a216f75cd09e521d21d5fd176c8691da694d430"
+        ]
+      },
+      {
+        "action_digests": [
+          "80e7297d33b9ca1ea2bc546e54ab00dba6201e68b070c93b665b60b40689549f",
+          "80e7297d33b9ca1ea2bc546e54ab00dba6201e68b070c93b665b60b40689549f"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "ffff8435c0f771403a7499222144015d69df3bc0d4d87bf77b3ab3e31b4d1930",
+          "ffff8435c0f771403a7499222144015d69df3bc0d4d87bf77b3ab3e31b4d1930"
+        ],
+        "repeat_count": 2,
+        "seed": 131,
+        "trajectory_digests": [
+          "85b03d4b13c7431fa3ccdc88958cfcf12f3adbe0f5b2362622e87cecc75e5ce1",
+          "85b03d4b13c7431fa3ccdc88958cfcf12f3adbe0f5b2362622e87cecc75e5ce1"
+        ]
+      },
+      {
+        "action_digests": [
+          "ec27e14e4cafc5d511edc4e23a49247c4dd906c35faacd9b0186471051ca5d92",
+          "ec27e14e4cafc5d511edc4e23a49247c4dd906c35faacd9b0186471051ca5d92"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "2c409589392352f443e1f600ee3c8d9e5e5afe897a895668bd3fb8c4ea898839",
+          "2c409589392352f443e1f600ee3c8d9e5e5afe897a895668bd3fb8c4ea898839"
+        ],
+        "repeat_count": 2,
+        "seed": 132,
+        "trajectory_digests": [
+          "7ac04a88fed5bc2b6899d3ef302e80ae18fae370f595a36e9d76d35d0cf6bd0d",
+          "7ac04a88fed5bc2b6899d3ef302e80ae18fae370f595a36e9d76d35d0cf6bd0d"
+        ]
+      },
+      {
+        "action_digests": [
+          "58994989a55400de60e1f210237a37c2bcd0bbd7973f8ecedf94a288d58e9087",
+          "58994989a55400de60e1f210237a37c2bcd0bbd7973f8ecedf94a288d58e9087"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "60a0cc27d2990579f6ce0f50a6fe79d5b7cbbd8b891f02cf80cd67bfaef48b4c",
+          "60a0cc27d2990579f6ce0f50a6fe79d5b7cbbd8b891f02cf80cd67bfaef48b4c"
+        ],
+        "repeat_count": 2,
+        "seed": 133,
+        "trajectory_digests": [
+          "3b17e1d2efc81c36a6549c101cd595b5b392e17bdb2d6baf115b7c8a0d471259",
+          "3b17e1d2efc81c36a6549c101cd595b5b392e17bdb2d6baf115b7c8a0d471259"
+        ]
+      },
+      {
+        "action_digests": [
+          "5e0be3b8cfb2c01778970e77b029c974148508ae08632338b7bbebb77afdb7eb",
+          "5e0be3b8cfb2c01778970e77b029c974148508ae08632338b7bbebb77afdb7eb"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "4b46b1485ed0006c4331d29f21ec7ce29ab8655bb05f1e4061e86bce23135a43",
+          "4b46b1485ed0006c4331d29f21ec7ce29ab8655bb05f1e4061e86bce23135a43"
+        ],
+        "repeat_count": 2,
+        "seed": 134,
+        "trajectory_digests": [
+          "f564f1f2e72e17aaa68a42f10419429df9e336475ad9a1d8117f6738ca22292d",
+          "f564f1f2e72e17aaa68a42f10419429df9e336475ad9a1d8117f6738ca22292d"
+        ]
+      },
+      {
+        "action_digests": [
+          "79a4b0ee12f743df91faccd8bd68c86008fe476a5b4b9f274bdbe6dbfa809a63",
+          "79a4b0ee12f743df91faccd8bd68c86008fe476a5b4b9f274bdbe6dbfa809a63"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "986a66c8e128b62cc96d2b08ebe990cec30206e65515bbba5be9f2d4fb7ca401",
+          "986a66c8e128b62cc96d2b08ebe990cec30206e65515bbba5be9f2d4fb7ca401"
+        ],
+        "repeat_count": 2,
+        "seed": 135,
+        "trajectory_digests": [
+          "ae9d46a16515cc991aedf9cb454d4dc6d754d4b7530c81caeaf681c68d3f939f",
+          "ae9d46a16515cc991aedf9cb454d4dc6d754d4b7530c81caeaf681c68d3f939f"
+        ]
+      },
+      {
+        "action_digests": [
+          "bed845a15faaaef15b32d59ceaf2e840d506c3948a1a66667f7a3e20e643f023",
+          "bed845a15faaaef15b32d59ceaf2e840d506c3948a1a66667f7a3e20e643f023"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "96e848195cec79a01b6d83727e9addf656ad690f28a51624c7bd64b574761089",
+          "96e848195cec79a01b6d83727e9addf656ad690f28a51624c7bd64b574761089"
+        ],
+        "repeat_count": 2,
+        "seed": 136,
+        "trajectory_digests": [
+          "bb869564927566835b0e44185aa1e45b5f985b88c2e8530dc285fc536ee513b6",
+          "bb869564927566835b0e44185aa1e45b5f985b88c2e8530dc285fc536ee513b6"
+        ]
+      },
+      {
+        "action_digests": [
+          "574f8fb22fd276898b14a17ddab2e3242d0c337252fd20a443bf90fcac913e84",
+          "574f8fb22fd276898b14a17ddab2e3242d0c337252fd20a443bf90fcac913e84"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "a153c0b76b151efb51f23713cbcb5fd1730febd4b25b409eb900dea47ab0a90c",
+          "a153c0b76b151efb51f23713cbcb5fd1730febd4b25b409eb900dea47ab0a90c"
+        ],
+        "repeat_count": 2,
+        "seed": 137,
+        "trajectory_digests": [
+          "ac83b0674268245bcfa008f903effdce9d5d603cb86020f0efb5e18db61f9043",
+          "ac83b0674268245bcfa008f903effdce9d5d603cb86020f0efb5e18db61f9043"
+        ]
+      },
+      {
+        "action_digests": [
+          "553556898a17ef5a531d9e0b5882587735768f48c4da7dd396ef27b3c66b03f6",
+          "553556898a17ef5a531d9e0b5882587735768f48c4da7dd396ef27b3c66b03f6"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "0eaa50bc75a48c641eddce47aabf23097ca463241fc248e98d53493aa174e6f1",
+          "0eaa50bc75a48c641eddce47aabf23097ca463241fc248e98d53493aa174e6f1"
+        ],
+        "repeat_count": 2,
+        "seed": 138,
+        "trajectory_digests": [
+          "d1616ddef47a127e1078cc5cbe76a6fbe4c1b63cd25b7429537c9b8c23929f6f",
+          "d1616ddef47a127e1078cc5cbe76a6fbe4c1b63cd25b7429537c9b8c23929f6f"
+        ]
+      },
+      {
+        "action_digests": [
+          "f08a5738af5b267eb361bbdacb3845afdd4a548743c3fce5d68e73ac27702af4",
+          "f08a5738af5b267eb361bbdacb3845afdd4a548743c3fce5d68e73ac27702af4"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "93d9f1b69493b01be87450edd7af8da0f53ddc513c08114df9b95c15b6a6c36d",
+          "93d9f1b69493b01be87450edd7af8da0f53ddc513c08114df9b95c15b6a6c36d"
+        ],
+        "repeat_count": 2,
+        "seed": 139,
+        "trajectory_digests": [
+          "6f69ac11c4087400b69f6376ae5b95aabbfd42e77964b530c2cb5c1c47381a57",
+          "6f69ac11c4087400b69f6376ae5b95aabbfd42e77964b530c2cb5c1c47381a57"
+        ]
+      },
+      {
+        "action_digests": [
+          "ce32efc34ff4a3c6ad118464e14df90b2829033d474785c51527e97737e4a1fc",
+          "ce32efc34ff4a3c6ad118464e14df90b2829033d474785c51527e97737e4a1fc"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "95e93a564350dd1cafeb4a3afd6317723d887ada9ecd6c7b5ace586f7489d173",
+          "95e93a564350dd1cafeb4a3afd6317723d887ada9ecd6c7b5ace586f7489d173"
+        ],
+        "repeat_count": 2,
+        "seed": 140,
+        "trajectory_digests": [
+          "266175e73dc332c6b534fe5e45ab03918f500716ba4b2ee54b39b5facc0b1030",
+          "266175e73dc332c6b534fe5e45ab03918f500716ba4b2ee54b39b5facc0b1030"
+        ]
+      },
+      {
+        "action_digests": [
+          "20e9ef6c1b5591a58470fc8a4cb3c2c9b6784d7f738cbff93e54c98bdb634958",
+          "20e9ef6c1b5591a58470fc8a4cb3c2c9b6784d7f738cbff93e54c98bdb634958"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "2abe0c25ce768b6fbe7398ed4e77d33fa2c57bde33a7fa29b01a2defa6ce35cc",
+          "2abe0c25ce768b6fbe7398ed4e77d33fa2c57bde33a7fa29b01a2defa6ce35cc"
+        ],
+        "repeat_count": 2,
+        "seed": 141,
+        "trajectory_digests": [
+          "8630d54ae3930a5c2ab4e20e86807c7caa61fd097e10baf4ba20bf96d4e8b336",
+          "8630d54ae3930a5c2ab4e20e86807c7caa61fd097e10baf4ba20bf96d4e8b336"
+        ]
+      },
+      {
+        "action_digests": [
+          "c081491f5ced7850a17c027816cf7aee595dbcab014e57b7ddff2dbeff691b33",
+          "c081491f5ced7850a17c027816cf7aee595dbcab014e57b7ddff2dbeff691b33"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "8b67d2b0821f359aef73c7e9becb616af3eb7d9df665b0332a1dfe7f7533f0d9",
+          "8b67d2b0821f359aef73c7e9becb616af3eb7d9df665b0332a1dfe7f7533f0d9"
+        ],
+        "repeat_count": 2,
+        "seed": 142,
+        "trajectory_digests": [
+          "0815638ca95f8d66aecaa8a8718009c47d043137efb1d1bd301ceaeaf5b5078c",
+          "0815638ca95f8d66aecaa8a8718009c47d043137efb1d1bd301ceaeaf5b5078c"
+        ]
+      },
+      {
+        "action_digests": [
+          "140526c50d8e9af6094fced8c406e3b5018e2d07051527a44b826117db7aa18e",
+          "140526c50d8e9af6094fced8c406e3b5018e2d07051527a44b826117db7aa18e"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "aeded69623e29c2832dfb53ed0f981469b23a85471969a3da3aa4412a8242247",
+          "aeded69623e29c2832dfb53ed0f981469b23a85471969a3da3aa4412a8242247"
+        ],
+        "repeat_count": 2,
+        "seed": 143,
+        "trajectory_digests": [
+          "2bd4d2bbd3e1103e3ea39a4ae3a57ee493709289c9692e46a46cf592d5b1242f",
+          "2bd4d2bbd3e1103e3ea39a4ae3a57ee493709289c9692e46a46cf592d5b1242f"
+        ]
+      },
+      {
+        "action_digests": [
+          "3eec7db82b50c54bcaa1cb647dee951c74c9b07e7a6d5d7ddbfb4d785cc1ea9b",
+          "3eec7db82b50c54bcaa1cb647dee951c74c9b07e7a6d5d7ddbfb4d785cc1ea9b"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "685e673496842848751e851029965d2a56248889d0e42baea7deacb7cb04d168",
+          "685e673496842848751e851029965d2a56248889d0e42baea7deacb7cb04d168"
+        ],
+        "repeat_count": 2,
+        "seed": 144,
+        "trajectory_digests": [
+          "8a42036ab62c7dd7521cbf59fcac576d4aee16ab6992886f01dde5298989bdd1",
+          "8a42036ab62c7dd7521cbf59fcac576d4aee16ab6992886f01dde5298989bdd1"
+        ]
+      },
+      {
+        "action_digests": [
+          "7479c676ea63ec3d96276a962685e46cd54071014aa62c279622b9b2e346531a",
+          "7479c676ea63ec3d96276a962685e46cd54071014aa62c279622b9b2e346531a"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "54b484981cf9df11a8e976d0d57db84975756226b9ce77a05941f8c91c8198d5",
+          "54b484981cf9df11a8e976d0d57db84975756226b9ce77a05941f8c91c8198d5"
+        ],
+        "repeat_count": 2,
+        "seed": 145,
+        "trajectory_digests": [
+          "4467770a9a8c571b6e9d3c944faf3f668ec7fdc4b2f4896fc25e491d2e1b52c7",
+          "4467770a9a8c571b6e9d3c944faf3f668ec7fdc4b2f4896fc25e491d2e1b52c7"
+        ]
+      },
+      {
+        "action_digests": [
+          "5272a2badcdb270970503cf67f09694055d61e61ca9c2b41d709a0471a0ab176",
+          "5272a2badcdb270970503cf67f09694055d61e61ca9c2b41d709a0471a0ab176"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "dfed15c49722a4985e8eeeda8f010026d8f074f8ff8ebdd74ef9cbb52172137d",
+          "dfed15c49722a4985e8eeeda8f010026d8f074f8ff8ebdd74ef9cbb52172137d"
+        ],
+        "repeat_count": 2,
+        "seed": 146,
+        "trajectory_digests": [
+          "1fd181cecfcd3182c675dcdd83abebce24d57c0716485c674788a7fe94ef0511",
+          "1fd181cecfcd3182c675dcdd83abebce24d57c0716485c674788a7fe94ef0511"
+        ]
+      },
+      {
+        "action_digests": [
+          "68de1aeb72125ccf3b32035b6101ab255c14c44cab2bed8db3b41dfd978196fc",
+          "68de1aeb72125ccf3b32035b6101ab255c14c44cab2bed8db3b41dfd978196fc"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "cc02320f7ac237734856c85bc161af9da26e4ab2f4f07579d863177c9260f101",
+          "cc02320f7ac237734856c85bc161af9da26e4ab2f4f07579d863177c9260f101"
+        ],
+        "repeat_count": 2,
+        "seed": 147,
+        "trajectory_digests": [
+          "a8f4705f1adb37fe92c67bc4ad3a80bc33794781130283235ff2e081eeccfa27",
+          "a8f4705f1adb37fe92c67bc4ad3a80bc33794781130283235ff2e081eeccfa27"
+        ]
+      },
+      {
+        "action_digests": [
+          "4cd108ed9ee9e27610ca192462eddd56d7c4e1548586cd83f71b07dadf9a846d",
+          "4cd108ed9ee9e27610ca192462eddd56d7c4e1548586cd83f71b07dadf9a846d"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "31f67d429492bd36d4953db580273e11d0f5c23a81e81035e87cdb5589cb13d2",
+          "31f67d429492bd36d4953db580273e11d0f5c23a81e81035e87cdb5589cb13d2"
+        ],
+        "repeat_count": 2,
+        "seed": 148,
+        "trajectory_digests": [
+          "52eaabbbc808bbf6f5f8161fe8905db2c6145547923e25c3f6587cb7ce89f144",
+          "52eaabbbc808bbf6f5f8161fe8905db2c6145547923e25c3f6587cb7ce89f144"
+        ]
+      },
+      {
+        "action_digests": [
+          "6f4010fb9a82ea646d8468334346e20719a026d08d3b73f0df2028e008b0af81",
+          "6f4010fb9a82ea646d8468334346e20719a026d08d3b73f0df2028e008b0af81"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "a65434e5e372d786a8c8488e09eae136b93cd0b875194efd5fe9d7d68e3ba91b",
+          "a65434e5e372d786a8c8488e09eae136b93cd0b875194efd5fe9d7d68e3ba91b"
+        ],
+        "repeat_count": 2,
+        "seed": 149,
+        "trajectory_digests": [
+          "3fc04e9039874e373f98ceacab94c861694aee66fb693f02a0150359755c08d3",
+          "3fc04e9039874e373f98ceacab94c861694aee66fb693f02a0150359755c08d3"
+        ]
+      },
+      {
+        "action_digests": [
+          "2099b795f15f365809d4aadb954e89f10354036778d86f49d3e20d039d93a9a4",
+          "2099b795f15f365809d4aadb954e89f10354036778d86f49d3e20d039d93a9a4"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "38cd100196a49450f3e5092a6996f95e364c0d1af2a5a6d7a77e4754e3a8bbf5",
+          "38cd100196a49450f3e5092a6996f95e364c0d1af2a5a6d7a77e4754e3a8bbf5"
+        ],
+        "repeat_count": 2,
+        "seed": 150,
+        "trajectory_digests": [
+          "ac320d57fc2a5eebfc80a16078460a6127d3944e57467d7bae6ee20e3f70ba94",
+          "ac320d57fc2a5eebfc80a16078460a6127d3944e57467d7bae6ee20e3f70ba94"
+        ]
+      },
+      {
+        "action_digests": [
+          "f97b7003d87f80df6c82823c552a09e211a2e9dbe855ce0208bfdc75c349c174",
+          "f97b7003d87f80df6c82823c552a09e211a2e9dbe855ce0208bfdc75c349c174"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "ad2573acd2c784510ef5e47081229aa9a66b93a3ffd2811dfe5ab569fe5b44a6",
+          "ad2573acd2c784510ef5e47081229aa9a66b93a3ffd2811dfe5ab569fe5b44a6"
+        ],
+        "repeat_count": 2,
+        "seed": 151,
+        "trajectory_digests": [
+          "95fc3f2b201471b9682193db81cba79be6c3651b61854a732bc7a67f5afffdfb",
+          "95fc3f2b201471b9682193db81cba79be6c3651b61854a732bc7a67f5afffdfb"
+        ]
+      },
+      {
+        "action_digests": [
+          "54a27790294816af92a35c606290df19eb94a3f897f8a82f21e0035c55adaf63",
+          "54a27790294816af92a35c606290df19eb94a3f897f8a82f21e0035c55adaf63"
+        ],
+        "complete_pair": true,
+        "matches": true,
+        "plan_digests": [
+          "f61506a739168dcf142f94422104fa11457b28f8ac68b11feb6ab4dfb60057ef",
+          "f61506a739168dcf142f94422104fa11457b28f8ac68b11feb6ab4dfb60057ef"
+        ],
+        "repeat_count": 2,
+        "seed": 152,
+        "trajectory_digests": [
+          "24d5917fdb5334c0fa8094140872f616630df32fc152ffd40a405193baeacda8",
+          "24d5917fdb5334c0fa8094140872f616630df32fc152ffd40a405193baeacda8"
+        ]
+      }
+    ],
+    "seed_count": 30
+  },
+  "failure_taxonomy": {
+    "boundary": {
+      "fallback_count": 0,
+      "status": "native_only"
+    },
+    "evaluator": {
+      "evidence": "actual-fire results are available in run artifacts",
+      "status": "evaluated"
+    },
+    "flow": {
+      "fallback_count": 0,
+      "status": "evaluated"
+    },
+    "performance": {
+      "decision_p95_seconds": 0.7830860263998146,
+      "expected_run_count": 60,
+      "preflight_timed_out": false,
+      "status": "evaluated"
+    },
+    "search": {
+      "evidence": "60 canonical trajectories available",
+      "status": "evaluated"
+    },
+    "simulator": {
+      "parity_mismatch_count": 34,
+      "status": "mismatch"
+    },
+    "transition": {
+      "authoritative_parity_mismatch_count": 34,
+      "status": "mismatch"
+    }
+  },
+  "gates": {
+    "coverage": {
+      "checks": [
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "expected_run_identities_present",
+          "passed": true
+        },
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "canonical_runs_executed",
+          "passed": true
+        },
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "canonical_runs_fully_evaluated",
+          "passed": true
+        },
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "run_lineage_consistent",
+          "passed": true
+        },
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "canonical_native_build_per_run",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "determinism": {
+      "checks": [
+        {
+          "actual": 30,
+          "expected": 30,
+          "name": "complete_repeat_pairs",
+          "passed": true
+        },
+        {
+          "actual": 30,
+          "expected": 30,
+          "name": "matching_action_and_plan_digests",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "cold_warm_and_one_thread_determinism",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "future_isolation": {
+      "checks": [
+        {
+          "actual": 30,
+          "expected": 30,
+          "name": "seed_coverage",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": "<= 0",
+          "name": "private_future_leak_count",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "gui_human_qa": {
+      "checks": [
+        {
+          "actual": "passed",
+          "expected": "passed",
+          "name": "automated_gui_contract",
+          "passed": true
+        },
+        {
+          "actual": "failed",
+          "expected": "passed",
+          "name": "dummy_gui_replay_contract",
+          "passed": false
+        },
+        {
+          "actual": "pending",
+          "expected": "passed",
+          "name": "manual_gui_review",
+          "passed": false
+        }
+      ],
+      "passed": false
+    },
+    "native_build": {
+      "checks": [
+        {
+          "actual": true,
+          "expected": true,
+          "name": "tracked_worktree_clean",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "capabilities_available",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "release_build",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "source_revision_matches_commit",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "python_abi_matches",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "gil_detached",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "configured_thread_mode_available",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "configured_thread_mode_locked",
+          "passed": true
+        },
+        {
+          "actual": true,
+          "expected": true,
+          "name": "single_release_wheel_present",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "performance": {
+      "checks": [
+        {
+          "actual": 2400,
+          "expected": "> 0 across 60 fully evaluated runs",
+          "name": "canonical_latency_coverage",
+          "passed": true
+        },
+        {
+          "actual": 0.6530682980001075,
+          "expected": "<= 1.0",
+          "name": "preflight_within_gate",
+          "passed": true
+        },
+        {
+          "actual": 0.7830860263998146,
+          "expected": "<= 1.0",
+          "name": "decision_p95_seconds",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "quality": {
+      "checks": [
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "coverage_complete",
+          "passed": true
+        },
+        {
+          "actual": 7.066666666666666,
+          "expected": ">= 10.0",
+          "name": "mean_maximum_actual_fire_chain_count",
+          "passed": false
+        },
+        {
+          "actual": 50,
+          "expected": "<= 0",
+          "name": "premature_fire_count",
+          "passed": false
+        },
+        {
+          "actual": 2,
+          "expected": "<= 0",
+          "name": "game_over_count",
+          "passed": false
+        },
+        {
+          "actual": 0,
+          "expected": 0,
+          "name": "fallback_count",
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    "scenario_accounting": {
+      "checks": [
+        {
+          "actual": 2400,
+          "expected": 2400,
+          "name": "all_decisions_accounted_for",
+          "passed": true
+        },
+        {
+          "actual": 0,
+          "expected": 0,
+          "name": "missing_duplicate_or_unexpected_scenarios",
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "simulator_parity": {
+      "checks": [
+        {
+          "actual": 60,
+          "expected": 60,
+          "name": "coverage_complete",
+          "passed": true
+        },
+        {
+          "actual": 34,
+          "expected": "<= 0",
+          "name": "simulator_parity_mismatch_count",
+          "passed": false
+        }
+      ],
+      "passed": false
+    }
+  },
+  "generated_at_utc": "2026-09-06T02:25:44Z",
+  "gui_qa": {
+    "automated_status": "passed",
+    "dummy_replay_status": "failed",
+    "manual_status": "pending",
+    "passed": false
+  },
+  "historical_comparison": {
+    "compared_ticket": "PUYO-189",
+    "current": {
+      "backend": "native",
+      "decision_p95_seconds": 0.7830860263998146,
+      "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+      "host": {
+        "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+        "logical_cpu_count": 8,
+        "machine": "x86_64",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "python_abi": "cp312",
+        "python_implementation": "CPython",
+        "python_version": "3.12.3",
+        "release": "6.6.87.2-microsoft-standard-WSL2",
+        "system": "Linux"
+      },
+      "native_build": {
+        "abi_version": 1,
+        "build_profile": "release",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "child_state_bytes": 80,
+          "flags_mask": 15,
+          "result_bytes": 24,
+          "schema": "puyo.native_compact_hot_result.v1"
+        },
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "crate_version": "0.4.0",
+        "gil_detach": true,
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "max_threads": 6,
+        "parallel": true,
+        "python_abi": "cp312",
+        "scalar_fallback": true,
+        "schema": {
+          "major": 1,
+          "minor_max": 0,
+          "minor_min": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+        },
+        "simd_path": "scalar",
+        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+        "target": "x86_64-unknown-linux-gnu",
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "wheel_hash_hook": true,
+        "wire_name": "puyo.deep_chain_native.envelope.v1"
+      }
+    },
+    "direct_ratio_caveat": "The locked workload is equal, but PUYO-189 did not record equivalent host/build provenance. The ratio is a lower-bound observation, not a same-host microbenchmark comparison.",
+    "locked_conditions": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "placements_per_run": 40,
+      "repeats_per_seed": 2,
+      "scenarios": 6,
+      "seeds": "123-152",
+      "width": 250
+    },
+    "previous": {
+      "backend": "python",
+      "decision_latency_lower_bound_seconds": 300.0,
+      "evaluated_commit": "76d0b2a31ac9ea0a1d64fac373ecc282dfa4fb67",
+      "host": "not recorded in the PUYO-189 preflight schema"
+    },
+    "profile_contract_equal": true,
+    "schema_version": "puyo.deep_chain_builder.comparison.v1",
+    "speedup_lower_bound_from_previous_timeout": 383.0996721767975,
+    "ticket": "PUYO-204"
+  },
+  "preflight": {
+    "backend": "native",
+    "backend_configuration_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+    "build_provenance": {
+      "capabilities": {
+        "abi_version": 1,
+        "build_profile": "release",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "child_state_bytes": 80,
+          "flags_mask": 15,
+          "result_bytes": 24,
+          "schema": "puyo.native_compact_hot_result.v1"
+        },
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "crate_version": "0.4.0",
+        "gil_detach": true,
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "max_threads": 6,
+        "parallel": true,
+        "python_abi": "cp312",
+        "scalar_fallback": true,
+        "schema": {
+          "major": 1,
+          "minor_max": 0,
+          "minor_min": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+        },
+        "simd_path": "scalar",
+        "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+        "target": "x86_64-unknown-linux-gnu",
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "wheel_hash_hook": true,
+        "wire_name": "puyo.deep_chain_native.envelope.v1"
+      },
+      "checks": {
+        "capabilities_available": true,
+        "configured_thread_mode_available": true,
+        "configured_thread_mode_locked": true,
+        "gil_detached": true,
+        "python_abi_matches": true,
+        "release_build": true,
+        "single_release_wheel_present": true,
+        "source_revision_matches_commit": true,
+        "tracked_worktree_clean": true
+      },
+      "configuration": {
+        "backend_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+        "backend_version": "1.0",
+        "search_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+        "thread_count": 6,
+        "thread_mode": "scenario-6"
+      },
+      "error": null,
+      "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+      "host": {
+        "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+        "logical_cpu_count": 8,
+        "machine": "x86_64",
+        "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+        "python_abi": "cp312",
+        "python_implementation": "CPython",
+        "python_version": "3.12.3",
+        "release": "6.6.87.2-microsoft-standard-WSL2",
+        "system": "Linux"
+      },
+      "recorded_at_utc": "2026-09-06T01:50:48Z",
+      "schema_version": "puyo.deep_chain_builder.build_provenance.v1",
+      "ticket": "PUYO-204",
+      "tracked_worktree_clean": true,
+      "valid_for_canonical": true,
+      "wheels": [
+        {
+          "filename": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "path": "dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+          "sha256": "d0b0696b49db9642ea8f46c56c668e9a555c2f80d2eed044c54cf72dac06ccfa",
+          "size_bytes": 1663098
+        }
+      ]
+    },
+    "canonical_quality_evidence": false,
+    "child_exit_code": 0,
+    "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+    "created_at_utc": "2026-09-06T01:50:55Z",
+    "decision_elapsed_seconds": 0.6530682980001075,
+    "decision_latency_lower_bound_seconds": 0.6530682980001075,
+    "diagnostics": {
+      "oracle-1": {
+        "child_exit_code": 0,
+        "execution_mode": "oracle-1",
+        "result": {
+          "completed": true,
+          "elapsed_seconds": 2.0326573699999244,
+          "execution_mode": "oracle-1",
+          "peak_rss_kib": 254792,
+          "samples": [
+            {
+              "action": 16,
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "oracle-1",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 1,
+                  "thread_mode": "oracle-1",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 49733,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 1709767427,
+                  "serialization_ns": 378903,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 1710948912,
+                  "materialization_ns": 139462766,
+                  "native_aggregation_ns": 49733,
+                  "native_compute_ns": 1709817160,
+                  "native_search_ns": 1709767427,
+                  "native_serialization_ns": 378903,
+                  "native_total_ns": 1710196063,
+                  "total_ns": 1850413380,
+                  "total_seconds": 1.85041338
+                }
+              },
+              "completed": true,
+              "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+              "decision_trace": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "oracle-1",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 1,
+                    "thread_mode": "oracle-1",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 49733,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 0,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 1709767427,
+                    "serialization_ns": 378903,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 1710948912,
+                    "materialization_ns": 139462766,
+                    "native_aggregation_ns": 49733,
+                    "native_compute_ns": 1709817160,
+                    "native_search_ns": 1709767427,
+                    "native_serialization_ns": 378903,
+                    "native_total_ns": 1710196063,
+                    "total_ns": 1850413380,
+                    "total_seconds": 1.85041338
+                  }
+                },
+                "decision_id": "deep_chain_builder-decision-00000001",
+                "elapsed_ms": 1889.5289519996368,
+                "elapsed_seconds": 1.8895289519996368,
+                "profile_id": "deep_chain_builder:reference@1.0",
+                "schema_version": "puyo.decision_trace.v1",
+                "step_count": 7,
+                "steps": [
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.008575000038035796,
+                    "elapsed_seconds": 8.575000038035796e-06,
+                    "index": 0,
+                    "input_summary": {
+                      "action_contract_version": "",
+                      "board_shape": [
+                        6,
+                        13,
+                        6
+                      ],
+                      "last_chain_end_score": 0,
+                      "last_chain_score_delta": 0,
+                      "legal_action_count": 22,
+                      "max_steps": 40,
+                      "max_ticks": null,
+                      "next_pairs_shape": [
+                        3,
+                        2,
+                        5
+                      ],
+                      "observation_schema_version": "",
+                      "step_count": 0,
+                      "visible_pair_count": 3
+                    },
+                    "output_keys": [
+                      "normalized_observation"
+                    ],
+                    "selection_reason": "visible_runtime_boundary_validated",
+                    "step_id": "normalize_observation",
+                    "step_type": "NormalizeObservationStep"
+                  },
+                  {
+                    "candidate_count": 6,
+                    "elapsed_ms": 0.42426299978615134,
+                    "elapsed_seconds": 0.00042426299978615134,
+                    "index": 1,
+                    "input_summary": {
+                      "available_artifact_count": 3,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "scenario_sequences"
+                    ],
+                    "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                    "step_id": "complete_visible_queue_scenarios",
+                    "step_type": "CompleteVisibleQueueScenariosStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.2596319998247054,
+                    "elapsed_seconds": 0.0002596319998247054,
+                    "index": 2,
+                    "input_summary": {
+                      "available_artifact_count": 4,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "root_placements"
+                    ],
+                    "selection_reason": "compact_kernel_legal_root_enumeration",
+                    "step_id": "enumerate_root_placements",
+                    "step_type": "EnumerateRootPlacementsStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 1851.3076830001864,
+                    "elapsed_seconds": 1.8513076830001864,
+                    "index": 3,
+                    "input_summary": {
+                      "available_artifact_count": 5,
+                      "backend": {
+                        "backend": "native",
+                        "capabilities": {
+                          "abi_version": 1,
+                          "build_profile": "release",
+                          "compact_hot_result": {
+                            "abi_version": 1,
+                            "child_state_bytes": 80,
+                            "flags_mask": 15,
+                            "result_bytes": 24,
+                            "schema": "puyo.native_compact_hot_result.v1"
+                          },
+                          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                          "cpu_features": [
+                            "scalar",
+                            "sse2",
+                            "ssse3",
+                            "sse4.1",
+                            "avx2"
+                          ],
+                          "crate_version": "0.4.0",
+                          "gil_detach": true,
+                          "limits": {
+                            "max_request_bytes": 16777216,
+                            "max_response_bytes": 16777216,
+                            "max_sections": 64
+                          },
+                          "max_threads": 6,
+                          "parallel": true,
+                          "python_abi": "cp312",
+                          "scalar_fallback": true,
+                          "schema": {
+                            "major": 1,
+                            "minor_max": 0,
+                            "minor_min": 0,
+                            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                          },
+                          "simd_path": "scalar",
+                          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                          "target": "x86_64-unknown-linux-gnu",
+                          "thread_modes": [
+                            "oracle-1",
+                            "scenario-6"
+                          ],
+                          "wheel_hash_hook": true,
+                          "wire_name": "puyo.deep_chain_native.envelope.v1"
+                        },
+                        "execution_mode": "oracle-1",
+                        "fallback": {
+                          "detail": "",
+                          "reason": null,
+                          "used": false
+                        },
+                        "requested_backend": "native",
+                        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                      },
+                      "required_artifacts": [
+                        "normalized_observation",
+                        "scenario_sequences",
+                        "root_placements"
+                      ],
+                      "target_chain_count": 6
+                    },
+                    "output_keys": [
+                      "scenario_search_results"
+                    ],
+                    "selection_reason": "count_bounded_compact_long_range_search",
+                    "step_id": "run_long_range_search",
+                    "step_type": "RunLongRangeSearchStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.10379600007581757,
+                    "elapsed_seconds": 0.00010379600007581757,
+                    "index": 4,
+                    "input_summary": {
+                      "available_artifact_count": 6,
+                      "required_artifacts": [
+                        "scenario_search_results"
+                      ]
+                    },
+                    "output_keys": [
+                      "aggregated_root_scores"
+                    ],
+                    "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                    "step_id": "aggregate_scenario_scores",
+                    "step_type": "AggregateScenarioScoresStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 25.798279999889928,
+                    "elapsed_seconds": 0.025798279999889928,
+                    "index": 5,
+                    "input_summary": {
+                      "aggregated_root_count": 22,
+                      "root_actions": [
+                        16,
+                        10,
+                        7,
+                        11,
+                        6,
+                        0,
+                        19,
+                        12,
+                        14,
+                        8,
+                        13,
+                        9,
+                        15,
+                        3,
+                        18,
+                        4,
+                        2,
+                        20,
+                        5,
+                        1,
+                        17,
+                        21
+                      ]
+                    },
+                    "output_keys": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ],
+                    "selection_reason": "highest_aggregated_root_ranking",
+                    "step_id": "select_placement",
+                    "step_type": "SelectPlacementStep"
+                  },
+                  {
+                    "candidate_count": 1,
+                    "elapsed_ms": 11.626722999835692,
+                    "elapsed_seconds": 0.011626722999835692,
+                    "index": 6,
+                    "input_summary": {
+                      "available_artifact_count": 10,
+                      "required_artifacts": [
+                        "selected_action",
+                        "selected_plan",
+                        "selection_evidence"
+                      ]
+                    },
+                    "output_keys": [
+                      "decision_output"
+                    ],
+                    "selection_reason": "decision_payload_serialized",
+                    "step_id": "emit_decision_trace",
+                    "step_type": "EmitDecisionTraceStep"
+                  }
+                ]
+              },
+              "elapsed_seconds": 1.9180136009999842,
+              "execution_mode": "oracle-1",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "label": "one_thread",
+              "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+              "resources": {
+                "peak_rss_kib": 251720,
+                "system_cpu_seconds": 0.012724000000000013,
+                "user_cpu_seconds": 1.8652999999999997
+              },
+              "scenario_accounting": {
+                "expected_scenario_count": 6,
+                "expected_scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "failure_count": 0,
+                "failures": [],
+                "passed": true,
+                "root_count": 22
+              },
+              "search": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "oracle-1",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 1,
+                    "thread_mode": "oracle-1",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 49733,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 0,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 1709767427,
+                    "serialization_ns": 378903,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 1710948912,
+                    "materialization_ns": 139462766,
+                    "native_aggregation_ns": 49733,
+                    "native_compute_ns": 1709817160,
+                    "native_search_ns": 1709767427,
+                    "native_serialization_ns": 378903,
+                    "native_total_ns": 1710196063,
+                    "total_ns": 1850413380,
+                    "total_seconds": 1.85041338
+                  }
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+                "root_ids": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "schema_version": "puyo.deep_chain_builder.search_results.v1",
+                "target_chain_count": 6
+              }
+            }
+          ]
+        },
+        "supervisor_elapsed_seconds": 3.7203050529999473,
+        "timed_out": false
+      },
+      "scenario-6": {
+        "child_exit_code": 0,
+        "execution_mode": "scenario-6",
+        "result": {
+          "completed": true,
+          "elapsed_seconds": 1.3803495609997753,
+          "execution_mode": "scenario-6",
+          "peak_rss_kib": 339940,
+          "samples": [
+            {
+              "action": 16,
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 52231,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 0,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 462862261,
+                  "serialization_ns": 585196,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 464060684,
+                  "materialization_ns": 124323881,
+                  "native_aggregation_ns": 52231,
+                  "native_compute_ns": 462914492,
+                  "native_search_ns": 462862261,
+                  "native_serialization_ns": 585196,
+                  "native_total_ns": 463499688,
+                  "total_ns": 588385827,
+                  "total_seconds": 0.588385827
+                }
+              },
+              "completed": true,
+              "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+              "decision_trace": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "scenario-6",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 6,
+                    "thread_mode": "scenario-6",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 52231,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 0,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 462862261,
+                    "serialization_ns": 585196,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 464060684,
+                    "materialization_ns": 124323881,
+                    "native_aggregation_ns": 52231,
+                    "native_compute_ns": 462914492,
+                    "native_search_ns": 462862261,
+                    "native_serialization_ns": 585196,
+                    "native_total_ns": 463499688,
+                    "total_ns": 588385827,
+                    "total_seconds": 0.588385827
+                  }
+                },
+                "decision_id": "deep_chain_builder-decision-00000001",
+                "elapsed_ms": 625.9840480001913,
+                "elapsed_seconds": 0.6259840480001913,
+                "profile_id": "deep_chain_builder:reference@1.0",
+                "schema_version": "puyo.decision_trace.v1",
+                "step_count": 7,
+                "steps": [
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.008964000016931095,
+                    "elapsed_seconds": 8.964000016931095e-06,
+                    "index": 0,
+                    "input_summary": {
+                      "action_contract_version": "",
+                      "board_shape": [
+                        6,
+                        13,
+                        6
+                      ],
+                      "last_chain_end_score": 0,
+                      "last_chain_score_delta": 0,
+                      "legal_action_count": 22,
+                      "max_steps": 40,
+                      "max_ticks": null,
+                      "next_pairs_shape": [
+                        3,
+                        2,
+                        5
+                      ],
+                      "observation_schema_version": "",
+                      "step_count": 0,
+                      "visible_pair_count": 3
+                    },
+                    "output_keys": [
+                      "normalized_observation"
+                    ],
+                    "selection_reason": "visible_runtime_boundary_validated",
+                    "step_id": "normalize_observation",
+                    "step_type": "NormalizeObservationStep"
+                  },
+                  {
+                    "candidate_count": 6,
+                    "elapsed_ms": 0.4596800001763768,
+                    "elapsed_seconds": 0.0004596800001763768,
+                    "index": 1,
+                    "input_summary": {
+                      "available_artifact_count": 3,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "scenario_sequences"
+                    ],
+                    "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                    "step_id": "complete_visible_queue_scenarios",
+                    "step_type": "CompleteVisibleQueueScenariosStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.25983799991990963,
+                    "elapsed_seconds": 0.00025983799991990963,
+                    "index": 2,
+                    "input_summary": {
+                      "available_artifact_count": 4,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "root_placements"
+                    ],
+                    "selection_reason": "compact_kernel_legal_root_enumeration",
+                    "step_id": "enumerate_root_placements",
+                    "step_type": "EnumerateRootPlacementsStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 589.1384560000006,
+                    "elapsed_seconds": 0.5891384560000006,
+                    "index": 3,
+                    "input_summary": {
+                      "available_artifact_count": 5,
+                      "backend": {
+                        "backend": "native",
+                        "capabilities": {
+                          "abi_version": 1,
+                          "build_profile": "release",
+                          "compact_hot_result": {
+                            "abi_version": 1,
+                            "child_state_bytes": 80,
+                            "flags_mask": 15,
+                            "result_bytes": 24,
+                            "schema": "puyo.native_compact_hot_result.v1"
+                          },
+                          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                          "cpu_features": [
+                            "scalar",
+                            "sse2",
+                            "ssse3",
+                            "sse4.1",
+                            "avx2"
+                          ],
+                          "crate_version": "0.4.0",
+                          "gil_detach": true,
+                          "limits": {
+                            "max_request_bytes": 16777216,
+                            "max_response_bytes": 16777216,
+                            "max_sections": 64
+                          },
+                          "max_threads": 6,
+                          "parallel": true,
+                          "python_abi": "cp312",
+                          "scalar_fallback": true,
+                          "schema": {
+                            "major": 1,
+                            "minor_max": 0,
+                            "minor_min": 0,
+                            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                          },
+                          "simd_path": "scalar",
+                          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                          "target": "x86_64-unknown-linux-gnu",
+                          "thread_modes": [
+                            "oracle-1",
+                            "scenario-6"
+                          ],
+                          "wheel_hash_hook": true,
+                          "wire_name": "puyo.deep_chain_native.envelope.v1"
+                        },
+                        "execution_mode": "scenario-6",
+                        "fallback": {
+                          "detail": "",
+                          "reason": null,
+                          "used": false
+                        },
+                        "requested_backend": "native",
+                        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                      },
+                      "required_artifacts": [
+                        "normalized_observation",
+                        "scenario_sequences",
+                        "root_placements"
+                      ],
+                      "target_chain_count": 6
+                    },
+                    "output_keys": [
+                      "scenario_search_results"
+                    ],
+                    "selection_reason": "count_bounded_compact_long_range_search",
+                    "step_id": "run_long_range_search",
+                    "step_type": "RunLongRangeSearchStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.1003540000965586,
+                    "elapsed_seconds": 0.00010035400009655859,
+                    "index": 4,
+                    "input_summary": {
+                      "available_artifact_count": 6,
+                      "required_artifacts": [
+                        "scenario_search_results"
+                      ]
+                    },
+                    "output_keys": [
+                      "aggregated_root_scores"
+                    ],
+                    "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                    "step_id": "aggregate_scenario_scores",
+                    "step_type": "AggregateScenarioScoresStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 22.17298599998685,
+                    "elapsed_seconds": 0.02217298599998685,
+                    "index": 5,
+                    "input_summary": {
+                      "aggregated_root_count": 22,
+                      "root_actions": [
+                        16,
+                        10,
+                        7,
+                        11,
+                        6,
+                        0,
+                        19,
+                        12,
+                        14,
+                        8,
+                        13,
+                        9,
+                        15,
+                        3,
+                        18,
+                        4,
+                        2,
+                        20,
+                        5,
+                        1,
+                        17,
+                        21
+                      ]
+                    },
+                    "output_keys": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ],
+                    "selection_reason": "highest_aggregated_root_ranking",
+                    "step_id": "select_placement",
+                    "step_type": "SelectPlacementStep"
+                  },
+                  {
+                    "candidate_count": 1,
+                    "elapsed_ms": 13.843769999994038,
+                    "elapsed_seconds": 0.013843769999994038,
+                    "index": 6,
+                    "input_summary": {
+                      "available_artifact_count": 10,
+                      "required_artifacts": [
+                        "selected_action",
+                        "selected_plan",
+                        "selection_evidence"
+                      ]
+                    },
+                    "output_keys": [
+                      "decision_output"
+                    ],
+                    "selection_reason": "decision_payload_serialized",
+                    "step_id": "emit_decision_trace",
+                    "step_type": "EmitDecisionTraceStep"
+                  }
+                ]
+              },
+              "elapsed_seconds": 0.6530682980001075,
+              "execution_mode": "scenario-6",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "label": "cold",
+              "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+              "resources": {
+                "peak_rss_kib": 328116,
+                "system_cpu_seconds": 0.23066300000000006,
+                "user_cpu_seconds": 2.4987760000000003
+              },
+              "scenario_accounting": {
+                "expected_scenario_count": 6,
+                "expected_scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "failure_count": 0,
+                "failures": [],
+                "passed": true,
+                "root_count": 22
+              },
+              "search": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "scenario-6",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 6,
+                    "thread_mode": "scenario-6",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 52231,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 0,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 462862261,
+                    "serialization_ns": 585196,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 464060684,
+                    "materialization_ns": 124323881,
+                    "native_aggregation_ns": 52231,
+                    "native_compute_ns": 462914492,
+                    "native_search_ns": 462862261,
+                    "native_serialization_ns": 585196,
+                    "native_total_ns": 463499688,
+                    "total_ns": 588385827,
+                    "total_seconds": 0.588385827
+                  }
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+                "root_ids": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "schema_version": "puyo.deep_chain_builder.search_results.v1",
+                "target_chain_count": 6
+              }
+            },
+            {
+              "action": 16,
+              "backend": {
+                "backend": "native",
+                "boundary_call_count": 1,
+                "budget_exhausted": false,
+                "canonical": true,
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "configuration": {
+                  "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                  "backend_config_version": "1.0",
+                  "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                  "evaluator_config_version": "v1.0",
+                  "minimum_chain_count": 6,
+                  "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                  "search_config_version": "v1.0"
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                "profile": {
+                  "name": "reference",
+                  "version": "1.0"
+                },
+                "provenance": {
+                  "backend": "native",
+                  "build_profile": "release",
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "crate_version": "0.4.0",
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_count": 6,
+                  "thread_mode": "scenario-6",
+                  "wheel_hash": "external"
+                },
+                "record_counts": {
+                  "diagnostics": 7,
+                  "representatives": 22,
+                  "root_evidence": 132
+                },
+                "request_id": 3582196622553071275,
+                "requested_backend": "native",
+                "result_contract": "puyo.long_horizon_search_result.v1",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                "search_complete": true,
+                "telemetry": {
+                  "aggregation_ns": 51842,
+                  "arena_capacity_nodes": 6000,
+                  "peak_live_nodes": 5750,
+                  "pool_reuses": 1,
+                  "scenario_jobs": 6,
+                  "scenario_reruns": 0,
+                  "search_ns": 373047218,
+                  "serialization_ns": 331317,
+                  "tt_capacity_slots": 16384
+                },
+                "timing": {
+                  "boundary_call_ns": 373751957,
+                  "materialization_ns": 129878083,
+                  "native_aggregation_ns": 51842,
+                  "native_compute_ns": 373099060,
+                  "native_search_ns": 373047218,
+                  "native_serialization_ns": 331317,
+                  "native_total_ns": 373430377,
+                  "total_ns": 503631841,
+                  "total_seconds": 0.503631841
+                }
+              },
+              "completed": true,
+              "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+              "decision_trace": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "scenario-6",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 6,
+                    "thread_mode": "scenario-6",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 51842,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 1,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 373047218,
+                    "serialization_ns": 331317,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 373751957,
+                    "materialization_ns": 129878083,
+                    "native_aggregation_ns": 51842,
+                    "native_compute_ns": 373099060,
+                    "native_search_ns": 373047218,
+                    "native_serialization_ns": 331317,
+                    "native_total_ns": 373430377,
+                    "total_ns": 503631841,
+                    "total_seconds": 0.503631841
+                  }
+                },
+                "decision_id": "deep_chain_builder-decision-00000001",
+                "elapsed_ms": 539.3263779999415,
+                "elapsed_seconds": 0.5393263779999415,
+                "profile_id": "deep_chain_builder:reference@1.0",
+                "schema_version": "puyo.decision_trace.v1",
+                "step_count": 7,
+                "steps": [
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.007702999937464483,
+                    "elapsed_seconds": 7.702999937464483e-06,
+                    "index": 0,
+                    "input_summary": {
+                      "action_contract_version": "",
+                      "board_shape": [
+                        6,
+                        13,
+                        6
+                      ],
+                      "last_chain_end_score": 0,
+                      "last_chain_score_delta": 0,
+                      "legal_action_count": 22,
+                      "max_steps": 40,
+                      "max_ticks": null,
+                      "next_pairs_shape": [
+                        3,
+                        2,
+                        5
+                      ],
+                      "observation_schema_version": "",
+                      "step_count": 0,
+                      "visible_pair_count": 3
+                    },
+                    "output_keys": [
+                      "normalized_observation"
+                    ],
+                    "selection_reason": "visible_runtime_boundary_validated",
+                    "step_id": "normalize_observation",
+                    "step_type": "NormalizeObservationStep"
+                  },
+                  {
+                    "candidate_count": 6,
+                    "elapsed_ms": 0.46777200009273656,
+                    "elapsed_seconds": 0.00046777200009273656,
+                    "index": 1,
+                    "input_summary": {
+                      "available_artifact_count": 3,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "scenario_sequences"
+                    ],
+                    "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+                    "step_id": "complete_visible_queue_scenarios",
+                    "step_type": "CompleteVisibleQueueScenariosStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.25064499982363486,
+                    "elapsed_seconds": 0.00025064499982363486,
+                    "index": 2,
+                    "input_summary": {
+                      "available_artifact_count": 4,
+                      "required_artifacts": [
+                        "normalized_observation"
+                      ]
+                    },
+                    "output_keys": [
+                      "root_placements"
+                    ],
+                    "selection_reason": "compact_kernel_legal_root_enumeration",
+                    "step_id": "enumerate_root_placements",
+                    "step_type": "EnumerateRootPlacementsStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 504.4534510000176,
+                    "elapsed_seconds": 0.5044534510000176,
+                    "index": 3,
+                    "input_summary": {
+                      "available_artifact_count": 5,
+                      "backend": {
+                        "backend": "native",
+                        "capabilities": {
+                          "abi_version": 1,
+                          "build_profile": "release",
+                          "compact_hot_result": {
+                            "abi_version": 1,
+                            "child_state_bytes": 80,
+                            "flags_mask": 15,
+                            "result_bytes": 24,
+                            "schema": "puyo.native_compact_hot_result.v1"
+                          },
+                          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                          "cpu_features": [
+                            "scalar",
+                            "sse2",
+                            "ssse3",
+                            "sse4.1",
+                            "avx2"
+                          ],
+                          "crate_version": "0.4.0",
+                          "gil_detach": true,
+                          "limits": {
+                            "max_request_bytes": 16777216,
+                            "max_response_bytes": 16777216,
+                            "max_sections": 64
+                          },
+                          "max_threads": 6,
+                          "parallel": true,
+                          "python_abi": "cp312",
+                          "scalar_fallback": true,
+                          "schema": {
+                            "major": 1,
+                            "minor_max": 0,
+                            "minor_min": 0,
+                            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                          },
+                          "simd_path": "scalar",
+                          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                          "target": "x86_64-unknown-linux-gnu",
+                          "thread_modes": [
+                            "oracle-1",
+                            "scenario-6"
+                          ],
+                          "wheel_hash_hook": true,
+                          "wire_name": "puyo.deep_chain_native.envelope.v1"
+                        },
+                        "execution_mode": "scenario-6",
+                        "fallback": {
+                          "detail": "",
+                          "reason": null,
+                          "used": false
+                        },
+                        "requested_backend": "native",
+                        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+                      },
+                      "required_artifacts": [
+                        "normalized_observation",
+                        "scenario_sequences",
+                        "root_placements"
+                      ],
+                      "target_chain_count": 6
+                    },
+                    "output_keys": [
+                      "scenario_search_results"
+                    ],
+                    "selection_reason": "count_bounded_compact_long_range_search",
+                    "step_id": "run_long_range_search",
+                    "step_type": "RunLongRangeSearchStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 0.10316199995941133,
+                    "elapsed_seconds": 0.00010316199995941133,
+                    "index": 4,
+                    "input_summary": {
+                      "available_artifact_count": 6,
+                      "required_artifacts": [
+                        "scenario_search_results"
+                      ]
+                    },
+                    "output_keys": [
+                      "aggregated_root_scores"
+                    ],
+                    "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+                    "step_id": "aggregate_scenario_scores",
+                    "step_type": "AggregateScenarioScoresStep"
+                  },
+                  {
+                    "candidate_count": 22,
+                    "elapsed_ms": 22.509428000148546,
+                    "elapsed_seconds": 0.022509428000148546,
+                    "index": 5,
+                    "input_summary": {
+                      "aggregated_root_count": 22,
+                      "root_actions": [
+                        16,
+                        10,
+                        7,
+                        11,
+                        6,
+                        0,
+                        19,
+                        12,
+                        14,
+                        8,
+                        13,
+                        9,
+                        15,
+                        3,
+                        18,
+                        4,
+                        2,
+                        20,
+                        5,
+                        1,
+                        17,
+                        21
+                      ]
+                    },
+                    "output_keys": [
+                      "selected_action",
+                      "selected_plan",
+                      "selection_evidence"
+                    ],
+                    "selection_reason": "highest_aggregated_root_ranking",
+                    "step_id": "select_placement",
+                    "step_type": "SelectPlacementStep"
+                  },
+                  {
+                    "candidate_count": 1,
+                    "elapsed_ms": 11.534216999962155,
+                    "elapsed_seconds": 0.011534216999962155,
+                    "index": 6,
+                    "input_summary": {
+                      "available_artifact_count": 10,
+                      "required_artifacts": [
+                        "selected_action",
+                        "selected_plan",
+                        "selection_evidence"
+                      ]
+                    },
+                    "output_keys": [
+                      "decision_output"
+                    ],
+                    "selection_reason": "decision_payload_serialized",
+                    "step_id": "emit_decision_trace",
+                    "step_type": "EmitDecisionTraceStep"
+                  }
+                ]
+              },
+              "elapsed_seconds": 0.5532641400000102,
+              "execution_mode": "scenario-6",
+              "fallback": {
+                "detail": "",
+                "reason": null,
+                "used": false
+              },
+              "label": "warm",
+              "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+              "resources": {
+                "peak_rss_kib": 337508,
+                "system_cpu_seconds": 0.037800000000000056,
+                "user_cpu_seconds": 2.2454279999999995
+              },
+              "scenario_accounting": {
+                "expected_scenario_count": 6,
+                "expected_scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "failure_count": 0,
+                "failures": [],
+                "passed": true,
+                "root_count": 22
+              },
+              "search": {
+                "backend": {
+                  "backend": "native",
+                  "boundary_call_count": 1,
+                  "budget_exhausted": false,
+                  "canonical": true,
+                  "capabilities": {
+                    "abi_version": 1,
+                    "build_profile": "release",
+                    "compact_hot_result": {
+                      "abi_version": 1,
+                      "child_state_bytes": 80,
+                      "flags_mask": 15,
+                      "result_bytes": 24,
+                      "schema": "puyo.native_compact_hot_result.v1"
+                    },
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "cpu_features": [
+                      "scalar",
+                      "sse2",
+                      "ssse3",
+                      "sse4.1",
+                      "avx2"
+                    ],
+                    "crate_version": "0.4.0",
+                    "gil_detach": true,
+                    "limits": {
+                      "max_request_bytes": 16777216,
+                      "max_response_bytes": 16777216,
+                      "max_sections": 64
+                    },
+                    "max_threads": 6,
+                    "parallel": true,
+                    "python_abi": "cp312",
+                    "scalar_fallback": true,
+                    "schema": {
+                      "major": 1,
+                      "minor_max": 0,
+                      "minor_min": 0,
+                      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                    },
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_modes": [
+                      "oracle-1",
+                      "scenario-6"
+                    ],
+                    "wheel_hash_hook": true,
+                    "wire_name": "puyo.deep_chain_native.envelope.v1"
+                  },
+                  "configuration": {
+                    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+                    "backend_config_version": "1.0",
+                    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+                    "evaluator_config_version": "v1.0",
+                    "minimum_chain_count": 6,
+                    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+                    "search_config_version": "v1.0"
+                  },
+                  "counters": {
+                    "budget_exhausted": false,
+                    "evaluated_nodes": 465036,
+                    "expanded_nodes": 465036,
+                    "game_over_nodes": 0,
+                    "generated_nodes": 465036,
+                    "invalid_nodes": 0,
+                    "pruned_nodes": 366605,
+                    "reached_depth": 16,
+                    "terminal_fire_nodes": 65622,
+                    "transposition_hits": 10177
+                  },
+                  "execution_mode": "scenario-6",
+                  "fallback": {
+                    "detail": "",
+                    "reason": null,
+                    "used": false
+                  },
+                  "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+                  "profile": {
+                    "name": "reference",
+                    "version": "1.0"
+                  },
+                  "provenance": {
+                    "backend": "native",
+                    "build_profile": "release",
+                    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                    "crate_version": "0.4.0",
+                    "simd_path": "scalar",
+                    "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                    "target": "x86_64-unknown-linux-gnu",
+                    "thread_count": 6,
+                    "thread_mode": "scenario-6",
+                    "wheel_hash": "external"
+                  },
+                  "record_counts": {
+                    "diagnostics": 7,
+                    "representatives": 22,
+                    "root_evidence": 132
+                  },
+                  "request_id": 3582196622553071275,
+                  "requested_backend": "native",
+                  "result_contract": "puyo.long_horizon_search_result.v1",
+                  "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+                  "search_complete": true,
+                  "telemetry": {
+                    "aggregation_ns": 51842,
+                    "arena_capacity_nodes": 6000,
+                    "peak_live_nodes": 5750,
+                    "pool_reuses": 1,
+                    "scenario_jobs": 6,
+                    "scenario_reruns": 0,
+                    "search_ns": 373047218,
+                    "serialization_ns": 331317,
+                    "tt_capacity_slots": 16384
+                  },
+                  "timing": {
+                    "boundary_call_ns": 373751957,
+                    "materialization_ns": 129878083,
+                    "native_aggregation_ns": 51842,
+                    "native_compute_ns": 373099060,
+                    "native_search_ns": 373047218,
+                    "native_serialization_ns": 331317,
+                    "native_total_ns": 373430377,
+                    "total_ns": 503631841,
+                    "total_seconds": 0.503631841
+                  }
+                },
+                "counters": {
+                  "budget_exhausted": false,
+                  "evaluated_nodes": 465036,
+                  "expanded_nodes": 465036,
+                  "game_over_nodes": 0,
+                  "generated_nodes": 465036,
+                  "invalid_nodes": 0,
+                  "pruned_nodes": 366605,
+                  "reached_depth": 16,
+                  "terminal_fire_nodes": 65622,
+                  "transposition_hits": 10177
+                },
+                "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+                "root_ids": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "scenario_ids": [
+                  2,
+                  1,
+                  4,
+                  3,
+                  5,
+                  0
+                ],
+                "schema_version": "puyo.deep_chain_builder.search_results.v1",
+                "target_chain_count": 6
+              }
+            }
+          ]
+        },
+        "supervisor_elapsed_seconds": 3.2047399119999227,
+        "timed_out": false
+      }
+    },
+    "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+    "interpretation": "reference decision completed inside the diagnostic budget",
+    "locked_maximum_decision_p95_seconds": 1.0,
+    "performance_gate_passed": true,
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    },
+    "purpose": "bounded latency diagnosis before the canonical resumable run",
+    "result": {
+      "action": 16,
+      "backend": {
+        "backend": "native",
+        "boundary_call_count": 1,
+        "budget_exhausted": false,
+        "canonical": true,
+        "capabilities": {
+          "abi_version": 1,
+          "build_profile": "release",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "child_state_bytes": 80,
+            "flags_mask": 15,
+            "result_bytes": 24,
+            "schema": "puyo.native_compact_hot_result.v1"
+          },
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "crate_version": "0.4.0",
+          "gil_detach": true,
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "max_threads": 6,
+          "parallel": true,
+          "python_abi": "cp312",
+          "scalar_fallback": true,
+          "schema": {
+            "major": 1,
+            "minor_max": 0,
+            "minor_min": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+          },
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "wheel_hash_hook": true,
+          "wire_name": "puyo.deep_chain_native.envelope.v1"
+        },
+        "configuration": {
+          "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+          "backend_config_version": "1.0",
+          "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+          "evaluator_config_version": "v1.0",
+          "minimum_chain_count": 6,
+          "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+          "search_config_version": "v1.0"
+        },
+        "counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 465036,
+          "expanded_nodes": 465036,
+          "game_over_nodes": 0,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "pruned_nodes": 366605,
+          "reached_depth": 16,
+          "terminal_fire_nodes": 65622,
+          "transposition_hits": 10177
+        },
+        "execution_mode": "scenario-6",
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+        "profile": {
+          "name": "reference",
+          "version": "1.0"
+        },
+        "provenance": {
+          "backend": "native",
+          "build_profile": "release",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "crate_version": "0.4.0",
+          "simd_path": "scalar",
+          "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+          "target": "x86_64-unknown-linux-gnu",
+          "thread_count": 6,
+          "thread_mode": "scenario-6",
+          "wheel_hash": "external"
+        },
+        "record_counts": {
+          "diagnostics": 7,
+          "representatives": 22,
+          "root_evidence": 132
+        },
+        "request_id": 3582196622553071275,
+        "requested_backend": "native",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "search_complete": true,
+        "telemetry": {
+          "aggregation_ns": 52231,
+          "arena_capacity_nodes": 6000,
+          "peak_live_nodes": 5750,
+          "pool_reuses": 0,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "search_ns": 462862261,
+          "serialization_ns": 585196,
+          "tt_capacity_slots": 16384
+        },
+        "timing": {
+          "boundary_call_ns": 464060684,
+          "materialization_ns": 124323881,
+          "native_aggregation_ns": 52231,
+          "native_compute_ns": 462914492,
+          "native_search_ns": 462862261,
+          "native_serialization_ns": 585196,
+          "native_total_ns": 463499688,
+          "total_ns": 588385827,
+          "total_seconds": 0.588385827
+        }
+      },
+      "completed": true,
+      "decision_digest": "7cd0cce762ed8f0c15b049567004ddb67b77acaa489ca5b560170ad8b1bec51f",
+      "decision_trace": {
+        "backend": {
+          "backend": "native",
+          "boundary_call_count": 1,
+          "budget_exhausted": false,
+          "canonical": true,
+          "capabilities": {
+            "abi_version": 1,
+            "build_profile": "release",
+            "compact_hot_result": {
+              "abi_version": 1,
+              "child_state_bytes": 80,
+              "flags_mask": 15,
+              "result_bytes": 24,
+              "schema": "puyo.native_compact_hot_result.v1"
+            },
+            "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+            "cpu_features": [
+              "scalar",
+              "sse2",
+              "ssse3",
+              "sse4.1",
+              "avx2"
+            ],
+            "crate_version": "0.4.0",
+            "gil_detach": true,
+            "limits": {
+              "max_request_bytes": 16777216,
+              "max_response_bytes": 16777216,
+              "max_sections": 64
+            },
+            "max_threads": 6,
+            "parallel": true,
+            "python_abi": "cp312",
+            "scalar_fallback": true,
+            "schema": {
+              "major": 1,
+              "minor_max": 0,
+              "minor_min": 0,
+              "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+              "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+            },
+            "simd_path": "scalar",
+            "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+            "target": "x86_64-unknown-linux-gnu",
+            "thread_modes": [
+              "oracle-1",
+              "scenario-6"
+            ],
+            "wheel_hash_hook": true,
+            "wire_name": "puyo.deep_chain_native.envelope.v1"
+          },
+          "configuration": {
+            "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+            "backend_config_version": "1.0",
+            "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+            "evaluator_config_version": "v1.0",
+            "minimum_chain_count": 6,
+            "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+            "search_config_version": "v1.0"
+          },
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 465036,
+            "expanded_nodes": 465036,
+            "game_over_nodes": 0,
+            "generated_nodes": 465036,
+            "invalid_nodes": 0,
+            "pruned_nodes": 366605,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 65622,
+            "transposition_hits": 10177
+          },
+          "execution_mode": "scenario-6",
+          "fallback": {
+            "detail": "",
+            "reason": null,
+            "used": false
+          },
+          "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+          "profile": {
+            "name": "reference",
+            "version": "1.0"
+          },
+          "provenance": {
+            "backend": "native",
+            "build_profile": "release",
+            "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+            "crate_version": "0.4.0",
+            "simd_path": "scalar",
+            "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+            "target": "x86_64-unknown-linux-gnu",
+            "thread_count": 6,
+            "thread_mode": "scenario-6",
+            "wheel_hash": "external"
+          },
+          "record_counts": {
+            "diagnostics": 7,
+            "representatives": 22,
+            "root_evidence": 132
+          },
+          "request_id": 3582196622553071275,
+          "requested_backend": "native",
+          "result_contract": "puyo.long_horizon_search_result.v1",
+          "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+          "search_complete": true,
+          "telemetry": {
+            "aggregation_ns": 52231,
+            "arena_capacity_nodes": 6000,
+            "peak_live_nodes": 5750,
+            "pool_reuses": 0,
+            "scenario_jobs": 6,
+            "scenario_reruns": 0,
+            "search_ns": 462862261,
+            "serialization_ns": 585196,
+            "tt_capacity_slots": 16384
+          },
+          "timing": {
+            "boundary_call_ns": 464060684,
+            "materialization_ns": 124323881,
+            "native_aggregation_ns": 52231,
+            "native_compute_ns": 462914492,
+            "native_search_ns": 462862261,
+            "native_serialization_ns": 585196,
+            "native_total_ns": 463499688,
+            "total_ns": 588385827,
+            "total_seconds": 0.588385827
+          }
+        },
+        "decision_id": "deep_chain_builder-decision-00000001",
+        "elapsed_ms": 625.9840480001913,
+        "elapsed_seconds": 0.6259840480001913,
+        "profile_id": "deep_chain_builder:reference@1.0",
+        "schema_version": "puyo.decision_trace.v1",
+        "step_count": 7,
+        "steps": [
+          {
+            "candidate_count": 22,
+            "elapsed_ms": 0.008964000016931095,
+            "elapsed_seconds": 8.964000016931095e-06,
+            "index": 0,
+            "input_summary": {
+              "action_contract_version": "",
+              "board_shape": [
+                6,
+                13,
+                6
+              ],
+              "last_chain_end_score": 0,
+              "last_chain_score_delta": 0,
+              "legal_action_count": 22,
+              "max_steps": 40,
+              "max_ticks": null,
+              "next_pairs_shape": [
+                3,
+                2,
+                5
+              ],
+              "observation_schema_version": "",
+              "step_count": 0,
+              "visible_pair_count": 3
+            },
+            "output_keys": [
+              "normalized_observation"
+            ],
+            "selection_reason": "visible_runtime_boundary_validated",
+            "step_id": "normalize_observation",
+            "step_type": "NormalizeObservationStep"
+          },
+          {
+            "candidate_count": 6,
+            "elapsed_ms": 0.4596800001763768,
+            "elapsed_seconds": 0.0004596800001763768,
+            "index": 1,
+            "input_summary": {
+              "available_artifact_count": 3,
+              "required_artifacts": [
+                "normalized_observation"
+              ]
+            },
+            "output_keys": [
+              "scenario_sequences"
+            ],
+            "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+            "step_id": "complete_visible_queue_scenarios",
+            "step_type": "CompleteVisibleQueueScenariosStep"
+          },
+          {
+            "candidate_count": 22,
+            "elapsed_ms": 0.25983799991990963,
+            "elapsed_seconds": 0.00025983799991990963,
+            "index": 2,
+            "input_summary": {
+              "available_artifact_count": 4,
+              "required_artifacts": [
+                "normalized_observation"
+              ]
+            },
+            "output_keys": [
+              "root_placements"
+            ],
+            "selection_reason": "compact_kernel_legal_root_enumeration",
+            "step_id": "enumerate_root_placements",
+            "step_type": "EnumerateRootPlacementsStep"
+          },
+          {
+            "candidate_count": 22,
+            "elapsed_ms": 589.1384560000006,
+            "elapsed_seconds": 0.5891384560000006,
+            "index": 3,
+            "input_summary": {
+              "available_artifact_count": 5,
+              "backend": {
+                "backend": "native",
+                "capabilities": {
+                  "abi_version": 1,
+                  "build_profile": "release",
+                  "compact_hot_result": {
+                    "abi_version": 1,
+                    "child_state_bytes": 80,
+                    "flags_mask": 15,
+                    "result_bytes": 24,
+                    "schema": "puyo.native_compact_hot_result.v1"
+                  },
+                  "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+                  "cpu_features": [
+                    "scalar",
+                    "sse2",
+                    "ssse3",
+                    "sse4.1",
+                    "avx2"
+                  ],
+                  "crate_version": "0.4.0",
+                  "gil_detach": true,
+                  "limits": {
+                    "max_request_bytes": 16777216,
+                    "max_response_bytes": 16777216,
+                    "max_sections": 64
+                  },
+                  "max_threads": 6,
+                  "parallel": true,
+                  "python_abi": "cp312",
+                  "scalar_fallback": true,
+                  "schema": {
+                    "major": 1,
+                    "minor_max": 0,
+                    "minor_min": 0,
+                    "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+                    "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+                  },
+                  "simd_path": "scalar",
+                  "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+                  "target": "x86_64-unknown-linux-gnu",
+                  "thread_modes": [
+                    "oracle-1",
+                    "scenario-6"
+                  ],
+                  "wheel_hash_hook": true,
+                  "wire_name": "puyo.deep_chain_native.envelope.v1"
+                },
+                "execution_mode": "scenario-6",
+                "fallback": {
+                  "detail": "",
+                  "reason": null,
+                  "used": false
+                },
+                "requested_backend": "native",
+                "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1"
+              },
+              "required_artifacts": [
+                "normalized_observation",
+                "scenario_sequences",
+                "root_placements"
+              ],
+              "target_chain_count": 6
+            },
+            "output_keys": [
+              "scenario_search_results"
+            ],
+            "selection_reason": "count_bounded_compact_long_range_search",
+            "step_id": "run_long_range_search",
+            "step_type": "RunLongRangeSearchStep"
+          },
+          {
+            "candidate_count": 22,
+            "elapsed_ms": 0.1003540000965586,
+            "elapsed_seconds": 0.00010035400009655859,
+            "index": 4,
+            "input_summary": {
+              "available_artifact_count": 6,
+              "required_artifacts": [
+                "scenario_search_results"
+              ]
+            },
+            "output_keys": [
+              "aggregated_root_scores"
+            ],
+            "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+            "step_id": "aggregate_scenario_scores",
+            "step_type": "AggregateScenarioScoresStep"
+          },
+          {
+            "candidate_count": 22,
+            "elapsed_ms": 22.17298599998685,
+            "elapsed_seconds": 0.02217298599998685,
+            "index": 5,
+            "input_summary": {
+              "aggregated_root_count": 22,
+              "root_actions": [
+                16,
+                10,
+                7,
+                11,
+                6,
+                0,
+                19,
+                12,
+                14,
+                8,
+                13,
+                9,
+                15,
+                3,
+                18,
+                4,
+                2,
+                20,
+                5,
+                1,
+                17,
+                21
+              ]
+            },
+            "output_keys": [
+              "selected_action",
+              "selected_plan",
+              "selection_evidence"
+            ],
+            "selection_reason": "highest_aggregated_root_ranking",
+            "step_id": "select_placement",
+            "step_type": "SelectPlacementStep"
+          },
+          {
+            "candidate_count": 1,
+            "elapsed_ms": 13.843769999994038,
+            "elapsed_seconds": 0.013843769999994038,
+            "index": 6,
+            "input_summary": {
+              "available_artifact_count": 10,
+              "required_artifacts": [
+                "selected_action",
+                "selected_plan",
+                "selection_evidence"
+              ]
+            },
+            "output_keys": [
+              "decision_output"
+            ],
+            "selection_reason": "decision_payload_serialized",
+            "step_id": "emit_decision_trace",
+            "step_type": "EmitDecisionTraceStep"
+          }
+        ]
+      },
+      "elapsed_seconds": 0.6530682980001075,
+      "execution_mode": "scenario-6",
+      "fallback": {
+        "detail": "",
+        "reason": null,
+        "used": false
+      },
+      "label": "cold",
+      "plan_digest": "d86af103b129d7ba8aed9ad0267c707b8490d6ae87ed3418103ea917c8719bea",
+      "resources": {
+        "peak_rss_kib": 328116,
+        "system_cpu_seconds": 0.23066300000000006,
+        "user_cpu_seconds": 2.4987760000000003
+      },
+      "scenario_accounting": {
+        "expected_scenario_count": 6,
+        "expected_scenario_ids": [
+          2,
+          1,
+          4,
+          3,
+          5,
+          0
+        ],
+        "failure_count": 0,
+        "failures": [],
+        "passed": true,
+        "root_count": 22
+      },
+      "search": {
+        "backend": {
+          "backend": "native",
+          "boundary_call_count": 1,
+          "budget_exhausted": false,
+          "canonical": true,
+          "capabilities": {
+            "abi_version": 1,
+            "build_profile": "release",
+            "compact_hot_result": {
+              "abi_version": 1,
+              "child_state_bytes": 80,
+              "flags_mask": 15,
+              "result_bytes": 24,
+              "schema": "puyo.native_compact_hot_result.v1"
+            },
+            "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+            "cpu_features": [
+              "scalar",
+              "sse2",
+              "ssse3",
+              "sse4.1",
+              "avx2"
+            ],
+            "crate_version": "0.4.0",
+            "gil_detach": true,
+            "limits": {
+              "max_request_bytes": 16777216,
+              "max_response_bytes": 16777216,
+              "max_sections": 64
+            },
+            "max_threads": 6,
+            "parallel": true,
+            "python_abi": "cp312",
+            "scalar_fallback": true,
+            "schema": {
+              "major": 1,
+              "minor_max": 0,
+              "minor_min": 0,
+              "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+              "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+            },
+            "simd_path": "scalar",
+            "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+            "target": "x86_64-unknown-linux-gnu",
+            "thread_modes": [
+              "oracle-1",
+              "scenario-6"
+            ],
+            "wheel_hash_hook": true,
+            "wire_name": "puyo.deep_chain_native.envelope.v1"
+          },
+          "configuration": {
+            "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+            "backend_config_version": "1.0",
+            "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7",
+            "evaluator_config_version": "v1.0",
+            "minimum_chain_count": 6,
+            "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+            "search_config_version": "v1.0"
+          },
+          "counters": {
+            "budget_exhausted": false,
+            "evaluated_nodes": 465036,
+            "expanded_nodes": 465036,
+            "game_over_nodes": 0,
+            "generated_nodes": 465036,
+            "invalid_nodes": 0,
+            "pruned_nodes": 366605,
+            "reached_depth": 16,
+            "terminal_fire_nodes": 65622,
+            "transposition_hits": 10177
+          },
+          "execution_mode": "scenario-6",
+          "fallback": {
+            "detail": "",
+            "reason": null,
+            "used": false
+          },
+          "native_result_digest": "native-long-horizon-180a092c37c988dc350099b8",
+          "profile": {
+            "name": "reference",
+            "version": "1.0"
+          },
+          "provenance": {
+            "backend": "native",
+            "build_profile": "release",
+            "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+            "crate_version": "0.4.0",
+            "simd_path": "scalar",
+            "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+            "target": "x86_64-unknown-linux-gnu",
+            "thread_count": 6,
+            "thread_mode": "scenario-6",
+            "wheel_hash": "external"
+          },
+          "record_counts": {
+            "diagnostics": 7,
+            "representatives": 22,
+            "root_evidence": 132
+          },
+          "request_id": 3582196622553071275,
+          "requested_backend": "native",
+          "result_contract": "puyo.long_horizon_search_result.v1",
+          "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+          "search_complete": true,
+          "telemetry": {
+            "aggregation_ns": 52231,
+            "arena_capacity_nodes": 6000,
+            "peak_live_nodes": 5750,
+            "pool_reuses": 0,
+            "scenario_jobs": 6,
+            "scenario_reruns": 0,
+            "search_ns": 462862261,
+            "serialization_ns": 585196,
+            "tt_capacity_slots": 16384
+          },
+          "timing": {
+            "boundary_call_ns": 464060684,
+            "materialization_ns": 124323881,
+            "native_aggregation_ns": 52231,
+            "native_compute_ns": 462914492,
+            "native_search_ns": 462862261,
+            "native_serialization_ns": 585196,
+            "native_total_ns": 463499688,
+            "total_ns": 588385827,
+            "total_seconds": 0.588385827
+          }
+        },
+        "counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 465036,
+          "expanded_nodes": 465036,
+          "game_over_nodes": 0,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "pruned_nodes": 366605,
+          "reached_depth": 16,
+          "terminal_fire_nodes": 65622,
+          "transposition_hits": 10177
+        },
+        "deterministic_digest": "long-horizon-search-931cb1d516b452a153c24268",
+        "root_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "scenario_ids": [
+          2,
+          1,
+          4,
+          3,
+          5,
+          0
+        ],
+        "schema_version": "puyo.deep_chain_builder.search_results.v1",
+        "target_chain_count": 6
+      }
+    },
+    "schema_version": "puyo.deep_chain_builder.preflight.v2",
+    "seed": 123,
+    "supervisor_elapsed_seconds": 3.2047399119999227,
+    "target_chain_count": 6,
+    "thread_determinism": {
+      "adopted_mode": "scenario-6",
+      "adopted_thread_count": 6,
+      "cold_warm_digest_match": true,
+      "diagnostic_mode": "oracle-1",
+      "diagnostic_thread_count": 1,
+      "one_thread_matches_adopted": true,
+      "passed": true
+    },
+    "ticket": "PUYO-204",
+    "timed_out": false,
+    "timeout_seconds": 5.0
+  },
+  "schema_version": "puyo.deep_chain_builder.benchmark_summary.v2",
+  "summary_digest": "5df836142239117346dcb1af2ceebe61f4deeaada86c02342fe3eb1794b3fa7a",
+  "ticket": "PUYO-204"
+}

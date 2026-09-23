@@ -1,0 +1,150 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "390533ee1973e52fa83304f2bf83585b1cf37fb8e8068bb1a9228d16c9164143",
+      "size_bytes": 4296
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "41bc5f19bd13b2893f5afb3f4349dbfdcc4e5c84bc3ec5fcb18b65046436bdf4",
+      "size_bytes": 171141
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_count.json",
+      "required": true,
+      "role": "call_count",
+      "sha256": "a980f486bfe9e6fff341dfba790b905cf77b498d43b1a92017679e5ce272d69b",
+      "size_bytes": 1629
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "candidate_analysis.json",
+      "required": true,
+      "role": "candidate_analysis",
+      "sha256": "7aab2969f979d8277b9f08a21608444df1beeae68a889980bda7c72f60e4fa32",
+      "size_bytes": 22697
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "candidate_microbenchmark.json",
+      "required": true,
+      "role": "candidate_microbenchmark",
+      "sha256": "f36843036c9619521bc2beebee80d7789745a49568ef540f4df4922dfc9be45c",
+      "size_bytes": 40300
+    },
+    {
+      "artifact_type": "bin",
+      "exists": true,
+      "path": "candidate_workload.bin",
+      "required": true,
+      "role": "candidate_workload",
+      "sha256": "b168a0b5885b714da4a9569e1db703c16d5faa34e7edee7ded5eb4fc65166d04",
+      "size_bytes": 409612
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "historical_comparison.json",
+      "required": true,
+      "role": "historical_comparison",
+      "sha256": "412440f3d3d3444aacf7445704e551f5d3dcd728e436b4ee7d7afbb62b31e9a9",
+      "size_bytes": 1144
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "e5f55e1ab66206c1946df51bd086d7905bbdce1424503ffd20871c0013fd3d02",
+      "size_bytes": 2504
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "paired_baseline.json",
+      "required": true,
+      "role": "paired_baseline",
+      "sha256": "98d81a3ae55142a9814ee4cebd4873b347f5bfef0224f4e52faff55f94fed2ac",
+      "size_bytes": 1248990
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "quiet_profile.json",
+      "required": true,
+      "role": "quiet_profile",
+      "sha256": "145f82d8837d46f94f8caf490bf936296f2cbd6a75868b1bedbb86ff76c0ef00",
+      "size_bytes": 291990
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_authoritative_runs.json",
+      "required": true,
+      "role": "raw_authoritative_runs",
+      "sha256": "e953c9603252732612334cc24ffd823bf74f0f56d11f41114c23c04d302dc346",
+      "size_bytes": 621821
+    }
+  ],
+  "baseline_authority": {
+    "capability_source_revision": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+    "evaluated_commit": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+    "manifest_path": "docs/benchmarks/puyo-207-native-transition-verification/benchmark_manifest.json",
+    "manifest_sha256": "d2987cf85995613b6f5580177c3d9dd258d98524a32eec8d8dd8ca3a440ab4b5",
+    "measurement_contract_digest": "bab61eba363cb75f1fadadf7a0dedb189342803b37a2f381fa7ff9c0a377ff18",
+    "source_tree": "e8f73fcaaa868909e56fcc71eef6fd7a29f1dcb5",
+    "transition_corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+  },
+  "candidate_raw_sha256": "f36843036c9619521bc2beebee80d7789745a49568ef540f4df4922dfc9be45c",
+  "command": ".venv/bin/python -m eval.deep_chain_native_transition_investigation run --corpus eval/deep_chain_native_transition_corpus.json --search-corpus eval/deep_chain_native_corpus.json --output-dir docs/benchmarks/puyo-211-quiet-transition-investigation --cpu 0 --valgrind /tmp/puyo-211-valgrind.PyikDy/root/usr/bin/valgrind --valgrind-lib /tmp/puyo-211-valgrind.PyikDy/root/usr/libexec/valgrind",
+  "config_sha256": "e5f55e1ab66206c1946df51bd086d7905bbdce1424503ffd20871c0013fd3d02",
+  "created_at_utc": "2026-08-27T05:49:20Z",
+  "inputs": [
+    {
+      "path": "docs/benchmarks/puyo-207-native-transition-verification/benchmark_manifest.json",
+      "role": "puyo_207_authority_manifest",
+      "sha256": "d2987cf85995613b6f5580177c3d9dd258d98524a32eec8d8dd8ca3a440ab4b5"
+    },
+    {
+      "logical_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+      "path": "eval/deep_chain_native_transition_corpus.json",
+      "role": "transition_corpus",
+      "sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356"
+    },
+    {
+      "logical_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+      "path": "eval/deep_chain_native_corpus.json",
+      "role": "search_corpus",
+      "sha256": "4027c48d482b21547f6b1d0b554ad949e73439de4a4e09c71a503d2ca722bed4"
+    },
+    {
+      "path": "eval/puyo_211_color_plane_candidate.rs",
+      "role": "candidate_source",
+      "sha256": "9ea72f73a0a1431859575d1478c66b9f78eb5f7f4a3af13a339dfb002adfbe28"
+    }
+  ],
+  "orchestration_commit": "efc2455b82579e7e37598e5f0a0deeb98cda5e18",
+  "passed": true,
+  "raw_authoritative_sha256": "e953c9603252732612334cc24ffd823bf74f0f56d11f41114c23c04d302dc346",
+  "raw_paired_sha256": "98d81a3ae55142a9814ee4cebd4873b347f5bfef0224f4e52faff55f94fed2ac",
+  "raw_profile_sha256": "145f82d8837d46f94f8caf490bf936296f2cbd6a75868b1bedbb86ff76c0ef00",
+  "schema_version": "puyo.native_compact_transition_investigation_manifest.v1",
+  "source_tree": "694abfc0324967373e7fa0dbc9c685b5ef444987",
+  "ticket": "PUYO-211",
+  "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+}

@@ -1,0 +1,117 @@
+{
+  "ablation": {
+    "decision_ranking_mismatches": 0,
+    "representative_path_changes": 4,
+    "root_evidence_mismatches": 0,
+    "tie_break_version": "puyo.long_horizon_survivor_tie_break.v2"
+  },
+  "contract": {
+    "depth": 16,
+    "max_expanded_nodes": 600000,
+    "scenarios": 6,
+    "width": 250
+  },
+  "decision": {
+    "checks": {
+      "bounded_arena": true,
+      "end_to_end_p95": true,
+      "exact_global_budget": true,
+      "five_nearest_rank_samples": true,
+      "frozen_python_differential": true,
+      "gil_released": true,
+      "native_total_p95": true,
+      "oracle_parallel_identity": true,
+      "production_backend_not_promoted": true,
+      "quality_contract": true,
+      "repeat_determinism": true,
+      "thirty_seed_isolation": true,
+      "versioned_tie_break_ablation": true
+    },
+    "decision": "GO",
+    "failed_checks": [],
+    "passed": true,
+    "production_backend_promoted": false,
+    "puyo_203_unblock_candidate": true
+  },
+  "generated_at": "2026-09-03T01:25:38.030484+00:00",
+  "memory": {
+    "arena_capacity_nodes": 6000,
+    "max_rss_kib": 173468,
+    "peak_live_nodes": 5690,
+    "tt_capacity_slots": 16384
+  },
+  "performance": {
+    "end_to_end_limit_ms": 1000.0,
+    "end_to_end_p95_ms": 398.748906,
+    "native_total_limit_ms": 900.0,
+    "native_total_p95_ms": 277.686582,
+    "outlier_removal": "none",
+    "percentile": "nearest-rank-p95",
+    "sample_count": 5
+  },
+  "provenance": {
+    "git_commit": "ae8968befcf0282ce913bc92fd60cbb42c1f504c",
+    "machine": "x86_64",
+    "native_capabilities": {
+      "abi_version": 1,
+      "build_profile": "release",
+      "compact_hot_result": {
+        "abi_version": 1,
+        "child_state_bytes": 80,
+        "flags_mask": 15,
+        "result_bytes": 24,
+        "schema": "puyo.native_compact_hot_result.v1"
+      },
+      "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "cpu_features": [
+        "scalar",
+        "sse2",
+        "ssse3",
+        "sse4.1",
+        "avx2"
+      ],
+      "crate_version": "0.4.0",
+      "gil_detach": true,
+      "limits": {
+        "max_request_bytes": 16777216,
+        "max_response_bytes": 16777216,
+        "max_sections": 64
+      },
+      "max_threads": 6,
+      "parallel": true,
+      "python_abi": "cp312",
+      "scalar_fallback": true,
+      "schema": {
+        "major": 1,
+        "minor_max": 0,
+        "minor_min": 0,
+        "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+        "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+      },
+      "simd_path": "scalar",
+      "source_revision": "ae8968befcf0282ce913bc92fd60cbb42c1f504c",
+      "target": "x86_64-unknown-linux-gnu",
+      "thread_modes": [
+        "oracle-1",
+        "scenario-6"
+      ],
+      "wheel_hash_hook": true,
+      "wire_name": "puyo.deep_chain_native.envelope.v1"
+    },
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "source_tree_clean_at_start": true,
+    "wheel_sha256": "e989323c01aae0331a75e12c7ec6fa20a0560340d627b56b07cee942b5b7d564"
+  },
+  "schema_version": "puyo.native_long_horizon_benchmark.v1",
+  "semantic": {
+    "budget_contract_passed": true,
+    "gil_counter_delta": 6591383,
+    "isolated_seed_count": 30,
+    "oracle_parallel_mismatches": 0,
+    "python_differential_cases": 3,
+    "python_differential_mismatches": 0,
+    "repeat_mismatches": 0
+  },
+  "ticket": "PUYO-202"
+}

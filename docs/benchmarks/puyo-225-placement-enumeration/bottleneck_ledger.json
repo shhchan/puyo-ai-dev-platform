@@ -1,0 +1,22 @@
+{
+  "baseline_attributed_share": 0.9990025043507789,
+  "baseline_largest_stage": "placement_enumeration_trigger_qualification",
+  "current_attributed_share": 0.9991315103823986,
+  "current_combined_budget_gap_ms": 436.02578500000004,
+  "current_largest_unimproved_stage": "base_feature_component_extraction",
+  "current_largest_unimproved_stage_600k_ms": 358.4064123034552,
+  "follow_up_required": true,
+  "follow_up_ticket": "PUYO-226",
+  "placement_substage_total_600k_ms": 444.97752147596395,
+  "placement_substages_600k_ms": {
+    "placement_candidate_dispatch": 104.88876121056586,
+    "placement_deduplication": 11.07813882448673,
+    "placement_frontier_update": 1.986657114421632,
+    "placement_multi_component_frontier": 149.7063988257386,
+    "placement_orbit_enumeration": 19.832898989734602,
+    "placement_single_component_frontier": 40.94533984977466,
+    "placement_trigger_qualification": 116.53932666124184
+  },
+  "remaining_if_next_stage_free_600k_ms": 898.2443726965448,
+  "schema_version": "puyo.native_placement_enumeration_ledger.v1"
+}

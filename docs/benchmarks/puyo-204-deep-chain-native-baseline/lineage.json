@@ -1,0 +1,155 @@
+{
+  "configuration": {
+    "backend": {
+      "config_version": "1.0",
+      "path": "train/config/deep_chain_backend.yaml",
+      "required_backend": "native",
+      "sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5"
+    },
+    "config_version": "v1.0",
+    "path": "train/config/deep_chain_builder.yaml",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d"
+  },
+  "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+  "host": {
+    "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+    "logical_cpu_count": 8,
+    "machine": "x86_64",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python_abi": "cp312",
+    "python_implementation": "CPython",
+    "python_version": "3.12.3",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "system": "Linux"
+  },
+  "native_build": {
+    "capabilities": {
+      "abi_version": 1,
+      "build_profile": "release",
+      "compact_hot_result": {
+        "abi_version": 1,
+        "child_state_bytes": 80,
+        "flags_mask": 15,
+        "result_bytes": 24,
+        "schema": "puyo.native_compact_hot_result.v1"
+      },
+      "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "cpu_features": [
+        "scalar",
+        "sse2",
+        "ssse3",
+        "sse4.1",
+        "avx2"
+      ],
+      "crate_version": "0.4.0",
+      "gil_detach": true,
+      "limits": {
+        "max_request_bytes": 16777216,
+        "max_response_bytes": 16777216,
+        "max_sections": 64
+      },
+      "max_threads": 6,
+      "parallel": true,
+      "python_abi": "cp312",
+      "scalar_fallback": true,
+      "schema": {
+        "major": 1,
+        "minor_max": 0,
+        "minor_min": 0,
+        "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+        "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+      },
+      "simd_path": "scalar",
+      "source_revision": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+      "target": "x86_64-unknown-linux-gnu",
+      "thread_modes": [
+        "oracle-1",
+        "scenario-6"
+      ],
+      "wheel_hash_hook": true,
+      "wire_name": "puyo.deep_chain_native.envelope.v1"
+    },
+    "checks": {
+      "capabilities_available": true,
+      "configured_thread_mode_available": true,
+      "configured_thread_mode_locked": true,
+      "gil_detached": true,
+      "python_abi_matches": true,
+      "release_build": true,
+      "single_release_wheel_present": true,
+      "source_revision_matches_commit": true,
+      "tracked_worktree_clean": true
+    },
+    "configuration": {
+      "backend_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+      "backend_version": "1.0",
+      "search_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+      "thread_count": 6,
+      "thread_mode": "scenario-6"
+    },
+    "error": null,
+    "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+    "host": {
+      "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+      "logical_cpu_count": 8,
+      "machine": "x86_64",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "python_abi": "cp312",
+      "python_implementation": "CPython",
+      "python_version": "3.12.3",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "system": "Linux"
+    },
+    "recorded_at_utc": "2026-09-06T02:25:44Z",
+    "schema_version": "puyo.deep_chain_builder.build_provenance.v1",
+    "ticket": "PUYO-204",
+    "tracked_worktree_clean": true,
+    "valid_for_canonical": true,
+    "wheels": [
+      {
+        "filename": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "path": "dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "d0b0696b49db9642ea8f46c56c668e9a555c2f80d2eed044c54cf72dac06ccfa",
+        "size_bytes": 1663098
+      }
+    ]
+  },
+  "policy": {
+    "environment": "safe_no_threat",
+    "policy_id": "deep_chain_builder",
+    "profile": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "name": "reference",
+      "profile_id": "deep_chain_builder:reference@1.0",
+      "purpose": "canonical quality and benchmark execution",
+      "scenarios": 6,
+      "schema_version": "puyo.deep_chain_builder.profile.v1",
+      "version": "1.0",
+      "width": 250
+    },
+    "target_chain_count": 6
+  },
+  "promotion_constraints": {
+    "champion_promoted": false,
+    "formal_version_created": false,
+    "git_tag_created": false,
+    "stable_promoted": false
+  },
+  "reference_attribution": {
+    "copyright": "Copyright (c) 2023 citrus610",
+    "license": "MIT License",
+    "source_commit": "dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "source_url": "https://github.com/citrus610/ama/tree/dea210bcd92965ae08fbc311f23565b0fab6dbbb",
+    "usage": "architectural input; no reference implementation code copied"
+  },
+  "reproduction": {
+    "canonical_run": ".venv/bin/python -m eval.deep_chain_builder_benchmark run --backend native --output-dir docs/benchmarks/puyo-204-deep-chain-native-baseline",
+    "resume_one_run": ".venv/bin/python -m eval.deep_chain_builder_benchmark run --backend native --max-runs 1 --output-dir docs/benchmarks/puyo-204-deep-chain-native-baseline",
+    "verify": ".venv/bin/python -m eval.deep_chain_builder_benchmark verify --output-dir docs/benchmarks/puyo-204-deep-chain-native-baseline"
+  },
+  "schema_version": "puyo.deep_chain_builder.lineage.v2",
+  "ticket": "PUYO-204",
+  "tracked_worktree_clean_at_finalize": true
+}

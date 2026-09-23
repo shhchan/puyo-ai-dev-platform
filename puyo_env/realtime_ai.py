@@ -19,7 +19,7 @@ except ImportError:  # pragma: no cover - dependency guard
 
 from puyo_env.action_planner import PlannedPlacement, plan_placement_action
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS, action_to_placement
-from puyo_env.obs import encode_board, encode_next_pairs, encode_scalars
+from puyo_env.obs import encode_board, encode_ghost_row, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
 from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, RealtimeVersusMatch
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
@@ -30,6 +30,7 @@ from src.core.realtime import DEFAULT_REALTIME_TIMING, RealtimeTimingConfig, Tic
 
 REALTIME_OBSERVATION_SCHEMA_VERSION = "realtime-placement-v1"
 REALTIME_ACTION_CONTRACT_VERSION = "placement-index-to-tick-input-v1"
+POLICY_DECISION_REPLAY_SCHEMA_VERSION = "puyo.realtime_policy_decisions.v1"
 TURN_BASED_OBSERVATION_SCHEMA_VERSION = "placement-v1"
 REALTIME_SCALAR_FEATURE_DIM = 8
 DEFAULT_REALTIME_FEATURE_HORIZON = 10_000
@@ -118,6 +119,9 @@ class RealtimeDecisionRecord:
     timeout_tick: int | None
     outcome: str
     fallback_reason: str | None
+    policy_decision_id: str | None = None
+    decision_input: dict[str, Any] | None = None
+    request_placement_count: int = 0
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
@@ -400,6 +404,8 @@ class RealtimePolicyController:
         self.decision_executor = decision_executor
         self.diagnostics = RealtimeControllerDiagnostics(latency_mode=self.config.latency_mode)
         self.latest_policy_diagnostics: dict[str, Any] = {}
+        self._request_input_identity: dict[str, Any] | None = None
+        self._request_placement_count = 0
         self._pending_decision: _PendingDecision | None = None
         self._async_decision: _AsyncDecision | None = None
         self._active_plan: PlannedPlacement | None = None
@@ -448,6 +454,8 @@ class RealtimePolicyController:
             reset_executor()
         self.diagnostics = RealtimeControllerDiagnostics(latency_mode=self.config.latency_mode)
         self.latest_policy_diagnostics = {}
+        self._request_input_identity = None
+        self._request_placement_count = 0
         self._pending_decision = None
         if self._async_decision is not None:
             self._async_decision.future.cancel()
@@ -583,6 +591,7 @@ class RealtimePolicyController:
     ) -> _PendingDecision:
         self.diagnostics.decision_requests += 1
         self.diagnostics.decisions_started += 1
+        self._capture_request_identity(observation, info)
         started = time.perf_counter()
         selected_action = int(self.policy.select_action(observation, info))
         elapsed = time.perf_counter() - started
@@ -591,6 +600,7 @@ class RealtimePolicyController:
     def _submit_decision(self, match, agent, observation, info) -> _AsyncDecision:
         self.diagnostics.decision_requests += 1
         self.diagnostics.decisions_started += 1
+        self._capture_request_identity(observation, info)
 
         def select():
             started = time.perf_counter()
@@ -609,6 +619,13 @@ class RealtimePolicyController:
             state_token=self._decision_state_token(match, agent),
             info=dict(info),
         )
+
+    def _capture_request_identity(self, observation, info) -> None:
+        identity = getattr(self.policy, "decision_input_identity", None)
+        self._request_input_identity = (
+            copy.deepcopy(identity(observation, info)) if callable(identity) else None
+        )
+        self._request_placement_count = self.diagnostics.placements_completed
 
     @staticmethod
     def _decision_state_token(match, agent) -> tuple[int, int]:
@@ -697,6 +714,14 @@ class RealtimePolicyController:
             self.diagnostics.planned_input_ticks += plan.tick_count
 
         placement = action_to_placement(action_index) if action_index is not None else None
+        policy_diagnostics = (
+            (
+                self.latest_policy_diagnostics
+                if self.decision_executor is not None
+                else _policy_diagnostics_snapshot(self.policy)
+            )
+            if self._request_input_identity is not None else {}
+        )
         record = RealtimeDecisionRecord(
             tick=request_tick,
             action_index=action_index,
@@ -718,6 +743,9 @@ class RealtimePolicyController:
             timeout_tick=timeout_tick,
             outcome="scheduled",
             fallback_reason=reason if fallback else None,
+            policy_decision_id=policy_diagnostics.get("decision_trace", {}).get("decision_id"),
+            decision_input=copy.deepcopy(self._request_input_identity),
+            request_placement_count=self._request_placement_count,
         )
         self.diagnostics.last_decision = record
         if plan is not None and not plan.reachable:
@@ -1088,6 +1116,7 @@ def build_realtime_observation(
     observation = {
         "board": numpy.concatenate([own_board, opponent_board], axis=0).astype(numpy.float32, copy=False),
         "own_board": own_board,
+        "ghost_row": encode_ghost_row(state.simulator.game),
         "opponent_board": opponent_board,
         "next_pairs": encode_next_pairs(state.simulator.game),
         "scalars": encode_scalars(
@@ -1160,6 +1189,7 @@ def build_realtime_info(
         "schema_version": REALTIME_OBSERVATION_SCHEMA_VERSION,
         "action_contract_version": REALTIME_ACTION_CONTRACT_VERSION,
         "score": state.simulator.game.score,
+        "game_over": bool(state.simulator.game.game_over),
         "opponent_score": opponent_state.simulator.game.score,
         "pending_ojama": state.pending_ojama,
         "incoming_ojama": state.pending_ojama,

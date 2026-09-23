@@ -1,0 +1,13 @@
+PUYO-200 attribution
+====================
+
+The scalar poppable-group bitboard identity in `src/compact.rs` is adapted
+from Ama's `FieldBit::get_mask_pop` design at commit
+dea210bcd92965ae08fbc311f23565b0fab6dbbb:
+
+https://github.com/citrus610/ama
+
+Ama is Copyright (c) 2023 citrus610 and distributed under the MIT License.
+Its license notice is retained in `LICENSE-AMA-MIT`.  The remaining PUYO-200
+implementation, including the 3-bit-slice state, lifecycle, checked scoring,
+wire codec, and Rust/Python QA boundary, is original project code.

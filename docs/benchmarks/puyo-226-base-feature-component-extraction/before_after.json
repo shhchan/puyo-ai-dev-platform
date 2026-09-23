@@ -1,0 +1,20 @@
+{
+  "acceptance_baseline": "canonical PUYO-225 after profile on the same CPU, frozen corpus, production config, release wheel contract, and 5 x 600,000 operations",
+  "baseline_combined_p95_600k_ms": 1256.650785,
+  "baseline_stage_cycles_per_node": 2050.375573670553,
+  "baseline_stage_projected_600k_ms": 358.4064123034552,
+  "combined_gate_600k_ms": 820.625,
+  "combined_gate_met": false,
+  "combined_reduction_percent": 20.77979237485616,
+  "current_combined_p95_600k_ms": 995.521361,
+  "current_stage_cycles_per_node": 458.0415711783136,
+  "current_stage_projected_600k_ms": 80.28749098284297,
+  "minimum_combined_reduction_percent": 20.0,
+  "minimum_stage_cycle_reduction_percent": 30.0,
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "sample_count": 5,
+  "schema_version": "puyo.native_base_feature_comparison.v1",
+  "stage_cycle_reduction_percent": 77.66060144979518,
+  "target_stage": "base_feature_component_extraction"
+}

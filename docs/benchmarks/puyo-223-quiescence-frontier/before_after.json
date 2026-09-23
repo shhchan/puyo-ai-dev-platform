@@ -1,0 +1,15 @@
+{
+  "after_600k_ms": 427.84184574314344,
+  "after_ns_per_node": 713.0697429052391,
+  "before_600k_ms": 7286.985354784132,
+  "before_ns_per_node": 12144.975591306888,
+  "margin_600k_ms": 15.99363949349464,
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "reduction_percent": 94.12868525305527,
+  "sample_count": 5,
+  "schema_version": "puyo.native_quiescence_frontier_comparison.v1",
+  "speedup": 17.031960354712247,
+  "target_600k_ms": 443.8354852366381,
+  "target_ns_per_node": 739.7258087277302
+}

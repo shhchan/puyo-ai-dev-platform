@@ -1,0 +1,127 @@
+{
+  "allocation_method": "proportional to the source-bound evaluator cycle share; the ledger is a diagnostic allocation and does not change production semantics",
+  "combined_budget_600k_ms": 820.625,
+  "evaluator_budget_600k_ms": 774.35348,
+  "evaluator_budget_ns_per_node": 1290.5891333333334,
+  "follow_up_order": [
+    "PUYO-223",
+    "PUYO-220",
+    "PUYO-222",
+    "PUYO-221"
+  ],
+  "implementation_priority": [
+    {
+      "amdahl": {
+        "current_stage_600k_ms": 660.434028216755,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.5451505925845386,
+        "remaining_if_stage_free_600k_ms": 1211.470806783245,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_evaluator_cycle_share": 0.3528138908924582,
+      "current_projected_600k_ms": 660.434028216755,
+      "stages": [
+        "placement_enumeration_trigger_qualification"
+      ],
+      "ticket": "PUYO-223"
+    },
+    {
+      "amdahl": {
+        "current_stage_600k_ms": 153.1627357385254,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.089113274064991,
+        "remaining_if_stage_free_600k_ms": 1718.7420992614746,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_evaluator_cycle_share": 0.08182186021145964,
+      "current_projected_600k_ms": 153.1627357385254,
+      "stages": [
+        "virtual_resolve_gravity",
+        "remaining_structure_scan"
+      ],
+      "ticket": "PUYO-220"
+    }
+  ],
+  "schema_version": "puyo.native_chain_structure_stage_budget.v1",
+  "stage_budget_ledger": {
+    "base_feature_component_extraction": {
+      "amdahl": {
+        "current_stage_600k_ms": 385.9529698678817,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.2597345034682976,
+        "remaining_if_stage_free_600k_ms": 1485.9518651321184,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_ns_per_node": 643.2549497798028,
+      "current_projected_600k_ms": 385.9529698678817,
+      "required_speedup_to_proportional_budget": 2.417377700685222,
+      "target_budget_600k_ms": 159.6577025420896,
+      "target_budget_ns_per_node": 266.09617090348263
+    },
+    "candidate_ranking_sha256": {
+      "amdahl": {
+        "current_stage_600k_ms": 672.3551011768379,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.5605062318124416,
+        "remaining_if_stage_free_600k_ms": 1199.5497338231621,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_ns_per_node": 1120.59183529473,
+      "current_projected_600k_ms": 672.3551011768379,
+      "required_speedup_to_proportional_budget": 2.417377700685222,
+      "target_budget_600k_ms": 278.13407105817777,
+      "target_budget_ns_per_node": 463.5567850969629
+    },
+    "placement_enumeration_trigger_qualification": {
+      "amdahl": {
+        "current_stage_600k_ms": 660.434028216755,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.5451505925845386,
+        "remaining_if_stage_free_600k_ms": 1211.470806783245,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_ns_per_node": 1100.7233803612585,
+      "current_projected_600k_ms": 660.434028216755,
+      "required_speedup_to_proportional_budget": 2.417377700685222,
+      "target_budget_600k_ms": 273.2026642049153,
+      "target_budget_ns_per_node": 455.3377736748589
+    },
+    "remaining_structure_scan": {
+      "amdahl": {
+        "current_stage_600k_ms": 0.0,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.0,
+        "remaining_if_stage_free_600k_ms": 1871.904835,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_ns_per_node": 0.0,
+      "current_projected_600k_ms": 0.0,
+      "required_speedup_to_proportional_budget": null,
+      "target_budget_600k_ms": 0.0,
+      "target_budget_ns_per_node": 0.0
+    },
+    "virtual_resolve_gravity": {
+      "amdahl": {
+        "current_stage_600k_ms": 153.1627357385254,
+        "gate_possible_if_only_stage_changes": false,
+        "maximum_evaluator_speedup_if_stage_free": 1.089113274064991,
+        "remaining_if_stage_free_600k_ms": 1718.7420992614746,
+        "required_stage_speedup_if_only_stage_changes": null
+      },
+      "current_ns_per_node": 255.2712262308757,
+      "current_projected_600k_ms": 153.1627357385254,
+      "required_speedup_to_proportional_budget": 2.417377700685222,
+      "target_budget_600k_ms": 63.359042194817306,
+      "target_budget_ns_per_node": 105.59840365802884
+    }
+  },
+  "stage_budget_sum_600k_ms": 774.35348,
+  "stop_conditions": [
+    "stop on any fixture, transition-oracle, evaluator, or determinism mismatch",
+    "stop on any hot-path allocation or 80/24-byte ABI regression",
+    "after the first implementation candidate, rerun PUYO-222 profiling before the next optimization",
+    "do not start the independent PUYO-221 gate until the combined 600,000-node p95 is at or below 820.625 ms"
+  ],
+  "ticket": "PUYO-219",
+  "transition_budget_600k_ms": 46.27152
+}

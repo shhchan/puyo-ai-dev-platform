@@ -1,0 +1,2322 @@
+{
+  "canonical_quality_evidence": false,
+  "child_exit_code": -15,
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "created_at_utc": "2026-08-26T01:16:59Z",
+  "decision_elapsed_seconds": null,
+  "decision_latency_lower_bound_seconds": 10.0,
+  "evaluated_commit": "b4528a5d9f4b2b1cfdec641c247da780f7a90232",
+  "interpretation": "reference first decision exceeded the supervised budget; the terminated process contributes latency and sampling evidence only",
+  "locked_maximum_decision_p95_seconds": 1.0,
+  "performance_gate_passed": false,
+  "profile": {
+    "depth": 16,
+    "max_expanded_nodes": 600000,
+    "name": "reference",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "purpose": "canonical quality and benchmark execution",
+    "scenarios": 6,
+    "schema_version": "puyo.deep_chain_builder.profile.v1",
+    "version": "1.0",
+    "width": 250
+  },
+  "result": null,
+  "sampling_profile": {
+    "groups": [
+      {
+        "group": "bounded_quiescence",
+        "samples": 605,
+        "share": 0.9250764525993884
+      },
+      {
+        "group": "digest",
+        "samples": 17,
+        "share": 0.02599388379204893
+      },
+      {
+        "group": "component_extraction",
+        "samples": 13,
+        "share": 0.019877675840978593
+      },
+      {
+        "group": "transition",
+        "samples": 13,
+        "share": 0.019877675840978593
+      },
+      {
+        "group": "evaluator_orchestration",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "group": "evaluator_score",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "group": "candidate_generation",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      }
+    ],
+    "interval_seconds": 0.01,
+    "leaf_functions": [
+      {
+        "function": "agents/chain_structure.py:1094:_vanishing_groups",
+        "samples": 69,
+        "share": 0.10550458715596331
+      },
+      {
+        "function": "agents/chain_structure.py:61:_cell_bit",
+        "samples": 62,
+        "share": 0.09480122324159021
+      },
+      {
+        "function": "agents/chain_structure.py:1261:_components_from_planes",
+        "samples": 45,
+        "share": 0.06880733944954129
+      },
+      {
+        "function": "agents/chain_structure.py:1197:<genexpr>",
+        "samples": 45,
+        "share": 0.06880733944954129
+      },
+      {
+        "function": "agents/chain_structure.py:1147:_apply_gravity",
+        "samples": 40,
+        "share": 0.06116207951070336
+      },
+      {
+        "function": "agents/chain_structure.py:1199:<genexpr>",
+        "samples": 24,
+        "share": 0.03669724770642202
+      },
+      {
+        "function": "agents/chain_structure.py:1199:_virtual_trigger_anchors",
+        "samples": 20,
+        "share": 0.03058103975535168
+      },
+      {
+        "function": "agents/chain_structure.py:1195:_virtual_trigger_anchors",
+        "samples": 17,
+        "share": 0.02599388379204893
+      },
+      {
+        "function": "agents/chain_structure.py:1196:_virtual_trigger_anchors",
+        "samples": 16,
+        "share": 0.024464831804281346
+      },
+      {
+        "function": "agents/chain_structure.py:1190:_virtual_trigger_anchors",
+        "samples": 14,
+        "share": 0.021406727828746176
+      },
+      {
+        "function": "agents/chain_structure.py:74:_stable_digest",
+        "samples": 13,
+        "share": 0.019877675840978593
+      },
+      {
+        "function": "agents/chain_structure.py:1146:_apply_gravity",
+        "samples": 12,
+        "share": 0.01834862385321101
+      },
+      {
+        "function": "agents/chain_structure.py:1197:_virtual_trigger_anchors",
+        "samples": 11,
+        "share": 0.016819571865443424
+      },
+      {
+        "function": "agents/chain_structure.py:1167:_apply_provenance_gravity",
+        "samples": 10,
+        "share": 0.01529051987767584
+      },
+      {
+        "function": "agents/chain_structure.py:1179:_virtual_trigger_anchors",
+        "samples": 8,
+        "share": 0.012232415902140673
+      },
+      {
+        "function": "agents/chain_structure.py:1299:_heights_from_planes",
+        "samples": 8,
+        "share": 0.012232415902140673
+      },
+      {
+        "function": "agents/chain_structure.py:1105:<genexpr>",
+        "samples": 8,
+        "share": 0.012232415902140673
+      },
+      {
+        "function": "agents/chain_structure.py:1232:<genexpr>",
+        "samples": 7,
+        "share": 0.010703363914373088
+      },
+      {
+        "function": "agents/chain_structure.py:1188:_virtual_trigger_anchors",
+        "samples": 6,
+        "share": 0.009174311926605505
+      },
+      {
+        "function": "agents/chain_structure.py:1175:_virtual_trigger_anchors",
+        "samples": 5,
+        "share": 0.00764525993883792
+      },
+      {
+        "function": "agents/chain_structure.py:1258:_components_from_planes",
+        "samples": 5,
+        "share": 0.00764525993883792
+      },
+      {
+        "function": "agents/chain_structure.py:1091:_vanishing_groups",
+        "samples": 5,
+        "share": 0.00764525993883792
+      },
+      {
+        "function": "agents/chain_structure.py:1075:_resolve_virtual",
+        "samples": 5,
+        "share": 0.00764525993883792
+      },
+      {
+        "function": "agents/chain_structure.py:1182:_virtual_trigger_anchors",
+        "samples": 4,
+        "share": 0.0061162079510703364
+      },
+      {
+        "function": "agents/chain_structure.py:1135:_clear_cells",
+        "samples": 4,
+        "share": 0.0061162079510703364
+      },
+      {
+        "function": "agents/chain_structure.py:1062:_resolve_virtual",
+        "samples": 4,
+        "share": 0.0061162079510703364
+      },
+      {
+        "function": "agents/chain_structure.py:986:bounded_quiescence",
+        "samples": 4,
+        "share": 0.0061162079510703364
+      },
+      {
+        "function": "agents/chain_structure.py:777:extract_components",
+        "samples": 4,
+        "share": 0.0061162079510703364
+      },
+      {
+        "function": "agents/chain_structure.py:86:_mirror_mask",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1357:_reachable_columns",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1183:_virtual_trigger_anchors",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1198:_virtual_trigger_anchors",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:920:<genexpr>",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:940:bounded_quiescence",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1065:_resolve_virtual",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:910:<genexpr>",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1096:_vanishing_groups",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1250:_components_from_planes",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1241:<genexpr>",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1270:_components_from_planes",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1282:<genexpr>",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1289:_occupied_mask",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:1271:_components_from_planes",
+        "samples": 3,
+        "share": 0.0045871559633027525
+      },
+      {
+        "function": "agents/chain_structure.py:910:bounded_quiescence",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1133:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1088:_vanishing_groups",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:348:canonical_signature",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1263:_components_from_planes",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1255:_components_from_planes",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1123:_adjacent_ojama",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1171:_apply_provenance_gravity",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:917:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1098:_vanishing_groups",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1103:_vanishing_groups",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1192:_virtual_trigger_anchors",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:69:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1104:_vanishing_groups",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1054:_resolve_virtual",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1107:_vanishing_groups",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1241:_smaller_gravity_patterns",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:972:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1350:_reachable_columns",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1632:_score",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1053:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1189:_virtual_trigger_anchors",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:65:_canonical_cells",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/compact_search.py:407:_apply_gravity",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:911:bounded_quiescence",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:941:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:941:bounded_quiescence",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:994:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1244:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/compact_search.py:640:transition",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1231:_smaller_gravity_patterns",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1005:bounded_quiescence",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:911:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:919:bounded_quiescence",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1141:_apply_gravity",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/compact_search.py:434:_normal_plane_index_at",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/compact_search.py:406:_apply_gravity",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:993:<genexpr>",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1224:_smaller_gravity_patterns",
+        "samples": 2,
+        "share": 0.0030581039755351682
+      },
+      {
+        "function": "agents/chain_structure.py:1037:<genexpr>",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1323:_extension_space",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1231:<genexpr>",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1409:<genexpr>",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:82:_mirror_mask",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1154:_apply_provenance_gravity",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/long_horizon_search.py:1700:_new_node",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:774:extract_components",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1079:_resolve_virtual",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1257:_components_from_planes",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1083:_vanishing_groups",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1055:_resolve_virtual",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1037:_resolve_virtual",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1464:_build_features",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1200:_virtual_trigger_anchors",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1165:_apply_provenance_gravity",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:1383:_trigger_protection",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      },
+      {
+        "function": "agents/chain_structure.py:918:<genexpr>",
+        "samples": 1,
+        "share": 0.0015290519877675841
+      }
+    ],
+    "profiler": "periodic Python frame stack sampler",
+    "sample_count": 654,
+    "sampled_duration_seconds": 6.54,
+    "stacks": [
+      {
+        "samples": 68,
+        "share": 0.10397553516819572,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1094:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 44,
+        "share": 0.0672782874617737,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1261:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 40,
+        "share": 0.06116207951070336,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1074:_resolve_virtual",
+          "agents/chain_structure.py:1147:_apply_gravity"
+        ]
+      },
+      {
+        "samples": 34,
+        "share": 0.05198776758409786,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1197:_virtual_trigger_anchors",
+          "agents/chain_structure.py:1197:<genexpr>"
+        ]
+      },
+      {
+        "samples": 24,
+        "share": 0.03669724770642202,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1193:_virtual_trigger_anchors",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 21,
+        "share": 0.03211009174311927,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1199:_virtual_trigger_anchors",
+          "agents/chain_structure.py:1199:<genexpr>"
+        ]
+      },
+      {
+        "samples": 15,
+        "share": 0.022935779816513763,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1199:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 15,
+        "share": 0.022935779816513763,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1195:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 14,
+        "share": 0.021406727828746176,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1190:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 12,
+        "share": 0.01834862385321101,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1074:_resolve_virtual",
+          "agents/chain_structure.py:1146:_apply_gravity"
+        ]
+      },
+      {
+        "samples": 12,
+        "share": 0.01834862385321101,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1196:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 11,
+        "share": 0.016819571865443424,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1197:_virtual_trigger_anchors",
+          "agents/chain_structure.py:1197:<genexpr>"
+        ]
+      },
+      {
+        "samples": 10,
+        "share": 0.01529051987767584,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1073:_resolve_virtual",
+          "agents/chain_structure.py:1167:_apply_provenance_gravity"
+        ]
+      },
+      {
+        "samples": 8,
+        "share": 0.012232415902140673,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:1012:bounded_quiescence",
+          "agents/chain_structure.py:1398:_candidate_rank_key",
+          "agents/chain_structure.py:74:_stable_digest"
+        ]
+      },
+      {
+        "samples": 8,
+        "share": 0.012232415902140673,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1179:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 8,
+        "share": 0.012232415902140673,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:977:bounded_quiescence",
+          "agents/chain_structure.py:1311:_extension_space",
+          "agents/chain_structure.py:1299:_heights_from_planes"
+        ]
+      },
+      {
+        "samples": 8,
+        "share": 0.012232415902140673,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1092:_vanishing_groups",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 8,
+        "share": 0.012232415902140673,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1105:_vanishing_groups",
+          "agents/chain_structure.py:1105:<genexpr>"
+        ]
+      },
+      {
+        "samples": 7,
+        "share": 0.010703363914373088,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1197:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 6,
+        "share": 0.009174311926605505,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1182:_virtual_trigger_anchors",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1175:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1193:_virtual_trigger_anchors",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1258:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1091:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1075:_resolve_virtual"
+        ]
+      },
+      {
+        "samples": 5,
+        "share": 0.00764525993883792,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1199:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1072:_resolve_virtual",
+          "agents/chain_structure.py:1135:_clear_cells"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1231:_smaller_gravity_patterns",
+          "agents/chain_structure.py:1232:<genexpr>",
+          "agents/chain_structure.py:1232:<genexpr>"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1062:_resolve_virtual"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1196:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:737:evaluate",
+          "agents/chain_structure.py:1661:_evaluation_digest",
+          "agents/chain_structure.py:74:_stable_digest"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:986:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 4,
+        "share": 0.0061162079510703364,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:705:evaluate",
+          "agents/chain_structure.py:777:extract_components"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1183:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1198:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:917:bounded_quiescence",
+          "agents/chain_structure.py:920:<genexpr>"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:940:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1101:_vanishing_groups",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1188:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1065:_resolve_virtual"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1073:_resolve_virtual",
+          "agents/chain_structure.py:1162:_apply_provenance_gravity",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:910:bounded_quiescence",
+          "agents/chain_structure.py:910:<genexpr>"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1096:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1250:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1241:_smaller_gravity_patterns",
+          "agents/chain_structure.py:1241:<genexpr>"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1231:_smaller_gravity_patterns",
+          "agents/chain_structure.py:1232:<genexpr>"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1270:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1259:_components_from_planes",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:974:bounded_quiescence",
+          "agents/chain_structure.py:975:<genexpr>",
+          "agents/chain_structure.py:1281:_connection_edge_count",
+          "agents/chain_structure.py:1282:<genexpr>"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1182:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1188:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1107:_vanishing_groups",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 3,
+        "share": 0.0045871559633027525,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1271:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:1989:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1197:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1072:_resolve_virtual",
+          "agents/chain_structure.py:1133:_clear_cells",
+          "agents/chain_structure.py:1133:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1088:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:737:evaluate",
+          "agents/chain_structure.py:1659:_evaluation_digest",
+          "agents/chain_structure.py:1659:<genexpr>",
+          "agents/chain_structure.py:86:_mirror_mask"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:1002:bounded_quiescence",
+          "agents/chain_structure.py:348:canonical_signature"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:977:bounded_quiescence",
+          "agents/chain_structure.py:1312:_extension_space",
+          "agents/chain_structure.py:1357:_reachable_columns"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1197:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1263:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1255:_components_from_planes"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1050:_resolve_virtual",
+          "agents/chain_structure.py:1123:_adjacent_ojama"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1073:_resolve_virtual",
+          "agents/chain_structure.py:1171:_apply_provenance_gravity"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1074:_resolve_virtual",
+          "agents/chain_structure.py:1145:_apply_gravity",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:917:bounded_quiescence",
+          "agents/chain_structure.py:917:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1098:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1268:_components_from_planes",
+          "agents/chain_structure.py:61:_cell_bit"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1103:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1192:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1104:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1199:_virtual_trigger_anchors",
+          "agents/chain_structure.py:1199:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1054:_resolve_virtual"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1045:_resolve_virtual",
+          "agents/chain_structure.py:1107:_vanishing_groups"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1241:_smaller_gravity_patterns"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:972:bounded_quiescence",
+          "agents/chain_structure.py:972:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:977:bounded_quiescence",
+          "agents/chain_structure.py:1312:_extension_space",
+          "agents/chain_structure.py:1350:_reachable_columns"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:724:evaluate",
+          "agents/chain_structure.py:1632:_score"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1053:_resolve_virtual",
+          "agents/chain_structure.py:1053:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1189:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2031:_run_long_horizon_search",
+          "agents/compact_search.py:579:transition",
+          "agents/compact_search.py:407:_apply_gravity"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:911:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:941:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:941:bounded_quiescence",
+          "agents/chain_structure.py:942:<genexpr>",
+          "agents/chain_structure.py:1195:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:994:bounded_quiescence",
+          "agents/chain_structure.py:994:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1241:_smaller_gravity_patterns",
+          "agents/chain_structure.py:1244:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2031:_run_long_horizon_search",
+          "agents/compact_search.py:640:transition"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1231:_smaller_gravity_patterns"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:1005:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:911:bounded_quiescence",
+          "agents/chain_structure.py:911:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:919:bounded_quiescence"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:964:bounded_quiescence",
+          "agents/chain_structure.py:1074:_resolve_virtual",
+          "agents/chain_structure.py:1141:_apply_gravity"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2031:_run_long_horizon_search",
+          "agents/compact_search.py:589:transition",
+          "agents/compact_search.py:449:_vanish_groups",
+          "agents/compact_search.py:434:_normal_plane_index_at"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2031:_run_long_horizon_search",
+          "agents/compact_search.py:579:transition",
+          "agents/compact_search.py:406:_apply_gravity"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:993:bounded_quiescence",
+          "agents/chain_structure.py:993:<genexpr>"
+        ]
+      },
+      {
+        "samples": 2,
+        "share": 0.0030581039755351682,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:2099:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:947:bounded_quiescence",
+          "agents/chain_structure.py:1224:_smaller_gravity_patterns"
+        ]
+      },
+      {
+        "samples": 1,
+        "share": 0.0015290519877675841,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:1989:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:935:bounded_quiescence",
+          "agents/chain_structure.py:1182:_virtual_trigger_anchors"
+        ]
+      },
+      {
+        "samples": 1,
+        "share": 0.0015290519877675841,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:1989:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:737:evaluate",
+          "agents/chain_structure.py:1659:_evaluation_digest",
+          "agents/chain_structure.py:1659:<genexpr>",
+          "agents/chain_structure.py:86:_mirror_mask"
+        ]
+      },
+      {
+        "samples": 1,
+        "share": 0.0015290519877675841,
+        "stack": [
+          "eval/deep_chain_native_profile.py:996:_reference_worker",
+          "agents/deep_chain_builder.py:797:select_action",
+          "agents/deep_chain_builder.py:779:decide",
+          "agents/decision_flow.py:274:execute",
+          "agents/deep_chain_builder.py:559:run",
+          "agents/long_horizon_search.py:1863:run_compact_long_horizon_search",
+          "agents/long_horizon_search.py:1989:_run_long_horizon_search",
+          "agents/long_horizon_search.py:1672:_evaluate_node",
+          "agents/chain_structure.py:707:evaluate",
+          "agents/chain_structure.py:971:bounded_quiescence",
+          "agents/chain_structure.py:1261:_components_from_planes"
+        ]
+      }
+    ]
+  },
+  "schema_version": "puyo.deep_chain_native.reference_probe.v1",
+  "seed": 123,
+  "supervisor_elapsed_seconds": 10.181347359000029,
+  "ticket": "PUYO-198",
+  "timed_out": true,
+  "timeout_seconds": 10.0,
+  "worker_started": true
+}

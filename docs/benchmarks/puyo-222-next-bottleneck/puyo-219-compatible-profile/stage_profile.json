@@ -1,0 +1,268 @@
+{
+  "aggregate": {
+    "aggregate_counts_per_sample": {
+      "executed_pattern_probes": 10444966,
+      "pattern_nodes": 249000000,
+      "rank_comparison_calls": 9846138,
+      "rank_tie_calls": 1028918,
+      "resolution_nodes": 10444966,
+      "sha256_calls": 1415633
+    },
+    "cycle_counter_available": true,
+    "cycles_p50": 6689536240.0,
+    "cycles_p95": 6775652364.0,
+    "determinism_mismatch_count": 0,
+    "elapsed_p50_ms": 2025.822481,
+    "elapsed_p95_ms": 2053.366392,
+    "operations_exact": true,
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "profile_sample_count": 5,
+    "profiled_result_mismatch_count": 0,
+    "sample_interval_us": 100,
+    "sampler_available": true,
+    "sampler_sample_count": 58719,
+    "stage_entries_per_sample": {
+      "base_feature_component_extraction": 1200000,
+      "candidate_ranking_sha256": 10444966,
+      "driver_unattributed": 600000,
+      "placement_enumeration_trigger_qualification": 11044966,
+      "remaining_structure_scan": 0,
+      "transition": 600000,
+      "virtual_resolve_gravity": 3025785
+    },
+    "stage_sample_shares": {
+      "base_feature_component_extraction": 0.19959467974590847,
+      "candidate_ranking_sha256": 0.34770687511708304,
+      "driver_unattributed": 0.0004087263066469116,
+      "placement_enumeration_trigger_qualification": 0.3415419199918255,
+      "remaining_structure_scan": 0.0,
+      "transition": 0.031540046662920006,
+      "virtual_resolve_gravity": 0.07920775217561607
+    },
+    "stage_sample_totals": {
+      "base_feature_component_extraction": 11720,
+      "candidate_ranking_sha256": 20417,
+      "driver_unattributed": 24,
+      "placement_enumeration_trigger_qualification": 20055,
+      "remaining_structure_scan": 0,
+      "transition": 1852,
+      "virtual_resolve_gravity": 4651
+    }
+  },
+  "method": "QA-only 100us user-space interval sampler over explicit native stage markers, with exact inner-loop call counters",
+  "samples": [
+    {
+      "aggregate_counts": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1415633
+      },
+      "checksum": 6517067855075167553,
+      "cycle_counter_available": true,
+      "cycles": 6716940074,
+      "cycles_per_operation": 11194.900123333333,
+      "elapsed_ms": 2026.486961,
+      "elapsed_ns": 2026486961,
+      "mismatch_count": 0,
+      "ns_per_operation": 3377.4782683333333,
+      "operations": 600000,
+      "record_count": 512,
+      "sample": 0,
+      "sample_count": 11841,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "stage_entries": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_samples": {
+        "base_feature_component_extraction": 2436,
+        "candidate_ranking_sha256": 4127,
+        "driver_unattributed": 4,
+        "placement_enumeration_trigger_qualification": 3983,
+        "remaining_structure_scan": 0,
+        "transition": 372,
+        "virtual_resolve_gravity": 919
+      }
+    },
+    {
+      "aggregate_counts": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1415633
+      },
+      "checksum": 6517067855075167553,
+      "cycle_counter_available": true,
+      "cycles": 6659958396,
+      "cycles_per_operation": 11099.93066,
+      "elapsed_ms": 2012.512288,
+      "elapsed_ns": 2012512288,
+      "mismatch_count": 0,
+      "ns_per_operation": 3354.1871466666666,
+      "operations": 600000,
+      "record_count": 512,
+      "sample": 1,
+      "sample_count": 11646,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "stage_entries": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_samples": {
+        "base_feature_component_extraction": 2281,
+        "candidate_ranking_sha256": 4037,
+        "driver_unattributed": 2,
+        "placement_enumeration_trigger_qualification": 4053,
+        "remaining_structure_scan": 0,
+        "transition": 372,
+        "virtual_resolve_gravity": 901
+      }
+    },
+    {
+      "aggregate_counts": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1415633
+      },
+      "checksum": 6517067855075167553,
+      "cycle_counter_available": true,
+      "cycles": 6682445690,
+      "cycles_per_operation": 11137.409483333333,
+      "elapsed_ms": 2021.777853,
+      "elapsed_ns": 2021777853,
+      "mismatch_count": 0,
+      "ns_per_operation": 3369.629755,
+      "operations": 600000,
+      "record_count": 512,
+      "sample": 2,
+      "sample_count": 11642,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "stage_entries": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_samples": {
+        "base_feature_component_extraction": 2352,
+        "candidate_ranking_sha256": 4011,
+        "driver_unattributed": 6,
+        "placement_enumeration_trigger_qualification": 3961,
+        "remaining_structure_scan": 0,
+        "transition": 361,
+        "virtual_resolve_gravity": 951
+      }
+    },
+    {
+      "aggregate_counts": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1415633
+      },
+      "checksum": 6517067855075167553,
+      "cycle_counter_available": true,
+      "cycles": 6689536240,
+      "cycles_per_operation": 11149.227066666666,
+      "elapsed_ms": 2025.822481,
+      "elapsed_ns": 2025822481,
+      "mismatch_count": 0,
+      "ns_per_operation": 3376.3708016666665,
+      "operations": 600000,
+      "record_count": 512,
+      "sample": 3,
+      "sample_count": 11688,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "stage_entries": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_samples": {
+        "base_feature_component_extraction": 2304,
+        "candidate_ranking_sha256": 4151,
+        "driver_unattributed": 7,
+        "placement_enumeration_trigger_qualification": 3930,
+        "remaining_structure_scan": 0,
+        "transition": 358,
+        "virtual_resolve_gravity": 938
+      }
+    },
+    {
+      "aggregate_counts": {
+        "executed_pattern_probes": 10444966,
+        "pattern_nodes": 249000000,
+        "rank_comparison_calls": 9846138,
+        "rank_tie_calls": 1028918,
+        "resolution_nodes": 10444966,
+        "sha256_calls": 1415633
+      },
+      "checksum": 6517067855075167553,
+      "cycle_counter_available": true,
+      "cycles": 6775652364,
+      "cycles_per_operation": 11292.75394,
+      "elapsed_ms": 2053.366392,
+      "elapsed_ns": 2053366392,
+      "mismatch_count": 0,
+      "ns_per_operation": 3422.27732,
+      "operations": 600000,
+      "record_count": 512,
+      "sample": 4,
+      "sample_count": 11902,
+      "sample_interval_us": 100,
+      "sampler_available": true,
+      "stage_entries": {
+        "base_feature_component_extraction": 1200000,
+        "candidate_ranking_sha256": 10444966,
+        "driver_unattributed": 600000,
+        "placement_enumeration_trigger_qualification": 11044966,
+        "remaining_structure_scan": 0,
+        "transition": 600000,
+        "virtual_resolve_gravity": 3025785
+      },
+      "stage_samples": {
+        "base_feature_component_extraction": 2347,
+        "candidate_ranking_sha256": 4091,
+        "driver_unattributed": 5,
+        "placement_enumeration_trigger_qualification": 4128,
+        "remaining_structure_scan": 0,
+        "transition": 389,
+        "virtual_resolve_gravity": 942
+      }
+    }
+  ],
+  "schema_version": "puyo.native_chain_structure_stage_analysis.v1",
+  "ticket": "PUYO-219"
+}

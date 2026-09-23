@@ -1,0 +1,114 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "measurement_contract.json",
+      "required": true,
+      "role": "measurement_contract",
+      "sha256": "5b478965f38abec89394069d04dff3f3b4331dff896415ace8ae26ef4361e7af",
+      "size_bytes": 2280
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "semantic_verification.json",
+      "required": true,
+      "role": "semantic_verification",
+      "sha256": "936eb62f11c44998343c6b8c7f4f7141bcaed8c5af574f214f2b93ea740db752",
+      "size_bytes": 884
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "raw_profile.json",
+      "required": true,
+      "role": "raw_profile",
+      "sha256": "210dfd6c04f4833f0c4a9a6fd20eecb327772194abfbe9dcc1ff4b2461ddf5b7",
+      "size_bytes": 22729
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "stage_profile.json",
+      "required": true,
+      "role": "stage_profile",
+      "sha256": "54877c06eb38a45f4f7e931ae1a7e103fe071a2d41b332f0b18cad88837e6849",
+      "size_bytes": 18883
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "call_counts.json",
+      "required": true,
+      "role": "call_counts",
+      "sha256": "4e105dcf4ef8a56e002388aca8cd6b2774561c75183aa3b99ea97c2f274d932e",
+      "size_bytes": 272715
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "diagnostic_ablation.json",
+      "required": true,
+      "role": "diagnostic_ablation",
+      "sha256": "1c3c94e840a91a2c876149e7078903cc652cf8d84655e6d4001ac88194907b03",
+      "size_bytes": 10144
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "stage_budget.json",
+      "required": true,
+      "role": "stage_budget",
+      "sha256": "2555a2952087aeb70668c2b80bd6ca700994c2291a5c39dbe5521c1cc02a5d56",
+      "size_bytes": 5330
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "985b756a0b78a9db1e8844bdf2791d65b60f78e0ba729a7f68f90104962d7fed",
+      "size_bytes": 321568
+    },
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "ffd864a26f87184543c5d8cd63ee0e99fde2cd9b10de3167c5603d4e6ad11702",
+      "size_bytes": 2233
+    }
+  ],
+  "created_at_utc": "2026-09-02T16:50:52Z",
+  "decision": "PROFILE_COMPLETE_OPTIMIZATION_REQUIRED",
+  "environment": {
+    "canonical_evaluator_thread_count": 1,
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+    "native_module_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "native_module_sha256": "b5644341d737bc9397dc72f5963174f4bdc343809d1460f8329b6e23757cda59",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "release_wheel_path": "dist/native/puyo_deep_chain_native-0.3.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+    "release_wheel_sha256": "dcb0afcb397a2470c7924a6b5e61e21427f3fe058ea6752daf615432451275e7",
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)"
+  },
+  "input_digest": "caa9c2406e015173e2795c314d6c3250a9a0f9b22575634ed96a0f741f8cc2b0",
+  "measurement_commit": "8daa8f6a6765756821b9d42b5bb523006c64a4e9",
+  "passed": true,
+  "schema_version": "puyo.native_chain_structure_hot_path_manifest.v1",
+  "source_implementation_commit": "c66d3ab054626b4015c203c790d136deb9b44a26",
+  "source_tracked_diff_before_run": false,
+  "source_tree_dirty_before_run": true,
+  "source_untracked_paths_before_run": [
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/base_component_oracle.json",
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/before_after.json",
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/benchmark_manifest.json",
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/benchmark_report.md",
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/benchmark_summary.json",
+    "docs/benchmarks/puyo-226-base-feature-component-extraction/bottleneck_ledger.json"
+  ],
+  "ticket": "PUYO-219"
+}

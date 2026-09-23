@@ -31,6 +31,7 @@ from .obs import (
     SCALAR_FEATURE_DIM,
     VISIBLE_PAIR_COUNT,
     encode_board,
+    encode_ghost_row,
     encode_next_pairs,
     encode_scalars,
 )
@@ -205,6 +206,7 @@ class VersusPuyoEnv:
         observation = {
             "board": np.concatenate([own_board, opponent_board], axis=0).astype(np.float32, copy=False),
             "own_board": own_board,
+            "ghost_row": encode_ghost_row(state.simulator.game),
             "opponent_board": opponent_board,
             "next_pairs": encode_next_pairs(state.simulator.game),
             "scalars": encode_scalars(
@@ -225,6 +227,7 @@ class VersusPuyoEnv:
         return {
             "action_mask": self.action_mask(agent),
             "score": state.simulator.game.score,
+            "game_over": bool(state.simulator.game.game_over),
             "opponent_score": opponent_state.simulator.game.score,
             "pending_ojama": state.pending_ojama,
             "incoming_ojama": state.pending_ojama,
@@ -579,6 +582,10 @@ def make_versus_observation_space(spaces_module: Any, include_action_mask: bool 
     """Create the observation space used by each versus player."""
 
     entries = {
+        "ghost_row": spaces_module.Box(
+            low=0.0, high=1.0,
+            shape=(len(BOARD_COLOR_CHANNELS), GRID_WIDTH), dtype=np.float32,
+        ),
         "board": spaces_module.Box(
             low=0.0,
             high=1.0,

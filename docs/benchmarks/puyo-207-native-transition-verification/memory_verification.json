@@ -1,0 +1,25 @@
+{
+  "limits": {
+    "child_state_bytes": 80,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "per_transition_write_bytes": 104,
+    "selected_reusable_metadata_bytes": 8
+  },
+  "observed": {
+    "canonical_retained_upper_bound_bytes": 62400000,
+    "child_state_bytes": 80,
+    "cold_warm_peak_rss_delta_kib": 8324,
+    "cold_warm_peak_rss_kib_after": 73012,
+    "cold_warm_peak_rss_kib_before": 64688,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "per_transition_write_bytes": 104,
+    "process_peak_rss_kib": 161608,
+    "selected_layout_p50_ns": 17.8887,
+    "selected_layout_p95_ns": 37.1856,
+    "selected_layout_update_bytes_per_record": 54,
+    "selected_reusable_metadata_bytes": 8
+  },
+  "schema_version": "puyo.native_compact_memory_verification.v1"
+}

@@ -1,0 +1,7354 @@
+{
+  "build_provenance": {
+    "capabilities": {
+      "abi_version": 1,
+      "build_profile": "release",
+      "compact_hot_result": {
+        "abi_version": 1,
+        "child_state_bytes": 80,
+        "flags_mask": 15,
+        "result_bytes": 24,
+        "schema": "puyo.native_compact_hot_result.v1"
+      },
+      "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "cpu_features": [
+        "scalar",
+        "sse2",
+        "ssse3",
+        "sse4.1",
+        "avx2"
+      ],
+      "crate_version": "0.4.0",
+      "gil_detach": true,
+      "limits": {
+        "max_request_bytes": 16777216,
+        "max_response_bytes": 16777216,
+        "max_sections": 64
+      },
+      "max_threads": 6,
+      "parallel": true,
+      "python_abi": "cp312",
+      "scalar_fallback": true,
+      "schema": {
+        "major": 1,
+        "minor_max": 0,
+        "minor_min": 0,
+        "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+        "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+      },
+      "simd_path": "scalar",
+      "source_revision": "013c91cf2e890d4e02e8478d425aad1b352fb3fa",
+      "target": "x86_64-unknown-linux-gnu",
+      "thread_modes": [
+        "oracle-1",
+        "scenario-6"
+      ],
+      "wheel_hash_hook": true,
+      "wire_name": "puyo.deep_chain_native.envelope.v1"
+    },
+    "checks": {
+      "capabilities_available": true,
+      "configured_thread_mode_available": true,
+      "configured_thread_mode_locked": true,
+      "gil_detached": true,
+      "python_abi_matches": true,
+      "release_build": true,
+      "single_release_wheel_present": true,
+      "source_revision_matches_commit": true,
+      "tracked_worktree_clean": true
+    },
+    "configuration": {
+      "backend_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+      "backend_version": "1.0",
+      "search_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+      "thread_count": 6,
+      "thread_mode": "scenario-6"
+    },
+    "error": null,
+    "evaluated_commit": "013c91cf2e890d4e02e8478d425aad1b352fb3fa",
+    "host": {
+      "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+      "logical_cpu_count": 8,
+      "machine": "x86_64",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+      "python_abi": "cp312",
+      "python_implementation": "CPython",
+      "python_version": "3.12.3",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "system": "Linux"
+    },
+    "recorded_at_utc": "2026-09-07T03:00:11Z",
+    "schema_version": "puyo.deep_chain_builder.build_provenance.v1",
+    "ticket": "PUYO-204",
+    "tracked_worktree_clean": true,
+    "valid_for_canonical": true,
+    "wheels": [
+      {
+        "filename": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "path": "dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+        "sha256": "d437f6d4c647b86391271390512bc7e402dcb749dadde533c9e57601825ac415",
+        "size_bytes": 1662179
+      }
+    ]
+  },
+  "byte_identical_repeats": true,
+  "exported_candidates": [
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "RED",
+            "source_component_ids": [
+              "624472bbcb169a93:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ],
+              [
+                0,
+                4
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 0,
+          "height": 2,
+          "protection": 0.3333333333333333
+        },
+        "trigger_color": "RED"
+      },
+      "fixed_tie_break": 5395194795591765277,
+      "index": 0,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.3333333333333333,
+        -2,
+        "4adf9514e5488d1df9cc557d1398d6db8290c94f4e0ca831f459e594fef99c5a"
+      ],
+      "signature": [
+        "RED",
+        [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        1,
+        40,
+        3,
+        2,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            5,
+            2
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            5,
+            3
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            5,
+            5
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "GREEN",
+            "source_component_ids": [
+              "5b6bc59ce883fc49:0"
+            ],
+            "vanished_cells": [
+              [
+                5,
+                2
+              ],
+              [
+                5,
+                3
+              ],
+              [
+                5,
+                4
+              ],
+              [
+                5,
+                5
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 5,
+          "height": 3,
+          "protection": 0.3333333333333333
+        },
+        "trigger_color": "GREEN"
+      },
+      "fixed_tie_break": 1135132178700252337,
+      "index": 1,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.3333333333333333,
+        -3,
+        "0fc0ccb3cc8b34b197a81bf3f662681ec080de3f6fe5307d709e045f325c6829"
+      ],
+      "signature": [
+        "GREEN",
+        [
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ]
+        ],
+        1,
+        40,
+        3,
+        3,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "RED",
+            "source_component_ids": [
+              "624472bbcb169a93:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 0,
+          "height": 0,
+          "protection": 0.3333333333333333
+        },
+        "trigger_color": "RED"
+      },
+      "fixed_tie_break": 4165398326234657349,
+      "index": 2,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.3333333333333333,
+        0,
+        "39ce77b55f393245a0102855b2cd071a63e7b07ea9128f4ded390e191df7acc9"
+      ],
+      "signature": [
+        "RED",
+        [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            5,
+            1
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "RED",
+            "source_component_ids": [
+              "624472bbcb169a93:1"
+            ],
+            "vanished_cells": [
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 4,
+          "height": 0,
+          "protection": 0.6666666666666666
+        },
+        "trigger_color": "RED"
+      },
+      "fixed_tie_break": 2474342418449266372,
+      "index": 3,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.6666666666666666,
+        0,
+        "2256a151e85976c4baeb0ac24ba5ce0471d4a9232186574dd64e84f25ff6e3c5"
+      ],
+      "signature": [
+        "RED",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            0
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "BLUE",
+            "source_component_ids": [
+              "1e0ded7ef96fdeaf:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 1,
+          "height": 0,
+          "protection": 0.5
+        },
+        "trigger_color": "BLUE"
+      },
+      "fixed_tie_break": 14015310515550250016,
+      "index": 4,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.5,
+        0,
+        "c28062a8582b6420bcc56b9bb73fdf5a65b6fc567030ca9d51fc06b80925aab2"
+      ],
+      "signature": [
+        "BLUE",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            0
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            5,
+            2
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "GREEN",
+            "source_component_ids": [
+              "5b6bc59ce883fc49:0"
+            ],
+            "vanished_cells": [
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 4,
+          "height": 0,
+          "protection": 0.3333333333333333
+        },
+        "trigger_color": "GREEN"
+      },
+      "fixed_tie_break": 17375927261382412784,
+      "index": 5,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.3333333333333333,
+        0,
+        "f123b1c859b989f035042ec73c2ecfcd506b60d0a107825562145136a76793bc"
+      ],
+      "signature": [
+        "GREEN",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            5,
+            1
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "RED",
+            "source_component_ids": [
+              "624472bbcb169a93:1"
+            ],
+            "vanished_cells": [
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 3,
+          "height": 0,
+          "protection": 0.6666666666666666
+        },
+        "trigger_color": "RED"
+      },
+      "fixed_tie_break": 12330852331454354270,
+      "index": 6,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.6666666666666666,
+        0,
+        "ab1ffcdd2222535ef2855c887bfe3af780c8873f233b5eac1af99574f36085af"
+      ],
+      "signature": [
+        "RED",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            0
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "BLUE",
+            "source_component_ids": [
+              "1e0ded7ef96fdeaf:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 1,
+          "height": 0,
+          "protection": 0.5
+        },
+        "trigger_color": "BLUE"
+      },
+      "fixed_tie_break": 14338128698059836139,
+      "index": 7,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.5,
+        0,
+        "c6fb44158fb0caebcd5b78072e23cb69cff1eb31391d0d58ed3af5993f396593"
+      ],
+      "signature": [
+        "BLUE",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            0
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            0
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "BLUE",
+            "source_component_ids": [
+              "1e0ded7ef96fdeaf:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 1,
+          "height": 0,
+          "protection": 0.5
+        },
+        "trigger_color": "BLUE"
+      },
+      "fixed_tie_break": 8245509796896036449,
+      "index": 8,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.5,
+        0,
+        "726def7943fdd6619325c4130e8e6530de5a9ed7595a2850ce826a0e55fd94e4"
+      ],
+      "signature": [
+        "BLUE",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            0
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "candidate": {
+        "anchor_cells": [
+          [
+            0,
+            0
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "BLUE",
+            "source_component_ids": [
+              "1e0ded7ef96fdeaf:0"
+            ],
+            "vanished_cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 1,
+          "height": 0,
+          "protection": 0.5
+        },
+        "trigger_color": "BLUE"
+      },
+      "fixed_tie_break": 9813838939693064850,
+      "index": 9,
+      "key": [
+        1,
+        -3,
+        40,
+        0,
+        0,
+        0,
+        4,
+        0.5,
+        0,
+        "8831c2850b4d2292771cf031783363ee33bf30ae38d0354a852f5106e3eab792"
+      ],
+      "signature": [
+        "BLUE",
+        [
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            0
+          ]
+        ],
+        1,
+        40,
+        3,
+        0,
+        0,
+        0,
+        0,
+        4
+      ]
+    }
+  ],
+  "fixture": {
+    "decision": 22,
+    "expected": {
+      "anchor_cells": [
+        [
+          5,
+          1
+        ]
+      ],
+      "pattern_nodes": 415,
+      "placements": [
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "resolution_nodes": 16,
+      "score": 17927.0,
+      "trigger_color": "RED",
+      "trigger_protection": 0.6666666666666666,
+      "unique_candidates": 10
+    },
+    "seed": 146,
+    "source": "docs/benchmarks/puyo-231-target-ablation/error_diagnostics/seed-146-target-12.json",
+    "source_commit": "195b41415324bb27643c59fbef8d8799d59a6296",
+    "state": {
+      "all_clear_bonus_pending": false,
+      "game_over": false,
+      "last_chain_end_score": 69040,
+      "planes": [
+        2112,
+        33,
+        131072,
+        0,
+        0,
+        0
+      ],
+      "score": 69040
+    },
+    "target": 12,
+    "ticket": "PUYO-238"
+  },
+  "full_python_native_parity": true,
+  "hot_profile": [
+    {
+      "checksum": 5985935545300156416,
+      "elapsed_ns": 284111916,
+      "evaluator_abi_version": 1,
+      "operations": 600000,
+      "record_count": 1
+    },
+    {
+      "checksum": 5985935545300156416,
+      "elapsed_ns": 273528553,
+      "evaluator_abi_version": 1,
+      "operations": 600000,
+      "record_count": 1
+    },
+    {
+      "checksum": 5985935545300156416,
+      "elapsed_ns": 289951646,
+      "evaluator_abi_version": 1,
+      "operations": 600000,
+      "record_count": 1
+    },
+    {
+      "checksum": 5985935545300156416,
+      "elapsed_ns": 280330107,
+      "evaluator_abi_version": 1,
+      "operations": 600000,
+      "record_count": 1
+    },
+    {
+      "checksum": 5985935545300156416,
+      "elapsed_ns": 272297815,
+      "evaluator_abi_version": 1,
+      "operations": 600000,
+      "record_count": 1
+    }
+  ],
+  "kind": "diagnostic_excluded_from_quality_and_performance",
+  "materialization_error": null,
+  "native_best": {
+    "candidate": {
+      "anchor_cells": [
+        [
+          5,
+          1
+        ]
+      ],
+      "chain_count": 1,
+      "chain_score": 40,
+      "extension_space": 4,
+      "placements": [
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "relations": [
+        {
+          "caused_by_chain_index": null,
+          "chain_index": 1,
+          "color": "RED",
+          "source_component_ids": [
+            "624472bbcb169a93:1"
+          ],
+          "vanished_cells": [
+            [
+              3,
+              0
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              5,
+              1
+            ]
+          ]
+        }
+      ],
+      "remaining_links": {
+        "connection_edges": 0,
+        "link_2": 0,
+        "link_3": 0
+      },
+      "required_key_count": 3,
+      "trigger": {
+        "column": 3,
+        "height": 0,
+        "protection": 0.6666666666666666
+      },
+      "trigger_color": "RED"
+    },
+    "fixed_tie_break": 12330852331454354270,
+    "key": [
+      1,
+      -3,
+      40,
+      0,
+      0,
+      0,
+      4,
+      0.6666666666666666,
+      0,
+      "ab1ffcdd2222535ef2855c887bfe3af780c8873f233b5eac1af99574f36085af"
+    ],
+    "signature": [
+      "RED",
+      [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      [
+        [
+          0,
+          1
+        ]
+      ],
+      1,
+      40,
+      3,
+      0,
+      0,
+      0,
+      0,
+      4
+    ]
+  },
+  "native_record": {
+    "action_features": {
+      "danger_delta": 0.0,
+      "death": false,
+      "evaluated": false,
+      "premature_fire": false,
+      "tear_count": 0,
+      "trigger_damage": 0,
+      "waste_count": 0
+    },
+    "best": {
+      "anchor_mask": 2417851639229258349412352,
+      "chain_count": 1,
+      "chain_score": 40,
+      "extension_space": 4,
+      "fixed_tie_break": 12330852331454354270,
+      "placements_mask": 55340513696105365504,
+      "remaining_connection_edges": 0,
+      "remaining_link_2": 0,
+      "remaining_link_3": 0,
+      "required_key_count": 3,
+      "trigger_color": "<PuyoColor.RED: 1>",
+      "trigger_column": 3,
+      "trigger_height": 0,
+      "trigger_protection": 0.6666666666666666
+    },
+    "candidates": [
+      {
+        "anchor_mask": 2,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 5395194795591765277,
+        "placements_mask": 28,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.RED: 1>",
+        "trigger_column": 0,
+        "trigger_height": 2,
+        "trigger_protection": 0.3333333333333333
+      },
+      {
+        "anchor_mask": 4835703278458516698824704,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 1135132178700252337,
+        "placements_mask": 67699845898419233783545856,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.GREEN: 3>",
+        "trigger_column": 5,
+        "trigger_height": 3,
+        "trigger_protection": 0.3333333333333333
+      },
+      {
+        "anchor_mask": 2,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 4165398326234657349,
+        "placements_mask": 196612,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.RED: 1>",
+        "trigger_column": 0,
+        "trigger_height": 0,
+        "trigger_protection": 0.3333333333333333
+      },
+      {
+        "anchor_mask": 2417851639229258349412352,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 2474342418449266372,
+        "placements_mask": 129127208515966861312,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.RED: 1>",
+        "trigger_column": 4,
+        "trigger_height": 0,
+        "trigger_protection": 0.6666666666666666
+      },
+      {
+        "anchor_mask": 1,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 14015310515550250016,
+        "placements_mask": 458752,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.BLUE: 2>",
+        "trigger_column": 1,
+        "trigger_height": 0,
+        "trigger_protection": 0.5
+      },
+      {
+        "anchor_mask": 4835703278458516698824704,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 17375927261382412784,
+        "placements_mask": 129127208515966861312,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.GREEN: 3>",
+        "trigger_column": 4,
+        "trigger_height": 0,
+        "trigger_protection": 0.3333333333333333
+      },
+      {
+        "anchor_mask": 2417851639229258349412352,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 12330852331454354270,
+        "placements_mask": 55340513696105365504,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.RED: 1>",
+        "trigger_column": 3,
+        "trigger_height": 0,
+        "trigger_protection": 0.6666666666666666
+      },
+      {
+        "anchor_mask": 1,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 14338128698059836139,
+        "placements_mask": 4295163904,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.BLUE: 2>",
+        "trigger_column": 1,
+        "trigger_height": 0,
+        "trigger_protection": 0.5
+      },
+      {
+        "anchor_mask": 1,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 8245509796896036449,
+        "placements_mask": 12884967424,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.BLUE: 2>",
+        "trigger_column": 1,
+        "trigger_height": 0,
+        "trigger_protection": 0.5
+      },
+      {
+        "anchor_mask": 1,
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "fixed_tie_break": 9813838939693064850,
+        "placements_mask": 281479271743488,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "trigger_color": "<PuyoColor.BLUE: 2>",
+        "trigger_column": 1,
+        "trigger_height": 0,
+        "trigger_protection": 0.5
+      }
+    ],
+    "evaluation_status": "available",
+    "features": {
+      "adjacent_roughness": 5,
+      "bump_height": 0,
+      "canonical_column_heights": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "component_count": 5,
+      "connection_candidate_count": 0,
+      "connectivity_edges": 0,
+      "danger_ratio": 0.0875,
+      "death": false,
+      "fold_space": 55,
+      "foundation_cell_count": 5,
+      "growth_site_count": 4,
+      "height_spread": 3,
+      "hidden_row_count": 0,
+      "isolated_count": 5,
+      "link_2": 0,
+      "link_3": 0,
+      "normal_puyo_count": 5,
+      "nuisance_count": 0,
+      "potential_chain_count": 1,
+      "potential_chain_score": 40,
+      "reachable_ignition_count": 0,
+      "remaining_connection_edges": 0,
+      "remaining_link_2": 0,
+      "remaining_link_3": 0,
+      "required_key_count": 3,
+      "structural_dead_end": false,
+      "trigger_column": 1,
+      "trigger_height": 0,
+      "trigger_protection": 0.6666666666666666,
+      "trigger_reachable": true,
+      "unreachable_trigger": false,
+      "well_depth": 0
+    },
+    "pattern_nodes": 415,
+    "resolution_nodes": 16,
+    "score": 17927.0,
+    "score_breakdown": {
+      "component_connectivity": 0.0,
+      "connection_potential": 0.0,
+      "danger": -1750.0,
+      "fatal": 0.0,
+      "key_cost": -27000.0,
+      "nuisance": -0.0,
+      "premature_fire": 0.0,
+      "quiescence_chain": 45002.0,
+      "remaining_links": 0.0,
+      "shape": 1275.0,
+      "tear": -0.0,
+      "total": 17927.0,
+      "trigger_damage": -0.0,
+      "trigger_position": 400.0,
+      "waste": -0.0
+    },
+    "truncation_reason": null
+  },
+  "private_counterfactual": {
+    "boundary_audit": {
+      "method": "counterfactual_private_sentinel_boundary_audit",
+      "passed": true,
+      "private_future_leak_count": 0,
+      "records": [
+        {
+          "digests_match": true,
+          "leaked": false,
+          "left_digest": "03f5887c42f9487d85f0d2e8852e96e29dad64e3668af0f373b79bca3a935a26",
+          "private_marker_absent": true,
+          "right_digest": "03f5887c42f9487d85f0d2e8852e96e29dad64e3668af0f373b79bca3a935a26",
+          "seed": 146
+        }
+      ],
+      "schema_version": "puyo.deep_chain_builder.future_isolation.v2",
+      "seed_count": 1,
+      "ticket": "PUYO-204",
+      "visible_info_fields": [
+        "action_mask",
+        "action_mask_source",
+        "schema_version",
+        "action_contract_version",
+        "score",
+        "step_count",
+        "tick_count",
+        "max_steps",
+        "max_ticks",
+        "last_chain_end_score",
+        "last_chain_score_delta",
+        "all_clear_bonus_pending",
+        "game_over"
+      ],
+      "visible_observation_fields": [
+        "own_board",
+        "board",
+        "ghost_row",
+        "next_pairs",
+        "scalars",
+        "realtime_scalars",
+        "action_mask",
+        "schema_version"
+      ]
+    },
+    "matches": true,
+    "samples": [
+      {
+        "digest": "3d60d5e01be52d257ad63f48ca6c6408e9fff49e89df67497603738562a7f5d5",
+        "evidence": {
+          "action": 1,
+          "plan": {
+            "objective": {
+              "kind": "deep_chain_construction",
+              "minimum_chain_count": 12
+            },
+            "plan_id": "28dd7c2230e5a07c",
+            "prediction_summary": {
+              "cumulative_attack": 0,
+              "cumulative_score": 0,
+              "final_state_fingerprint": "5e0a02bc641d0476e3198543",
+              "maximum_chain_count": 0
+            },
+            "replan_reason": "initial_plan",
+            "schema_version": "n-turn-plan-v1",
+            "steps": [
+              {
+                "action": 1,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 0
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "73b38290ea9d0f50a114303e",
+                "scenario_id": 3,
+                "state_fingerprint": "32047df4c2962bef5f525784",
+                "step_index": 0,
+                "tsumo": [
+                  "BLUE",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 8,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 0
+                  },
+                  {
+                    "color": "RED",
+                    "x": 3,
+                    "y": 0
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "32047df4c2962bef5f525784",
+                "scenario_id": 3,
+                "state_fingerprint": "240a2681d75b4fac424ae2c9",
+                "step_index": 1,
+                "tsumo": [
+                  "GREEN",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 1,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 0,
+                    "y": 1
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "240a2681d75b4fac424ae2c9",
+                "scenario_id": 3,
+                "state_fingerprint": "88365c1c73650bea15eddd1a",
+                "step_index": 2,
+                "tsumo": [
+                  "BLUE",
+                  "GREEN"
+                ],
+                "valid": true
+              },
+              {
+                "action": 20,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 5,
+                    "y": 0
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 5,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "88365c1c73650bea15eddd1a",
+                "scenario_id": 3,
+                "state_fingerprint": "bc4189eb3d13d683742bc656",
+                "step_index": 3,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 10,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 1
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "bc4189eb3d13d683742bc656",
+                "scenario_id": 3,
+                "state_fingerprint": "f45b15ac8bbdd32636446ecd",
+                "step_index": 4,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 18,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 0
+                  },
+                  {
+                    "color": "RED",
+                    "x": 3,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "f45b15ac8bbdd32636446ecd",
+                "scenario_id": 3,
+                "state_fingerprint": "35bdd354140a4e8ad543cbfa",
+                "step_index": 5,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 14,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 2,
+                    "y": 2
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 3,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "35bdd354140a4e8ad543cbfa",
+                "scenario_id": 3,
+                "state_fingerprint": "7607cc28ee60123260ef202c",
+                "step_index": 6,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 15,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 1
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "7607cc28ee60123260ef202c",
+                "scenario_id": 3,
+                "state_fingerprint": "81d8f76a42290a36861b50c7",
+                "step_index": 7,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 5,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 3
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 4
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "81d8f76a42290a36861b50c7",
+                "scenario_id": 3,
+                "state_fingerprint": "979b4412e31788f965052f5c",
+                "step_index": 8,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 17,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 3
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 4
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "979b4412e31788f965052f5c",
+                "scenario_id": 3,
+                "state_fingerprint": "cd4d8cce7e8448ee0f412588",
+                "step_index": 9,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 8,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 3
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 3,
+                    "y": 3
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "cd4d8cce7e8448ee0f412588",
+                "scenario_id": 3,
+                "state_fingerprint": "6fcc13e1447d301a5189b401",
+                "step_index": 10,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 15,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 5
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 6
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "6fcc13e1447d301a5189b401",
+                "scenario_id": 3,
+                "state_fingerprint": "d0a048baf2b5670b55fed299",
+                "step_index": 11,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 4,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 2,
+                    "y": 4
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 5
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "d0a048baf2b5670b55fed299",
+                "scenario_id": 3,
+                "state_fingerprint": "2acce4873b0b94b4954583a3",
+                "step_index": 12,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 16,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 5,
+                    "y": 2
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 7
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "2acce4873b0b94b4954583a3",
+                "scenario_id": 3,
+                "state_fingerprint": "af3cda769925b48393812398",
+                "step_index": 13,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 3,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 6
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 7
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "af3cda769925b48393812398",
+                "scenario_id": 3,
+                "state_fingerprint": "17dfae370a1bb030b5425483",
+                "step_index": 14,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 21,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 5,
+                    "y": 3
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 8
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "17dfae370a1bb030b5425483",
+                "scenario_id": 3,
+                "state_fingerprint": "5e0a02bc641d0476e3198543",
+                "step_index": 15,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              }
+            ]
+          },
+          "search_digest": "long-horizon-search-d63e2a63ada52d031bb17f13"
+        },
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "label": "original",
+        "scenario_accounting": {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        }
+      },
+      {
+        "digest": "3d60d5e01be52d257ad63f48ca6c6408e9fff49e89df67497603738562a7f5d5",
+        "evidence": {
+          "action": 1,
+          "plan": {
+            "objective": {
+              "kind": "deep_chain_construction",
+              "minimum_chain_count": 12
+            },
+            "plan_id": "28dd7c2230e5a07c",
+            "prediction_summary": {
+              "cumulative_attack": 0,
+              "cumulative_score": 0,
+              "final_state_fingerprint": "5e0a02bc641d0476e3198543",
+              "maximum_chain_count": 0
+            },
+            "replan_reason": "initial_plan",
+            "schema_version": "n-turn-plan-v1",
+            "steps": [
+              {
+                "action": 1,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 0,
+                    "y": 0
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 0
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "73b38290ea9d0f50a114303e",
+                "scenario_id": 3,
+                "state_fingerprint": "32047df4c2962bef5f525784",
+                "step_index": 0,
+                "tsumo": [
+                  "BLUE",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 8,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 0
+                  },
+                  {
+                    "color": "RED",
+                    "x": 3,
+                    "y": 0
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "32047df4c2962bef5f525784",
+                "scenario_id": 3,
+                "state_fingerprint": "240a2681d75b4fac424ae2c9",
+                "step_index": 1,
+                "tsumo": [
+                  "GREEN",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 1,
+                "game_over": false,
+                "known_tsumo": true,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 0,
+                    "y": 1
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "240a2681d75b4fac424ae2c9",
+                "scenario_id": 3,
+                "state_fingerprint": "88365c1c73650bea15eddd1a",
+                "step_index": 2,
+                "tsumo": [
+                  "BLUE",
+                  "GREEN"
+                ],
+                "valid": true
+              },
+              {
+                "action": 20,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 5,
+                    "y": 0
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 5,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "88365c1c73650bea15eddd1a",
+                "scenario_id": 3,
+                "state_fingerprint": "bc4189eb3d13d683742bc656",
+                "step_index": 3,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 10,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 1
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "bc4189eb3d13d683742bc656",
+                "scenario_id": 3,
+                "state_fingerprint": "f45b15ac8bbdd32636446ecd",
+                "step_index": 4,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 18,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 0
+                  },
+                  {
+                    "color": "RED",
+                    "x": 3,
+                    "y": 1
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "f45b15ac8bbdd32636446ecd",
+                "scenario_id": 3,
+                "state_fingerprint": "35bdd354140a4e8ad543cbfa",
+                "step_index": 5,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 14,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 2,
+                    "y": 2
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 3,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "EMPTY",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "35bdd354140a4e8ad543cbfa",
+                "scenario_id": 3,
+                "state_fingerprint": "7607cc28ee60123260ef202c",
+                "step_index": 6,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 15,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 1
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 2
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "7607cc28ee60123260ef202c",
+                "scenario_id": 3,
+                "state_fingerprint": "81d8f76a42290a36861b50c7",
+                "step_index": 7,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 5,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 3
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 4
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "81d8f76a42290a36861b50c7",
+                "scenario_id": 3,
+                "state_fingerprint": "979b4412e31788f965052f5c",
+                "step_index": 8,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 17,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 3
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 4
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "979b4412e31788f965052f5c",
+                "scenario_id": 3,
+                "state_fingerprint": "cd4d8cce7e8448ee0f412588",
+                "step_index": 9,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 8,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 2,
+                    "y": 3
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 3,
+                    "y": 3
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "cd4d8cce7e8448ee0f412588",
+                "scenario_id": 3,
+                "state_fingerprint": "6fcc13e1447d301a5189b401",
+                "step_index": 10,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 15,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 5
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 6
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "6fcc13e1447d301a5189b401",
+                "scenario_id": 3,
+                "state_fingerprint": "d0a048baf2b5670b55fed299",
+                "step_index": 11,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 4,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "BLUE",
+                    "x": 2,
+                    "y": 4
+                  },
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 5
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "d0a048baf2b5670b55fed299",
+                "scenario_id": 3,
+                "state_fingerprint": "2acce4873b0b94b4954583a3",
+                "step_index": 12,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 16,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "RED",
+                    "x": 5,
+                    "y": 2
+                  },
+                  {
+                    "color": "YELLOW",
+                    "x": 4,
+                    "y": 7
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "2acce4873b0b94b4954583a3",
+                "scenario_id": 3,
+                "state_fingerprint": "af3cda769925b48393812398",
+                "step_index": 13,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              },
+              {
+                "action": 3,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "GREEN",
+                    "x": 1,
+                    "y": 6
+                  },
+                  {
+                    "color": "BLUE",
+                    "x": 1,
+                    "y": 7
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "af3cda769925b48393812398",
+                "scenario_id": 3,
+                "state_fingerprint": "17dfae370a1bb030b5425483",
+                "step_index": 14,
+                "tsumo": [
+                  "GREEN",
+                  "BLUE"
+                ],
+                "valid": true
+              },
+              {
+                "action": 21,
+                "game_over": false,
+                "known_tsumo": false,
+                "placement_cells": [
+                  {
+                    "color": "YELLOW",
+                    "x": 5,
+                    "y": 3
+                  },
+                  {
+                    "color": "RED",
+                    "x": 4,
+                    "y": 8
+                  }
+                ],
+                "predicted_attack": 0,
+                "predicted_board": [
+                  [
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "RED"
+                  ],
+                  [
+                    "BLUE",
+                    "GREEN",
+                    "GREEN",
+                    "RED",
+                    "YELLOW",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "BLUE",
+                    "GREEN",
+                    "RED",
+                    "RED"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "GREEN",
+                    "BLUE",
+                    "RED",
+                    "YELLOW"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "BLUE",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "GREEN",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "BLUE",
+                    "EMPTY",
+                    "EMPTY",
+                    "YELLOW",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "RED",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ],
+                  [
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY",
+                    "EMPTY"
+                  ]
+                ],
+                "predicted_chain_count": 0,
+                "predicted_score": 0,
+                "reason": "representative_search_trajectory",
+                "root_state_fingerprint": "17dfae370a1bb030b5425483",
+                "scenario_id": 3,
+                "state_fingerprint": "5e0a02bc641d0476e3198543",
+                "step_index": 15,
+                "tsumo": [
+                  "YELLOW",
+                  "RED"
+                ],
+                "valid": true
+              }
+            ]
+          },
+          "search_digest": "long-horizon-search-d63e2a63ada52d031bb17f13"
+        },
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "label": "private_counterfactual",
+        "scenario_accounting": {
+          "expected_scenario_count": 6,
+          "expected_scenario_ids": [
+            4,
+            0,
+            1,
+            2,
+            5,
+            3
+          ],
+          "failure_count": 0,
+          "failures": [],
+          "passed": true,
+          "root_count": 22
+        }
+      }
+    ],
+    "seed": 146,
+    "target": 12
+  },
+  "python_result": {
+    "action": {
+      "danger_delta": 0.0,
+      "death": false,
+      "evaluated": false,
+      "premature_fire": false,
+      "tear_count": 0,
+      "trigger_damage": 0,
+      "waste_count": 0
+    },
+    "components": [
+      {
+        "cells": [
+          [
+            0,
+            1
+          ]
+        ],
+        "color": "RED",
+        "component_id": "624472bbcb169a93:0",
+        "connection_edges": 0,
+        "reachable_extensions": [
+          [
+            0,
+            2
+          ]
+        ],
+        "size": 1,
+        "support_edges": 1
+      },
+      {
+        "cells": [
+          [
+            5,
+            1
+          ]
+        ],
+        "color": "RED",
+        "component_id": "624472bbcb169a93:1",
+        "connection_edges": 0,
+        "reachable_extensions": [],
+        "size": 1,
+        "support_edges": 1
+      },
+      {
+        "cells": [
+          [
+            0,
+            0
+          ]
+        ],
+        "color": "BLUE",
+        "component_id": "1e0ded7ef96fdeaf:0",
+        "connection_edges": 0,
+        "reachable_extensions": [
+          [
+            1,
+            0
+          ]
+        ],
+        "size": 1,
+        "support_edges": 1
+      },
+      {
+        "cells": [
+          [
+            5,
+            0
+          ]
+        ],
+        "color": "BLUE",
+        "component_id": "1e0ded7ef96fdeaf:1",
+        "connection_edges": 0,
+        "reachable_extensions": [
+          [
+            4,
+            0
+          ]
+        ],
+        "size": 1,
+        "support_edges": 1
+      },
+      {
+        "cells": [
+          [
+            5,
+            2
+          ]
+        ],
+        "color": "GREEN",
+        "component_id": "5b6bc59ce883fc49:0",
+        "connection_edges": 0,
+        "reachable_extensions": [
+          [
+            5,
+            3
+          ]
+        ],
+        "size": 1,
+        "support_edges": 1
+      }
+    ],
+    "connection_candidates": [],
+    "evaluated": true,
+    "evaluation_status": "available",
+    "feature_version": "puyo.chain_structure_features.v1",
+    "features": {
+      "column_heights": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        3
+      ],
+      "components": {
+        "connection_candidates": 0,
+        "connectivity_edges": 0,
+        "count": 5,
+        "isolated": 5,
+        "link_2": 0,
+        "link_3": 0,
+        "reachable_ignitions": 0
+      },
+      "danger": {
+        "death": false,
+        "hidden_row_count": 0,
+        "nuisance_count": 0,
+        "ratio": 0.0875
+      },
+      "normal_puyo_count": 5,
+      "shape": {
+        "adjacent_roughness": 5,
+        "bump_height": 0,
+        "fold_space": 55,
+        "foundation_cells": 5,
+        "growth_sites": 4,
+        "height_spread": 3,
+        "well_depth": 0
+      },
+      "structural_dead_end": false,
+      "trigger": {
+        "column": 1,
+        "height": 0,
+        "potential_chain_count": 1,
+        "potential_chain_score": 40,
+        "protection": 0.6666666666666666,
+        "reachable": true,
+        "remaining_connection_edges": 0,
+        "remaining_link_2": 0,
+        "remaining_link_3": 0,
+        "required_key_count": 3,
+        "unreachable": false
+      }
+    },
+    "metric_namespace": "generic_chain_structure",
+    "quiescence": {
+      "best": {
+        "anchor_cells": [
+          [
+            5,
+            1
+          ]
+        ],
+        "chain_count": 1,
+        "chain_score": 40,
+        "extension_space": 4,
+        "placements": [
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ]
+        ],
+        "relations": [
+          {
+            "caused_by_chain_index": null,
+            "chain_index": 1,
+            "color": "RED",
+            "source_component_ids": [
+              "624472bbcb169a93:1"
+            ],
+            "vanished_cells": [
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          }
+        ],
+        "remaining_links": {
+          "connection_edges": 0,
+          "link_2": 0,
+          "link_3": 0
+        },
+        "required_key_count": 3,
+        "trigger": {
+          "column": 3,
+          "height": 0,
+          "protection": 0.6666666666666666
+        },
+        "trigger_color": "RED"
+      },
+      "candidates": [
+        {
+          "anchor_cells": [
+            [
+              5,
+              1
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              3,
+              0
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              4,
+              1
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "RED",
+              "source_component_ids": [
+                "624472bbcb169a93:1"
+              ],
+              "vanished_cells": [
+                [
+                  3,
+                  0
+                ],
+                [
+                  4,
+                  0
+                ],
+                [
+                  4,
+                  1
+                ],
+                [
+                  5,
+                  1
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 3,
+            "height": 0,
+            "protection": 0.6666666666666666
+          },
+          "trigger_color": "RED"
+        },
+        {
+          "anchor_cells": [
+            [
+              5,
+              1
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              4,
+              0
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "RED",
+              "source_component_ids": [
+                "624472bbcb169a93:1"
+              ],
+              "vanished_cells": [
+                [
+                  4,
+                  0
+                ],
+                [
+                  4,
+                  1
+                ],
+                [
+                  4,
+                  2
+                ],
+                [
+                  5,
+                  1
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 4,
+            "height": 0,
+            "protection": 0.6666666666666666
+          },
+          "trigger_color": "RED"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              0
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "BLUE",
+              "source_component_ids": [
+                "1e0ded7ef96fdeaf:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  1
+                ],
+                [
+                  2,
+                  0
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 1,
+            "height": 0,
+            "protection": 0.5
+          },
+          "trigger_color": "BLUE"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              0
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "BLUE",
+              "source_component_ids": [
+                "1e0ded7ef96fdeaf:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 1,
+            "height": 0,
+            "protection": 0.5
+          },
+          "trigger_color": "BLUE"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              0
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "BLUE",
+              "source_component_ids": [
+                "1e0ded7ef96fdeaf:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  2,
+                  0
+                ],
+                [
+                  3,
+                  0
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 1,
+            "height": 0,
+            "protection": 0.5
+          },
+          "trigger_color": "BLUE"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              0
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              1
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "BLUE",
+              "source_component_ids": [
+                "1e0ded7ef96fdeaf:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  2,
+                  0
+                ],
+                [
+                  2,
+                  1
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 1,
+            "height": 0,
+            "protection": 0.5
+          },
+          "trigger_color": "BLUE"
+        },
+        {
+          "anchor_cells": [
+            [
+              5,
+              2
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              4,
+              0
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "GREEN",
+              "source_component_ids": [
+                "5b6bc59ce883fc49:0"
+              ],
+              "vanished_cells": [
+                [
+                  4,
+                  0
+                ],
+                [
+                  4,
+                  1
+                ],
+                [
+                  4,
+                  2
+                ],
+                [
+                  5,
+                  2
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 4,
+            "height": 0,
+            "protection": 0.3333333333333333
+          },
+          "trigger_color": "GREEN"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              1
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "RED",
+              "source_component_ids": [
+                "624472bbcb169a93:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  1,
+                  0
+                ],
+                [
+                  1,
+                  1
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 0,
+            "height": 0,
+            "protection": 0.3333333333333333
+          },
+          "trigger_color": "RED"
+        },
+        {
+          "anchor_cells": [
+            [
+              0,
+              1
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              0,
+              4
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "RED",
+              "source_component_ids": [
+                "624472bbcb169a93:0"
+              ],
+              "vanished_cells": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0,
+                  2
+                ],
+                [
+                  0,
+                  3
+                ],
+                [
+                  0,
+                  4
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 0,
+            "height": 2,
+            "protection": 0.3333333333333333
+          },
+          "trigger_color": "RED"
+        },
+        {
+          "anchor_cells": [
+            [
+              5,
+              2
+            ]
+          ],
+          "chain_count": 1,
+          "chain_score": 40,
+          "extension_space": 4,
+          "placements": [
+            [
+              5,
+              3
+            ],
+            [
+              5,
+              4
+            ],
+            [
+              5,
+              5
+            ]
+          ],
+          "relations": [
+            {
+              "caused_by_chain_index": null,
+              "chain_index": 1,
+              "color": "GREEN",
+              "source_component_ids": [
+                "5b6bc59ce883fc49:0"
+              ],
+              "vanished_cells": [
+                [
+                  5,
+                  2
+                ],
+                [
+                  5,
+                  3
+                ],
+                [
+                  5,
+                  4
+                ],
+                [
+                  5,
+                  5
+                ]
+              ]
+            }
+          ],
+          "remaining_links": {
+            "connection_edges": 0,
+            "link_2": 0,
+            "link_3": 0
+          },
+          "required_key_count": 3,
+          "trigger": {
+            "column": 5,
+            "height": 3,
+            "protection": 0.3333333333333333
+          },
+          "trigger_color": "GREEN"
+        }
+      ],
+      "search": {
+        "complete": true,
+        "pattern_nodes": 415,
+        "resolution_nodes": 16,
+        "truncation_reason": null
+      }
+    },
+    "schema_version": "puyo.chain_structure_evaluation.v1",
+    "score": 17927.0,
+    "score_breakdown": {
+      "component_connectivity": 0.0,
+      "connection_potential": 0.0,
+      "danger": -1750.0,
+      "fatal": 0.0,
+      "key_cost": -27000.0,
+      "nuisance": -0.0,
+      "premature_fire": 0.0,
+      "quiescence_chain": 45002.0,
+      "remaining_links": 0.0,
+      "shape": 1275.0,
+      "tear": -0.0,
+      "total": 17927.0,
+      "trigger_damage": -0.0,
+      "trigger_position": 400.0,
+      "waste": -0.0
+    },
+    "tie_break_digest": "e399f3d1be89b497866016e994296d58d3d1c25c163b1757ef12ef63e3791007",
+    "truncation_reason": null,
+    "weight_version": "v1.0"
+  },
+  "response_sha256": "340b97dbd681b6399f9e237a8b630b2ddccca831ffaf2508b9a834c0b8e5d09f",
+  "semantic_corpus": {
+    "determinism": {
+      "byte_identical_repeats": true,
+      "mismatch_count": 0
+    },
+    "fixture": {
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 8,
+      "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+    },
+    "passed": true,
+    "python_native_evaluator": {
+      "invalid_selected": [],
+      "invalid_selected_count": 0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 512,
+      "response_sha256": "99b148b930cdd766975bf6e428e3e77b0d7f6f2ad31d36b3c32f8263fd54f828"
+    },
+    "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+    "ticket": "PUYO-238",
+    "transition_oracle": {
+      "action_mismatch_count": 0,
+      "mismatch_count": 0,
+      "record_count": 11264,
+      "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "transition_mismatch_count": 0
+    }
+  },
+  "ticket": "PUYO-238"
+}

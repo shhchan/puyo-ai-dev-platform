@@ -124,11 +124,20 @@ class TestLauncherService(unittest.TestCase):
 
     def test_arena_uses_configured_latency_by_default(self):
         service = self.make_service()
+        service.update_setting("arena", "deep_chain_profile", "reference")
+        service.update_setting("arena", "deep_chain_backend", "native")
+        service.update_setting("arena", "deep_chain_target_chain", 10)
 
         command = service.command_for("arena")
 
         latency_mode_index = command.index("--latency-mode")
         self.assertEqual(command[latency_mode_index + 1], "configured")
+        profile_index = command.index("--deep-chain-profile")
+        backend_index = command.index("--deep-chain-backend")
+        target_index = command.index("--deep-chain-target-chain")
+        self.assertEqual(command[profile_index + 1], "reference")
+        self.assertEqual(command[backend_index + 1], "native")
+        self.assertEqual(command[target_index + 1], "10")
 
     def test_v1_7_analyzer_manager_round_trips_without_checkpoint(self):
         service = self.make_service()
@@ -138,6 +147,45 @@ class TestLauncherService(unittest.TestCase):
         config = parse_realtime_config(service.command_for("spectate")[3:])
         self.assertEqual(config.policy_a, "v1_7_analyzer_manager")
         self.assertIsNone(config.checkpoint_a)
+
+    def test_deep_chain_builder_round_trips_without_checkpoint(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "deep_chain_builder")
+
+        self.assertEqual(service.validate_action("spectate"), [])
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.policy_a, "deep_chain_builder")
+        self.assertIsNone(config.checkpoint_a)
+
+        service.update_setting("spectate", "deep_chain_profile", "reference")
+        service.update_setting("spectate", "deep_chain_backend", "native")
+        service.update_setting("spectate", "deep_chain_target_chain", 12)
+        config = parse_realtime_config(service.command_for("spectate")[3:])
+        self.assertEqual(config.deep_chain_profile, "reference")
+        self.assertEqual(config.deep_chain_backend, "native")
+        self.assertEqual(config.deep_chain_target_chain, 12)
+        self.assertIn(
+            "deep_chain_target_chain",
+            service.settings.editable_fields("spectate"),
+        )
+        cycled = service.settings.cycle(
+            "spectate", "deep_chain_target_chain", delta=-1
+        )
+        self.assertEqual(cycled.deep_chain_target_chain, 11)
+
+    def test_all_interactive_targets_round_trip_and_invalid_values_are_reported(self):
+        service = self.make_service()
+        service.update_setting("spectate", "policy_a", "deep_chain_builder")
+        for target in range(1, 20):
+            with self.subTest(target=target):
+                service.update_setting("spectate", "deep_chain_target_chain", target)
+                self.assertEqual(service.validate_action("spectate"), [])
+                config = parse_realtime_config(service.command_for("spectate")[3:])
+                self.assertEqual(config.deep_chain_target_chain, target)
+        for target in (0, 20, True, 7.0, 7.5, "7"):
+            with self.subTest(invalid=target):
+                service.update_setting("spectate", "deep_chain_target_chain", target)
+                self.assertTrue(any("integer in [1, 19]" in e for e in service.validate_action("spectate")))
 
     def test_v1_7_bootstrap_manager_requires_and_round_trips_checkpoint(self):
         service = self.make_service()

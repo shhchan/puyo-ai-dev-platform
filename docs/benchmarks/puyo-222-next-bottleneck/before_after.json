@@ -1,0 +1,20 @@
+{
+  "combined_after_p95_600k_ms": 1918.176355,
+  "combined_before_p95_600k_ms": 3244.639751,
+  "combined_gate_600k_ms": 820.625,
+  "combined_gate_met": false,
+  "combined_reduction_percent": 40.881684803102814,
+  "minimum_combined_reduction_percent": 20.0,
+  "minimum_stage_cycle_reduction_percent": 30.0,
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "sample_count": 5,
+  "schema_version": "puyo.native_next_bottleneck_comparison.v1",
+  "stage_after_cycles_per_node": 2225.3264057857477,
+  "stage_after_projected_600k_ms": 385.9529698678817,
+  "stage_before_cycles_per_node": 5415.459629456189,
+  "stage_before_projected_600k_ms": 988.5055473706536,
+  "stage_cycle_reduction_percent": 58.90789410225534,
+  "stage_projected_reduction_percent": 60.95591260013806,
+  "target_stage": "base_feature_component_extraction"
+}

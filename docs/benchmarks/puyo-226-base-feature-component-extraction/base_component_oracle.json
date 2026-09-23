@@ -1,0 +1,77 @@
+{
+  "cache_profile_comparison_count": 1,
+  "candidate_capacity_check_count": 1,
+  "commands": [
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::component_metadata_aggregation_matches_exact_property_corpus",
+      "--",
+      "--exact"
+    ],
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+      "--",
+      "--exact"
+    ],
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::profiled_path_matches_hot_result_and_reports_exact_work",
+      "--",
+      "--exact"
+    ],
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::hot_workspaces_stay_below_stack_probe_boundary",
+      "--",
+      "--exact"
+    ],
+    [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::candidate_json_capacity_covers_largest_valid_identity",
+      "--",
+      "--exact"
+    ]
+  ],
+  "component_metadata_property_count": 512,
+  "coverage": [
+    "bit-parallel component metadata against the exact component scanner",
+    "frontier component identities and candidates against exhaustive search",
+    "cold/hot exact-key cache result and profile-counter parity",
+    "fixed hot workspaces below the 4 KiB stack-probe boundary",
+    "largest valid canonical candidate encoding"
+  ],
+  "frontier_property_comparison_count": 264,
+  "mismatch_count": 0,
+  "passed": true,
+  "schema_version": "puyo.native_base_feature_oracle.v1",
+  "source_sha256": "ffbb7a0a07c3661a523cce321bd408ae29f69103d0323d02ce4fda49795fdecb",
+  "test_output_sha256": "220d35a5e6bcd32412c33152b906d7aa8bc70162d40e731b496e8bc82f0270f0",
+  "ticket": "PUYO-226",
+  "workspace_layout_check_count": 1
+}

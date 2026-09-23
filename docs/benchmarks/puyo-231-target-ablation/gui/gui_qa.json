@@ -1,0 +1,148 @@
+{
+  "automated_status": "passed",
+  "cases": [
+    {
+      "backend": "native",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 1 --seed 187 --speed 4 --max-frames 240 --result-json docs/benchmarks/puyo-231-target-ablation/gui/native-target-1-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/native-target-1-replay.json",
+      "decisions_activated": 9,
+      "passed": true,
+      "profile": "reference",
+      "replay_diagnostic_record_count": 18,
+      "replay_path": "native-target-1-replay.json.gz",
+      "replay_sha256": "da00bf65f6b8a628456af4a2b407a425382a5e0875fa9bd44d6000a22a830eaa",
+      "result_path": "native-target-1-result.json",
+      "target": 1
+    },
+    {
+      "backend": "native",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 7 --seed 187 --speed 4 --max-frames 240 --result-json docs/benchmarks/puyo-231-target-ablation/gui/native-target-7-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/native-target-7-replay.json",
+      "decisions_activated": 10,
+      "passed": true,
+      "profile": "reference",
+      "replay_diagnostic_record_count": 20,
+      "replay_path": "native-target-7-replay.json.gz",
+      "replay_sha256": "8d5e79a47bbfb5cbb08add4790b130004415ee3a8ab067fa34bc50edffb8207c",
+      "result_path": "native-target-7-result.json",
+      "target": 7
+    },
+    {
+      "backend": "native",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile reference --deep-chain-backend native --deep-chain-target-chain 19 --seed 187 --speed 4 --max-frames 240 --result-json docs/benchmarks/puyo-231-target-ablation/gui/native-target-19-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/native-target-19-replay.json",
+      "decisions_activated": 10,
+      "passed": true,
+      "profile": "reference",
+      "replay_diagnostic_record_count": 20,
+      "replay_path": "native-target-19-replay.json.gz",
+      "replay_sha256": "41767bf131a03e0a0b0fb5b4423d32e58d624c410522750dc9402a448aee69bc",
+      "result_path": "native-target-19-result.json",
+      "target": 19
+    },
+    {
+      "backend": "python",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile smoke --deep-chain-backend python --deep-chain-target-chain 1 --seed 187 --speed 4 --max-frames 600 --result-json docs/benchmarks/puyo-231-target-ablation/gui/python-target-1-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/python-target-1-replay.json",
+      "decisions_activated": 1,
+      "passed": true,
+      "profile": "smoke",
+      "replay_diagnostic_record_count": 3,
+      "replay_path": "python-target-1-replay.json.gz",
+      "replay_sha256": "7b24dea9782bfb7f44d6ff9da84c1d69d814483a0b17bc9eef02f42bb89d91e3",
+      "result_path": "python-target-1-result.json",
+      "target": 1
+    },
+    {
+      "backend": "python",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile smoke --deep-chain-backend python --deep-chain-target-chain 7 --seed 187 --speed 4 --max-frames 600 --result-json docs/benchmarks/puyo-231-target-ablation/gui/python-target-7-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/python-target-7-replay.json",
+      "decisions_activated": 1,
+      "passed": true,
+      "profile": "smoke",
+      "replay_diagnostic_record_count": 3,
+      "replay_path": "python-target-7-replay.json.gz",
+      "replay_sha256": "5bc73fb9c67001e575a1bba81477808f307db791418c99ca05c71a2660a0fd9c",
+      "result_path": "python-target-7-result.json",
+      "target": 7
+    },
+    {
+      "backend": "python",
+      "checks": {
+        "backend": true,
+        "backend_target": true,
+        "decision_applied": true,
+        "metadata_target": true,
+        "no_fallback": true,
+        "plan_target": true,
+        "policy_target": true,
+        "replay_target": true,
+        "search_target": true
+      },
+      "command": "SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy .venv/bin/python -m eval.realtime_versus_ui --policy-a deep_chain_builder --policy-b random --deep-chain-profile smoke --deep-chain-backend python --deep-chain-target-chain 19 --seed 187 --speed 4 --max-frames 600 --result-json docs/benchmarks/puyo-231-target-ablation/gui/python-target-19-result.json --replay docs/benchmarks/puyo-231-target-ablation/gui/python-target-19-replay.json",
+      "decisions_activated": 1,
+      "passed": true,
+      "profile": "smoke",
+      "replay_diagnostic_record_count": 3,
+      "replay_path": "python-target-19-replay.json.gz",
+      "replay_sha256": "6bd52042777b5994a77412d07d52154709c037bcac93f910d6dd9bda433ba834",
+      "result_path": "python-target-19-result.json",
+      "target": 19
+    }
+  ],
+  "dummy_status": "passed",
+  "evaluated_commit": "195b41415324bb27643c59fbef8d8799d59a6296",
+  "manual_window_status": "pending",
+  "schema_version": "puyo.target_range_gui_qa.v1",
+  "scope": "target propagation only; Python smoke and native reference are not a quality or latency comparison"
+}

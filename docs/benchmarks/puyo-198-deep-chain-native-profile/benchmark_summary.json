@@ -1,0 +1,990 @@
+{
+  "amdahl": {
+    "go": true,
+    "interpretation": "The one-call boundary leaves a small enough measured Python share for the locked gate to remain mathematically reachable.",
+    "locked_gate_seconds": 1.0,
+    "maximum_speedup_if_native_work_were_free": 728.1880426817283,
+    "measured_native_boundary_share": 0.9986267283429741,
+    "measured_python_boundary_share": 0.001373271657025922,
+    "reference_latency_lower_bound_seconds": 300.0,
+    "required_end_to_end_speedup_lower_bound": 300.0,
+    "required_native_work_speedup": 509.4874005313452
+  },
+  "canonical_quality_evidence": false,
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "corpus_digest": "6db18dde8b18c3b71cca701313655ac7f45f87443c7776b0253fa35bcb8fb1b1",
+  "created_at_utc": "2026-08-26T01:16:59Z",
+  "evaluated_commit": "b4528a5d9f4b2b1cfdec641c247da780f7a90232",
+  "hotspot_conclusion": {
+    "deterministic_profile_basis": "intermediate",
+    "exclusive_time_groups": [
+      {
+        "exclusive_per_expanded_node_us": 19418.098066171922,
+        "exclusive_seconds": 62.798129146,
+        "exclusive_share": 0.9232131350944773,
+        "group": "bounded_quiescence",
+        "primitive_calls": 231637545,
+        "total_calls": 232123591
+      },
+      {
+        "exclusive_per_expanded_node_us": 550.6979696969698,
+        "exclusive_seconds": 1.7809572340000004,
+        "exclusive_share": 0.026182358198087473,
+        "group": "search_control",
+        "primitive_calls": 78219,
+        "total_calls": 78219
+      },
+      {
+        "exclusive_per_expanded_node_us": 328.07570593692026,
+        "exclusive_seconds": 1.0609968330000001,
+        "exclusive_share": 0.015598015830088368,
+        "group": "component_extraction",
+        "primitive_calls": 940859,
+        "total_calls": 946945
+      },
+      {
+        "exclusive_per_expanded_node_us": 259.21089672232523,
+        "exclusive_seconds": 0.8382880399999998,
+        "exclusive_share": 0.012323910601242808,
+        "group": "transition",
+        "primitive_calls": 1722270,
+        "total_calls": 1722270
+      },
+      {
+        "exclusive_per_expanded_node_us": 210.9341184291899,
+        "exclusive_seconds": 0.6821609390000001,
+        "exclusive_share": 0.01002864173977223,
+        "group": "aggregation_serialization",
+        "primitive_calls": 844779,
+        "total_calls": 844917
+      },
+      {
+        "exclusive_per_expanded_node_us": 159.33183951762524,
+        "exclusive_seconds": 0.515279169,
+        "exclusive_share": 0.007575265434347228,
+        "group": "digest",
+        "primitive_calls": 513154,
+        "total_calls": 513154
+      },
+      {
+        "exclusive_per_expanded_node_us": 62.456543599257884,
+        "exclusive_seconds": 0.201984462,
+        "exclusive_share": 0.002969430951833842,
+        "group": "evaluator_orchestration",
+        "primitive_calls": 9705,
+        "total_calls": 9705
+      },
+      {
+        "exclusive_per_expanded_node_us": 26.62826592455164,
+        "exclusive_seconds": 0.086115812,
+        "exclusive_share": 0.0012660130143827804,
+        "group": "decision_orchestration",
+        "primitive_calls": 140335,
+        "total_calls": 233223
+      },
+      {
+        "exclusive_per_expanded_node_us": 6.624056586270873,
+        "exclusive_seconds": 0.021422199000000003,
+        "exclusive_share": 0.00031493383271701355,
+        "group": "evaluator_score",
+        "primitive_calls": 3235,
+        "total_calls": 3235
+      },
+      {
+        "exclusive_per_expanded_node_us": 5.434285405071119,
+        "exclusive_seconds": 0.017574479,
+        "exclusive_share": 0.0002583674080086114,
+        "group": "candidate_generation",
+        "primitive_calls": 3241,
+        "total_calls": 3241
+      },
+      {
+        "exclusive_per_expanded_node_us": 2.080600185528757,
+        "exclusive_seconds": 0.006728661,
+        "exclusive_share": 9.891995671329041e-05,
+        "group": "beam_prune",
+        "primitive_calls": 3558,
+        "total_calls": 3558
+      },
+      {
+        "exclusive_per_expanded_node_us": 0.9960875077303649,
+        "exclusive_seconds": 0.0032213470000000003,
+        "exclusive_share": 4.7357937307064206e-05,
+        "group": "transposition_table",
+        "primitive_calls": 3042,
+        "total_calls": 3042
+      },
+      {
+        "exclusive_per_expanded_node_us": 0.26510296846011133,
+        "exclusive_seconds": 0.0008573430000000001,
+        "exclusive_share": 1.2604042980979803e-05,
+        "group": "scenario_aggregation",
+        "primitive_calls": 154,
+        "total_calls": 154
+      },
+      {
+        "exclusive_per_expanded_node_us": 0.04664162028447743,
+        "exclusive_seconds": 0.000150839,
+        "exclusive_share": 2.217526986524661e-06,
+        "group": "diagnostics",
+        "primitive_calls": 22,
+        "total_calls": 22
+      },
+      {
+        "exclusive_per_expanded_node_us": 0.03301762523191095,
+        "exclusive_seconds": 0.00010677900000000002,
+        "exclusive_share": 1.5697884107831316e-06,
+        "group": "scenario_generation",
+        "primitive_calls": 120,
+        "total_calls": 120
+      }
+    ],
+    "puyo_189_sample_role": "supporting prior evidence only",
+    "sampling_groups": [
+      {
+        "group": "bounded_quiescence",
+        "samples": 4192,
+        "share": 0.9392785122115169
+      },
+      {
+        "group": "component_extraction",
+        "samples": 82,
+        "share": 0.01837329150795429
+      },
+      {
+        "group": "transition",
+        "samples": 79,
+        "share": 0.017701097916199865
+      },
+      {
+        "group": "digest",
+        "samples": 77,
+        "share": 0.01725296885503025
+      },
+      {
+        "group": "evaluator_orchestration",
+        "samples": 13,
+        "share": 0.0029128388976025093
+      },
+      {
+        "group": "decision_orchestration",
+        "samples": 9,
+        "share": 0.002016580775263276
+      },
+      {
+        "group": "evaluator_score",
+        "samples": 4,
+        "share": 0.0008962581223392337
+      },
+      {
+        "group": "search_control",
+        "samples": 4,
+        "share": 0.0008962581223392337
+      },
+      {
+        "group": "candidate_generation",
+        "samples": 3,
+        "share": 0.0006721935917544253
+      }
+    ],
+    "single_stack_sample_used_as_statistic": false
+  },
+  "microbenchmarks": {
+    "evaluator": {
+      "iterations": 12,
+      "mean_wall_us": 2412.45766665088,
+      "operations_per_second": 414.5150457244129,
+      "output_digest": "ccdea42d4f2d3e3ad187bf5bc8eca9774ee480e70dd3dc80a4e2ee805653244e",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.028951381000000165,
+      "system_seconds": 1.6999999999996185e-05,
+      "user_seconds": 0.028958999999999957,
+      "wall_seconds": 0.02894949199981056,
+      "warmup_iterations": 3
+    },
+    "mini_search": {
+      "iterations": 1,
+      "mean_wall_us": 2417517.8779996713,
+      "operations_per_second": 0.4136474063337355,
+      "output_digest": "eba95c1b09fe126cefc5ead75f24b9227bb5f6eb42d52f6129796a092243b59a",
+      "peak_rss_kib": 132960,
+      "process_seconds": 2.417283453,
+      "system_seconds": 0.0003039999999999987,
+      "user_seconds": 2.4169869999999998,
+      "wall_seconds": 2.4175178779996713,
+      "warmup_iterations": 0
+    },
+    "serialization": {
+      "iterations": 1000,
+      "mean_wall_us": 338.28695000011066,
+      "operations_per_second": 2956.070282934866,
+      "output_digest": "a9789ed95ca784bfbce3dc50976226013537bbfee6344d8351b7fbbf21ca37fb",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.33826614499999996,
+      "system_seconds": 6.0000000000060005e-06,
+      "user_seconds": 0.3382690000000004,
+      "wall_seconds": 0.33828695000011066,
+      "warmup_iterations": 10
+    },
+    "transition": {
+      "iterations": 500,
+      "mean_wall_us": 137.4785520001751,
+      "operations_per_second": 7273.861889371124,
+      "output_digest": "377c84f405f90182936e4a3cb2f8fa00a3bf7ccf742c074439959dd6ce15df8d",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.06873638900000012,
+      "system_seconds": 2.0000000000006124e-05,
+      "user_seconds": 0.06873099999999965,
+      "wall_seconds": 0.06873927600008756,
+      "warmup_iterations": 3
+    },
+    "transposition_key": {
+      "iterations": 500,
+      "mean_wall_us": 0.9177140000247164,
+      "operations_per_second": 1089664.100115142,
+      "output_digest": "77c38d65f19d530f4c5affe47eae878ccac1d39f7fcb0cd596ba2ba9fe44415a",
+      "peak_rss_kib": 132960,
+      "process_seconds": 0.0004589159999999204,
+      "system_seconds": 4.9999999999980616e-06,
+      "user_seconds": 0.0004550000000000942,
+      "wall_seconds": 0.0004588570000123582,
+      "warmup_iterations": 3
+    }
+  },
+  "native_boundary_decision": {
+    "calls_per_decision": 1,
+    "excludes": [
+      "authoritative simulator mutation",
+      "private future queue",
+      "GUI rendering",
+      "Python callbacks from native search nodes"
+    ],
+    "includes": [
+      "scenario completion",
+      "compact transition",
+      "chain evaluator and bounded quiescence",
+      "candidate generation",
+      "beam pruning and transposition table",
+      "root aggregation and deterministic selection",
+      "representative path and bounded diagnostics"
+    ],
+    "status": "go"
+  },
+  "performance_budgets": {
+    "allocation_method": "Reserve fixed one-call serialization/aggregation floors, then allocate the remaining gate by intermediate exclusive-time share.",
+    "canonical_max_expanded_nodes": 600000,
+    "categories": [
+      {
+        "canonical_per_expanded_node_budget_us": 0.017660498583469065,
+        "category": "transition",
+        "decision_budget_seconds": 0.010596299150081439,
+        "measured_exclusive_seconds": 0.8382880399999998,
+        "measured_exclusive_share": 0.01232523258896057
+      },
+      {
+        "canonical_per_expanded_node_budget_us": 1.3500484593742148,
+        "category": "evaluator",
+        "decision_budget_seconds": 0.810029075624529,
+        "measured_exclusive_seconds": 64.08253264,
+        "measured_exclusive_share": 0.942196574434794
+      },
+      {
+        "canonical_per_expanded_node_budget_us": 0.04895770870898275,
+        "category": "search",
+        "decision_budget_seconds": 0.02937462522538965,
+        "measured_exclusive_seconds": 2.3238676690000006,
+        "measured_exclusive_share": 0.03416750348292056
+      },
+      {
+        "canonical_per_expanded_node_budget_us": null,
+        "category": "serialization",
+        "decision_budget_seconds": 0.02,
+        "measured_exclusive_seconds": 0.6821609390000001,
+        "measured_exclusive_share": 0.010029717513658845
+      },
+      {
+        "canonical_per_expanded_node_budget_us": null,
+        "category": "aggregation",
+        "decision_budget_seconds": 0.03,
+        "measured_exclusive_seconds": 0.087123994,
+        "measured_exclusive_share": 0.0012809719796660886
+      }
+    ],
+    "executable_budget_seconds": 0.9,
+    "integration_go_no_go": {
+      "end_to_end_first_decision_p95_seconds": 1.0,
+      "native_first_decision_p95_seconds": 0.9,
+      "required_deterministic_digest_match": true,
+      "required_parity_mismatch_count": 0,
+      "required_private_future_leak_count": 0
+    },
+    "locked_gate_seconds": 1.0,
+    "safety_margin_seconds": 0.1
+  },
+  "production_backend_changed": false,
+  "profiles": {
+    "intermediate": {
+      "completed": true,
+      "groups": [
+        {
+          "exclusive_per_expanded_node_us": 19418.098066171922,
+          "exclusive_seconds": 62.798129146,
+          "exclusive_share": 0.9232131350944773,
+          "group": "bounded_quiescence",
+          "primitive_calls": 231637545,
+          "total_calls": 232123591
+        },
+        {
+          "exclusive_per_expanded_node_us": 550.6979696969698,
+          "exclusive_seconds": 1.7809572340000004,
+          "exclusive_share": 0.026182358198087473,
+          "group": "search_control",
+          "primitive_calls": 78219,
+          "total_calls": 78219
+        },
+        {
+          "exclusive_per_expanded_node_us": 328.07570593692026,
+          "exclusive_seconds": 1.0609968330000001,
+          "exclusive_share": 0.015598015830088368,
+          "group": "component_extraction",
+          "primitive_calls": 940859,
+          "total_calls": 946945
+        },
+        {
+          "exclusive_per_expanded_node_us": 259.21089672232523,
+          "exclusive_seconds": 0.8382880399999998,
+          "exclusive_share": 0.012323910601242808,
+          "group": "transition",
+          "primitive_calls": 1722270,
+          "total_calls": 1722270
+        },
+        {
+          "exclusive_per_expanded_node_us": 210.9341184291899,
+          "exclusive_seconds": 0.6821609390000001,
+          "exclusive_share": 0.01002864173977223,
+          "group": "aggregation_serialization",
+          "primitive_calls": 844779,
+          "total_calls": 844917
+        },
+        {
+          "exclusive_per_expanded_node_us": 159.33183951762524,
+          "exclusive_seconds": 0.515279169,
+          "exclusive_share": 0.007575265434347228,
+          "group": "digest",
+          "primitive_calls": 513154,
+          "total_calls": 513154
+        },
+        {
+          "exclusive_per_expanded_node_us": 62.456543599257884,
+          "exclusive_seconds": 0.201984462,
+          "exclusive_share": 0.002969430951833842,
+          "group": "evaluator_orchestration",
+          "primitive_calls": 9705,
+          "total_calls": 9705
+        },
+        {
+          "exclusive_per_expanded_node_us": 26.62826592455164,
+          "exclusive_seconds": 0.086115812,
+          "exclusive_share": 0.0012660130143827804,
+          "group": "decision_orchestration",
+          "primitive_calls": 140335,
+          "total_calls": 233223
+        },
+        {
+          "exclusive_per_expanded_node_us": 6.624056586270873,
+          "exclusive_seconds": 0.021422199000000003,
+          "exclusive_share": 0.00031493383271701355,
+          "group": "evaluator_score",
+          "primitive_calls": 3235,
+          "total_calls": 3235
+        },
+        {
+          "exclusive_per_expanded_node_us": 5.434285405071119,
+          "exclusive_seconds": 0.017574479,
+          "exclusive_share": 0.0002583674080086114,
+          "group": "candidate_generation",
+          "primitive_calls": 3241,
+          "total_calls": 3241
+        },
+        {
+          "exclusive_per_expanded_node_us": 2.080600185528757,
+          "exclusive_seconds": 0.006728661,
+          "exclusive_share": 9.891995671329041e-05,
+          "group": "beam_prune",
+          "primitive_calls": 3558,
+          "total_calls": 3558
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.9960875077303649,
+          "exclusive_seconds": 0.0032213470000000003,
+          "exclusive_share": 4.7357937307064206e-05,
+          "group": "transposition_table",
+          "primitive_calls": 3042,
+          "total_calls": 3042
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.26510296846011133,
+          "exclusive_seconds": 0.0008573430000000001,
+          "exclusive_share": 1.2604042980979803e-05,
+          "group": "scenario_aggregation",
+          "primitive_calls": 154,
+          "total_calls": 154
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.04664162028447743,
+          "exclusive_seconds": 0.000150839,
+          "exclusive_share": 2.217526986524661e-06,
+          "group": "diagnostics",
+          "primitive_calls": 22,
+          "total_calls": 22
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.03301762523191095,
+          "exclusive_seconds": 0.00010677900000000002,
+          "exclusive_share": 1.5697884107831316e-06,
+          "group": "scenario_generation",
+          "primitive_calls": 120,
+          "total_calls": 120
+        }
+      ],
+      "result": {
+        "action": 9,
+        "decision_trace": {
+          "decision_id": "deep_chain_builder-decision-00000001",
+          "elapsed_ms": 68843.67081699838,
+          "elapsed_seconds": 68.84367081699838,
+          "profile_id": "deep_chain_builder:intermediate@1.0",
+          "schema_version": "puyo.decision_trace.v1",
+          "step_count": 7,
+          "steps": [
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 0.015542999790341128,
+              "elapsed_seconds": 1.5542999790341128e-05,
+              "index": 0,
+              "input_summary": {
+                "action_contract_version": "",
+                "board_shape": [
+                  6,
+                  13,
+                  6
+                ],
+                "last_chain_end_score": 0,
+                "last_chain_score_delta": 0,
+                "legal_action_count": 22,
+                "max_steps": 40,
+                "max_ticks": null,
+                "next_pairs_shape": [
+                  3,
+                  2,
+                  5
+                ],
+                "observation_schema_version": "",
+                "step_count": 0,
+                "visible_pair_count": 3
+              },
+              "output_keys": [
+                "normalized_observation"
+              ],
+              "selection_reason": "visible_runtime_boundary_validated",
+              "step_id": "normalize_observation",
+              "step_type": "NormalizeObservationStep"
+            },
+            {
+              "candidate_count": 3,
+              "elapsed_ms": 0.9228709996023099,
+              "elapsed_seconds": 0.0009228709996023099,
+              "index": 1,
+              "input_summary": {
+                "available_artifact_count": 2,
+                "required_artifacts": [
+                  "normalized_observation"
+                ]
+              },
+              "output_keys": [
+                "scenario_sequences"
+              ],
+              "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+              "step_id": "complete_visible_queue_scenarios",
+              "step_type": "CompleteVisibleQueueScenariosStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 0.6176810002216371,
+              "elapsed_seconds": 0.0006176810002216371,
+              "index": 2,
+              "input_summary": {
+                "available_artifact_count": 3,
+                "required_artifacts": [
+                  "normalized_observation"
+                ]
+              },
+              "output_keys": [
+                "root_placements"
+              ],
+              "selection_reason": "compact_kernel_legal_root_enumeration",
+              "step_id": "enumerate_root_placements",
+              "step_type": "EnumerateRootPlacementsStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 68772.43684999939,
+              "elapsed_seconds": 68.7724368499994,
+              "index": 3,
+              "input_summary": {
+                "available_artifact_count": 4,
+                "required_artifacts": [
+                  "normalized_observation",
+                  "scenario_sequences",
+                  "root_placements"
+                ]
+              },
+              "output_keys": [
+                "scenario_search_results"
+              ],
+              "selection_reason": "count_bounded_compact_long_range_search",
+              "step_id": "run_long_range_search",
+              "step_type": "RunLongRangeSearchStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 34.1712829995231,
+              "elapsed_seconds": 0.0341712829995231,
+              "index": 4,
+              "input_summary": {
+                "available_artifact_count": 5,
+                "required_artifacts": [
+                  "scenario_search_results"
+                ]
+              },
+              "output_keys": [
+                "aggregated_root_scores"
+              ],
+              "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+              "step_id": "aggregate_scenario_scores",
+              "step_type": "AggregateScenarioScoresStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 17.94044199959899,
+              "elapsed_seconds": 0.01794044199959899,
+              "index": 5,
+              "input_summary": {
+                "aggregated_root_count": 22,
+                "root_actions": [
+                  9,
+                  3,
+                  7,
+                  11,
+                  10,
+                  8,
+                  0,
+                  1,
+                  6,
+                  5,
+                  2,
+                  4,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ]
+              },
+              "output_keys": [
+                "selected_action",
+                "selected_plan",
+                "selection_evidence"
+              ],
+              "selection_reason": "highest_aggregated_root_ranking",
+              "step_id": "select_placement",
+              "step_type": "SelectPlacementStep"
+            },
+            {
+              "candidate_count": 1,
+              "elapsed_ms": 17.566147000252386,
+              "elapsed_seconds": 0.017566147000252386,
+              "index": 6,
+              "input_summary": {
+                "available_artifact_count": 9,
+                "required_artifacts": [
+                  "selected_action",
+                  "selected_plan",
+                  "selection_evidence"
+                ]
+              },
+              "output_keys": [
+                "decision_output"
+              ],
+              "selection_reason": "decision_payload_serialized",
+              "step_id": "emit_decision_trace",
+              "step_type": "EmitDecisionTraceStep"
+            }
+          ]
+        },
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "plan_id": "d5a5f3fb522b268e",
+        "result_digest": "49dfa00c2f858ab3a04cc493f7b0f5b2b73b40aefd0522046d2c438154bb28af",
+        "search_counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 3234,
+          "expanded_nodes": 3234,
+          "game_over_nodes": 0,
+          "generated_nodes": 3234,
+          "invalid_nodes": 0,
+          "pruned_nodes": 2928,
+          "reached_depth": 5,
+          "terminal_fire_nodes": 126,
+          "transposition_hits": 0
+        },
+        "search_digest": "long-horizon-search-c6342b265a719cd9ce7981ae"
+      },
+      "wall_seconds": 68.94539626500045
+    },
+    "reference": {
+      "completed": false,
+      "latency_lower_bound_seconds": 10.0,
+      "sample_count": 654,
+      "timed_out": true
+    },
+    "smoke": {
+      "completed": true,
+      "groups": [
+        {
+          "exclusive_per_expanded_node_us": 17674.15133,
+          "exclusive_seconds": 19.441566463,
+          "exclusive_share": 0.9216283945552265,
+          "group": "bounded_quiescence",
+          "primitive_calls": 73943435,
+          "total_calls": 74086933
+        },
+        {
+          "exclusive_per_expanded_node_us": 466.31450272727284,
+          "exclusive_seconds": 0.5129459530000001,
+          "exclusive_share": 0.02431622760731195,
+          "group": "search_control",
+          "primitive_calls": 26218,
+          "total_calls": 26218
+        },
+        {
+          "exclusive_per_expanded_node_us": 269.2321963636364,
+          "exclusive_seconds": 0.296155416,
+          "exclusive_share": 0.014039261759404415,
+          "group": "component_extraction",
+          "primitive_calls": 136534,
+          "total_calls": 136534
+        },
+        {
+          "exclusive_per_expanded_node_us": 259.18539909090913,
+          "exclusive_seconds": 0.28510393900000003,
+          "exclusive_share": 0.013515365959939997,
+          "group": "transition",
+          "primitive_calls": 658807,
+          "total_calls": 660919
+        },
+        {
+          "exclusive_per_expanded_node_us": 205.08350818181822,
+          "exclusive_seconds": 0.22559185900000003,
+          "exclusive_share": 0.010694192941221285,
+          "group": "aggregation_serialization",
+          "primitive_calls": 352874,
+          "total_calls": 353012
+        },
+        {
+          "exclusive_per_expanded_node_us": 172.37948818181818,
+          "exclusive_seconds": 0.189617437,
+          "exclusive_share": 0.008988823733651981,
+          "group": "digest",
+          "primitive_calls": 283958,
+          "total_calls": 283958
+        },
+        {
+          "exclusive_per_expanded_node_us": 58.65875454545454,
+          "exclusive_seconds": 0.06452463,
+          "exclusive_share": 0.003058793192891393,
+          "group": "evaluator_orchestration",
+          "primitive_calls": 3303,
+          "total_calls": 3303
+        },
+        {
+          "exclusive_per_expanded_node_us": 48.78020818181818,
+          "exclusive_seconds": 0.053658229,
+          "exclusive_share": 0.00254367093012091,
+          "group": "decision_orchestration",
+          "primitive_calls": 90637,
+          "total_calls": 147543
+        },
+        {
+          "exclusive_per_expanded_node_us": 5.727403636363636,
+          "exclusive_seconds": 0.006300144000000001,
+          "exclusive_share": 0.0002986586297579011,
+          "group": "evaluator_score",
+          "primitive_calls": 1101,
+          "total_calls": 1101
+        },
+        {
+          "exclusive_per_expanded_node_us": 4.942148181818182,
+          "exclusive_seconds": 0.0054363630000000005,
+          "exclusive_share": 0.00025771104985005934,
+          "group": "candidate_generation",
+          "primitive_calls": 1105,
+          "total_calls": 1105
+        },
+        {
+          "exclusive_per_expanded_node_us": 2.081200909090909,
+          "exclusive_seconds": 0.002289321,
+          "exclusive_share": 0.00010852537226704466,
+          "group": "beam_prune",
+          "primitive_calls": 1310,
+          "total_calls": 1310
+        },
+        {
+          "exclusive_per_expanded_node_us": 1.1042545454545456,
+          "exclusive_seconds": 0.00121468,
+          "exclusive_share": 5.7581963903416696e-05,
+          "group": "transposition_table",
+          "primitive_calls": 1056,
+          "total_calls": 1056
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.5601718181818183,
+          "exclusive_seconds": 0.0006161890000000001,
+          "exclusive_share": 2.9210469222908446e-05,
+          "group": "scenario_aggregation",
+          "primitive_calls": 110,
+          "total_calls": 110
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.09845636363636365,
+          "exclusive_seconds": 0.00010830200000000001,
+          "exclusive_share": 5.134061526219115e-06,
+          "group": "diagnostics",
+          "primitive_calls": 22,
+          "total_calls": 22
+        },
+        {
+          "exclusive_per_expanded_node_us": 0.08441181818181817,
+          "exclusive_seconds": 9.2853e-05,
+          "exclusive_share": 4.401700937138958e-06,
+          "group": "scenario_generation",
+          "primitive_calls": 96,
+          "total_calls": 96
+        }
+      ],
+      "result": {
+        "action": 6,
+        "decision_trace": {
+          "decision_id": "deep_chain_builder-decision-00000001",
+          "elapsed_ms": 21306.669303999115,
+          "elapsed_seconds": 21.306669303999115,
+          "profile_id": "deep_chain_builder:smoke@1.0",
+          "schema_version": "puyo.decision_trace.v1",
+          "step_count": 7,
+          "steps": [
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 0.013144999684300274,
+              "elapsed_seconds": 1.3144999684300274e-05,
+              "index": 0,
+              "input_summary": {
+                "action_contract_version": "",
+                "board_shape": [
+                  6,
+                  13,
+                  6
+                ],
+                "last_chain_end_score": 0,
+                "last_chain_score_delta": 0,
+                "legal_action_count": 22,
+                "max_steps": 40,
+                "max_ticks": null,
+                "next_pairs_shape": [
+                  3,
+                  2,
+                  5
+                ],
+                "observation_schema_version": "",
+                "step_count": 0,
+                "visible_pair_count": 3
+              },
+              "output_keys": [
+                "normalized_observation"
+              ],
+              "selection_reason": "visible_runtime_boundary_validated",
+              "step_id": "normalize_observation",
+              "step_type": "NormalizeObservationStep"
+            },
+            {
+              "candidate_count": 2,
+              "elapsed_ms": 0.9541009994791239,
+              "elapsed_seconds": 0.0009541009994791239,
+              "index": 1,
+              "input_summary": {
+                "available_artifact_count": 2,
+                "required_artifacts": [
+                  "normalized_observation"
+                ]
+              },
+              "output_keys": [
+                "scenario_sequences"
+              ],
+              "selection_reason": "visible_pairs_preserved_and_unknown_suffix_completed",
+              "step_id": "complete_visible_queue_scenarios",
+              "step_type": "CompleteVisibleQueueScenariosStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 0.5236560000412283,
+              "elapsed_seconds": 0.0005236560000412283,
+              "index": 2,
+              "input_summary": {
+                "available_artifact_count": 3,
+                "required_artifacts": [
+                  "normalized_observation"
+                ]
+              },
+              "output_keys": [
+                "root_placements"
+              ],
+              "selection_reason": "compact_kernel_legal_root_enumeration",
+              "step_id": "enumerate_root_placements",
+              "step_type": "EnumerateRootPlacementsStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 21262.282005999623,
+              "elapsed_seconds": 21.262282005999623,
+              "index": 3,
+              "input_summary": {
+                "available_artifact_count": 4,
+                "required_artifacts": [
+                  "normalized_observation",
+                  "scenario_sequences",
+                  "root_placements"
+                ]
+              },
+              "output_keys": [
+                "scenario_search_results"
+              ],
+              "selection_reason": "count_bounded_compact_long_range_search",
+              "step_id": "run_long_range_search",
+              "step_type": "RunLongRangeSearchStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 21.55622400005086,
+              "elapsed_seconds": 0.02155622400005086,
+              "index": 4,
+              "input_summary": {
+                "available_artifact_count": 5,
+                "required_artifacts": [
+                  "scenario_search_results"
+                ]
+              },
+              "output_keys": [
+                "aggregated_root_scores"
+              ],
+              "selection_reason": "all_scenarios_aggregated_once_by_root_action",
+              "step_id": "aggregate_scenario_scores",
+              "step_type": "AggregateScenarioScoresStep"
+            },
+            {
+              "candidate_count": 22,
+              "elapsed_ms": 10.586956000224745,
+              "elapsed_seconds": 0.010586956000224745,
+              "index": 5,
+              "input_summary": {
+                "aggregated_root_count": 22,
+                "root_actions": [
+                  6,
+                  0,
+                  3,
+                  7,
+                  5,
+                  2,
+                  1,
+                  4,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ]
+              },
+              "output_keys": [
+                "selected_action",
+                "selected_plan",
+                "selection_evidence"
+              ],
+              "selection_reason": "highest_aggregated_root_ranking",
+              "step_id": "select_placement",
+              "step_type": "SelectPlacementStep"
+            },
+            {
+              "candidate_count": 1,
+              "elapsed_ms": 10.75321600001189,
+              "elapsed_seconds": 0.01075321600001189,
+              "index": 6,
+              "input_summary": {
+                "available_artifact_count": 9,
+                "required_artifacts": [
+                  "selected_action",
+                  "selected_plan",
+                  "selection_evidence"
+                ]
+              },
+              "output_keys": [
+                "decision_output"
+              ],
+              "selection_reason": "decision_payload_serialized",
+              "step_id": "emit_decision_trace",
+              "step_type": "EmitDecisionTraceStep"
+            }
+          ]
+        },
+        "fallback": {
+          "detail": "",
+          "reason": null,
+          "used": false
+        },
+        "plan_id": "4b2865c1ec6acddc",
+        "result_digest": "dec8faef8a991985c663eb20557deeb0d7165281899b8d76864e956fd5828adf",
+        "search_counters": {
+          "budget_exhausted": false,
+          "evaluated_nodes": 1100,
+          "expanded_nodes": 1100,
+          "game_over_nodes": 0,
+          "generated_nodes": 1100,
+          "invalid_nodes": 0,
+          "pruned_nodes": 1036,
+          "reached_depth": 4,
+          "terminal_fire_nodes": 0,
+          "transposition_hits": 0
+        },
+        "search_digest": "long-horizon-search-19bede02c83ea62639610080"
+      },
+      "wall_seconds": 21.364486794000186
+    }
+  },
+  "schema_version": "puyo.deep_chain_native.profile_summary.v1",
+  "summary_digest": "7bbe10bb5649ec19598917816a5f7771f8ad5ed8ee32d51f5cabe8f828d8312b",
+  "ticket": "PUYO-198"
+}

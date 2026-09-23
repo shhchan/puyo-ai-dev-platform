@@ -1,0 +1,93 @@
+{
+  "schema_version": "puyo.deep_chain_builder.build_provenance.v1",
+  "ticket": "PUYO-235",
+  "recorded_at_utc": "2026-09-07T14:57:46Z",
+  "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+  "tracked_worktree_clean": true,
+  "host": {
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "system": "Linux",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "cpu_model": "Intel(R) Core(TM) Ultra 7 258V",
+    "logical_cpu_count": 8,
+    "python_version": "3.12.3",
+    "python_implementation": "CPython",
+    "python_abi": "cp312"
+  },
+  "capabilities": {
+    "abi_version": 1,
+    "schema": {
+      "major": 1,
+      "minor_min": 0,
+      "minor_max": 0,
+      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+      "result_digest": "eb94050789560a99296ee574f210c7cbe945f85b953f3b27801d7c9a7f800c0b"
+    },
+    "limits": {
+      "max_request_bytes": 16777216,
+      "max_response_bytes": 16777216,
+      "max_sections": 64
+    },
+    "source_revision": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "build_profile": "release",
+    "target": "x86_64-unknown-linux-gnu",
+    "python_abi": "cp312",
+    "cpu_features": [
+      "scalar",
+      "sse2",
+      "ssse3",
+      "sse4.1",
+      "avx2"
+    ],
+    "scalar_fallback": true,
+    "simd_path": "scalar",
+    "gil_detach": true,
+    "parallel": true,
+    "wheel_hash_hook": true,
+    "thread_modes": [
+      "oracle-1",
+      "scenario-6"
+    ],
+    "max_threads": 6,
+    "crate_version": "0.4.0",
+    "wire_name": "puyo.deep_chain_native.envelope.v1",
+    "compact_hot_result": {
+      "abi_version": 1,
+      "schema": "puyo.native_compact_hot_result.v1",
+      "child_state_bytes": 80,
+      "result_bytes": 24,
+      "flags_mask": 15
+    }
+  },
+  "wheels": [
+    {
+      "path": "dist/native/puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+      "filename": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+      "size_bytes": 1661899,
+      "sha256": "9887b2e34b3ad8ae817df585003985a3686e3d13de61c77ad5ec9c21e43be146"
+    }
+  ],
+  "configuration": {
+    "search_sha256": "77e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a",
+    "backend_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+    "backend_version": "1.0",
+    "thread_mode": "scenario-6",
+    "thread_count": 6
+  },
+  "checks": {
+    "tracked_worktree_clean": true,
+    "capabilities_available": true,
+    "release_build": true,
+    "source_revision_matches_commit": true,
+    "python_abi_matches": true,
+    "gil_detached": true,
+    "configured_thread_mode_available": true,
+    "configured_thread_mode_locked": true,
+    "single_release_wheel_present": true
+  },
+  "valid_for_canonical": true,
+  "error": null,
+  "scope": "Release build verification for GUI QA; no quality/performance baseline acceptance."
+}

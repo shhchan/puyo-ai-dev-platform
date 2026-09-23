@@ -1,0 +1,32 @@
+{
+  "corpus": {
+    "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "path": "eval/deep_chain_native_transition_corpus.json",
+    "selected_action_count": 512,
+    "sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356",
+    "state_count": 512,
+    "transition_count": 11264
+  },
+  "gates": {
+    "child_state_bytes_required": 80,
+    "determinism_mismatches_required": 0,
+    "end_to_end_p95_ms_max": 1000.0,
+    "fixture_oracle_native_mismatches_required": 0,
+    "hot_result_bytes_required": 24,
+    "native_total_p95_ms_max": 900.0,
+    "normal_hot_path_heap_allocations_required": 0,
+    "production_backend_promotion_allowed": false,
+    "transition_evaluator_p95_ms_max": 820.625
+  },
+  "profile": {
+    "fallback_timing": false,
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "percentile": "nearest-rank sorted[ceil(p/100*N)-1]",
+    "sample_count": 5,
+    "timeout_substitution": false,
+    "warmup_operations": 10000
+  },
+  "schema_version": "puyo.native_chain_structure_measurement.v1",
+  "ticket": "PUYO-201"
+}

@@ -1,0 +1,279 @@
+import hashlib
+import importlib
+import json
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from agents.compact_search import CompactSearchState
+from agents.deep_chain_native_transition import (
+    NativeCompactTransitionInput,
+    encode_native_compact_batch,
+)
+from eval.deep_chain_native_transition_profile import (
+    _PROFILE_RESPONSE,
+    COMBINED_TRANSITION_EVALUATOR_BUDGET_MS,
+    DEFAULT_OPTIMIZATION_OUTPUT_DIR,
+    DEFAULT_OUTPUT_DIR,
+    DEFAULT_VERIFICATION_OUTPUT_DIR,
+    OPTIMIZATION_TICKET,
+    PROFILE_MODES,
+    QUIET_TARGET_NS,
+    TRANSITION_TARGET_NS,
+    VERIFICATION_TICKET,
+    NativeCompactProfiler,
+    _default_output_dir,
+    _percentile,
+    decode_profile_measurement,
+    derive_budget_decision,
+    derive_verification_decision,
+    measure_call_count_model,
+    parse_args,
+    run_source_verification,
+    verify_benchmark,
+)
+from src.core.constants import PuyoColor
+
+
+class TestDeepChainNativeTransitionProfile(unittest.TestCase):
+    def test_defaults_lock_samples_and_follow_up_targets(self):
+        args = parse_args(["run"])
+
+        self.assertEqual(args.ticket, "PUYO-205")
+        self.assertEqual(args.mixed_samples, 120)
+        self.assertEqual(args.outcome_samples, 40)
+        self.assertEqual(args.stage_samples, 30)
+        self.assertEqual(args.warmup, 5)
+        self.assertEqual(TRANSITION_TARGET_NS, 100.0)
+        self.assertEqual(QUIET_TARGET_NS, 50.0)
+        self.assertEqual(COMBINED_TRANSITION_EVALUATOR_BUDGET_MS, 820.625)
+
+    def test_optimization_ticket_can_use_its_own_evidence_directory(self):
+        args = parse_args(["run", "--ticket", "PUYO-206"])
+
+        self.assertEqual(args.ticket, "PUYO-206")
+        self.assertIsNone(args.output_dir)
+
+    def test_verification_ticket_has_an_independent_evidence_directory(self):
+        args = parse_args(["run", "--ticket", VERIFICATION_TICKET])
+
+        self.assertEqual(args.ticket, VERIFICATION_TICKET)
+        self.assertEqual(
+            _default_output_dir(args.ticket), DEFAULT_VERIFICATION_OUTPUT_DIR
+        )
+
+    def test_nearest_rank_percentile_keeps_all_samples(self):
+        values = list(range(1, 101))
+
+        self.assertEqual(_percentile(values, 50), 50.0)
+        self.assertEqual(_percentile(values, 95), 95.0)
+
+    def test_profile_response_decoder_preserves_counter_and_size_metadata(self):
+        payload = _PROFILE_RESPONSE.pack(
+            b"PCPS",
+            1,
+            0,
+            PROFILE_MODES["result_minimal_hot"],
+            1,
+            10,
+            2,
+            20,
+            1_000,
+            3_000,
+            42,
+            0,
+            80,
+            24,
+            104,
+            0,
+            0,
+            0,
+        )
+
+        result = decode_profile_measurement(payload)
+
+        self.assertEqual(result["measured_records"], 20)
+        self.assertEqual(result["per_record_ns"], 50.0)
+        self.assertEqual(result["per_record_cycles"], 150.0)
+        self.assertEqual(result["state_bytes"], 80)
+        self.assertEqual(result["result_bytes"], 24)
+        self.assertEqual(result["cycle_source"], "rdtsc-lfence")
+
+    def test_budget_decision_preserves_outer_gates(self):
+        call_count = {
+            "planned_native_search": {
+                "canonical_transition_call_ceiling": 600_000,
+            }
+        }
+        decomposition = {
+            "quiet_stage_p50_cycles_per_record": {
+                "inserted_connectivity": 80.0,
+            },
+            "largest_stage_by_cycles": "inserted_connectivity",
+            "quiet_full_p50_cycles_per_record": 160.0,
+        }
+
+        result = derive_budget_decision(130.0, call_count, decomposition)
+
+        self.assertEqual(result["locked_constraints"]["end_to_end_p95_ms"], 1_000.0)
+        self.assertEqual(result["locked_constraints"]["native_total_p95_ms"], 900.0)
+        self.assertEqual(result["decision"]["combined_p95_budget_ms"], 820.625)
+        self.assertEqual(
+            result["decision"]["transition_p95_target_ns_per_call"], 100.0
+        )
+
+    def test_verification_decision_assigns_actual_residual_to_evaluator(self):
+        call_count = {
+            "planned_native_search": {
+                "canonical_transition_call_ceiling": 600_000,
+                "canonical_evaluated_call_projection": 600_000,
+            }
+        }
+
+        result = derive_verification_decision(
+            mixed_p95_ns=66.0,
+            quiet_p95_ns=34.0,
+            call_count=call_count,
+            gate_checks={"semantic": True},
+        )
+
+        self.assertEqual(result["decision"], "GO")
+        self.assertIsNone(result["observed_combined_p95_ms"])
+        self.assertAlmostEqual(
+            result["remaining_budget"]["transition_projection_p95_ms"], 39.6
+        )
+        self.assertAlmostEqual(
+            result["remaining_budget"]["evaluator_quiescence_p95_ms"],
+            781.025,
+        )
+        self.assertEqual(
+            result["remaining_budget"]["native_envelope_p95_ms"], 900.0
+        )
+        self.assertEqual(
+            result["remaining_budget"]["end_to_end_envelope_p95_ms"], 1_000.0
+        )
+
+    def test_source_verification_requires_every_named_release_test(self):
+        output = "\n".join(
+            f"test compact::tests::{name} ... ok"
+            for name in (
+                "inserted_component_fast_path_matches_full_scanner",
+                "normal_hot_transition_performs_no_heap_allocation",
+                "search_key_requires_external_coordinates_and_exact_board",
+                "fixed_hot_result_materializes_the_same_detailed_trace_summary",
+                "qa_profile_modes_preserve_semantics_and_publish_fixed_sizes",
+            )
+        )
+        completed = type(
+            "Completed",
+            (),
+            {"returncode": 0, "stdout": output, "stderr": ""},
+        )()
+        with patch(
+            "eval.deep_chain_native_transition_profile.subprocess.run",
+            return_value=completed,
+        ):
+            result = run_source_verification()
+
+        self.assertTrue(result["passed"])
+        self.assertEqual(
+            result["allocation"]["normal_hot_path_heap_allocations"], 0
+        )
+        self.assertEqual(result["property_corpus"]["mismatch_count"], 0)
+
+    def test_frozen_search_measures_one_transition_per_expanded_node(self):
+        fixture = Path("tests/fixtures/experimental_search_case.json")
+        current = json.loads(fixture.read_text())
+        source = Path(current["source"])
+        self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), current["source_sha256"])
+        original = json.loads(source.read_text())["search_case"]
+        for name in ("state", "known_pairs", "config"):
+            self.assertEqual(current["search_case"][name], original[name])
+        result = measure_call_count_model(fixture)
+
+        self.assertTrue(result["expected_search_matches"])
+        self.assertTrue(result["assumption_600k_is_one_transition_each"])
+        self.assertEqual(result["python_search"]["transition_calls"], 396)
+        self.assertEqual(
+            result["planned_native_search"]["canonical_transition_call_ceiling"],
+            600_000,
+        )
+
+    @unittest.skipUnless(DEFAULT_OUTPUT_DIR.exists(), "PUYO-205 evidence is not checked in")
+    def test_checked_in_profile_evidence_is_integral(self):
+        result = verify_benchmark()
+
+        self.assertTrue(result["passed"], result["issues"])
+
+    @unittest.skipUnless(
+        DEFAULT_OPTIMIZATION_OUTPUT_DIR.exists(),
+        "PUYO-206 evidence is not checked in",
+    )
+    def test_checked_in_optimization_evidence_is_integral(self):
+        result = verify_benchmark(
+            DEFAULT_OPTIMIZATION_OUTPUT_DIR,
+            ticket=OPTIMIZATION_TICKET,
+        )
+
+        self.assertTrue(result["passed"], result["issues"])
+
+    @unittest.skipUnless(
+        DEFAULT_VERIFICATION_OUTPUT_DIR.exists(),
+        "PUYO-207 evidence is not checked in",
+    )
+    def test_checked_in_verification_evidence_is_integral(self):
+        result = verify_benchmark(
+            DEFAULT_VERIFICATION_OUTPUT_DIR,
+            ticket=VERIFICATION_TICKET,
+        )
+
+        self.assertTrue(result["passed"], result["issues"])
+
+
+try:
+    NATIVE_MODULE = importlib.import_module("_puyo_deep_chain_native")
+except (ImportError, OSError):
+    NATIVE_MODULE = None
+
+
+@unittest.skipUnless(
+    NATIVE_MODULE is not None
+    and callable(getattr(NATIVE_MODULE, "_compact_transition_profile", None)),
+    "PUYO-205 release native extension is not installed",
+)
+class TestNativeCompactProfileBoundary(unittest.TestCase):
+    def test_stage_layout_and_result_modes_report_zero_mismatches(self):
+        request = encode_native_compact_batch(
+            [
+                NativeCompactTransitionInput(
+                    CompactSearchState.empty(),
+                    (PuyoColor.RED, PuyoColor.BLUE),
+                    0,
+                )
+            ]
+        )
+        profiler = NativeCompactProfiler(NATIVE_MODULE)
+
+        for name in (
+            "full_transition",
+            "direct_placement",
+            "color_plane_extraction",
+            "inserted_connectivity",
+            "state_result_materialization",
+            "layout_three_bit_slices",
+            "layout_six_color_planes",
+            "layout_column_local",
+            "layout_local_metadata_cache",
+            "result_full_summary",
+            "result_minimal_hot",
+            "result_hot_with_metadata",
+        ):
+            with self.subTest(mode=name):
+                result = profiler.measure(request, mode=PROFILE_MODES[name], repeats=3)
+                self.assertEqual(result["mismatch_count"], 0)
+                self.assertEqual(result["record_count"], 1)
+                self.assertGreater(result["cycles"], 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

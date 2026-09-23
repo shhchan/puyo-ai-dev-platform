@@ -1,0 +1,34 @@
+{
+  "alternative_samples": 40,
+  "auxiliary_cold_warm": {
+    "authority": "observational; does not replace locked outcome samples",
+    "batch_samples": 12,
+    "batch_size": 10000,
+    "batch_warmup": 2,
+    "isolated_process": true,
+    "single_samples": 200,
+    "single_warmup": 20
+  },
+  "cachegrind_records": 256,
+  "cachegrind_repeats": 512,
+  "contract_digest": "bab61eba363cb75f1fadadf7a0dedb189342803b37a2f381fa7ff9c0a377ff18",
+  "fixed_cpu": 0,
+  "mixed_batch_size": 10000,
+  "mixed_samples": 120,
+  "outcome_batch_size": 4096,
+  "outcome_samples": 40,
+  "outlier_exclusion": "none",
+  "percentile_method": "nearest-rank: sorted[ceil(p/100*N)-1]",
+  "release_wheel_required": true,
+  "stage_samples": 30,
+  "targets": {
+    "combined_transition_evaluator_p95_ms": 820.625,
+    "end_to_end_p95_ms": 1000.0,
+    "max_expanded_nodes": 600000,
+    "mixed_p95_ns_per_transition": 100.0,
+    "native_total_p95_ms": 900.0,
+    "quiet_p95_ns_per_transition": 50.0
+  },
+  "threads": 1,
+  "warmup_samples_per_mode": 5
+}

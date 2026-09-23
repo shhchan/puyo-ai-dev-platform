@@ -1,0 +1,13 @@
+{
+  "current_attributed_share": 0.9990025043507789,
+  "current_combined_budget_gap_ms": 771.003655,
+  "current_largest_unimproved_stage": "placement_enumeration_trigger_qualification",
+  "current_largest_unimproved_stage_600k_ms": 669.8436134880075,
+  "follow_up_required": true,
+  "follow_up_ticket": "PUYO-225",
+  "historical_largest_stage": "candidate_ranking_sha256",
+  "paired_baseline_attributed_share": 0.9995019280205656,
+  "paired_parent_largest_stage": "placement_enumeration_trigger_qualification",
+  "remaining_if_next_stage_free_600k_ms": 921.7850415119925,
+  "schema_version": "puyo.native_candidate_ranking_ledger.v1"
+}

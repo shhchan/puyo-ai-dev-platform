@@ -1,0 +1,75 @@
+{
+  "determinism": {
+    "exact_key_mismatch_count": 0,
+    "expected_search_result_digest": "long-horizon-search-de7a005aef42310f30c07a46",
+    "ranking_repeat_digest_mismatch_count": 0,
+    "response_mismatch_count": 0,
+    "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+    "schema_version": "puyo.native_compact_determinism_verification.v1",
+    "search_result_digest": "long-horizon-search-de7a005aef42310f30c07a46",
+    "search_result_digest_mismatch_count": 0,
+    "total_mismatch_count": 0
+  },
+  "fixtures": {
+    "case_count": 9,
+    "mismatch_count": 0,
+    "mismatches": []
+  },
+  "native_parity": {
+    "action_mismatch_count": 0,
+    "deterministic_response": true,
+    "mismatch_count": 0,
+    "mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "mismatches": [],
+    "passed": true,
+    "response_bytes": 1892400,
+    "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+    "transition_count": 11264
+  },
+  "oracle": {
+    "checked_transition_count": 11264,
+    "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+    "corpus_path": "eval/deep_chain_native_transition_corpus.json",
+    "corpus_sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356",
+    "issue_count": 0,
+    "issues": [],
+    "mismatch_count": 0,
+    "mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "mismatches": [],
+    "passed": true,
+    "schema_version": "puyo.native_compact_transition_corpus.v1",
+    "state_count": 512,
+    "transition_count": 11264
+  },
+  "schema_version": "puyo.native_compact_semantic_verification.v1",
+  "source": {
+    "allocation": {
+      "normal_hot_path_heap_allocations": 0,
+      "test": "normal_hot_transition_performs_no_heap_allocation"
+    },
+    "command": "cargo test --locked --release --manifest-path native/deep_chain_native/Cargo.toml compact::tests:: -- --nocapture",
+    "exact_key_mismatch_count": 0,
+    "hot_and_detailed_result_mismatch_count": 0,
+    "output_sha256": "822c954f129c5e38a2a03cd414dcb01f99dc9069f1453eb1941e69f87fccd048",
+    "passed": true,
+    "property_corpus": {
+      "minimum_checked_transitions_exclusive": 100000,
+      "mismatch_count": 0,
+      "optimized_path": "reachable inserted-component local update",
+      "reference_path": "forced full-board scalar scanner",
+      "test": "inserted_component_fast_path_matches_full_scanner"
+    },
+    "release_profile": true,
+    "required_tests": {
+      "fixed_hot_result_materializes_the_same_detailed_trace_summary": true,
+      "inserted_component_fast_path_matches_full_scanner": true,
+      "normal_hot_transition_performs_no_heap_allocation": true,
+      "qa_profile_modes_preserve_semantics_and_publish_fixed_sizes": true,
+      "search_key_requires_external_coordinates_and_exact_board": true
+    },
+    "return_code": 0,
+    "schema_version": "puyo.native_compact_source_verification.v1",
+    "stderr": "   Compiling puyo-deep-chain-native v0.3.0 (/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native)\n    Finished `release` profile [optimized + debuginfo] target(s) in 10.76s\n     Running unittests src/lib.rs (native/deep_chain_native/target/release/deps/_puyo_deep_chain_native-cd3658f5eb2e0782)\n",
+    "stdout": "\nrunning 12 tests\ntest compact::tests::adjacent_ojama_is_cleared_without_scoring ... ok\ntest compact::tests::empty_legal_and_equal_pair_reduction_preserve_action_ids ... ok\ntest compact::tests::fixed_hot_result_materializes_the_same_detailed_trace_summary ... ok\ntest compact::tests::inserted_component_fast_path_matches_full_scanner ... ok\ntest compact::tests::normal_hot_transition_performs_no_heap_allocation ... ok\ntest compact::tests::one_chain_all_clear_matches_python_lifecycle ... ok\ntest compact::tests::poppable_prefilter_matches_reference_components ... ok\ntest compact::tests::profile_quiet_transition_components ... ignored, manual release-only component profile\ntest compact::tests::qa_profile_modes_preserve_semantics_and_publish_fixed_sizes ... ok\ntest compact::tests::score_overflow_is_typed_and_does_not_wrap ... ok\ntest compact::tests::search_key_requires_external_coordinates_and_exact_board ... ok\ntest compact::tests::state_round_trip_and_derived_values_include_hidden_ojama ... ok\n\ntest result: ok. 11 passed; 0 failed; 1 ignored; 0 measured; 8 filtered out; finished in 0.05s\n\n"
+  }
+}

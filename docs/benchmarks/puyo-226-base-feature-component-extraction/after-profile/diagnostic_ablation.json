@@ -1,0 +1,283 @@
+{
+  "depth_2_to_3_increment_ns_per_node": 769.0235216666667,
+  "depth_2_to_3_share_of_depth_3": 0.46847885328039457,
+  "diagnostic_only": true,
+  "median_ns_per_node": {
+    "1": 324.34079,
+    "2": 872.50953,
+    "3": 1641.5330516666668
+  },
+  "operations_per_sample": 600000,
+  "outlier_removal": "none",
+  "production_max_added_puyos": 3,
+  "production_semantics_changed": false,
+  "sample_count": 5,
+  "schema_version": "puyo.native_chain_structure_depth_ablation.v1",
+  "ticket": "PUYO-219",
+  "variants": {
+    "1": {
+      "config_digest": "0513faeecd77042c02f57e7a910b4d090b17f0c56e38cf251cbb1f0236788517",
+      "max_added_puyos": 1,
+      "profile": {
+        "aggregate": {
+          "checksum": 261803236961453236,
+          "determinism_mismatch_count": 0,
+          "end_to_end_p50_ms": 196.264543,
+          "end_to_end_p95_ms": 214.414778,
+          "native_call_total_p50_ms": 194.939377,
+          "native_call_total_p95_ms": 213.484711,
+          "operations_exact": true,
+          "operations_per_sample": 600000,
+          "outlier_removal": "none",
+          "record_count": 512,
+          "sample_count": 5,
+          "transition_evaluator_p50_ms": 194.604474,
+          "transition_evaluator_p95_ms": 213.162581
+        },
+        "samples": [
+          {
+            "checksum": 261803236961453236,
+            "end_to_end_ms": 214.414778,
+            "end_to_end_ns": 214414778,
+            "native_call_total_ms": 213.484711,
+            "native_call_total_ns": 213484711,
+            "ns_per_operation": 355.2709683333333,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 0,
+            "transition_evaluator_ms": 213.162581,
+            "transition_evaluator_ns": 213162581
+          },
+          {
+            "checksum": 261803236961453236,
+            "end_to_end_ms": 194.215194,
+            "end_to_end_ns": 194215194,
+            "native_call_total_ms": 193.160099,
+            "native_call_total_ns": 193160099,
+            "ns_per_operation": 321.39094,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 1,
+            "transition_evaluator_ms": 192.834564,
+            "transition_evaluator_ns": 192834564
+          },
+          {
+            "checksum": 261803236961453236,
+            "end_to_end_ms": 196.41792,
+            "end_to_end_ns": 196417920,
+            "native_call_total_ms": 195.470022,
+            "native_call_total_ns": 195470022,
+            "ns_per_operation": 325.26520166666666,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 2,
+            "transition_evaluator_ms": 195.159121,
+            "transition_evaluator_ns": 195159121
+          },
+          {
+            "checksum": 261803236961453236,
+            "end_to_end_ms": 191.332939,
+            "end_to_end_ns": 191332939,
+            "native_call_total_ms": 190.384248,
+            "native_call_total_ns": 190384248,
+            "ns_per_operation": 316.623415,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 3,
+            "transition_evaluator_ms": 189.974049,
+            "transition_evaluator_ns": 189974049
+          },
+          {
+            "checksum": 261803236961453236,
+            "end_to_end_ms": 196.264543,
+            "end_to_end_ns": 196264543,
+            "native_call_total_ms": 194.939377,
+            "native_call_total_ns": 194939377,
+            "ns_per_operation": 324.34079,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 4,
+            "transition_evaluator_ms": 194.604474,
+            "transition_evaluator_ns": 194604474
+          }
+        ]
+      }
+    },
+    "2": {
+      "config_digest": "869a14ff1746f09d4c90361043b41acbcd14162915c875a136214eae8550affd",
+      "max_added_puyos": 2,
+      "profile": {
+        "aggregate": {
+          "checksum": 17221647859157287655,
+          "determinism_mismatch_count": 0,
+          "end_to_end_p50_ms": 525.816212,
+          "end_to_end_p95_ms": 544.649942,
+          "native_call_total_p50_ms": 524.045007,
+          "native_call_total_p95_ms": 543.564926,
+          "operations_exact": true,
+          "operations_per_sample": 600000,
+          "outlier_removal": "none",
+          "record_count": 512,
+          "sample_count": 5,
+          "transition_evaluator_p50_ms": 523.505718,
+          "transition_evaluator_p95_ms": 542.94063
+        },
+        "samples": [
+          {
+            "checksum": 17221647859157287655,
+            "end_to_end_ms": 512.079948,
+            "end_to_end_ns": 512079948,
+            "native_call_total_ms": 510.810006,
+            "native_call_total_ns": 510810006,
+            "ns_per_operation": 850.0825816666667,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 0,
+            "transition_evaluator_ms": 510.049549,
+            "transition_evaluator_ns": 510049549
+          },
+          {
+            "checksum": 17221647859157287655,
+            "end_to_end_ms": 526.251394,
+            "end_to_end_ns": 526251394,
+            "native_call_total_ms": 525.338294,
+            "native_call_total_ns": 525338294,
+            "ns_per_operation": 874.72896,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 1,
+            "transition_evaluator_ms": 524.837376,
+            "transition_evaluator_ns": 524837376
+          },
+          {
+            "checksum": 17221647859157287655,
+            "end_to_end_ms": 544.649942,
+            "end_to_end_ns": 544649942,
+            "native_call_total_ms": 543.564926,
+            "native_call_total_ns": 543564926,
+            "ns_per_operation": 904.90105,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 2,
+            "transition_evaluator_ms": 542.94063,
+            "transition_evaluator_ns": 542940630
+          },
+          {
+            "checksum": 17221647859157287655,
+            "end_to_end_ms": 525.816212,
+            "end_to_end_ns": 525816212,
+            "native_call_total_ms": 524.045007,
+            "native_call_total_ns": 524045007,
+            "ns_per_operation": 872.50953,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 3,
+            "transition_evaluator_ms": 523.505718,
+            "transition_evaluator_ns": 523505718
+          },
+          {
+            "checksum": 17221647859157287655,
+            "end_to_end_ms": 504.975774,
+            "end_to_end_ns": 504975774,
+            "native_call_total_ms": 503.898456,
+            "native_call_total_ns": 503898456,
+            "ns_per_operation": 838.69649,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 4,
+            "transition_evaluator_ms": 503.217894,
+            "transition_evaluator_ns": 503217894
+          }
+        ]
+      }
+    },
+    "3": {
+      "config_digest": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+      "max_added_puyos": 3,
+      "profile": {
+        "aggregate": {
+          "checksum": 6517067855075167553,
+          "determinism_mismatch_count": 0,
+          "end_to_end_p50_ms": 986.736042,
+          "end_to_end_p95_ms": 997.731123,
+          "native_call_total_p50_ms": 985.803255,
+          "native_call_total_p95_ms": 996.602584,
+          "operations_exact": true,
+          "operations_per_sample": 600000,
+          "outlier_removal": "none",
+          "record_count": 512,
+          "sample_count": 5,
+          "transition_evaluator_p50_ms": 984.919831,
+          "transition_evaluator_p95_ms": 995.521361
+        },
+        "samples": [
+          {
+            "checksum": 6517067855075167553,
+            "end_to_end_ms": 967.443679,
+            "end_to_end_ns": 967443679,
+            "native_call_total_ms": 966.446571,
+            "native_call_total_ns": 966446571,
+            "ns_per_operation": 1609.3613416666667,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 0,
+            "transition_evaluator_ms": 965.616805,
+            "transition_evaluator_ns": 965616805
+          },
+          {
+            "checksum": 6517067855075167553,
+            "end_to_end_ms": 995.731595,
+            "end_to_end_ns": 995731595,
+            "native_call_total_ms": 994.798284,
+            "native_call_total_ns": 994798284,
+            "ns_per_operation": 1656.5407066666667,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 1,
+            "transition_evaluator_ms": 993.924424,
+            "transition_evaluator_ns": 993924424
+          },
+          {
+            "checksum": 6517067855075167553,
+            "end_to_end_ms": 960.540364,
+            "end_to_end_ns": 960540364,
+            "native_call_total_ms": 959.540719,
+            "native_call_total_ns": 959540719,
+            "ns_per_operation": 1597.7735066666667,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 2,
+            "transition_evaluator_ms": 958.664104,
+            "transition_evaluator_ns": 958664104
+          },
+          {
+            "checksum": 6517067855075167553,
+            "end_to_end_ms": 986.736042,
+            "end_to_end_ns": 986736042,
+            "native_call_total_ms": 985.803255,
+            "native_call_total_ns": 985803255,
+            "ns_per_operation": 1641.5330516666668,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 3,
+            "transition_evaluator_ms": 984.919831,
+            "transition_evaluator_ns": 984919831
+          },
+          {
+            "checksum": 6517067855075167553,
+            "end_to_end_ms": 997.731123,
+            "end_to_end_ns": 997731123,
+            "native_call_total_ms": 996.602584,
+            "native_call_total_ns": 996602584,
+            "ns_per_operation": 1659.2022683333332,
+            "operations": 600000,
+            "record_count": 512,
+            "sample": 4,
+            "transition_evaluator_ms": 995.521361,
+            "transition_evaluator_ns": 995521361
+          }
+        ]
+      }
+    }
+  }
+}

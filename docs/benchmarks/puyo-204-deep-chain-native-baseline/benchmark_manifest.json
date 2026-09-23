@@ -1,0 +1,667 @@
+{
+  "artifacts": [
+    {
+      "artifact_type": "markdown",
+      "exists": true,
+      "path": "benchmark_report.md",
+      "required": true,
+      "role": "benchmark_report",
+      "sha256": "18a60c89a8a2850cb51a94802f8c79b4d9f4a3d14e1e55dad715234b94eba353",
+      "size_bytes": 4144
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "benchmark_summary.json",
+      "required": true,
+      "role": "benchmark_summary",
+      "sha256": "72c3febbb0af9b309596a055295cd19e95a3b53675315c0cedc2b02bc24e201f",
+      "size_bytes": 161667
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "build_provenance.json",
+      "required": true,
+      "role": "build_provenance",
+      "sha256": "002c10bd6b5088014eff5632bf143feb9d69b317e1e58d94fa9c05dfcebb0eda",
+      "size_bytes": 2885
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "configuration.json",
+      "required": true,
+      "role": "configuration",
+      "sha256": "46a2086d386754c0e50e2d7f89dedab119476b4e89b863683836e93b84264346",
+      "size_bytes": 2394
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "future_isolation.json",
+      "required": true,
+      "role": "future_isolation",
+      "sha256": "7cf2736275d23b5c696bbf3f2075218659a317b040148ac2ce9ebe3df4487946",
+      "size_bytes": 9653
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_dummy_replay.json",
+      "required": true,
+      "role": "gui_dummy_replay",
+      "sha256": "bb1f49e90890a99c15ccdfd9eb3ad7d3bd5198eb2479ed501495e2207ab1d38c",
+      "size_bytes": 98762353
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_dummy_result.json",
+      "required": true,
+      "role": "gui_dummy_result",
+      "sha256": "2e77300ebff1404f81fbf7fa140e815fbab0171be93ab5144eba6d918ec1ac55",
+      "size_bytes": 4732227
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "gui_qa.json",
+      "required": true,
+      "role": "gui_qa",
+      "sha256": "0ab7d5289006ab06ef8d8381ea738ba6d1c126e1240c2f96bd1a643189a7aea9",
+      "size_bytes": 3352
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "historical_comparison.json",
+      "required": true,
+      "role": "historical_comparison",
+      "sha256": "8ade5771a858a5734321b70d7bd9d9c7b084969fa644cd9ae817c68b8e613265",
+      "size_bytes": 2753
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "lineage.json",
+      "required": true,
+      "role": "lineage",
+      "sha256": "16ee71ee4f5c1b0cf99e36d6c92696bb8cb0efd098c0d23ef267f8d58ff87bff",
+      "size_bytes": 5626
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "preflight.json",
+      "required": true,
+      "role": "preflight",
+      "sha256": "d11b155008e1aa19a7843309478195c8490ca05c57a51b71e0ca714fe8e3aa73",
+      "size_bytes": 112685
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "run_index.json",
+      "required": true,
+      "role": "run_index",
+      "sha256": "429cedf8c58cf327ad23756e2e6cbf236adbd1d4839a2dc83c2c07ec396ecb30",
+      "size_bytes": 11242
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-123-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "ca1510efadb20e26c3a339606d7de96aef0d2c3845c2f5a21cf5c751c4c47edc",
+      "size_bytes": 3188267
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-123-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "8d94e5500cc3b0424552e9ea1ea0d1a4e210b73ae94f8d4ff20938a4f55b0739",
+      "size_bytes": 3188230
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-124-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "311545c21df1d4c771f9a3ef209cbecde7911210789dcacd9f524b0d1624d6ab",
+      "size_bytes": 3211307
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-124-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "fc1d8c1397fe0ff01d6c4900b3893359b89aa524cb61da1807cb2312e8698e8d",
+      "size_bytes": 3211327
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-125-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "3bccdc131b2222f54fdb802a6482ee76a54b0d2f456b9077c005b12839f968d0",
+      "size_bytes": 3228102
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-125-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "536c8d6d63894f3b7a3c57674c8e661f763026ac7794d01f499e6fdbd3741bc4",
+      "size_bytes": 3228085
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-126-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "f9e57a890726574f23465efb3ac1e74d199b84bb92d0d67500d1b91100217d19",
+      "size_bytes": 3212259
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-126-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "ca9de675b0d4f140f7fc7710a696c48dc58e7b3f85f9ca5f8960dc2d35996b4e",
+      "size_bytes": 3212260
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-127-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "637d67c9336c17f461ce39f1ac293a3ee7f66511eeb6eccc611c8ce745dfca06",
+      "size_bytes": 3168686
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-127-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "8768348a54eddfedbff392f00bc319711a1eff6c8bf0a53afc0574816ae86d10",
+      "size_bytes": 3168651
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-128-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "1c3658e39ccf4a0e952ad31bb441e3b7d8b0703361e2b1a53e71ab651231be67",
+      "size_bytes": 3205424
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-128-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "59de699c51d72dbbb490cfd6d893e85cf4f644426726334a6691d61c6ed4f6e7",
+      "size_bytes": 3205412
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-129-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "a76f1d4a228ee53c1612f14048597fa990063038f903b222543e128d5ef86bfb",
+      "size_bytes": 3219026
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-129-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "e8e0a421c4dea7341e7526545a5b5d70924201d539931a917d93c3d8ca277d50",
+      "size_bytes": 3219018
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-130-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "3a1655220a5c268a6aca9ef65e65430a5782e6e83cd0adbb0fc1f7d2523b3a34",
+      "size_bytes": 3172362
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-130-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "661ceede0100739e4812c00f081866460a5a4ebacf29d945be7b20be408d2120",
+      "size_bytes": 3172401
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-131-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "a2306b81e65c1fea52f149ce074dffd0ff76d82b03336a90d73c8f6bb54d76fb",
+      "size_bytes": 3157254
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-131-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "8fdffa07947da03861fde9712ae78319ee40de5ac2e97764b9cf2e75182a3e9b",
+      "size_bytes": 3157219
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-132-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "d57c7a2989c84f47521ffbc1c781660047cef202f4f06ba59758e76468b22147",
+      "size_bytes": 3197915
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-132-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "f6afdc1eb187ff2b9dbf47f7252e166ef0ca420c285c63f5b60f854121307861",
+      "size_bytes": 3197941
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-133-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "e416cd3f442ecde6f1abc0acbd53526533f2b8cf229a029d564967b6a70d260e",
+      "size_bytes": 3200054
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-133-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "1091427e206d1dd1cac97aa5678b77f67dc05fa05c0360552424430a7e4162c0",
+      "size_bytes": 3200039
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-134-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "9b4f3078dba2fcd79fe617463d2bab044ddfc80095b3f993ccc00d44d208ceac",
+      "size_bytes": 3162702
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-134-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "ec26b7b70aa32c84d5e9e036ff28cd8532ab31ebddf01237481b74646f2623af",
+      "size_bytes": 3162657
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-135-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "f7b56ad1986a53769efc2ff87cbd282893a850e074cba2718f829b0fa244a04c",
+      "size_bytes": 3149328
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-135-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "d083d4f5a7b567c4aee6ca34082fd784f5b66208a2a1e70f7c03d3081562304d",
+      "size_bytes": 3149346
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-136-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "9ae99ebbcc0ac2ef6a7c1697be8eb0fa4ff3f89fdbe146b6e37239b167935669",
+      "size_bytes": 3124430
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-136-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "0c741196cfe391b07b697db1fb77b8db07974b7cbc26ee46e06f196417282a4e",
+      "size_bytes": 3124424
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-137-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "40fcf307ec9b1887263db947721360b618440ebc671f99daf19ce94354ab0e4e",
+      "size_bytes": 3176988
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-137-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "6aa4afed82c607e2dd7656826e60204cb15f22f609d6a85c66dfd3db9559ca0c",
+      "size_bytes": 3176952
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-138-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "68ddb8e954c248db61e79f09595ca5e263d4a65e84cb0870a265410bccc10bb6",
+      "size_bytes": 2957558
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-138-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "07c455e47635146ae15217b8e2ce69bd73624c68616447b22c59924f2282ade6",
+      "size_bytes": 2957565
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-139-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "833eab0095cef4e05bd1612f6eb4a5eb9fe9173a2c0fe5d3b56a78f74a593dc2",
+      "size_bytes": 3229149
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-139-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "be5ecb7d84da4040d94e2bd2c6ae55efa582c3b007571f7a85a6be712d233b7d",
+      "size_bytes": 3229083
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-140-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "fade1dfb19f1b89cc99c2d4917ad7112e1c0f53dcecbb7ff6b63fc3523b0e0bb",
+      "size_bytes": 3260428
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-140-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "264ccf61695a89da31b9fb4521ac4994b63300ef2d90fa7580405f906cb31e6d",
+      "size_bytes": 3260420
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-141-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "993b329c303427d3de89579e365c849b57756e6b6c3322d6d18820dd7a3fc6bf",
+      "size_bytes": 3224321
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-141-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "0c501a2a2df90351db07433929e223fef6e979bda25f1ad29176f760b16e260f",
+      "size_bytes": 3224370
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-142-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "ff1b1101a2b3467542f6fcd4f261f255437786fc8828977a62566748d2054637",
+      "size_bytes": 3205773
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-142-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "7d302d657dca513fda9e40a2d4da3b1211d43795d63e90649facf27dddfe9e82",
+      "size_bytes": 3205759
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-143-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "53865e55af8be0f541b0ebb0cd0c2e9af031af7563610a40ef3765a8a9a9d4e3",
+      "size_bytes": 3176795
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-143-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "586e0676c4ca4410f7540f88f4c33807c0ddf518c4ce8185393f6cc3ae5e24cd",
+      "size_bytes": 3176817
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-144-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "2a33bc84e49787d02b6590408d561bb242e9e486760380a741d1e4df038d58ef",
+      "size_bytes": 3213663
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-144-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "5dbc040526632e95a35fc476c69e11397b3d6e227557af06de4cf3ee129b53a8",
+      "size_bytes": 3213687
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-145-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "4c2ca4709c3682d28d6e619e32943c724de077646bfe653b1473d0766359dc8a",
+      "size_bytes": 3210306
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-145-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "254aca8029125fc08a2b79c401363c8e49739b479a3ecf4564d739aebdb53180",
+      "size_bytes": 3210307
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-146-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "1aa8e4598d5b56860b18de208e038864add5fdbacd9da2d769cad7b68238a16d",
+      "size_bytes": 3213834
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-146-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "9a673e93367cb672a8d3999f419999376f8777a64442b33631374a5bd12eb3ed",
+      "size_bytes": 3213847
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-147-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "4a5de168add5b5f8b0ac5f46fc8c2b140e6537f78fbcb2fa755a01a8429ffae7",
+      "size_bytes": 3195259
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-147-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "ce4d315fa1ea50ced1ba0f74b8bdffd80feec6a238882851f2371b21d8eee170",
+      "size_bytes": 3195278
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-148-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "60a5e3c7c4544836d2fd8f17f777dd69c12b1b7b6cfc009bb88b467b9a7def58",
+      "size_bytes": 3114990
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-148-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "e819adcfec9d8e96ac5d44c883a4b84ca86decae0c1920fefc96b63c6c4bb9b6",
+      "size_bytes": 3114968
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-149-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "a80a83610258d6077e876f844de4756d145cd283c64afff6c8949c497ed5f078",
+      "size_bytes": 3225913
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-149-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "677883bdbc5c220dc787058ae981f0bebe2ad86d302599593048af0eea05f7f1",
+      "size_bytes": 3225936
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-150-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "6e7829027c2def416307b5b9487428e91cd69e051c26bdc2f71517be086ddd6c",
+      "size_bytes": 3211182
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-150-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "38f0a28ad53daea698e11dafabc2c860387b14a735bbdd1dd774864d31acc91f",
+      "size_bytes": 3211234
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-151-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "299a5b4f8b4a1f7b7b715bb6d0451eebc7f617bed40a669a7d451a1380dcc45b",
+      "size_bytes": 2974408
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-151-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "47f546e44c5826d08448a52b45ec0401f1c071602e817da7665cc844e96d104d",
+      "size_bytes": 2974388
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-152-repeat-01.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "274be9b998e4ab88c66ca697a570ca5101fcc56823d23d689c0f79bab9015b01",
+      "size_bytes": 3223888
+    },
+    {
+      "artifact_type": "json",
+      "exists": true,
+      "path": "runs/seed-152-repeat-02.json",
+      "required": true,
+      "role": "canonical_run",
+      "sha256": "aa2e8a13b9350f575f1de93396e8685836ec892656af5cf795d4ad27010c4ce5",
+      "size_bytes": 3223862
+    }
+  ],
+  "baseline_decision": {
+    "accepted_as_experimental_baseline": false,
+    "decision": "FAIL",
+    "next_human_decision": "review failure evidence before creating any corrective task",
+    "promotion_performed": false
+  },
+  "configuration_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+  "created_at_utc": "2026-09-06T02:25:44Z",
+  "evaluated_commit": "47db7dd352ae21df0b2b4dd29169089e005c0f5e",
+  "executed_run_count": 60,
+  "expected_run_count": 60,
+  "manifest_digest": "2233f1504f25ed5716ac3962e95b6f5134e564d28c38d6609eeb406befb5fbc3",
+  "schema_version": "puyo.deep_chain_builder.benchmark_manifest.v2",
+  "summary_digest": "5df836142239117346dcb1af2ceebe61f4deeaada86c02342fe3eb1794b3fa7a",
+  "ticket": "PUYO-204"
+}

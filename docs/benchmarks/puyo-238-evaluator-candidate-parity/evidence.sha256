@@ -1,0 +1,17 @@
+a6f6604bc6b21b09260beda7b86548cf26e095193d1921aaa577ab7d6f7789d7  docs/benchmarks/puyo-238-evaluator-candidate-parity/after/experiment_manifest.json
+0a91dd158dbfa344b3cf332a69a2641aeeddf70040d1cab3d53bcc3c490d75d0  docs/benchmarks/puyo-238-evaluator-candidate-parity/after/summary.json
+f42e66a2d76782d71459120f233cd6a5102b9bf9b7195f15afe5b991684f84e6  docs/benchmarks/puyo-238-evaluator-candidate-parity/after/target-12/seed-146-repeat-01.json.gz
+be5850b8d69a32a63e1242f4c006c7ab35937530873228d7d4438e95ddd6e68e  docs/benchmarks/puyo-238-evaluator-candidate-parity/after/target-12/seed-146-repeat-02.json.gz
+bc2cc3c4fb6cb9bdf5ce741be3bd2608fb32d43aaaabfbb8e6c98b4fa498e253  docs/benchmarks/puyo-238-evaluator-candidate-parity/after-diagnostic/diagnostics.json
+14cb9a89a232c4d3e566843552f275120bb64ae5e79fa6e2986b2c9a82c65e6f  docs/benchmarks/puyo-238-evaluator-candidate-parity/before/diagnostics.json
+3a66545ea2f2ff9b29b2da6d62a3b3defe11628573d6a7ac09c2f2a903dda835  docs/benchmarks/puyo-238-evaluator-candidate-parity/before/reproduction.json.gz
+8cf9263e7c660d41df09117997fa2e604aa3f1724620961b67a9d3ba667e8b1a  docs/benchmarks/puyo-238-evaluator-candidate-parity/before/request.hex
+6d86df448b95bd419633c83660623f344d7fc4d3f93f1178c7dafc5b7d03310f  docs/benchmarks/puyo-238-evaluator-candidate-parity/diagnose.py
+5fa4f6ecebddce50e7c6438605b922add1bf99d9adb3d3594c01ec206bfd5ec8  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/clippy.log
+6eeb7f80436c823c1b1008043923a621f5c7a98e97ff928050e2278379495458  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/python-tests.log
+dbf54aa432f0277e0964b57773a696d6b44873156f233219ce8bbb11ce0c9335  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/regression.log
+fc8f6d51a586b7b804c95099fcccf7da8511fb209601bbfbed6ceaf4fcd4105e  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/release-build.log
+0ea3f979208f022619d977cfc26d862799c9ab4ce00ff54205719af45af4f0dc  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/rust-tests.log
+1f4345fb25bafc83a48d4356489a7c6551627f3c84e604614204f1c28731a2ce  docs/benchmarks/puyo-238-evaluator-candidate-parity/logs/search-regression.log
+6dec05cda48d5c00fd368a4ffa36b2dd0c659f1d9f2a4f0d6bc6b39db63cdb0d  docs/benchmarks/puyo-238-evaluator-candidate-parity/qa.json
+fb1f94be0dd54139d75fd8e6cc7b8d59c7268c2b029f316981c9dbd7976c0f48  docs/benchmarks/puyo-238-evaluator-candidate-parity/run_regression.py

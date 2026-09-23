@@ -1,0 +1,224 @@
+{
+  "comparison": {
+    "after_600k_ms": 427.84184574314344,
+    "after_ns_per_node": 713.0697429052391,
+    "before_600k_ms": 7286.985354784132,
+    "before_ns_per_node": 12144.975591306888,
+    "margin_600k_ms": 15.99363949349464,
+    "operations_per_sample": 600000,
+    "outlier_removal": "none",
+    "reduction_percent": 94.12868525305527,
+    "sample_count": 5,
+    "schema_version": "puyo.native_quiescence_frontier_comparison.v1",
+    "speedup": 17.031960354712247,
+    "target_600k_ms": 443.8354852366381,
+    "target_ns_per_node": 739.7258087277302
+  },
+  "created_at_utc": "2026-09-01T03:25:59Z",
+  "decision": {
+    "checks": {
+      "child_state_abi_80": true,
+      "determinism": true,
+      "executed_probe_p95_at_most_96": true,
+      "fixture_eight_zero_mismatches": true,
+      "hot_result_abi_24": true,
+      "logical_counters_match": true,
+      "normal_hot_path_allocations_zero": true,
+      "placement_stage_budget_met": true,
+      "production_depth_three": true,
+      "profile_checks_pass": true,
+      "property_oracle_264_zero_mismatches": true,
+      "response_bytes_match": true,
+      "same_five_by_600k_contract": true,
+      "same_frozen_config": true,
+      "same_frozen_corpus": true,
+      "selected_child_512_zero_mismatches": true,
+      "transition_11264_zero_mismatches": true
+    },
+    "decision": "PASS",
+    "failed_checks": [],
+    "passed": true
+  },
+  "logical_counters": {
+    "after": {
+      "pattern_nodes": {
+        "exact_600k_total": 249000000,
+        "maximum_per_node": 415,
+        "p50_per_node": 415,
+        "p95_per_node": 415
+      },
+      "rank_comparison_calls": {
+        "exact_600k_total": 9846138,
+        "maximum_per_node": 29,
+        "p50_per_node": 17,
+        "p95_per_node": 24
+      },
+      "rank_tie_calls": {
+        "exact_600k_total": 1028918,
+        "maximum_per_node": 13,
+        "p50_per_node": 1,
+        "p95_per_node": 10
+      },
+      "resolution_nodes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "sha256_calls": {
+        "exact_600k_total": 1415633,
+        "maximum_per_node": 14,
+        "p50_per_node": 2,
+        "p95_per_node": 11
+      }
+    },
+    "before": {
+      "pattern_nodes": {
+        "exact_600k_total": 249000000,
+        "maximum_per_node": 415,
+        "p50_per_node": 415,
+        "p95_per_node": 415
+      },
+      "rank_comparison_calls": {
+        "exact_600k_total": 9846138,
+        "maximum_per_node": 29,
+        "p50_per_node": 17,
+        "p95_per_node": 24
+      },
+      "rank_tie_calls": {
+        "exact_600k_total": 1028918,
+        "maximum_per_node": 13,
+        "p50_per_node": 1,
+        "p95_per_node": 10
+      },
+      "resolution_nodes": {
+        "exact_600k_total": 10444966,
+        "maximum_per_node": 30,
+        "p50_per_node": 18,
+        "p95_per_node": 25
+      },
+      "sha256_calls": {
+        "exact_600k_total": 1415633,
+        "maximum_per_node": 14,
+        "p50_per_node": 2,
+        "p95_per_node": 11
+      }
+    },
+    "matches": true
+  },
+  "measurement_commit": "9df1ea31265e6c6d7f4494d341de8e0e12717cbf",
+  "oracle": {
+    "command": [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "/home/sion2/workspaces/dev/puyo_ai_dev_platform/native/deep_chain_native/Cargo.toml",
+      "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+      "--",
+      "--exact"
+    ],
+    "comparison_count": 264,
+    "comparison_modes": [
+      "full_budget",
+      "varied_truncation_budget"
+    ],
+    "mismatch_count": 0,
+    "passed": true,
+    "pattern_budgets": [
+      1,
+      2,
+      7,
+      24,
+      95,
+      96,
+      414,
+      415,
+      512
+    ],
+    "random_state_count": 130,
+    "resolution_budgets": [
+      1,
+      2,
+      7,
+      24,
+      96
+    ],
+    "schema_version": "puyo.native_quiescence_frontier_oracle.v1",
+    "source_sha256": "ba8d97c54c717c98ac1c9d31e9333a4af77a644949c08b0581372ac68e8895d3",
+    "special_cases": [
+      "hidden_row_with_ojama",
+      "unreachable_columns_with_ojama"
+    ],
+    "state_count": 132,
+    "test": "chain_structure::tests::frontier_search_matches_exhaustive_property_corpus",
+    "test_output_sha256": "aa3646164f3c60eddc5b02d4a8a0782aeee97049160e198c73b72a7fca579338",
+    "ticket": "PUYO-223"
+  },
+  "probe_distribution": {
+    "exact_600k_total": 10444966,
+    "maximum_per_node": 30,
+    "mean_per_node": 17.408203125,
+    "p50_per_node": 18,
+    "p95_per_node": 25
+  },
+  "response_sha256": {
+    "fixture": {
+      "after": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e",
+      "before": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e",
+      "matches": true
+    },
+    "python_native_evaluator": {
+      "after": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705",
+      "before": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705",
+      "matches": true
+    },
+    "transition_oracle": {
+      "after": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "before": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "matches": true
+    }
+  },
+  "schema_version": "puyo.native_quiescence_frontier_summary.v1",
+  "semantic": {
+    "determinism": {
+      "byte_identical_repeats": true,
+      "mismatch_count": 0
+    },
+    "fixture": {
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 8,
+      "response_sha256": "b9f89be9f566067505a839da19771fc7db454e34b37c6ec8ea9f36bb9618b13e"
+    },
+    "passed": true,
+    "python_native_evaluator": {
+      "invalid_selected": [],
+      "invalid_selected_count": 0,
+      "mismatch_count": 0,
+      "mismatches": [],
+      "record_count": 512,
+      "response_sha256": "ac5c097a4b9b3e9c00d4318cfbf429000cb9a8d84b66fcb0a820419003437705"
+    },
+    "schema_version": "puyo.native_chain_structure_semantic_verification.v1",
+    "ticket": "PUYO-219",
+    "transition_oracle": {
+      "action_mismatch_count": 0,
+      "mismatch_count": 0,
+      "record_count": 11264,
+      "response_sha256": "6f88fb36b6c1932bdc38b1f8e656fde645863e0ecf1d775d75486c98e8ef8a8e",
+      "transition_mismatch_count": 0
+    }
+  },
+  "source_verification": {
+    "allocation_test": "chain_structure::tests::combined_transition_and_evaluator_hot_path_allocates_nothing",
+    "allocation_test_passed": true,
+    "child_state_bytes": 80,
+    "evaluator_abi_version": 1,
+    "hot_result_bytes": 24,
+    "normal_hot_path_heap_allocations": 0,
+    "test_output_sha256": "79d8a9de79a584c52a161c7f41f805be06a9aab395fef40130ce79c8686b7615"
+  },
+  "ticket": "PUYO-223"
+}

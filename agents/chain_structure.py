@@ -896,7 +896,7 @@ def bounded_quiescence(
     heights = state.column_heights
     reachable = frozenset(_reachable_columns(heights))
     candidates: list[QuiescenceCandidate] = []
-    seen: set[tuple[Any, ...]] = set()
+    candidate_indices: dict[tuple[Any, ...], int] = {}
     pattern_nodes = 0
     resolution_nodes = 0
     truncation_reason: str | None = None
@@ -1000,10 +1000,17 @@ def bounded_quiescence(
                         relations=resolved.relations,
                     )
                     signature = candidate.canonical_signature
-                    if signature in seen:
-                        continue
-                    seen.add(signature)
-                    candidates.append(candidate)
+                    index = candidate_indices.get(signature)
+                    if index is None:
+                        candidate_indices[signature] = len(candidates)
+                        candidates.append(candidate)
+                    elif _candidate_rank_key(candidate) > _candidate_rank_key(
+                        candidates[index]
+                    ):
+                        # Canonical geometry can alias different board locations
+                        # with different protection. Retain the strongest whole
+                        # candidate; exact ties keep the enumeration order.
+                        candidates[index] = candidate
             if truncation_reason is not None:
                 break
         if truncation_reason is not None:

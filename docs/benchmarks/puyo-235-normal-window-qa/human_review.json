@@ -1,0 +1,83 @@
+{
+  "schema_version": "puyo.deep_chain_builder.normal_window_human_review.v1",
+  "ticket": "PUYO-235",
+  "run_id": "puyo-235-seed-187-normal-01",
+  "evaluated_commit": "c1267a9d70c09c8257f4fe2546d3daee3b4424eb",
+  "status": "passed",
+  "reviewer": "ユーザー（本会話の報告者）",
+  "observed_at": null,
+  "reported_at_utc": "2026-09-07T22:26:25.651955+00:00",
+  "display_conditions": {
+    "recorded_runtime": "X11/Weston, 1120x780, speed1",
+    "observer_details": "OS側の表示倍率等は未申告"
+  },
+  "result": {
+    "path": "gui_normal_result.json.gz",
+    "sha256": "98bab7f64ea12b4291064d27b6aec2253f6395fd08efcf63c166a5ec3c982cd3"
+  },
+  "replay": {
+    "path": "gui_normal_replay.json.gz",
+    "sha256": "6fd8f5db277ac1d9c21d9c719cb15bfe28fa0e8d4cebaa5934531ad33e26c10f"
+  },
+  "checks": [
+    {
+      "id": "ghost_action",
+      "description": "先頭ghostと実際の選択・実行手が一致する",
+      "status": "passed",
+      "evidence": "ユーザー:「N 手先のゴースト表示に対して配置できており」"
+    },
+    {
+      "id": "diagnostics_readability",
+      "description": "選択理由/backend/target/node/timingが読める",
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
+    },
+    {
+      "id": "plan_replacement",
+      "description": "3 decision以上を観察し、次decisionで古いghostが置換される",
+      "status": "passed",
+      "evidence": "ユーザー:「再計画後のところにきちんと設置できているように見えました」。更新回数19 decision/18 replacementsは別途replayで機械確認。"
+    },
+    {
+      "id": "overlay_toggle",
+      "description": "Pで停止した同一decisionでOをOFF/ONすると同じaction/planが戻る",
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
+    },
+    {
+      "id": "input_render_response",
+      "description": "Pで再開後も入力・描画・UI応答が継続する",
+      "status": "passed",
+      "evidence": "2026-09-09のユーザー追加回答で、診断文字の可読性・P停止中のO往復・P再開後の操作応答について「すべて問題なさそうであることを確認しました」と報告。"
+    },
+    {
+      "id": "replay_correspondence",
+      "description": "画面で観察したrunとreference/native/target10/fallback=falseのreplayが対応する",
+      "status": "passed",
+      "evidence": "本会話で提示したnormal runへの観察回答として対応付けた。提示候補/seed/buildとresult/replay checksumはexecution.jsonに固定済み。全2175 tickのstate hashも再現一致。"
+    }
+  ],
+  "source_response": "人間の観察記録をどのようにっ耐えたらいいのか分かりませんが，動作を見てみて良さそうな感じはしています．\nN 手先のゴースト表示に対して配置できており，再計画後のところにきちんと設置できているように見えました．",
+  "blocking_ticket": "PUYO-236",
+  "notes": "2026-09-08のghost/配置一致・再計画後の配置の観察報告と、2026-09-09の残る3項目の追加回答を受領し、全確認項目をpassedとした。別件の窒息時の連鎖打切りはPUYO-239でBacklog管理。",
+  "observed_at_context": "PUYO-235通常画面runへの回答として2026-09-08に受領。正確な観察時刻は未申告。",
+  "reported_bugs": [
+    {
+      "key": "PUYO-239",
+      "url": "https://shhchan.atlassian.net/browse/PUYO-239",
+      "scope": "片側窒息時に相手の連鎖完了を待たず終了する別件。ユーザー指定でBacklog。"
+    }
+  ],
+  "additional_responses": [
+    {
+      "received_at_utc": "2026-09-08T23:52:02.817777+00:00",
+      "source_response": "診断文字の可読性・P停止中のO往復・P再開後の操作応答は追加回答待ちです。\nこれらもすべて問題なさそうであることを確認しましたので，チケット・PR の更新をお願いします．",
+      "confirmed_checks": [
+        "diagnostics_readability",
+        "overlay_toggle",
+        "input_render_response"
+      ]
+    }
+  ],
+  "review_completed_at_utc": "2026-09-08T23:52:02.817777+00:00"
+}

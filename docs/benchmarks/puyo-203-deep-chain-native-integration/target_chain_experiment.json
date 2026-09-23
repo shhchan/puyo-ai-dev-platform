@@ -1,0 +1,95 @@
+{
+  "schema_version": "puyo.deep_chain_builder.target_chain_experiment.v1",
+  "ticket": "PUYO-203",
+  "generated_at_utc": "2026-09-04T12:43:54Z",
+  "evaluated_commit": "df2a7c3e501a36b5eb176a2cc8e638f3935ed18a",
+  "scope": "non_canonical_runtime_target_experiment",
+  "canonical_benchmark_eligible": false,
+  "configuration": {
+    "seed": 187,
+    "placements": 40,
+    "profile": "reference",
+    "backend": "native",
+    "targets": [
+      6,
+      10,
+      12
+    ],
+    "search_config_sha256": "bef9b02039b218dd72e6500e74a2c4b6a780b4d55c2c22b7e1a891a35da2dd2d",
+    "backend_config_sha256": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+    "evaluator_config_sha256": "549a4a18c8f17bea79545704541472951f51de3ffeff28f4d1a38ab26e938da7"
+  },
+  "native_build": {
+    "source_revision": "df2a7c3e501a36b5eb176a2cc8e638f3935ed18a",
+    "wheel_sha256": "8bd06df851e529df51aa8dc640a47e663ca2d38bc68287919114586b753341ff",
+    "build_profile": "release",
+    "thread_mode": "scenario-6",
+    "fallback_allowed": false
+  },
+  "checks": {
+    "all_runs_completed_40_placements": true,
+    "all_runs_avoided_game_over": true,
+    "all_runs_avoided_fallback": true,
+    "larger_target_changed_actions": true,
+    "larger_target_produced_larger_actual_chain_for_seed": true,
+    "locked_search_config_unchanged": true,
+    "excluded_from_puyo_204_canonical_evidence": true
+  },
+  "runs": [
+    {
+      "target_chain_count": 6,
+      "completed_placements": 40,
+      "fires": [
+        {
+          "placement": 28,
+          "turn_index": 27,
+          "chain_count": 6
+        }
+      ],
+      "maximum_actual_chain_count": 6,
+      "maximum_planned_chain_count": 9,
+      "game_over": false,
+      "fallback_count": 0,
+      "action_digest": "54a38f3e03b8d4bb136cd6dbc63218c7c71876ed0b43f3d58b7786cac967e4ad",
+      "plan_digest": "27922de4e2581ab4ca1fb364663bd3bb54a1c562edde0579c1d658048ba6bf74",
+      "final_board_digest": "f4673c819553a2ce765cf8a4425c42ccf9e614d3b30abac4d10ddbedd41225a2"
+    },
+    {
+      "target_chain_count": 10,
+      "completed_placements": 40,
+      "fires": [
+        {
+          "placement": 36,
+          "turn_index": 35,
+          "chain_count": 12
+        }
+      ],
+      "maximum_actual_chain_count": 12,
+      "maximum_planned_chain_count": 13,
+      "game_over": false,
+      "fallback_count": 0,
+      "action_digest": "53503c112b9caf71465aa158dc1bcb34a4543c1cd3a903053100b0368161a7e3",
+      "plan_digest": "bc7066dd9530cfd2362111613cd5324632db082118c1f028132e04347cadae44",
+      "final_board_digest": "9ae543dc75fe94a9a05f6af2ae35110de99c0a1faa2bdccd98ab36ae70e5926b"
+    },
+    {
+      "target_chain_count": 12,
+      "completed_placements": 40,
+      "fires": [
+        {
+          "placement": 34,
+          "turn_index": 33,
+          "chain_count": 12
+        }
+      ],
+      "maximum_actual_chain_count": 12,
+      "maximum_planned_chain_count": 13,
+      "game_over": false,
+      "fallback_count": 0,
+      "action_digest": "48db099a98351f027cabaade2dedfd95e68707e94e69d848d567b9e62b5de650",
+      "plan_digest": "51e6bae436ad1b0f6c3d9b1b522dba220d21c197ad3ea3eabcf448f121312299",
+      "final_board_digest": "beb7d14358d69f108650fc700af5b6e7ac7d0ebc5647b6e81ed5a68ab63b9d9e"
+    }
+  ],
+  "interpretation": "For seed 187, raising the runtime target from 6 to 10 or 12 delayed the safe fire and increased the actual maximum chain from 6 to 12. This is a reproducible exploratory observation, not a general quality guarantee or PUYO-204 acceptance result."
+}

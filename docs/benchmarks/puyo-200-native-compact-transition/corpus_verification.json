@@ -1,0 +1,15 @@
+{
+  "checked_transition_count": 11264,
+  "corpus_digest": "7132ac24b92c275560513f15e2a827fa491df89f6aa70770181ecfeac27d0eb2",
+  "corpus_path": "eval/deep_chain_native_transition_corpus.json",
+  "corpus_sha256": "ff144ddb38f4776458c4a4dae7bc631cc3f4bede16e556eb00d410d41c5c6356",
+  "issue_count": 0,
+  "issues": [],
+  "mismatch_count": 0,
+  "mismatch_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "mismatches": [],
+  "passed": true,
+  "schema_version": "puyo.native_compact_transition_corpus.v1",
+  "state_count": 512,
+  "transition_count": 11264
+}

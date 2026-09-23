@@ -1,0 +1,280 @@
+{
+  "decision": "NO_IMPLEMENTATION_CANDIDATE",
+  "engineering_projection": {
+    "conservative_saved_ns_per_quiet_transition": 0.5210695266723633,
+    "method": "subtract only the candidate microbenchmark p05 per-record saving; this is feasibility evidence, not an acceptance result",
+    "observed_mixed_p95_by_run": [
+      106.6071,
+      108.9041,
+      98.6554
+    ],
+    "observed_quiet_p95_by_run": [
+      41.55224609375,
+      65.577880859375,
+      50.917724609375
+    ],
+    "projected_mixed_p95_by_run": [
+      106.11677357540131,
+      108.41377357540131,
+      98.16507357540131
+    ],
+    "projected_quiet_median_p95": 50.39665508270264,
+    "projected_quiet_p95_by_run": [
+      41.03117656707764,
+      65.05681133270264,
+      50.39665508270264
+    ],
+    "quiet_fraction_in_mixed_corpus": 0.941,
+    "supports_required_margin": false
+  },
+  "evidence": {
+    "cachegrind_per_record": {
+      "chain_scan": {
+        "branch_misses": 0.1752777099609375,
+        "branches": 0.40532684326171875,
+        "data_l1_misses": 0.0,
+        "data_ll_misses": 0.0,
+        "data_reads": 0.0,
+        "data_writes": 0.0,
+        "instruction_l1_misses": 0.003173828125,
+        "instruction_ll_misses": 4.57763671875e-05,
+        "instructions": 0.0
+      },
+      "color_plane_extraction": {
+        "branch_misses": 0.0441436767578125,
+        "branches": 4.853363037109375,
+        "data_l1_misses": 3.4668426513671875,
+        "data_ll_misses": 4.57763671875e-05,
+        "data_reads": 15.564674377441406,
+        "data_writes": 9.008247375488281,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 0.0001373291015625,
+        "instructions": 101.05522918701172
+      },
+      "direct_placement": {
+        "branch_misses": 1.77392578125,
+        "branches": 14.162628173828125,
+        "data_l1_misses": 0.30284881591796875,
+        "data_ll_misses": 0.00081634521484375,
+        "data_reads": 35.48480987548828,
+        "data_writes": 21.734146118164062,
+        "instruction_l1_misses": 0.00396728515625,
+        "instruction_ll_misses": 0.000213623046875,
+        "instructions": 133.31688690185547
+      },
+      "full_transition": {
+        "branch_misses": 2.1356658935546875,
+        "branches": 29.402069091796875,
+        "data_l1_misses": 0.54229736328125,
+        "data_ll_misses": 0.00153350830078125,
+        "data_reads": 85.178466796875,
+        "data_writes": 79.73484802246094,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 0.000518798828125,
+        "instructions": 552.2294769287109
+      },
+      "gravity": {
+        "branch_misses": 0.0,
+        "branches": 0.0,
+        "data_l1_misses": 0.0,
+        "data_ll_misses": 0.000244140625,
+        "data_reads": 0.0,
+        "data_writes": 0.0,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 7.62939453125e-05,
+        "instructions": 0.0
+      },
+      "inserted_connectivity": {
+        "branch_misses": 0.464385986328125,
+        "branches": 10.765296936035156,
+        "data_l1_misses": 0.0,
+        "data_ll_misses": 0.0,
+        "data_reads": 35.281883239746094,
+        "data_writes": 36.00385284423828,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 9.918212890625e-05,
+        "instructions": 354.99717712402344
+      },
+      "score_lifecycle": {
+        "branch_misses": 0.0544281005859375,
+        "branches": 1.4903411865234375,
+        "data_l1_misses": 0.0,
+        "data_ll_misses": 0.000579833984375,
+        "data_reads": 0.0,
+        "data_writes": 1.002838134765625,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 0.00014495849609375,
+        "instructions": 7.160346984863281
+      },
+      "state_result_materialization": {
+        "branch_misses": 0.0357208251953125,
+        "branches": 0.574066162109375,
+        "data_l1_misses": 0.02046966552734375,
+        "data_ll_misses": 0.00011444091796875,
+        "data_reads": 15.642654418945312,
+        "data_writes": 11.004249572753906,
+        "instruction_l1_misses": 0.0,
+        "instruction_ll_misses": 4.57763671875e-05,
+        "instructions": 39.56568908691406
+      }
+    },
+    "candidate_assembly": {
+      "current_inserted_planes": {
+        "address": 92928,
+        "disassembly": "   16b00:\tpush   %rbp\n   16b01:\tpush   %r15\n   16b03:\tpush   %r14\n   16b05:\tpush   %r13\n   16b07:\tpush   %r12\n   16b09:\tpush   %rbx\n   16b0a:\tmov    %rdi,%rax\n   16b0d:\tmovzbl 0x71(%rsi),%ecx\n   16b11:\tmov    $0x1,%edx\n   16b16:\txor    %edi,%edi\n   16b18:\tshld   %cl,%rdx,%rdi\n   16b1c:\tshl    %cl,%rdx\n   16b1f:\txor    %r8d,%r8d\n   16b22:\ttest   $0x40,%cl\n   16b25:\tcmovne %rdx,%rdi\n   16b29:\tmovzbl 0x70(%rsi),%ecx\n   16b2d:\tcmovne %r8,%rdx\n   16b31:\tmov    %rsi,-0x8(%rsp)\n   16b36:\tlea    -0x8(%rsp),%r9\n   16b3b:\tmov    0x60(%rsi),%r14\n   16b3f:\tcmp    $0x5,%r14\n   16b43:\tja     16bf7 <puyo_211_color_plane_candidate::current_inserted_planes+0xf7>\n   16b49:\tmov    -0x8(%rsp),%rbx\n   16b4e:\tmov    (%rbx),%r9\n   16b51:\tmov    0x8(%rbx),%r8\n   16b55:\tmov    0x18(%rbx),%r11\n   16b59:\tmov    0x10(%rbx),%r15\n   16b5d:\tmov    0x28(%rbx),%r10\n   16b61:\tmov    0x20(%rbx),%rbx\n   16b65:\tlea    -0xdefc(%rip),%r12        # 8c70 <GCC_except_table151+0x48>\n   16b6c:\tmovslq (%r12,%r14,4),%r13\n   16b70:\tadd    %r12,%r13\n   16b73:\tjmp    *%r13\n   16b76:\tor     %r15,%rbx\n   16b79:\tor     %r11,%r10\n   16b7c:\tnot    %r10\n   16b7f:\tnot    %rbx\n   16b82:\tand    %rbx,%r9\n   16b85:\tand    %r10,%r8\n   16b88:\tjmp    16bfa <puyo_211_color_plane_candidate::current_inserted_planes+0xfa>\n   16b8a:\tnot    %r15\n   16b8d:\tnot    %r11\n   16b90:\tand    %rbx,%r9\n   16b93:\tand    %r15,%r9\n   16b96:\tand    %r10,%r8\n   16b99:\tjmp    16bf2 <puyo_211_color_plane_candidate::current_inserted_planes+0xf2>\n   16b9b:\tnot    %rbx\n   16b9e:\tnot    %r10\n   16ba1:\tand    %r15,%r9\n   16ba4:\tand    %rbx,%r9\n   16ba7:\tand    %r11,%r8\n   16baa:\tand    %r10,%r8\n   16bad:\tjmp    16bfa <puyo_211_color_plane_candidate::current_inserted_planes+0xfa>\n   16baf:\tor     %r9,%r15\n   16bb2:\tor     %r8,%r11\n   16bb5:\tnot    %r11\n   16bb8:\tnot    %r15\n   16bbb:\tand    %r15,%rbx\n   16bbe:\tand    %r11,%r10\n   16bc1:\tmov    %rbx,%r9\n   16bc4:\tmov    %r10,%r8\n   16bc7:\tjmp    16bfa <puyo_211_color_plane_candidate::current_inserted_planes+0xfa>\n   16bc9:\tor     %r9,%rbx\n   16bcc:\tor     %r8,%r10\n   16bcf:\tnot    %r10\n   16bd2:\tnot    %rbx\n   16bd5:\tand    %rbx,%r15\n   16bd8:\tand    %r10,%r11\n   16bdb:\tmov    %r15,%r9\n   16bde:\tmov    %r11,%r8\n   16be1:\tjmp    16bfa <puyo_211_color_plane_candidate::current_inserted_planes+0xfa>\n   16be3:\tnot    %r9\n   16be6:\tnot    %r8\n   16be9:\tand    %rbx,%r15\n   16bec:\tand    %r15,%r9\n   16bef:\tand    %r10,%r11\n   16bf2:\tand    %r11,%r8\n   16bf5:\tjmp    16bfa <puyo_211_color_plane_candidate::current_inserted_planes+0xfa>\n   16bf7:\txor    %r9d,%r9d\n   16bfa:\tmovabs $0x3fff3fff3fff3fff,%rbx\n   16c04:\tand    %rbx,%r9\n   16c07:\tand    $0x3fff3fff,%r8d\n   16c0e:\tmov    0x68(%rsi),%rbp\n   16c12:\tmov    %rdx,%r15\n   16c15:\tmov    %rdi,%r12\n   16c18:\tmov    %r9,%r10\n   16c1b:\tmov    %r8,%r11\n   16c1e:\tcmp    %rbp,%r14\n   16c21:\tje     16d04 <puyo_211_color_plane_candidate::current_inserted_planes+0x204>\n   16c27:\tmov    $0x3fff3fff,%r14d\n   16c2d:\tmov    %rsi,-0x8(%rsp)\n   16c32:\tlea    -0x8(%rsp),%rsi\n   16c37:\tcmp    $0x5,%rbp\n   16c3b:\tja     16d4c <puyo_211_color_plane_candidate::current_inserted_planes+0x24c>\n   16c41:\tmov    -0x8(%rsp),%r12\n   16c46:\tmov    (%r12),%r10\n   16c4a:\tmov    0x8(%r12),%r11\n   16c4f:\tmov    0x18(%r12),%r15\n   16c54:\tmov    0x10(%r12),%r13\n   16c59:\tmov    0x28(%r12),%rsi\n   16c5e:\tmov    0x20(%r12),%r12\n   16c63:\tlea    -0xdfe2(%rip),%r14        # 8c88 <GCC_except_table151+0x60>\n   16c6a:\tmovslq (%r14,%rbp,4),%rbp\n   16c6e:\tadd    %r14,%rbp\n   16c71:\tjmp    *%rbp\n   16c73:\tor     %r13,%r12\n   16c76:\tor     %r15,%rsi\n   16c79:\tnot    %rsi\n   16c7c:\tnot    %r12\n   16c7f:\tand    %r12,%r10\n   16c82:\tand    %rsi,%r11\n   16c85:\tjmp    16cf2 <puyo_211_color_plane_candidate::current_inserted_planes+0x1f2>\n   16c87:\tnot    %r13\n   16c8a:\tnot    %r15\n   16c8d:\tand    %r12,%r10\n   16c90:\tand    %r13,%r10\n   16c93:\tand    %rsi,%r11\n   16c96:\tjmp    16cef <puyo_211_color_plane_candidate::current_inserted_planes+0x1ef>\n   16c98:\tnot    %r12\n   16c9b:\tnot    %rsi\n   16c9e:\tand    %r13,%r10\n   16ca1:\tand    %r12,%r10\n   16ca4:\tand    %r15,%r11\n   16ca7:\tand    %rsi,%r11\n   16caa:\tjmp    16cf2 <puyo_211_color_plane_candidate::current_inserted_planes+0x1f2>\n   16cac:\tor     %r10,%r13\n   16caf:\tor     %r11,%r15\n   16cb2:\tnot    %r15\n   16cb5:\tnot    %r13\n   16cb8:\tand    %r13,%r12\n   16cbb:\tand    %r15,%rsi\n   16cbe:\tmov    %r12,%r10\n   16cc1:\tmov    %rsi,%r11\n   16cc4:\tjmp    16cf2 <puyo_211_color_plane_candidate::current_inserted_planes+0x1f2>\n   16cc6:\tor     %r10,%r12\n   16cc9:\tor     %r11,%rsi\n   16ccc:\tnot    %rsi\n   16ccf:\tnot    %r12\n   16cd2:\tand    %r12,%r13\n   16cd5:\tand    %rsi,%r15\n   16cd8:\tmov    %r13,%r10\n   16cdb:\tmov    %r15,%r11\n   16cde:\tjmp    16cf2 <puyo_211_color_plane_candidate::current_inserted_planes+0x1f2>\n   16ce0:\tnot    %r10\n   16ce3:\tnot    %r11\n   16ce6:\tand    %r12,%r13\n   16ce9:\tand    %r13,%r10\n   16cec:\tand    %rsi,%r15\n   16cef:\tand    %r15,%r11\n   16cf2:\tmov    $0x3fff3fff,%r14d\n   16cf8:\tand    %rbx,%r10\n   16cfb:\tand    %r14d,%r11d\n   16cfe:\txor    %r15d,%r15d\n   16d01:\txor    %r12d,%r12d\n   16d04:\tmov    $0x1,%esi\n   16d09:\txor    %ebx,%ebx\n   16d0b:\tshld   %cl,%rsi,%rbx\n   16d0f:\txor    %r14d,%r14d\n   16d12:\tshl    %cl,%rsi\n   16d15:\ttest   $0x40,%cl\n   16d18:\tcmovne %rsi,%rbx\n   16d1c:\tcmovne %r14,%rsi\n   16d20:\tor     %r12,%rbx\n   16d23:\tor     %r15,%rsi\n   16d26:\tor     %r8,%rbx\n   16d29:\tor     %r9,%rsi\n   16d2c:\tor     %rdi,%r11\n   16d2f:\tor     %rdx,%r10\n   16d32:\tmov    %rsi,(%rax)\n   16d35:\tmov    %rbx,0x8(%rax)\n   16d39:\tmov    %r10,0x10(%rax)\n   16d3d:\tmov    %r11,0x18(%rax)\n   16d41:\tpop    %rbx\n   16d42:\tpop    %r12\n   16d44:\tpop    %r13\n   16d46:\tpop    %r14\n   16d48:\tpop    %r15\n   16d4a:\tpop    %rbp\n   16d4b:\tret\n   16d4c:\txor    %r10d,%r10d\n   16d4f:\txor    %r11d,%r11d\n   16d52:\tjmp    16cf8 <puyo_211_color_plane_candidate::current_inserted_planes+0x1f8>",
+        "instruction_count": 182,
+        "size_bytes": 596,
+        "symbol": "puyo_211_color_plane_candidate::current_inserted_planes"
+      },
+      "reused_child_planes": {
+        "address": 92400,
+        "disassembly": "   168f0:\tpush   %r15\n   168f2:\tpush   %r14\n   168f4:\tpush   %r12\n   168f6:\tpush   %rbx\n   168f7:\tmov    %rdi,%rax\n   168fa:\tlea    0x30(%rsi),%rcx\n   168fe:\tmov    %rcx,-0x8(%rsp)\n   16903:\tlea    -0x8(%rsp),%rdx\n   16908:\tmov    0x60(%rsi),%r9\n   1690c:\tcmp    $0x5,%r9\n   16910:\tja     169c4 <puyo_211_color_plane_candidate::reused_child_planes+0xd4>\n   16916:\tmov    -0x8(%rsp),%r11\n   1691b:\tmov    (%r11),%rdx\n   1691e:\tmov    0x8(%r11),%rdi\n   16922:\tmov    0x18(%r11),%r10\n   16926:\tmov    0x10(%r11),%rbx\n   1692a:\tmov    0x28(%r11),%r8\n   1692e:\tmov    0x20(%r11),%r11\n   16932:\tlea    -0xdcf9(%rip),%r14        # 8c40 <GCC_except_table151+0x18>\n   16939:\tmovslq (%r14,%r9,4),%r15\n   1693d:\tadd    %r14,%r15\n   16940:\tjmp    *%r15\n   16943:\tor     %rbx,%r11\n   16946:\tor     %r10,%r8\n   16949:\tnot    %r8\n   1694c:\tnot    %r11\n   1694f:\tand    %r11,%rdx\n   16952:\tand    %r8,%rdi\n   16955:\tjmp    169c8 <puyo_211_color_plane_candidate::reused_child_planes+0xd8>\n   16957:\tnot    %rbx\n   1695a:\tnot    %r10\n   1695d:\tand    %r11,%rdx\n   16960:\tand    %rbx,%rdx\n   16963:\tand    %r8,%rdi\n   16966:\tjmp    169bf <puyo_211_color_plane_candidate::reused_child_planes+0xcf>\n   16968:\tnot    %r11\n   1696b:\tnot    %r8\n   1696e:\tand    %rbx,%rdx\n   16971:\tand    %r11,%rdx\n   16974:\tand    %r10,%rdi\n   16977:\tand    %r8,%rdi\n   1697a:\tjmp    169c8 <puyo_211_color_plane_candidate::reused_child_planes+0xd8>\n   1697c:\tor     %rdx,%rbx\n   1697f:\tor     %rdi,%r10\n   16982:\tnot    %r10\n   16985:\tnot    %rbx\n   16988:\tand    %rbx,%r11\n   1698b:\tand    %r10,%r8\n   1698e:\tmov    %r11,%rdx\n   16991:\tmov    %r8,%rdi\n   16994:\tjmp    169c8 <puyo_211_color_plane_candidate::reused_child_planes+0xd8>\n   16996:\tor     %rdx,%r11\n   16999:\tor     %rdi,%r8\n   1699c:\tnot    %r8\n   1699f:\tnot    %r11\n   169a2:\tand    %r11,%rbx\n   169a5:\tand    %r8,%r10\n   169a8:\tmov    %rbx,%rdx\n   169ab:\tmov    %r10,%rdi\n   169ae:\tjmp    169c8 <puyo_211_color_plane_candidate::reused_child_planes+0xd8>\n   169b0:\tnot    %rdx\n   169b3:\tnot    %rdi\n   169b6:\tand    %r11,%rbx\n   169b9:\tand    %rbx,%rdx\n   169bc:\tand    %r8,%r10\n   169bf:\tand    %r10,%rdi\n   169c2:\tjmp    169c8 <puyo_211_color_plane_candidate::reused_child_planes+0xd8>\n   169c4:\txor    %edx,%edx\n   169c6:\txor    %edi,%edi\n   169c8:\tmovabs $0x3fff3fff3fff3fff,%r8\n   169d2:\tand    %r8,%rdx\n   169d5:\tand    $0x3fff3fff,%edi\n   169db:\tmov    0x68(%rsi),%r15\n   169df:\tcmp    %r15,%r9\n   169e2:\tjne    16a16 <puyo_211_color_plane_candidate::reused_child_planes+0x126>\n   169e4:\tmovzbl 0x70(%rsi),%ecx\n   169e8:\tmov    $0x1,%esi\n   169ed:\txor    %r9d,%r9d\n   169f0:\tshld   %cl,%rsi,%r9\n   169f4:\txor    %r8d,%r8d\n   169f7:\tshl    %cl,%rsi\n   169fa:\ttest   $0x40,%cl\n   169fd:\tcmovne %rsi,%r9\n   16a01:\tcmovne %r8,%rsi\n   16a05:\tnot    %r9d\n   16a08:\tnot    %rsi\n   16a0b:\tand    %edi,%r9d\n   16a0e:\tand    %rdx,%rsi\n   16a11:\tjmp    16ae9 <puyo_211_color_plane_candidate::reused_child_planes+0x1f9>\n   16a16:\tmov    $0x3fff3fff,%r10d\n   16a1c:\tmov    %rcx,-0x8(%rsp)\n   16a21:\tlea    -0x8(%rsp),%rcx\n   16a26:\tcmp    $0x5,%r15\n   16a2a:\tja     16ade <puyo_211_color_plane_candidate::reused_child_planes+0x1ee>\n   16a30:\tmov    -0x8(%rsp),%rbx\n   16a35:\tmov    (%rbx),%rsi\n   16a38:\tmov    0x8(%rbx),%r9\n   16a3c:\tmov    0x18(%rbx),%r11\n   16a40:\tmov    0x10(%rbx),%r14\n   16a44:\tmov    0x28(%rbx),%rcx\n   16a48:\tmov    0x20(%rbx),%rbx\n   16a4c:\tlea    -0xddfb(%rip),%r12        # 8c58 <GCC_except_table151+0x30>\n   16a53:\tmovslq (%r12,%r15,4),%r15\n   16a57:\tadd    %r12,%r15\n   16a5a:\tjmp    *%r15\n   16a5d:\tor     %r14,%rbx\n   16a60:\tor     %r11,%rcx\n   16a63:\tnot    %rcx\n   16a66:\tnot    %rbx\n   16a69:\tand    %rbx,%rsi\n   16a6c:\tand    %rcx,%r9\n   16a6f:\tjmp    16ae3 <puyo_211_color_plane_candidate::reused_child_planes+0x1f3>\n   16a71:\tnot    %r14\n   16a74:\tnot    %r11\n   16a77:\tand    %rbx,%rsi\n   16a7a:\tand    %r14,%rsi\n   16a7d:\tand    %rcx,%r9\n   16a80:\tjmp    16ad9 <puyo_211_color_plane_candidate::reused_child_planes+0x1e9>\n   16a82:\tnot    %rbx\n   16a85:\tnot    %rcx\n   16a88:\tand    %r14,%rsi\n   16a8b:\tand    %rbx,%rsi\n   16a8e:\tand    %r11,%r9\n   16a91:\tand    %rcx,%r9\n   16a94:\tjmp    16ae3 <puyo_211_color_plane_candidate::reused_child_planes+0x1f3>\n   16a96:\tor     %rsi,%r14\n   16a99:\tor     %r9,%r11\n   16a9c:\tnot    %r11\n   16a9f:\tnot    %r14\n   16aa2:\tand    %r14,%rbx\n   16aa5:\tand    %r11,%rcx\n   16aa8:\tmov    %rbx,%rsi\n   16aab:\tmov    %rcx,%r9\n   16aae:\tjmp    16ae3 <puyo_211_color_plane_candidate::reused_child_planes+0x1f3>\n   16ab0:\tor     %rsi,%rbx\n   16ab3:\tor     %r9,%rcx\n   16ab6:\tnot    %rcx\n   16ab9:\tnot    %rbx\n   16abc:\tand    %rbx,%r14\n   16abf:\tand    %rcx,%r11\n   16ac2:\tmov    %r14,%rsi\n   16ac5:\tmov    %r11,%r9\n   16ac8:\tjmp    16ae3 <puyo_211_color_plane_candidate::reused_child_planes+0x1f3>\n   16aca:\tnot    %rsi\n   16acd:\tnot    %r9\n   16ad0:\tand    %rbx,%r14\n   16ad3:\tand    %r14,%rsi\n   16ad6:\tand    %rcx,%r11\n   16ad9:\tand    %r11,%r9\n   16adc:\tjmp    16ae3 <puyo_211_color_plane_candidate::reused_child_planes+0x1f3>\n   16ade:\txor    %esi,%esi\n   16ae0:\txor    %r9d,%r9d\n   16ae3:\tand    %r8,%rsi\n   16ae6:\tand    %r10d,%r9d\n   16ae9:\tmov    %rdx,(%rax)\n   16aec:\tmov    %rdi,0x8(%rax)\n   16af0:\tmov    %rsi,0x10(%rax)\n   16af4:\tmov    %r9,0x18(%rax)\n   16af8:\tpop    %rbx\n   16af9:\tpop    %r12\n   16afb:\tpop    %r14\n   16afd:\tpop    %r15\n   16aff:\tret",
+        "instruction_count": 163,
+        "size_bytes": 528,
+        "symbol": "puyo_211_color_plane_candidate::reused_child_planes"
+      }
+    },
+    "candidate_microbenchmark": {
+      "all_samples_candidate_faster": true,
+      "baseline_p50_ns_per_record": 6.2997145652771,
+      "baseline_p95_ns_per_record": 7.130056858062744,
+      "candidate_p50_ns_per_record": 4.8196210861206055,
+      "candidate_p95_ns_per_record": 6.053579330444336,
+      "median_candidate_to_baseline_ns_ratio": 0.7665231491182902,
+      "median_saved_cycles_per_record": 4.730514049530029,
+      "median_saved_ns_per_record": 1.4323229789733887,
+      "p05_saved_cycles_per_record": 1.7207179069519043,
+      "p05_saved_ns_per_record": 0.5210695266723633,
+      "percentile_method": "nearest-rank; no samples excluded"
+    },
+    "color_plane_stage_fraction": 0.31235296454376527,
+    "connectivity_stage_fraction": 0.547340451357471,
+    "historical": {
+      "conclusion": "PUYO-206 and PUYO-207 used the identical compact.rs Git object and locked contract. The 23.421 ns p95 gap has no algorithmic source change and is attributed to process/frequency/scheduling variance; fresh-process replication quantifies that variance separately.",
+      "contract_identical": true,
+      "native_compact_source": {
+        "identical": true,
+        "path": "native/deep_chain_native/src/compact.rs",
+        "puyo_206_git_object": "9cc4d4c19a7a6f36746246126d328581315bc68c",
+        "puyo_207_git_object": "9cc4d4c19a7a6f36746246126d328581315bc68c"
+      },
+      "puyo_206": {
+        "evaluated_commit": "a015bbf3f0e03c7ec0afb747e5df389ec668d6a9",
+        "quiet_p95_ns": 33.904296875,
+        "wheel_sha256": "e1b837f932463906b13ce86d12d3187f1c115d2e9c7a2dbf1c089a672ffa1938"
+      },
+      "puyo_207": {
+        "evaluated_commit": "cff9ea5d0295087db8332c2a6efa59db74f886ef",
+        "quiet_p95_ns": 57.32470703125,
+        "wheel_sha256": "c7214697031e553b5d6ae9047e3dff918a134069f76f9264e183801458db06cc"
+      },
+      "quiet_p95_delta_ns": 23.42041015625,
+      "quiet_p95_increase_percent": 69.077999884786,
+      "schema_version": "puyo.native_compact_historical_variance.v1"
+    },
+    "paired_baseline": {
+      "mixed": {
+        "maximum_absolute_p95_drift_percent": 29.96978901100689,
+        "median_control_to_reference_p95_ratio": 0.8694488066043045,
+        "ratios": [
+          1.0974386600291206,
+          0.7003021098899311,
+          0.8694488066043045
+        ]
+      },
+      "multi_chain": {
+        "maximum_absolute_p95_drift_percent": 42.02281402110193,
+        "median_control_to_reference_p95_ratio": 0.750986878152085,
+        "ratios": [
+          0.750986878152085,
+          0.6795666612156607,
+          1.4202281402110193
+        ]
+      },
+      "one_chain": {
+        "maximum_absolute_p95_drift_percent": 51.32358355552653,
+        "median_control_to_reference_p95_ratio": 1.3119592637941422,
+        "ratios": [
+          1.3119592637941422,
+          1.5132358355552653,
+          1.014299184559304
+        ]
+      },
+      "quiet": {
+        "maximum_absolute_p95_drift_percent": 33.28664285838316,
+        "median_control_to_reference_p95_ratio": 0.8472682210472003,
+        "ratios": [
+          0.6671335714161684,
+          0.8472682210472003,
+          1.071729139267446
+        ]
+      }
+    },
+    "quiet_full_p50_cycles": 110.62548828125,
+    "quiet_stage_p50_cycles": {
+      "chain_scan": 0.0,
+      "color_plane_extraction": 34.55419921875,
+      "direct_placement": 44.4169921875,
+      "gravity": 0.0,
+      "inserted_connectivity": 60.5498046875,
+      "score_lifecycle": 3.17236328125,
+      "state_result_materialization": 17.51806640625
+    },
+    "semantic_store_contract": {
+      "child_state_bytes": 80,
+      "result_bytes": 24,
+      "three_slice_copy_bytes": 80,
+      "three_slice_updated_bytes": 54,
+      "total_output_store_bytes": 104
+    }
+  },
+  "puyo_212_acceptance": {
+    "authoritative_fresh_process_runs": 3,
+    "commands": [
+      "./scripts/build_deep_chain_native.sh",
+      ".venv/bin/python -m unittest tests.test_deep_chain_native tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_profile",
+      ".venv/bin/python -m eval.deep_chain_native_transition_investigation verify --artifact-dir docs/benchmarks/puyo-211-quiet-transition-investigation"
+    ],
+    "mandatory": "zero frozen/property mismatches; 80/24-byte ABI; zero heap allocations; scalar fallback; source-bound release wheel",
+    "mixed": {
+      "each_run_regression_tolerance_percent": 2.0,
+      "every_run_p95_ns_at_or_below": 100.0,
+      "paired_median_candidate_to_baseline_ratio_at_or_below": 1.0
+    },
+    "quiet": {
+      "every_run_p95_ns_at_or_below": 50.0,
+      "median_run_p95_ns_at_or_below": 45.0
+    },
+    "stop": "rollback the local plane-source change if any semantic/ABI/allocation gate fails, any quiet run exceeds 50 ns, the quiet run median exceeds 45 ns, any mixed run exceeds 100 ns, paired median regresses, or an individual paired regression exceeds 2%",
+    "unchanged": "PUYO-205/207 corpus, samples, warm-up, nearest-rank p95, call count, target, no outlier exclusion"
+  },
+  "rejected_or_deferred_candidates": [
+    {
+      "decision": "defer",
+      "name": "fixed equal/different and topology branches",
+      "reason": "connectivity is large, but no isolated candidate evidence yet separates branch savings from flood work"
+    },
+    {
+      "decision": "defer",
+      "name": "local degree/popcount prefilter",
+      "reason": "the current three-expansion loop already short-circuits stable groups; implementation evidence is required before adding a branch"
+    },
+    {
+      "decision": "reject",
+      "name": "reduce hot-result or state stores",
+      "reason": "80-byte state and 24-byte result are fixed ABI outputs"
+    },
+    {
+      "decision": "reject",
+      "name": "target-cpu=native or non-portable codegen",
+      "reason": "violates the portable scalar fallback contract"
+    },
+    {
+      "decision": "reject",
+      "name": "persistent full component cache",
+      "reason": "enlarges state/ABI and was already slower in PUYO-205/207"
+    }
+  ],
+  "schema_version": "puyo.native_compact_optimization_candidate.v1",
+  "selected_candidate": null
+}

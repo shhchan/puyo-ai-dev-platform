@@ -138,6 +138,26 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
         self.assertEqual(config.replay_path, "/tmp/replay.json")
         self.assertEqual(config.qa_notes, "reviewed")
 
+    def test_deep_chain_builder_is_a_realtime_policy_and_async(self):
+        config = parse_config(
+            [
+                "--policy-a",
+                "deep_chain_builder",
+                "--deep-chain-profile",
+                "smoke",
+                "--deep-chain-backend",
+                "native",
+                "--deep-chain-target-chain",
+                "10",
+            ]
+        )
+
+        self.assertEqual(config.policy_a, "deep_chain_builder")
+        self.assertEqual(config.deep_chain_profile, "smoke")
+        self.assertEqual(config.deep_chain_backend, "native")
+        self.assertEqual(config.deep_chain_target_chain, 10)
+        self.assertIn("deep_chain_builder", ASYNC_POLICY_TYPES)
+
     def test_terminal_frame_auto_exit_is_parsed_and_validated(self):
         config = parse_config(["--exit-after-finish-frames", "30"])
 
@@ -212,6 +232,54 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertIn("input", diagnostics)
         self.assertIn("plan", diagnostics)
 
+    def test_deep_chain_placements_replace_ghosts_and_overlay_toggle_preserves_decision(self):
+        from agents.deep_chain_builder import DeepChainBuilderPolicy
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(
+                policy_a="first", policy_b="random", seed=187,
+                max_ticks=600, replay_path="unused-replay.json",
+            ),
+            policy_factory=lambda policy_type, **kwargs: (
+                DeepChainBuilderPolicy(profile="smoke", backend="python")
+                if policy_type == "first" else FastTestPolicy()
+            ),
+        )
+        self.addCleanup(controller.shutdown)
+        applied_plans = []
+        for _ in range(600):
+            controller.advance_tick()
+            diagnostics = controller.controllers["player_0"].diagnostics
+            if diagnostics.decisions_activated <= len(applied_plans):
+                continue
+            policy = controller.tactical_diagnostics("player_0")
+            decision = diagnostics.last_decision
+            self.assertEqual(decision.decision_input, policy["decision_input"])
+            self.assertEqual(decision.policy_decision_id, policy["decision_trace"]["decision_id"])
+            self.assertEqual(decision.action_index, policy["plan"]["steps"][0]["action"])
+            self.assertNotIn(policy["plan_id"], applied_plans)
+            applied_plans.append(policy["plan_id"])
+            self.assertEqual(controller.plan_overlay("player_0"), policy["plan"])
+            counters = diagnostics.to_dict()
+            controller.handle_keydown(pygame.K_o)
+            self.assertEqual(controller.plan_overlay("player_0"), {})
+            self.assertEqual(controller.tactical_diagnostics("player_0"), policy)
+            controller.handle_keydown(pygame.K_o)
+            self.assertEqual(controller.plan_overlay("player_0"), policy["plan"])
+            self.assertEqual(controller.tactical_diagnostics("player_0"), policy)
+            self.assertEqual(diagnostics.to_dict(), counters)
+            if len(applied_plans) == 3:
+                break
+        self.assertEqual(len(applied_plans), 3)
+        self.assertEqual(diagnostics.replans, 0)
+        replay = controller.replay_payload()
+        self.assertEqual(replay["policy_decision_schema_version"], "puyo.realtime_policy_decisions.v1")
+        recorded_ids = {
+            tick["policy_diagnostics"]["player_0"].get("plan_id")
+            for tick in replay["ticks"] if "player_0" in tick["policy_diagnostics"]
+        }
+        self.assertTrue(set(applied_plans).issubset(recorded_ids))
+
     def test_controller_exposes_policy_plan_overlay_when_enabled(self):
         plan = {
             "schema_version": "n-turn-plan-v1",
@@ -241,6 +309,79 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         self.assertEqual(controller.plan_overlay("player_0")["plan_id"], "plan-123")
         controller.plan_overlay_enabled["player_0"] = False
         self.assertEqual(controller.plan_overlay("player_0"), {})
+
+    def test_deep_chain_summary_uses_selected_search_evidence_and_trace_steps(self):
+        class StubPolicy:
+            tactical_diagnostics = {
+                "policy_id": "deep_chain_builder",
+                "target_chain_count": 10,
+                "profile": {"name": "smoke", "depth": 4, "width": 8},
+                "selected_action": 7,
+                "candidate_count": 22,
+                "selection_reason": "highest_aggregated_root_ranking",
+                "scenario_aggregation": [
+                    {
+                        "root_action": 3,
+                        "evidence": {"chain_count": {"maximum": 12}},
+                    },
+                    {
+                        "root_action": 7,
+                        "evidence": {"chain_count": {"maximum": 9}},
+                    },
+                ],
+                "search": {
+                    "scenario_ids": ["scenario-0", "scenario-1"],
+                    "counters": {"expanded_nodes": 1020},
+                },
+                "backend": {
+                    "requested_backend": "native",
+                    "backend": "native",
+                    "fallback": {"used": False},
+                },
+                "decision_trace": {
+                    "step_count": 2,
+                    "elapsed_seconds": 1.25,
+                    "steps": [
+                        {
+                            "step_id": "normalize_observation",
+                            "elapsed_seconds": 0.01,
+                        },
+                        {
+                            "step_id": "run_long_range_search",
+                            "elapsed_seconds": 1.24,
+                        },
+                    ],
+                },
+                "plan_id": "plan-12345678",
+                "replan_reason": "new_observation",
+                "plan": {
+                    "prediction_summary": {"maximum_chain_count": 3},
+                    "steps": [{"predicted_chain_count": 3}],
+                },
+            }
+
+            def select_action(self, observation, info):
+                return legal_indices(info)[0]
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="first", policy_b="first"),
+            policy_factory=lambda policy_type, **kwargs: StubPolicy(),
+        )
+
+        summary = controller.tactical_summary("player_0")
+
+        self.assertEqual(summary["profile_name"], "smoke")
+        self.assertEqual(summary["scenario_count"], 2)
+        self.assertEqual(summary["max_chain"], 9)
+        self.assertEqual(summary["target_chain"], 10)
+        self.assertEqual(summary["expanded_nodes"], 1020)
+        self.assertEqual(summary["backend_id"], "native")
+        self.assertEqual(summary["backend_requested"], "native")
+        self.assertFalse(summary["backend_fallback"])
+        self.assertEqual(summary["flow_step_count"], 2)
+        self.assertEqual(summary["flow_steps"][1]["step_id"], "run_long_range_search")
+        self.assertEqual(summary["flow_elapsed_seconds"], 1.25)
+        controller.shutdown()
 
     def test_replay_and_qa_result_share_runtime_lifecycle_and_attack_diagnostics(self):
         class StubPolicy:
@@ -620,6 +761,45 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
 
         self.assertEqual(surface.get_at(center)[:3], (1, 2, 3))
         self.assertIn(renderer.colors[PuyoColor.RED], outline_colors)
+
+    def test_plan_overlay_keeps_diagnostics_out_of_the_board(self):
+        surface = pygame.Surface((320, 480))
+        renderer = VersusRenderer(surface)
+        rendered_labels = []
+        renderer._draw_plan_cell = lambda *args, **kwargs: None
+        renderer._draw_text = lambda text, *args, **kwargs: rendered_labels.append(text)
+        empty_board = [["EMPTY"] * 6 for _ in range(12)]
+        plan = {
+            "schema_version": "n-turn-plan-v1",
+            "plan_id": "plan-12345678",
+            "update_reason": "new_observation",
+            "steps": [
+                {
+                    "step_index": 0,
+                    "known_tsumo": True,
+                    "placement_cells": [
+                        {"x": 0, "y": 11, "color": "RED"},
+                        {"x": 0, "y": 10, "color": "BLUE"},
+                    ],
+                },
+                {
+                    "step_index": 1,
+                    "known_tsumo": False,
+                    "placement_cells": [
+                        {"x": 1, "y": 11, "color": "GREEN"},
+                        {"x": 1, "y": 10, "color": "YELLOW"},
+                    ],
+                },
+            ],
+        }
+
+        renderer._draw_plan_overlay(
+            pygame.Rect(32, 32, 6 * 32, 12 * 32),
+            empty_board,
+            plan,
+        )
+
+        self.assertEqual(rendered_labels, ["1", "2?"])
 
     def test_active_ghost_has_no_white_outline(self):
         surface = pygame.Surface((64, 64))

@@ -1,0 +1,11 @@
+{
+  "artifacts": {
+    "benchmark_report.md": "b16d1f6a5bc8cea4199ac58fbb3c3d72d206e606a86134232deffcab6af2ddac",
+    "benchmark_summary.json": "b3c82ce2ecce2742bf6976ac3cc7c7ed43c70c6def0bb8cbe0be82df7b7a41c7",
+    "raw_samples.json": "fdd49096eb3c07845c8fbc348033d96e3a9ad4ff505525b66e9ef0641304d88e",
+    "survivor_tie_break_ablation.json": "76222843172cd63ceb8910f0a5044073317320d59ee07c4086e938524c4858a9"
+  },
+  "schema_version": "puyo.native_long_horizon_manifest.v1",
+  "source_commit": "ae8968befcf0282ce913bc92fd60cbb42c1f504c",
+  "ticket": "PUYO-202"
+}
