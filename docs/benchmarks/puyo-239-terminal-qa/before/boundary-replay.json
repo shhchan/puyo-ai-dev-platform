@@ -1,0 +1,192 @@
+{
+  "format": "puyo-terminal-boundary-qa-v1",
+  "fixture": {
+    "survivor": "player_0",
+    "chains": 2,
+    "detected": true
+  },
+  "replay": {
+    "format": "puyo-realtime-match-v1",
+    "policy_decision_schema_version": "puyo.realtime_policy_decisions.v1",
+    "seed": 239,
+    "max_ticks": null,
+    "initial_all_clear_diagnostics": {
+      "schema_version": "puyo.all_clear_diagnostics.v1",
+      "players": {
+        "player_0": {
+          "board_empty": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false
+        },
+        "player_1": {
+          "board_empty": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false
+        }
+      }
+    },
+    "policies": {
+      "player_0": {
+        "policy_type": "first",
+        "model": "first",
+        "model_family": null,
+        "model_version": null,
+        "lineage_node_id": null,
+        "checkpoint_path": null,
+        "policy_seed": 239,
+        "opponent_policy_type": "first",
+        "deep_chain_profile": null,
+        "deep_chain_backend": null,
+        "deep_chain_target_chain": null
+      },
+      "player_1": {
+        "policy_type": "first",
+        "model": "first",
+        "model_family": null,
+        "model_version": null,
+        "lineage_node_id": null,
+        "checkpoint_path": null,
+        "policy_seed": 10239,
+        "opponent_policy_type": "first",
+        "deep_chain_profile": null,
+        "deep_chain_backend": null,
+        "deep_chain_target_chain": null
+      }
+    },
+    "ticks": [
+      {
+        "tick": 0,
+        "inputs": {
+          "player_0": {
+            "press": [],
+            "release": []
+          },
+          "player_1": {
+            "press": [],
+            "release": []
+          }
+        },
+        "policy_diagnostics": {
+          "player_0": {},
+          "player_1": {}
+        },
+        "controller_diagnostics": {
+          "player_0": {
+            "decision_requests": 0,
+            "decisions_started": 0,
+            "decisions_activated": 0,
+            "placements_completed": 0,
+            "timeouts": 0,
+            "deadline_misses": 0,
+            "unreachable_plans": 0,
+            "masked_actions": 0,
+            "fallback_actions": 0,
+            "replans": 0,
+            "emitted_input_ticks": 0,
+            "idle_ticks": 1,
+            "stale_decisions": 0,
+            "policy_elapsed_seconds": 0.0,
+            "inference_latency_ticks": 0,
+            "planned_input_ticks": 0,
+            "latency_mode": "measured",
+            "last_event": "waiting_for_animate",
+            "last_emitted_input": null,
+            "last_decision": null,
+            "mean_policy_elapsed_ms": 0.0,
+            "mean_inference_latency_ticks": 0.0
+          },
+          "player_1": {
+            "decision_requests": 0,
+            "decisions_started": 0,
+            "decisions_activated": 0,
+            "placements_completed": 0,
+            "timeouts": 0,
+            "deadline_misses": 0,
+            "unreachable_plans": 0,
+            "masked_actions": 0,
+            "fallback_actions": 0,
+            "replans": 0,
+            "emitted_input_ticks": 0,
+            "idle_ticks": 1,
+            "stale_decisions": 0,
+            "policy_elapsed_seconds": 0.0,
+            "inference_latency_ticks": 0,
+            "planned_input_ticks": 0,
+            "latency_mode": "measured",
+            "last_event": "waiting_for_gameover",
+            "last_emitted_input": null,
+            "last_decision": null,
+            "mean_policy_elapsed_ms": 0.0,
+            "mean_inference_latency_ticks": 0.0
+          }
+        },
+        "controller_status": {
+          "player_0": {
+            "active_action_index": null,
+            "active_plan_ticks": 0,
+            "active_plan_remaining_ticks": 0,
+            "input_cursor": 0,
+            "active_plan_actions": [],
+            "pending_ready_tick": null,
+            "kind": "policy"
+          },
+          "player_1": {
+            "active_action_index": null,
+            "active_plan_ticks": 0,
+            "active_plan_remaining_ticks": 0,
+            "input_cursor": 0,
+            "active_plan_actions": [],
+            "pending_ready_tick": null,
+            "kind": "policy"
+          }
+        },
+        "all_clear_diagnostics": {
+          "schema_version": "puyo.all_clear_diagnostics.v1",
+          "players": {
+            "player_0": {
+              "board_empty": false,
+              "all_clear_achieved": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_consumed": false
+            },
+            "player_1": {
+              "board_empty": false,
+              "all_clear_achieved": false,
+              "all_clear_bonus_pending": false,
+              "all_clear_bonus_consumed": false
+            }
+          }
+        },
+        "attack_diagnostics": {
+          "player_0": {
+            "generated": 0,
+            "canceled": 0,
+            "outgoing": 0,
+            "attack_score_delta": 0,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0,
+            "score_carry": 69
+          },
+          "player_1": {
+            "generated": 0,
+            "canceled": 0,
+            "outgoing": 0,
+            "attack_score_delta": 0,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0,
+            "score_carry": 0
+          }
+        },
+        "snapshot_hash": "57c5677efcb3e8d814224430e3225bbd086fe9b575bdcf5d52151bb76dcfc7dc"
+      }
+    ],
+    "expected_final_hash": "57c5677efcb3e8d814224430e3225bbd086fe9b575bdcf5d52151bb76dcfc7dc",
+    "outcome": {
+      "winner": "player_0",
+      "interrupted": false,
+      "notes": null
+    }
+  }
+}

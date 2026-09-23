@@ -1,0 +1,18 @@
+{
+  "source_revision": "e4190ddc6a21434bf6166d831e3824dd323425e2",
+  "source_root": "/home/sion2000114/workspaces/dev/puyo-PUYO-239",
+  "source_sha256": {
+    "src.core.game": "368003dbaeecdb8961249117004c87bbf87117fdff3425c4826ba6263f95a73a",
+    "src.core.headless": "365b75a0b5e42205059a9040b854b651cf17017f845bb6929483c5bba0331ce3",
+    "src.core.realtime": "78f2f5b46e6708677cbc9a68e7008295e43555316337d6edbe393179a7a15062",
+    "puyo_env.realtime_ai": "1b07216f7a3da24a3cf2fa2e3a95af6cbd54441870bf5b00f7eb603eb45ee475",
+    "puyo_env.realtime_versus": "9af3344e7d5cc2c8b47d70d2e4dc1d78aa5004850442d9ccf336ff8a71f79a36",
+    "eval.realtime_arena": "6e345c2b94e81e1d3ad9c8df2ecb41610a05fe8abc2b68deb3b7e62135c0e650",
+    "eval.realtime_versus_ui": "d556f1eca23716de7a978246589137c725e909d1b412896c02cad66bf33173bb",
+    "src.ui.versus_renderer": "320d88536522730ce889149257b92fb2039e9085b914e3bc32b1533b0e0130ce"
+  },
+  "helper_sha256": "6d990b862a8ccb4173c0c56bb152e0ce7faeaaba9bfa40e11290999feae8d05c",
+  "display_driver": "x11",
+  "pygame_version": "2.6.1",
+  "python_version": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+}
