@@ -211,9 +211,83 @@ class TestTerminalResolution(unittest.TestCase):
                 self.assertTrue(env.match.resolution_pending)
                 self.assertTrue(env.player_states[loser].simulator.game.game_over)
                 self.assertEqual(env.player_states[loser].received_ojama_total, 6)
-                self.finish(env)
+                self.assertEqual(
+                    env.player_states[loser].garbage_ticks_remaining,
+                    env.match.garbage_drop_ticks,
+                )
+                queues = {
+                    agent: tuple(state.simulator.game.next_puyo_queue)
+                    for agent, state in env.player_states.items()
+                }
+                with (
+                    patch.object(
+                        env.player_states[loser].simulator.game,
+                        "spawn_puyo",
+                        side_effect=AssertionError("loser spawned during garbage wait"),
+                    ),
+                    patch.object(
+                        env.player_states[survivor].simulator.game,
+                        "spawn_puyo",
+                        side_effect=AssertionError("survivor spawned after top-out"),
+                    ),
+                ):
+                    rows = self.finish(env)
+                self.assertGreater(len(rows), env.match.garbage_drop_ticks)
+                self.assertEqual(env.player_states[loser].garbage_ticks_remaining, 0)
                 self.assertEqual(env.player_states[loser].received_ojama_total, 6)
                 self.assertEqual(env.player_states[loser].pending_ojama, 6)
+                self.assertTrue(
+                    all(
+                        not any(row[survivor]["match_result"].dropped_ojama.values())
+                        for row in rows
+                    )
+                )
+                self.assertEqual(
+                    sum(
+                        event.type == "resolution_complete"
+                        for row in rows
+                        for event in row[survivor]["match_result"]
+                        .player_results[survivor].events
+                    ),
+                    1,
+                )
+                self.assertEqual(
+                    sum(row[survivor]["reward_components"]["chain_count"] for row in rows),
+                    2,
+                )
+                self.assertEqual(
+                    sum(row[survivor]["reward_components"]["terminal_reward"] for row in rows),
+                    10,
+                )
+                for agent, state in env.player_states.items():
+                    self.assertEqual(tuple(state.simulator.game.next_puyo_queue), queues[agent])
+                    self.assertIsNone(state.simulator.game.current_puyo_1)
+
+    def test_garbage_wait_expiry_and_opponent_topout_do_not_spawn(self):
+        from src.core.field import Field
+
+        for survivor in REALTIME_AGENTS:
+            with self.subTest(survivor=survivor):
+                env = self.make_env(survivor=survivor, detected=False)
+                state = env.player_states[survivor]
+                game = state.simulator.game
+                game.field = Field()
+                game.state = "garbage"
+                state.garbage_ticks_remaining = 1
+                queue = tuple(game.next_puyo_queue)
+                with patch.object(
+                    game, "spawn_puyo", side_effect=AssertionError("garbage wait spawned")
+                ):
+                    _, _, terminated, truncated, infos = env.step()
+                self.assertTrue(all(terminated.values()))
+                self.assertFalse(any(truncated.values()))
+                self.assertEqual(state.garbage_ticks_remaining, 0)
+                self.assertEqual(tuple(game.next_puyo_queue), queue)
+                self.assertIsNone(game.current_puyo_1)
+                self.assertTrue(env.match.finished)
+                self.assertFalse(env.match.resolution_pending)
+                self.assertEqual(infos[survivor]["winner"], survivor)
+                self.assertEqual(infos[survivor]["reward_components"]["terminal_reward"], 10)
 
     def test_zero_chain_drop_does_not_delay_topout(self):
         from src.core.constants import PuyoColor
