@@ -37,6 +37,10 @@ on:
       - "docs/benchmarks/puyo-229-ghost-row-parity/**"
       - "agents/deep_chain_search_backend.py"
       - "agents/long_horizon_search.py"
+      - "agents/beam_search.py"
+      - "agents/strategy_workers.py"
+      - "agents/worker_proposals.py"
+      - "tests/test_worker_proposals.py"
       - "docs/development/puyo-203-deep-chain-native-integration.md"
       - "docs/benchmarks/puyo-202-native-long-horizon/**"
       - "docs/development/puyo-202-native-long-horizon-search.md"
@@ -156,6 +160,10 @@ on:
       - "docs/benchmarks/puyo-229-ghost-row-parity/**"
       - "agents/deep_chain_search_backend.py"
       - "agents/long_horizon_search.py"
+      - "agents/beam_search.py"
+      - "agents/strategy_workers.py"
+      - "agents/worker_proposals.py"
+      - "tests/test_worker_proposals.py"
       - "docs/development/puyo-203-deep-chain-native-integration.md"
       - "docs/benchmarks/puyo-202-native-long-horizon/**"
       - "docs/development/puyo-202-native-long-horizon-search.md"
@@ -297,3 +305,5 @@ jobs:
           .venv/bin/python -m eval.deep_chain_native_evaluator_revalidation verify --historical
           .venv/bin/python -m eval.deep_chain_native_search_benchmark verify --historical
           .venv/bin/python -m eval.deep_chain_native_transition_restart_decision
+      - name: Check worker proposal seed contracts
+        run: .venv/bin/python -m unittest tests.test_worker_proposals
