@@ -678,6 +678,7 @@ python3 -m eval.v1_7_k_best_oracle verify
 
 - セットアップ手順: [docs/development/vscode_codex_jira_setup.md](docs/development/vscode_codex_jira_setup.md)
 - Codex運用ルール: [docs/development/codex_jira_operating_rules.md](docs/development/codex_jira_operating_rules.md)
+- 複数チケットの自律開発: [docs/development/codex_autonomous_workflow.md](docs/development/codex_autonomous_workflow.md)
 - VSCode MCP用サーバー定義（Atlassian Rovo MCP v2）: `mcp.json`
 - VSCode推奨拡張: `.vscode/extensions.json`
 
