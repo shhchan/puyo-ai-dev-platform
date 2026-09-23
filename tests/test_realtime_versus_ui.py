@@ -4,9 +4,11 @@ import os
 import tempfile
 import time
 import unittest
+from collections import deque
 from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
@@ -22,10 +24,12 @@ try:
         parse_config,
         run_ui,
     )
+    from eval.versus_ui import VisualEvent
     from selfplay.policies import legal_indices
-    from src.core.constants import Action, PuyoColor
+    from src.core.constants import Action, PUYO_SIZE, PuyoColor
     from src.ui.versus_renderer import (
         ACTIVE_GHOST_SCALE,
+        VISIBLE_HEIGHT,
         VersusRenderer,
         animation_progress,
         garbage_animation_cells,
@@ -552,6 +556,235 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
         for x, y in event.coords:
             self.assertEqual(controller.display_boards["player_1"][y][x], PuyoColor.OJAMA)
         controller.shutdown()
+
+    def test_queued_ojama_stays_hidden_until_one_fall_then_survives_next_placement(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="first", policy_b="random", max_ticks=200)
+        )
+        renderer = VersusRenderer(pygame.Surface((6 * PUYO_SIZE, VISIBLE_HEIGHT * PUYO_SIZE)))
+        field = pygame.Rect(0, 0, 6 * PUYO_SIZE, VISIBLE_HEIGHT * PUYO_SIZE)
+        controller.env.match.schedule_attack("player_0", 3, delay_ticks=0)
+        agent = "player_1"
+        queued_garbage = None
+        snapshots = {}
+        garbage_starts = 0
+        previous_event = None
+        try:
+            for _ in range(350):
+                controller.update(1 / 60)
+                event = controller.visual_event(agent)
+                elapsed = controller.visual_event_elapsed(agent)
+                board = controller.display_boards[agent]
+                if queued_garbage is None:
+                    queued_garbage = next(
+                        (item for item in controller.event_queues[agent] if item.kind == "garbage"),
+                        None,
+                    )
+                    if queued_garbage is not None:
+                        snapshots["pre"] = (event, board, elapsed)
+                        self.assertEqual(
+                            sum(cell == PuyoColor.OJAMA for row in controller._current_board(agent) for cell in row),
+                            3,
+                        )
+                        self.assertTrue(all(board[y][x] != PuyoColor.OJAMA for x, y in queued_garbage.coords))
+                if event is queued_garbage and event is not None:
+                    if previous_event is not event:
+                        garbage_starts += 1
+                        snapshots["fall_pre"] = (event, board, elapsed)
+                    if 0.15 <= elapsed <= 0.20 and "fall_mid" not in snapshots:
+                        snapshots["fall_mid"] = (event, board, elapsed)
+                elif "fall_pre" in snapshots and "post" not in snapshots:
+                    snapshots["post"] = (event, board, elapsed)
+                if "post" in snapshots and event is not None and event.kind == "placement":
+                    if "next_pre" not in snapshots:
+                        snapshots["next_pre"] = (event, board, elapsed)
+                    elif 0.08 <= elapsed <= 0.12 and "next_mid" not in snapshots:
+                        snapshots["next_mid"] = (event, board, elapsed)
+                elif "next_pre" in snapshots and "next_post" not in snapshots:
+                    snapshots["next_post"] = (event, board, elapsed)
+                previous_event = event
+                if "next_post" in snapshots:
+                    break
+
+            self.assertEqual(garbage_starts, 1)
+            self.assertEqual(
+                set(snapshots),
+                {"pre", "fall_pre", "fall_mid", "post", "next_pre", "next_mid", "next_post"},
+            )
+            x, y = min(queued_garbage.coords)
+            pixel = (x * PUYO_SIZE + PUYO_SIZE // 2, (VISIBLE_HEIGHT - y - 1) * PUYO_SIZE + PUYO_SIZE // 2)
+            for phase, (event, board, elapsed) in snapshots.items():
+                with self.subTest(phase=phase):
+                    renderer._draw_board(field, event, board, event_elapsed=elapsed)
+                    color = renderer.screen.get_at(pixel)[:3]
+                    if phase in {"pre", "fall_pre", "fall_mid"}:
+                        self.assertNotEqual(color, renderer.colors[PuyoColor.OJAMA])
+                        self.assertNotEqual(board[y][x], PuyoColor.OJAMA)
+                    else:
+                        self.assertEqual(color, renderer.colors[PuyoColor.OJAMA])
+                        self.assertEqual(board[y][x], PuyoColor.OJAMA)
+            self.assertFalse(any(item is queued_garbage for item in controller.event_queues[agent]))
+        finally:
+            controller.shutdown()
+
+    def test_pending_ojama_masks_only_its_own_cells_and_handles_multiple_drops(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="first", policy_b="random", max_ticks=10)
+        )
+        agent = "player_1"
+        original = controller._current_board(agent)
+        rows = [list(row) for row in original]
+        rows[0][0] = PuyoColor.OJAMA
+        rows[0][1] = PuyoColor.OJAMA
+        rows[0][2] = PuyoColor.RED
+        authoritative = tuple(tuple(row) for row in rows)
+        first_pre_rows = [[PuyoColor.EMPTY for _ in row] for row in original]
+        first_pre_rows[0][0] = PuyoColor.RED
+        first_pre = tuple(tuple(row) for row in first_pre_rows)
+        second_pre = [list(row) for row in first_pre]
+        second_pre[0][0] = PuyoColor.OJAMA
+        second_pre[0][1] = PuyoColor.BLUE
+        first = VisualEvent("garbage", agent, "OJAMA +1", amount=1, coords=frozenset({(0, 0)}), board=first_pre)
+        second = VisualEvent("garbage", agent, "OJAMA +1", amount=1, coords=frozenset({(1, 0)}), board=tuple(tuple(row) for row in second_pre))
+        try:
+            controller.current_events[agent] = first
+            controller.event_queues[agent] = deque([second])
+            with patch.object(controller, "_current_board", return_value=authoritative):
+                controller._sync_display_boards()
+            self.assertEqual(controller.display_boards[agent][0][:3], (PuyoColor.EMPTY, PuyoColor.EMPTY, PuyoColor.RED))
+
+            controller.current_events[agent] = second
+            controller.event_queues[agent].clear()
+            with patch.object(controller, "_current_board", return_value=authoritative):
+                controller._sync_display_boards()
+            self.assertEqual(controller.display_boards[agent][0][:3], (PuyoColor.OJAMA, PuyoColor.EMPTY, PuyoColor.RED))
+
+            rows[0][1] = PuyoColor.BLUE
+            with patch.object(controller, "_current_board", return_value=tuple(tuple(row) for row in rows)):
+                controller._sync_display_boards()
+            self.assertEqual(controller.display_boards[agent][0][:3], (PuyoColor.OJAMA, PuyoColor.BLUE, PuyoColor.RED))
+        finally:
+            controller.shutdown()
+
+    def test_ojama_lifecycle_is_stable_across_speed_pause_step_and_replay(self):
+        config = RealtimeVersusUiConfig(
+            policy_a="first", policy_b="random", max_ticks=160, replay_path="unused.json"
+        )
+        reference = RealtimeVersusMatchController(config)
+        try:
+            reference.env.match.schedule_attack("player_0", 3, delay_ticks=0)
+            for _ in range(160):
+                reference.advance_tick()
+            expected_hash = reference.env.match.state_hash()
+            expected_replay = [
+                (tick["tick"], tick["inputs"], tick["snapshot_hash"])
+                for tick in reference.replay_ticks
+            ]
+        finally:
+            reference.shutdown()
+
+        for speed in (0.25, 0.5, 1.0, 2.0, 4.0):
+            with self.subTest(speed=speed):
+                controller = RealtimeVersusMatchController(
+                    RealtimeVersusUiConfig(
+                        policy_a="first", policy_b="random", max_ticks=160,
+                        replay_path="unused.json", speed=speed,
+                    )
+                )
+                controller.env.match.schedule_attack("player_0", 3, delay_ticks=0)
+                started = set()
+                completed = set()
+                paused_once = False
+                previous_event = None
+                try:
+                    for _ in range(700):
+                        controller.update(1 / 60)
+                        event = controller.visual_event("player_1")
+                        pending_garbage = [
+                            item for item in controller.event_queues["player_1"]
+                            if item.kind == "garbage"
+                        ]
+                        for pending in pending_garbage:
+                            self.assertTrue(all(
+                                controller.display_boards["player_1"][y][x] != PuyoColor.OJAMA
+                                for x, y in pending.coords
+                            ))
+                        if event is not None and event.kind == "garbage":
+                            started.add(id(event))
+                            self.assertTrue(all(
+                                controller.display_boards["player_1"][y][x] != PuyoColor.OJAMA
+                                for x, y in event.coords
+                            ))
+                            if not paused_once:
+                                paused_once = True
+                                controller.paused = True
+                                tick = controller.env.match.tick
+                                elapsed = controller.visual_event_elapsed("player_1")
+                                state_hash = controller.env.match.state_hash()
+                                for _ in range(8):
+                                    controller.update(1 / 60)
+                                self.assertEqual(controller.env.match.tick, tick)
+                                self.assertEqual(controller.visual_event_elapsed("player_1"), elapsed)
+                                self.assertEqual(controller.env.match.state_hash(), state_hash)
+                                self.assertTrue(controller.handle_keydown(pygame.K_n))
+                                self.assertEqual(controller.env.match.tick, tick + 1)
+                                self.assertIs(controller.visual_event("player_1"), event)
+                                self.assertAlmostEqual(
+                                    controller.visual_event_elapsed("player_1"),
+                                    elapsed + controller.env.match.timing.tick_seconds / speed,
+                                )
+                                controller.paused = False
+                        if previous_event is not None and previous_event.kind == "garbage" and event is not previous_event:
+                            completed.add(id(previous_event))
+                            self.assertTrue(all(
+                                controller.display_boards["player_1"][y][x] == PuyoColor.OJAMA
+                                for x, y in previous_event.coords
+                            ))
+                        previous_event = event
+                        if controller.env.match.tick >= 160:
+                            break
+                    self.assertEqual(controller.env.match.tick, 160)
+                    self.assertTrue(paused_once)
+                    self.assertEqual(len(started), 1)
+                    self.assertEqual(started, completed)
+                    self.assertEqual(controller.env.match.state_hash(), expected_hash)
+                    self.assertEqual(
+                        [(tick["tick"], tick["inputs"], tick["snapshot_hash"]) for tick in controller.replay_ticks],
+                        expected_replay,
+                    )
+                    self.assertEqual(controller.replay_payload()["expected_final_hash"], expected_hash)
+                finally:
+                    controller.shutdown()
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(
+                policy_a="first", policy_b="random", max_ticks=160,
+                replay_path="unused.json", start_paused=True,
+            )
+        )
+        controller.env.match.schedule_attack("player_0", 3, delay_ticks=0)
+        step_started = set()
+        step_completed = set()
+        previous_event = None
+        try:
+            for _ in range(160):
+                self.assertTrue(controller.handle_keydown(pygame.K_n))
+                event = controller.visual_event("player_1")
+                if event is not None and event.kind == "garbage":
+                    step_started.add(id(event))
+                if previous_event is not None and previous_event.kind == "garbage" and event is not previous_event:
+                    step_completed.add(id(previous_event))
+                previous_event = event
+            self.assertTrue(controller.paused)
+            self.assertEqual(step_started, step_completed)
+            self.assertEqual(len(step_started), 1)
+            self.assertEqual(controller.env.match.state_hash(), expected_hash)
+            self.assertEqual(
+                [(tick["tick"], tick["inputs"], tick["snapshot_hash"]) for tick in controller.replay_ticks],
+                expected_replay,
+            )
+        finally:
+            controller.shutdown()
 
     def test_plan_step_delta_cells_excludes_existing_board_cells(self):
         base_board = [[PuyoColor.EMPTY for _ in range(6)] for _ in range(12)]

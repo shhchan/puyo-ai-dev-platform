@@ -712,6 +712,10 @@ class RealtimeVersusMatchController:
 
     def advance_one(self, include_human: bool = False) -> bool:
         _ = include_human
+        if not self.env.agents:
+            return False
+        # A paused step advances one simulation tick and the same visual time.
+        self._advance_visual_events(self.env.match.timing.tick_seconds / self.speed)
         return self.advance_tick()
 
     def advance_tick(self) -> bool:
@@ -1091,9 +1095,18 @@ class RealtimeVersusMatchController:
 
     def _sync_display_boards(self) -> None:
         self.display_boards = {agent: self._current_board(agent) for agent in REALTIME_AGENTS}
-        for agent, event in self.current_events.items():
-            if event is not None and event.kind == "garbage" and event.board:
-                self.display_boards[agent] = event.board
+        for agent in REALTIME_AGENTS:
+            pending = (self.current_events[agent], *self.event_queues[agent])
+            board = [list(row) for row in self.display_boards[agent]]
+            for event in pending:
+                if event is None or event.kind != "garbage" or not event.board:
+                    continue
+                # The drop has reached simulation state, but its visual event may
+                # still wait behind a chain. Hide only its new cells until played.
+                for x, y in event.coords:
+                    if board[y][x] == PuyoColor.OJAMA:
+                        board[y][x] = PuyoColor.EMPTY
+            self.display_boards[agent] = tuple(tuple(row) for row in board)
 
     def _visual_events_from_tick(
         self,
@@ -1251,7 +1264,7 @@ class RealtimeVersusMatchController:
         elif self.keybindings.matches("speed_down", key):
             self.change_speed(-1)
         elif self.keybindings.matches("step", key):
-            self.advance_tick()
+            self.advance_one()
         elif key == pygame.K_o:
             enabled = not all(self.plan_overlay_enabled.values())
             self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
