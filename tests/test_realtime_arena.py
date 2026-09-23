@@ -16,6 +16,47 @@ from selfplay.policies import FirstLegalPolicy, RandomPolicy
 
 
 class TestRealtimeArena(unittest.TestCase):
+    def test_garbage_timing_replays_new_and_legacy_rules(self):
+        from puyo_env.realtime_versus import RealtimeVersusMatch
+        from src.core.constants import Action
+        from src.core.realtime import TickInput
+
+        for rules in ({"garbage_drop_ticks": 21, "attack_delay_ticks": 0},
+                      {"garbage_drop_ticks": 0, "attack_delay_ticks": 60}):
+            with self.subTest(rules=rules):
+                match = RealtimeVersusMatch(seed=4, **rules)
+                replay = {"seed": 4, "ticks": []}
+                if rules["garbage_drop_ticks"]:
+                    replay["match_rules"] = match.replay_rules()
+                dropped = 0
+                generated = 0
+                for tick in range(900):
+                    inputs = {
+                        agent: TickInput(
+                            press=((Action.LEFT,) if tick == 0 else ())
+                            + ((Action.DOWN,) if tick % interval == 0 else ()),
+                            release=(Action.DOWN,) if tick % interval else (),
+                        )
+                        for agent, interval in zip(match.possible_agents, (2, 3))
+                    }
+                    result = match.step(inputs)
+                    dropped += sum(result.dropped_ojama.values())
+                    generated += sum(result.generated_attacks.values())
+                    replay["ticks"].append({
+                        "tick": tick,
+                        "inputs": {agent: value.to_json() for agent, value in inputs.items()},
+                        "snapshot_hash": result.snapshot_hash,
+                    })
+                self.assertGreater(generated, 0)
+                if rules["garbage_drop_ticks"]:
+                    self.assertGreater(dropped, 0)
+                else:
+                    # Recorded with the unmodified f721c9a runtime (PUYO-190).
+                    self.assertEqual(match.state_hash(),
+                                     "7649f39ada2ab23b9e63a714f682c9930948c33f52afd6a49455de4d7a83ef93")
+                replay["expected_final_hash"] = match.state_hash()
+                self.assertEqual(replay_realtime_match(replay), match.state_hash())
+
     def test_deep_chain_backend_is_forwarded_from_cli(self):
         args = parse_args(
             [

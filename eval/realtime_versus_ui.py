@@ -750,8 +750,25 @@ class RealtimeVersusMatchController:
                 boards_before=boards_before,
                 boards_after=boards_after,
             ):
-                self.event_queues[event.agent].append(event)
+                if event.kind == "garbage":
+                    # Resolution visuals have already finished in GameState.
+                    # Start the authoritative drop now, before NEXT can advance.
+                    self.event_queues[event.agent].clear()
+                    self.current_events[event.agent] = event
+                    self.event_elapsed_by_agent[event.agent] = 0.0
+                else:
+                    self.event_queues[event.agent].append(event)
             for agent in REALTIME_AGENTS:
+                event = self.current_events[agent]
+                state = self.env.player_states[agent]
+                if event is not None and event.kind == "garbage":
+                    if not state.garbage_ticks_remaining:
+                        self.current_events[agent] = None
+                    else:
+                        self.event_elapsed_by_agent[agent] = (
+                            (self.env.match.garbage_drop_ticks - state.garbage_ticks_remaining)
+                            * self.env.match.timing.tick_seconds / self.speed
+                        )
                 self._start_next_event(agent)
         self._sync_display_boards()
         return True
@@ -842,6 +859,7 @@ class RealtimeVersusMatchController:
     ) -> dict[str, Any]:
         return {
             "format": "puyo-realtime-match-v1",
+            "match_rules": self.env.match.replay_rules(),
             "policy_decision_schema_version": POLICY_DECISION_REPLAY_SCHEMA_VERSION,
             "seed": self.config.seed,
             "max_ticks": self.config.max_ticks,
@@ -1180,6 +1198,10 @@ class RealtimeVersusMatchController:
             if event is None:
                 self._start_next_event(agent)
                 continue
+            if event.kind == "garbage" and self.env.agents:
+                # The match clock owns both the fall and the next spawn. A terminal
+                # or truncated match may still finish its final visual in wall time.
+                continue
             self.event_elapsed_by_agent[agent] += delta_time
             if self.event_elapsed_by_agent[agent] >= self._event_duration(event):
                 self.current_events[agent] = None
@@ -1198,6 +1220,13 @@ class RealtimeVersusMatchController:
         return self.current_events[agent]
 
     def visual_event_elapsed(self, agent: str) -> float:
+        event = self.current_events[agent]
+        if event is not None and event.kind == "garbage" and self.env.agents:
+            remaining = self.env.player_states[agent].garbage_ticks_remaining
+            return (
+                (self.env.match.garbage_drop_ticks - remaining)
+                * self.env.match.timing.tick_seconds / self.speed
+            )
         return self.event_elapsed_by_agent[agent]
 
     def _open_settings(self) -> None:

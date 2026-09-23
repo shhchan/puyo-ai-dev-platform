@@ -826,7 +826,7 @@ class GameState:
         self.animation_state = "drop_tween"
         self.animation_timer = 0.0
 
-    def _resolve_animation_step(self):
+    def _resolve_animation_step(self, *, spawn_next=True):
         before_snapshot = self._snapshot_field_colors()
         dropped = self.field.drop_puyo()
         if dropped:
@@ -847,9 +847,13 @@ class GameState:
             return
 
         self._finish_chain_resolution()
-        self.spawn_puyo()
+        if spawn_next:
+            self.spawn_puyo()
+        else:
+            self.state = "ready"
+            self._reset_animation_data()
 
-    def advance_animation(self, delta_time):
+    def advance_animation(self, delta_time, *, spawn_next=True):
         if self.state != "animate":
             return
 
@@ -857,7 +861,7 @@ class GameState:
 
         while self.state == "animate":
             if self.animation_state == "resolve":
-                self._resolve_animation_step()
+                self._resolve_animation_step(spawn_next=spawn_next)
                 if self.animation_state == "resolve":
                     return
                 continue

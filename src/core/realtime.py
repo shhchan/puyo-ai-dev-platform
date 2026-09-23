@@ -210,7 +210,9 @@ class RealtimeHeadlessSimulator:
     def state_hash(self) -> str:
         return self.snapshot().hash()
 
-    def step(self, tick_input: TickInput | None = None) -> RealtimeStepResult:
+    def step(
+        self, tick_input: TickInput | None = None, *, spawn_next: bool = True,
+    ) -> RealtimeStepResult:
         tick_input = tick_input or TickInput()
         current_tick = self.tick
         state_before = self.game.state
@@ -220,7 +222,10 @@ class RealtimeHeadlessSimulator:
         fired_actions = self._collect_fired_actions(current_tick, tick_input)
 
         if self.game.state == "animate":
-            self.game.advance_animation(self.timing.tick_seconds)
+            self.game.advance_animation(self.timing.tick_seconds, spawn_next=spawn_next)
+        elif self.game.state == "garbage" or (self.game.state == "ready" and not spawn_next):
+            # Keep input releases current without operating an unspawned pair.
+            fired_actions = []
         elif self.game.state == "countdown":
             self.game.advance_countdown(self.timing.tick_seconds)
         else:

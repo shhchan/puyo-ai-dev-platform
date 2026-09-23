@@ -77,7 +77,24 @@ event は次を持つ。
 3. 生成攻撃を score carry からおじゃまへ変換する。
 4. 到着済みを含む incoming queue と生成攻撃を相殺し、余剰を相手へ予約する。
 5. game over でなければ、到着済み incoming を最大 `max_ojama_drop` 個だけ盤面へ落とす。
-6. 次のぷよを操作可能にする。
+6. おじゃまがあれば `garbage` phase を 21 ticks（標準 60 Hz で 0.35 秒）進め，窒息していなければ NEXT から次の組ぷよを引いて操作可能にする．
+
+標準の `attack_delay_ticks` は 0 とする．相手の連鎖が完了した tick に攻撃が確定し，
+受け手が既に引いた組ぷよの固定・連鎖解決後に落ちる．相手の未完了の連鎖からは
+攻撃を生成しない．検証用途では明示的な遅延を引き続き指定できる．
+
+`garbage_ticks_remaining` は player ごとに match clock で減らす．待機中は active pair を
+生成せず，NEXT を保持する．入力の release は処理するが移動・回転・固定は行わず，
+AI の次の判断も spawn まで開始しない．相手 player の tick は通常どおり進む．
+観測の phase scalar は `animate` と同じ 0.25 を使い，shape は変更しない．
+GUI の落下表示もこの時計を使用し，pause，N による 1 tick 実行，表示速度にかかわらず
+落下終了と NEXT の進行を一致させる．終了済みの placement/chain 通知は落下開始時に除去する．
+
+Replay の `match_rules` に `garbage_drop_ticks` と `attack_delay_ticks` を保存する．
+同じルールは human trajectory と sample 再構成でも保持する．旧 replay で省略された場合は
+従来の即時 spawn（0 ticks）と攻撃遅延 60 ticks で復元する．待機中の match hash は残り
+ticks を含むため，新規ルールの replay を旧ランタイムで再生することはできない．
+単独の `RealtimeHeadlessSimulator` は従来どおり解決後に即時 spawn する．
 
 `control` 中は arrival tick を過ぎても盤面を変更しない。現在ぷよを回転・移動して固定を
 遅らせた場合、おじゃまの実着弾も同じ placement 境界まで遅れる。現在ぷよで連鎖を開始

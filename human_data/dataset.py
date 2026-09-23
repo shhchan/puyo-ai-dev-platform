@@ -106,6 +106,7 @@ def trajectory_from_replay(
         "dataset_version": DATASET_VERSION,
         "session_id": session_id,
         "environment_format": replay.get("format", ENVIRONMENT_FORMAT_VERSION),
+        "match_rules": dict(replay.get("match_rules", {})),
         "seed": replay.get("seed"),
         "max_ticks": replay.get("max_ticks"),
         "ticks": ticks,
@@ -196,6 +197,7 @@ def _validate_agent_mapping(
 def _replay_trajectory(trajectory: Mapping[str, Any]) -> str:
     replay = {
         "format": trajectory["environment_format"],
+        "match_rules": trajectory.get("match_rules", {}),
         "seed": trajectory["seed"],
         "ticks": [
             {
