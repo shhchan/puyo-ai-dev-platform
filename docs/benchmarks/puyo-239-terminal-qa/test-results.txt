@@ -1,0 +1,18 @@
+.........................................................................................................................................                         [100%]
+=============================== warnings summary ===============================
+../puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25
+  /home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    from pkg_resources import resource_stream, resource_exists
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+137 passed, 1 warning, 55 subtests passed in 64.65s (0:01:04)
+
+Additional boundary cases, followed by full boundary-suite rerun:
+...................                                    [100%]
+=============================== warnings summary ===============================
+tests/test_realtime_terminal.py::TestTerminalPresentation::test_manual_exit_during_pending_chain_is_interrupted
+  /home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    from pkg_resources import resource_stream, resource_exists
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+19 passed, 1 warning, 18 subtests passed in 4.23s

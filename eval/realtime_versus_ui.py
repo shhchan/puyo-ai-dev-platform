@@ -712,7 +712,19 @@ class RealtimeVersusMatchController:
 
     def advance_one(self, include_human: bool = False) -> bool:
         _ = include_human
-        return self.advance_tick()
+        if not self.env.agents and self.presentation_finished:
+            return False
+        # A paused step advances one simulation tick and the same visual time.
+        self._advance_visual_events(self.env.match.timing.tick_seconds / self.speed)
+        advanced = self.advance_tick()
+        return advanced or not self.env.agents
+
+    @property
+    def presentation_finished(self) -> bool:
+        return not self.env.agents and not any(
+            self.current_events[agent] is not None or self.event_queues[agent]
+            for agent in REALTIME_AGENTS
+        )
 
     def advance_tick(self) -> bool:
         if not self.env.agents:
@@ -721,7 +733,7 @@ class RealtimeVersusMatchController:
             agent: self._current_board(agent) for agent in REALTIME_AGENTS
         }
         inputs = {}
-        for agent in self.env.agents:
+        for agent in (() if self.env.match.ending else self.env.agents):
             inputs[agent] = self.controllers[agent].next_input(
                 self.env.match,
                 agent,
@@ -746,8 +758,25 @@ class RealtimeVersusMatchController:
                 boards_before=boards_before,
                 boards_after=boards_after,
             ):
-                self.event_queues[event.agent].append(event)
+                if event.kind == "garbage":
+                    # Resolution visuals have already finished in GameState.
+                    # Start the authoritative drop now, before NEXT can advance.
+                    self.event_queues[event.agent].clear()
+                    self.current_events[event.agent] = event
+                    self.event_elapsed_by_agent[event.agent] = 0.0
+                else:
+                    self.event_queues[event.agent].append(event)
             for agent in REALTIME_AGENTS:
+                event = self.current_events[agent]
+                state = self.env.player_states[agent]
+                if event is not None and event.kind == "garbage":
+                    if not state.garbage_ticks_remaining:
+                        self.current_events[agent] = None
+                    else:
+                        self.event_elapsed_by_agent[agent] = (
+                            (self.env.match.garbage_drop_ticks - state.garbage_ticks_remaining)
+                            * self.env.match.timing.tick_seconds / self.speed
+                        )
                 self._start_next_event(agent)
         self._sync_display_boards()
         return True
@@ -838,6 +867,7 @@ class RealtimeVersusMatchController:
     ) -> dict[str, Any]:
         return {
             "format": "puyo-realtime-match-v1",
+            "match_rules": self.env.match.replay_rules(),
             "policy_decision_schema_version": POLICY_DECISION_REPLAY_SCHEMA_VERSION,
             "seed": self.config.seed,
             "max_ticks": self.config.max_ticks,
@@ -865,10 +895,7 @@ class RealtimeVersusMatchController:
             agent: int(self.infos[agent]["score"])
             for agent in REALTIME_AGENTS
         }
-        terminal = any(
-            self.env.player_states[agent].simulator.game.game_over
-            for agent in REALTIME_AGENTS
-        )
+        terminal = self.env.match.finished
         if terminal:
             termination_reason = "game_over"
         elif not interrupted:
@@ -1091,9 +1118,18 @@ class RealtimeVersusMatchController:
 
     def _sync_display_boards(self) -> None:
         self.display_boards = {agent: self._current_board(agent) for agent in REALTIME_AGENTS}
-        for agent, event in self.current_events.items():
-            if event is not None and event.kind == "garbage" and event.board:
-                self.display_boards[agent] = event.board
+        for agent in REALTIME_AGENTS:
+            pending = (self.current_events[agent], *self.event_queues[agent])
+            board = [list(row) for row in self.display_boards[agent]]
+            for event in pending:
+                if event is None or event.kind != "garbage" or not event.board:
+                    continue
+                # The drop has reached simulation state, but its visual event may
+                # still wait behind a chain. Hide only its new cells until played.
+                for x, y in event.coords:
+                    if board[y][x] == PuyoColor.OJAMA:
+                        board[y][x] = PuyoColor.EMPTY
+            self.display_boards[agent] = tuple(tuple(row) for row in board)
 
     def _visual_events_from_tick(
         self,
@@ -1167,6 +1203,10 @@ class RealtimeVersusMatchController:
             if event is None:
                 self._start_next_event(agent)
                 continue
+            if event.kind == "garbage" and self.env.agents:
+                # The match clock owns both the fall and the next spawn. A terminal
+                # or truncated match may still finish its final visual in wall time.
+                continue
             self.event_elapsed_by_agent[agent] += delta_time
             if self.event_elapsed_by_agent[agent] >= self._event_duration(event):
                 self.current_events[agent] = None
@@ -1185,6 +1225,13 @@ class RealtimeVersusMatchController:
         return self.current_events[agent]
 
     def visual_event_elapsed(self, agent: str) -> float:
+        event = self.current_events[agent]
+        if event is not None and event.kind == "garbage" and self.env.agents:
+            remaining = self.env.player_states[agent].garbage_ticks_remaining
+            return (
+                (self.env.match.garbage_drop_ticks - remaining)
+                * self.env.match.timing.tick_seconds / self.speed
+            )
         return self.event_elapsed_by_agent[agent]
 
     def _open_settings(self) -> None:
@@ -1251,7 +1298,7 @@ class RealtimeVersusMatchController:
         elif self.keybindings.matches("speed_down", key):
             self.change_speed(-1)
         elif self.keybindings.matches("step", key):
-            self.advance_tick()
+            self.advance_one()
         elif key == pygame.K_o:
             enabled = not all(self.plan_overlay_enabled.values())
             self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
@@ -1516,7 +1563,7 @@ def run_ui(
             if frame_callback is not None:
                 frame_callback(screen, frames)
             frames += 1
-            if not controller.env.agents:
+            if controller.presentation_finished:
                 finish_frames += 1
                 if (
                     config.exit_after_finish_frames is not None

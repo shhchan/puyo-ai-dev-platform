@@ -1,0 +1,7 @@
+{
+  "replay": "docs/benchmarks/puyo-235-normal-window-qa/gui_normal_replay.json.gz",
+  "ticks": 2175,
+  "first_topout_tick": 2174,
+  "first_mismatch": [],
+  "mismatch_count": 0
+}

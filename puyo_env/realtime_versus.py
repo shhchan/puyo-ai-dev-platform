@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Mapping
 
 from src.core.constants import VISIBLE_HEIGHT
@@ -23,6 +24,7 @@ from src.core.realtime import (
 )
 
 REALTIME_AGENTS = ("player_0", "player_1")
+DEFAULT_GARBAGE_DROP_TICKS = 21
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ class RealtimeVersusPlayerState:
     generated_ojama_total: int = 0
     canceled_ojama_total: int = 0
     received_ojama_total: int = 0
+    garbage_ticks_remaining: int = 0
 
     @property
     def pending_ojama(self) -> int:
@@ -72,6 +75,7 @@ class RealtimeVersusMatch:
         target_score_per_ojama: int = 70,
         max_ojama_drop: int = 30,
         attack_delay_ticks: int | None = None,
+        garbage_drop_ticks: int = DEFAULT_GARBAGE_DROP_TICKS,
     ):
         self.seed = seed
         self.timing = timing or DEFAULT_REALTIME_TIMING
@@ -82,6 +86,9 @@ class RealtimeVersusMatch:
         self.attack_delay_ticks = (
             self.timing.attack_delay_ticks if attack_delay_ticks is None else int(attack_delay_ticks)
         )
+        self.garbage_drop_ticks = int(garbage_drop_ticks)
+        if self.garbage_drop_ticks < 0:
+            raise ValueError("garbage_drop_ticks must be non-negative")
         self.tick = 0
         self.player_states: dict[str, RealtimeVersusPlayerState] = {}
         self._ojama_rngs: dict[str, random.Random] = {}
@@ -111,10 +118,28 @@ class RealtimeVersusMatch:
     ) -> RealtimeMatchTickResult:
         inputs = inputs or {}
         current_tick = self.tick
+        ending = self.ending
         player_results = {
-            agent: self.player_states[agent].simulator.step(inputs.get(agent))
+            agent: self.player_states[agent].simulator.step(
+                inputs.get(agent), resolution_only=ending, spawn_next=False,
+            )
             for agent in self.possible_agents
         }
+        # Keep the garbage visual clock moving while a terminal chain resolves.
+        # Spawning remains gated on the match-wide top-out checks below.
+        for state in self.player_states.values():
+            if state.garbage_ticks_remaining:
+                state.garbage_ticks_remaining -= 1
+                if not state.garbage_ticks_remaining and not state.simulator.game.game_over:
+                    state.simulator.game.state = "ready"
+
+        # Resolve both players before checking top-out or spawning either next pair.
+        # This keeps simultaneous boundaries independent of player iteration order.
+        for state in self.player_states.values():
+            game = state.simulator.game
+            if game.state == "ready" and not game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
+                game.game_over = True
+                game.state = "gameover"
 
         attack_metadata = {
             agent: self._attack_metadata_from_step(player_results[agent])
@@ -132,13 +157,31 @@ class RealtimeVersusMatch:
         diagnostics = self.resolve_generated_attacks(generated)
         for agent in self.possible_agents:
             diagnostics[agent].update(attack_metadata[agent])
+        # Once a player tops out, only the already running resolution may finish.
+        # Remaining incoming packets are notices, never another garbage drop.
+        ending = self.ending
         dropped = {
-            agent: self._apply_due_ojama(
+            agent: 0 if ending else self._apply_due_ojama(
                 agent,
                 placement_boundary=self._completed_placement(player_results[agent]),
             )
             for agent in self.possible_agents
         }
+        for agent, state in self.player_states.items():
+            game = state.simulator.game
+            if not self.ending and game.state == "ready":
+                game.spawn_puyo()
+            result = player_results[agent]
+            player_results[agent] = replace(
+                result,
+                state_after=game.state,
+                snapshot_hash=state.simulator.state_hash(),
+                events=tuple(
+                    replace(event, data={**event.data, "game_over": game.game_over})
+                    if event.type == "resolution_complete" else event
+                    for event in result.events
+                ),
+            )
         winner = self._winner_from_game_over()
         self._last_winner = winner
 
@@ -214,6 +257,10 @@ class RealtimeVersusMatch:
             "tick": self.tick,
             "players": {
                 agent: {
+                    **(
+                        {"garbage_ticks_remaining": self.player_states[agent].garbage_ticks_remaining}
+                        if self.player_states[agent].garbage_ticks_remaining else {}
+                    ),
                     "simulator": self.player_states[agent].simulator.state_hash(),
                     "incoming": [
                         {
@@ -244,6 +291,12 @@ class RealtimeVersusMatch:
         }
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
+
+    def replay_rules(self) -> dict[str, int]:
+        return {
+            "garbage_drop_ticks": self.garbage_drop_ticks,
+            "attack_delay_ticks": self.attack_delay_ticks,
+        }
 
     def all_clear_diagnostics(self) -> dict[str, object]:
         """Return versioned per-player diagnostics for runtime and replay consumers."""
@@ -355,12 +408,45 @@ class RealtimeVersusMatch:
         )
         self._consume_incoming(agent, placed, max_arrival_tick=self.tick)
         state.received_ojama_total += placed
+        if placed and self.garbage_drop_ticks:
+            state.garbage_ticks_remaining = self.garbage_drop_ticks
+            game.state = "garbage"
         if not game.field.get_puyo(2, VISIBLE_HEIGHT - 1).is_empty():
             game.game_over = True
             game.state = "gameover"
         return placed
 
+    @property
+    def ending(self) -> bool:
+        """Whether top-out has frozen new play (including a completed match)."""
+        return any(state.simulator.game.game_over for state in self.player_states.values())
+
+    @property
+    def resolution_pending(self) -> bool:
+        if not self.ending:
+            return False
+        for state in self.player_states.values():
+            game = state.simulator.game
+            if game.game_over or game.state != "animate":
+                continue
+            if game.chain_count or game.animation_state == "vanish_flash":
+                return True
+            # A just-locked pair may still be falling into its first clear.
+            # Pure placement/drop animation without a clear must not delay end.
+            settled = copy.deepcopy(game.field)
+            settled.drop_puyo()
+            if settled.get_vanish_groups():
+                return True
+        return False
+
+    @property
+    def finished(self) -> bool:
+        # Derive this from authoritative player state so replay/clone need no latch.
+        return self.ending and not self.resolution_pending
+
     def _winner_from_game_over(self) -> str | None:
+        if not self.finished:
+            return None
         over_0 = self.player_states["player_0"].simulator.game.game_over
         over_1 = self.player_states["player_1"].simulator.game.game_over
         if over_0 and not over_1:

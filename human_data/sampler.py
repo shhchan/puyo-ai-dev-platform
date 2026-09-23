@@ -11,7 +11,7 @@ from typing import Any, Iterable, Mapping
 
 from puyo_env.actions import ACTION_TO_INDEX
 from puyo_env.realtime_ai import build_realtime_info, build_realtime_observation
-from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeVersusMatch
+from puyo_env.realtime_versus import REALTIME_AGENTS
 from src.core.constants import Direction
 from src.core.headless import PlacementAction
 from src.core.realtime import TickInput
@@ -76,7 +76,9 @@ def _reconstruct_session(session_dir: Path) -> tuple[list[PlacementSample], dict
     trajectory_path = session_dir / "trajectory.json"
     manifest = _read_json(manifest_path)
     trajectory = _read_json(trajectory_path)
-    match = RealtimeVersusMatch(seed=trajectory["seed"])
+    from eval.realtime_arena import match_from_replay
+
+    match = match_from_replay(trajectory)
     pending_observations: dict[str, dict[str, Any] | None] = {agent: None for agent in REALTIME_AGENTS}
     pending_masks: dict[str, Any] = {agent: None for agent in REALTIME_AGENTS}
     samples: list[PlacementSample] = []

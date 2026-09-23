@@ -1,0 +1,18 @@
+{
+  "source_revision": "f721c9af3fd7e70a4bca8b83c3b25ef6bd18a90c",
+  "source_root": "/tmp/puyo-190-239-session/239/before-source",
+  "source_sha256": {
+    "src.core.game": "bb745560593ffa847f93348558a4d5c56111a33b44cb89b5fe0392dbec2d85ef",
+    "src.core.headless": "02a6adb26fe7b1ea2e53995771fb65ad1dc4ccce5b08b84b9d6f2126a60f0e9b",
+    "src.core.realtime": "b64cf78128e31d8422fa569d75b45db2e28e13ff07ffa66accf4eb3756df9507",
+    "puyo_env.realtime_ai": "7f21edd18019902c573cdce4e6f924da7323fb5ce591543ba308bb49ab893333",
+    "puyo_env.realtime_versus": "e75f0cc22efd0d8b982fdebc5941f41095e235498b851cbacc61e375b439f307",
+    "eval.realtime_arena": "9432193b6fece3b7f78286569857c630b9d7c26dc0c216416b1f1740bc803506",
+    "eval.realtime_versus_ui": "c71b8288ab26bc004698be1c56113897ad6d5fa4be63c979b2ad9a164dfed1ac",
+    "src.ui.versus_renderer": "3ac8a8d0ba5f3007535ab549456c9530d2b20ce15a8fcac10aa9db9267501711"
+  },
+  "helper_sha256": "6d990b862a8ccb4173c0c56bb152e0ce7faeaaba9bfa40e11290999feae8d05c",
+  "display_driver": "x11",
+  "pygame_version": "2.6.1",
+  "python_version": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]"
+}
