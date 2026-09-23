@@ -106,6 +106,25 @@ binds the output to the evaluated Git commit, config checksum, corpus digest,
 raw profiles, summary, and report.  `verify` rejects checksum, schema, ticket,
 commit, or digest drift.
 
+### Historical configuration verification (PUYO-260)
+
+After runtime defaults change, verify the saved evidence against its measurement
+commit rather than today's configuration:
+
+```bash
+.venv/bin/python -m eval.deep_chain_native_profile verify --historical
+.venv/bin/python -m eval.deep_chain_native_profile verify-corpus --skip-search \
+  --config-revision b4528a5d9f4b2b1cfdec641c247da780f7a90232
+```
+
+`verify --historical` reads the full commit SHA from the checked manifest and
+checks the configuration bytes from Git history. `verify-corpus` requires that
+SHA explicitly. The ordinary commands still require the current configuration
+checksum to match; historical mode does not skip corpus digests or differential
+transition/evaluator checks. Missing history and invalid revisions fail closed.
+The historical flag does not claim current search or production quality has
+passed, and does not rewrite any frozen evidence.
+
 ### Frozen corpus
 
 [`corpus.json`](../benchmarks/puyo-198-deep-chain-native-profile/corpus.json)

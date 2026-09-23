@@ -15,12 +15,16 @@ from eval.deep_chain_native_profile import (
     derive_performance_budgets,
     summarize_cprofile,
     summarize_samples,
+    verify_evidence,
     verify_frozen_corpus,
 )
 from src.core.constants import PuyoColor
 
 
 class TestDeepChainNativeProfile(unittest.TestCase):
+    # Measurement commit recorded by PUYO-198's immutable evidence manifest.
+    CONFIG_REVISION = "b4528a5d9f4b2b1cfdec641c247da780f7a90232"
+
     def test_hotspot_classification_covers_native_boundary_units(self):
         cases = {
             ("agents/compact_search.py", "transition"): "transition",
@@ -91,7 +95,12 @@ class TestDeepChainNativeProfile(unittest.TestCase):
         self.assertEqual(payload["schema_version"], CORPUS_SCHEMA_VERSION)
         self.assertEqual(len(payload["cases"]), 3)
         self.assertIn("expected_action_id", payload["search_case"])
-        self.assertEqual(verify_frozen_corpus(corpus, execute_search=False), [])
+        self.assertEqual(
+            verify_frozen_corpus(
+                corpus, execute_search=False, config_revision=self.CONFIG_REVISION,
+            ),
+            [],
+        )
 
     def test_corpus_tamper_is_detected_without_executing_search(self):
         source = Path("eval/deep_chain_native_corpus.json")
@@ -101,10 +110,51 @@ class TestDeepChainNativeProfile(unittest.TestCase):
             target = Path(directory) / "corpus.json"
             _write_json(target, payload)
 
-            issues = verify_frozen_corpus(target, execute_search=False)
+            issues = verify_frozen_corpus(
+                target, execute_search=False, config_revision=self.CONFIG_REVISION,
+            )
 
         self.assertTrue(any("corpus_digest mismatch" in issue for issue in issues))
         self.assertTrue(any("transition digest mismatch" in issue for issue in issues))
+
+    def test_historical_evidence_uses_manifest_measurement_commit(self):
+        self.assertEqual(verify_evidence(historical=True), [])
+
+    def test_historical_config_rejects_invalid_or_missing_revision(self):
+        for revision, message in (
+            ("HEAD", "invalid historical config revision"),
+            ("0" * 40, "historical configuration is unavailable in git history"),
+        ):
+            with self.subTest(revision=revision):
+                self.assertIn(message, verify_frozen_corpus(
+                    execute_search=False, config_revision=revision,
+                ))
+
+    def test_historical_config_hash_remains_enforced_with_valid_corpus_digest(self):
+        payload = json.loads(Path("eval/deep_chain_native_corpus.json").read_text())
+        payload["config_sha256"] = "0" * 64
+        payload.pop("corpus_digest")
+        payload["corpus_digest"] = _stable_digest(payload, prefix="puyo-198-frozen-corpus")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "corpus.json"
+            _write_json(path, payload)
+            self.assertIn("deep-chain config checksum mismatch", verify_frozen_corpus(
+                path, execute_search=False, config_revision=self.CONFIG_REVISION,
+            ))
+
+    def test_current_config_verification_is_not_silently_historical(self):
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.yaml"
+            path.write_text("changed runtime config\n")
+            with patch("eval.deep_chain_native_profile.DEFAULT_DEEP_CHAIN_BUILDER_CONFIG_PATH", path):
+                self.assertIn("deep-chain config checksum mismatch", verify_frozen_corpus(
+                    execute_search=False,
+                ))
+                self.assertEqual(verify_frozen_corpus(
+                    execute_search=False, config_revision=self.CONFIG_REVISION,
+                ), [])
 
     def test_performance_budgets_are_numeric_and_keep_ten_percent_margin(self):
         groups = [
