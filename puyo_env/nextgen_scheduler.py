@@ -17,7 +17,7 @@ class NextgenScheduler:
         self.reset()
 
     def reset(self):
-        self.phase = TemplatePhaseController(self.policy.catalog, seed=self.policy.seed)
+        self.phase = TemplatePhaseController(self.policy.catalog, seed=self.policy.template_seed)
         self.sequence = 0
         self.episode_index = getattr(self, "episode_index", 0) + 1
         self.episode_id = f"nextgen-episode-{self.episode_index}"

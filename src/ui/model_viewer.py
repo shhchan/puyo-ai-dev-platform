@@ -14,6 +14,7 @@ except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
 from train.lineage import build_registry, valid_lineage_decision, validate_registry
+from src.ui.nextgen_display import nextgen_receipt_summary
 
 
 SCREEN_WIDTH = 1100
@@ -53,6 +54,7 @@ class ReplayTimelineEntry:
     controller_status: dict[str, Any] = field(default_factory=dict)
     all_clear_diagnostics: dict[str, Any] = field(default_factory=dict)
     attack_diagnostics: dict[str, Any] = field(default_factory=dict)
+    public_events: dict[str, Any] = field(default_factory=dict)
 
     @property
     def plan_ids(self) -> tuple[str, ...]:
@@ -250,6 +252,7 @@ class ModelViewerData:
     timeline: tuple[ReplayTimelineEntry, ...]
     lineage: LineageSummary
     model_registry: dict[str, Any]
+    tactic_history: tuple[dict[str, Any], ...] = ()
 
     def to_report(self, *, selected_tick: int | None = None, bookmarks: tuple[int, ...] = ()) -> dict[str, Any]:
         return {
@@ -264,6 +267,7 @@ class ModelViewerData:
                 "selected_tick": selected_tick,
                 "bookmarks": list(bookmarks),
                 "plan_ids": sorted({plan_id for entry in self.timeline for plan_id in entry.plan_ids}),
+                "tactic_history": list(self.tactic_history),
             },
             "lineage": {
                 "runs": len(self.lineage.runs),
@@ -287,6 +291,10 @@ class ModelViewerController:
         self.adoption_scopes = tuple(sorted({str(item["scope"]) for item in data.lineage.decisions() if item.get("scope")}))
         self.adoption_scope_index = 0
         self.bookmarks: set[int] = set()
+        self.history_by_tick: dict[int, list[dict[str, Any]]] = {}
+        for item in data.tactic_history:
+            tick = int(item.get("to_tick", 0)) + 1 if item.get("kind") == "gap" else int(item.get("tick", 0))
+            self.history_by_tick.setdefault(tick, []).append(item)
         self.message = "ready" if data.timeline else "lineage only"
         self.focus_replay_checkpoint()
 
@@ -302,6 +310,18 @@ class ModelViewerController:
         self.index = max(0, min(len(self.data.timeline) - 1, self.index + delta))
         entry = self.selected_entry
         self.message = "ready" if entry is None else f"tick {entry.tick}"
+
+    def seek_tactic_history(self, direction: int) -> None:
+        entry = self.selected_entry
+        if entry is None or direction == 0:
+            return
+        ticks = sorted(self.history_by_tick)
+        target = next((tick for tick in (ticks if direction > 0 else reversed(ticks)) if (tick > entry.tick if direction > 0 else tick < entry.tick)), None)
+        if target is None:
+            self.message = "no further tactic event"
+            return
+        self.index = min(range(len(self.data.timeline)), key=lambda index: abs(self.data.timeline[index].tick - target))
+        self.message = f"history tick {target}"
 
     def toggle_pause(self) -> None:
         if not self.data.timeline:
@@ -392,6 +412,7 @@ class ModelViewerController:
             self.data.policy_metadata,
             self.data.lineage,
         )
+        report["replay"]["selected_history"] = [] if entry is None else self.history_by_tick.get(entry.tick, [])
         report["lineage"]["selected_node"] = {} if selected is None else {
             "id": selected.get("id"),
             "label": selected.get("label"),
@@ -442,6 +463,7 @@ def load_replay_timeline(
                     controller_status=dict(item.get("controller_status", {})),
                     all_clear_diagnostics=dict(item.get("all_clear_diagnostics", {})),
                     attack_diagnostics=dict(item.get("attack_diagnostics", {})),
+                    public_events=dict(item.get("public_events", {})),
                 )
             )
         entries = tuple(entries_list)
@@ -488,6 +510,18 @@ def build_model_viewer_data(
     model_registry_path: str | Path | None = "runs/model_registry.json",
 ) -> ModelViewerData:
     replay_path_str, replay_format, seed, expected_final_hash, policy_metadata, timeline = load_replay_timeline(replay_path)
+    tactic_history = ()
+    if replay_path_str and replay_format == "puyo-realtime-match-v1":
+        payload = json.loads(Path(replay_path_str).read_text(encoding="utf-8"))
+        if isinstance(payload.get("tactic_history"), list):
+            tactic_history = tuple(item for item in payload["tactic_history"] if isinstance(item, dict))
+        gaps = [
+            {"tick": previous.tick + 1, "to_tick": current.tick - 1, "agent": "all", "kind": "gap"}
+            for previous, current in zip(timeline, timeline[1:])
+            if current.tick > previous.tick + 1
+        ]
+        if gaps:
+            tactic_history = tuple(sorted((*tactic_history, *gaps), key=lambda item: int(item.get("tick", 0))))
     return ModelViewerData(
         replay_path=replay_path_str,
         replay_format=replay_format,
@@ -497,6 +531,7 @@ def build_model_viewer_data(
         timeline=timeline,
         lineage=build_lineage_summary(lineage_roots),
         model_registry=load_model_registry_summary(model_registry_path),
+        tactic_history=tactic_history,
     )
 
 
@@ -665,6 +700,7 @@ def summarize_replay_entry(
                 else _lineage_ancestor_ids(lineage, str(lineage_node["id"]))
             ),
             "input": _input_label(entry.inputs.get(agent, {})),
+            "nextgen": nextgen_receipt_summary(diagnostics, controller),
             "decision": {
                 "action_index": decision.get("action_index"),
                 "axis_x": decision.get("axis_x"),
@@ -780,6 +816,13 @@ def replay_entry_display_lines(
                 ),
             ]
         )
+        nextgen = payload.get("nextgen")
+        if nextgen:
+            lines.extend([
+                f"  戦術 {nextgen['tactic']}  土台 {nextgen['template']} / {nextgen['variant'] or '-'}  残り {nextgen['remaining']}",
+                f"  理由 {nextgen['reason']}  切替 {nextgen['switch_reason'] or '-'}  結果 {nextgen['outcome']}",
+                f"  要求 {nextgen['requested_action']}  実行 {nextgen['executed_action']}  receipt {nextgen['receipt_reason']}",
+            ])
         if all_clear:
             lines.append(
                 "  all clear "
@@ -861,7 +904,7 @@ class ModelViewerRenderer:
                 f"speed {controller.playback_stride}x  tick {entry.tick}  {controller.message}"
             )
         self._draw_text(status, self.font, ACCENT, (34, 64))
-        controls = "keys: Left/Right seek  Space play/pause  +/- speed  b bookmark  PgUp/PgDn lineage  c checkpoint  s scope"
+        controls = "keys: Left/Right seek  H/Shift+H history  Space play/pause  +/- speed  b bookmark  PgUp/PgDn lineage  s scope"
         self._draw_text(controls, self.small_font, MUTED, (34, 86))
 
     def _draw_replay_panel(self, controller: ModelViewerController) -> None:
@@ -886,6 +929,15 @@ class ModelViewerRenderer:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y), width=rect.width - 36)
             y += 24
         y += 6
+        history_here = controller.history_by_tick.get(entry.tick, [])
+        if history_here:
+            labels = [
+                f"gap {item['tick']}–{item['to_tick']}" if item.get("kind") == "gap"
+                else f"{item.get('kind')} {item.get('tactic', item.get('event', item.get('outcome', '-')))}"
+                for item in history_here
+            ]
+            self._draw_text("history: " + ", ".join(labels), self.small_font, WARNING, (rect.x + 18, y), width=rect.width - 36)
+            y += 20
         for line in replay_entry_display_lines(entry, controller.data.policy_metadata, controller.data.lineage)[:12]:
             color = WARNING if not line.startswith("  ") else TEXT
             self._draw_text(line, self.small_font, color, (rect.x + 18, y), width=rect.width - 36)
@@ -1078,6 +1130,8 @@ def run_model_viewer(
                         controller.message = "no replay checkpoint in lineage"
                 elif event.key == pygame.K_s:
                     controller.change_adoption_scope()
+                elif event.key == pygame.K_h:
+                    controller.seek_tactic_history(-1 if event.mod & pygame.KMOD_SHIFT else 1)
         controller.advance_playback()
         renderer.draw(controller)
         frames += 1

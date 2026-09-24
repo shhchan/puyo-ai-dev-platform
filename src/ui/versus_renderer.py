@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import pygame
 
 from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_WIDTH, PUYO_SIZE, VISIBLE_HEIGHT, PuyoColor
 from src.ui.keybindings import ACTION_LABELS, ACTION_ORDER
+from src.ui.nextgen_display import TACTIC_LABELS, nextgen_receipt_summary
 
 
 SCREEN_WIDTH = 1120
@@ -204,6 +206,11 @@ class VersusRenderer:
         self.title_font = pygame.font.SysFont("Arial", 28, bold=True)
         self.banner_font = pygame.font.SysFont("Arial", 40, bold=True)
         self.settings_font = pygame.font.SysFont("Consolas", 18)
+        japanese_font = Path(__file__).resolve().parents[2] / "assets/fonts/MPLUS1-Regular.ttf"
+        self.nextgen_font = pygame.font.Font(str(japanese_font), 15) if japanese_font.is_file() else self.tiny_font
+        self.nextgen_font.set_bold(True)
+        self.history_font = pygame.font.Font(str(japanese_font), 15) if japanese_font.is_file() else self.small_font
+        self.history_font.set_bold(True)
         self.colors = {
             PuyoColor.RED: (235, 74, 74),
             PuyoColor.BLUE: (65, 135, 245),
@@ -637,7 +644,39 @@ class VersusRenderer:
             ),
             (lifecycle, (255, 232, 145)),
         )
-        if summary.get("deep_chain"):
+        if controller.policy_names.get(agent) == "nextgen_tactic_manager":
+            common_stats = (common_stats[0], common_stats[2])
+            runtime = controller.controllers[agent]
+            receipt = nextgen_receipt_summary(
+                getattr(runtime, "latest_policy_diagnostics", {}),
+                runtime.diagnostics.to_dict(),
+            )
+            status = runtime.status()
+            if receipt is None:
+                last = runtime.diagnostics.last_decision
+                if last is not None and last.outcome in {"fallback", "timeout", "stale"}:
+                    stats = common_stats + (
+                        ("戦術: 採用なし", (160, 210, 255)),
+                        (f"結果: {last.outcome} / {last.reason}", (255, 232, 145)),
+                    )
+                else:
+                    stats = common_stats + (("戦術: 確定待ち", (160, 210, 255)),)
+            else:
+                template_label = receipt["template"]
+                if receipt["variant"]:
+                    template_label += "/" + str(receipt["variant"])
+                stats = common_stats + (
+                    (f"戦術: {receipt['tactic'] if receipt['outcome'] == 'activated' else '未採用'}", (160, 210, 255)),
+                    (f"土台: {template_label}", (160, 210, 255)),
+                    (f"残り: {receipt['remaining']} decision", (190, 198, 215)),
+                    (f"理由: {receipt['reason']}", (180, 188, 205)),
+                    (f"切替: {receipt['switch_reason'] or '-'}", (180, 188, 205)),
+                    (f"脅威: {receipt['incoming']} / 対応余裕 {receipt['response_margin'] if receipt['response_margin'] is not None else '不明'}", (255, 190, 135)),
+                    (f"結果: {receipt['outcome']} ({receipt['receipt_reason']})", (255, 232, 145)),
+                    (f"要求 {receipt['requested_action']} / 実行 {receipt['executed_action']}", (190, 198, 215)),
+                )
+            stats += (("計算中" if status.pending_ready_tick is not None else "実行中" if status.active_action_index is not None else "待機中", (255, 220, 145)),)
+        elif summary.get("deep_chain"):
             flow_steps = tuple(
                 item
                 for item in summary.get("flow_steps", ())
@@ -751,11 +790,11 @@ class VersusRenderer:
                     (190, 198, 215),
                 ),
             )
-        stats_spacing = 18 if summary.get("deep_chain") else 20
+        stats_spacing = 17 if controller.policy_names.get(agent) == "nextgen_tactic_manager" else 18 if summary.get("deep_chain") else 20
         for offset, (text, color) in enumerate(stats):
             self._draw_text(
                 text,
-                self.tiny_font,
+                self.nextgen_font if controller.policy_names.get(agent) == "nextgen_tactic_manager" else self.tiny_font,
                 color,
                 (side_x, FIELD_TOP + 225 + offset * stats_spacing),
             )
@@ -816,6 +855,8 @@ class VersusRenderer:
             f"{bindings.display_names('reset')} reset  "
             "O overlay"
         )
+        if any(name == "nextgen_tactic_manager" for name in controller.policy_names.values()):
+            controls += "  H history  PgUp/PgDn scroll"
         if controller.human is not None:
             controls += (
                 f"   Human: {bindings.display_names('human_left')}/"
@@ -874,6 +915,40 @@ class VersusRenderer:
             rect = banner.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             self.screen.blit(banner, rect)
             self._draw_text(label, self.banner_font, (255, 235, 145), rect.center, center=True)
+        if getattr(controller, "history_open", False):
+            self._draw_tactic_history(controller)
         if controller.settings_open:
             self._draw_key_settings(controller)
         pygame.display.flip()
+
+    def _draw_tactic_history(self, controller) -> None:
+        panel = pygame.Rect(122, 95, 876, 565)
+        shade = pygame.Surface(panel.size, pygame.SRCALPHA)
+        shade.fill((18, 23, 33, 245))
+        self.screen.blit(shade, panel.topleft)
+        pygame.draw.rect(self.screen, (130, 160, 205), panel, 2, border_radius=7)
+        self._draw_text("戦術・イベント履歴  H: 閉じる  PgUp/PgDn: スクロール  End: 最新", self.history_font, (245, 247, 255), (panel.x + 20, panel.y + 16))
+        history = controller.tactic_history
+        end = max(0, len(history) - controller.history_offset)
+        rows = history[max(0, end - 21):end]
+        for index, item in enumerate(rows):
+            row_y = panel.y + 54 + index * 23
+            pygame.draw.rect(self.screen, (36, 47, 66) if index % 2 == 0 else (29, 39, 56), pygame.Rect(panel.x + 14, row_y - 2, panel.width - 28, 22))
+            if item["kind"] == "decision":
+                previous = TACTIC_LABELS.get(item.get("previous_tactic"), "開始")
+                label = (
+                    f"{item['tick']:>5} {item['agent']}  {previous} → {item['tactic']}  "
+                    f"{item['template']}  {item['reason']}  {item['outcome']}"
+                )
+                if item.get("reselected"):
+                    label += "  土台再選択"
+            elif item["kind"] == "fallback":
+                label = f"{item['tick']:>5} {item['agent']}  {item['outcome']}  {item['reason']}  要求 {item['requested_action']} / 実行 {item['executed_action']}"
+            elif item["kind"] == "gap":
+                label = f"{item['tick']:>5}–{item['to_tick']}  gap: event / replay tick missing"
+            else:
+                details = item.get("event_data", {})
+                label = f"{item['tick']:>5} {item['agent']}  {item.get('event', '-')}  {details.get('packet_id', '')} {details.get('amount', '')}"
+            while self.history_font.size(label)[0] > panel.width - 42 and len(label) > 3:
+                label = label[:-2] + "…"
+            self._draw_text(label, self.history_font, (247, 249, 255), (panel.x + 20, row_y))
