@@ -1,0 +1,302 @@
+{
+  "quality_status": "DIAGNOSTIC_ONLY; formal G2 and human GUI QA incomplete",
+  "baseline_source": "b36bbdddc83a223eb200651346ddc7007ddbfd04",
+  "before_cache_source": "6e82d78880253983804560f49fc7d6b9228a88d8",
+  "final_runtime_source": "851b02fc9ea7e0c4afdaa260ebfc727b316ac023",
+  "final_runtime_note": "Subsequent commit only adds parity assertions, documentation and evidence.",
+  "baseline_fixture_note": "Internal +/-Infinity sort-key sentinels converted to strings only in fixtures.json; actions, phase and evidence unchanged. Raw source SHA256: f58491a117edfff1bb366121095916d0b1e718aaa7a2d04ed2bc9587c95e7b78",
+  "files": [
+    {
+      "path": "paired-before-cache/declaration.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/declaration.json",
+      "original_sha256": "bd4e5a0cf0bbe8ad340c080854cbde96c699c46e2d0a31396b8bed37f8f1b094",
+      "stored_sha256": "bd4e5a0cf0bbe8ad340c080854cbde96c699c46e2d0a31396b8bed37f8f1b094",
+      "original_bytes": 17537,
+      "stored_bytes": 17537
+    },
+    {
+      "path": "paired-before-cache/deep_chain-123-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-123-1.json.gz",
+      "original_sha256": "205c5c80da54bfd36b388107a7fe4272f1a1b387ed1fe1485fc66f649726cd3e",
+      "stored_sha256": "205c5c80da54bfd36b388107a7fe4272f1a1b387ed1fe1485fc66f649726cd3e",
+      "original_bytes": 10503,
+      "stored_bytes": 10503
+    },
+    {
+      "path": "paired-before-cache/deep_chain-123-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-123-2.json.gz",
+      "original_sha256": "0c39fb5da3316b9bb4934f89cc4b290bbaacff76146eeb314c950c91f59b9e9f",
+      "stored_sha256": "0c39fb5da3316b9bb4934f89cc4b290bbaacff76146eeb314c950c91f59b9e9f",
+      "original_bytes": 10513,
+      "stored_bytes": 10513
+    },
+    {
+      "path": "paired-before-cache/deep_chain-124-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-124-1.json.gz",
+      "original_sha256": "2510a6d3222f44778d0a10e1e525c52ba4659207449c0aa4e997c3080b25d7fe",
+      "stored_sha256": "2510a6d3222f44778d0a10e1e525c52ba4659207449c0aa4e997c3080b25d7fe",
+      "original_bytes": 10514,
+      "stored_bytes": 10514
+    },
+    {
+      "path": "paired-before-cache/deep_chain-124-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-124-2.json.gz",
+      "original_sha256": "33070372c001915f1400d910b25c5e88253575875331578e461f94a3f5d9c69e",
+      "stored_sha256": "33070372c001915f1400d910b25c5e88253575875331578e461f94a3f5d9c69e",
+      "original_bytes": 10495,
+      "stored_bytes": 10495
+    },
+    {
+      "path": "paired-before-cache/deep_chain-55-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-55-1.json.gz",
+      "original_sha256": "4a0d57da646837cd4bcef2d8061c370c1f2baba7b6c99c38dea6d0b5817d1c83",
+      "stored_sha256": "4a0d57da646837cd4bcef2d8061c370c1f2baba7b6c99c38dea6d0b5817d1c83",
+      "original_bytes": 7691,
+      "stored_bytes": 7691
+    },
+    {
+      "path": "paired-before-cache/deep_chain-55-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/deep_chain-55-2.json.gz",
+      "original_sha256": "42afe2f909a7b577f7ea2d43e68cbc281e2fa8aa6f593ff0d6ff600800be50b4",
+      "stored_sha256": "42afe2f909a7b577f7ea2d43e68cbc281e2fa8aa6f593ff0d6ff600800be50b4",
+      "original_bytes": 7682,
+      "stored_bytes": 7682
+    },
+    {
+      "path": "paired-before-cache/nextgen-123-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-123-1.json.gz",
+      "original_sha256": "a11258f98ef71704e07a58a5a22d18f2b6f031ae76eba8648e298f4748164f0e",
+      "stored_sha256": "a11258f98ef71704e07a58a5a22d18f2b6f031ae76eba8648e298f4748164f0e",
+      "original_bytes": 1040907,
+      "stored_bytes": 1040907
+    },
+    {
+      "path": "paired-before-cache/nextgen-123-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-123-2.json.gz",
+      "original_sha256": "dde84e19acda0c7ddcb94a195ed5b9879e4e396d8d79718da47249a8bb8b04e2",
+      "stored_sha256": "dde84e19acda0c7ddcb94a195ed5b9879e4e396d8d79718da47249a8bb8b04e2",
+      "original_bytes": 1040954,
+      "stored_bytes": 1040954
+    },
+    {
+      "path": "paired-before-cache/nextgen-124-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-124-1.json.gz",
+      "original_sha256": "b32b8f370db1d9bf9e19065e129ab3e629e3b2dbb33b24ebc89ebfd4daaf3ff0",
+      "stored_sha256": "b32b8f370db1d9bf9e19065e129ab3e629e3b2dbb33b24ebc89ebfd4daaf3ff0",
+      "original_bytes": 1125592,
+      "stored_bytes": 1125592
+    },
+    {
+      "path": "paired-before-cache/nextgen-124-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-124-2.json.gz",
+      "original_sha256": "a6c771ddac304a322bad3b89454267f62c5634aab5c1f432fc7387d740baf67f",
+      "stored_sha256": "a6c771ddac304a322bad3b89454267f62c5634aab5c1f432fc7387d740baf67f",
+      "original_bytes": 1125597,
+      "stored_bytes": 1125597
+    },
+    {
+      "path": "paired-before-cache/nextgen-55-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-55-1.json.gz",
+      "original_sha256": "b4b6b63a5eef3205bdd72d94772382180d949bfe1dd87a1570aa8a05b4ef14b1",
+      "stored_sha256": "b4b6b63a5eef3205bdd72d94772382180d949bfe1dd87a1570aa8a05b4ef14b1",
+      "original_bytes": 1137750,
+      "stored_bytes": 1137750
+    },
+    {
+      "path": "paired-before-cache/nextgen-55-2.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/nextgen-55-2.json.gz",
+      "original_sha256": "5f7b6c9b84027c889ef84dd5d2f31e86675a34dc80566a5f84a8b8456cb7d3b9",
+      "stored_sha256": "5f7b6c9b84027c889ef84dd5d2f31e86675a34dc80566a5f84a8b8456cb7d3b9",
+      "original_bytes": 1137820,
+      "stored_bytes": 1137820
+    },
+    {
+      "path": "paired-before-cache/summary.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired/summary.json",
+      "original_sha256": "7642e7dc1dd19a67b0adeb836eda90d72a26777d62ef5644e93a1bcb325f4142",
+      "stored_sha256": "7642e7dc1dd19a67b0adeb836eda90d72a26777d62ef5644e93a1bcb325f4142",
+      "original_bytes": 21926,
+      "stored_bytes": 21926
+    },
+    {
+      "path": "paired-final/declaration.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/declaration.json",
+      "original_sha256": "51ffe26d46fbbe132eda2dc864fb4b2deeeba52303cd61a057c1815965dbb149",
+      "stored_sha256": "51ffe26d46fbbe132eda2dc864fb4b2deeeba52303cd61a057c1815965dbb149",
+      "original_bytes": 17537,
+      "stored_bytes": 17537
+    },
+    {
+      "path": "paired-final/deep_chain-123-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/deep_chain-123-1.json.gz",
+      "original_sha256": "de625d55c1d9ef1d2d83d5d65a70a7a5b0a763849208174a550e3f3bbaceee0a",
+      "stored_sha256": "de625d55c1d9ef1d2d83d5d65a70a7a5b0a763849208174a550e3f3bbaceee0a",
+      "original_bytes": 10504,
+      "stored_bytes": 10504
+    },
+    {
+      "path": "paired-final/deep_chain-124-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/deep_chain-124-1.json.gz",
+      "original_sha256": "a2e978fafa25c381a3631c7131f2b05839727892599a7f2f6ab641cf2908079d",
+      "stored_sha256": "a2e978fafa25c381a3631c7131f2b05839727892599a7f2f6ab641cf2908079d",
+      "original_bytes": 10508,
+      "stored_bytes": 10508
+    },
+    {
+      "path": "paired-final/deep_chain-55-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/deep_chain-55-1.json.gz",
+      "original_sha256": "8124749af337aa43fdbb0d9d68af2fe22038c249d7926e28b1682255cc8c1c3c",
+      "stored_sha256": "8124749af337aa43fdbb0d9d68af2fe22038c249d7926e28b1682255cc8c1c3c",
+      "original_bytes": 7671,
+      "stored_bytes": 7671
+    },
+    {
+      "path": "paired-final/nextgen-123-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/nextgen-123-1.json.gz",
+      "original_sha256": "2cf0df1e6941a9eebc3a4ba273397ac203eb815baa27d4809e3a80d5119b54d4",
+      "stored_sha256": "2cf0df1e6941a9eebc3a4ba273397ac203eb815baa27d4809e3a80d5119b54d4",
+      "original_bytes": 1041424,
+      "stored_bytes": 1041424
+    },
+    {
+      "path": "paired-final/nextgen-124-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/nextgen-124-1.json.gz",
+      "original_sha256": "c5e061c3de605b89209e70043e0f0217eb14f262fc9fe769fedc0d400d0fa534",
+      "stored_sha256": "c5e061c3de605b89209e70043e0f0217eb14f262fc9fe769fedc0d400d0fa534",
+      "original_bytes": 1125950,
+      "stored_bytes": 1125950
+    },
+    {
+      "path": "paired-final/nextgen-55-1.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/nextgen-55-1.json.gz",
+      "original_sha256": "ef50aa9ec103569d0e829c72bf1180616ed6fc5a8c7da7aa35ac71c8be1096c0",
+      "stored_sha256": "ef50aa9ec103569d0e829c72bf1180616ed6fc5a8c7da7aa35ac71c8be1096c0",
+      "original_bytes": 1138098,
+      "stored_bytes": 1138098
+    },
+    {
+      "path": "paired-final/summary.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-paired-final/summary.json",
+      "original_sha256": "251b9dc0843405b6676d86d417cfd7378082bdc9cd9b591dc7f59ba698e1d828",
+      "stored_sha256": "251b9dc0843405b6676d86d417cfd7378082bdc9cd9b591dc7f59ba698e1d828",
+      "original_bytes": 20288,
+      "stored_bytes": 20288
+    },
+    {
+      "path": "normal-before-cache/report.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-normal/report.json",
+      "original_sha256": "bf978bda7964a3096c976f1c8a0f7490352801574945f11c66b8e9bc82f45568",
+      "stored_sha256": "5ca216d30ea1dda4e37da32cb522c840a4807b49854bbee9a1573f6cab1cba1d",
+      "original_bytes": 22328590,
+      "stored_bytes": 814156
+    },
+    {
+      "path": "normal-before-cache/ledger.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-normal/ledger.json",
+      "original_sha256": "224a21c0db15d9b5b3b672c587aee7d8d0ffe9259a135c537e6842431aef3df3",
+      "stored_sha256": "0298b5062a953a3129183be59563658cbecaffc61d4a31793d48f03142e1642c",
+      "original_bytes": 9157385,
+      "stored_bytes": 287073
+    },
+    {
+      "path": "normal-final/report.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-normal-final/report.json",
+      "original_sha256": "2f41b796b70092e1a187bf931d5e573b8427a6a0903591f559cd216bfe0541c5",
+      "stored_sha256": "203c3ea4ca05174f67b4d620bab8b8b88edcf33a2a6ea0c068ec655637919179",
+      "original_bytes": 25348749,
+      "stored_bytes": 755720
+    },
+    {
+      "path": "normal-final/ledger.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-normal-final/ledger.json",
+      "original_sha256": "8a0e80e96d42cb4cddc4dbc4634c8f077590eb6efac78b570a2f1e7154284dfd",
+      "stored_sha256": "6d5a9ce942e3c8b48d7b56a6db467ae0b38e4b81174225e48cec626503ce9726",
+      "original_bytes": 11112829,
+      "stored_bytes": 291747
+    },
+    {
+      "path": "replay-final/report.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-replay-final/report.json",
+      "original_sha256": "b9899b00d45ecdf02b50bfc5d5d3ecc466d18f42b61f197b1ad2e38203ac962c",
+      "stored_sha256": "c001c65c7964a1e795fbacb55942e298c93f5f9ff0a9b208dbe19e5f5c35467a",
+      "original_bytes": 1534153,
+      "stored_bytes": 60268
+    },
+    {
+      "path": "replay-final/ledger.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-replay-final/ledger.json",
+      "original_sha256": "2996bcc1fc74b860e47f350f666b19874828462cfacfd2cf994ed4d324d067f1",
+      "stored_sha256": "81fac0f82d7579d6be5e2d601f62ca4ae9afea413a0a62074da125e8bef69c90",
+      "original_bytes": 577728,
+      "stored_bytes": 17562
+    },
+    {
+      "path": "replay-final/replay.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-replay-final/replay.json",
+      "original_sha256": "4040d355cc5c2e204076d5072ae20ffbb69921086e80848da5067b461e5f26a0",
+      "stored_sha256": "b5e857e57d8afbff19fb113a4b1a274d1a31902061a0e3534f09652501c361d7",
+      "original_bytes": 39526115,
+      "stored_bytes": 1356894
+    },
+    {
+      "path": "baseline/seed-55.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-baseline/seed-55.json",
+      "original_sha256": "9ba3f899ce8ee06c277b80a34c7da9f3472917b7d22504b40eafec22f096d687",
+      "stored_sha256": "5948014e1a610b2de163c46f5016b982894be7b3b097c19d001a9f59366514ac",
+      "original_bytes": 17524319,
+      "stored_bytes": 483318
+    },
+    {
+      "path": "baseline/seed-123.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-baseline/seed-123.json",
+      "original_sha256": "49f0eda6d632e14bca95ccfc47387ac8a983c4ab4fbc7c8267eaee186469c25c",
+      "stored_sha256": "4b593bd39dee3cbf3f1e697dae66fafe7219c1ff98141d28ab0cfe11ea868121",
+      "original_bytes": 15460360,
+      "stored_bytes": 436133
+    },
+    {
+      "path": "baseline/seed-124.json.gz",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-baseline/seed-124.json",
+      "original_sha256": "19c71c3358dd9915a5187bd54afe17c31140e4ab269d6f8d60a7e27c6b919124",
+      "stored_sha256": "6e0d61a50691c337466c90574c02d2242798cd3d12934433b709a6580e385e61",
+      "original_bytes": 14273723,
+      "stored_bytes": 412251
+    },
+    {
+      "path": "baseline/probe.py.txt",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-probe.py",
+      "original_sha256": "648062a3b26a559cbf6ce76e98921cc702d6d02b2adbb8bf8578bc8afddb7aca",
+      "stored_sha256": "648062a3b26a559cbf6ce76e98921cc702d6d02b2adbb8bf8578bc8afddb7aca",
+      "original_bytes": 2282,
+      "stored_bytes": 2282
+    },
+    {
+      "path": "calibration.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-calibration.json",
+      "original_sha256": "0537e8ead2ad172cab7b7592bf9939795dcf52ae2e894be20c0de953a26cd6de",
+      "stored_sha256": "0537e8ead2ad172cab7b7592bf9939795dcf52ae2e894be20c0de953a26cd6de",
+      "original_bytes": 97322,
+      "stored_bytes": 97322
+    },
+    {
+      "path": "tests.log",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-final-tests.log",
+      "original_sha256": "5b37e528578b1cb0a520322a11ce1c9ee37462980acc24a98134510a54fabd88",
+      "stored_sha256": "5b37e528578b1cb0a520322a11ce1c9ee37462980acc24a98134510a54fabd88",
+      "original_bytes": 26307,
+      "stored_bytes": 26307
+    },
+    {
+      "path": "replay-final/verification.json",
+      "original_path": "/tmp/puyo-nextgen-20260924/puyo266-replay-verified.json",
+      "original_sha256": "fc1a17b2de741dc556e40702c143c8f489aafc1a4d1c07c4da5b8dea7dab3ac6",
+      "stored_sha256": "fc1a17b2de741dc556e40702c143c8f489aafc1a4d1c07c4da5b8dea7dab3ac6",
+      "original_bytes": 160,
+      "stored_bytes": 160
+    }
+  ],
+  "environment": {
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V"
+  }
+}

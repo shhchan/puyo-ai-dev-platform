@@ -59,6 +59,16 @@ class BackendRoutingTests(unittest.TestCase):
         self.assertEqual(repeat.diagnostics["shared_reuse"]["current_boundary_calls"], 0)
         self.assertEqual(first.batch.digest, repeat.batch.digest)
         self.assertEqual(first.batch.counters.shared_nodes, repeat.batch.counters.shared_nodes)
+        public = replace(req.public, opponent=replace(req.public.opponent, score_carry=1))
+        retry = replace(req, public=public,
+            identity=replace(req.identity, decision_id=2, request_id="native-retry", snapshot_digest=public.digest),
+            execution=replace(req.execution, reachable_mask=(True,) * 21 + (False,)))
+        cached = builder.build(retry)
+        fresh = SharedSearchBatchBuilder(native, config()).build(retry)
+        self.assertTrue(cached.diagnostics["shared_reuse"]["hit"])
+        self.assertEqual(cached.deterministic_digest, fresh.deterministic_digest)
+        self.assertNotEqual(cached.batch.identity, first.batch.identity)
+        self.assertTrue(all(not v.root_reachable for v in cached.batch.candidates if v.root_action == 21))
         for change in (
             lambda: setattr(native, "execution_mode", "oracle-1"),
             lambda: setattr(native, "max_response_bytes", native.max_response_bytes - 1),

@@ -1,0 +1,9 @@
+{
+  "stored_checksums": 36,
+  "legacy_v1_records": 120,
+  "paired_v2_records": 360,
+  "unchanged_policy_seed_digests": 6,
+  "replay_ticks": 220,
+  "replay_diagnostics": 175,
+  "final_hash": "bffb98b4300b404cf23f15b9af67112e5572d749245029e01fc730f66f6b7c1a"
+}
