@@ -114,10 +114,8 @@ class TemplatePhaseController:
         self.candidate = same
         if same.complete:
             self._close("completed")
-        elif same.fit_status == "no_fit":
+        elif not same.compatible:
             self._close("no_compatible_candidate")
-        elif same.fit_status == "unknown":
-            self._close("search_unknown")
 
     def activate(
         self,

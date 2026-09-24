@@ -520,7 +520,11 @@ class SharedSearchBatchBuilder:
                     )
         if template is not None and phase.active:
             for value in sorted(template.candidates, key=lambda v: (-v.score, v.key)):
-                if value.template_id != phase.template_id or value.fit_status != "fit":
+                if (
+                    value.template_id != phase.template_id
+                    or not value.witness_actions
+                    or not value.compatible
+                ):
                     continue
                 if template_key is not None and value.key != template_key:
                     continue
@@ -545,9 +549,15 @@ class SharedSearchBatchBuilder:
                             progress,
                             "evaluated" if board_complete else "partial",
                             source,
-                        )
+                        ),
                     ),
-                    (1, -value.score, value.key),
+                    (
+                        1,
+                        0 if value.continuation_kind == "progress" else 1,
+                        -(value.continuation_score or 0)
+                        if value.continuation_kind == "tail" else -value.score,
+                        value.key,
+                    ),
                 )
         for value in response.proposals:
             if not value.tactics or any(

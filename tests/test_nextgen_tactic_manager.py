@@ -18,6 +18,7 @@ from agents.nextgen_tactic_manager import (
     RuleSelectorConfig,
     RuleTacticSelector,
 )
+from eval.nextgen_gate_benchmark import SafeNoThreatMatch
 from puyo_env.realtime_ai import (
     PolicyProcessExecutor,
     RealtimeDecisionConfig,
@@ -27,6 +28,7 @@ from puyo_env.realtime_versus import RealtimeVersusMatch
 from selfplay.policies import make_policy
 from src.core.constants import PuyoColor
 from src.core.puyo import Puyo
+from src.ui.launcher_settings import resolve_nextgen_catalog
 from tests.test_nextgen_shared_search import catalog, config, request
 
 
@@ -615,6 +617,53 @@ class SchedulerTests(unittest.TestCase):
             record.nextgen_diagnostics["receipt"]["requested_action"], result[0]
         )
         self.assertIsNone(record.nextgen_diagnostics["receipt"]["executed_action"])
+
+
+class TemplateNeutralIntegrationTests(unittest.TestCase):
+    def test_seed_55_gtr_keeps_phase_through_neutral_second_pair(self):
+        catalog, _ = resolve_nextgen_catalog(
+            catalog_path="train/config/nextgen_templates.yaml",
+            templates="gtr", mode="argmax", temperature=0.1,
+            commit_turns=14, repo_root=".",
+        )
+        match = SafeNoThreatMatch(55)
+        controller = RealtimePolicyController(
+            NextgenTacticManagerPolicy(catalog=catalog, seed=55),
+            config=RealtimeDecisionConfig(latency_mode="configured"),
+        )
+        second_diagnostics = None
+        for _ in range(1000):
+            match.step({"player_0": controller.next_input(match, "player_0")})
+            if len(controller.nextgen_scheduler.ledger) == 2 and second_diagnostics is None:
+                second_diagnostics = copy.deepcopy(controller.nextgen_scheduler.last_payload)
+            if len(controller.nextgen_scheduler.ledger) >= 3:
+                break
+        else:
+            self.fail("three public decisions not reached")
+        first, second, third = controller.nextgen_scheduler.ledger[:3]
+        self.assertEqual(
+            [item.selection.selected_tactic_id for item in (first, second, third)],
+            ["build_template"] * 3,
+        )
+        self.assertEqual(
+            first.request.control.phase.phase_id,
+            second.request.control.phase.phase_id,
+        )
+        self.assertEqual(
+            second.request.control.phase.phase_id,
+            third.request.control.phase.phase_id,
+        )
+        self.assertEqual(second.request.control.phase.fit_status, "unknown")
+        self.assertEqual(second.request.control.phase.remaining_decisions, 13)
+        self.assertEqual(third.request.control.phase.remaining_decisions, 12)
+        self.assertEqual(third.request.control.phase.fit_status, "fit")
+        self.assertTrue(any(
+            item["continuation_kind"] == "tail"
+            and item["witness_actions"] == (second.receipt.executed_action,)
+            and item["continuation_score"] is not None
+            for item in second_diagnostics["template_match"]["candidates"]
+        ))
+        self.assertEqual(controller.nextgen_scheduler.errors, [])
 
 
 if __name__ == "__main__":
