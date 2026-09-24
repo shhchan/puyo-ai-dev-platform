@@ -981,6 +981,33 @@ class DeepChainBuilderPolicy:
         self._decision_count = 0
         self._last_plan: dict[str, Any] | None = None
 
+    def build_candidate_batch(
+        self,
+        request,
+        *,
+        search_config: LongHorizonSearchConfig,
+        template_catalog=None,
+        template_binding_budget: int = 4096,
+        response_provider=None,
+    ):
+        """Produce one nextgen batch; its ``select`` only reads fixed ranks.
+
+        ``search_config`` fixes the horizon/beam/scenario generator, while the
+        request's profile owns the three non-transferable node quotas. This
+        explicit entry point leaves the adopted legacy placement policy intact.
+        """
+        from agents.nextgen_shared_search import SharedSearchBatchBuilder
+
+        if self.search_backend is None:
+            raise ValueError("candidate batches require a configured search backend")
+        return SharedSearchBatchBuilder(
+            self.search_backend,
+            search_config,
+            template_catalog=template_catalog,
+            template_binding_budget=template_binding_budget,
+            response_provider=response_provider,
+        ).build(request)
+
     def reset(self) -> None:
         self.last_context = None
         self._decision_count = 0
