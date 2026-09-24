@@ -1,0 +1,20 @@
+# Artificial syntax fixture. Production GTR/daa/persian shapes belong to PUYO-246.
+schema_version: puyo.template_catalog.v1
+enabled: true
+selection: {mode: argmax, temperature: 0.2, seed_stream: template}
+default_commit_turns: 14
+templates:
+  - id: relation_fixture
+    version: "1"
+    enabled: true
+    commit_turns: null
+    variants:
+      - id: base
+        origin: {x: 0, y_from_bottom: 0}
+        pattern_rows_bottom_up: ["AA.*", "B.C*"]
+        different: [[A, B]]
+        same: []
+        empty_cells: [[1, 1]]
+        occupied_cells: []
+        weight: 1.0
+        transforms: [identity, mirror_x]
