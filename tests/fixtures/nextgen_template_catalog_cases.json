@@ -1,9 +1,10 @@
 {
   "schema_version": "puyo.template_catalog_cases.v1",
-  "note": "Frozen before matcher execution. Rows are bottom-up wire colors, 0 is empty; unseen public rows 12 and 13 are null.",
+  "note": "Boards and public piece streams were frozen before matcher execution; the budget was migrated after PUYO-245 changed its unit. Rows are bottom-up wire colors, 0 is empty; unseen public rows 12 and 13 are null.",
   "selector_seed": 246,
   "node_budget": 1800,
-  "binding_budget": 100,
+  "binding_budget_unit": "class_color_checks",
+  "binding_budget": 208,
   "cases": [
     {
       "id": "gtr_left_supported_core",
