@@ -24,6 +24,8 @@
 
 fixture は `tests/fixtures/nextgen_template_catalog_cases.json` に底面からの 6 桁行，公開 current/NEXT の 1〜2 組，期待結果を保存する．先頭 2 行の hidden cell は `null` で matcher に渡し，実際のエンジンで毎手の合法配置と resolution を通している．`TemplateSelector` の初回選択を固定し，以後は同じ variant と binding の `match_templates(...).witness_actions` だけを採用する．成功ケースでは全て 14 自 decision 以内，chain count は 0 である．
 
+PUYO-245 の色列挙修正後，`binding_budget` は異色制約により棄却される色も含む「class-color check」の回数を数える．旧値 `100` は有効 binding の計数であり，この catalog の全 72 件（GTR 36，だぁ積み 12，ペルシャ式 24）を覆っていた．新しい有界列挙器で全候補を数えると，必要な check は順に 92，24，92，合計 **208** である．この全列挙数を新予算に採用した．`node_budget=1800`，開始盤面，公開ツモ，期待結果は変えていない．結合 QA では旧数値 `100` のまま 1 件失敗し，`daa_two_decision_rollout` は予算切れで未成立だった（`/tmp/puyo-nextgen-20260924/combined-tests.log`）．runner は各手の `binding_trials=static_trials=208` と，`binding_budget_exhausted` がないことを検査する．
+
 | 固定ケース | 開始盤面の底面からの行 | 公開組 | witness action | 結果 |
 | --- | --- | --- | --- | --- |
 | `gtr_left_supported_core` | `221000 / 112000 / 020000` | `(1,2)` | `0` | 1 decision で成立 |
