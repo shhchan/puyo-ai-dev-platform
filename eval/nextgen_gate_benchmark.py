@@ -504,8 +504,25 @@ def finalize(output):
                 [
                     r["activation_tick"] - r["request_tick"]
                     for r in receipts
-                    if r["activation_tick"] is not None
+                    if r["activation_tick"] is not None and r["outcome"] == "activated"
                 ]
+            ),
+            "receipt_completion_delay_ticks": distribution(
+                [r["completion_tick"] - r["request_tick"] for r in receipts]
+            ),
+            "timeout_limit_ticks": None,
+            "actor_training_throughput": throughput_estimate(
+                sum(
+                    d["receipt"]["outcome"] == "activated"
+                    for r in group
+                    for d in r["ledgers"][r["policy_a_side"]]
+                ),
+                sum(
+                    d["receipt"]["outcome"] == "activated"
+                    for r in group
+                    for d in r["ledgers"][1 - r["policy_a_side"]]
+                ),
+                wall,
             ),
             "outcomes": {
                 outcome: sum(r["outcome"] == outcome for r in receipts)

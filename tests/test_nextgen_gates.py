@@ -233,5 +233,41 @@ class ClassificationTests(unittest.TestCase):
             self.classify()
 
 
+class RealtimeMeasurementTests(unittest.TestCase):
+    def test_async_measurement_advances_ticks_while_worker_is_running(self):
+        import time
+        from unittest.mock import patch
+
+        from eval.nextgen_gate_benchmark import measure
+        from tests.test_nextgen_tactic_manager import policy
+
+        def make(**kwargs):
+            instance = policy()
+            original = instance.select_action
+
+            def slow(observation, info):
+                time.sleep(0.03)
+                return original(observation, info)
+
+            instance.select_action = slow
+            return instance
+
+        with patch(
+            "eval.nextgen_gate_benchmark.NextgenTacticManagerPolicy", side_effect=make
+        ):
+            result = measure(
+                seed=123,
+                max_ticks=60,
+                safe=False,
+                latency_mode="measured",
+                realtime_clock=True,
+            )
+        receipts = [d["receipt"] for ledger in result["ledgers"] for d in ledger]
+        self.assertTrue(receipts)
+        self.assertTrue(any(r["completion_tick"] > r["request_tick"] for r in receipts))
+        self.assertEqual(result["execution_mode"], "single_worker_realtime_clock")
+        self.assertEqual(result["ticks"], 60)
+
+
 if __name__ == "__main__":
     unittest.main()
