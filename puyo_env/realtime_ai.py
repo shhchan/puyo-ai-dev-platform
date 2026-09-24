@@ -128,6 +128,53 @@ class RealtimeDecisionRecord:
         return asdict(self)
 
 
+def advance_template_phase_runtime(
+    match: RealtimeVersusMatch,
+    player_id: int,
+    phase_controller,
+    *,
+    activated_receipt: RealtimeDecisionRecord | None = None,
+    piece_id: str | None = None,
+    request_id: str | None = None,
+    tactic: str | None = None,
+    target_packet_ids: tuple[str, ...] = (),
+    match_result=None,
+    decision_id: str | None = None,
+):
+    """Opt-in PUYO-247 bridge for a future nextgen scheduler (PUYO-251).
+
+    The scheduler supplies its unique piece/request identities and adopted
+    tactic.  The bridge reads only the PUYO-248 public snapshot/history; it
+    does not infer a tactic from the legacy action-only policy record.
+    """
+    if player_id not in (0, 1):
+        raise ValueError("invalid player")
+    snapshot = match.public_snapshot(player_id)
+    history = match.public_timing_history()
+    if activated_receipt is not None:
+        if piece_id is None or request_id is None or tactic is None:
+            raise ValueError("activation requires piece, request and tactic IDs")
+        phase_controller.activate(
+            piece_id=piece_id,
+            request_id=request_id,
+            tactic=tactic,
+            adopted=activated_receipt.outcome == "activated" and not activated_receipt.fallback,
+            snapshot=snapshot,
+            history=history,
+            player_id=player_id,
+            target_packet_ids=target_packet_ids,
+        )
+    game = match.player_states[f"player_{player_id}"].simulator.game
+    return phase_controller.observe(
+        snapshot,
+        history,
+        player_id=player_id,
+        controllable=game.state == "control" and not game.game_over and not match.ending,
+        match_result=match_result,
+        decision_id=decision_id,
+    )
+
+
 @dataclass
 class RealtimeControllerDiagnostics:
     decision_requests: int = 0
