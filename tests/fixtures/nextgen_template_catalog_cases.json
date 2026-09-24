@@ -12,6 +12,7 @@
       "start_rows_bottom_up": ["221000", "112000", "020000"],
       "public_pieces": [[1, 2]],
       "expected_decisions": 1,
+      "expected_completed": true,
       "negative_rows_bottom_up": ["121000", "112000", "120000"],
       "forbidden_equal_rows_bottom_up": ["112000", "111000", "110000"]
     },
@@ -22,6 +23,7 @@
       "start_rows_bottom_up": ["122000", "012000"],
       "public_pieces": [[1, 1]],
       "expected_decisions": 1,
+      "expected_completed": false,
       "negative_rows_bottom_up": ["112000", "112000"],
       "forbidden_equal_rows_bottom_up": ["111000", "111000"]
     },
@@ -32,6 +34,7 @@
       "start_rows_bottom_up": ["111333", "023200", "000200"],
       "public_pieces": [[2, 2]],
       "expected_decisions": 1,
+      "expected_completed": false,
       "negative_rows_bottom_up": ["211333", "023200", "002200"],
       "forbidden_equal_rows_bottom_up": ["111333", "013100", "001100"]
     },
@@ -42,6 +45,7 @@
       "start_rows_bottom_up": ["221000", "112000", "000000"],
       "public_pieces": [[1, 2], [2, 3]],
       "expected_decisions": 2,
+      "expected_completed": true,
       "negative_rows_bottom_up": ["121000", "112000", "120000"],
       "forbidden_equal_rows_bottom_up": ["112000", "111000", "110000"]
     },
@@ -52,6 +56,7 @@
       "start_rows_bottom_up": ["122000", "002000"],
       "public_pieces": [[1, 3], [1, 3]],
       "expected_decisions": 2,
+      "expected_completed": true,
       "negative_rows_bottom_up": ["112000", "112000"],
       "forbidden_equal_rows_bottom_up": ["111000", "111000"]
     },
@@ -62,6 +67,7 @@
       "start_rows_bottom_up": ["111333", "023200", "000000"],
       "public_pieces": [[3, 2], [2, 3]],
       "expected_decisions": 2,
+      "expected_completed": true,
       "negative_rows_bottom_up": ["211333", "023200", "002200"],
       "forbidden_equal_rows_bottom_up": ["111333", "013100", "001100"]
     }
