@@ -54,6 +54,7 @@ def run_cases() -> dict:
     catalog = load_template_catalog(CATALOG)
     fixture = json.loads(CASES.read_text(encoding="utf-8"))
     assert fixture["schema_version"] == "puyo.template_catalog_cases.v1"
+    assert fixture["binding_budget_unit"] == "class_color_checks"
     output = []
     for case in fixture["cases"]:
         template = next(t for t in catalog.templates if t.id == case["template_id"])
@@ -78,6 +79,14 @@ def run_cases() -> dict:
                 node_budget=fixture["node_budget"],
                 binding_budget=fixture["binding_budget"],
                 reachable_mask=legal,
+            )
+            # The frozen profile covers every color constraint check in this
+            # three-variant catalog; node coverage is a separate budget.
+            assert result.binding_trials == fixture["binding_budget"]
+            assert result.static_trials == fixture["binding_budget"]
+            assert not any(
+                candidate.reason == "binding_budget_exhausted"
+                for candidate in result.candidates
             )
             if chosen_key is None:
                 selection = TemplateSelector(catalog, fixture["selector_seed"]).select_initial(result)
