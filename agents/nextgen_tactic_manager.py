@@ -372,6 +372,7 @@ class NextgenTacticManagerPolicy:
         # Use the existing strict release/ABI-checked adapter. Never silently
         # replace a missing/incompatible native extension with a slower policy.
         # Explicit Python remains available for parity and diagnostic runs.
+        self._owns_native_backend = backend is None or (isinstance(backend, str) and backend == "native")
         if backend is None or backend == "native":
             backend = NativeLongHorizonSearchBackend()
         elif backend == "python":
@@ -379,6 +380,7 @@ class NextgenTacticManagerPolicy:
         elif isinstance(backend, str):
             raise ValueError("nextgen backend must be native or python")
         self.backend = backend
+        self._owned_native_backend = backend if self._owns_native_backend else None
         self.selector = selector or RuleTacticSelector()
         self.template_binding_budget = template_binding_budget
         self.flow = DecisionFlow(
@@ -388,7 +390,7 @@ class NextgenTacticManagerPolicy:
 
     def reset(self):
         self.last_context = None
-        self.shared_cache = SharedSearchCache()
+        self.shared_cache = SharedSearchCache(owned_native_backend=self._owned_native_backend)
 
     def decision_input_identity(self, observation, info):
         return info["nextgen"]["identity"].to_dict()

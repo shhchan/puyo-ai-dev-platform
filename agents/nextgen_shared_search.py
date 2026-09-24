@@ -19,6 +19,7 @@ from agents.compact_search import CompactSearchState, legal_action_indices
 from agents.deep_chain_search_backend import (
     LongHorizonBackendRequest,
     LongHorizonSearchBackend,
+    NativeLongHorizonSearchBackend,
     PythonLongHorizonSearchBackend,
 )
 from agents.long_horizon_search import (
@@ -269,7 +270,7 @@ class PreparedTemplateSearch:
 
 
 class SharedSearchCache:
-    """One worker-local pure Python result, reusable across public-only retries.
+    """One worker-local deterministic result, reusable across public-only retries.
 
     Only the backend's telemetry request ID is ignored. Own board, known pairs,
     seeds, evaluator and quotas must match. Opponent/packet/timing dependent
@@ -277,23 +278,45 @@ class SharedSearchCache:
     charges the original node counts against this request's fixed quota.
     """
 
-    def __init__(self):
+    def __init__(self, *, owned_native_backend=None):
         self.entry = None
+        self.owned_native_backend = owned_native_backend
+        self.native_signature = None
+
+    @staticmethod
+    def _native_signature(backend):
+        # Opt-in is reserved for the policy-owned release adapter. Resolving a
+        # spawn-restored client still performs its strict ABI/build checks.
+        client = backend._client()
+
+        def callable_identity(function):
+            return (id(getattr(function, "__self__", None)),
+                    id(getattr(function, "__func__", function)))
+
+        return (
+            backend.execution_mode, backend.max_response_bytes, backend.canonical,
+            id(client), id(client._module), c.semantic_digest(backend.describe()),
+            callable_identity(backend.search), callable_identity(client.decide),
+            callable_identity(client._module.decide),
+        )
 
     def search(self, backend, request):
-        # An injected/native backend may have additional mutable state or use
-        # request_id semantically. Reuse only the known pure implementation.
-        cacheable = type(backend) is PythonLongHorizonSearchBackend
+        # Custom/injected native adapters are not opted in by the policy.
+        native = backend is self.owned_native_backend and type(backend) is NativeLongHorizonSearchBackend
+        signature = self._native_signature(backend) if native else None
+        cacheable = type(backend) is PythonLongHorizonSearchBackend or native
         key = replace(request, request_id=0)
         if cacheable and self.entry is not None:
             previous_backend, previous_key, execution, source_id = self.entry
-            if previous_backend is backend and previous_key == key:
+            if previous_backend is backend and previous_key == key and signature == self.native_signature:
                 return copy.deepcopy(execution), source_id
         execution = backend.search(request)
         if cacheable:
             self.entry = (backend, key, copy.deepcopy(execution), request.request_id)
+            self.native_signature = signature
         else:
             self.entry = None
+            self.native_signature = None
         return execution, None
 
 
@@ -754,6 +777,7 @@ class SharedSearchBatchBuilder:
                     "source_backend_request_id": reuse_source,
                     "quota_accounting": "full_evidence_nodes",
                     "backend_timing": "source_search" if reuse_source is not None else "current_search",
+                    "current_boundary_calls": 0 if reuse_source is not None else backend_diagnostics.get("boundary_call_count", 0),
                 },
                 "quotas": profile.to_dict(),
                 "board_complete": board_complete,
