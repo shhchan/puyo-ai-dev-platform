@@ -1,0 +1,111 @@
+{
+  "schema": "puyo.nextgen.response_fixture_report.v1",
+  "candidate_gap": 0,
+  "fixtures": [
+    {
+      "fixture": "same_boundary_cancel_after_arrival",
+      "expected_tactic": "cancel",
+      "covered": true,
+      "candidate_count": 11,
+      "response_nodes": 2000,
+      "response_quota": 2000,
+      "feature_evaluations": 1934,
+      "elapsed_ms": 400.1113480007916,
+      "cpu_ms": 402.051103,
+      "status": "partial",
+      "cutoff_reason": "response_quota"
+    },
+    {
+      "fixture": "insufficient_cancel",
+      "expected_tactic": "cancel",
+      "covered": true,
+      "candidate_count": 11,
+      "response_nodes": 528,
+      "response_quota": 2000,
+      "feature_evaluations": 506,
+      "elapsed_ms": 176.8828599997505,
+      "cpu_ms": 178.60872000000006,
+      "status": "evaluated",
+      "cutoff_reason": null
+    },
+    {
+      "fixture": "prepare_cancel_before_future_arrival",
+      "expected_tactic": "cancel",
+      "covered": true,
+      "candidate_count": 284,
+      "response_nodes": 506,
+      "response_quota": 2000,
+      "feature_evaluations": 506,
+      "elapsed_ms": 1060.5322060000617,
+      "cpu_ms": 1062.427822,
+      "status": "evaluated",
+      "cutoff_reason": null
+    },
+    {
+      "fixture": "counter_incoming31",
+      "expected_tactic": "counter",
+      "covered": true,
+      "candidate_count": 120,
+      "response_nodes": 1146,
+      "response_quota": 2000,
+      "feature_evaluations": 484,
+      "elapsed_ms": 559.5338880011695,
+      "cpu_ms": 561.821863,
+      "status": "evaluated",
+      "cutoff_reason": null
+    },
+    {
+      "fixture": "counter_incoming61",
+      "expected_tactic": "counter",
+      "covered": true,
+      "candidate_count": 120,
+      "response_nodes": 626,
+      "response_quota": 2000,
+      "feature_evaluations": 484,
+      "elapsed_ms": 564.6288800016919,
+      "cpu_ms": 566.4492869999998,
+      "status": "evaluated",
+      "cutoff_reason": null
+    },
+    {
+      "fixture": "counter_incoming120",
+      "expected_tactic": "counter",
+      "covered": true,
+      "candidate_count": 120,
+      "response_nodes": 626,
+      "response_quota": 2000,
+      "feature_evaluations": 484,
+      "elapsed_ms": 595.4181420020177,
+      "cpu_ms": 597.18084,
+      "status": "evaluated",
+      "cutoff_reason": null
+    },
+    {
+      "fixture": "conditional_remainder_columns",
+      "expected_tactic": "counter",
+      "covered": true,
+      "candidate_count": 120,
+      "response_nodes": 4000,
+      "response_quota": 4000,
+      "feature_evaluations": 2477,
+      "elapsed_ms": 1690.6355899991468,
+      "cpu_ms": 1692.7071449999999,
+      "status": "partial",
+      "cutoff_reason": "response_quota"
+    },
+    {
+      "fixture": "public_short_attack_without_threat",
+      "expected_tactic": "decisive_short_attack",
+      "covered": true,
+      "candidate_count": 11,
+      "response_nodes": 2000,
+      "response_quota": 2000,
+      "feature_evaluations": 2000,
+      "elapsed_ms": 422.2566719981842,
+      "cpu_ms": 424.9250089999999,
+      "status": "partial",
+      "cutoff_reason": "response_quota"
+    }
+  ],
+  "limitation": "Public conditional witnesses only; no measured latency or G2 promotion."
+}

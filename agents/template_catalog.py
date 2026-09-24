@@ -514,6 +514,7 @@ class MatchResult:
     static_cutoff: bool
     binding_trials: int = 0
     static_trials: int = 0
+    feature_evaluations: int = 0
 
 
 @dataclass(frozen=True)
@@ -683,6 +684,13 @@ def match_templates(
         raise ValueError("budgets must be bounded non-negative integers")
     if not catalog.enabled:
         raise ValueError("catalog disabled")
+    feature_evaluations = 0
+
+    def evaluate(*args):
+        nonlocal feature_evaluations
+        feature_evaluations += 1
+        return _evaluate(*args)
+
     b = _board(board)
     if len(known_pieces) > 3 or any(
         len(pair) != 2
@@ -722,7 +730,7 @@ def match_templates(
                 fallback = None
                 for binding in static_search.bindings:
                     static_bindings += 1
-                    satisfied, conflicts = _evaluate(b, conditions, dict(binding))
+                    satisfied, conflicts = evaluate(b, conditions, dict(binding))
                     static_score = (
                         (len(satisfied) - conflicts)
                         / variant.required_count
@@ -736,7 +744,7 @@ def match_templates(
                         fallback = (binding, static_score)
                 if fallback is None:
                     binding = variant.seed_binding
-                    satisfied, conflicts = _evaluate(b, conditions, dict(binding))
+                    satisfied, conflicts = evaluate(b, conditions, dict(binding))
                     fallback = (
                         binding,
                         (len(satisfied) - conflicts)
@@ -787,7 +795,7 @@ def match_templates(
         for binding_tuple in binding_search.bindings:
             evaluated += 1
             binding = dict(binding_tuple)
-            before, conflicts = _evaluate(b, conditions, binding)
+            before, conflicts = evaluate(b, conditions, binding)
             score = (len(before) - conflicts) / required * variant.weight / total_weight
             static_score = score
             nodes_before = nodes
@@ -836,7 +844,7 @@ def match_templates(
                             if step is None or step["game_over"]:
                                 continue
                             after_board = _wire(branch)
-                            after, after_conflicts = _evaluate(
+                            after, after_conflicts = evaluate(
                                 after_board, conditions, binding
                             )
                             if conservative_visible and (
@@ -854,7 +862,7 @@ def match_templates(
                                 )
                             ):
                                 continue
-                            previous_satisfied, _ = _evaluate(
+                            previous_satisfied, _ = evaluate(
                                 previous, conditions, binding
                             )
                             if not previous_satisfied <= after:
@@ -950,7 +958,7 @@ def match_templates(
         if not variant_candidates or all(
             c.binding != fallback_binding for c in variant_candidates
         ):
-            satisfied, conflicts = _evaluate(b, conditions, dict(fallback_binding))
+            satisfied, conflicts = evaluate(b, conditions, dict(fallback_binding))
             variant_candidates.append(
                 TemplateCandidate(
                     template.id,
@@ -983,4 +991,5 @@ def match_templates(
         static_cutoff,
         bindings_used,
         static_trials,
+        feature_evaluations,
     )
