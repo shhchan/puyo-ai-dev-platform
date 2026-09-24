@@ -393,6 +393,20 @@ def finalize(output):
         **{k: evidence.get(k) for k in ("g0", "g1", "g3", "g4", "threats")},
     )
     report["manifest_sha256"] = manifest["sha256"]
+    report["analysis_source"] = {
+        "commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip(),
+        "files": {
+            name: file_sha256(ROOT / name)
+            for name in ("eval/nextgen_gates.py", "eval/nextgen_gate_benchmark.py")
+        },
+    }
+    report["evidence_sha256"] = (
+        file_sha256(output / "evidence.json")
+        if (output / "evidence.json").exists()
+        else None
+    )
     report["raw_files"] = {
         str(p.relative_to(output)): file_sha256(p) for p in paths + paired_paths
     }
@@ -410,6 +424,70 @@ def finalize(output):
         }
         for r in paired
     ]
+    report["timing_definition"] = (
+        "decision_seconds are measured policy trace wall time; rollout wall includes scheduler, engine, serialization; effective activation tick delay reported separately"
+    )
+    report["safe_resources"] = {
+        "wall_seconds": sum(r["elapsed_seconds"] for r in rows),
+        "cpu_seconds": sum(r["cpu_seconds"] for r in rows),
+        "peak_rss_kib": max((r["rss_peak_kib"] for r in rows), default=None),
+    }
+    report["paired_by_mode"] = {}
+    for mode in manifest["config"]["paired_modes"]:
+        group = [r for r in paired if r["latency_mode"] == mode]
+        pairs = {
+            seed: [r for r in group if r["seed"] == seed]
+            for seed in manifest["config"]["paired_seeds"]
+        }
+        complete_pairs = [
+            seed
+            for seed, values in pairs.items()
+            if len(values) == 2 and {r["policy_a_side"] for r in values} == {0, 1}
+        ]
+        wall = sum(r["elapsed_seconds"] for r in group)
+        receipts = [
+            d["receipt"] for r in group for ledger in r["ledgers"] for d in ledger
+        ]
+        phases = {p for r in group for p in r["phase_seconds"]}
+        report["paired_by_mode"][mode] = {
+            "observed_runs": len(group),
+            "expected_runs": 2 * len(pairs),
+            "complete_side_swap_pairs": complete_pairs,
+            "terminal_runs": sum(r["termination"] == "terminal" for r in group),
+            "truncated_runs": sum(r["termination"] == "tick_limit" for r in group),
+            "decision_latency_seconds": distribution(
+                [v for r in group for v in r["decision_seconds"]]
+            ),
+            "phase_seconds": {
+                p: distribution(
+                    [v for r in group for v in r["phase_seconds"].get(p, [])]
+                )
+                for p in phases
+            },
+            "activation_delay_ticks": distribution(
+                [
+                    r["activation_tick"] - r["request_tick"]
+                    for r in receipts
+                    if r["activation_tick"] is not None
+                ]
+            ),
+            "outcomes": {
+                outcome: sum(r["outcome"] == outcome for r in receipts)
+                for outcome in sorted({r["outcome"] for r in receipts})
+            },
+            "started_decisions": sum(len(r["decision_seconds"]) for r in group),
+            "ledger_decisions": len(receipts),
+            "pending_at_boundary": sum(len(r["decision_seconds"]) for r in group)
+            - len(receipts),
+            "wall_seconds": wall,
+            "cpu_seconds": sum(r["cpu_seconds"] for r in group),
+            "peak_rss_kib": max((r["rss_peak_kib"] for r in group), default=None),
+            "throughput": throughput_estimate(
+                sum(r["decisions"][r["policy_a_side"]] for r in group),
+                sum(r["decisions"][1 - r["policy_a_side"]] for r in group),
+                wall,
+            ),
+        }
     report["paired_interpretation"] = (
         "Side-swapped seed is one unit; tick-limit draws are truncated, not completed wins. Configured/measured never pooled. One seed is not G4 evidence."
     )

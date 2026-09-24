@@ -177,6 +177,15 @@ def evaluate(*, rows, contract, threats=None, g0=None, g1=None, g3=None, g4=None
     ):
         raise ValueError("frozen threshold/seed contract mismatch")
     summary = safe_build_summary(rows)
+    observed_failures = []
+    if summary["mean_max_chain"] is not None and summary["mean_max_chain"] < 10:
+        observed_failures.append("mean_chain_below_10")
+    if summary["premature"]:
+        observed_failures.append("premature")
+    if summary["game_over"]:
+        observed_failures.append("game_over")
+    if summary["repeat_mismatch_seeds"]:
+        observed_failures.append("repeat_mismatch")
     checks = {
         "all_60_complete": summary["completed_runs"] == 60,
         "mean_chain_at_least_10": summary["mean_max_chain"] is not None
@@ -193,6 +202,7 @@ def evaluate(*, rows, contract, threats=None, g0=None, g1=None, g3=None, g4=None
         and threats.get("failed") == 0,
         "known_solution_gap_zero": threats is not None
         and threats.get("reference_source") == "public_reference"
+        and threats.get("reference_corpus_predeclared") is True
         and threats.get("candidate_denominator", 0) > 0
         and threats.get("candidate_gap") == 0,
     }
@@ -233,6 +243,17 @@ def evaluate(*, rows, contract, threats=None, g0=None, g1=None, g3=None, g4=None
         "schema": SCHEMA,
         "gates": gates,
         "safe_build": summary,
+        "observed_quality": {
+            "status": "FAIL"
+            if observed_failures
+            else "PASS"
+            if summary["completed_runs"] == 60
+            else "BLOCKED",
+            "failed_conditions": observed_failures,
+            "scope": "observed profile only; not reference G2 qualification",
+            "observed_runs": summary["observed_runs"],
+            "expected_runs": 60,
+        },
         "safe_build_performance": {
             "status": "BLOCKED"
             if p95 is None or not contract.get("reference_profile_calibrated")

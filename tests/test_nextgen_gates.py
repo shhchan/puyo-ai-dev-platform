@@ -59,6 +59,7 @@ def report(values=None, declaration=None, **kwargs):
             "complete": True,
             "failed": 0,
             "reference_source": "public_reference",
+            "reference_corpus_predeclared": True,
             "candidate_denominator": 8,
             "candidate_gap": 0,
         },
@@ -72,6 +73,7 @@ class GateTests(unittest.TestCase):
         self.assertEqual(result["gates"]["G2"]["status"], "PASS")
         self.assertEqual(result["gates"]["G3"]["status"], "BLOCKED")
         self.assertFalse(result["long_training_allowed"])
+        self.assertEqual(result["observed_quality"]["status"], "PASS")
         values = rows()
         for value in values:
             value["decision_seconds"] = [2]
@@ -90,6 +92,7 @@ class GateTests(unittest.TestCase):
         result = report(values)
         self.assertEqual(result["gates"]["G2"]["status"], "BLOCKED")
         self.assertFalse(result["gates"]["G2"]["checks"]["premature_zero"])
+        self.assertEqual(result["observed_quality"]["status"], "FAIL")
         self.assertFalse(result["gates"]["G2"]["checks"]["game_over_zero"])
 
     def test_missing_truncated_and_repeat_mismatch_are_not_dropped(self):
