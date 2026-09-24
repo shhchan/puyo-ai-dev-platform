@@ -23,7 +23,7 @@ from agents.deep_chain_search_backend import (
     NativeLongHorizonSearchBackend,
     PythonLongHorizonSearchBackend,
 )
-from agents.long_horizon_search import LongHorizonSearchConfig
+from agents.nextgen_profiles import nextgen_search_settings
 from agents.nextgen_response_search import PublicResponseProvider
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
@@ -57,7 +57,7 @@ class RuleSelectorConfig:
     )
     short_attack_ojama: int = 30
     opponent_occupied_cells: int = 48
-    saturated_chain_count: int = 6
+    saturated_chain_count: int = 10
 
     def __post_init__(self):
         if len(self.priority) != 6 or set(self.priority) != set(c.TACTIC_IDS):
@@ -366,15 +366,9 @@ class NextgenTacticManagerPolicy:
         self.template_seed = self.seed if template_seed is None else template_seed
         if type(self.template_seed) is not int:
             raise ValueError("template_seed must be an integer")
-        self.search_config = search_config or LongHorizonSearchConfig(
-            depth=4,
-            width=4,
-            scenarios=1,
-            minimum_chain_count=2,
-            max_expanded_nodes=256,
-            decision_seed=self.seed ^ 0x4E4753,
-        )
-        self.profile = profile or c.SearchProfile("nextgen_smoke", 256, 128, 256)
+        default_profile, default_search = nextgen_search_settings(seed=self.seed)
+        self.search_config = search_config or default_search
+        self.profile = profile or default_profile
         # Use the existing strict release/ABI-checked adapter. Never silently
         # replace a missing/incompatible native extension with a slower policy.
         # Explicit Python remains available for parity and diagnostic runs.

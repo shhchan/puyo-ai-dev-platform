@@ -20,6 +20,7 @@ from pathlib import Path
 from agents import nextgen_contracts as c
 from agents.deep_chain_search_backend import NativeLongHorizonSearchBackend, PythonLongHorizonSearchBackend
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
+from agents.long_horizon_search import LongHorizonSearchConfig
 from eval.nextgen_realtime_diagnostic import source_identity
 from puyo_env.realtime_ai import PolicyProcessExecutor, RealtimeDecisionConfig, RealtimePolicyController, _policy_diagnostics_snapshot
 from puyo_env.realtime_versus import RealtimeVersusMatch
@@ -67,7 +68,10 @@ class MeasuredPolicy(NextgenTacticManagerPolicy):
 
 def make_case(name, seed, rows, backend):
     catalog, _ = resolve_nextgen_catalog(catalog_path="train/config/nextgen_templates.yaml", templates="gtr", mode="argmax", temperature=.1, commit_turns=14, repo_root=Path(__file__).resolve().parents[1])
-    policy = MeasuredPolicy(catalog=catalog, seed=seed, backend=NativeLongHorizonSearchBackend() if backend == "native" else PythonLongHorizonSearchBackend())
+    # Keep PUYO-265's fixed workload independent of later runtime defaults.
+    policy = MeasuredPolicy(catalog=catalog, seed=seed, backend=NativeLongHorizonSearchBackend() if backend == "native" else PythonLongHorizonSearchBackend(),
+                            profile=c.SearchProfile("nextgen_smoke", 256, 128, 256),
+                            search_config=LongHorizonSearchConfig(depth=4, width=4, scenarios=1, minimum_chain_count=2, max_expanded_nodes=256, decision_seed=seed ^ 0x4E4753))
     match = RealtimeVersusMatch(seed=seed)
     game = match.player_states["player_0"].simulator.game
     for y, row in enumerate(rows):

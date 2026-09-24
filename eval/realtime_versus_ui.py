@@ -27,9 +27,8 @@ from agents.deep_chain_builder import (
     validate_interactive_target_chain_count,
 )
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
-from agents.long_horizon_search import LongHorizonSearchConfig
-from agents.nextgen_contracts import SearchProfile
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
+from agents.nextgen_profiles import DEFAULT_NEXTGEN_PROFILE, nextgen_search_settings
 from eval.lifecycle_audit import audit_realtime_lifecycle
 from eval.realtime_gui_qa import (
     GUI_QA_PROFILES,
@@ -80,10 +79,6 @@ REALTIME_POLICY_CHOICES = (
 )
 DEEP_CHAIN_PROFILE_CHOICES = ("smoke", "reference")
 DEEP_CHAIN_BACKEND_CHOICES = LONG_HORIZON_BACKEND_CHOICES
-NEXTGEN_PROFILES = {
-    "nextgen_smoke": (256, 128, 256),
-    "nextgen_diagnostic": (512, 256, 512),
-}
 ASYNC_POLICY_TYPES = frozenset(
     {
         "beam",
@@ -188,7 +183,7 @@ class RealtimeVersusUiConfig:
     nextgen_temperature: float = 0.2
     nextgen_seed: int | None = None
     nextgen_commit_turns: int = 14
-    nextgen_profile: str = "nextgen_smoke"
+    nextgen_profile: str = DEFAULT_NEXTGEN_PROFILE
     nextgen_backend: str = "native"
     nextgen_selector: str = "rule"
     nextgen_trajectory_path: str | None = None
@@ -1200,21 +1195,14 @@ class RealtimeVersusMatchController:
             policy_seed = self.config.seed + (0 if side == "a" else 10_000)
 
         if policy_type == "nextgen_tactic_manager" and self.policy_factory is make_policy:
-            quotas = NEXTGEN_PROFILES[self.config.nextgen_profile]
+            profile, search_config = nextgen_search_settings(self.config.nextgen_profile, seed=policy_seed)
             return NextgenTacticManagerPolicy(
                 catalog=self.nextgen_catalog,
                 seed=policy_seed,
                 template_seed=self.config.nextgen_seed,
-                profile=SearchProfile(self.config.nextgen_profile, *quotas),
+                profile=profile,
                 backend=self.config.nextgen_backend,
-                search_config=LongHorizonSearchConfig(
-                    depth=4,
-                    width=4,
-                    scenarios=1,
-                    minimum_chain_count=2,
-                    max_expanded_nodes=quotas[0],
-                    decision_seed=policy_seed ^ 0x4E4753,
-                ),
+                search_config=search_config,
             )
 
         def side_value(name: str):
@@ -1567,7 +1555,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--nextgen-temperature", type=float, default=0.2)
     parser.add_argument("--nextgen-seed", type=int)
     parser.add_argument("--nextgen-commit-turns", type=int, default=14)
-    parser.add_argument("--nextgen-profile", choices=NEXTGEN_PROFILE_CHOICES, default="nextgen_smoke")
+    parser.add_argument("--nextgen-profile", choices=NEXTGEN_PROFILE_CHOICES, default=DEFAULT_NEXTGEN_PROFILE)
     parser.add_argument("--nextgen-backend", choices=("native", "python"), default="native")
     parser.add_argument("--nextgen-selector", choices=("rule", "rl"), default="rule")
     parser.add_argument("--nextgen-trajectory", dest="nextgen_trajectory_path")

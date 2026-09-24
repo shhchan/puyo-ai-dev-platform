@@ -21,7 +21,8 @@ from dataclasses import asdict
 from pathlib import Path
 
 from agents import nextgen_contracts as c
-from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy, RuleTacticSelector
+from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy, RuleTacticSelector, RuleSelectorConfig
+from agents.long_horizon_search import LongHorizonSearchConfig
 from eval.nextgen_gates import (
     REPEATS,
     SEEDS,
@@ -36,6 +37,16 @@ from puyo_env.realtime_versus import RealtimeVersusMatch
 from train.artifacts import file_sha256
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def smoke_policy(*, seed=0, selector=None):
+    """PUYO-255 workload; never inherit a larger interactive default."""
+    return NextgenTacticManagerPolicy(
+        seed=seed, backend="python",
+        selector=selector or RuleTacticSelector(RuleSelectorConfig(saturated_chain_count=6)),
+        profile=c.SearchProfile("nextgen_smoke", 256, 128, 256),
+        search_config=LongHorizonSearchConfig(depth=4, width=4, scenarios=1, minimum_chain_count=2, max_expanded_nodes=256, decision_seed=seed ^ 0x4E4753),
+    )
 
 
 def write(path, payload):
@@ -91,7 +102,7 @@ def initialize(output, *, realtime_clock=False):
         ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, text=True
     ).strip():
         raise ValueError("commit source before freezing evaluation")
-    p = NextgenTacticManagerPolicy(seed=0, backend="python")
+    p = smoke_policy()
     config = {
         "seeds": list(SEEDS),
         "repeats": list(REPEATS),
@@ -235,8 +246,8 @@ def measure(
     swap=False,
     realtime_clock=False,
 ):
-    policy = NextgenTacticManagerPolicy(seed=seed, backend="python")
-    opponent = NextgenTacticManagerPolicy(seed=seed, selector=SearchOnlySelector(), backend="python")
+    policy = smoke_policy(seed=seed)
+    opponent = smoke_policy(seed=seed, selector=SearchOnlySelector())
     policies = [opponent, policy] if swap else [policy, opponent]
     match = SafeNoThreatMatch(seed) if safe else RealtimeVersusMatch(seed=seed)
     executor = ThreadPoolExecutor(max_workers=1) if realtime_clock else None

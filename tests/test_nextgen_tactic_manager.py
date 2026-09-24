@@ -153,9 +153,9 @@ class SelectorTests(unittest.TestCase):
                 phase=replace(req.control.phase, active=False, remaining_decisions=0),
             ),
         )
-        batch = with_evidence(batch, "fire_main", chain_count=6, fatal_rate=0)
+        batch = with_evidence(batch, "fire_main", chain_count=10, fatal_rate=0)
         self.assertEqual(self.select(req, batch).selected_tactic_id, "fire_main")
-        batch = with_evidence(batch, "fire_main", chain_count=5, fatal_rate=0)
+        batch = with_evidence(batch, "fire_main", chain_count=9, fatal_rate=0)
         self.assertEqual(self.select(req, batch).selected_tactic_id, "build_main")
         batch = with_evidence(batch, "decisive_short_attack", outgoing=40)
         selector = RuleTacticSelector(RuleSelectorConfig(opponent_occupied_cells=1))

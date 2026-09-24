@@ -18,6 +18,7 @@ from pathlib import Path
 
 from agents import nextgen_contracts as c
 from agents.template_catalog import match_templates
+from agents.nextgen_profiles import NEXTGEN_PROFILE_CHOICES
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
 
 
@@ -61,7 +62,7 @@ def summarize(attempts):
     }
 
 
-def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", write_replay=True, output):
+def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", profile="nextgen_smoke", write_replay=True, output):
     if mode not in ("normal", "step"):
         raise ValueError("mode must be normal or step")
     output = Path(output)
@@ -72,7 +73,7 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
         seed=seed, seed_a=seed, seed_b=seed + 10_000,
         nextgen_seed=seed, nextgen_templates="gtr",
         nextgen_selection_mode="argmax", nextgen_commit_turns=14,
-        nextgen_profile="nextgen_smoke", latency_mode="measured",
+        nextgen_profile=profile, latency_mode="measured",
         nextgen_backend=backend,
         max_ticks=max_ticks, replay_path=str(output / "replay.json") if write_replay else None,
         dataset_root=str(output / "dataset"),
@@ -174,6 +175,7 @@ def main():
     parser.add_argument("--max-ticks", type=int, default=6000)
     parser.add_argument("--opponent", choices=("random", "human"), default="random")
     parser.add_argument("--backend", choices=("native", "python"), default="native")
+    parser.add_argument("--profile", choices=NEXTGEN_PROFILE_CHOICES, default="nextgen_smoke")
     parser.add_argument("--omit-replay", dest="write_replay", action="store_false",
                         help="Save report/ledger without retaining the large per-tick GUI replay")
     parser.add_argument("--output", type=Path, required=True)

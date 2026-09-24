@@ -13,6 +13,7 @@ from agents.deep_chain_builder import (
     DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     validate_interactive_target_chain_count,
 )
+from agents.nextgen_profiles import DEFAULT_NEXTGEN_PROFILE, NEXTGEN_PROFILE_CHOICES
 from train.artifacts import CHECKPOINT_SCHEMA_VERSION, validate_checkpoint_payload
 
 try:
@@ -32,7 +33,6 @@ POLICY_CHOICES = (
     "worker_fire_max", "worker_survival",
 )
 REALTIME_POLICY_CHOICES = POLICY_CHOICES
-NEXTGEN_PROFILE_CHOICES = ("nextgen_smoke", "nextgen_diagnostic")
 NEXTGEN_TEMPLATE_CHOICES = ("gtr,daa,persian", "gtr,daa", "gtr,persian", "daa,persian", "gtr", "daa", "persian")
 NEXTGEN_CATALOG_PATH = "train/config/nextgen_templates.yaml"
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
@@ -98,7 +98,7 @@ class LauncherSettings:
     nextgen_temperature: float = 0.2
     nextgen_seed: int | None = None
     nextgen_commit_turns: int = 14
-    nextgen_profile: str = "nextgen_smoke"
+    nextgen_profile: str = DEFAULT_NEXTGEN_PROFILE
     nextgen_selector: str = "rule"
     nextgen_trajectory_path: str | None = None
     max_steps: int = 100
@@ -201,7 +201,7 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "nextgen_temperature": LauncherFieldSpec("nextgen_temperature", "softmax 温度", "--nextgen-temperature", "正の有限値を設定します．"),
     "nextgen_seed": LauncherFieldSpec("nextgen_seed", "土台選択 seed", "--nextgen-seed", "auto は policy seed を使います．探索 seed とは独立して指定できます．"),
     "nextgen_commit_turns": LauncherFieldSpec("nextgen_commit_turns", "共通 N", "--nextgen-commit-turns", "土台構築の共通 decision 上限です．"),
-    "nextgen_profile": LauncherFieldSpec("nextgen_profile", "固定探索 profile", "--nextgen-profile", "smoke または GUI 診断用 profile です．品質評価用の校正値ではありません．"),
+    "nextgen_profile": LauncherFieldSpec("nextgen_profile", "固定探索 profile", "--nextgen-profile", "safe_build は 10 連鎖を目標に深く探索します．smoke と diagnostic は短時間の動作確認用です．"),
     "nextgen_selector": LauncherFieldSpec("nextgen_selector", "戦術 selector", "--nextgen-selector", "rule が実行可能です．RL は checkpoint 実装後に有効になります．"),
     "nextgen_trajectory_path": LauncherFieldSpec("nextgen_trajectory_path", "decision 記録先", "--nextgen-trajectory", "対戦の確定 receipt とイベントを JSON に保存します．正式な学習 trajectory ではありません．"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
