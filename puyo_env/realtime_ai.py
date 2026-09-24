@@ -646,7 +646,8 @@ class RealtimePolicyController:
         self._active_plan = pending.plan
         self._active_action_index = activated_record.action_index
         self._input_cursor = 0
-        self.diagnostics.decisions_activated += 1
+        if activated_record.activation_tick is not None:
+            self.diagnostics.decisions_activated += 1
         self.diagnostics.last_decision = activated_record
         if self._active_plan is None or not self._active_plan.inputs:
             self.diagnostics.idle_ticks += 1
@@ -845,12 +846,29 @@ class RealtimePolicyController:
         Never reuse the plan calculated at worker completion for activation.
         """
         runtime = self.nextgen_scheduler
+        stale = runtime.stale(match)
+        if stale and not record.fallback:
+            # Opponent events can invalidate a finished public batch while our
+            # pair is still controllable. A fastest-input fallback would place
+            # it in the spawn column on every retry. Reject without placement;
+            # the next tick requests a fresh public batch and rule selection.
+            # Timeout/error fallback remains the explicit bounded escape path.
+            self.diagnostics.stale_decisions += 1
+            record = replace(
+                record, action_index=None, executed_action=None,
+                activation_tick=None, axis_x=None, rotation=None,
+                reachable=False, plan_ticks=0,
+                reason="stale_snapshot_retry", fallback=False,
+                fallback_reason=None,
+            )
+            record = runtime.finish(match, record, outcome="stale")
+            self.latest_policy_diagnostics = copy.deepcopy(runtime.last_payload)
+            return record, None
         mask = nextgen_authoritative_action_mask(
             match.player_states[agent].simulator,
             timing=self.timing,
             max_expanded_states=self.config.max_plan_expanded_states,
         )
-        stale = runtime.stale(match)
         action = record.action_index
         invalid = action is None or not mask[action]
         reason = record.reason

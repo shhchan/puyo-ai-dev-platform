@@ -7,6 +7,7 @@ Response search is injected (PUYO-250); selection only reads the finished batch.
 
 from __future__ import annotations
 
+import copy
 import math
 import time
 from dataclasses import asdict, dataclass, replace
@@ -18,6 +19,7 @@ from agents.compact_search import CompactSearchState, legal_action_indices
 from agents.deep_chain_search_backend import (
     LongHorizonBackendRequest,
     LongHorizonSearchBackend,
+    PythonLongHorizonSearchBackend,
 )
 from agents.long_horizon_search import (
     LongHorizonSearchConfig,
@@ -266,6 +268,35 @@ class PreparedTemplateSearch:
             raise ValueError("prepared template selected shape missing")
 
 
+class SharedSearchCache:
+    """One worker-local pure Python result, reusable across public-only retries.
+
+    Only the backend's telemetry request ID is ignored. Own board, known pairs,
+    seeds, evaluator and quotas must match. Opponent/packet/timing dependent
+    response search and tactic selection are never cached. Evidence still
+    charges the original node counts against this request's fixed quota.
+    """
+
+    def __init__(self):
+        self.entry = None
+
+    def search(self, backend, request):
+        # An injected/native backend may have additional mutable state or use
+        # request_id semantically. Reuse only the known pure implementation.
+        cacheable = type(backend) is PythonLongHorizonSearchBackend
+        key = replace(request, request_id=0)
+        if cacheable and self.entry is not None:
+            previous_backend, previous_key, execution, source_id = self.entry
+            if previous_backend is backend and previous_key == key:
+                return copy.deepcopy(execution), source_id
+        execution = backend.search(request)
+        if cacheable:
+            self.entry = (backend, key, copy.deepcopy(execution), request.request_id)
+        else:
+            self.entry = None
+        return execution, None
+
+
 class SharedSearchBatchBuilder:
     """Fixed search configuration; each request owns fresh non-transferable quotas."""
 
@@ -278,6 +309,7 @@ class SharedSearchBatchBuilder:
         template_catalog: TemplateCatalog | None = None,
         template_binding_budget: int = 4096,
         response_provider: ResponseProvider | None = None,
+        shared_cache: SharedSearchCache | None = None,
     ):
         if type(template_binding_budget) is not int or template_binding_budget < 0:
             raise ValueError("invalid template binding budget")
@@ -287,6 +319,7 @@ class SharedSearchBatchBuilder:
         self.template_catalog = template_catalog
         self.template_binding_budget = template_binding_budget
         self.response_provider = response_provider
+        self.shared_cache = shared_cache
 
     def build(
         self,
@@ -318,6 +351,7 @@ class SharedSearchBatchBuilder:
         sequences = _sequences(known, self.config) if known else ()
         shared = None
         backend_diagnostics = {}
+        reuse_source = None
         cutoffs = []
         if not board_complete:
             cutoffs.append("public_board_incomplete")
@@ -325,26 +359,32 @@ class SharedSearchBatchBuilder:
         if reachable and profile.shared_quota:
             config = replace(self.config, max_expanded_nodes=profile.shared_quota)
             h = c.semantic_digest(asdict(config))
-            execution = self.backend.search(
-                LongHorizonBackendRequest(
-                    state,
-                    _pairs(known),
-                    config,
-                    self.evaluator_config,
-                    profile.profile_id,
-                    "1",
-                    "nextgen.shared.v1",
-                    h,
-                    self.evaluator_config.weight_version,
-                    c.semantic_digest(self.evaluator_config.to_dict()),
-                    "nextgen.fixed_quotas.v1",
-                    c.semantic_digest(profile),
-                    int(c.semantic_digest(request.identity)[:16], 16),
-                    self.backend.backend_id == "native",
-                    False,
-                )
+            backend_request = LongHorizonBackendRequest(
+                state,
+                _pairs(known),
+                config,
+                self.evaluator_config,
+                profile.profile_id,
+                "1",
+                "nextgen.shared.v1",
+                h,
+                self.evaluator_config.weight_version,
+                c.semantic_digest(self.evaluator_config.to_dict()),
+                "nextgen.fixed_quotas.v1",
+                c.semantic_digest(profile),
+                int(c.semantic_digest(request.identity)[:16], 16),
+                self.backend.backend_id == "native",
+                False,
             )
+            if self.shared_cache is None:
+                execution = self.backend.search(backend_request)
+            else:
+                execution, reuse_source = self.shared_cache.search(
+                    self.backend, backend_request
+                )
             shared, backend_diagnostics = execution.result, dict(execution.diagnostics)
+            if reuse_source is not None:
+                backend_diagnostics["request_id"] = backend_request.request_id
             if tuple(s.to_dict() for s in shared.scenario_sequences) != tuple(
                 s.to_dict() for s in sequences
             ):
@@ -702,6 +742,12 @@ class SharedSearchBatchBuilder:
             {
                 "stage_elapsed_ms": stage_ms,
                 "backend": backend_diagnostics,
+                "shared_reuse": {
+                    "hit": reuse_source is not None,
+                    "source_backend_request_id": reuse_source,
+                    "quota_accounting": "full_evidence_nodes",
+                    "backend_timing": "source_search" if reuse_source is not None else "current_search",
+                },
                 "quotas": profile.to_dict(),
                 "board_complete": board_complete,
                 "root_legality": "public_board_estimate_intersect_reachable_mask",

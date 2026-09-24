@@ -25,6 +25,7 @@ from agents.nextgen_response_search import PublicResponseProvider
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
     SharedSearchBatchBuilder,
+    SharedSearchCache,
     scenario_provenance,
 )
 from agents.template_catalog import (
@@ -282,6 +283,7 @@ class SharedBatchStep(DecisionStep):
             template_catalog=policy.catalog,
             template_binding_budget=policy.template_binding_budget,
             response_provider=PublicResponseProvider(timing),
+            shared_cache=policy.shared_cache,
         )
         search = builder.build(
             request,
@@ -379,6 +381,7 @@ class NextgenTacticManagerPolicy:
 
     def reset(self):
         self.last_context = None
+        self.shared_cache = SharedSearchCache()
 
     def decision_input_identity(self, observation, info):
         return info["nextgen"]["identity"].to_dict()

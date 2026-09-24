@@ -17,6 +17,7 @@ from agents.nextgen_shared_search import (
     ResponseProposal,
     ResponseSearchResult,
     SharedSearchBatchBuilder,
+    SharedSearchCache,
     scenario_provenance,
 )
 from agents.template_catalog import TemplateCatalog, match_templates
@@ -175,6 +176,73 @@ class MockResponse:
 
 
 class SharedBatchTests(unittest.TestCase):
+    def test_retry_reuses_only_pure_shared_search_and_rebuilds_public_batch(self):
+        backend, response = PythonLongHorizonSearchBackend(), MockResponse()
+        cfg = config()
+        builder = SharedSearchBatchBuilder(
+            backend, cfg, shared_cache=SharedSearchCache(), response_provider=response,
+        )
+        first = request(cfg, quota=(12, 0, 7))
+        public = replace(
+            first.public,
+            own=replace(first.public.own, attack_packets=(c.PublicAttackPacket("new", 20, 1, None),)),
+            opponent=replace(first.public.opponent, score_carry=10),
+        )
+        retry = replace(
+            first, public=public,
+            identity=replace(first.identity, decision_id=2, request_id="retry", snapshot_digest=public.digest),
+            execution=replace(first.execution, request_tick=1, timeout_tick=11,
+                              reachable_mask=(True,) * 21 + (False,)),
+        )
+        with patch.object(backend, "search", wraps=backend.search) as search:
+            before = builder.build(first)
+            after = builder.build(retry)
+            self.assertEqual(search.call_count, 1)
+        self.assertEqual(len(response.calls), 2)
+        self.assertEqual(response.calls[-1].request, retry)
+        self.assertTrue(after.diagnostics["shared_reuse"]["hit"])
+        self.assertEqual(before.shared_result, after.shared_result)
+        self.assertEqual(before.batch.counters.shared_nodes, after.batch.counters.shared_nodes)
+        self.assertNotEqual(before.batch.identity, after.batch.identity)
+        self.assertNotEqual(before.batch.digest, after.batch.digest)
+        self.assertTrue(set(v.candidate_id for v in before.batch.candidates).isdisjoint(
+            v.candidate_id for v in after.batch.candidates
+        ))
+        self.assertTrue(all(not v.root_reachable for v in after.batch.candidates if v.root_action == 21))
+        fresh = SharedSearchBatchBuilder(backend, cfg, response_provider=MockResponse()).build(retry)
+        self.assertEqual(after.deterministic_digest, fresh.deterministic_digest)
+        c.validate_request_batch(retry, after.batch)
+
+    def test_shared_cache_invalidates_all_backend_inputs_and_is_one_entry(self):
+        backend = PythonLongHorizonSearchBackend()
+        cache = SharedSearchCache()
+        builder = SharedSearchBatchBuilder(backend, config(), shared_cache=cache)
+        req = request(quota=(4, 0, 0))
+        builder.build(req)
+        _, key, _, _ = cache.entry
+        changes = (
+            {"root_state": replace(key.root_state, all_clear_bonus_pending=True)},
+            {"root_state": replace(key.root_state, planes=(1, 0, 0, 0, 0, 0))},
+            {"known_pairs": tuple(reversed(key.known_pairs))},
+            {"search_config": replace(key.search_config, decision_seed=999)},
+            {"search_config": replace(key.search_config, max_expanded_nodes=3)},
+            {"evaluator_config": replace(key.evaluator_config, weight_version="other")},
+            {"profile_name": "other"},
+        )
+        with patch.object(backend, "search", wraps=backend.search) as search:
+            for change in changes:
+                with self.subTest(change=change):
+                    _, source = cache.search(backend, replace(key, **change))
+                    self.assertIsNone(source)
+                    _, source = cache.search(backend, key)
+                    self.assertIsNone(source)
+            self.assertEqual(search.call_count, 2 * len(changes))
+        injected = CountingBackend()
+        cache.search(injected, key)
+        cache.search(injected, key)
+        self.assertEqual(len(injected.calls), 2)
+        self.assertIsNone(cache.entry)
+
     def test_quota_split_no_redistribution_and_select_does_not_search(self):
         backend, provider = CountingBackend(), MockResponse()
         cfg = config()

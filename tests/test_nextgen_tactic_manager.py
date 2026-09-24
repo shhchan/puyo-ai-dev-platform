@@ -365,7 +365,10 @@ class SchedulerTests(unittest.TestCase):
         self.controller.next_input(self.match, "player_0")
         record = self.controller.diagnostics.last_decision
         self.assertEqual(record.outcome, "stale")
-        self.assertTrue(record.fallback)
+        self.assertFalse(record.fallback)
+        self.assertIsNone(record.executed_action)
+        self.assertIsNone(record.activation_tick)
+        self.assertEqual(record.reason, "stale_snapshot_retry")
         self.assertEqual(record.nextgen_diagnostics["receipt"]["outcome"], "stale")
         self.assertEqual(
             self.controller.nextgen_scheduler.phase.diagnostics()["consumed_decisions"],
@@ -398,6 +401,70 @@ class SchedulerTests(unittest.TestCase):
         self.assertEqual(record.requested_action, requested)
         self.assertNotEqual(record.executed_action, requested)
         self.assertEqual(record.reason, "activation_unreachable_fallback")
+
+    def test_repeated_opponent_updates_retry_without_placement_then_adopt_once(self):
+        class Executor:
+            def submit(inner, function):
+                inner.future, inner.function = Future(), function
+                return inner.future
+
+        executor = Executor()
+        controller = RealtimePolicyController(
+            self.policy, decision_executor=executor,
+            config=RealtimeDecisionConfig(latency_mode="measured"),
+        )
+        with patch.object(self.policy.backend, "search", wraps=self.policy.backend.search) as search:
+            for index in range(3):
+                controller.next_input(self.match, "player_0")
+                result = executor.function()
+                # Opponent packet changes invalidate the full public snapshot.
+                self.match.schedule_attack("player_0", 1, delay_ticks=10 + index)
+                executor.future.set_result(result)
+                value = controller.next_input(self.match, "player_0")
+                record = controller.diagnostics.last_decision
+                self.assertEqual(record.outcome, "stale")
+                self.assertIsNone(record.executed_action)
+                self.assertEqual(value.press, ())
+                self.assertEqual(controller.diagnostics.decisions_activated, 0)
+                self.assertEqual(controller.nextgen_scheduler.phase.phase.consumed_decisions, 0)
+            controller.next_input(self.match, "player_0")
+            executor.future.set_result(executor.function())
+            controller.next_input(self.match, "player_0")
+            self.assertEqual(search.call_count, 1)
+        runtime = controller.nextgen_scheduler
+        self.assertEqual([d.receipt.outcome for d in runtime.ledger], ["stale"] * 3 + ["activated"])
+        self.assertEqual(len({d.request.identity.request_id for d in runtime.ledger}), 4)
+        self.assertEqual(controller.diagnostics.fallback_actions, 0)
+        self.assertEqual(controller.diagnostics.decisions_activated, 1)
+        self.assertEqual(runtime.phase.phase.consumed_decisions, 1)
+        self.assertTrue(controller.latest_policy_diagnostics["search"]["shared_reuse"]["hit"])
+
+    def test_retry_recomputes_response_when_new_own_threat_arrives(self):
+        from eval.nextgen_response_fixtures import COUNTER
+
+        game = self.match.player_states["player_0"].simulator.game
+        for y, row in enumerate(reversed(COUNTER)):
+            for x, cell in enumerate(row):
+                if cell:
+                    game.field.place_puyo(x, y, Puyo(c.PUBLIC_CELL_TO_COLOR[cell]))
+        game.current_puyo_1, game.current_puyo_2 = Puyo(PuyoColor.GREEN), Puyo(PuyoColor.YELLOW)
+        game.next_puyo_queue[0] = (Puyo(PuyoColor.RED), Puyo(PuyoColor.RED))
+        self.policy.profile = c.SearchProfile("counter", 4, 0, 2000)
+        self.controller = RealtimePolicyController(
+            self.policy, config=RealtimeDecisionConfig(inference_latency_ticks=1),
+        )
+        self.controller.next_input(self.match, "player_0")
+        self.match.schedule_attack("player_1", 31, delay_ticks=0)
+        self.match.step({})
+        self.controller.next_input(self.match, "player_0")
+        self.assertEqual(self.controller.diagnostics.last_decision.reason, "stale_snapshot_retry")
+        self.controller.next_input(self.match, "player_0")
+        self.match.step({})
+        self.controller.next_input(self.match, "player_0")
+        last = self.controller.nextgen_scheduler.ledger[-1]
+        self.assertEqual(last.selection.selected_tactic_id, "counter")
+        self.assertEqual(last.receipt.outcome, "activated")
+        self.assertTrue(self.policy.tactical_diagnostics["search"]["shared_reuse"]["hit"])
 
     def test_actual_hidden_row_legality_is_rechecked_even_when_public_digest_matches(
         self,
