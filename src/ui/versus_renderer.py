@@ -856,7 +856,7 @@ class VersusRenderer:
             "O overlay"
         )
         if any(name == "nextgen_tactic_manager" for name in controller.policy_names.values()):
-            controls += "  H history  PgUp/PgDn scroll"
+            controls += "  H history  J/K scroll  L latest"
         if controller.human is not None:
             controls += (
                 f"   Human: {bindings.display_names('human_left')}/"
@@ -927,7 +927,7 @@ class VersusRenderer:
         shade.fill((18, 23, 33, 245))
         self.screen.blit(shade, panel.topleft)
         pygame.draw.rect(self.screen, (130, 160, 205), panel, 2, border_radius=7)
-        self._draw_text("戦術・イベント履歴  H: 閉じる  PgUp/PgDn: スクロール  End: 最新", self.history_font, (245, 247, 255), (panel.x + 20, panel.y + 16))
+        self._draw_text("戦術・イベント履歴  H: 閉じる  J/K: スクロール  L: 最新", self.history_font, (245, 247, 255), (panel.x + 20, panel.y + 16))
         history = controller.tactic_history
         end = max(0, len(history) - controller.history_offset)
         rows = history[max(0, end - 21):end]

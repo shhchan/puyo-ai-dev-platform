@@ -1424,11 +1424,11 @@ class RealtimeVersusMatchController:
         elif key == pygame.K_h:
             self.history_open = not self.history_open
             self.history_offset = 0
-        elif self.history_open and key == pygame.K_PAGEUP:
+        elif self.history_open and key in (pygame.K_PAGEUP, pygame.K_j):
             self.history_offset = min(max(0, len(self.tactic_history) - 1), self.history_offset + 8)
-        elif self.history_open and key == pygame.K_PAGEDOWN:
+        elif self.history_open and key in (pygame.K_PAGEDOWN, pygame.K_k):
             self.history_offset = max(0, self.history_offset - 8)
-        elif self.history_open and key == pygame.K_END:
+        elif self.history_open and key in (pygame.K_END, pygame.K_l):
             self.history_offset = 0
         elif key == pygame.K_c:
             self.toggle_collection()

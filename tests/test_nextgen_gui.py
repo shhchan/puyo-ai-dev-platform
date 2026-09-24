@@ -8,11 +8,14 @@ from pathlib import Path
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
 from agents.nextgen_shared_search import scenario_provenance
 from agents.template_catalog import MatchResult, TemplateCandidate
-from eval.realtime_versus_ui import RealtimeVersusUiConfig, parse_config, validate_config
+from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig, parse_config, validate_config
 from puyo_env.nextgen_scheduler import NextgenScheduler
 from src.ui.launcher import LauncherService
 from src.ui.nextgen_display import history_entries_for_tick, nextgen_receipt_summary
-from src.ui.model_viewer import ModelViewerController, build_model_viewer_data
+from src.ui.model_viewer import ModelViewerController, build_model_viewer_data, handle_model_viewer_navigation_key
+from src.ui.keybindings import DEFAULT_BINDINGS
+
+import pygame
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +44,29 @@ def receipt_tick(request_id, tactic, *, tick=12, phase_id="phase-1", outcome="ac
 
 
 class NextgenGuiTests(unittest.TestCase):
+    def test_fn_free_history_keys_and_legacy_keys_keep_navigation(self):
+        reserved = {"j", "k", "l", "u", "i"}
+        self.assertFalse(reserved.intersection(key for keys in DEFAULT_BINDINGS.values() for key in keys))
+        pygame.init()
+        self.addCleanup(pygame.quit)
+        with tempfile.TemporaryDirectory() as directory:
+            controller = RealtimeVersusMatchController(RealtimeVersusUiConfig(
+                policy_a="random", policy_b="random", keybindings_path=str(Path(directory) / "keys.json"),
+            ))
+            try:
+                controller.tactic_history = [{"kind": "event", "tick": tick} for tick in range(25)]
+                controller.handle_keydown(pygame.K_h)
+                self.assertTrue(controller.history_open)
+                for key, offset in (
+                    (pygame.K_j, 8), (pygame.K_j, 16), (pygame.K_k, 8),
+                    (pygame.K_l, 0), (pygame.K_PAGEUP, 8),
+                    (pygame.K_PAGEDOWN, 0), (pygame.K_j, 8), (pygame.K_END, 0),
+                ):
+                    controller.handle_keydown(key)
+                    self.assertEqual(controller.history_offset, offset)
+            finally:
+                controller.shutdown()
+
     def test_launcher_preset_and_cli_round_trip_into_policy(self):
         with tempfile.TemporaryDirectory() as directory:
             service = LauncherService(repo_root=ROOT, preset_store_path=Path(directory) / "presets.json")
@@ -124,7 +150,7 @@ class NextgenGuiTests(unittest.TestCase):
     def test_replay_history_seeks_to_same_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             decision_tick = receipt_tick("request-1", "build_template")
-            history = history_entries_for_tick(decision_tick, {})
+            history = history_entries_for_tick(decision_tick, {}) + [{"kind": "event", "tick": 13, "agent": "player_0", "event": "lock"}]
             replay = Path(directory) / "replay.json"
             replay.write_text(json.dumps({
                 "format": "puyo-realtime-match-v1",
@@ -135,6 +161,14 @@ class NextgenGuiTests(unittest.TestCase):
             }), encoding="utf-8")
             controller = ModelViewerController(build_model_viewer_data(replay_path=replay, model_registry_path=None))
             controller.seek_tactic_history(1)
+            self.assertEqual(controller.selected_entry.tick, 12)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_k))
+            self.assertEqual(controller.selected_entry.tick, 13)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_j))
+            self.assertEqual(controller.selected_entry.tick, 12)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_h))
+            self.assertEqual(controller.selected_entry.tick, 13)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_h, pygame.KMOD_SHIFT))
             self.assertEqual(controller.selected_entry.tick, 12)
             report = controller.report()["replay"]
             self.assertEqual(report["selected_entry"]["agents"]["player_0"]["nextgen"]["tactic_id"], "build_template")

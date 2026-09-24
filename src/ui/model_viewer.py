@@ -904,7 +904,7 @@ class ModelViewerRenderer:
                 f"speed {controller.playback_stride}x  tick {entry.tick}  {controller.message}"
             )
         self._draw_text(status, self.font, ACCENT, (34, 64))
-        controls = "keys: Left/Right seek  H/Shift+H history  Space play/pause  +/- speed  b bookmark  PgUp/PgDn lineage  s scope"
+        controls = "keys: Left/Right seek  J/K history  U/I lineage  Space play/pause  +/- speed  b bookmark  s scope"
         self._draw_text(controls, self.small_font, MUTED, (34, 86))
 
     def _draw_replay_panel(self, controller: ModelViewerController) -> None:
@@ -1081,6 +1081,22 @@ class ModelViewerRenderer:
         self.screen.blit(font.render(text, True, color), pos)
 
 
+def handle_model_viewer_navigation_key(controller: ModelViewerController, key: int, modifiers: int = 0) -> bool:
+    """Apply tactic-history and lineage shortcuts, including laptop-friendly keys."""
+    if pygame is None:
+        return False
+    if key in (pygame.K_PAGEDOWN, pygame.K_TAB, pygame.K_i):
+        controller.seek_lineage(1)
+    elif key in (pygame.K_PAGEUP, pygame.K_u):
+        controller.seek_lineage(-1)
+    elif key in (pygame.K_h, pygame.K_j, pygame.K_k):
+        older = key == pygame.K_j or (key == pygame.K_h and bool(modifiers & pygame.KMOD_SHIFT))
+        controller.seek_tactic_history(-1 if older else 1)
+    else:
+        return False
+    return True
+
+
 def run_model_viewer(
     data: ModelViewerData,
     *,
@@ -1113,10 +1129,8 @@ def run_model_viewer(
                     controller.seek(1)
                 elif event.key in (pygame.K_LEFT, pygame.K_UP):
                     controller.seek(-1)
-                elif event.key in (pygame.K_PAGEDOWN, pygame.K_TAB):
-                    controller.seek_lineage(1)
-                elif event.key == pygame.K_PAGEUP:
-                    controller.seek_lineage(-1)
+                elif handle_model_viewer_navigation_key(controller, event.key, getattr(event, "mod", 0)):
+                    pass
                 elif event.key == pygame.K_SPACE:
                     controller.toggle_pause()
                 elif event.key in (pygame.K_EQUALS, pygame.K_PLUS):
@@ -1130,8 +1144,6 @@ def run_model_viewer(
                         controller.message = "no replay checkpoint in lineage"
                 elif event.key == pygame.K_s:
                     controller.change_adoption_scope()
-                elif event.key == pygame.K_h:
-                    controller.seek_tactic_history(-1 if event.mod & pygame.KMOD_SHIFT else 1)
         controller.advance_playback()
         renderer.draw(controller)
         frames += 1
