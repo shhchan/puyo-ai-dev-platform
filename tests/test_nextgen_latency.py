@@ -36,6 +36,24 @@ class BackendRoutingTests(unittest.TestCase):
             validate_config(replace(config, nextgen_backend="auto"))
 
     @unittest.skipUnless(importlib.util.find_spec("_puyo_deep_chain_native"), "native release extension unavailable")
+    def test_native_private_future_isolation_and_runtime_failure(self):
+        from tests.test_nextgen_tactic_manager import SchedulerTests
+
+        # Exercise the same authoritative public-boundary regression with the
+        # new default backend, including hidden row and unseen queue changes.
+        case = SchedulerTests()
+        case.setUp()
+        case.policy.backend = NativeLongHorizonSearchBackend()
+        case.test_private_future_changes_do_not_change_candidate_features_or_selection()
+        observation, info = case.controller.nextgen_scheduler.prepare(case.match, "player_0", case.controller.config)
+        with patch.object(case.policy.backend, "search", side_effect=IncompatibleSchemaError("runtime ABI mismatch")), patch(
+            "agents.nextgen_tactic_manager.PythonLongHorizonSearchBackend"
+        ) as python:
+            with self.assertRaises(IncompatibleSchemaError):
+                case.policy.select_action(observation, info)
+            python.assert_not_called()
+
+    @unittest.skipUnless(importlib.util.find_spec("_puyo_deep_chain_native"), "native release extension unavailable")
     def test_default_native_and_public_candidate_parity_through_spawn(self):
         self.assertIsInstance(NextgenTacticManagerPolicy().backend, NativeLongHorizonSearchBackend)
         python, observation, info = make_case("gtr_partial", 55, ("221000", "112000", "020000"), "python")
