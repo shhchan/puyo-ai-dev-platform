@@ -16,6 +16,7 @@ import resource
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
 
@@ -82,7 +83,7 @@ def build_provenance():
     }
 
 
-def initialize(output):
+def initialize(output, *, realtime_clock=False):
     path = output / "manifest.json"
     if path.exists():
         raise ValueError("manifest is immutable; use another output directory")
@@ -111,7 +112,10 @@ def initialize(output):
         "safe_max_ticks": 30000,
         "paired_seeds": [123],
         "paired_max_ticks": 600,
-        "paired_modes": ["configured", "measured"],
+        "paired_modes": ["measured"] if realtime_clock else ["configured", "measured"],
+        "paired_execution": "single_worker_realtime_clock"
+        if realtime_clock
+        else "synchronous",
         "worker_count": 1,
         "native_threads": 1,
         "matrix": {
@@ -222,14 +226,25 @@ class SafeNoThreatMatch(RealtimeVersusMatch):
         return None
 
 
-def measure(*, seed, max_ticks, safe, latency_mode="configured", swap=False):
+def measure(
+    *,
+    seed,
+    max_ticks,
+    safe,
+    latency_mode="configured",
+    swap=False,
+    realtime_clock=False,
+):
     policy = NextgenTacticManagerPolicy(seed=seed)
     opponent = NextgenTacticManagerPolicy(seed=seed, selector=SearchOnlySelector())
     policies = [opponent, policy] if swap else [policy, opponent]
     match = SafeNoThreatMatch(seed) if safe else RealtimeVersusMatch(seed=seed)
+    executor = ThreadPoolExecutor(max_workers=1) if realtime_clock else None
     controllers = [
         RealtimePolicyController(
-            p, config=RealtimeDecisionConfig(latency_mode=latency_mode)
+            p,
+            config=RealtimeDecisionConfig(latency_mode=latency_mode),
+            decision_executor=executor,
         )
         for p in policies
     ]
@@ -261,6 +276,14 @@ def measure(*, seed, max_ticks, safe, latency_mode="configured", swap=False):
                 chains.append(event.data["chain_count"])
         if safe and len(chains) >= 40 or match.finished:
             break
+        if realtime_clock:
+            remaining = match.tick / match.timing.tick_rate - (
+                time.perf_counter() - started
+            )
+            if remaining > 0:
+                time.sleep(remaining)
+    if executor is not None:
+        executor.shutdown(wait=True, cancel_futures=True)
     elapsed, cpu_seconds = time.perf_counter() - started, time.process_time() - cpu
     ledgers = [
         [d.to_dict() for d in controller.nextgen_scheduler.ledger]
@@ -292,6 +315,13 @@ def measure(*, seed, max_ticks, safe, latency_mode="configured", swap=False):
     decisions = [len(ledger) for ledger in ledgers]
     return {
         "seed": seed,
+        "execution_mode": "single_worker_realtime_clock"
+        if realtime_clock
+        else "synchronous",
+        "started_decisions": [
+            v.diagnostics.decisions_started for v in controllers[:count]
+        ],
+        "controller_metrics": [v.diagnostics.to_dict() for v in controllers[:count]],
         "latency_mode": latency_mode,
         "policy_a_side": own_side,
         "termination": "game_over"
@@ -356,10 +386,16 @@ def run_paired(output):
                     safe=False,
                     latency_mode=mode,
                     swap=swap,
+                    realtime_clock=manifest["config"].get("paired_execution")
+                    == "single_worker_realtime_clock",
                 )
                 result["manifest_sha256"] = manifest["sha256"]
                 write(path, result)
-    return {"paired_files": 4}
+    return {
+        "paired_files": len(manifest["config"]["paired_modes"])
+        * len(manifest["config"]["paired_seeds"])
+        * 2
+    }
 
 
 def finalize(output):
@@ -475,9 +511,20 @@ def finalize(output):
                 outcome: sum(r["outcome"] == outcome for r in receipts)
                 for outcome in sorted({r["outcome"] for r in receipts})
             },
-            "started_decisions": sum(len(r["decision_seconds"]) for r in group),
+            "started_decisions": sum(
+                sum(r.get("started_decisions", [len(r["decision_seconds"])]))
+                for r in group
+            ),
+            "execution_modes": sorted(
+                {r.get("execution_mode", "synchronous") for r in group}
+            ),
+            "realtime_latency_qualified": False,
+            "timeouts": sum(r["outcome"] == "timeout" for r in receipts),
             "ledger_decisions": len(receipts),
-            "pending_at_boundary": sum(len(r["decision_seconds"]) for r in group)
+            "pending_at_boundary": sum(
+                sum(r.get("started_decisions", [len(r["decision_seconds"])]))
+                for r in group
+            )
             - len(receipts),
             "wall_seconds": wall,
             "cpu_seconds": sum(r["cpu_seconds"] for r in group),
@@ -511,11 +558,16 @@ def main():
     parser.add_argument("command", choices=("init", "safe", "paired", "finalize"))
     parser.add_argument("--seed", type=int, choices=SEEDS)
     parser.add_argument("--repeat", type=int, choices=REPEATS)
+    parser.add_argument(
+        "--realtime-clock",
+        action="store_true",
+        help="init: freeze a single-worker async measured paired preflight",
+    )
     args = parser.parse_args()
     if args.command == "safe" and (args.seed is None or args.repeat is None):
         parser.error("safe requires seed and repeat")
     result = {
-        "init": lambda: initialize(args.output),
+        "init": lambda: initialize(args.output, realtime_clock=args.realtime_clock),
         "safe": lambda: run_safe(args.output, args.seed, args.repeat),
         "paired": lambda: run_paired(args.output),
         "finalize": lambda: finalize(args.output),
