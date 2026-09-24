@@ -28,7 +28,7 @@ python -m eval.nextgen_realtime_diagnostic \
   --output /tmp/puyo264-human-normal
 ```
 
-`human` は無入力の相手であり，random 対局とは別条件である．seed は環境／自分が 55，相手 policy が 10055 と固定される．既存 output directory には書き込まない．出力は次の 3 ファイルである．
+`human` は無入力の相手であり，random 対局とは別条件である．seed は環境／自分が 55，相手 policy が 10055 と固定される．既存 output directory には書き込まない．生成物は `/tmp` の専用 directory に出力し，Git に追加しない．GUI 形式の replay は controller diagnostics を tick ごとに含むため，上記の 11〜15 配置でも **1 対局約 0.5〜1.4 GB**，3 条件を合わせて約 3 GB の容量を使った．長い実行ではさらに増えるため，出力先の空き容量を確認する．出力は次の 3 ファイルである．
 
 | ファイル | 見る項目 |
 | --- | --- |
