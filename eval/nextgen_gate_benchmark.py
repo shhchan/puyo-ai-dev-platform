@@ -368,7 +368,14 @@ def run_safe(output, seed, repeat):
     return {
         k: v
         for k, v in result.items()
-        if k not in ("ledgers", "replay", "decision_seconds", "phase_seconds")
+        if k
+        not in (
+            "ledgers",
+            "replay",
+            "decision_seconds",
+            "phase_seconds",
+            "controller_metrics",
+        )
     }
 
 
@@ -456,7 +463,14 @@ def finalize(output):
         {
             k: v
             for k, v in r.items()
-            if k not in ("ledgers", "replay", "decision_seconds", "phase_seconds")
+            if k
+            not in (
+                "ledgers",
+                "replay",
+                "decision_seconds",
+                "phase_seconds",
+                "controller_metrics",
+            )
         }
         for r in paired
     ]
