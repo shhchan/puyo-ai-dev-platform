@@ -189,6 +189,7 @@ class RealtimeVersusUiConfig:
     nextgen_seed: int | None = None
     nextgen_commit_turns: int = 14
     nextgen_profile: str = "nextgen_smoke"
+    nextgen_backend: str = "native"
     nextgen_selector: str = "rule"
     nextgen_trajectory_path: str | None = None
     device_a: str | None = None
@@ -277,6 +278,8 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
             raise ValueError("nextgen RL selector is not available yet")
         if config.nextgen_profile not in NEXTGEN_PROFILE_CHOICES:
             raise ValueError(f"nextgen_profile must be one of: {NEXTGEN_PROFILE_CHOICES}")
+        if config.nextgen_backend not in ("native", "python"):
+            raise ValueError("nextgen_backend must be native or python")
         if config.nextgen_seed is not None and (type(config.nextgen_seed) is not int or config.nextgen_seed < 0):
             raise ValueError("nextgen_seed must be a non-negative integer or auto")
         if config.nextgen_trajectory_path is not None and not config.nextgen_trajectory_path.strip():
@@ -443,6 +446,7 @@ class RealtimeVersusMatchController:
                 else None
             ),
             "nextgen_profile": self.config.nextgen_profile if policy_type == "nextgen_tactic_manager" else None,
+            "nextgen_backend": self.config.nextgen_backend if policy_type == "nextgen_tactic_manager" else None,
             "nextgen_selector": self.config.nextgen_selector if policy_type == "nextgen_tactic_manager" else None,
             "nextgen_template_seed": self.config.nextgen_seed if policy_type == "nextgen_tactic_manager" else None,
         }
@@ -1202,6 +1206,7 @@ class RealtimeVersusMatchController:
                 seed=policy_seed,
                 template_seed=self.config.nextgen_seed,
                 profile=SearchProfile(self.config.nextgen_profile, *quotas),
+                backend=self.config.nextgen_backend,
                 search_config=LongHorizonSearchConfig(
                     depth=4,
                     width=4,
@@ -1563,6 +1568,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--nextgen-seed", type=int)
     parser.add_argument("--nextgen-commit-turns", type=int, default=14)
     parser.add_argument("--nextgen-profile", choices=NEXTGEN_PROFILE_CHOICES, default="nextgen_smoke")
+    parser.add_argument("--nextgen-backend", choices=("native", "python"), default="native")
     parser.add_argument("--nextgen-selector", choices=("rule", "rl"), default="rule")
     parser.add_argument("--nextgen-trajectory", dest="nextgen_trajectory_path")
     for side in ("a", "b"):
@@ -1642,6 +1648,7 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         nextgen_seed=args.nextgen_seed,
         nextgen_commit_turns=args.nextgen_commit_turns,
         nextgen_profile=args.nextgen_profile,
+        nextgen_backend=args.nextgen_backend,
         nextgen_selector=args.nextgen_selector,
         nextgen_trajectory_path=args.nextgen_trajectory_path,
         beam_depth_a=args.beam_depth_a,

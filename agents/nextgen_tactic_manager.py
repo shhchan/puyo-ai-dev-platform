@@ -19,7 +19,10 @@ from agents.decision_flow import (
     DecisionStepContract,
     StepResult,
 )
-from agents.deep_chain_search_backend import PythonLongHorizonSearchBackend
+from agents.deep_chain_search_backend import (
+    NativeLongHorizonSearchBackend,
+    PythonLongHorizonSearchBackend,
+)
 from agents.long_horizon_search import LongHorizonSearchConfig
 from agents.nextgen_response_search import PublicResponseProvider
 from agents.nextgen_shared_search import (
@@ -372,7 +375,16 @@ class NextgenTacticManagerPolicy:
             decision_seed=self.seed ^ 0x4E4753,
         )
         self.profile = profile or c.SearchProfile("nextgen_smoke", 256, 128, 256)
-        self.backend = backend or PythonLongHorizonSearchBackend()
+        # Use the existing strict release/ABI-checked adapter. Never silently
+        # replace a missing/incompatible native extension with a slower policy.
+        # Explicit Python remains available for parity and diagnostic runs.
+        if backend is None or backend == "native":
+            backend = NativeLongHorizonSearchBackend()
+        elif backend == "python":
+            backend = PythonLongHorizonSearchBackend()
+        elif isinstance(backend, str):
+            raise ValueError("nextgen backend must be native or python")
+        self.backend = backend
         self.selector = selector or RuleTacticSelector()
         self.template_binding_budget = template_binding_budget
         self.flow = DecisionFlow(

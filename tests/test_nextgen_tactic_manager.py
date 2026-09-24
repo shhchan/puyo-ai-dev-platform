@@ -38,6 +38,7 @@ def policy():
         search_config=config(),
         profile=c.SearchProfile("test", 80, 100, 20),
         seed=19,
+        backend="python",
     )
 
 

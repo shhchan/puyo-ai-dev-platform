@@ -91,7 +91,7 @@ def initialize(output, *, realtime_clock=False):
         ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, text=True
     ).strip():
         raise ValueError("commit source before freezing evaluation")
-    p = NextgenTacticManagerPolicy(seed=0)
+    p = NextgenTacticManagerPolicy(seed=0, backend="python")
     config = {
         "seeds": list(SEEDS),
         "repeats": list(REPEATS),
@@ -235,8 +235,8 @@ def measure(
     swap=False,
     realtime_clock=False,
 ):
-    policy = NextgenTacticManagerPolicy(seed=seed)
-    opponent = NextgenTacticManagerPolicy(seed=seed, selector=SearchOnlySelector())
+    policy = NextgenTacticManagerPolicy(seed=seed, backend="python")
+    opponent = NextgenTacticManagerPolicy(seed=seed, selector=SearchOnlySelector(), backend="python")
     policies = [opponent, policy] if swap else [policy, opponent]
     match = SafeNoThreatMatch(seed) if safe else RealtimeVersusMatch(seed=seed)
     executor = ThreadPoolExecutor(max_workers=1) if realtime_clock else None

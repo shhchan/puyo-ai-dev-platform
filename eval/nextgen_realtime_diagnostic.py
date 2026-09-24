@@ -61,7 +61,7 @@ def summarize(attempts):
     }
 
 
-def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", output):
+def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", output):
     if mode not in ("normal", "step"):
         raise ValueError("mode must be normal or step")
     output = Path(output)
@@ -73,6 +73,7 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", outp
         nextgen_seed=seed, nextgen_templates="gtr",
         nextgen_selection_mode="argmax", nextgen_commit_turns=14,
         nextgen_profile="nextgen_smoke", latency_mode="measured",
+        nextgen_backend=backend,
         max_ticks=max_ticks, replay_path=str(output / "replay.json"),
         dataset_root=str(output / "dataset"),
     )
@@ -169,6 +170,7 @@ def main():
     parser.add_argument("--placements", type=int, default=15)
     parser.add_argument("--max-ticks", type=int, default=6000)
     parser.add_argument("--opponent", choices=("random", "human"), default="random")
+    parser.add_argument("--backend", choices=("native", "python"), default="native")
     parser.add_argument("--output", type=Path, required=True)
     args = vars(parser.parse_args())
     if args["placements"] < 1 or args["max_ticks"] < 1:
