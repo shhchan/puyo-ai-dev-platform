@@ -227,6 +227,45 @@ def _plan(actions, pieces):
     )
 
 
+@dataclass(frozen=True)
+class PreparedTemplateSearch:
+    """Matcher output bound to the exact post-lifecycle request and shape.
+
+    Used by the scheduler policy to select/reconcile a phase before building
+    the batch, without spending the template quota twice.
+    """
+
+    request_digest: str
+    template_key: tuple | None
+    result: MatchResult
+    elapsed_seconds: float = 0.0
+
+    def validate(self, request, catalog, template_key):
+        if not math.isfinite(self.elapsed_seconds) or self.elapsed_seconds < 0:
+            raise ValueError("invalid prepared template elapsed time")
+        if (
+            catalog is None
+            or catalog.semantic_digest != request.control.template_config_hash
+        ):
+            raise ValueError("prepared template catalog mismatch")
+        if (
+            self.request_digest != c.semantic_digest(request)
+            or self.template_key != template_key
+        ):
+            raise ValueError("prepared template request/phase mismatch")
+        if (
+            not 0
+            <= self.result.coverage_nodes
+            <= request.control.search_profile.template_quota
+        ):
+            raise ValueError("prepared template quota exceeded")
+        if request.control.phase.active and not any(
+            v.key == template_key and v.template_id == request.control.phase.template_id
+            for v in self.result.candidates
+        ):
+            raise ValueError("prepared template selected shape missing")
+
+
 class SharedSearchBatchBuilder:
     """Fixed search configuration; each request owns fresh non-transferable quotas."""
 
@@ -249,7 +288,13 @@ class SharedSearchBatchBuilder:
         self.template_binding_budget = template_binding_budget
         self.response_provider = response_provider
 
-    def build(self, request: c.NextgenRequest) -> SharedSearchBatchExecution:
+    def build(
+        self,
+        request: c.NextgenRequest,
+        *,
+        prepared_template=None,
+        template_key=None,
+    ) -> SharedSearchBatchExecution:
         started = time.perf_counter()
         profile = request.control.search_profile
         known = request.public.own.known_pieces
@@ -261,6 +306,10 @@ class SharedSearchBatchBuilder:
             != request.control.template_config_hash
         ):
             raise ValueError("template config hash mismatch")
+        if prepared_template is not None:
+            if not isinstance(prepared_template, PreparedTemplateSearch):
+                raise TypeError("prepared template must be a bound matcher result")
+            prepared_template.validate(request, self.template_catalog, template_key)
         state, board_complete = _public_state(request)
         roots = (
             () if not known or state.game_over else tuple(legal_action_indices(state))
@@ -312,7 +361,11 @@ class SharedSearchBatchBuilder:
         stage_started = time.perf_counter()
         template = None
         phase = request.control.phase
-        if reachable and phase.active:
+        if prepared_template is not None:
+            template = prepared_template.result
+            if template.cutoff:
+                cutoffs.append("template_quota")
+        elif reachable and phase.active:
             if self.template_catalog is None:
                 cutoffs.append("template_provider_unavailable")
             else:
@@ -327,6 +380,8 @@ class SharedSearchBatchBuilder:
                 if template.cutoff:
                     cutoffs.append("template_quota")
         stage_ms["template"] = (time.perf_counter() - stage_started) * 1000
+        if prepared_template is not None:
+            stage_ms["template"] += prepared_template.elapsed_seconds * 1000
         stage_started = time.perf_counter()
         response_budget = ResponseBudget(profile.response_quota)
         response = ResponseSearchResult()
@@ -463,9 +518,11 @@ class SharedSearchBatchBuilder:
                         ),
                         (2, -fire.chain_score, fire.depth, fire.path),
                     )
-        if template is not None:
+        if template is not None and phase.active:
             for value in sorted(template.candidates, key=lambda v: (-v.score, v.key)):
                 if value.template_id != phase.template_id or value.fit_status != "fit":
+                    continue
+                if template_key is not None and value.key != template_key:
                     continue
                 selected_template = next(
                     t
@@ -609,7 +666,12 @@ class SharedSearchBatchBuilder:
             (shared.counters.evaluated_nodes + 1 if shared else 0)
             + (template.feature_evaluations if template else 0)
             + response_budget.feature_evaluations,
-            (time.perf_counter() - started) * 1000,
+            (
+                time.perf_counter()
+                - started
+                + (prepared_template.elapsed_seconds if prepared_template else 0.0)
+            )
+            * 1000,
         )
         batch = c.CandidateBatch(
             request.identity,
