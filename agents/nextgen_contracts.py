@@ -20,7 +20,8 @@ from puyo_env.actions import NUM_ACTIONS
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 
 REQUEST_SCHEMA_VERSION = "puyo.nextgen.request.v1"
-CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v1"
+LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v1"
+CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v2"
 FEATURE_SCHEMA_VERSION = "puyo.nextgen.features.v1"
 SELECTION_SCHEMA_VERSION = "puyo.nextgen.selection.v1"
 DIAGNOSTICS_SCHEMA_VERSION = "puyo.nextgen.diagnostics.v1"
@@ -140,6 +141,7 @@ def _typed(value, annotation, path):
 
 class Contract:
     SCHEMA: ClassVar[str | None] = None
+    READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = ()
 
     def __post_init__(self):
         hints = get_type_hints(type(self))
@@ -148,7 +150,7 @@ class Contract:
                 self, f.name, _typed(getattr(self, f.name), hints[f.name], f.name)
             )
         if self.SCHEMA is not None:
-            _require(self.schema_version == self.SCHEMA, "unsupported schema version")
+            _require(self.schema_version in (self.SCHEMA, *self.READABLE_SCHEMAS), "unsupported schema version")
         self._validate()
 
     def _validate(self):
@@ -489,6 +491,7 @@ def candidate_id(
 
 @dataclass(frozen=True)
 class Candidate(Contract):
+    """Deduplicated plan; rank is stable batch enumeration, not tactic priority."""
     identity: DecisionIdentity
     candidate_id: str
     root_action: int
@@ -538,6 +541,7 @@ class Candidate(Contract):
 
 @dataclass(frozen=True)
 class TacticSummary(Contract):
+    """Candidate IDs in this tactic's immutable, search-time priority order."""
     tactic_id: TacticId
     candidate_ids: tuple[str, ...]
     best_id: str | None
@@ -596,6 +600,7 @@ class SearchCounters(Contract):
 @dataclass(frozen=True)
 class CandidateBatch(Contract):
     SCHEMA: ClassVar[str] = CANDIDATE_BATCH_SCHEMA_VERSION
+    READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION,)
     identity: DecisionIdentity
     status: Literal["complete", "partial", "unavailable"]
     cutoff_reason: str | None
@@ -638,14 +643,20 @@ class CandidateBatch(Contract):
                     "plan public prefix mismatch",
                 )
         for t in self.tactics:
-            expected = tuple(
+            expected = {
                 c.candidate_id
-                for c in sorted(self.candidates, key=lambda c: c.rank)
+                for c in self.candidates
                 if t.tactic_id in c.tactics and c.root_legal and c.root_reachable
-            )
+            }
             _require(
-                t.candidate_ids == expected, "tactic candidate reference/rank mismatch"
+                set(t.candidate_ids) == expected, "tactic candidate reference mismatch"
             )
+            if self.schema_version == LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION:
+                _require(
+                    t.candidate_ids == tuple(c.candidate_id for c in sorted(self.candidates, key=lambda c: c.rank)
+                                             if c.candidate_id in expected),
+                    "legacy tactic candidate rank mismatch",
+                )
         _require(
             self.status != "unavailable" or not self.candidates,
             "unavailable batch has candidates",
@@ -996,6 +1007,7 @@ _SCHEMA_TYPES = {
     c.SCHEMA: c
     for c in (NextgenRequest, CandidateBatch, PolicyFeatures, Selection, Diagnostics)
 }
+_SCHEMA_TYPES[LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION] = CandidateBatch
 
 
 def from_dict(payload: Mapping) -> Contract:

@@ -176,6 +176,50 @@ class MockResponse:
 
 
 class SharedBatchTests(unittest.TestCase):
+    def test_fire_and_response_dedup_cannot_promote_a_build_root(self):
+        from agents.compact_search import transition
+        from agents.nextgen_shared_search import _pairs, _public_state
+
+        cfg = replace(config(), minimum_chain_count=10)
+        board = ((0,) * 6,) * 11 + ((1, 0, 0, 0, 0, 0),) * 3
+        req = request(cfg, board=board, quota=(160, 0, 7))
+        result = SharedSearchBatchBuilder(
+            PythonLongHorizonSearchBackend(), cfg, response_provider=MockResponse(),
+        ).build(req)
+        state, _ = _public_state(req)
+        pair = _pairs(req.public.own.known_pieces)[0]
+        chosen = result.select("build_main")
+        self.assertEqual(chosen.root_action, result.root_rankings[0])
+        self.assertEqual(transition(state, pair, chosen.root_action).chain_count, 0)
+        firing = [v for v in result.batch.candidates if len(v.plan) == 1
+                  and transition(state, pair, v.root_action).chain_count > 0]
+        self.assertTrue(firing)
+        self.assertTrue(any("decisive_short_attack" in v.tactics and "build_main" in v.tactics for v in firing))
+        # The response rank still chooses its own root, while build keeps the
+        # quiet continuation. One plan retains one semantic candidate ID.
+        self.assertEqual(result.select("cancel").root_action, 0)
+        self.assertNotEqual(chosen.root_action, result.select("cancel").root_action)
+        self.assertEqual(len({v.candidate_id for v in result.batch.candidates}), len(result.batch.candidates))
+        c.validate_request_batch(req, result.batch)
+        self.assertEqual(c.CandidateBatch.from_dict(result.batch.to_dict()), result.batch)
+        build = result.batch.tactics[0]
+        global_ids = tuple(v.candidate_id for v in sorted(result.batch.candidates, key=lambda v: v.rank)
+                           if "build_main" in v.tactics and v.root_reachable)
+        self.assertNotEqual(build.candidate_ids, global_ids)
+        self.assertEqual(result.batch.schema_version, c.CANDIDATE_BATCH_SCHEMA_VERSION)
+        with self.assertRaisesRegex(ValueError, "legacy.*rank"):
+            replace(result.batch, schema_version=c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION)
+        with self.assertRaises(ValueError):
+            incomplete = replace(build, candidate_ids=build.candidate_ids[:-1])
+            replace(result.batch, tactics=(incomplete, *result.batch.tactics[1:]))
+        with self.assertRaises(ValueError):
+            replace(build, candidate_ids=build.candidate_ids + (build.best_id,))
+        with self.assertRaises(ValueError):
+            unreachable = tuple(replace(v, root_reachable=False) if v.candidate_id == build.best_id else v for v in result.batch.candidates)
+            replace(result.batch, candidates=unreachable)
+        with patch.object(PythonLongHorizonSearchBackend, "search", side_effect=AssertionError("late search")):
+            self.assertEqual(result.select("build_main"), chosen)
+
     def test_retry_reuses_only_pure_shared_search_and_rebuilds_public_batch(self):
         backend, response = PythonLongHorizonSearchBackend(), MockResponse()
         cfg = config()

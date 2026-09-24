@@ -458,6 +458,9 @@ class SharedSearchBatchBuilder:
             request.control.template_config_hash,
         )
         entries = {}
+        # A deduplicated plan can serve several tactics. A response/template
+        # score must never promote its root in the safe-build ordering.
+        tactic_keys = {t: {} for t in c.TACTIC_IDS}
 
         def add(plan, tactics, evidence, key, *, fallback=False):
             if not plan or plan[0].action not in roots:
@@ -468,6 +471,9 @@ class SharedSearchBatchBuilder:
                 ):
                     raise ValueError("proposal known piece mismatch")
             cid = c.candidate_id(request.identity, plan, assumptions)
+            for tactic in tactics:
+                previous = tactic_keys[tactic].get(cid)
+                tactic_keys[tactic][cid] = key if previous is None else min(key, previous)
             if cid in entries:
                 old = entries[cid]
                 tactics = tuple(t for t in c.TACTIC_IDS if t in tactics or t in old[1])
@@ -649,9 +655,10 @@ class SharedSearchBatchBuilder:
         )
         rows = []
         for tactic in c.TACTIC_IDS:
-            members = tuple(
-                v for v in candidates if tactic in v.tactics and v.root_reachable
-            )
+            members = tuple(sorted(
+                (v for v in candidates if tactic in v.tactics and v.root_reachable),
+                key=lambda v: (tactic_keys[tactic][v.candidate_id], v.candidate_id),
+            ))
             reason = "not_found_within_budget"
             status = "partial" if cutoffs else "evaluated"
             if not roots:

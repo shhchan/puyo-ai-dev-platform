@@ -74,6 +74,24 @@ def next_diagnostic(previous):
 
 
 class NextgenTrajectoryTest(unittest.TestCase):
+    def test_legacy_and_v2_manifest_schema_match_actual_batches(self):
+        from agents import nextgen_contracts as c
+        from tests.test_nextgen_contracts import make_diagnostics
+
+        for diagnostic in (fixture(), make_diagnostics()):
+            with self.subTest(schema=diagnostic.batch.schema_version), tempfile.TemporaryDirectory() as tmp:
+                manifest = self.produce(tmp, episode(diagnostic))
+                self.assertEqual(manifest["extra"]["nextgen"]["batch_schema"], diagnostic.batch.schema_version)
+                self.assertEqual(validate_nextgen_run(tmp), manifest)
+                self.assertEqual(list(iter_actor_samples(tmp)), [(diagnostic.features.to_dict(), "build_main")])
+                manifest["extra"]["nextgen"]["batch_schema"] = (
+                    c.CANDIDATE_BATCH_SCHEMA_VERSION if diagnostic.batch.schema_version == c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION
+                    else c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION
+                )
+                (Path(tmp) / "artifact_manifest.json").write_text(json.dumps(manifest))
+                with self.assertRaisesRegex(ValueError, "manifest/batch schema"):
+                    validate_nextgen_run(tmp)
+
     def produce(self, path, ep=None):
         return write_nextgen_run(run_dir=path, run_id="fixture-run", episodes=[ep or episode()],
                                  config={"profile": "smoke"}, provenance=provenance(), git_commit="abc123")
