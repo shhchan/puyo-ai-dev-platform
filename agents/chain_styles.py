@@ -7,12 +7,15 @@ concrete style such as GTR.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Protocol
+from typing import Any, Protocol
 
 import yaml
 
+from agents.nextgen_contracts import PublicSnapshot
+from agents.template_catalog import TemplateCatalog, match_templates
 
 CHAIN_STYLE_SCHEMA_VERSION = "puyo.chain_style.v1"
 CHAIN_STYLE_REGISTRY_SCHEMA_VERSION = "puyo.chain_style_registry.v1"
@@ -117,6 +120,69 @@ class ChainStyleProviderResult:
 
 class ChainStyleProvider(Protocol):
     def evaluate(self, simulator: Any, definition: ChainStyleDefinition) -> ChainStyleProviderResult: ...
+
+
+@dataclass(frozen=True)
+class PublicTemplateStyleInput:
+    """Explicit public input for a catalog-backed style provider."""
+
+    snapshot: PublicSnapshot
+    snapshot_digest: str
+    catalog_digest: str
+    reachable_mask: tuple[bool, ...]
+    node_budget: int
+    binding_budget: int
+
+
+class PublicTemplateCatalogProvider:
+    """Opt-in bridge to the existing provider injection point.
+
+    It accepts only a public snapshot, never a legacy simulator. Catalog
+    selection and phase ownership remain in the next-generation controller.
+    """
+
+    provider_id = "nextgen.template_catalog.v1"
+
+    def __init__(self, catalog: TemplateCatalog):
+        self.catalog = catalog
+
+    def evaluate(self, simulator: Any, definition: ChainStyleDefinition) -> ChainStyleProviderResult:
+        if not isinstance(simulator, PublicTemplateStyleInput):
+            raise TypeError("template provider requires explicit public style input")
+        if simulator.snapshot.digest != simulator.snapshot_digest:
+            raise ValueError("stale public snapshot digest")
+        if simulator.catalog_digest != self.catalog.semantic_digest:
+            raise ValueError("stale template catalog digest")
+        if not any(t.id == definition.style_id and t.enabled for t in self.catalog.templates):
+            raise ValueError("style ID is not an enabled template")
+        result = match_templates(
+            self.catalog,
+            simulator.snapshot.own.visible_board,
+            simulator.snapshot.own.known_pieces,
+            node_budget=simulator.node_budget,
+            binding_budget=simulator.binding_budget,
+            reachable_mask=simulator.reachable_mask,
+        )
+        candidates = [c for c in result.candidates if c.template_id == definition.style_id]
+        candidate = min(candidates, key=lambda c: (c.fit_status != "fit", -c.score, c.key))
+        return ChainStyleProviderResult(
+            applicable=candidate.fit_status == "fit",
+            adherence_score=max(0.0, min(1.0, candidate.score)),
+            hard_constraint_satisfied=candidate.fit_status == "fit",
+            diagnostics={
+                "progress": candidate.progress,
+                "complete": candidate.complete,
+                "score": candidate.score,
+                "fit_status": candidate.fit_status,
+                "reason": candidate.reason,
+                "witness_candidate_id": candidate.witness_candidate_id,
+                "witness_actions": candidate.witness_actions,
+                "known_prefix_length": candidate.known_prefix_length,
+                "cutoff": result.cutoff,
+                "coverage_nodes": result.coverage_nodes,
+                "catalog_digest": self.catalog.semantic_digest,
+            },
+        )
 
 
 class _UnconstrainedProvider:

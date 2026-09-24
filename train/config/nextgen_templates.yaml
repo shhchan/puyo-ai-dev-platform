@@ -1,0 +1,49 @@
+# PUYO-246 source-grounded, unfired foundation cores; see the companion review guide.
+schema_version: puyo.template_catalog.v1
+enabled: true
+selection: {mode: argmax, temperature: 0.2, seed_stream: template}
+default_commit_turns: 14
+templates:
+  - id: gtr
+    version: "1"
+    enabled: true
+    commit_turns: null
+    variants:
+      - id: left_supported_core
+        origin: {x: 0, y_from_bottom: 0}
+        pattern_rows_bottom_up: ["BBC", "AAB", "AB."]
+        # C supports the raised right-hand B. A and C may share a color.
+        different: [[A, B], [B, C]]
+        same: []
+        empty_cells: []
+        occupied_cells: []
+        weight: 1.0
+        transforms: [identity]
+  - id: daa
+    version: "1"
+    enabled: true
+    commit_turns: null
+    variants:
+      - id: two_interlocking_l
+        origin: {x: 0, y_from_bottom: 0}
+        pattern_rows_bottom_up: ["ABB", "AAB"]
+        different: [[A, B]]
+        same: []
+        empty_cells: []
+        occupied_cells: []
+        weight: 1.0
+        transforms: [identity]
+  - id: persian
+    version: "1"
+    enabled: true
+    commit_turns: null
+    variants:
+      - id: central_step_flat_tail
+        origin: {x: 0, y_from_bottom: 0}
+        pattern_rows_bottom_up: ["AAACCC", ".BCB..", "..BB.."]
+        different: [[A, B], [A, C], [B, C]]
+        same: []
+        empty_cells: []
+        occupied_cells: []
+        weight: 1.0
+        transforms: [identity]
