@@ -101,6 +101,7 @@ class RealtimeVersusMatch:
         rng_seed = 0 if self.seed is None else self.seed
         self.tick = 0
         self._last_winner = None
+        self._public_snapshot_adapter = None
         self.player_states = {
             agent: RealtimeVersusPlayerState(
                 simulator=RealtimeHeadlessSimulator(seed=self.seed, timing=self.timing)
@@ -119,6 +120,8 @@ class RealtimeVersusMatch:
         inputs = inputs or {}
         current_tick = self.tick
         ending = self.ending
+        if self._public_snapshot_adapter is not None:
+            self._public_snapshot_adapter.before_tick(self)
         player_results = {
             agent: self.player_states[agent].simulator.step(
                 inputs.get(agent), resolution_only=ending, spawn_next=False,
@@ -160,6 +163,8 @@ class RealtimeVersusMatch:
         # Once a player tops out, only the already running resolution may finish.
         # Remaining incoming packets are notices, never another garbage drop.
         ending = self.ending
+        if self._public_snapshot_adapter is not None:
+            self._public_snapshot_adapter.observe_arrivals(self, current_tick)
         dropped = {
             agent: 0 if ending else self._apply_due_ojama(
                 agent,
@@ -186,7 +191,7 @@ class RealtimeVersusMatch:
         self._last_winner = winner
 
         self.tick += 1
-        return RealtimeMatchTickResult(
+        result = RealtimeMatchTickResult(
             tick=current_tick,
             player_results=player_results,
             generated_attacks=generated,
@@ -195,6 +200,27 @@ class RealtimeVersusMatch:
             winner=winner,
             snapshot_hash=self.state_hash(),
         )
+        if self._public_snapshot_adapter is not None:
+            self._public_snapshot_adapter.observe_tick(self, result)
+        return result
+
+    def public_snapshot(self, player_id: int = 0):
+        """Enable public event observation and return an immutable nextgen value.
+
+        Call before the first step to retain the complete episode history.
+        Reset discards the observer; pre-install history is never synthesized.
+        """
+        if self._public_snapshot_adapter is None:
+            from puyo_env.nextgen_public_snapshot import PublicVersusSnapshotAdapter
+
+            self._public_snapshot_adapter = PublicVersusSnapshotAdapter()
+        return self._public_snapshot_adapter.snapshot(self, player_id)
+
+    def public_timing_history(self):
+        """Return public packet/resolution event IDs for control and diagnostics."""
+        if self._public_snapshot_adapter is None:
+            self.public_snapshot()
+        return self._public_snapshot_adapter.timing_history()
 
     def advance_ticks(
         self,

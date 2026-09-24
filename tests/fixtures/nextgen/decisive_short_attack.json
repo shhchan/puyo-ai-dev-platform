@@ -1,0 +1,785 @@
+{
+  "request": {
+    "identity": {
+      "episode_id": "fixture-episode",
+      "player_id": 0,
+      "decision_id": 7,
+      "request_id": "fixture-request-7",
+      "snapshot_digest": "f67a916b92ba37b29f15fcf382431afb94854c24228ae33924cf9e91d388e5b1"
+    },
+    "public": {
+      "own": {
+        "visible_board": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "known_pieces": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "phase": "falling",
+        "attack_packets": [],
+        "score_carry": 0,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": false
+      },
+      "opponent": {
+        "visible_board": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "known_pieces": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "phase": "falling",
+        "attack_packets": [],
+        "score_carry": 0,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": false
+      },
+      "events": [],
+      "information_mode": "public_only"
+    },
+    "execution": {
+      "reachable_mask": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "request_tick": 100,
+      "timeout_tick": 110,
+      "timing_schema": "fixture.timing.v1",
+      "timing_digest": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4",
+      "latency_mode": "configured"
+    },
+    "control": {
+      "phase": {
+        "phase_id": "phase-0",
+        "template_id": "gtr",
+        "active": true,
+        "remaining_decisions": 8,
+        "decision_limit": 14,
+        "progress": 0.4,
+        "fit_status": "fit",
+        "previous_tactic": "build_template",
+        "tactic_continuation": 6
+      },
+      "search_profile": {
+        "profile_id": "smoke",
+        "shared_quota": 10,
+        "template_quota": 4,
+        "response_quota": 2
+      },
+      "template_config_hash": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4",
+      "scenario_provenance": {
+        "generator_version": "fixture.v1",
+        "public_prefix_digest": "83625e050fbb207834bd3d58781fb1ce3e508faec0aa1be77ada1001f6413b4d",
+        "stream_id": "search",
+        "scenario_digest": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4"
+      },
+      "tactic_registry_hash": "500b7d7b2d1ddf1a4b38e42a5a69ba290ed1b1350a9d279039bd6ae952304982"
+    },
+    "schema_version": "puyo.nextgen.request.v1"
+  },
+  "batch": {
+    "identity": {
+      "episode_id": "fixture-episode",
+      "player_id": 0,
+      "decision_id": 7,
+      "request_id": "fixture-request-7",
+      "snapshot_digest": "f67a916b92ba37b29f15fcf382431afb94854c24228ae33924cf9e91d388e5b1"
+    },
+    "status": "complete",
+    "cutoff_reason": null,
+    "known_prefix_length": 3,
+    "candidates": [
+      {
+        "identity": {
+          "episode_id": "fixture-episode",
+          "player_id": 0,
+          "decision_id": 7,
+          "request_id": "fixture-request-7",
+          "snapshot_digest": "f67a916b92ba37b29f15fcf382431afb94854c24228ae33924cf9e91d388e5b1"
+        },
+        "candidate_id": "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa",
+        "root_action": 4,
+        "plan": [
+          {
+            "action": 4,
+            "piece": [
+              1,
+              2
+            ],
+            "provenance": "public_known"
+          }
+        ],
+        "tactics": [
+          "build_main",
+          "decisive_short_attack"
+        ],
+        "rank": 0,
+        "root_legal": true,
+        "root_reachable": true,
+        "assumptions": {
+          "snapshot_digest": "f67a916b92ba37b29f15fcf382431afb94854c24228ae33924cf9e91d388e5b1",
+          "scenario_digest": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4",
+          "timing_digest": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4",
+          "search_profile_digest": "1f69e57514ed5a6ce8d1ae82aa876feb34eebf1a355523d0976aff7deaa50533",
+          "template_config_hash": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4"
+        },
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ],
+        "fallback": false
+      }
+    ],
+    "tactics": [
+      {
+        "tactic_id": "build_main",
+        "candidate_ids": [
+          "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa"
+        ],
+        "best_id": "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa",
+        "available": true,
+        "mask_reason": "available",
+        "evaluation_status": "evaluated",
+        "known_witness": true,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      },
+      {
+        "tactic_id": "build_template",
+        "candidate_ids": [],
+        "best_id": null,
+        "available": false,
+        "mask_reason": "not_found_within_budget",
+        "evaluation_status": "evaluated",
+        "known_witness": false,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      },
+      {
+        "tactic_id": "fire_main",
+        "candidate_ids": [],
+        "best_id": null,
+        "available": false,
+        "mask_reason": "not_found_within_budget",
+        "evaluation_status": "evaluated",
+        "known_witness": false,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      },
+      {
+        "tactic_id": "cancel",
+        "candidate_ids": [],
+        "best_id": null,
+        "available": false,
+        "mask_reason": "not_found_within_budget",
+        "evaluation_status": "evaluated",
+        "known_witness": false,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      },
+      {
+        "tactic_id": "counter",
+        "candidate_ids": [],
+        "best_id": null,
+        "available": false,
+        "mask_reason": "not_found_within_budget",
+        "evaluation_status": "evaluated",
+        "known_witness": false,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      },
+      {
+        "tactic_id": "decisive_short_attack",
+        "candidate_ids": [
+          "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa"
+        ],
+        "best_id": "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa",
+        "available": true,
+        "mask_reason": "available",
+        "evaluation_status": "evaluated",
+        "known_witness": true,
+        "evidence": [
+          {
+            "name": "outgoing",
+            "evidence": {
+              "value": null,
+              "status": "not_evaluated",
+              "source": "public_estimate"
+            }
+          },
+          {
+            "name": "scenario_coverage",
+            "evidence": {
+              "value": 1.0,
+              "status": "evaluated",
+              "source": "sampled_future"
+            }
+          }
+        ]
+      }
+    ],
+    "counters": {
+      "shared_nodes": 2,
+      "template_nodes": 1,
+      "response_nodes": 0,
+      "feature_evaluations": 3,
+      "elapsed_ms": 0.5
+    },
+    "schema_version": "puyo.nextgen.candidate_batch.v1"
+  },
+  "features": {
+    "values": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.5714285714285714,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      0.125,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0,
+      0.125,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "missing": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "action_mask": [
+      true,
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    "feature_registry_hash": "2d47294da98a44878ebffc8bd84d15b620fce6ec06a7448fef335a38e620efb9",
+    "tactic_registry_hash": "500b7d7b2d1ddf1a4b38e42a5a69ba290ed1b1350a9d279039bd6ae952304982",
+    "schema_version": "puyo.nextgen.features.v1"
+  },
+  "selection": {
+    "selected_tactic_id": "decisive_short_attack",
+    "candidate_id": "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa",
+    "batch_digest": "b4cab8d354293a9a9918dc3607a9a08a89a9637f63e8c744184a1c084bf3b977",
+    "selector_kind": "rule",
+    "selector_checkpoint": null,
+    "behavior_log_prob": null,
+    "value": null,
+    "reason": "fixture",
+    "schema_version": "puyo.nextgen.selection.v1"
+  },
+  "receipt": {
+    "requested_candidate_id": "candidate:531c7e06d944ecb46f7e43bd07de775de99e0576870aae08e5f49db6f7beeeaa",
+    "requested_action": 4,
+    "executed_action": 4,
+    "outcome": "activated",
+    "request_tick": 100,
+    "completion_tick": 101,
+    "activation_tick": 102,
+    "timeout_tick": 110,
+    "pre_execution_snapshot_digest": "f67a916b92ba37b29f15fcf382431afb94854c24228ae33924cf9e91d388e5b1",
+    "reason": "fixture_activation"
+  },
+  "schema_version": "puyo.nextgen.diagnostics.v1"
+}

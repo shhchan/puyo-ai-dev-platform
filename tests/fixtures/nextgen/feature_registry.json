@@ -1,0 +1,1214 @@
+{
+  "hash": "2d47294da98a44878ebffc8bd84d15b620fce6ec06a7448fef335a38e620efb9",
+  "features": [
+    {
+      "name": "threat.none",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "threat.potential",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "threat.pressing",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "threat.immediate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "response.possible",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "response.marginal",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "response.impossible",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "response.unknown",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "first_fire_loss.lower",
+      "dtype": "float32",
+      "scale": 3.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "first_fire_loss.upper",
+      "dtype": "float32",
+      "scale": 3.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "own.main.chain_count",
+      "dtype": "float32",
+      "scale": 19.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.main.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.main.danger",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.main.trigger_survives",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.sub.chain_count",
+      "dtype": "float32",
+      "scale": 19.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.sub.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.sub.danger",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "own.sub.trigger_survives",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.main.chain_count",
+      "dtype": "float32",
+      "scale": 19.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.main.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.main.danger",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.main.trigger_survives",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.sub.chain_count",
+      "dtype": "float32",
+      "scale": 19.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.sub.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.sub.danger",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "opponent.sub.trigger_survives",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "search_evidence",
+      "version": 1
+    },
+    {
+      "name": "phase.active",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.remaining_ratio",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.progress",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.fit",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.no_fit",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.fit_unknown",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.build_main",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.build_template",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.fire_main",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.cancel",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.counter",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.previous.decisive_short_attack",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "phase.continuation",
+      "dtype": "float32",
+      "scale": 14.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "public_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_main.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.build_template.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.fire_main.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.cancel.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.counter.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.available",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.known_witness",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.count",
+      "dtype": "float32",
+      "scale": 8.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.firepower",
+      "dtype": "float32",
+      "scale": 360.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "log1p",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.deadline_negative",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.deadline_zero",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.deadline_positive",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.scenario_coverage",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    },
+    {
+      "name": "tactic.decisive_short_attack.fatal_rate",
+      "dtype": "float32",
+      "scale": 1.0,
+      "clip": [
+        0.0,
+        1.0
+      ],
+      "transform": "linear",
+      "missingness": "zero_with_bit",
+      "source": "tactic_summary",
+      "version": 1
+    }
+  ]
+}
