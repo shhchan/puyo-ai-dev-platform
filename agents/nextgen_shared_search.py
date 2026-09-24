@@ -99,12 +99,44 @@ class ResponseProposal:
 
 
 @dataclass(frozen=True)
+class ResponseDropOutcome:
+    columns: tuple[int, ...]
+    placed: int
+    remaining_packets: tuple[c.PublicAttackPacket, ...]
+    game_over: bool
+    conditional: bool = False
+
+
+@dataclass(frozen=True)
+class ResponseTrace:
+    """Public conditional search evidence; not a wire candidate or receipt."""
+
+    plan: tuple[c.PlanStep, ...]
+    tactic: c.TacticId
+    first_drop_count: int
+    first_drop_columns: tuple[int, ...]
+    remaining_packets: tuple[c.PublicAttackPacket, ...]
+    following_drop_count: int
+    conditional: bool
+    fire_start: tuple[int | None, int | None]
+    fire_end: tuple[int | None, int | None]
+    following_drops: tuple[ResponseDropOutcome, ...] = ()
+    provenance: str = "public_response_search.v1; replan_after_observed_drop"
+
+    @property
+    def first_drop_after_step(self) -> int | None:
+        """One-based placement boundary; the final step is the next decision."""
+        return len(self.plan) - 1 if self.first_drop_count else None
+
+
+@dataclass(frozen=True)
 class ResponseSearchResult:
     proposals: tuple[ResponseProposal, ...] = ()
     status: c.EvidenceStatus = "unsupported"
     cutoff_reason: str | None = None
     cancel_reason: c.MaskReason = "unsupported"
     counter_reason: c.MaskReason = "unsupported"
+    traces: tuple[ResponseTrace, ...] = ()
 
 
 class ResponseProvider(Protocol):
@@ -302,7 +334,7 @@ class SharedSearchBatchBuilder:
             p.amount and p.landed_tick is None
             for p in request.public.own.attack_packets
         )
-        if reachable and threat and self.response_provider is not None:
+        if reachable and self.response_provider is not None:
             response = self.response_provider.search(
                 ResponseSearchContext(
                     request,
@@ -462,9 +494,10 @@ class SharedSearchBatchBuilder:
                 )
         for value in response.proposals:
             if not value.tactics or any(
-                t not in ("cancel", "counter") for t in value.tactics
+                t not in ("cancel", "counter", "decisive_short_attack")
+                for t in value.tactics
             ):
-                raise ValueError("response provider may only propose cancel/counter")
+                raise ValueError("invalid response provider tactic")
             if not math.isfinite(value.priority):
                 raise ValueError("invalid response priority")
             if response.status not in ("evaluated", "partial"):
