@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import copy
 import hashlib
-import itertools
 import json
 import math
 import random
@@ -28,6 +27,77 @@ from src.core.puyo import Puyo
 SCHEMA_VERSION = "puyo.template_catalog.v1"
 _SYMBOL = re.compile(r"[A-Z]")
 _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*")
+_VALIDATION_COLOR_TRIAL_CAP = 100_000
+_MAX_MATCH_COLOR_TRIALS = 100_000
+_MAX_MATCH_NODES = 100_000
+
+
+@dataclass(frozen=True)
+class _BindingSearch:
+    bindings: tuple[tuple[tuple[str, int], ...], ...]
+    trials: int
+    cutoff: bool
+
+
+def _enumerate_bindings(classes, different_classes, trial_limit, *, first_only=False):
+    """Bound class-color checks, including checks rejected by constraints."""
+    colors = range(1, len(NORMAL_PUYO_COLORS) + 1)
+    neighbors = [set() for _ in classes]
+    for a, b in different_classes:
+        neighbors[a].add(b)
+        neighbors[b].add(a)
+    assigned = {}
+    bindings = []
+    trials = 0
+    cutoff = False
+
+    class _LimitReached(Exception):
+        pass
+
+    def domain(index):
+        nonlocal trials
+        used = {assigned[other] for other in neighbors[index] if other in assigned}
+        available = []
+        for color in colors:
+            if trials >= trial_limit:
+                raise _LimitReached
+            trials += 1
+            if color not in used:
+                available.append(color)
+        return available
+
+    def visit():
+        if len(assigned) == len(classes):
+            bindings.append(
+                tuple(
+                    sorted(
+                        (symbol, assigned[i])
+                        for i, group in enumerate(classes)
+                        for symbol in group
+                    )
+                )
+            )
+            return
+        choices = [
+            (domain(i), -len(neighbors[i]), i)
+            for i in range(len(classes))
+            if i not in assigned
+        ]
+        available, _, index = min(
+            choices, key=lambda item: (len(item[0]), item[1], item[2])
+        )
+        for color in available:
+            assigned[index] = color
+            visit()
+            del assigned[index]
+            if first_only and bindings:
+                return
+
+    try:
+        visit()
+    except _LimitReached:
+        cutoff = True
+    return _BindingSearch(tuple(bindings), trials, cutoff)
 
 
 def _keys(value, required, optional=(), path="value"):
@@ -92,6 +162,7 @@ class Variant:
     transforms: tuple[str, ...]
     classes: tuple[tuple[str, ...], ...]
     different_classes: tuple[tuple[int, int], ...]
+    seed_binding: tuple[tuple[str, int], ...]
 
     @property
     def width(self):
@@ -283,6 +354,18 @@ class TemplateCatalog:
                     if pair[0] == pair[1]:
                         raise ValueError("contradictory same/different constraints")
                     diff_classes.add(pair)
+                feasible = _enumerate_bindings(
+                    classes,
+                    tuple(sorted(diff_classes)),
+                    _VALIDATION_COLOR_TRIAL_CAP,
+                    first_only=True,
+                )
+                if not feasible.bindings:
+                    if feasible.cutoff:
+                        raise ValueError(
+                            "color constraints exceed validation complexity cap"
+                        )
+                    raise ValueError("color constraints have no valid binding")
                 weight = raw["weight"]
                 if (
                     type(weight) not in (int, float)
@@ -312,6 +395,7 @@ class TemplateCatalog:
                         tuple(transforms),
                         classes,
                         tuple(sorted(diff_classes)),
+                        feasible.bindings[0],
                     )
                 )
             templates.append(
@@ -428,6 +512,8 @@ class MatchResult:
     cutoff: bool
     static_bindings: int
     static_cutoff: bool
+    binding_trials: int = 0
+    static_trials: int = 0
 
 
 @dataclass(frozen=True)
@@ -554,21 +640,6 @@ def _evaluate(board, conditions, binding):
     return satisfied, conflicts
 
 
-def _assignments(variant):
-    for values in itertools.product(
-        range(1, len(NORMAL_PUYO_COLORS) + 1), repeat=len(variant.classes)
-    ):
-        if any(values[a] == values[b] for a, b in variant.different_classes):
-            continue
-        yield tuple(
-            sorted(
-                (symbol, values[i])
-                for i, group in enumerate(variant.classes)
-                for symbol in group
-            )
-        )
-
-
 def _game(board, piece):
     game = GameState(seed=0)
     for y, row in enumerate(board):
@@ -603,13 +674,13 @@ def match_templates(
     """
     if (
         type(node_budget) is not int
-        or node_budget < 0
+        or not 0 <= node_budget <= _MAX_MATCH_NODES
         or type(binding_budget) is not int
-        or binding_budget < 0
+        or not 0 <= binding_budget <= _MAX_MATCH_COLOR_TRIALS
         or type(static_binding_cap) is not int
-        or static_binding_cap <= 0
+        or not 0 < static_binding_cap <= _MAX_MATCH_COLOR_TRIALS
     ):
-        raise ValueError("budgets must be non-negative integers")
+        raise ValueError("budgets must be bounded non-negative integers")
     if not catalog.enabled:
         raise ValueError("catalog disabled")
     b = _board(board)
@@ -629,6 +700,7 @@ def match_templates(
     # Build at least one static candidate per variant/transform before spending quota.
     work = []
     static_bindings = 0
+    static_trials = 0
     static_cutoff = False
     for template in catalog.templates:
         if not template.enabled:
@@ -642,11 +714,13 @@ def match_templates(
                 if signature in transformed:
                     continue
                 transformed.add(signature)
+                static_search = _enumerate_bindings(
+                    variant.classes, variant.different_classes, static_binding_cap
+                )
+                static_trials += static_search.trials
+                static_cutoff |= static_search.cutoff
                 fallback = None
-                for index, binding in enumerate(_assignments(variant)):
-                    if index >= static_binding_cap:
-                        static_cutoff = True
-                        break
+                for binding in static_search.bindings:
                     static_bindings += 1
                     satisfied, conflicts = _evaluate(b, conditions, dict(binding))
                     static_score = (
@@ -661,7 +735,15 @@ def match_templates(
                     ):
                         fallback = (binding, static_score)
                 if fallback is None:
-                    raise ValueError("no color binding satisfies constraints")
+                    binding = variant.seed_binding
+                    satisfied, conflicts = _evaluate(b, conditions, dict(binding))
+                    fallback = (
+                        binding,
+                        (len(satisfied) - conflicts)
+                        / variant.required_count
+                        * variant.weight
+                        / total_weight,
+                    )
                 work.append(
                     (template, variant, transform, conditions, total_weight, *fallback)
                 )
@@ -695,15 +777,14 @@ def match_templates(
         required = variant.required_count
         variant_candidates = []
         evaluated = 0
-        assignments = _assignments(variant)
-        while True:
-            binding_tuple = next(assignments, None)
-            if binding_tuple is None:
-                break
-            if bindings_used >= binding_budget:
-                cutoff_any = True
-                break
-            bindings_used += 1
+        binding_search = _enumerate_bindings(
+            variant.classes,
+            variant.different_classes,
+            binding_budget - bindings_used,
+        )
+        bindings_used += binding_search.trials
+        cutoff_any |= binding_search.cutoff
+        for binding_tuple in binding_search.bindings:
             evaluated += 1
             binding = dict(binding_tuple)
             before, conflicts = _evaluate(b, conditions, binding)
@@ -840,6 +921,8 @@ def match_templates(
                             else "node_budget_exhausted",
                         )
                     )
+            if binding_search.cutoff and status != "fit":
+                status, reason = "unknown", "binding_budget_exhausted"
             source = (
                 "searched"
                 if exhaustive or status == "fit"
@@ -858,7 +941,8 @@ def match_templates(
                 witness,
                 witness_actions,
                 prefix,
-                not exhaustive and status != "fit" and nodes >= node_budget,
+                binding_search.cutoff
+                or (not exhaustive and status != "fit" and nodes >= node_budget),
                 source,
                 nodes - nodes_before,
             )
@@ -897,4 +981,6 @@ def match_templates(
         cutoff_any or static_cutoff,
         static_bindings,
         static_cutoff,
+        bindings_used,
+        static_trials,
     )

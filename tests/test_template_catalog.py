@@ -1,9 +1,11 @@
 """Artificial pattern fixtures only; production style shapes belong to PUYO-246."""
 
 import copy
+import string
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from agents.chain_styles import (
     ChainStyleEvaluator,
@@ -20,6 +22,7 @@ from agents.template_catalog import (
     match_templates,
 )
 from puyo_env.actions import NUM_ACTIONS
+from src.core.constants import GRID_WIDTH, NORMAL_PUYO_COLORS
 
 
 def catalog(
@@ -187,7 +190,7 @@ class TemplateCatalogTest(unittest.TestCase):
     def test_full_known_prefix_can_use_intermediate_nonprogress_move(self):
         config = TemplateCatalog.from_dict(catalog())
         result = match_templates(
-            config, board(), ((2, 2), (1, 1)), node_budget=900, binding_budget=1
+            config, board(), ((2, 2), (1, 1)), node_budget=900, binding_budget=4
         )
         fit = next(c for c in result.candidates if c.fit_status == "fit")
         self.assertEqual(fit.known_prefix_length, 2)
@@ -212,6 +215,65 @@ class TemplateCatalogTest(unittest.TestCase):
         )
         self.assertGreaterEqual(result.static_bindings, 8)
         self.assertTrue(result.cutoff)
+
+    def test_clique_larger_than_engine_color_set_is_rejected_at_load(self):
+        symbols = string.ascii_uppercase[: len(NORMAL_PUYO_COLORS) + 1]
+        different = [
+            (a, b) for index, a in enumerate(symbols) for b in symbols[index + 1 :]
+        ]
+        with self.assertRaisesRegex(ValueError, "no valid binding"):
+            TemplateCatalog.from_dict(
+                catalog(
+                    rows=tuple(
+                        symbols[index : index + GRID_WIDTH].ljust(GRID_WIDTH, ".")
+                        for index in range(0, len(symbols), GRID_WIDTH)
+                    ),
+                    different=different,
+                )
+            )
+
+    def test_validation_cutoff_is_reported_separately_from_impossible_graph(self):
+        with patch("agents.template_catalog._VALIDATION_COLOR_TRIAL_CAP", 1):
+            with self.assertRaisesRegex(ValueError, "complexity cap"):
+                TemplateCatalog.from_dict(catalog())
+
+    def test_larger_constraint_graph_accounts_for_rejected_color_checks(self):
+        symbols = "ABCDEFGHIJKL"
+        graph = [(symbols[i], symbols[i + 1]) for i in range(len(symbols) - 1)]
+        config = TemplateCatalog.from_dict(
+            catalog(rows=(symbols[:6], symbols[6:]), different=graph)
+        )
+        result = match_templates(
+            config,
+            board(),
+            ((1, 2),),
+            node_budget=100,
+            binding_budget=8,
+            static_binding_cap=8,
+        )
+        self.assertEqual(result.binding_trials, 8)
+        self.assertEqual(result.static_trials, 8)
+        self.assertTrue(result.cutoff)
+        self.assertTrue(result.static_cutoff)
+        self.assertTrue(result.candidates)
+        self.assertTrue(all(c.fit_status == "unknown" for c in result.candidates))
+
+    def test_partial_binding_coverage_does_not_claim_no_fit(self):
+        config = TemplateCatalog.from_dict(
+            catalog(rows=("AB",), different=(("A", "B"),))
+        )
+        b = board()
+        b[-1][:2] = [5, 5]
+        result = match_templates(
+            config, b, ((1, 2),), node_budget=100, binding_budget=12
+        )
+        self.assertTrue(result.cutoff)
+        self.assertEqual(result.binding_trials, 12)
+        self.assertTrue(result.candidates)
+        self.assertTrue(all(c.fit_status == "unknown" for c in result.candidates))
+        self.assertTrue(
+            all(c.reason == "binding_budget_exhausted" for c in result.candidates)
+        )
 
     def test_occupied_only_progress_cannot_prove_fit_and_budget_is_unknown(self):
         config = TemplateCatalog.from_dict(catalog(rows=("A.",), occupied=((1, 0),)))
