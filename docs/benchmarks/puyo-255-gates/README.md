@@ -1,6 +1,6 @@
 # PUYO-255 評価証跡
 
-正式 G2 は **BLOCKED**，今回の smoke 能力は **FAIL**，historical only240 の能力も **FAIL** である．評価実装の完了・PR 作成は能力合格や学習開始の承認を意味しない．親セッションで PUYO-253 の GUI 接続後に 184 tests と通常ウィンドウの自動 smoke を確認し，統合時点の G0/G1 を **PASS** とした．この追補は [integration-qa.json](integration-qa.json) に記録し，人間による通常 GUI・設定・履歴・lineage の受け入れ確認は未実施のまま残す．
+正式 G2 は **BLOCKED**，今回の smoke 能力は **FAIL**，historical only240 の能力も **FAIL** である．評価実装の完了・PR 作成は能力合格や学習開始の承認を意味しない．親セッションで PUYO-253 の GUI 接続後に 184 tests，Fn 不要の履歴キー追加後に 185 tests と通常ウィンドウの自動 smoke を確認し，統合時点の G0/G1 を **PASS** とした．この追補は [integration-qa.json](integration-qa.json) に記録した．依頼者による通常 GUI の確認では GTR 品質不良と Fn 依存キーの操作不能が報告され，キー修正後の人間再確認を含む受け入れ条件は未達である．
 
 ## 測定と分母
 
@@ -37,7 +37,8 @@ rule と search-only selector を seed 123 で side swap した．全て 600 tic
 
 - 必須 response coverage: 8/8，候補 gap 0．template fixture: 6/6(positive/negative を含む)．
 - 独立した公開 1-ply 相殺 reference: candidate gap 0/1，候補順位失敗 0/1，戦術選択失敗 0/1．全 root を実 engine で列挙した sidecar と，実 runtime の六戦術 batch を別ファイルに保持する．全体の known-solution corpus を事前登録した証拠ではないため，正式 G2 の known-solution 条件は保留する．
-- 測定時点の report では G0: native parity 再実行待ち，G1: GUI/ledger 組合せ QA 待ちで BLOCKED．統合後の追補では native を含む 184 tests が全件 PASS，120 tick の通常ウィンドウ自動 smoke で ledger/replay/viewer の同一 7 件，request-1 の activation tick 46・戦術・requested/executed action の一致を確認し，G0/G1 は PASS．人間 QA を G1 の自動検証と混同しない．G2 は能力反例・reference 未校正・58 run 欠落などで BLOCKED．G3/G4 は前段未達で BLOCKED．
+- 測定時点の report では G0: native parity 再実行待ち，G1: GUI/ledger 組合せ QA 待ちで BLOCKED．統合後の追補では native を含む 185 tests が全件 PASS，120 tick の通常ウィンドウ自動 smoke で ledger/replay/viewer の同一 7 件，request-1 の activation tick 46・戦術・requested/executed action の一致を確認し，G0/G1 は PASS．Fn 不要の `J`／`K`／`L` 履歴操作と viewer の `J`／`K`／`U`／`I` も通常ウィンドウで自動確認した．人間 QA を G1 の自動検証と混同しない．G2 は能力反例・reference 未校正・58 run 欠落などで BLOCKED．G3/G4 は前段未達で BLOCKED．
+- 依頼者設定に近い seed 55，GTR のみ，argmax，rule，`nextgen_smoke` の安全局面再現では，1 手目は `build_template`，2 手目の候補が `unknown` となって `build_main` に切り替わり，8 手目まで戻らなかった．元の GUI run は replay/ledger 未保存であり，相手も再現時の無脅威設定とは異なる．これは実対戦の厳密な再生ではないが，報告された挙動を説明する独立した証拠である．
 - 110 tests 実行，109 件成功，native 1 件 skip．追加の最終 gate/非同期 clock 回帰 10 tests 成功．ruff 成功．広い suite の後の変更は gate 集計・計測 harness とそのテストだけで，ゲーム・探索・scheduler 本体は変更していない．
 
 ## 証跡と検証
