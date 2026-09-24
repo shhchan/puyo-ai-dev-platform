@@ -364,6 +364,54 @@ class TestLineageRegistry(unittest.TestCase):
                 },
             )
 
+    def test_explicit_decisions_and_missing_artifact_keep_research_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint = self._write_run(root, "bootstrap")
+            registry = build_registry([root])
+            checkpoint_id = next(node.id for node in registry.nodes.values() if node.path == str(checkpoint))
+            (root / "bootstrap" / "summary.json").unlink()
+            schemas = {"analyzer": "a", "all_clear_diagnostics": "d", "feature": "f"}
+
+            def evaluation(node_id, candidate, outcome, *, supersedes=None):
+                decision = {"candidate_id": candidate, "outcome": outcome, "reason_codes": [outcome],
+                            "gate_report_sha": "a" * 64, "decided_by": "reviewer", "decided_at": "2026-09-24T00:00:00Z", "scope": "nextgen"}
+                if supersedes:
+                    decision["supersedes"] = supersedes
+                return {"id": node_id, "node_type": "evaluation", "label": node_id,
+                        "metadata": {"schemas": schemas, "decision": decision}}
+
+            manifest = {"schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION,
+                        "nodes": [
+                            {"id": "model:rule", "node_type": "model_version", "label": "rule", "metadata": {"policy_kind": "rule"}},
+                            {"id": "config:template", "node_type": "config", "label": "template", "metadata": {"kind": "template_catalog"}},
+                            {"id": "config:curriculum", "node_type": "config", "label": "curriculum", "metadata": {"kind": "curriculum"}},
+                            {"id": "role:playable", "node_type": "registry_role", "label": "playable", "metadata": {}},
+                            evaluation("eval:adopt", checkpoint_id, "adopted"),
+                            evaluation("eval:withdraw", checkpoint_id, "deferred", supersedes="eval:adopt"),
+                            evaluation("eval:reject", "config:curriculum", "rejected"),
+                            evaluation("eval:template", "config:template", "adopted"),
+                        ],
+                        "edges": [
+                            {"source": "model:rule", "target": "config:template", "edge_type": "derived_from"},
+                            {"source": "config:template", "target": "run:bootstrap", "edge_type": "trained_with"},
+                            {"source": checkpoint_id, "target": "eval:adopt", "edge_type": "evaluated_by"},
+                            {"source": checkpoint_id, "target": "eval:withdraw", "edge_type": "evaluated_by"},
+                            {"source": "config:curriculum", "target": "eval:reject", "edge_type": "rejected_by"},
+                            {"source": "config:template", "target": "eval:template", "edge_type": "evaluated_by"},
+                            {"source": checkpoint_id, "target": "role:playable", "edge_type": "promoted_to", "metadata": {"reason": "old adoption", "scope": "nextgen"}},
+                        ]}
+            (root / "lineage_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            registry = build_registry([root])
+            issues = validate_registry(registry)
+            types = {issue["type"] for issue in issues}
+            self.assertIn("missing_artifact", types)
+            self.assertIn("unadopted_playable_promotion", types)
+            self.assertTrue(any(node.node_type == "artifact_warning" for node in registry.nodes.values()))
+            self.assertIn("eval:reject", registry.nodes)
+            self.assertIn("eval:withdraw", registry.nodes)
+            self.assertFalse(any(edge.edge_type == "promoted_to" and edge.source == "config:curriculum" for edge in registry.edges))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,13 +8,14 @@ from pathlib import Path
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
-from train.artifacts import write_artifact_manifest
 from src.ui.model_viewer import (
     ModelViewerController,
     build_model_viewer_data,
     load_replay_timeline,
     run_model_viewer,
 )
+from train.artifacts import write_artifact_manifest
+from train.lineage import LINEAGE_MANIFEST_SCHEMA_VERSION
 
 try:
     import pygame  # noqa: F401
@@ -246,6 +247,7 @@ class TestModelViewerData(unittest.TestCase):
             self.assertEqual(report["lineage"]["checkpoints"], 1)
             self.assertEqual(report["lineage"]["selected_node"]["node_type"], "checkpoint")
             self.assertEqual(report["lineage"]["selected_node"]["parents"], ["run:viewer-run"])
+            self.assertEqual(report["lineage"]["adoption_path"], {"nodes": [], "edges": []})
 
     def test_lineage_summary_represents_branching_model_evolution(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -332,6 +334,82 @@ class TestModelViewerData(unittest.TestCase):
 
             self.assertNotEqual(controller.selected_lineage_id, first)
             self.assertIsNotNone(controller.selected_lineage_node)
+
+    def test_main_graph_shows_decisions_and_only_explicit_adoption_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint = self._write_run(root, "rl-run")
+            periodic = root / "step_100.pt"
+            periodic.write_bytes(b"routine")
+            from train.lineage import build_registry
+            checkpoint_id = next(node.id for node in build_registry([root]).nodes.values() if node.path == str(checkpoint))
+            schemas = {"analyzer": "a", "all_clear_diagnostics": "d", "feature": "f"}
+
+            def evaluation(node_id, candidate, outcome, supersedes=None, *, scope="release"):
+                decision = {"candidate_id": candidate, "outcome": outcome, "reason_codes": [outcome],
+                            "gate_report_sha": "b" * 64, "decided_by": "reviewer", "decided_at": "2026-09-24T00:00:00Z", "scope": scope}
+                if supersedes:
+                    decision["supersedes"] = supersedes
+                return {"id": node_id, "node_type": "evaluation", "label": node_id,
+                        "metadata": {"schemas": schemas, "decision": decision}}
+
+            nodes = [
+                {"id": "model:rule", "node_type": "model_version", "label": "rule", "metadata": {"policy_kind": "rule"}},
+                {"id": "config:template", "node_type": "config", "label": "template", "metadata": {"kind": "template_catalog"}},
+                {"id": "config:curriculum", "node_type": "config", "label": "curriculum", "metadata": {"kind": "curriculum"}},
+                {"id": "role:playable", "node_type": "registry_role", "label": "playable", "metadata": {}},
+                {"id": "checkpoint:periodic", "node_type": "checkpoint", "label": "step 100", "path": str(periodic), "metadata": {"role": "periodic"}},
+                evaluation("eval:adopt", checkpoint_id, "adopted"),
+                evaluation("eval:withdraw", checkpoint_id, "deferred", "eval:adopt"),
+                evaluation("eval:reject", "config:curriculum", "rejected"),
+                evaluation("eval:curriculum-experiment", "config:curriculum", "adopted", scope="experiment"),
+                evaluation("eval:template", "config:template", "adopted"),
+            ]
+            edges = [
+                {"source": "model:rule", "target": "config:template", "edge_type": "derived_from"},
+                {"source": "config:template", "target": "run:rl-run", "edge_type": "trained_with"},
+                {"source": "run:rl-run", "target": "checkpoint:periodic", "edge_type": "produced"},
+                {"source": checkpoint_id, "target": "eval:adopt", "edge_type": "evaluated_by"},
+                {"source": checkpoint_id, "target": "eval:withdraw", "edge_type": "evaluated_by"},
+                {"source": "config:curriculum", "target": "eval:reject", "edge_type": "rejected_by"},
+                {"source": "config:curriculum", "target": "eval:curriculum-experiment", "edge_type": "evaluated_by"},
+                {"source": "config:template", "target": "eval:template", "edge_type": "evaluated_by"},
+                {"source": "config:curriculum", "target": "role:playable", "edge_type": "promoted_to", "metadata": {"scope": "release", "reason": "stale promotion"}},
+            ]
+            for index in range(4):
+                candidate_id = f"config:extra-{index}"
+                evaluation_id = f"eval:extra-{index}"
+                nodes.append({"id": candidate_id, "node_type": "config", "label": candidate_id, "metadata": {"kind": "reward"}})
+                nodes.append(evaluation(evaluation_id, candidate_id, "deferred"))
+                edges.append({"source": candidate_id, "target": evaluation_id, "edge_type": "evaluated_by"})
+            (root / "lineage_manifest.json").write_text(json.dumps({"schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION, "nodes": nodes, "edges": edges}), encoding="utf-8")
+            data = build_model_viewer_data(lineage_roots=(str(root),))
+            controller = ModelViewerController(data)
+            first_view = data.lineage.graph_viewport(controller.selected_lineage_id)
+            visible_outcomes = {node["metadata"]["decision"]["outcome"] for node in first_view["columns"][3] if "decision" in node.get("metadata", {})}
+            self.assertTrue({"adopted", "rejected", "deferred"} <= visible_outcomes)
+            self.assertGreater(first_view["overflow"][3]["after"], 0)
+            controller.seek_lineage(controller.lineage_order.index("eval:extra-3") - controller.lineage_index)
+            self.assertIn("eval:extra-3", {node["id"] for node in data.lineage.graph_viewport(controller.selected_lineage_id)["columns"][3]})
+            self.assertEqual(controller.adoption_scope, "experiment")
+            self.assertIn("config:curriculum", controller.report()["lineage"]["adoption_path"]["nodes"])
+            controller.change_adoption_scope()
+            report = controller.report()["lineage"]
+            graph_ids = {node["id"] for node in report["main_graph"]["nodes"]}
+            self.assertIn("eval:reject", graph_ids)
+            self.assertIn("eval:template", graph_ids)
+            self.assertIn("model:rule", graph_ids)
+            self.assertNotIn("checkpoint:periodic", graph_ids)
+            self.assertGreaterEqual(report["main_graph"]["collapsed_checkpoints"], 1)
+            self.assertIn("config:template", report["adoption_path"]["nodes"])
+            self.assertIn("model:rule", report["adoption_path"]["nodes"])
+            self.assertNotIn(checkpoint_id, report["adoption_path"]["nodes"])
+            self.assertNotIn("config:curriculum", report["adoption_path"]["nodes"])
+            self.assertFalse(any(edge["source"] == "config:curriculum" and edge["target"] == "role:playable" for edge in report["main_graph"]["edges"]))
+            self.assertIn("unadopted_playable_promotion", {issue["type"] for issue in report["issues"]})
+            self.assertEqual({item["outcome"] for item in report["effective_decisions"]}, {"adopted", "rejected", "deferred"})
+            if PYGAME_AVAILABLE:
+                self.assertEqual(run_model_viewer(data, max_frames=1)["lineage"]["adoption_scope"], "experiment")
 
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")

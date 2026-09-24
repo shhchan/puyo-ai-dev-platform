@@ -341,6 +341,7 @@ class NextgenTacticManagerPolicy:
         catalog=None,
         template_catalog_path=None,
         seed=0,
+        template_seed=None,
         search_config=None,
         profile=None,
         backend=None,
@@ -355,6 +356,9 @@ class NextgenTacticManagerPolicy:
         ):
             raise ValueError("nextgen policy requires enabled templates")
         self.seed = 0 if seed is None else seed
+        self.template_seed = self.seed if template_seed is None else template_seed
+        if type(self.template_seed) is not int:
+            raise ValueError("template_seed must be an integer")
         self.search_config = search_config or LongHorizonSearchConfig(
             depth=4,
             width=4,

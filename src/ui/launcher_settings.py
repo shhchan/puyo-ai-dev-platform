@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,10 +27,14 @@ POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
     "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
     "deep_chain_builder",
+    "nextgen_tactic_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter", "worker_fire",
     "worker_fire_max", "worker_survival",
 )
 REALTIME_POLICY_CHOICES = POLICY_CHOICES
+NEXTGEN_PROFILE_CHOICES = ("nextgen_smoke", "nextgen_diagnostic")
+NEXTGEN_TEMPLATE_CHOICES = ("gtr,daa,persian", "gtr,daa", "gtr,persian", "daa,persian", "gtr", "daa", "persian")
+NEXTGEN_CATALOG_PATH = "train/config/nextgen_templates.yaml"
 SPEED_CHOICES = (0.25, 0.5, 1.0, 2.0, 4.0)
 LATENCY_MODE_CHOICES = ("measured", "configured")
 DEEP_CHAIN_PROFILE_CHOICES = ("smoke", "reference")
@@ -87,6 +92,15 @@ class LauncherSettings:
     deep_chain_profile: str = "smoke"
     deep_chain_backend: str = "python"
     deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
+    nextgen_catalog_path: str = NEXTGEN_CATALOG_PATH
+    nextgen_templates: str = "gtr,daa,persian"
+    nextgen_selection_mode: str = "argmax"
+    nextgen_temperature: float = 0.2
+    nextgen_seed: int | None = None
+    nextgen_commit_turns: int = 14
+    nextgen_profile: str = "nextgen_smoke"
+    nextgen_selector: str = "rule"
+    nextgen_trajectory_path: str | None = None
     max_steps: int = 100
     max_ticks: int | None = None
     games: int = 1
@@ -181,6 +195,15 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "deep_chain_profile": LauncherFieldSpec("deep_chain_profile", "deep-chain profile", "--deep-chain-profile", "deep_chain_builder の探索設定です。GUI 確認は smoke、品質評価は reference を使います。beam 系の値はこの policy では使用しません。"),
     "deep_chain_backend": LauncherFieldSpec("deep_chain_backend", "deep-chain backend", "--deep-chain-backend", "python は従来実装、native は release build を必須化、auto は smoke のみ明示的 fallback を許可します。"),
     "deep_chain_target_chain": LauncherFieldSpec("deep_chain_target_chain", "deep-chain 目標連鎖", "--deep-chain-target-chain", "1〜19の整数で探索の目標連鎖数を指定します。品質benchmarkの基準は目標値によらず10連鎖です。大連鎖を目で確認する場合は reference/native と 10 または 12 を推奨します。値を上げても到達を保証するものではありません。"),
+    "nextgen_catalog_path": LauncherFieldSpec("nextgen_catalog_path", "土台 catalog", "--nextgen-catalog", "pattern は catalog YAML で編集します．"),
+    "nextgen_templates": LauncherFieldSpec("nextgen_templates", "有効な土台", "--nextgen-templates", "GTR，だぁ積み，ペルシャ式から選びます．0 件は開始できません．"),
+    "nextgen_selection_mode": LauncherFieldSpec("nextgen_selection_mode", "土台選択", "--nextgen-selection-mode", "argmax または softmax を選びます．"),
+    "nextgen_temperature": LauncherFieldSpec("nextgen_temperature", "softmax 温度", "--nextgen-temperature", "正の有限値を設定します．"),
+    "nextgen_seed": LauncherFieldSpec("nextgen_seed", "土台選択 seed", "--nextgen-seed", "auto は policy seed を使います．探索 seed とは独立して指定できます．"),
+    "nextgen_commit_turns": LauncherFieldSpec("nextgen_commit_turns", "共通 N", "--nextgen-commit-turns", "土台構築の共通 decision 上限です．"),
+    "nextgen_profile": LauncherFieldSpec("nextgen_profile", "固定探索 profile", "--nextgen-profile", "smoke または GUI 診断用 profile です．品質評価用の校正値ではありません．"),
+    "nextgen_selector": LauncherFieldSpec("nextgen_selector", "戦術 selector", "--nextgen-selector", "rule が実行可能です．RL は checkpoint 実装後に有効になります．"),
+    "nextgen_trajectory_path": LauncherFieldSpec("nextgen_trajectory_path", "decision 記録先", "--nextgen-trajectory", "対戦の確定 receipt とイベントを JSON に保存します．正式な学習 trajectory ではありません．"),
     "inference_latency_ticks": LauncherFieldSpec("inference_latency_ticks", "推論 latency", "--inference-latency-ticks", "AI の決定が反映されるまでの遅延 tick 数です。"),
     "latency_mode": LauncherFieldSpec("latency_mode", "latency mode", "--latency-mode", "measured は実測完了 tick、configured は設定 tick だけで action の反映時刻を決めます。"),
     "timeout_ticks": LauncherFieldSpec("timeout_ticks", "timeout tick", "--timeout-ticks", "AI decision の timeout tick です。auto の場合は timeout なしです。"),
@@ -428,6 +451,15 @@ class LauncherSettingsManager:
                 "deep_chain_profile",
                 "deep_chain_backend",
                 "deep_chain_target_chain",
+                "nextgen_catalog_path",
+                "nextgen_templates",
+                "nextgen_selection_mode",
+                "nextgen_temperature",
+                "nextgen_seed",
+                "nextgen_commit_turns",
+                "nextgen_profile",
+                "nextgen_selector",
+                "nextgen_trajectory_path",
                 "keybindings_path",
                 "collection_enabled",
                 "dataset_root",
@@ -470,6 +502,15 @@ class LauncherSettingsManager:
                 "deep_chain_profile",
                 "deep_chain_backend",
                 "deep_chain_target_chain",
+                "nextgen_catalog_path",
+                "nextgen_templates",
+                "nextgen_selection_mode",
+                "nextgen_temperature",
+                "nextgen_seed",
+                "nextgen_commit_turns",
+                "nextgen_profile",
+                "nextgen_selector",
+                "nextgen_trajectory_path",
                 "inference_latency_ticks",
                 "latency_mode",
                 "timeout_ticks",
@@ -539,13 +580,14 @@ class LauncherSettingsManager:
         if field in {"device", "device_a", "device_b"}:
             choices = ("cpu", "cuda") if field == "device" else (None, "cpu", "cuda")
             return self.update(action_key, field, _cycle_value(value, choices, delta))
-        if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback"}:
+        if field in {"keybindings_path", "result_json", "replay_path", "dataset_root", "collection_feedback", "nextgen_trajectory_path"}:
             choices_by_field = {
                 "keybindings_path": (None, "/tmp/puyo-keybindings.json"),
                 "result_json": (None, "/tmp/puyo-realtime-ui-result.json"),
                 "replay_path": (None, "/tmp/puyo-arena-replay.json"),
                 "dataset_root": ("human_datasets", "/tmp/puyo-human-datasets"),
                 "collection_feedback": (None, "good match", "needs review"),
+                "nextgen_trajectory_path": (None, "runs/nextgen-gui/decision-ledger.json"),
             }
             return self.update(action_key, field, _cycle_value(value, choices_by_field[field], delta))
         if field == "speed":
@@ -562,6 +604,22 @@ class LauncherSettingsManager:
                 field,
                 _cycle_value(value, DEEP_CHAIN_TARGET_CHAIN_CHOICES, delta),
             )
+        if field == "nextgen_catalog_path":
+            return self.update(action_key, field, _cycle_value(value, (NEXTGEN_CATALOG_PATH,), delta))
+        if field == "nextgen_templates":
+            return self.update(action_key, field, _cycle_value(value, NEXTGEN_TEMPLATE_CHOICES, delta))
+        if field == "nextgen_selection_mode":
+            return self.update(action_key, field, _cycle_value(value, ("argmax", "softmax"), delta))
+        if field == "nextgen_temperature":
+            return self.update(action_key, field, _cycle_value(value, (0.1, 0.2, 0.5, 1.0), delta))
+        if field == "nextgen_seed":
+            return self.update(action_key, field, None if value is not None and value + delta < 0 else max(0, (value or 0) + delta))
+        if field == "nextgen_commit_turns":
+            return self.update(action_key, field, max(1, int(value) + delta))
+        if field == "nextgen_profile":
+            return self.update(action_key, field, _cycle_value(value, NEXTGEN_PROFILE_CHOICES, delta))
+        if field == "nextgen_selector":
+            return self.update(action_key, field, _cycle_value(value, ("rule", "rl"), delta))
         if field == "qa_profile":
             return self.update(action_key, field, _cycle_value(value, QA_PROFILE_CHOICES, delta))
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
@@ -599,11 +657,11 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback", "nextgen_catalog_path", "nextgen_trajectory_path"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
-        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames"}:
+        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames", "nextgen_seed"}:
             return "number"
         return "choice"
 
@@ -646,6 +704,22 @@ class LauncherSettingsManager:
             return DEEP_CHAIN_BACKEND_CHOICES
         if field == "deep_chain_target_chain":
             return DEEP_CHAIN_TARGET_CHAIN_CHOICES
+        if field == "nextgen_catalog_path":
+            return (NEXTGEN_CATALOG_PATH,)
+        if field == "nextgen_templates":
+            return NEXTGEN_TEMPLATE_CHOICES
+        if field == "nextgen_selection_mode":
+            return ("argmax", "softmax")
+        if field == "nextgen_temperature":
+            return (0.1, 0.2, 0.5, 1.0)
+        if field == "nextgen_seed":
+            return (None, 0, 1, 57, 87)
+        if field == "nextgen_commit_turns":
+            return (7, 14, 21)
+        if field == "nextgen_profile":
+            return NEXTGEN_PROFILE_CHOICES
+        if field == "nextgen_selector":
+            return ("rule", "rl")
         if field == "qa_profile":
             return QA_PROFILE_CHOICES
         if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
@@ -690,6 +764,27 @@ class LauncherSettingsManager:
                 checkpoint = getattr(settings, f"checkpoint_{side}")
                 if policy in {"checkpoint", "manager", "v1_7_bootstrap_manager"}:
                     errors.extend(self._validate_checkpoint(side, policy, checkpoint))
+            if "nextgen_tactic_manager" in (settings.policy_a, settings.policy_b):
+                try:
+                    resolve_nextgen_catalog(
+                        catalog_path=settings.nextgen_catalog_path,
+                        templates=settings.nextgen_templates,
+                        mode=settings.nextgen_selection_mode,
+                        temperature=settings.nextgen_temperature,
+                        commit_turns=settings.nextgen_commit_turns,
+                        repo_root=self.repo_root,
+                    )
+                except (OSError, ValueError, TypeError) as exc:
+                    errors.append(f"nextgen catalog: {exc}")
+                if settings.nextgen_selector != "rule":
+                    errors.append("nextgen RL selector is not available yet")
+                for side in ("a", "b"):
+                    if getattr(settings, f"policy_{side}") == "nextgen_tactic_manager" and getattr(settings, f"checkpoint_{side}"):
+                        errors.append(f"checkpoint_{side} cannot be used with the rule nextgen selector")
+                if settings.nextgen_profile not in NEXTGEN_PROFILE_CHOICES:
+                    errors.append(f"nextgen_profile must be one of: {NEXTGEN_PROFILE_CHOICES}")
+                if settings.nextgen_seed is not None and (type(settings.nextgen_seed) is not int or settings.nextgen_seed < 0):
+                    errors.append("nextgen_seed must be a non-negative integer or auto")
             if settings.speed not in SPEED_CHOICES and action_key != "arena":
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
             if settings.max_steps <= 0:
@@ -741,6 +836,7 @@ class LauncherSettingsManager:
             elif not settings.training_job_id:
                 errors.append("training_job_id is required for job control")
         return errors
+
 
     def _validate_checkpoint(self, side: str, policy: str, checkpoint: str | None) -> list[str]:
         if not checkpoint:
@@ -836,3 +932,39 @@ def _cycle_value(value: Any, choices: tuple[Any, ...], delta: int) -> Any:
     except ValueError:
         index = -1 if delta > 0 else 0
     return choices[(index + delta) % len(choices)]
+
+def resolve_nextgen_catalog(
+    *, catalog_path: str, templates: str, mode: str, temperature: float,
+    commit_turns: int, repo_root: str | Path,
+):
+    """Validate the source catalog before applying launch-only selection settings."""
+    from agents.template_catalog import TemplateCatalog, load_template_catalog
+
+    path = resolve_repo_path(catalog_path, Path(repo_root))
+    load_template_catalog(path)  # Strict loader rejects duplicate YAML keys.
+    if yaml is None:
+        raise ValueError("PyYAML is required for nextgen catalog")
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    ids = tuple(part.strip() for part in templates.split(","))
+    if not ids or any(not part for part in ids) or len(ids) != len(set(ids)):
+        raise ValueError("nextgen_templates must list unique non-empty IDs")
+    available = {item["id"] for item in data["templates"]}
+    if not set(ids) <= available:
+        raise ValueError(f"unknown template IDs: {sorted(set(ids) - available)}")
+    if mode not in {"argmax", "softmax"}:
+        raise ValueError("selection mode must be argmax or softmax")
+    if type(temperature) not in (int, float) or not math.isfinite(temperature) or temperature <= 0:
+        raise ValueError("temperature must be finite and positive")
+    if type(commit_turns) is not int or commit_turns <= 0:
+        raise ValueError("commit turns must be a positive integer")
+    data["enabled"] = True
+    data["selection"]["mode"] = mode
+    data["selection"]["temperature"] = float(temperature)
+    data["default_commit_turns"] = commit_turns
+    for item in data["templates"]:
+        item["enabled"] = item["id"] in ids
+        item["commit_turns"] = None
+    catalog = TemplateCatalog.from_dict(data)
+    if not any(item.enabled for item in catalog.templates):
+        raise ValueError("at least one enabled template is required")
+    return catalog, data
