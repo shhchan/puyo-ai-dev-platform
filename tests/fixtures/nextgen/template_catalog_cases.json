@@ -1,0 +1,36 @@
+{
+  "schema_version": "puyo.template_catalog_cases.v1",
+  "note": "Frozen before matcher execution. Rows are bottom-up wire colors, 0 is empty; unseen public rows 12 and 13 are null.",
+  "selector_seed": 246,
+  "node_budget": 1800,
+  "binding_budget": 100,
+  "cases": [
+    {
+      "id": "gtr_left_supported_core",
+      "template_id": "gtr",
+      "variant_id": "left_supported_core",
+      "start_rows_bottom_up": ["221000", "112000", "000000"],
+      "public_pieces": [[1, 2]],
+      "expected_decisions": 1,
+      "negative_rows_bottom_up": ["121000", "112000", "120000"]
+    },
+    {
+      "id": "daa_two_interlocking_l",
+      "template_id": "daa",
+      "variant_id": "two_interlocking_l",
+      "start_rows_bottom_up": ["122000", "002000"],
+      "public_pieces": [[1, 1]],
+      "expected_decisions": 1,
+      "negative_rows_bottom_up": ["112000", "112000"]
+    },
+    {
+      "id": "persian_central_step_flat_tail",
+      "template_id": "persian",
+      "variant_id": "central_step_flat_tail",
+      "start_rows_bottom_up": ["111333", "023200", "000000"],
+      "public_pieces": [[2, 2]],
+      "expected_decisions": 1,
+      "negative_rows_bottom_up": ["211333", "023200", "002200"]
+    }
+  ]
+}
