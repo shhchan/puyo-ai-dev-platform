@@ -12,6 +12,7 @@ import json
 import math
 import re
 import types
+from functools import lru_cache
 from collections.abc import Mapping
 from dataclasses import dataclass, fields, is_dataclass
 from typing import ClassVar, Literal, Union, get_args, get_origin, get_type_hints
@@ -139,12 +140,21 @@ def _typed(value, annotation, path):
     return value
 
 
+@lru_cache(maxsize=64)
+def _contract_hints(contract_type):
+    # These module-owned frozen schema classes do not mutate annotations.
+    # Cache only introspection; value/type/schema validation still runs below.
+    return get_type_hints(contract_type)
+
+
 class Contract:
     SCHEMA: ClassVar[str | None] = None
     READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = ()
 
     def __post_init__(self):
-        hints = get_type_hints(type(self))
+        contract_type = type(self)
+        hints = (_contract_hints(contract_type) if contract_type.__module__ == __name__
+                 else get_type_hints(contract_type))
         for f in fields(self):
             object.__setattr__(
                 self, f.name, _typed(getattr(self, f.name), hints[f.name], f.name)
