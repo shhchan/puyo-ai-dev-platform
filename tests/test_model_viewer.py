@@ -11,6 +11,7 @@ os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 from src.ui.model_viewer import (
     ModelViewerController,
     build_model_viewer_data,
+    handle_model_viewer_navigation_key,
     load_replay_timeline,
     run_model_viewer,
 )
@@ -334,6 +335,15 @@ class TestModelViewerData(unittest.TestCase):
 
             self.assertNotEqual(controller.selected_lineage_id, first)
             self.assertIsNotNone(controller.selected_lineage_node)
+            controller.lineage_index = 0
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_i))
+            self.assertNotEqual(controller.selected_lineage_id, first)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_u))
+            self.assertEqual(controller.selected_lineage_id, first)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_PAGEDOWN))
+            self.assertNotEqual(controller.selected_lineage_id, first)
+            self.assertTrue(handle_model_viewer_navigation_key(controller, pygame.K_PAGEUP))
+            self.assertEqual(controller.selected_lineage_id, first)
 
     def test_main_graph_shows_decisions_and_only_explicit_adoption_path(self):
         with tempfile.TemporaryDirectory() as directory:
