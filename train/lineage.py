@@ -53,6 +53,24 @@ LINEAGE_MANIFEST_EDGE_TYPES = frozenset(
         "rejected_by",
     }
 )
+DECISION_OUTCOMES = frozenset({"adopted", "rejected", "deferred"})
+DECISION_FIELDS = frozenset(
+    {"candidate_id", "outcome", "reason_codes", "gate_report_sha", "decided_by", "decided_at", "scope"}
+)
+
+
+def valid_lineage_decision(decision: Any) -> bool:
+    if not isinstance(decision, Mapping) or not DECISION_FIELDS <= decision.keys():
+        return False
+    if decision.get("outcome") not in DECISION_OUTCOMES:
+        return False
+    reasons = decision.get("reason_codes")
+    if not isinstance(reasons, list) or not all(isinstance(value, str) and value for value in reasons):
+        return False
+    return all(
+        isinstance(decision.get(name), str) and bool(decision[name])
+        for name in ("candidate_id", "gate_report_sha", "decided_by", "decided_at", "scope")
+    )
 SCHEMA_SNAPSHOT_KEYS = frozenset({"analyzer", "all_clear_diagnostics", "feature"})
 CHECKPOINT_METADATA_FIELDS = frozenset(
     {
@@ -309,6 +327,8 @@ def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_
             continue
         role = str(record.get("role", "artifact"))
         artifact_path = _resolve_record_path(manifest_path, record["path"])
+        if record.get("required", True) and not artifact_path.exists():
+            _add_missing_artifact(registry, run_node_id, artifact_path, role)
         if role == "opponent_pool" and artifact_path.exists():
             _add_opponent_pool(registry, run_node_id, artifact_path)
         if role == "selfplay_evaluations" and artifact_path.exists():
@@ -325,6 +345,17 @@ def _add_artifact_manifest(registry: LineageRegistry, manifest_path: Path, path_
                 )
             )
             registry.add_edge(LineageEdge(source=run_node_id, target=node_id, edge_type="evaluates"))
+
+
+def _add_missing_artifact(registry: LineageRegistry, source: str, path: Path, role: str) -> None:
+    node_id = _path_id("missing_artifact", path)
+    registry.add_node(LineageNode(
+        id=node_id,
+        node_type="artifact_warning",
+        label=f"missing {role}",
+        metadata={"artifact_path": str(path), "role": role, "warning": "missing_artifact"},
+    ))
+    registry.add_edge(LineageEdge(source=source, target=node_id, edge_type="missing_artifact"))
 
 
 def _add_opponent_pool(registry: LineageRegistry, run_node_id: str, path: Path) -> None:
@@ -927,12 +958,45 @@ def build_registry(roots: Iterable[str | Path]) -> LineageRegistry:
         _add_human_session_manifest(registry, path)
     for path in sorted(lineage_paths):
         _add_lineage_manifest(registry, path)
+    for node in tuple(registry.nodes.values()):
+        if node.path and not Path(node.path).exists() and node.node_type != "artifact_warning":
+            _add_missing_artifact(registry, node.id, Path(node.path), node.node_type)
     return registry
 
 
 def validate_registry(registry: LineageRegistry) -> list[dict[str, Any]]:
     issues = []
+    decision_nodes = {}
     for node in registry.nodes.values():
+        if node.node_type != "evaluation" or "decision" not in node.metadata:
+            continue
+        decision = node.metadata["decision"]
+        if not valid_lineage_decision(decision):
+            missing = sorted(DECISION_FIELDS - decision.keys()) if isinstance(decision, Mapping) else sorted(DECISION_FIELDS)
+            issues.append({"type": "invalid_decision", "node_id": node.id, "missing": missing})
+            continue
+        candidate_id = decision["candidate_id"]
+        if candidate_id not in registry.nodes or not any(edge.source == candidate_id and edge.target == node.id and edge.edge_type in {"evaluated_by", "rejected_by"} for edge in registry.edges):
+            issues.append({"type": "unlinked_decision_candidate", "node_id": node.id})
+            continue
+        decision_nodes[node.id] = decision
+    for node_id, decision in decision_nodes.items():
+        supersedes = decision.get("supersedes")
+        if supersedes is not None and (supersedes == node_id or supersedes not in decision_nodes or any(decision.get(key) != decision_nodes[supersedes].get(key) for key in ("candidate_id", "scope"))):
+            issues.append({"type": "invalid_decision_supersedes", "node_id": node_id})
+    for edge in registry.edges:
+        if edge.edge_type == "promoted_to" and any(d.get("candidate_id") == edge.source for d in decision_nodes.values()):
+            active = [
+                d for node_id, d in decision_nodes.items()
+                if d.get("candidate_id") == edge.source
+                and d.get("scope") == edge.metadata.get("scope")
+                and not any(other.get("supersedes") == node_id for other in decision_nodes.values())
+            ]
+            if len(active) != 1 or active[0].get("outcome") != "adopted":
+                issues.append({"type": "unadopted_playable_promotion", "edge": asdict(edge)})
+    for node in registry.nodes.values():
+        if node.node_type == "artifact_warning":
+            issues.append({"type": "missing_artifact", "node_id": node.id, "path": node.metadata.get("artifact_path")})
         if node.path and not Path(node.path).exists():
             issues.append({"type": "missing_path", "node_id": node.id, "path": node.path})
     for edge in registry.edges:
