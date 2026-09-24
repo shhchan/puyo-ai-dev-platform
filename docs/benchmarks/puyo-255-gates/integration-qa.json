@@ -1,0 +1,68 @@
+{
+  "combined_suite": {
+    "count": 184,
+    "native_parity": "PASS",
+    "result": "PASS",
+    "test_log_sha256": "e1a4c3f1f03c63464c0c4a5a61ea7ca87fd00357d7e70239706eecedfb709e8f"
+  },
+  "gates": {
+    "G0": {
+      "checks": {
+        "fixtures": true,
+        "legality": true,
+        "parity": true,
+        "public_boundary": true,
+        "replay": true,
+        "schema": true,
+        "six_tactic_masks": true
+      },
+      "status": "PASS"
+    },
+    "G1": {
+      "checks": {
+        "gui_ledger": true,
+        "illegal_zero": true,
+        "leak_zero": true,
+        "missing_zero": true,
+        "rule_ledger": true,
+        "template_fixtures": true
+      },
+      "status": "PASS"
+    },
+    "G2": {
+      "formal_reference_calibrated": false,
+      "observed_safe_runs": 2,
+      "observed_smoke_quality": "FAIL",
+      "required_safe_runs": 60,
+      "status": "BLOCKED"
+    }
+  },
+  "gui_connection": {
+    "human_qa": "PENDING",
+    "ledger_entries": 7,
+    "ledger_sha256": "868cd71b2f497b347497274a921a4f796a1b4e82327b062e23b62094cab84bd6",
+    "matched_entry": {
+      "activation_tick": 46,
+      "decision_id": 1,
+      "episode_id": "nextgen-episode-1",
+      "executed_action": 4,
+      "outcome": "activated",
+      "phase_id": "template-phase-1",
+      "request_id": "request-1",
+      "requested_action": 4,
+      "tactic_id": "build_template",
+      "template_id": "gtr"
+    },
+    "mode": "DISPLAY=:0 automated normal-window smoke",
+    "replay_entries": 7,
+    "replay_sha256": "a1d2da1894d553f1fed84b69ab5d98628acce51c2d85cf7c96082373989fe501",
+    "selected_tick": 46,
+    "ticks": 120,
+    "viewer_entries": 7,
+    "viewer_report_sha256": "7c9ac7071ad1b178ce061367761b835f12a8c680563f088f3136e18aa936f733"
+  },
+  "integration_head": "ad56600ef4e556613c868154b36004fd83974103",
+  "schema": "puyo.nextgen.integration_qa.v1",
+  "scope_note": "G1 is automated rule/ledger/GUI integration evidence; normal-window human acceptance for PUYO-253/254 remains pending. G2 does not inherit G1 quality acceptance.",
+  "source_report_sha256": "3aa455a9991f4194625e27b22f6ff76d33ab877c6d252b449f0e5ca4d40bdc0f"
+}
