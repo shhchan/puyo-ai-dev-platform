@@ -1,15 +1,15 @@
 {
   "all_archive_members_verified": true,
   "analysis_source": {
-    "commit": "99c8cf8a4158bc0d5e1b650b887bae0567ec726d",
+    "commit": "b89a58523461a6a9b93085708c6e3579ea66bae9",
     "files": {
-      "eval/nextgen_gate_benchmark.py": "383388a81be449f0c6ac08a9058094eda3749fb7500bb5bc34aa02a29efb7033",
+      "eval/nextgen_gate_benchmark.py": "86a73de0a23f925d0c0fdf001336741cd94fb079ffffa9f9ac26e64e382ac952",
       "eval/nextgen_gates.py": "8e074c82e7446fe6757ce3446e14a6aa50db2e8c1257e3ee7259c1336da114f8"
     }
   },
-  "archive_bytes": 1149244,
+  "archive_bytes": 1119002,
   "archive_file_count": 22,
-  "archive_sha256": "4d8a22f83911f342b2574b70fc0e28e44a66c383f12219dcea0c1ac3ce2f5830",
+  "archive_sha256": "a528f76089681735e8f738a64a98814c225bba57ef1ff434bb0722104f0a56e8",
   "gui_ledger_status": "pending PUYO-253 integration",
   "historical_raw_bundled": false,
   "measurements": {
@@ -642,7 +642,7 @@
     "async/manifest.json": "bf9c7ded39be91485574d4d050c9174d4ae471dd2e637b73765c71e856422bd9",
     "async/paired/measured-123-side-0.json.gz": "c6b5fcc21f20bbcc46e7a73b391b5144881ad4cca84c41df29a380566487a24f",
     "async/paired/measured-123-side-1.json.gz": "76b114f8554fe26aeea81e7f464617a8b62c079072848fef5b40615a50bd8119",
-    "async/report.json": "e3bf294fd668a221dac088d4fbcc40be963c2910795699b7776317baf472a50c",
+    "async/report.json": "73e0be0006531ab88bc1d8321ad4990f8753cc8d6ba25e51f54e669ed1b032f4",
     "sync/classification.json": "f638307f88eeb0d51b3b54fb245142c26642e6df53617663ccfc3e3a9574c66c",
     "sync/evidence.json": "90f7ee1cb349d1db8890da0f8a64ff803e98533e513223afcbcf08d0b68bbc8b",
     "sync/fixture-collection.log": "9865831b34ac0d3e0ca0e2fb922d673650b4e906ade885474f236a60aa01c155",
@@ -655,7 +655,7 @@
     "sync/paired/measured-123-side-1.json.gz": "fe08d75f772325edd0973c71a9f9267be7e8321829ba21870a6fa4ed7770df84",
     "sync/public-reference-runtime.json": "e31851ad4f4d94a9d9904e11948fae00cb0d20ea4df985a2e528a9542d3d482e",
     "sync/public-reference-sidecar.json": "654b70f23a203336c040fe42c26010377a01a87f4be9fe13740b9a890b1c187c",
-    "sync/report.json": "6df3dde818a327bcb82e25a4331f6f62e907fe504cc4ee103a2ad8308ac7dd7e",
+    "sync/report.json": "3aa455a9991f4194625e27b22f6ff76d33ab877c6d252b449f0e5ca4d40bdc0f",
     "sync/safe/seed-123-repeat-1.json.gz": "0dab161ca7130e7582ecf6bf8e02677bec8bf353263330227b670a718ebd3eff",
     "sync/safe/seed-123-repeat-2.json.gz": "892538281b5b5cdf76ce48a060d24578b14782eabb38ecdf0b10843e692f15f0",
     "sync/template-fixtures.json": "6def8dc5e7d7adf23fa8d6a30f6c87c67726b38518980f31b2fc2b97539fb0a6",
@@ -664,8 +664,8 @@
   },
   "new_raw_count": 8,
   "reports": {
-    "async-report.json": "e3bf294fd668a221dac088d4fbcc40be963c2910795699b7776317baf472a50c",
-    "report.json": "6df3dde818a327bcb82e25a4331f6f62e907fe504cc4ee103a2ad8308ac7dd7e"
+    "async-report.json": "73e0be0006531ab88bc1d8321ad4990f8753cc8d6ba25e51f54e669ed1b032f4",
+    "report.json": "3aa455a9991f4194625e27b22f6ff76d33ab877c6d252b449f0e5ca4d40bdc0f"
   },
   "schema": "puyo.nextgen.gate_evidence.v1"
 }
