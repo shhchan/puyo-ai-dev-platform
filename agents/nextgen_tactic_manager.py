@@ -236,6 +236,7 @@ class PreparePhaseStep(DecisionStep):
             binding_budget=policy.template_binding_budget,
             reachable_mask=data["execution"].reachable_mask,
             preferred_key=phase.candidate.key if phase.candidate is not None else None,
+            prioritize_static_binding=True,
         )
         elapsed = time.perf_counter() - started
         reconcile_phase(phase, result, public, data["history"], identity)

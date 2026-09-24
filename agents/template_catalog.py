@@ -704,6 +704,7 @@ def match_templates(
     reachable_mask: Sequence[bool] | None = None,
     static_binding_cap: int = 4096,
     preferred_key: tuple | None = None,
+    prioritize_static_binding: bool = False,
 ) -> MatchResult:
     """Static score every enabled template, then spend bounded node/binding quota.
 
@@ -838,6 +839,13 @@ def match_templates(
             and bindings_used < binding_budget
             else None
         )
+        if prioritize_static_binding and preferred_key is None and bindings_used < binding_budget:
+            # Initial selection has no committed key yet. Its best static
+            # binding must receive witness coverage before unrelated color
+            # assignments consume the node quota. Like an active preferred
+            # binding, this already validated assignment costs one binding unit.
+            # Template/variant order and the node quota remain unchanged.
+            preferred_binding = fallback_binding
         if preferred_binding is not None:
             bindings_used += 1
         binding_search = _enumerate_bindings(
