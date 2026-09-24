@@ -61,7 +61,7 @@ def summarize(attempts):
     }
 
 
-def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", output):
+def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", write_replay=True, output):
     if mode not in ("normal", "step"):
         raise ValueError("mode must be normal or step")
     output = Path(output)
@@ -74,7 +74,7 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
         nextgen_selection_mode="argmax", nextgen_commit_turns=14,
         nextgen_profile="nextgen_smoke", latency_mode="measured",
         nextgen_backend=backend,
-        max_ticks=max_ticks, replay_path=str(output / "replay.json"),
+        max_ticks=max_ticks, replay_path=str(output / "replay.json") if write_replay else None,
         dataset_root=str(output / "dataset"),
     )
     game = RealtimeVersusMatchController(config)
@@ -138,7 +138,6 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
                 time.sleep(max(0, 1 / 60 - (time.monotonic() - tick_started)))
         elapsed = time.monotonic() - started
         ledger = game.nextgen_ledger_payload()
-        replay = game.replay_payload(interrupted=bool(game.env.agents))
         report = {
             "schema": "puyo.nextgen.realtime_diagnostic.v1",
             "mode": mode, "config": asdict(config),
@@ -148,6 +147,7 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
             "clock": "60 Hz maximum; no catch-up" if mode == "normal" else "wait worker between single ticks",
             "elapsed_seconds": elapsed, "ticks": game.env.match.tick,
             "target_placements": placements, "observed_placements": placement_count,
+            "replay_saved": write_replay,
             "termination": "placement_limit" if placement_count >= placements else "match_or_tick_limit",
             "requests": requests, "attempts": attempts,
             "placements": [{"public": p.to_dict(), "stage": stage, "template": template_observation(game.nextgen_catalog, p, key)} for p, key, stage in boards],
@@ -155,7 +155,10 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
             "controller": controller.diagnostics.to_dict(),
             "quality_status": "diagnostic_only; human GUI QA and G2 not established",
         }
-        for name, value in (("report", report), ("ledger", ledger), ("replay", replay)):
+        outputs = [("report", report), ("ledger", ledger)]
+        if write_replay:
+            outputs.append(("replay", game.replay_payload(interrupted=bool(game.env.agents))))
+        for name, value in outputs:
             (output / f"{name}.json").write_text(json.dumps(value, indent=2) + "\n")
         print(json.dumps(report["summary"], ensure_ascii=False), flush=True)
         return report
@@ -171,6 +174,8 @@ def main():
     parser.add_argument("--max-ticks", type=int, default=6000)
     parser.add_argument("--opponent", choices=("random", "human"), default="random")
     parser.add_argument("--backend", choices=("native", "python"), default="native")
+    parser.add_argument("--omit-replay", dest="write_replay", action="store_false",
+                        help="Save report/ledger without retaining the large per-tick GUI replay")
     parser.add_argument("--output", type=Path, required=True)
     args = vars(parser.parse_args())
     if args["placements"] < 1 or args["max_ticks"] < 1:
