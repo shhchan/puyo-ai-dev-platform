@@ -207,6 +207,38 @@ class LineageSummary:
                 edges.append({**edge, "source": source, "target": target})
         return {"nodes": nodes, "edges": edges, "collapsed_checkpoints": len(collapsed)}
 
+    def graph_viewport(self, selected_id: str | None, *, rows: int = 5) -> dict[str, Any]:
+        """Expose one scrollable graph; keep each decision outcome visible at its top."""
+        graph = self.main_graph()
+        columns: list[list[dict[str, Any]]] = [[], [], [], []]
+        for node in graph["nodes"]:
+            kind = node.get("node_type")
+            column = 0 if kind in {"model_version", "config", "dataset", "tactic_schema", "analyzer_schema", "feature_schema", "diagnostics_schema"} else 1 if kind in {"run", "training_run", "human_dataset_session"} else 2 if kind in {"checkpoint", "external_checkpoint"} else 3
+            columns[column].append(node)
+        outcomes = {item["evaluation_id"]: item["outcome"] for item in self.effective_decisions()}
+        evaluations = {outcome: [] for outcome in ("adopted", "rejected", "deferred")}
+        other = []
+        for node in columns[3]:
+            outcome = outcomes.get(node["id"])
+            if outcome in evaluations:
+                evaluations[outcome].append(node)
+            else:
+                other.append(node)
+        for group in (*evaluations.values(), other):
+            group.sort(key=lambda node: str(node.get("label") or node["id"]))
+        columns[3] = [node for index in range(max((len(group) for group in evaluations.values()), default=0))
+                      for group in evaluations.values() for node in group[index:index + 1]] + other
+        visible = []
+        overflow = []
+        for column_index, items in enumerate(columns):
+            if column_index != 3:
+                items.sort(key=lambda node: str(node.get("label") or node["id"]))
+            index = next((i for i, node in enumerate(items) if node["id"] == selected_id), None)
+            start = 0 if index is None else max(0, min(index - rows // 2, len(items) - rows))
+            visible.append(items[start:start + rows])
+            overflow.append({"before": start, "after": max(0, len(items) - start - rows), "total": len(items)})
+        return {"columns": visible, "overflow": overflow, "graph": graph}
+
 
 @dataclass(frozen=True)
 class ModelViewerData:
@@ -895,26 +927,20 @@ class ModelViewerRenderer:
     def _draw_lineage_graph(self, controller: ModelViewerController, rect: pygame.Rect) -> None:
         pygame.draw.rect(self.screen, BACKGROUND, rect, border_radius=5)
         pygame.draw.rect(self.screen, (82, 92, 112), rect, 1, border_radius=5)
-        graph = controller.data.lineage.main_graph()
+        viewport = controller.data.lineage.graph_viewport(controller.selected_lineage_id)
+        graph = viewport["graph"]
         if not graph["nodes"]:
             self._draw_text("No lineage nodes", self.font, MUTED, (rect.x + 14, rect.y + 14))
             return
-        columns = [[], [], [], []]
-        for node in graph["nodes"]:
-            kind = node.get("node_type")
-            column = 0 if kind in {"model_version", "config", "dataset", "tactic_schema", "analyzer_schema", "feature_schema", "diagnostics_schema"} else 1 if kind in {"run", "training_run", "human_dataset_session"} else 2 if kind in {"checkpoint", "external_checkpoint"} else 3
-            columns[column].append(node)
         positions = {}
-        for column, items in enumerate(columns):
-            items.sort(key=lambda item: str(item.get("label", item.get("id", ""))))
-            if len(items) > 5 and controller.selected_lineage_id in {item.get("id") for item in items}:
-                index = next(i for i, item in enumerate(items) if item.get("id") == controller.selected_lineage_id)
-                start = max(0, min(index - 2, len(items) - 5))
-                items = items[start:start + 5]
-            else:
-                items = items[:5]
+        for column, items in enumerate(viewport["columns"]):
             for row, node in enumerate(items):
                 positions[str(node["id"])] = (rect.x + 57 + column * 116, rect.y + 29 + row * 44)
+            overflow = viewport["overflow"][column]
+            if overflow["before"]:
+                self._draw_text(f"{overflow['before']} above", self.small_font, MUTED, (rect.x + 8 + column * 116, rect.y + 2), width=108)
+            if overflow["after"]:
+                self._draw_text(f"{overflow['after']} below", self.small_font, MUTED, (rect.x + 8 + column * 116, rect.bottom - 16), width=108)
         path = controller.data.lineage.adoption_path(controller.adoption_scope) if controller.adoption_scope else {"nodes": [], "edges": []}
         highlighted_edges = {tuple(pair) for pair in path["edges"]}
         statuses = {}

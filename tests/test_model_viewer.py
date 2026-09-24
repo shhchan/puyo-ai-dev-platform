@@ -376,9 +376,21 @@ class TestModelViewerData(unittest.TestCase):
                 {"source": "config:template", "target": "eval:template", "edge_type": "evaluated_by"},
                 {"source": "config:curriculum", "target": "role:playable", "edge_type": "promoted_to", "metadata": {"scope": "release", "reason": "stale promotion"}},
             ]
+            for index in range(4):
+                candidate_id = f"config:extra-{index}"
+                evaluation_id = f"eval:extra-{index}"
+                nodes.append({"id": candidate_id, "node_type": "config", "label": candidate_id, "metadata": {"kind": "reward"}})
+                nodes.append(evaluation(evaluation_id, candidate_id, "deferred"))
+                edges.append({"source": candidate_id, "target": evaluation_id, "edge_type": "evaluated_by"})
             (root / "lineage_manifest.json").write_text(json.dumps({"schema_version": LINEAGE_MANIFEST_SCHEMA_VERSION, "nodes": nodes, "edges": edges}), encoding="utf-8")
             data = build_model_viewer_data(lineage_roots=(str(root),))
             controller = ModelViewerController(data)
+            first_view = data.lineage.graph_viewport(controller.selected_lineage_id)
+            visible_outcomes = {node["metadata"]["decision"]["outcome"] for node in first_view["columns"][3] if "decision" in node.get("metadata", {})}
+            self.assertTrue({"adopted", "rejected", "deferred"} <= visible_outcomes)
+            self.assertGreater(first_view["overflow"][3]["after"], 0)
+            controller.seek_lineage(controller.lineage_order.index("eval:extra-3") - controller.lineage_index)
+            self.assertIn("eval:extra-3", {node["id"] for node in data.lineage.graph_viewport(controller.selected_lineage_id)["columns"][3]})
             self.assertEqual(controller.adoption_scope, "experiment")
             self.assertIn("config:curriculum", controller.report()["lineage"]["adoption_path"]["nodes"])
             controller.change_adoption_scope()
