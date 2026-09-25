@@ -8,12 +8,12 @@
 - 中間の長期順位だけの source: `efc242149487443098fa8941a1193754b15a4196`．未完成の失敗 run も `intermediate-chain-only/` に保存し，最終値と合算しない．
 - native binary SHA-256: `79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2`．PUYO-272 release build，source `9b64186087ea8b6e1219861ddbb534b39233966c`，scenario-6 / 6 workers．専用 venv へコピーし，共有環境を変更していない．
 - 同一 host で直列実行．summary に platform/Python/CPU affinity，公開盤面・current/NEXT/NEXT2 は fixtures の全 request，config/quota と counters は各 raw に記録する．fixture 元ファイル，script，raw gzip の SHA-256 も保存した．測定中の source 変更は両 run とも false．
-- native shared は depth16/width250/6 scenarios/最大600000 nodes，nextgen template128/response256 nodes．fixture は warmup1＋3 repeat，cache なし．両条件で同じ公開盤面推定・公開ツモ・scenario seed・native binary・shared quota を使う．
+- native shared は depth16/width250/6 scenarios/最大 600000 nodes，nextgen template128/response256 nodes．fixture は warmup1＋3 repeat，cache なし．両条件で同じ公開盤面推定・公開ツモ・scenario seed・native binary・shared quota を使う．
 - reference は同じ公開入力を受ける無制約 deep-chain backend の比較であり，reference policy の実対局ではない．fixture の current chain は実採用の対局結果と区別する．
 
 ## 同一公開入力の固定予算比較
 
-時間は batch 全体の ms，p50/p95．3 repeat の backend semantic digest は全8組で一致した．
+時間は batch 全体の ms，p50/p95．3 repeat の backend semantic digest は全 8 組で一致した．
 
 | fixture | 制約 | p50/p95 ms | 選択戦術 / root | current chain |
 | --- | --- | ---: | --- | ---: |
@@ -34,22 +34,22 @@
 
 `SafeNoThreatMatch(55)`，GTR 固定，configured inference0，nextgen_safe_build，20 resolved placements．全公開入力・candidate batch・selection・receipt・root trace・実連鎖・実入力を gzip に保存した．
 
-| 実装 | 定型成立 | phase 終了 | 最大実連鎖 | premature（1〜9連鎖） | 窒息 | decision p50/p95 |
+| 実装 | 定型成立 | phase 終了 | 最大実連鎖 | premature（1〜9 連鎖） | 窒息 | decision p50/p95 |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
-| 中間・長期順位のみ | 未成立 | 未完成14手 limit | 0 | 0 | 0 | 0.611/0.715 s |
-| 最終・公開進捗を比較 | 12実設置で GTR 成立 | 次の13番目 requestで completed，保持全解除 | 0 | 0 | 0 | 0.633/0.881 s |
+| 中間・長期順位のみ | 未成立 | 未完成 14 手 limit | 0 | 0 | 0 | 0.611/0.715 s |
+| 最終・公開進捗を比較 | 12 実設置で GTR 成立 | 次の 13 番目 request で completed，保持全解除 | 0 | 0 | 0 | 0.633/0.881 s |
 
-両 run は20件すべて activated，scheduler errors は空．最終 run の最初の12件は build_template，残り8件は build_main．この1seedでは成立の改善を確認したが，20手で発火がなく最大実連鎖は0のままである．decision 時間の改善も示していない．reference 実対局との定型成立率/所要手数・最大実連鎖・premature・窒息・decision 比較は **PUYO-271 後半の40手×3seed** で再判定する．正式 G2 は PUYO-266 に残る．
+両 run は 20 件すべて activated，scheduler errors は空．最終 run の最初の 12 件は build_template，残り 8 件は build_main．この 1seed では成立の改善を確認したが，20 手で発火がなく最大実連鎖は 0 のままである．decision 時間の改善も示していない．reference 実対局との定型成立率/所要手数・最大実連鎖・premature・窒息・decision 比較は **PUYO-271 後半の 40 手×3seed** で再判定する．正式 G2 は PUYO-266 に残る．
 
 ## 回帰
 
-最終進捗調整後の対象103件が成功．調整前には codec/trajectory/response/backend parity を含む154件，未知 guard の追加後には関連46件が成功した．詳細コマンドと実ログは `verification.txt`．新規 integration suite では以下を確認する．
+最終進捗調整後の対象 103 件が成功．調整前には codec/trajectory/response/backend parity を含む 154 件，未知 guard の追加後には関連 46 件が成功した．詳細コマンドと実ログは `verification.txt`．新規 integration suite では以下を確認する．
 
-- 凍結した横2/L字入力，色置換・mirror・同色 alias・他色支持・L字一般の許容，guard unknown と quota．
+- 凍結した横 2/L 字入力，色置換・mirror・同色 alias・他色支持・L 字一般の許容，guard unknown と quota．
 - matcher の同じ root 層の比較，全 root 進捗，固定 binding 保持，semantic digest/cache 分離．
 - Python/native の複数整合 root 順位，公開完成・sampled 完成・unknown/cutoff/violation の区別．
-- 3定型の公開 fixture 成立，中間配置，現在完成 root の phase 終端特例，完成 witness だけでは閉じず実採用後の次公開盤面で解除．
-- 14/15手境界，timeout 不消費，実 receipt/ledger，定型全失敗より必要な生存単発を優先．
+- 3 定型の公開 fixture 成立，中間配置，現在完成 root の phase 終端特例，完成 witness だけでは閉じず実採用後の次公開盤面で解除．
+- 14/15 手境界，timeout 不消費，実 receipt/ledger，定型全失敗より必要な生存単発を優先．
 - 271 fixture/before の SHA は変更せず，旧 guard なし評価と新しい guard 付き評価を別列へ保存．
 
 再実行は repository root の専用 release-native venv で以下を実行する．新しい出力先を指定する．
