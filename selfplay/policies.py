@@ -184,7 +184,18 @@ def make_policy(
     deep_chain_backend: str = "python",
     deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT,
     forced_tactic_id: str | None = None,
+    nextgen_template_catalog_path: str | Path | None = None,
+    nextgen_rule_config=None,
 ) -> Policy:
+    if policy_type == "nextgen_tactic_manager":
+        from agents.nextgen_tactic_manager import (
+            NextgenTacticManagerPolicy,
+            RuleTacticSelector,
+        )
+        return NextgenTacticManagerPolicy(
+            seed=seed, template_catalog_path=nextgen_template_catalog_path,
+            selector=RuleTacticSelector(nextgen_rule_config),
+        )
     if policy_type == "first":
         return FirstLegalPolicy()
     if policy_type == "random":

@@ -192,7 +192,7 @@ templates:
 
 symbol 同値類→通常色の割当を有限列挙する（単射を要求しない）。完成は全 symbol/empty/occupied 条件が同一割当で成立した状態。部分進捗 `p` は充足した必須 cell 数 / 必須 cell 総数。空 cell 制約を消去の前後で混同せず、lock/resolution 後の安定盤面で測る。
 
-既知 current/NEXT/NEXT2 の範囲で、合法 root を持ち、既存の充足条件を壊さず symbol の充足数を増やす plan が一つあれば `fit=true`。一手目は中間配置でもよいが、既知 prefix の終点で厳密に進捗が増えること。完成形は互換な合法継続があれば fit とする。未来補完だけの前進は fit の証明にしない。
+既知 current/NEXT/NEXT2 の範囲で、合法 root を持ち、既存の充足条件を壊さず symbol の充足数を増やす plan が一つあれば `fit=true`。一手目は中間配置でもよいが、既知 prefix の終点で厳密に進捗が増えること。完成形は互換な合法継続があれば fit とする。未来補完だけの前進は fit の証明にしない。一方，進捗を証明できない場合も，選択済み phase では必須条件を壊さない連鎖尾側の root 配置を継続候補にできる。この候補は `fit=true` とは扱わず，進捗候補より低く順位付けする。
 
 初期適合スコアは `s = max(p_after - conflicts_after / required_cells)`。各 variant・色割当・既知 prefix の候補終点で最大値を取り、探索器がテンプレートごとの代表を決める。`conflicts` は既存の非空色不整合、必須 empty/occupied の不整合数。勝率・攻撃力・連鎖数は混ぜない。各必須 cell の重みは初期1、variant weight は同一テンプレート内の比較に使用し正規化する。fit の有無と s は別項目で、低 s を理由に開始時の選択を取りやめない。
 
@@ -208,7 +208,7 @@ matcherの色割当数・既知prefix探索にも固定上限をprofileで与え
 
 自 decision は **自分の1組の操作に対して実際に採用された判断**を単位とする。同じ組の timeout/retry/stale/replan は新しい14手の枠を作らず、1組で最大1消費。scheduler request は別 ID とし再探索回数も記録する。14回目を許し、15回目の template 戦術は無効。途中完成したら `completed` で自由構築へ移り、無制限に phase を更新しない。
 
-脅威対応/短期攻撃へ切替えた時点で現 phase を閉じる。対応の完了は、対応対象 packet の解消または最初の落下＋counter の resolution を authoritative event で確認した時点。本線発火完了、短期攻撃完了も resolution で確認する。完了後の次の操作可能盤面で一度だけ再選択する。脅威中・連鎖中・単なる候補順位変化では再選択しない。template 継続中の進捗不能は `no_compatible_candidate`、予算不足は `search_unknown` と区別し、同一 phase を再開せず自由構築へ移る。
+脅威対応/短期攻撃へ切替えた時点で現 phase を閉じる。対応の完了は、対応対象 packet の解消または最初の落下＋counter の resolution を authoritative event で確認した時点。本線発火完了、短期攻撃完了も resolution で確認する。完了後の次の操作可能盤面で一度だけ再選択する。脅威中・連鎖中・単なる候補順位変化では再選択しない。template 継続中に現在の組で必須マスを増やせなくても，盤面が選択形と互換なら中間配置を許す。必須条件との衝突は `no_compatible_candidate` として閉じる。14 手で未完成なら `limit` として閉じ，次の組から自由構築する。
 
 ## 13. 探索器・RL・実行器の契約
 

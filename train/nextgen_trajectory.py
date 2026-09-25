@@ -18,6 +18,7 @@ from typing import Any, Iterator, Mapping, Sequence
 
 from agents.nextgen_contracts import (
     CANDIDATE_BATCH_SCHEMA_VERSION,
+    LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION,
     DIAGNOSTICS_SCHEMA_VERSION,
     FEATURE_REGISTRY,
     FEATURE_REGISTRY_HASH,
@@ -268,6 +269,10 @@ def write_nextgen_run(*, run_dir: str | Path, run_id: str, episodes: Sequence[Ep
     artifacts["gate_report"] = gate_path
     seen_episodes: set[str] = set()
     all_keys: set[str] = set()
+    batch_schemas = {record.diagnostics.batch.schema_version
+                     for episode in episodes for record in episode.decisions}
+    _require(len(batch_schemas) <= 1, "mixed candidate batch schemas")
+    batch_schema = next(iter(batch_schemas), CANDIDATE_BATCH_SCHEMA_VERSION)
     for episode in episodes:
         _safe_id(episode.episode_id, "episode_id")
         _require(episode.episode_id not in seen_episodes, "duplicate episode")
@@ -321,7 +326,7 @@ def write_nextgen_run(*, run_dir: str | Path, run_id: str, episodes: Sequence[Ep
         _write_json(names["summary"], summary)
         artifacts.update({f"{episode.episode_id}_{role}": path for role, path in names.items()})
     lineage = {"schema_version": RUN_SCHEMA, "trajectory_schema": TRAJECTORY_SCHEMA,
-               "request_schema": REQUEST_SCHEMA_VERSION, "batch_schema": CANDIDATE_BATCH_SCHEMA_VERSION,
+               "request_schema": REQUEST_SCHEMA_VERSION, "batch_schema": batch_schema,
                "diagnostics_schema": DIAGNOSTICS_SCHEMA_VERSION, "selection_schema": SELECTION_SCHEMA_VERSION,
                "feature_registry_hash": FEATURE_REGISTRY_HASH, "tactic_registry_hash": TACTIC_REGISTRY_HASH,
                "episode_ids": sorted(seen_episodes), "provenance": dict(provenance)}
@@ -349,7 +354,7 @@ def validate_nextgen_run(run_dir: str | Path) -> dict[str, Any]:
                     "selection_schema", "feature_registry_hash", "tactic_registry_hash", "episode_ids", "provenance"}, "nextgen")
     _require(nextgen["schema_version"] == RUN_SCHEMA and nextgen["trajectory_schema"] == TRAJECTORY_SCHEMA
              and nextgen["request_schema"] == REQUEST_SCHEMA_VERSION
-             and nextgen["batch_schema"] == CANDIDATE_BATCH_SCHEMA_VERSION
+             and nextgen["batch_schema"] in (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION, CANDIDATE_BATCH_SCHEMA_VERSION)
              and nextgen["diagnostics_schema"] == DIAGNOSTICS_SCHEMA_VERSION
              and nextgen["selection_schema"] == SELECTION_SCHEMA_VERSION
              and nextgen["feature_registry_hash"] == FEATURE_REGISTRY_HASH
@@ -477,6 +482,7 @@ def validate_nextgen_run(run_dir: str | Path) -> dict[str, Any]:
             _require(batch_payload["schema_version"] == EVIDENCE_SCHEMA and
                      request_payload["schema_version"] == PUBLIC_REPLAY_SCHEMA, "sidecar schema mismatch")
             batch = CandidateBatch.from_dict(batch_payload["batch"])
+            _require(batch.schema_version == nextgen["batch_schema"], "manifest/batch schema mismatch")
             request = NextgenRequest.from_dict(request_payload["request"])
             _keys(line["policy_input"], POLICY_INPUT_KEYS, "policy_input")
             features = PolicyFeatures.from_dict(line["policy_input"])

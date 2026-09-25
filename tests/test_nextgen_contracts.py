@@ -12,7 +12,8 @@ FIXTURES = Path(__file__).parent / "fixtures" / "nextgen"
 
 
 def make_diagnostics(
-    tactic="build_main", *, partial=False, fallback=False, unavailable=False
+    tactic="build_main", *, partial=False, fallback=False, unavailable=False,
+    batch_schema=c.CANDIDATE_BATCH_SCHEMA_VERSION,
 ):
     """Synthetic producer: contract examples do not assert search capability."""
     h = c.semantic_digest("fixture")
@@ -111,6 +112,7 @@ def make_diagnostics(
         candidates,
         rows,
         c.SearchCounters(2, 1, 0, 3, 0.5),
+        schema_version=batch_schema,
     )
     summary = {
         "threat.none": 1,
@@ -184,12 +186,12 @@ class NextgenContractTests(unittest.TestCase):
     def test_fixture_producer_matches_committed_payloads(self):
         for tactic in c.TACTIC_IDS:
             self.assertEqual(
-                make_diagnostics(tactic).to_dict(),
+                make_diagnostics(tactic, batch_schema=c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION).to_dict(),
                 json.loads((FIXTURES / f"{tactic}.json").read_text()),
             )
         for variant in ("partial", "fallback", "unavailable"):
             self.assertEqual(
-                make_diagnostics(**{variant: True}).to_dict(),
+                make_diagnostics(**{variant: True}, batch_schema=c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION).to_dict(),
                 json.loads((FIXTURES / f"{variant}.json").read_text()),
             )
 

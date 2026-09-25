@@ -1,0 +1,28 @@
+import json,time,sys
+from pathlib import Path
+from dataclasses import asdict
+from agents import nextgen_contracts as c
+from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
+from agents.nextgen_shared_search import _public_state,_pairs
+from agents.compact_search import transition
+from eval.nextgen_gate_benchmark import SafeNoThreatMatch
+from puyo_env.realtime_ai import RealtimePolicyController,RealtimeDecisionConfig
+from src.ui.launcher_settings import resolve_nextgen_catalog
+root=Path.cwd()
+cat,_=resolve_nextgen_catalog(catalog_path='train/config/nextgen_templates.yaml',templates='gtr',mode='argmax',temperature=.1,commit_turns=14,repo_root=root)
+for seed in (55,123,124):
+ p=NextgenTacticManagerPolicy(catalog=cat,seed=seed);m=SafeNoThreatMatch(seed);ctrl=RealtimePolicyController(p,config=RealtimeDecisionConfig(latency_mode='configured'));rows=[];chains=[];seen=None
+ for _ in range(30000):
+  inputs={'player_0':ctrl.next_input(m,'player_0')} if not m.ending else {}
+  ctx=p.last_context
+  if ctx is not None and ctx is not seen:
+   seen=ctx;req=ctx.require('request');s=ctx.require('search');candidate=ctx.require('candidate');state,_=_public_state(req)
+   r=transition(state,_pairs(req.public.own.known_pieces)[0],candidate.root_action)
+   rows.append(dict(tick=m.tick,request=req.to_dict(),selection=ctx.require('selection').to_dict(),phase=ctx.require('phase').diagnostics(),action=candidate.root_action,root_rank=s.root_rankings.index(candidate.root_action),predicted_chain=r.chain_count,shared_best=s.root_rankings[0],seconds=ctx.trace.elapsed_seconds))
+  result=m.step(inputs)
+  for e in result.player_results['player_0'].events:
+   if e.type=='resolution_complete':
+    chains.append(e.data['chain_count']);print(seed,len(chains),'actual',chains[-1],'selected',rows[-1]['selection']['selected_tactic_id'],'rank',rows[-1]['root_rank'],'phase',rows[-1]['phase']['exit_reason'],flush=True)
+  if len(chains)>=40 or m.finished:break
+ data=dict(seed=seed,chains=chains,game_over=m.player_states['player_0'].simulator.game.game_over,rows=rows,ledger=[d.to_dict() for d in ctrl.nextgen_scheduler.ledger],errors=ctrl.nextgen_scheduler.errors)
+ Path('/tmp/puyo-nextgen-20260924/puyo266-baseline/seed-'+str(seed)+'.json').write_text(json.dumps(data,indent=2))

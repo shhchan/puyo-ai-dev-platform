@@ -1,0 +1,587 @@
+{
+  "analysis_source": {
+    "commit": "b89a58523461a6a9b93085708c6e3579ea66bae9",
+    "files": {
+      "eval/nextgen_gate_benchmark.py": "86a73de0a23f925d0c0fdf001336741cd94fb079ffffa9f9ac26e64e382ac952",
+      "eval/nextgen_gates.py": "8e074c82e7446fe6757ce3446e14a6aa50db2e8c1257e3ee7259c1336da114f8"
+    }
+  },
+  "classification": {
+    "candidate_gap": null,
+    "candidate_ranking_failure": null,
+    "denominator": 0,
+    "reason": "no independent public reference sidecar",
+    "tactic_selection_failure": null
+  },
+  "evidence_sha256": null,
+  "gates": {
+    "G0": {
+      "checks": {
+        "fixtures": null,
+        "legality": null,
+        "parity": null,
+        "public_boundary": null,
+        "replay": null,
+        "schema": null,
+        "six_tactic_masks": null
+      },
+      "status": "BLOCKED"
+    },
+    "G1": {
+      "checks": {
+        "gui_ledger": null,
+        "illegal_zero": null,
+        "leak_zero": null,
+        "missing_zero": null,
+        "rule_ledger": null,
+        "template_fixtures": null
+      },
+      "status": "BLOCKED"
+    },
+    "G2": {
+      "checks": {
+        "G0_passed": false,
+        "G1_passed": false,
+        "all_60_complete": false,
+        "game_over_zero": true,
+        "known_solution_gap_zero": false,
+        "mean_chain_at_least_10": false,
+        "premature_zero": true,
+        "public_runtime": true,
+        "reference_profile_calibrated": false,
+        "repeat_digest_match": false,
+        "required_threat_fixtures": false
+      },
+      "failed_conditions": [
+        "all_60_complete",
+        "mean_chain_at_least_10",
+        "repeat_digest_match",
+        "reference_profile_calibrated",
+        "required_threat_fixtures",
+        "known_solution_gap_zero",
+        "G0_passed",
+        "G1_passed"
+      ],
+      "status": "BLOCKED"
+    },
+    "G3": {
+      "blocked_by": "G2",
+      "checks": {
+        "all_training_seeds": null,
+        "held_out_quality": null,
+        "mask_return_reward": null
+      },
+      "status": "BLOCKED"
+    },
+    "G4": {
+      "blocked_by": "G3",
+      "checks": {
+        "artifact_lineage": null,
+        "frozen_human_latency_thresholds": null,
+        "measured_latency": null,
+        "noninferiority": null,
+        "normal_gui_qa": null,
+        "opponent_strata_ci": null,
+        "paired_win_ci": null,
+        "quality": null,
+        "resource_adoption": null
+      },
+      "status": "BLOCKED"
+    }
+  },
+  "long_training_allowed": false,
+  "manifest_sha256": "4e542504907985607270d3faf27a7cbaaf5ee063ef6587b76c19760ac7ed91dc",
+  "observed_quality": {
+    "expected_runs": 60,
+    "failed_conditions": [],
+    "observed_runs": 0,
+    "scope": "observed profile only; not reference G2 qualification",
+    "status": "BLOCKED"
+  },
+  "paired": [
+    {
+      "chains": [
+        0,
+        0
+      ],
+      "cpu_seconds": 10.929839719,
+      "decisions": [
+        2,
+        2
+      ],
+      "elapsed_seconds": 10.921325832001457,
+      "errors": [],
+      "execution_mode": "single_worker_realtime_clock",
+      "finished_utc": "2026-09-24T06:55:51Z",
+      "game_over": false,
+      "latency_mode": "measured",
+      "manifest_sha256": "4e542504907985607270d3faf27a7cbaaf5ee063ef6587b76c19760ac7ed91dc",
+      "max_chain": 0,
+      "placements": 2,
+      "policy_a_side": 0,
+      "premature": 0,
+      "rss_peak_kib": 48284,
+      "seed": 123,
+      "semantic_digest": "16c8df938ca1f2c128fca84e641576a42837680f7ef8b72ead09849d22cf768a",
+      "started_decisions": [
+        3,
+        3
+      ],
+      "termination": "tick_limit",
+      "throughput": {
+        "assumptions": [
+          "one worker, one search thread, same profile and hardware",
+          "rollout includes both players and environment; optimizer/checkpoint/gradient costs unmeasured",
+          "no linear multiworker speedup assumed; truncated smoke is not representative quality evidence",
+          "estimates do not authorize training; G2/G3 remain prerequisites"
+        ],
+        "elapsed_seconds": 10.921325832001457,
+        "estimated_hours": {
+          "long_1000000_x5": 7584.254050001013,
+          "ppo_20000_x3": 91.01104860001215,
+          "wiring_2000": 3.033701620000405
+        },
+        "opponent_decisions": 2,
+        "opponent_per_self": 1.0,
+        "self_decisions": 2,
+        "self_decisions_per_second": 0.18312794900227577,
+        "status": "MEASURED_ROLLOUT_ONLY"
+      },
+      "ticks": 600,
+      "winner": null
+    },
+    {
+      "chains": [
+        0,
+        0
+      ],
+      "cpu_seconds": 11.291145803,
+      "decisions": [
+        2,
+        2
+      ],
+      "elapsed_seconds": 11.28000327799964,
+      "errors": [],
+      "execution_mode": "single_worker_realtime_clock",
+      "finished_utc": "2026-09-24T06:56:02Z",
+      "game_over": false,
+      "latency_mode": "measured",
+      "manifest_sha256": "4e542504907985607270d3faf27a7cbaaf5ee063ef6587b76c19760ac7ed91dc",
+      "max_chain": 0,
+      "placements": 2,
+      "policy_a_side": 1,
+      "premature": 0,
+      "rss_peak_kib": 53148,
+      "seed": 123,
+      "semantic_digest": "64fc924b4b89d832481860527c0a3d87b07f2ad2c02777106cc5bf4e3dfe78d9",
+      "started_decisions": [
+        3,
+        3
+      ],
+      "termination": "tick_limit",
+      "throughput": {
+        "assumptions": [
+          "one worker, one search thread, same profile and hardware",
+          "rollout includes both players and environment; optimizer/checkpoint/gradient costs unmeasured",
+          "no linear multiworker speedup assumed; truncated smoke is not representative quality evidence",
+          "estimates do not authorize training; G2/G3 remain prerequisites"
+        ],
+        "elapsed_seconds": 11.28000327799964,
+        "estimated_hours": {
+          "long_1000000_x5": 7833.335609721972,
+          "ppo_20000_x3": 94.00002731666366,
+          "wiring_2000": 3.133334243888789
+        },
+        "opponent_decisions": 2,
+        "opponent_per_self": 1.0,
+        "self_decisions": 2,
+        "self_decisions_per_second": 0.17730491301370205,
+        "status": "MEASURED_ROLLOUT_ONLY"
+      },
+      "ticks": 600,
+      "winner": null
+    }
+  ],
+  "paired_by_mode": {
+    "measured": {
+      "activation_delay_ticks": {
+        "mean": 117.0,
+        "n": 2,
+        "p50": 117.0,
+        "p95": 119.7
+      },
+      "actor_training_throughput": {
+        "assumptions": [
+          "one worker, one search thread, same profile and hardware",
+          "rollout includes both players and environment; optimizer/checkpoint/gradient costs unmeasured",
+          "no linear multiworker speedup assumed; truncated smoke is not representative quality evidence",
+          "estimates do not authorize training; G2/G3 remain prerequisites"
+        ],
+        "elapsed_seconds": 22.201329110001097,
+        "estimated_hours": {
+          "long_1000000_x5": 30835.179319445968,
+          "ppo_20000_x3": 370.02215183335164,
+          "wiring_2000": 12.334071727778387
+        },
+        "opponent_decisions": 1,
+        "opponent_per_self": 1.0,
+        "self_decisions": 1,
+        "self_decisions_per_second": 0.04504234836776178,
+        "status": "MEASURED_ROLLOUT_ONLY"
+      },
+      "complete_side_swap_pairs": [
+        123
+      ],
+      "cpu_seconds": 22.220985522,
+      "decision_latency_seconds": {
+        "mean": 2.1527485257511216,
+        "n": 8,
+        "p50": 2.207307253002,
+        "p95": 2.3681353189491348
+      },
+      "execution_modes": [
+        "single_worker_realtime_clock"
+      ],
+      "expected_runs": 2,
+      "ledger_decisions": 8,
+      "observed_runs": 2,
+      "outcomes": {
+        "activated": 2,
+        "stale": 6
+      },
+      "peak_rss_kib": 53148,
+      "pending_at_boundary": 4,
+      "phase_seconds": {
+        "select_tactic": {
+          "mean": 0.006695703000332287,
+          "n": 8,
+          "p50": 0.006437678999645868,
+          "p95": 0.008004431001609191
+        },
+        "shared_batch": {
+          "mean": 2.0593900662506712,
+          "n": 8,
+          "p50": 2.1233478555004694,
+          "p95": 2.282548284650511
+        },
+        "template_phase": {
+          "mean": 0.08666275650011812,
+          "n": 8,
+          "p50": 0.0780678014998557,
+          "p95": 0.1301456011504342
+        }
+      },
+      "realtime_latency_qualified": false,
+      "receipt_completion_delay_ticks": {
+        "mean": 195.875,
+        "n": 8,
+        "p50": 213.5,
+        "p95": 243.45
+      },
+      "started_decisions": 12,
+      "terminal_runs": 0,
+      "throughput": {
+        "assumptions": [
+          "one worker, one search thread, same profile and hardware",
+          "rollout includes both players and environment; optimizer/checkpoint/gradient costs unmeasured",
+          "no linear multiworker speedup assumed; truncated smoke is not representative quality evidence",
+          "estimates do not authorize training; G2/G3 remain prerequisites"
+        ],
+        "elapsed_seconds": 22.201329110001097,
+        "estimated_hours": {
+          "long_1000000_x5": 7708.794829861492,
+          "ppo_20000_x3": 92.50553795833791,
+          "wiring_2000": 3.0835179319445967
+        },
+        "opponent_decisions": 4,
+        "opponent_per_self": 1.0,
+        "self_decisions": 4,
+        "self_decisions_per_second": 0.18016939347104713,
+        "status": "MEASURED_ROLLOUT_ONLY"
+      },
+      "timeout_limit_ticks": null,
+      "timeouts": 0,
+      "truncated_runs": 2,
+      "wall_seconds": 22.201329110001097
+    }
+  },
+  "paired_interpretation": "Side-swapped seed is one unit; tick-limit draws are truncated, not completed wins. Configured/measured never pooled. One seed is not G4 evidence.",
+  "phase_seconds": {},
+  "raw_files": {
+    "paired/measured-123-side-0.json.gz": "c6b5fcc21f20bbcc46e7a73b391b5144881ad4cca84c41df29a380566487a24f",
+    "paired/measured-123-side-1.json.gz": "76b114f8554fe26aeea81e7f464617a8b62c079072848fef5b40615a50bd8119"
+  },
+  "safe_build": {
+    "completed_runs": 0,
+    "decision_latency_seconds": {
+      "mean": null,
+      "n": 0,
+      "p50": null,
+      "p95": null
+    },
+    "expected_runs": 60,
+    "game_over": 0,
+    "mean_max_chain": null,
+    "missing": [
+      [
+        123,
+        1
+      ],
+      [
+        123,
+        2
+      ],
+      [
+        124,
+        1
+      ],
+      [
+        124,
+        2
+      ],
+      [
+        125,
+        1
+      ],
+      [
+        125,
+        2
+      ],
+      [
+        126,
+        1
+      ],
+      [
+        126,
+        2
+      ],
+      [
+        127,
+        1
+      ],
+      [
+        127,
+        2
+      ],
+      [
+        128,
+        1
+      ],
+      [
+        128,
+        2
+      ],
+      [
+        129,
+        1
+      ],
+      [
+        129,
+        2
+      ],
+      [
+        130,
+        1
+      ],
+      [
+        130,
+        2
+      ],
+      [
+        131,
+        1
+      ],
+      [
+        131,
+        2
+      ],
+      [
+        132,
+        1
+      ],
+      [
+        132,
+        2
+      ],
+      [
+        133,
+        1
+      ],
+      [
+        133,
+        2
+      ],
+      [
+        134,
+        1
+      ],
+      [
+        134,
+        2
+      ],
+      [
+        135,
+        1
+      ],
+      [
+        135,
+        2
+      ],
+      [
+        136,
+        1
+      ],
+      [
+        136,
+        2
+      ],
+      [
+        137,
+        1
+      ],
+      [
+        137,
+        2
+      ],
+      [
+        138,
+        1
+      ],
+      [
+        138,
+        2
+      ],
+      [
+        139,
+        1
+      ],
+      [
+        139,
+        2
+      ],
+      [
+        140,
+        1
+      ],
+      [
+        140,
+        2
+      ],
+      [
+        141,
+        1
+      ],
+      [
+        141,
+        2
+      ],
+      [
+        142,
+        1
+      ],
+      [
+        142,
+        2
+      ],
+      [
+        143,
+        1
+      ],
+      [
+        143,
+        2
+      ],
+      [
+        144,
+        1
+      ],
+      [
+        144,
+        2
+      ],
+      [
+        145,
+        1
+      ],
+      [
+        145,
+        2
+      ],
+      [
+        146,
+        1
+      ],
+      [
+        146,
+        2
+      ],
+      [
+        147,
+        1
+      ],
+      [
+        147,
+        2
+      ],
+      [
+        148,
+        1
+      ],
+      [
+        148,
+        2
+      ],
+      [
+        149,
+        1
+      ],
+      [
+        149,
+        2
+      ],
+      [
+        150,
+        1
+      ],
+      [
+        150,
+        2
+      ],
+      [
+        151,
+        1
+      ],
+      [
+        151,
+        2
+      ],
+      [
+        152,
+        1
+      ],
+      [
+        152,
+        2
+      ]
+    ],
+    "observed_runs": 0,
+    "placement_denominator": 0,
+    "premature": 0,
+    "repeat_mismatch_seeds": [],
+    "repeat_pairs": 0,
+    "unfinished": [],
+    "unique_seed_denominator": 0
+  },
+  "safe_build_performance": {
+    "limit_seconds": 1,
+    "p95_seconds": null,
+    "status": "BLOCKED"
+  },
+  "safe_resources": {
+    "cpu_seconds": 0,
+    "peak_rss_kib": null,
+    "wall_seconds": 0
+  },
+  "schema": "puyo.nextgen.gates.v1",
+  "timing_definition": "decision_seconds are measured policy trace wall time; rollout wall includes scheduler, engine, serialization; effective activation tick delay reported separately"
+}

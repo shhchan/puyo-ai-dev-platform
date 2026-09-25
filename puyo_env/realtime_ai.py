@@ -123,6 +123,9 @@ class RealtimeDecisionRecord:
     policy_decision_id: str | None = None
     decision_input: dict[str, Any] | None = None
     request_placement_count: int = 0
+    requested_action: int | None = None
+    executed_action: int | None = None
+    nextgen_diagnostics: dict[str, Any] | None = None
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
@@ -450,6 +453,10 @@ class RealtimePolicyController:
         self.config = config or RealtimeDecisionConfig()
         self.timing = timing or DEFAULT_REALTIME_TIMING
         self.decision_executor = decision_executor
+        self.nextgen_scheduler = None
+        if getattr(policy, "nextgen", False):
+            from puyo_env.nextgen_scheduler import NextgenScheduler
+            self.nextgen_scheduler = NextgenScheduler(policy)
         self.diagnostics = RealtimeControllerDiagnostics(latency_mode=self.config.latency_mode)
         self.latest_policy_diagnostics: dict[str, Any] = {}
         self._request_input_identity: dict[str, Any] | None = None
@@ -497,6 +504,8 @@ class RealtimePolicyController:
         reset = getattr(self.policy, "reset", None)
         if callable(reset):
             reset()
+        if self.nextgen_scheduler is not None:
+            self.nextgen_scheduler.reset()
         reset_executor = getattr(self.decision_executor, "reset_policy", None)
         if callable(reset_executor):
             reset_executor()
@@ -553,6 +562,12 @@ class RealtimePolicyController:
                     agent,
                     use_reachable_action_mask=self.config.use_reachable_action_mask,
                 )
+            if self.nextgen_scheduler is not None:
+                prepared = self.nextgen_scheduler.prepare(match, agent, self.config)
+                if prepared is None:
+                    self.diagnostics.last_event = "no_reachable_root"
+                    return TickInput()
+                observation, info = prepared
             if self.decision_executor is None:
                 self._pending_decision = self._start_decision(match, agent, observation, info)
             else:
@@ -591,6 +606,10 @@ class RealtimePolicyController:
                 except Exception:
                     selected_action, elapsed = None, 0.0
                 self.latest_policy_diagnostics = policy_diagnostics
+                if self.nextgen_scheduler is not None and not policy_diagnostics:
+                    # Thread executors share the policy; process executors
+                    # return the detached diagnostics in the third tuple slot.
+                    self.latest_policy_diagnostics = _policy_diagnostics_snapshot(self.policy)
                 if pending_async.state_token != self._decision_state_token(match, agent):
                     self._reset_executor_policy()
                     self._record_stale_decision(
@@ -622,10 +641,13 @@ class RealtimePolicyController:
             activation_tick=match.tick,
             outcome="fallback" if pending.record.fallback else "activated",
         )
+        if self.nextgen_scheduler is not None:
+            activated_record, pending.plan = self._activate_nextgen(match, agent, activated_record)
         self._active_plan = pending.plan
         self._active_action_index = activated_record.action_index
         self._input_cursor = 0
-        self.diagnostics.decisions_activated += 1
+        if activated_record.activation_tick is not None:
+            self.diagnostics.decisions_activated += 1
         self.diagnostics.last_decision = activated_record
         if self._active_plan is None or not self._active_plan.inputs:
             self.diagnostics.idle_ticks += 1
@@ -644,7 +666,14 @@ class RealtimePolicyController:
         self.diagnostics.decisions_started += 1
         self._capture_request_identity(observation, info)
         started = time.perf_counter()
-        selected_action = int(self.policy.select_action(observation, info))
+        if self.nextgen_scheduler is None:
+            selected_action = int(self.policy.select_action(observation, info))
+        else:
+            try:
+                selected_action = int(self.policy.select_action(observation, info))
+            except Exception as exc:  # noqa: BLE001 - isolate arbitrary policy failures
+                selected_action = None
+                self.nextgen_scheduler.errors.append({"reason": f"{type(exc).__name__}: {exc}"})
         elapsed = time.perf_counter() - started
         return self._complete_decision(match, agent, selected_action, info, elapsed)
 
@@ -721,6 +750,12 @@ class RealtimePolicyController:
         action_index = None if selected_action is None else int(selected_action)
         reason = "policy"
         fallback = False
+        if self.nextgen_scheduler is not None:
+            payload = self.latest_policy_diagnostics if self.decision_executor is not None else _policy_diagnostics_snapshot(self.policy)
+            error = self.nextgen_scheduler.accept(payload, selected_action)
+            if error is not None:
+                action_index = self._fallback_action(mask, match=match, agent=agent)
+                reason, fallback = "nextgen_policy_error_fallback", True
         if timeout:
             self.diagnostics.timeouts += 1
             action_index = self._fallback_action(mask, match=match, agent=agent)
@@ -797,11 +832,84 @@ class RealtimePolicyController:
             policy_decision_id=policy_diagnostics.get("decision_trace", {}).get("decision_id"),
             decision_input=copy.deepcopy(self._request_input_identity),
             request_placement_count=self._request_placement_count,
+            requested_action=selected_action,
         )
         self.diagnostics.last_decision = record
         if plan is not None and not plan.reachable:
             plan = None
         return _PendingDecision(ready_tick=ready_tick, record=record, plan=plan)
+
+    def _activate_nextgen(self, match, agent, record):
+        """Revalidate the authoritative board and current reachable root now.
+
+        Inference latency can move the falling pair or change the public board.
+        Never reuse the plan calculated at worker completion for activation.
+        """
+        runtime = self.nextgen_scheduler
+        stale = runtime.stale(match)
+        if stale and not record.fallback:
+            # Opponent events can invalidate a finished public batch while our
+            # pair is still controllable. A fastest-input fallback would place
+            # it in the spawn column on every retry. Reject without placement;
+            # the next tick requests a fresh public batch and rule selection.
+            # Timeout/error fallback remains the explicit bounded escape path.
+            self.diagnostics.stale_decisions += 1
+            record = replace(
+                record, action_index=None, executed_action=None,
+                activation_tick=None, axis_x=None, rotation=None,
+                reachable=False, plan_ticks=0,
+                reason="stale_snapshot_retry", fallback=False,
+                fallback_reason=None,
+            )
+            record = runtime.finish(match, record, outcome="stale")
+            self.latest_policy_diagnostics = copy.deepcopy(runtime.last_payload)
+            return record, None
+        mask = nextgen_authoritative_action_mask(
+            match.player_states[agent].simulator,
+            timing=self.timing,
+            max_expanded_states=self.config.max_plan_expanded_states,
+        )
+        action = record.action_index
+        invalid = action is None or not mask[action]
+        reason = record.reason
+        fallback = record.fallback
+        if stale or invalid:
+            fallback = True
+            reason = (
+                "stale_snapshot_fallback"
+                if stale
+                else "activation_unreachable_fallback"
+            )
+            action = self._fallback_action(mask, match=match, agent=agent)
+            if stale:
+                self.diagnostics.stale_decisions += 1
+            else:
+                self.diagnostics.unreachable_plans += 1
+            if not record.fallback:
+                self.diagnostics.fallback_actions += 1
+        plan = self._plan_action(match, agent, action)
+        if plan is None or not plan.reachable:
+            action, plan, fallback, reason = None, None, True, "no_reachable_fallback"
+        placement = action_to_placement(action) if action is not None else None
+        record = replace(
+            record,
+            action_index=action,
+            executed_action=action,
+            axis_x=None if placement is None else placement.axis_x,
+            rotation=None if placement is None else placement.rotation.name,
+            reachable=plan is not None,
+            plan_ticks=0 if plan is None else plan.tick_count,
+            fallback=fallback,
+            reason=reason,
+            fallback_reason=reason if fallback else None,
+        )
+        record = runtime.finish(
+            match,
+            record,
+            outcome="timeout" if record.timeout else "stale" if stale else None,
+        )
+        self.latest_policy_diagnostics = copy.deepcopy(runtime.last_payload)
+        return record, plan
 
     def _async_timed_out(self, match, pending: _AsyncDecision) -> bool:
         timeout = self.config.timeout_ticks
@@ -861,7 +969,13 @@ class RealtimePolicyController:
             ),
             outcome="stale",
             fallback_reason="state_token_changed",
+            requested_action=action_index,
         )
+        if self.nextgen_scheduler is not None:
+            self.nextgen_scheduler.accept(self.latest_policy_diagnostics, selected_action)
+            self.diagnostics.last_decision = self.nextgen_scheduler.finish(
+                match, self.diagnostics.last_decision, outcome="stale")
+            self.latest_policy_diagnostics = copy.deepcopy(self.nextgen_scheduler.last_payload)
 
     def _plan_action(
         self,
@@ -1144,6 +1258,17 @@ def realtime_reachable_action_mask(
         ],
         dtype=numpy.bool_,
     )
+
+
+def nextgen_authoritative_action_mask(
+    simulator, *, timing=None, max_expanded_states=2_000
+):
+    """Intersect actual board legality and reachability at the trusted boundary."""
+    reachable = realtime_reachable_action_mask(
+        simulator, timing=timing, max_expanded_states=max_expanded_states
+    )
+    legal = _turn_based_action_mask(simulator)
+    return tuple(bool(a and b) for a, b in zip(legal, reachable, strict=True))
 
 
 def build_realtime_observation(

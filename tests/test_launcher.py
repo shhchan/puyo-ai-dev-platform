@@ -400,10 +400,11 @@ class TestLauncherController(unittest.TestCase):
         controller.settings_mode = True
 
         self.assertNotIn("inference_latency_ticks", controller.current_options)
-        controller.selection = controller.current_options.index("next_page")
-        controller.handle_keydown(pygame.K_RETURN)
-        controller.selection = controller.current_options.index("next_page")
-        controller.handle_keydown(pygame.K_RETURN)
+        for _ in range(8):
+            if "inference_latency_ticks" in controller.current_options:
+                break
+            controller.selection = controller.current_options.index("next_page")
+            controller.handle_keydown(pygame.K_RETURN)
 
         self.assertIn("inference_latency_ticks", controller.current_options)
 
@@ -463,6 +464,7 @@ class TestLauncherController(unittest.TestCase):
                 "manager_rule",
                 "v1_7_analyzer_manager",
                 "v1_7_bootstrap_manager",
+                "nextgen_tactic_manager",
             ),
         )
         self.assertEqual(service.settings.for_action("play").policy_a, "manager")

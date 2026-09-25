@@ -7,7 +7,7 @@
 | Schema suffix | 型 | 境界 |
 | --- | --- | --- |
 | `request.v1` | `NextgenRequest` | `DecisionIdentity`，`PublicSnapshot`，`ExecutionContext`，`ControlContext` |
-| `candidate_batch.v1` | `CandidateBatch` | `Candidate`，固定順の `TacticSummary`，`SearchCounters` |
+| `candidate_batch.v2`（旧 v1 も読取） | `CandidateBatch` | `Candidate`，固定順の `TacticSummary`，`SearchCounters` |
 | `features.v1` | `PolicyFeatures` | 正規化済み `values`，`missing`，`action_mask` と registry hash |
 | `selection.v1` | `Selection` | 戦術，固定順位の候補，batch digest，rule/RL の出力 |
 | `diagnostics.v1` | `Diagnostics` | 上記全体と任意の `ExecutionReceipt` の結合検証 |
@@ -35,6 +35,10 @@ PUYO-248 はこの輸送型に公開 snapshot を変換し，timing の派生要
 候補 ID は `candidate_id(identity, plan, assumptions)` で生成する．episode/player/decision，action/piece/provenance 列，snapshot/scenario/timing/profile/template hash を含める．request retry ID，経過時間，予測 score，順位は含めない．候補 ID と異なり，batch digest は予測 evidence・mask・counter を含み，経過時間だけを除く．
 
 `CandidateBatch` は全候補の同一 decision，ID の一意性，rank の一意性，公開 prefix と補完の順序，各戦術の候補 ID・best ID・合法到達可能性を検証する．`not_found_within_budget` は構造的不可能と区別する．必要火力不足や短期攻撃の勝率は mask 検証へ持ち込まない．構造 witness の探索・評価は後続 provider の責務である．
+
+PUYO-266 の `candidate_batch.v2` では `Candidate.rank` を batch 内の安定した列挙順とし，戦術内の確定順位は `TacticSummary.candidate_ids` の順序で表す．同じ plan を発火・構築で共有しても，発火側の score が `build_main` の root 順位を上書きしない．各戦術は合法・到達可能な全所属候補をちょうど 1 回含み，`best_id` は先頭と一致する．順位は探索終了時に確定し，selector は戦術を選ぶだけで再探索・再順位付けしない．候補 ID と wire field は保持するが，順位の意味変更を区別するため schema 名を v2 に上げる．
+
+旧 v1 は旧 global rank 順の検証を維持し，schema 名・batch digest・selection を書き換えず読み取る．旧 fixture は更新しない．新規 runtime は v2 を出力する．trajectory writer は実データの batch schema を manifest に宣言し，reader は v1/v2 の双方で宣言と全 batch の一致を検査する．異なる版の batch を同じ run へ混在させない．未知 schema と旧 v1 を名乗る戦術別順序は拒否する．Diagnostics/Selection/receipt の参照契約は変更せず，nested batch の schema と digest が版を識別する．
 
 `validate_request_batch(request, batch)` は snapshot/予測前提，公開 piece，reachable mask，固定 quota を照合し，到達可能 root がある場合に `build_main` 候補を要求する．`Selection.validate_batch(batch)` は同じ batch 内の mask 有効な戦術の best 候補のみを返す．`Diagnostics` はこれらに加え feature mask・receipt の要求候補・timing・activated snapshot を検証する．stale/timeout/fallback は `receipt.actor_trainable=False`．実行結果で選択結果を書き換えない．
 

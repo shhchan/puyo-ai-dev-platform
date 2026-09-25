@@ -1,0 +1,105 @@
+{
+  "combined_suite": {
+    "count": 185,
+    "native_parity": "PASS",
+    "result": "PASS",
+    "test_log_sha256": "7d0e349be6ba0c260616b86b137765ae351b4869d516c548763d7c9e360667ec"
+  },
+  "gates": {
+    "G0": {
+      "checks": {
+        "fixtures": true,
+        "legality": true,
+        "parity": true,
+        "public_boundary": true,
+        "replay": true,
+        "schema": true,
+        "six_tactic_masks": true
+      },
+      "status": "PASS"
+    },
+    "G1": {
+      "checks": {
+        "gui_ledger": true,
+        "illegal_zero": true,
+        "leak_zero": true,
+        "missing_zero": true,
+        "rule_ledger": true,
+        "template_fixtures": true
+      },
+      "status": "PASS"
+    },
+    "G2": {
+      "formal_reference_calibrated": false,
+      "observed_safe_runs": 2,
+      "observed_smoke_quality": "FAIL",
+      "required_safe_runs": 60,
+      "status": "BLOCKED"
+    }
+  },
+  "gui_connection": {
+    "human_qa": "PARTIAL_FAIL: GTR quality and Fn-only navigation reported; full acceptance unmet",
+    "ledger_entries": 7,
+    "ledger_sha256": "868cd71b2f497b347497274a921a4f796a1b4e82327b062e23b62094cab84bd6",
+    "matched_entry": {
+      "activation_tick": 46,
+      "decision_id": 1,
+      "episode_id": "nextgen-episode-1",
+      "executed_action": 4,
+      "outcome": "activated",
+      "phase_id": "template-phase-1",
+      "request_id": "request-1",
+      "requested_action": 4,
+      "tactic_id": "build_template",
+      "template_id": "gtr"
+    },
+    "mode": "DISPLAY=:0 automated normal-window smoke",
+    "replay_entries": 7,
+    "replay_sha256": "a1d2da1894d553f1fed84b69ab5d98628acce51c2d85cf7c96082373989fe501",
+    "selected_tick": 46,
+    "ticks": 120,
+    "viewer_entries": 7,
+    "viewer_report_sha256": "7c9ac7071ad1b178ce061367761b835f12a8c680563f088f3136e18aa936f733"
+  },
+  "integration_head": "b9016432a78a202e2d9c2c4d9afbe5e411c7e3a4",
+  "navigation_qa": {
+    "human_recheck": "PENDING",
+    "ledger_entries": 7,
+    "ledger_sha256": "fcfb7c7dd95f3fdf52008345e829c52dbe132084d34970395ebe7c62bf7ea53e",
+    "mode": "DISPLAY=:0 automated normal-window smoke",
+    "replay_sha256": "3782f4f6e709fd09eff037ef0e79185050c7b756cc9b07e30d977ee3a39c25bc",
+    "ticks": 120,
+    "versus_keys": "H,J,K,L,H",
+    "viewer_keys": "K,K,J,I,U,I",
+    "viewer_report_sha256": "391b377ab1799f0f0be65e9f2316e5e80aa1dc293ad51107b3de972a70d609d2",
+    "viewer_selected_lineage": "model:two",
+    "viewer_selected_tick": 50
+  },
+  "quality_observation": {
+    "classification": "quality unresolved; formal G2 BLOCKED, observed smoke FAIL",
+    "exact_gui_replay_available": false,
+    "safe_no_threat_reproduction": {
+      "catalog": "gtr-only",
+      "first_eight_tactics": [
+        "build_template",
+        "build_main",
+        "build_main",
+        "build_main",
+        "build_main",
+        "build_main",
+        "build_main",
+        "build_main"
+      ],
+      "profile": "nextgen_smoke",
+      "seed": 55,
+      "selector": "argmax rule",
+      "source_sha256": "cc69ac5e5e4655cbec2602ffbd37e12e4041511bf9fe7a139c7aa097e71260f8",
+      "switch_decision": 2,
+      "switch_fit_status": "unknown"
+    },
+    "user_gui_report": "GTR construction looked wrong from move 2; repetitive stacking observed"
+  },
+  "schema": "puyo.nextgen.integration_qa.v1",
+  "scope_note": "G1 is automated rule/ledger/GUI integration evidence. Human GUI acceptance for PUYO-253/254 is partially attempted and unmet. G2 does not inherit G1 quality acceptance.",
+  "source_report_sha256": "3aa455a9991f4194625e27b22f6ff76d33ab877c6d252b449f0e5ca4d40bdc0f"
+}

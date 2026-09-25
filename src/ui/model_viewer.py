@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping
@@ -12,7 +13,8 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     pygame = None
 
-from train.lineage import build_registry, validate_registry
+from train.lineage import build_registry, valid_lineage_decision, validate_registry
+from src.ui.nextgen_display import nextgen_receipt_summary
 
 
 SCREEN_WIDTH = 1100
@@ -27,6 +29,12 @@ ACCENT = (79, 199, 163)
 WARNING = (238, 188, 94)
 ERROR = (238, 112, 112)
 NODE_COLORS = {
+    "model_version": (126, 178, 255),
+    "config": (190, 143, 255),
+    "training_run": (79, 199, 163),
+    "evaluation": (126, 178, 255),
+    "registry_role": (79, 199, 163),
+    "artifact_warning": (238, 112, 112),
     "run": (79, 199, 163),
     "checkpoint": (238, 188, 94),
     "arena_result": (126, 178, 255),
@@ -46,6 +54,7 @@ class ReplayTimelineEntry:
     controller_status: dict[str, Any] = field(default_factory=dict)
     all_clear_diagnostics: dict[str, Any] = field(default_factory=dict)
     attack_diagnostics: dict[str, Any] = field(default_factory=dict)
+    public_events: dict[str, Any] = field(default_factory=dict)
 
     @property
     def plan_ids(self) -> tuple[str, ...]:
@@ -110,6 +119,128 @@ class LineageSummary:
             if (node := self.node_by_id(str(edge.get("target")))) is not None
         )
 
+    def decisions(self) -> tuple[dict[str, Any], ...]:
+        """Return explicit, linked decisions; legacy metadata never implies adoption."""
+        records = []
+        for node in self.nodes:
+            if node.get("node_type") != "evaluation":
+                continue
+            decision = node.get("metadata", {}).get("decision")
+            if not valid_lineage_decision(decision):
+                continue
+            candidate_id = decision.get("candidate_id")
+            if not isinstance(candidate_id, str) or self.node_by_id(candidate_id) is None:
+                continue
+            if not any(edge.get("source") == candidate_id and edge.get("edge_type") in {"evaluated_by", "rejected_by"} for edge in self.incoming_edges(str(node["id"]))):
+                continue
+            records.append({"evaluation_id": node["id"], **dict(decision)})
+        return tuple(records)
+
+    def effective_decisions(self) -> tuple[dict[str, Any], ...]:
+        records = self.decisions()
+        by_id = {record["evaluation_id"]: record for record in records}
+        superseded = {
+            previous for record in records
+            if (previous := record.get("supersedes")) in by_id
+            and previous != record["evaluation_id"]
+            and record["candidate_id"] == by_id[previous]["candidate_id"]
+            and record["scope"] == by_id[previous]["scope"]
+        }
+        return tuple(record for record in records if record["evaluation_id"] not in superseded)
+
+    def adoption_path(self, scope: str) -> dict[str, list[Any]]:
+        """Trace provenance only from an unambiguous, explicit adoption in scope."""
+        decisions = self.effective_decisions()
+        groups: dict[str, list[dict[str, Any]]] = {}
+        for decision in decisions:
+            if decision.get("scope") == scope:
+                groups.setdefault(str(decision["candidate_id"]), []).append(decision)
+        adopted = [item for group in groups.values() if len(group) == 1 for item in group if item["outcome"] == "adopted"]
+        withheld = {candidate for candidate, group in groups.items() if len(group) != 1 or group[0]["outcome"] != "adopted"}
+        nodes = {item["evaluation_id"] for item in adopted}
+        nodes.update(str(item["candidate_id"]) for item in adopted)
+        provenance = {"produces", "produced", "resume", "trained_with", "derived_from", "implements", "uses_schema", "retargeted_from", "parent", "trains", "advances_to"}
+        edges: set[tuple[str, str]] = set()
+        frontier = [str(item["candidate_id"]) for item in adopted]
+        while frontier:
+            target = frontier.pop()
+            for edge in self.incoming_edges(target):
+                if edge.get("edge_type") not in provenance:
+                    continue
+                source = str(edge["source"])
+                if source in withheld:
+                    continue
+                edges.add((source, target))
+                if source not in nodes:
+                    nodes.add(source)
+                    frontier.append(source)
+        for item in adopted:
+            edges.add((str(item["candidate_id"]), str(item["evaluation_id"])))
+        return {"nodes": sorted(nodes), "edges": [list(pair) for pair in sorted(edges)]}
+
+    def main_graph(self) -> dict[str, Any]:
+        """Collapse routine step checkpoints while retaining every decision milestone."""
+        decisions = self.decisions()
+        decision_candidates = {item["candidate_id"] for item in decisions}
+        collapsed = {}
+        for node in self.nodes:
+            if node.get("node_type") != "checkpoint" or node.get("id") in decision_candidates:
+                continue
+            path = str(node.get("path") or "")
+            if node.get("metadata", {}).get("role") == "periodic" or Path(path).stem.startswith("step_"):
+                parent = next((edge.get("source") for edge in self.incoming_edges(str(node["id"])) if edge.get("edge_type") in {"produces", "produced"}), None)
+                if parent:
+                    collapsed[str(node["id"])] = str(parent)
+        nodes = [node for node in self.nodes if node.get("id") not in collapsed]
+        edges = []
+        seen = set()
+        explicit_candidates = {item["candidate_id"] for item in decisions}
+        effective = self.effective_decisions()
+        for edge in self.edges:
+            if edge.get("edge_type") == "promoted_to" and edge.get("source") in explicit_candidates:
+                matching = [item for item in effective if item["candidate_id"] == edge["source"] and item.get("scope") == edge.get("metadata", {}).get("scope")]
+                if len(matching) != 1 or matching[0]["outcome"] != "adopted":
+                    continue
+            source = collapsed.get(str(edge.get("source")), str(edge.get("source")))
+            target = collapsed.get(str(edge.get("target")), str(edge.get("target")))
+            key = (source, target, str(edge.get("edge_type")))
+            if source != target and key not in seen:
+                seen.add(key)
+                edges.append({**edge, "source": source, "target": target})
+        return {"nodes": nodes, "edges": edges, "collapsed_checkpoints": len(collapsed)}
+
+    def graph_viewport(self, selected_id: str | None, *, rows: int = 5) -> dict[str, Any]:
+        """Expose one scrollable graph; keep each decision outcome visible at its top."""
+        graph = self.main_graph()
+        columns: list[list[dict[str, Any]]] = [[], [], [], []]
+        for node in graph["nodes"]:
+            kind = node.get("node_type")
+            column = 0 if kind in {"model_version", "config", "dataset", "tactic_schema", "analyzer_schema", "feature_schema", "diagnostics_schema"} else 1 if kind in {"run", "training_run", "human_dataset_session"} else 2 if kind in {"checkpoint", "external_checkpoint"} else 3
+            columns[column].append(node)
+        outcomes = {item["evaluation_id"]: item["outcome"] for item in self.effective_decisions()}
+        evaluations = {outcome: [] for outcome in ("adopted", "rejected", "deferred")}
+        other = []
+        for node in columns[3]:
+            outcome = outcomes.get(node["id"])
+            if outcome in evaluations:
+                evaluations[outcome].append(node)
+            else:
+                other.append(node)
+        for group in (*evaluations.values(), other):
+            group.sort(key=lambda node: str(node.get("label") or node["id"]))
+        columns[3] = [node for index in range(max((len(group) for group in evaluations.values()), default=0))
+                      for group in evaluations.values() for node in group[index:index + 1]] + other
+        visible = []
+        overflow = []
+        for column_index, items in enumerate(columns):
+            if column_index != 3:
+                items.sort(key=lambda node: str(node.get("label") or node["id"]))
+            index = next((i for i, node in enumerate(items) if node["id"] == selected_id), None)
+            start = 0 if index is None else max(0, min(index - rows // 2, len(items) - rows))
+            visible.append(items[start:start + rows])
+            overflow.append({"before": start, "after": max(0, len(items) - start - rows), "total": len(items)})
+        return {"columns": visible, "overflow": overflow, "graph": graph}
+
 
 @dataclass(frozen=True)
 class ModelViewerData:
@@ -121,6 +252,7 @@ class ModelViewerData:
     timeline: tuple[ReplayTimelineEntry, ...]
     lineage: LineageSummary
     model_registry: dict[str, Any]
+    tactic_history: tuple[dict[str, Any], ...] = ()
 
     def to_report(self, *, selected_tick: int | None = None, bookmarks: tuple[int, ...] = ()) -> dict[str, Any]:
         return {
@@ -135,6 +267,7 @@ class ModelViewerData:
                 "selected_tick": selected_tick,
                 "bookmarks": list(bookmarks),
                 "plan_ids": sorted({plan_id for entry in self.timeline for plan_id in entry.plan_ids}),
+                "tactic_history": list(self.tactic_history),
             },
             "lineage": {
                 "runs": len(self.lineage.runs),
@@ -155,7 +288,13 @@ class ModelViewerController:
         self.playback_stride = 1
         self.lineage_order = _lineage_order(data.lineage)
         self.lineage_index = 0
+        self.adoption_scopes = tuple(sorted({str(item["scope"]) for item in data.lineage.decisions() if item.get("scope")}))
+        self.adoption_scope_index = 0
         self.bookmarks: set[int] = set()
+        self.history_by_tick: dict[int, list[dict[str, Any]]] = {}
+        for item in data.tactic_history:
+            tick = int(item.get("to_tick", 0)) + 1 if item.get("kind") == "gap" else int(item.get("tick", 0))
+            self.history_by_tick.setdefault(tick, []).append(item)
         self.message = "ready" if data.timeline else "lineage only"
         self.focus_replay_checkpoint()
 
@@ -171,6 +310,18 @@ class ModelViewerController:
         self.index = max(0, min(len(self.data.timeline) - 1, self.index + delta))
         entry = self.selected_entry
         self.message = "ready" if entry is None else f"tick {entry.tick}"
+
+    def seek_tactic_history(self, direction: int) -> None:
+        entry = self.selected_entry
+        if entry is None or direction == 0:
+            return
+        ticks = sorted(self.history_by_tick)
+        target = next((tick for tick in (ticks if direction > 0 else reversed(ticks)) if (tick > entry.tick if direction > 0 else tick < entry.tick)), None)
+        if target is None:
+            self.message = "no further tactic event"
+            return
+        self.index = min(range(len(self.data.timeline)), key=lambda index: abs(self.data.timeline[index].tick - target))
+        self.message = f"history tick {target}"
 
     def toggle_pause(self) -> None:
         if not self.data.timeline:
@@ -226,6 +377,15 @@ class ModelViewerController:
         node = self.selected_lineage_node
         self.message = "lineage selected" if node is None else f"lineage {node.get('label', node.get('id', '-'))}"
 
+    @property
+    def adoption_scope(self) -> str | None:
+        return self.adoption_scopes[self.adoption_scope_index] if self.adoption_scopes else None
+
+    def change_adoption_scope(self) -> None:
+        if self.adoption_scopes:
+            self.adoption_scope_index = (self.adoption_scope_index + 1) % len(self.adoption_scopes)
+            self.message = f"adoption scope {self.adoption_scope}"
+
     def focus_replay_checkpoint(self) -> bool:
         for policy in self.data.policy_metadata.values():
             if not isinstance(policy, Mapping):
@@ -252,6 +412,7 @@ class ModelViewerController:
             self.data.policy_metadata,
             self.data.lineage,
         )
+        report["replay"]["selected_history"] = [] if entry is None else self.history_by_tick.get(entry.tick, [])
         report["lineage"]["selected_node"] = {} if selected is None else {
             "id": selected.get("id"),
             "label": selected.get("label"),
@@ -259,7 +420,15 @@ class ModelViewerController:
             "path": selected.get("path"),
             "parents": [node.get("id") for node in self.selected_lineage_parents],
             "children": [node.get("id") for node in self.selected_lineage_children],
+            "metadata": selected.get("metadata", {}),
+            "incoming_edges": list(self.data.lineage.incoming_edges(self.selected_lineage_id)),
+            "outgoing_edges": list(self.data.lineage.outgoing_edges(self.selected_lineage_id)),
         }
+        report["lineage"]["decisions"] = list(self.data.lineage.decisions())
+        report["lineage"]["effective_decisions"] = list(self.data.lineage.effective_decisions())
+        report["lineage"]["adoption_scope"] = self.adoption_scope
+        report["lineage"]["adoption_path"] = self.data.lineage.adoption_path(self.adoption_scope) if self.adoption_scope else {"nodes": [], "edges": []}
+        report["lineage"]["main_graph"] = self.data.lineage.main_graph()
         return report
 
 
@@ -294,6 +463,7 @@ def load_replay_timeline(
                     controller_status=dict(item.get("controller_status", {})),
                     all_clear_diagnostics=dict(item.get("all_clear_diagnostics", {})),
                     attack_diagnostics=dict(item.get("attack_diagnostics", {})),
+                    public_events=dict(item.get("public_events", {})),
                 )
             )
         entries = tuple(entries_list)
@@ -340,6 +510,18 @@ def build_model_viewer_data(
     model_registry_path: str | Path | None = "runs/model_registry.json",
 ) -> ModelViewerData:
     replay_path_str, replay_format, seed, expected_final_hash, policy_metadata, timeline = load_replay_timeline(replay_path)
+    tactic_history = ()
+    if replay_path_str and replay_format == "puyo-realtime-match-v1":
+        payload = json.loads(Path(replay_path_str).read_text(encoding="utf-8"))
+        if isinstance(payload.get("tactic_history"), list):
+            tactic_history = tuple(item for item in payload["tactic_history"] if isinstance(item, dict))
+        gaps = [
+            {"tick": previous.tick + 1, "to_tick": current.tick - 1, "agent": "all", "kind": "gap"}
+            for previous, current in zip(timeline, timeline[1:])
+            if current.tick > previous.tick + 1
+        ]
+        if gaps:
+            tactic_history = tuple(sorted((*tactic_history, *gaps), key=lambda item: int(item.get("tick", 0))))
     return ModelViewerData(
         replay_path=replay_path_str,
         replay_format=replay_format,
@@ -349,6 +531,7 @@ def build_model_viewer_data(
         timeline=timeline,
         lineage=build_lineage_summary(lineage_roots),
         model_registry=load_model_registry_summary(model_registry_path),
+        tactic_history=tactic_history,
     )
 
 
@@ -517,6 +700,7 @@ def summarize_replay_entry(
                 else _lineage_ancestor_ids(lineage, str(lineage_node["id"]))
             ),
             "input": _input_label(entry.inputs.get(agent, {})),
+            "nextgen": nextgen_receipt_summary(diagnostics, controller),
             "decision": {
                 "action_index": decision.get("action_index"),
                 "axis_x": decision.get("axis_x"),
@@ -632,6 +816,13 @@ def replay_entry_display_lines(
                 ),
             ]
         )
+        nextgen = payload.get("nextgen")
+        if nextgen:
+            lines.extend([
+                f"  戦術 {nextgen['tactic']}  土台 {nextgen['template']} / {nextgen['variant'] or '-'}  残り {nextgen['remaining']}",
+                f"  理由 {nextgen['reason']}  切替 {nextgen['switch_reason'] or '-'}  結果 {nextgen['outcome']}",
+                f"  要求 {nextgen['requested_action']}  実行 {nextgen['executed_action']}  receipt {nextgen['receipt_reason']}",
+            ])
         if all_clear:
             lines.append(
                 "  all clear "
@@ -713,7 +904,7 @@ class ModelViewerRenderer:
                 f"speed {controller.playback_stride}x  tick {entry.tick}  {controller.message}"
             )
         self._draw_text(status, self.font, ACCENT, (34, 64))
-        controls = "keys: Left/Right seek  Space play/pause  +/- speed  b bookmark  PgUp/PgDn lineage  c checkpoint"
+        controls = "keys: Left/Right seek  J/K history  U/I lineage  Space play/pause  +/- speed  b bookmark  s scope"
         self._draw_text(controls, self.small_font, MUTED, (34, 86))
 
     def _draw_replay_panel(self, controller: ModelViewerController) -> None:
@@ -738,6 +929,15 @@ class ModelViewerRenderer:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y), width=rect.width - 36)
             y += 24
         y += 6
+        history_here = controller.history_by_tick.get(entry.tick, [])
+        if history_here:
+            labels = [
+                f"gap {item['tick']}–{item['to_tick']}" if item.get("kind") == "gap"
+                else f"{item.get('kind')} {item.get('tactic', item.get('event', item.get('outcome', '-')))}"
+                for item in history_here
+            ]
+            self._draw_text("history: " + ", ".join(labels), self.small_font, WARNING, (rect.x + 18, y), width=rect.width - 36)
+            y += 20
         for line in replay_entry_display_lines(entry, controller.data.policy_metadata, controller.data.lineage)[:12]:
             color = WARNING if not line.startswith("  ") else TEXT
             self._draw_text(line, self.small_font, color, (rect.x + 18, y), width=rect.width - 36)
@@ -769,65 +969,77 @@ class ModelViewerRenderer:
         transition = model_registry.get("last_transition") if isinstance(model_registry, Mapping) else None
         transition_kind = transition.get("kind", "-") if isinstance(transition, Mapping) else "-"
         self._draw_text(f"last transition: {transition_kind}", self.small_font, WARNING, (rect.x + 18, y))
-        y += 24
-        stats = [
-            f"runs: {len(summary.runs)}",
-            f"checkpoints: {len(summary.checkpoints)}",
-            f"nodes: {len(summary.nodes)}",
-            f"edges: {len(summary.edges)}",
-            f"issues: {len(summary.issues)}",
-        ]
-        for line in stats:
-            self._draw_text(line, self.small_font, TEXT, (rect.x + 18, y))
-            y += 24
-        graph_rect = pygame.Rect(rect.x + 18, y + 8, rect.width - 36, 126)
+        y += 20
+        self._draw_text(f"nodes {len(summary.nodes)}  edges {len(summary.edges)}  warnings {len(summary.issues)}  scope {controller.adoption_scope or '-'}", self.small_font, TEXT, (rect.x + 18, y), width=rect.width - 36)
+        graph_rect = pygame.Rect(rect.x + 18, y + 22, rect.width - 36, 236)
         self._draw_lineage_graph(controller, graph_rect)
-        detail_rect = pygame.Rect(rect.x + 18, graph_rect.bottom + 14, rect.width - 36, rect.bottom - graph_rect.bottom - 28)
+        detail_rect = pygame.Rect(rect.x + 18, graph_rect.bottom + 8, rect.width - 36, rect.bottom - graph_rect.bottom - 24)
         self._draw_lineage_detail(controller, detail_rect)
 
     def _draw_lineage_graph(self, controller: ModelViewerController, rect: pygame.Rect) -> None:
         pygame.draw.rect(self.screen, BACKGROUND, rect, border_radius=5)
         pygame.draw.rect(self.screen, (82, 92, 112), rect, 1, border_radius=5)
-        selected = controller.selected_lineage_node
-        if selected is None:
+        viewport = controller.data.lineage.graph_viewport(controller.selected_lineage_id)
+        graph = viewport["graph"]
+        if not graph["nodes"]:
             self._draw_text("No lineage nodes", self.font, MUTED, (rect.x + 14, rect.y + 14))
             return
+        positions = {}
+        for column, items in enumerate(viewport["columns"]):
+            for row, node in enumerate(items):
+                positions[str(node["id"])] = (rect.x + 57 + column * 116, rect.y + 29 + row * 44)
+            overflow = viewport["overflow"][column]
+            if overflow["before"]:
+                self._draw_text(f"{overflow['before']} above", self.small_font, MUTED, (rect.x + 8 + column * 116, rect.y + 2), width=108)
+            if overflow["after"]:
+                self._draw_text(f"{overflow['after']} below", self.small_font, MUTED, (rect.x + 8 + column * 116, rect.bottom - 16), width=108)
+        path = controller.data.lineage.adoption_path(controller.adoption_scope) if controller.adoption_scope else {"nodes": [], "edges": []}
+        highlighted_edges = {tuple(pair) for pair in path["edges"]}
+        statuses = {}
+        for decision in controller.data.lineage.effective_decisions():
+            if decision.get("scope") == controller.adoption_scope:
+                statuses[str(decision["candidate_id"])] = str(decision["outcome"])
+            statuses[str(decision["evaluation_id"])] = str(decision["outcome"])
+        for edge in graph["edges"]:
+            source, target = str(edge["source"]), str(edge["target"])
+            if source not in positions or target not in positions:
+                continue
+            active = (source, target) in highlighted_edges
+            outcome = statuses.get(target) if edge.get("edge_type") in {"evaluated_by", "rejected_by"} else None
+            color = ACCENT if active else ERROR if outcome == "rejected" else WARNING if outcome == "deferred" else (105, 120, 148)
+            self._draw_lineage_edge(positions[source], positions[target], color, active=active, dashed=outcome in {"rejected", "deferred"})
+        for node in graph["nodes"]:
+            node_id = str(node["id"])
+            if node_id in positions:
+                self._draw_lineage_node(node, positions[node_id], selected=node_id == controller.selected_lineage_id, status=statuses.get(node_id), adopted=node_id in path["nodes"])
 
-        parents = controller.selected_lineage_parents[:4]
-        children = controller.selected_lineage_children[:4]
-        center = (rect.centerx, rect.centery)
-        parent_positions = _vertical_positions(rect.x + 84, rect.y + 44, rect.bottom - 44, len(parents))
-        child_positions = _vertical_positions(rect.right - 84, rect.y + 44, rect.bottom - 44, len(children))
+    def _draw_lineage_edge(self, source: tuple[int, int], target: tuple[int, int], color, *, active: bool, dashed: bool) -> None:
+        if not dashed:
+            pygame.draw.line(self.screen, color, source, target, 3 if active else 1)
+            return
+        dx, dy = target[0] - source[0], target[1] - source[1]
+        length = math.hypot(dx, dy)
+        if length == 0:
+            return
+        for offset in range(0, int(length), 12):
+            end = min(offset + 7, length)
+            a = (source[0] + dx * offset / length, source[1] + dy * offset / length)
+            b = (source[0] + dx * end / length, source[1] + dy * end / length)
+            pygame.draw.line(self.screen, color, a, b, 2)
 
-        for node, pos in zip(parents, parent_positions):
-            pygame.draw.line(self.screen, (105, 120, 148), pos, center, 2)
-            self._draw_lineage_node(node, pos, selected=False)
-        for node, pos in zip(children, child_positions):
-            pygame.draw.line(self.screen, (105, 120, 148), center, pos, 2)
-            self._draw_lineage_node(node, pos, selected=False)
-        self._draw_lineage_node(selected, center, selected=True)
-
-        if not parents and not children:
-            around = [
-                controller.data.lineage.node_by_id(node_id)
-                for node_id in controller.lineage_order[controller.lineage_index + 1 : controller.lineage_index + 5]
-            ]
-            for node, pos in zip((item for item in around if item is not None), child_positions or _vertical_positions(rect.right - 84, rect.y + 44, rect.bottom - 44, 4)):
-                pygame.draw.line(self.screen, (80, 90, 112), center, pos, 1)
-                self._draw_lineage_node(node, pos, selected=False)
-
-    def _draw_lineage_node(self, node: dict[str, Any], center: tuple[int, int], *, selected: bool) -> None:
+    def _draw_lineage_node(self, node: dict[str, Any], center: tuple[int, int], *, selected: bool, status: str | None = None, adopted: bool = False) -> None:
         node_type = str(node.get("node_type", "node"))
         color = NODE_COLORS.get(node_type, MUTED)
-        width = 132 if selected else 112
-        height = 42 if selected else 34
+        width = 108
+        height = 38
         rect = pygame.Rect(0, 0, width, height)
         rect.center = center
         pygame.draw.rect(self.screen, PANEL_ACTIVE if selected else PANEL, rect, border_radius=5)
-        pygame.draw.rect(self.screen, color, rect, 2 if selected else 1, border_radius=5)
+        border = ACCENT if adopted else ERROR if status == "rejected" else WARNING if status == "deferred" else color
+        pygame.draw.rect(self.screen, border, rect, 3 if selected or adopted else 1, border_radius=5)
         label = str(node.get("label") or node.get("id") or "-")
         self._draw_text(label, self.small_font, TEXT, (rect.x + 8, rect.y + 6), width=rect.width - 16)
-        self._draw_text(node_type, self.small_font, color, (rect.x + 8, rect.y + 22), width=rect.width - 16)
+        self._draw_text(f"{status or node_type}{' !' if node_type == 'artifact_warning' else ''}", self.small_font, border, (rect.x + 8, rect.y + 22), width=rect.width - 16)
 
     def _draw_lineage_detail(self, controller: ModelViewerController, rect: pygame.Rect) -> None:
         selected = controller.selected_lineage_node
@@ -836,27 +1048,53 @@ class ModelViewerRenderer:
         pygame.draw.rect(self.screen, BACKGROUND, rect, border_radius=5)
         pygame.draw.rect(self.screen, (82, 92, 112), rect, 1, border_radius=5)
         parents = ", ".join(str(node.get("label", "-")) for node in controller.selected_lineage_parents) or "-"
-        children = ", ".join(str(node.get("label", "-")) for node in controller.selected_lineage_children) or "-"
         metadata = selected.get("metadata", {}) if isinstance(selected.get("metadata"), dict) else {}
+        decision = metadata.get("decision")
+        if not valid_lineage_decision(decision):
+            related = [node.get("metadata", {}).get("decision") for node in controller.selected_lineage_children if node.get("node_type") == "evaluation"]
+            decision = next((item for item in related if valid_lineage_decision(item)), None)
         detail_lines = [
-            f"selected: {selected.get('label', '-')}",
-            f"type: {selected.get('node_type', '-')}",
-            f"path: {selected.get('path') or '-'}",
+            f"{selected.get('label', '-')}  [{selected.get('node_type', '-')}]",
+            f"artifact: {selected.get('path') or metadata.get('artifact_path') or '-'}",
+            f"kind/config: {metadata.get('kind') or metadata.get('role') or metadata.get('policy_kind') or metadata.get('config_digest') or '-'}",
             f"parents: {parents}",
-            f"children: {children}",
-            f"role: {metadata.get('role', '-')}",
-            f"run: {metadata.get('run_id', '-')}",
         ]
-        y = rect.y + 12
-        for line in detail_lines:
+        if valid_lineage_decision(decision):
+            detail_lines.extend([
+                f"decision: {decision['outcome']}  scope: {decision['scope']}",
+                f"reason: {', '.join(decision['reason_codes']) or '-'}",
+                f"gate SHA: {decision['gate_report_sha']}",
+                f"by/at: {decision['decided_by']} / {decision['decided_at']}",
+            ])
+        else:
+            detail_lines.extend([f"children: {', '.join(str(node.get('label', '-')) for node in controller.selected_lineage_children) or '-'}",
+                                 f"warning: {metadata.get('warning') or '-'}"])
+        y = rect.y + 4
+        for line in detail_lines[:8]:
             self._draw_text(line, self.small_font, TEXT, (rect.x + 10, y), width=rect.width - 20)
-            y += 20
+            y += 15
 
     def _draw_text(self, text: str, font, color, pos: tuple[int, int], *, width: int | None = None) -> None:
         text = str(text)
         if width is not None:
             text = _fit_text(text, font, width)
         self.screen.blit(font.render(text, True, color), pos)
+
+
+def handle_model_viewer_navigation_key(controller: ModelViewerController, key: int, modifiers: int = 0) -> bool:
+    """Apply tactic-history and lineage shortcuts, including laptop-friendly keys."""
+    if pygame is None:
+        return False
+    if key in (pygame.K_PAGEDOWN, pygame.K_TAB, pygame.K_i):
+        controller.seek_lineage(1)
+    elif key in (pygame.K_PAGEUP, pygame.K_u):
+        controller.seek_lineage(-1)
+    elif key in (pygame.K_h, pygame.K_j, pygame.K_k):
+        older = key == pygame.K_j or (key == pygame.K_h and bool(modifiers & pygame.KMOD_SHIFT))
+        controller.seek_tactic_history(-1 if older else 1)
+    else:
+        return False
+    return True
 
 
 def run_model_viewer(
@@ -891,10 +1129,8 @@ def run_model_viewer(
                     controller.seek(1)
                 elif event.key in (pygame.K_LEFT, pygame.K_UP):
                     controller.seek(-1)
-                elif event.key in (pygame.K_PAGEDOWN, pygame.K_TAB):
-                    controller.seek_lineage(1)
-                elif event.key == pygame.K_PAGEUP:
-                    controller.seek_lineage(-1)
+                elif handle_model_viewer_navigation_key(controller, event.key, getattr(event, "mod", 0)):
+                    pass
                 elif event.key == pygame.K_SPACE:
                     controller.toggle_pause()
                 elif event.key in (pygame.K_EQUALS, pygame.K_PLUS):
@@ -906,6 +1142,8 @@ def run_model_viewer(
                 elif event.key == pygame.K_c:
                     if not controller.focus_replay_checkpoint():
                         controller.message = "no replay checkpoint in lineage"
+                elif event.key == pygame.K_s:
+                    controller.change_adoption_scope()
         controller.advance_playback()
         renderer.draw(controller)
         frames += 1
@@ -925,7 +1163,7 @@ def _lineage_order(summary: LineageSummary) -> tuple[str, ...]:
         "benchmark_artifact": 5,
     }
     nodes = sorted(
-        summary.nodes,
+        summary.main_graph()["nodes"],
         key=lambda node: (
             priority.get(str(node.get("node_type")), 99),
             str(node.get("label") or node.get("id") or ""),

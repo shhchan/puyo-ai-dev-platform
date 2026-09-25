@@ -78,6 +78,10 @@ class TemplatePhaseTests(unittest.TestCase):
     def test_fourteenth_adopted_pair_allowed_fifteenth_disabled(self):
         initial_id = self.controller.phase.phase_id
         for n in range(14):
+            self.controller.reconcile(result(replace(
+                candidate(fit="unknown"), continuation_kind="tail",
+            )))
+            self.assertTrue(self.controller.can_build_template)
             self.assertTrue(self.activate(f"piece-{n}"))
             self.assertEqual(self.controller.phase.consumed_decisions, n + 1)
         self.assertEqual(self.controller.phase.exit_reason, "limit")
@@ -103,10 +107,13 @@ class TemplatePhaseTests(unittest.TestCase):
         other = TemplatePhaseController(self.catalog, seed=77)
         other.start(result(candidate()), decision_id="d0")
         other.reconcile(result(candidate(fit="unknown"), cutoff=True))
-        self.assertEqual(other.exit_reason, "search_unknown")
+        self.assertIsNone(other.exit_reason)
+        self.assertTrue(other.can_build_template)
         third = TemplatePhaseController(self.catalog, seed=77)
         third.start(result(candidate()), decision_id="d0")
         third.reconcile(result(candidate(fit="no_fit")))
+        self.assertTrue(third.can_build_template)
+        third.reconcile(result(replace(candidate(fit="no_fit"), compatible=False)))
         self.assertEqual(third.exit_reason, "no_compatible_candidate")
 
     def test_response_waits_for_target_cancel_and_reselects_once(self):

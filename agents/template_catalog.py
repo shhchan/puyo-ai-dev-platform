@@ -499,6 +499,9 @@ class TemplateCandidate:
     cutoff: bool
     score_source: str
     coverage_nodes: int
+    compatible: bool = True
+    continuation_kind: str = "none"
+    continuation_score: float | None = None
 
     @property
     def key(self):
@@ -514,6 +517,7 @@ class MatchResult:
     static_cutoff: bool
     binding_trials: int = 0
     static_trials: int = 0
+    feature_evaluations: int = 0
 
 
 @dataclass(frozen=True)
@@ -657,6 +661,39 @@ def _wire(game):
     return tuple(tuple(inverse[p.color] for p in row) for row in game.field.grid)
 
 
+def _tail_score(before, after, conditions):
+    """Prefer connected, low tail cells outside the selected template footprint."""
+    symbols, empty, occupied = conditions
+    reserved = {(x, y) for x, y, _ in symbols} | set(empty) | set(occupied)
+    changed = [
+        (x, y, after[y][x])
+        for y in range(GRID_HEIGHT)
+        for x in range(GRID_WIDTH)
+        if before[y][x] == 0 and after[y][x] not in (0, None)
+    ]
+    if not changed or any((x, y) in reserved for x, y, _ in changed):
+        return None
+    core_columns = {x for x, _, _ in symbols}
+    changed_positions = {(x, y) for x, y, _ in changed}
+    connections = sum(
+        after[ny][nx] == color
+        for x, y, color in changed
+        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+        if 0 <= nx < GRID_WIDTH and 0 <= ny < GRID_HEIGHT
+        and ((nx, ny) not in changed_positions or (x, y) < (nx, ny))
+    )
+    heights = [
+        sum(after[y][x] not in (0, None) for y in range(GRID_HEIGHT))
+        for x in range(GRID_WIDTH)
+    ]
+    return (
+        4 * connections
+        + 2 * sum(x not in core_columns for x, _, _ in changed)
+        - max(heights) * 2
+        - sum(height * height for height in heights) / 16
+    )
+
+
 def match_templates(
     catalog: TemplateCatalog,
     board: Sequence[Sequence[int | None]],
@@ -666,6 +703,8 @@ def match_templates(
     binding_budget: int,
     reachable_mask: Sequence[bool] | None = None,
     static_binding_cap: int = 4096,
+    preferred_key: tuple | None = None,
+    prioritize_static_binding: bool = False,
 ) -> MatchResult:
     """Static score every enabled template, then spend bounded node/binding quota.
 
@@ -683,6 +722,13 @@ def match_templates(
         raise ValueError("budgets must be bounded non-negative integers")
     if not catalog.enabled:
         raise ValueError("catalog disabled")
+    feature_evaluations = 0
+
+    def evaluate(*args):
+        nonlocal feature_evaluations
+        feature_evaluations += 1
+        return _evaluate(*args)
+
     b = _board(board)
     if len(known_pieces) > 3 or any(
         len(pair) != 2
@@ -697,6 +743,10 @@ def match_templates(
         or any(type(v) is not bool for v in reachable_mask)
     ):
         raise ValueError("invalid reachable mask")
+    if preferred_key is not None and (
+        type(preferred_key) is not tuple or len(preferred_key) != 4
+    ):
+        raise ValueError("invalid preferred template key")
     # Build at least one static candidate per variant/transform before spending quota.
     work = []
     static_bindings = 0
@@ -722,7 +772,7 @@ def match_templates(
                 fallback = None
                 for binding in static_search.bindings:
                     static_bindings += 1
-                    satisfied, conflicts = _evaluate(b, conditions, dict(binding))
+                    satisfied, conflicts = evaluate(b, conditions, dict(binding))
                     static_score = (
                         (len(satisfied) - conflicts)
                         / variant.required_count
@@ -736,7 +786,7 @@ def match_templates(
                         fallback = (binding, static_score)
                 if fallback is None:
                     binding = variant.seed_binding
-                    satisfied, conflicts = _evaluate(b, conditions, dict(binding))
+                    satisfied, conflicts = evaluate(b, conditions, dict(binding))
                     fallback = (
                         binding,
                         (len(satisfied) - conflicts)
@@ -765,6 +815,11 @@ def match_templates(
         if visible_known
         else False
     )
+    if preferred_key is not None:
+        work.sort(
+            key=lambda item: (item[0].id, item[1].id, item[2])
+            != preferred_key[:3]
+        )
     for (
         template,
         variant,
@@ -777,6 +832,22 @@ def match_templates(
         required = variant.required_count
         variant_candidates = []
         evaluated = 0
+        preferred_binding = (
+            preferred_key[3]
+            if preferred_key is not None
+            and (template.id, variant.id, transform) == preferred_key[:3]
+            and bindings_used < binding_budget
+            else None
+        )
+        if prioritize_static_binding and preferred_key is None and bindings_used < binding_budget:
+            # Initial selection has no committed key yet. Its best static
+            # binding must receive witness coverage before unrelated color
+            # assignments consume the node quota. Like an active preferred
+            # binding, this already validated assignment costs one binding unit.
+            # Template/variant order and the node quota remain unchanged.
+            preferred_binding = fallback_binding
+        if preferred_binding is not None:
+            bindings_used += 1
         binding_search = _enumerate_bindings(
             variant.classes,
             variant.different_classes,
@@ -784,10 +855,15 @@ def match_templates(
         )
         bindings_used += binding_search.trials
         cutoff_any |= binding_search.cutoff
-        for binding_tuple in binding_search.bindings:
+        search_bindings = list(binding_search.bindings)
+        if preferred_binding is not None:
+            search_bindings = [preferred_binding] + [
+                binding for binding in search_bindings if binding != preferred_binding
+            ]
+        for binding_tuple in search_bindings:
             evaluated += 1
             binding = dict(binding_tuple)
-            before, conflicts = _evaluate(b, conditions, binding)
+            before, conflicts = evaluate(b, conditions, binding)
             score = (len(before) - conflicts) / required * variant.weight / total_weight
             static_score = score
             nodes_before = nodes
@@ -799,6 +875,7 @@ def match_templates(
                 0,
             )
             complete = len(before) == required
+            neutral = None
             exhaustive = all_known and bool(known_pieces)
             conservative_visible = (
                 not all_known
@@ -810,6 +887,7 @@ def match_templates(
             if exhaustive or conservative_visible:
                 frontier = [(_game(b, known_pieces[0]), (), b)]
                 found = False
+                search_interrupted = False
                 for depth in range(len(known_pieces) if exhaustive else 1):
                     next_frontier = []
                     for game, actions, previous in frontier:
@@ -822,6 +900,7 @@ def match_templates(
                                 continue
                             if nodes >= node_budget:
                                 exhaustive = False
+                                search_interrupted = True
                                 break
                             if (
                                 game.find_landing_y(action.axis_x, action.rotation)
@@ -836,7 +915,7 @@ def match_templates(
                             if step is None or step["game_over"]:
                                 continue
                             after_board = _wire(branch)
-                            after, after_conflicts = _evaluate(
+                            after, after_conflicts = evaluate(
                                 after_board, conditions, binding
                             )
                             if conservative_visible and (
@@ -854,7 +933,7 @@ def match_templates(
                                 )
                             ):
                                 continue
-                            previous_satisfied, _ = _evaluate(
+                            previous_satisfied, _ = evaluate(
                                 previous, conditions, binding
                             )
                             if not previous_satisfied <= after:
@@ -867,6 +946,18 @@ def match_templates(
                                 / total_weight
                             )
                             score = max(score, new_score)
+                            if (
+                                depth == 0
+                                and after_conflicts == 0
+                                and conflicts == 0
+                                and not step["chain_count"]
+                            ):
+                                tail_score = _tail_score(b, after_board, conditions)
+                                if tail_score is not None and (
+                                    neutral is None
+                                    or (tail_score, -action_id) > neutral[:2]
+                                ):
+                                    neutral = (tail_score, -action_id, action_id)
                             before_symbols = sum(key[0] == "symbol" for key in before)
                             after_symbols = sum(key[0] == "symbol" for key in after)
                             if after_conflicts == 0 and (
@@ -905,22 +996,35 @@ def match_templates(
                                 next_frontier.append(
                                     (branch, next_actions, after_board)
                                 )
-                        if found or not exhaustive:
+                        if found or search_interrupted:
                             break
-                    if found or not exhaustive:
+                    if found or search_interrupted:
                         break
                     frontier = next_frontier
                 if not found:
-                    status, reason = (
-                        ("no_fit", "exhaustive_known_prefix")
-                        if exhaustive
-                        else (
-                            "unknown",
-                            "hidden_cells_or_budget_unobserved"
-                            if conservative_visible
-                            else "node_budget_exhausted",
+                    if neutral is not None:
+                        status, reason = "unknown", "compatible_tail_witness"
+                        witness_actions = (neutral[2],)
+                        prefix = 1
+                        witness = hashlib.sha256(
+                            json.dumps({
+                                "template": template.id,
+                                "variant": variant.id,
+                                "transform": transform,
+                                "binding": binding_tuple,
+                                "actions": witness_actions,
+                            }, sort_keys=True).encode()
+                        ).hexdigest()
+                    else:
+                        status, reason = (
+                            ("no_fit", "exhaustive_known_prefix")
+                            if exhaustive
+                            else (
+                                "unknown",
+                                "hidden_cells_or_budget_unobserved"
+                                if conservative_visible else "node_budget_exhausted",
+                            )
                         )
-                    )
             if binding_search.cutoff and status != "fit":
                 status, reason = "unknown", "binding_budget_exhausted"
             source = (
@@ -945,12 +1049,16 @@ def match_templates(
                 or (not exhaustive and status != "fit" and nodes >= node_budget),
                 source,
                 nodes - nodes_before,
+                conflicts == 0,
+                "progress" if status == "fit" else
+                "tail" if neutral is not None and witness_actions else "none",
+                neutral[0] if status != "fit" and neutral is not None else None,
             )
             variant_candidates.append(candidate)
         if not variant_candidates or all(
             c.binding != fallback_binding for c in variant_candidates
         ):
-            satisfied, conflicts = _evaluate(b, conditions, dict(fallback_binding))
+            satisfied, conflicts = evaluate(b, conditions, dict(fallback_binding))
             variant_candidates.append(
                 TemplateCandidate(
                     template.id,
@@ -968,6 +1076,7 @@ def match_templates(
                     evaluated == 0 or static_cutoff,
                     "static_fallback",
                     0,
+                    conflicts == 0,
                 )
             )
         if evaluated == 0 or any(candidate.cutoff for candidate in variant_candidates):
@@ -983,4 +1092,5 @@ def match_templates(
         static_cutoff,
         bindings_used,
         static_trials,
+        feature_evaluations,
     )

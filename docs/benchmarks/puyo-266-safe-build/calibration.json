@@ -1,0 +1,2882 @@
+[
+  {
+    "quota": 30000,
+    "case": "empty",
+    "action": 2,
+    "seconds": 0.38824510499398457,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 181.73764899984235,
+        "template": 99.41126699413871,
+        "response": 45.31145199871389
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 18258403737206141519,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "c19be8e8f93fd798234a409620859a2b2a60e1b8c6fd73c7acfd2127fa2ce976",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 99932526,
+          "native_aggregation_ns": 15349,
+          "native_compute_ns": 99947875,
+          "native_serialization_ns": 198546,
+          "native_total_ns": 100146421,
+          "boundary_call_ns": 100444854,
+          "materialization_ns": 80663675,
+          "total_ns": 181109667,
+          "total_seconds": 0.181109667
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5628,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 0,
+          "search_ns": 99932526,
+          "aggregation_ns": 15349,
+          "serialization_ns": 198546
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 24536,
+          "transposition_hits": 740,
+          "terminal_fire_nodes": 2952,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-466f31a5b7232ee39b50e448",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 2,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 30000,
+    "case": "empty_other_stream",
+    "action": 4,
+    "seconds": 0.33350077100476483,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 168.46968900063075,
+        "template": 63.73613399773603,
+        "response": 41.27648600115208
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 3824085283981496460,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "8ad4e7cc28bc33e3da22e4588f907df880dd85d424dd2c51188d50aed4f9301d",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 93222470,
+          "native_aggregation_ns": 13186,
+          "native_compute_ns": 93235656,
+          "native_serialization_ns": 185039,
+          "native_total_ns": 93420695,
+          "boundary_call_ns": 93678960,
+          "materialization_ns": 73938896,
+          "total_ns": 167618793,
+          "total_seconds": 0.167618793
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5750,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 93222470,
+          "aggregation_ns": 13186,
+          "serialization_ns": 185039
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 26535,
+          "transposition_hits": 176,
+          "terminal_fire_nodes": 1517,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-8cf7be7985f9dd03dbee69ba",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 4,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 30000,
+    "case": "gtr_partial",
+    "action": 0,
+    "seconds": 0.4334459289966617,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 184.98124600591836,
+        "template": 60.64497899933485,
+        "response": 80.95436699659331
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 5860796168008897835,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "c19be8e8f93fd798234a409620859a2b2a60e1b8c6fd73c7acfd2127fa2ce976",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 96324791,
+          "native_aggregation_ns": 15698,
+          "native_compute_ns": 96340489,
+          "native_serialization_ns": 205994,
+          "native_total_ns": 96546483,
+          "boundary_call_ns": 96829909,
+          "materialization_ns": 87574859,
+          "total_ns": 184405687,
+          "total_seconds": 0.184405687
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5530,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 96324791,
+          "aggregation_ns": 15698,
+          "serialization_ns": 205994
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 24575,
+          "transposition_hits": 745,
+          "terminal_fire_nodes": 2908,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-caa986476b9b2636a2e4ee33",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 11,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 30000,
+    "case": "gtr_complete",
+    "action": 7,
+    "seconds": 0.47102435000851983,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 179.06379600026412,
+        "template": 66.77258200215874,
+        "response": 95.52359399822308
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 15433539615227493518,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "c19be8e8f93fd798234a409620859a2b2a60e1b8c6fd73c7acfd2127fa2ce976",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 99425968,
+          "native_aggregation_ns": 26120,
+          "native_compute_ns": 99452088,
+          "native_serialization_ns": 288638,
+          "native_total_ns": 99740726,
+          "boundary_call_ns": 100034033,
+          "materialization_ns": 78444728,
+          "total_ns": 178480005,
+          "total_seconds": 0.178480005
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5367,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 99425968,
+          "aggregation_ns": 26120,
+          "serialization_ns": 288638
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 21440,
+          "transposition_hits": 1217,
+          "terminal_fire_nodes": 5618,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-32364399fdd3c37ebb3766a9",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 30000,
+    "case": "tower",
+    "action": 3,
+    "seconds": 0.41858638198755216,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 168.00197300472064,
+        "template": 104.40559600101551,
+        "response": 72.96960600069724
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 11772484034551256575,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "c19be8e8f93fd798234a409620859a2b2a60e1b8c6fd73c7acfd2127fa2ce976",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 88911552,
+          "native_aggregation_ns": 15944,
+          "native_compute_ns": 88927496,
+          "native_serialization_ns": 212347,
+          "native_total_ns": 89139843,
+          "boundary_call_ns": 89384327,
+          "materialization_ns": 78070953,
+          "total_ns": 167456192,
+          "total_seconds": 0.167456192
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5099,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 88911552,
+          "aggregation_ns": 15944,
+          "serialization_ns": 212347
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 22466,
+          "transposition_hits": 667,
+          "terminal_fire_nodes": 5097,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-74c05b132eccfbbc11224d90",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 30000,
+    "case": "uneven",
+    "action": 6,
+    "seconds": 0.39295815400691936,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 210.95700099976966,
+        "template": 62.975738997920416,
+        "response": 54.99740200320957
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 7262812040207750517,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "f212d0cb0af1742aa74b16da51f957214366a601e59d868b55caec7c9faf3217",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "46318b0c0dd343cc537c411937bee426ab56c37c7453c02ebe175461c4c5d05e"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 100740591,
+          "native_aggregation_ns": 60783,
+          "native_compute_ns": 100801374,
+          "native_serialization_ns": 808264,
+          "native_total_ns": 101609638,
+          "boundary_call_ns": 101852911,
+          "materialization_ns": 108494427,
+          "total_ns": 210348351,
+          "total_seconds": 0.210348351
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5342,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 100740591,
+          "aggregation_ns": 60783,
+          "serialization_ns": 808264
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 30000,
+          "generated_nodes": 30000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 30000,
+          "pruned_nodes": 24379,
+          "transposition_hits": 687,
+          "terminal_fire_nodes": 3162,
+          "reached_depth": 8,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-7d7329669a71ec2f3e40d998",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 30000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 30000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 120000,
+    "case": "empty",
+    "action": 2,
+    "seconds": 0.6628566809959011,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 492.1996789998957,
+        "template": 65.64850099675823,
+        "response": 42.7227749969461
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 18258403737206141519,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "6e97b15c25c0080894eae54201fbb731c810f4eee17b90ea0f6e9523ed1c19cf",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 376097520,
+          "native_aggregation_ns": 44395,
+          "native_compute_ns": 376141915,
+          "native_serialization_ns": 224614,
+          "native_total_ns": 376366529,
+          "boundary_call_ns": 376611523,
+          "materialization_ns": 115028571,
+          "total_ns": 491641016,
+          "total_seconds": 0.491641016
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5628,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 376097520,
+          "aggregation_ns": 44395,
+          "serialization_ns": 224614
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 120000,
+          "pruned_nodes": 94848,
+          "transposition_hits": 3010,
+          "terminal_fire_nodes": 16098,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-e94ed4d960d8c5afc169d25a",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 12,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 120000,
+    "case": "empty_other_stream",
+    "action": 4,
+    "seconds": 0.665412597998511,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 497.25871400005417,
+        "template": 62.85670800571097,
+        "response": 44.45428899634862
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 3824085283981496460,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "c3e805dd1e9fe7386438f49cafc13cd4521132767256bbf8b6b1a38d7f6455c5",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 381323501,
+          "native_aggregation_ns": 18619,
+          "native_compute_ns": 381342120,
+          "native_serialization_ns": 229777,
+          "native_total_ns": 381571897,
+          "boundary_call_ns": 381807349,
+          "materialization_ns": 114346827,
+          "total_ns": 496155307,
+          "total_seconds": 0.496155307
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5750,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 381323501,
+          "aggregation_ns": 18619,
+          "serialization_ns": 229777
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 120000,
+          "pruned_nodes": 97255,
+          "transposition_hits": 1488,
+          "terminal_fire_nodes": 15213,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-0c3a6d9951a627e61454c410",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 2,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 120000,
+    "case": "gtr_partial",
+    "action": 0,
+    "seconds": 0.8086171740069403,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 513.1081139988964,
+        "template": 106.87725200114073,
+        "response": 78.99806500063278
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 5860796168008897835,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "6e97b15c25c0080894eae54201fbb731c810f4eee17b90ea0f6e9523ed1c19cf",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 397737872,
+          "native_aggregation_ns": 20886,
+          "native_compute_ns": 397758758,
+          "native_serialization_ns": 254101,
+          "native_total_ns": 398012859,
+          "boundary_call_ns": 398272784,
+          "materialization_ns": 113786357,
+          "total_ns": 512060162,
+          "total_seconds": 0.512060162
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5530,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 397737872,
+          "aggregation_ns": 20886,
+          "serialization_ns": 254101
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 120000,
+          "pruned_nodes": 94355,
+          "transposition_hits": 3198,
+          "terminal_fire_nodes": 16403,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-9a49f9ad7397972e47a67d9d",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 18,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 120000,
+    "case": "gtr_complete",
+    "action": 7,
+    "seconds": 0.8677035220025573,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 569.1160779970232,
+        "template": 67.80060900200624,
+        "response": 102.83132599579403
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 15433539615227493518,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "6e97b15c25c0080894eae54201fbb731c810f4eee17b90ea0f6e9523ed1c19cf",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 447667903,
+          "native_aggregation_ns": 25069,
+          "native_compute_ns": 447692972,
+          "native_serialization_ns": 220893,
+          "native_total_ns": 447913865,
+          "boundary_call_ns": 448251503,
+          "materialization_ns": 120008020,
+          "total_ns": 568260777,
+          "total_seconds": 0.568260777
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5367,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 447667903,
+          "aggregation_ns": 25069,
+          "serialization_ns": 220893
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 364,
+          "evaluated_nodes": 119636,
+          "pruned_nodes": 82738,
+          "transposition_hits": 4063,
+          "terminal_fire_nodes": 26832,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-630ab2e40ea1fbe75bda5e49",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 120000,
+    "case": "tower",
+    "action": 3,
+    "seconds": 0.6937662579948665,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 506.8224740025471,
+        "template": 61.88982800085796,
+        "response": 51.55769400153076
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 11772484034551256575,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "6e97b15c25c0080894eae54201fbb731c810f4eee17b90ea0f6e9523ed1c19cf",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 395528249,
+          "native_aggregation_ns": 26752,
+          "native_compute_ns": 395555001,
+          "native_serialization_ns": 266956,
+          "native_total_ns": 395821957,
+          "boundary_call_ns": 396127736,
+          "materialization_ns": 109577684,
+          "total_ns": 505706701,
+          "total_seconds": 0.505706701
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5099,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 395528249,
+          "aggregation_ns": 26752,
+          "serialization_ns": 266956
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 120000,
+          "pruned_nodes": 85987,
+          "transposition_hits": 2621,
+          "terminal_fire_nodes": 25352,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-6ccb488c0c72e438bf760085",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 120000,
+    "case": "uneven",
+    "action": 0,
+    "seconds": 0.7359304199926555,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 560.9174509954755,
+        "template": 64.59013899439014,
+        "response": 49.781137000536546
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 7262812040207750517,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "7dc394a461b82d5c56dce9f73c3bcae12b7d0c95c0036e3a2923a323143cabfd",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "519d48f241357ef8d21cd83004eddc8e7ba9b6560ec3c89447158caaf5882d67"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 440509199,
+          "native_aggregation_ns": 36327,
+          "native_compute_ns": 440545526,
+          "native_serialization_ns": 296608,
+          "native_total_ns": 440842134,
+          "boundary_call_ns": 441088778,
+          "materialization_ns": 118900233,
+          "total_ns": 559990021,
+          "total_seconds": 0.559990021
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5444,
+          "scenario_jobs": 6,
+          "scenario_reruns": 1,
+          "pool_reuses": 1,
+          "search_ns": 440509199,
+          "aggregation_ns": 36327,
+          "serialization_ns": 296608
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 120000,
+          "generated_nodes": 120000,
+          "invalid_nodes": 0,
+          "game_over_nodes": 478,
+          "evaluated_nodes": 119522,
+          "pruned_nodes": 97205,
+          "transposition_hits": 2344,
+          "terminal_fire_nodes": 13929,
+          "reached_depth": 16,
+          "budget_exhausted": true
+        },
+        "native_result_digest": "native-long-horizon-95f114e38f7a110d09c902ce",
+        "search_complete": false,
+        "budget_exhausted": true,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 120000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 120000,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 600000,
+    "case": "empty",
+    "action": 2,
+    "seconds": 0.6108775250104372,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 429.77189399971394,
+        "template": 62.35410199587932,
+        "response": 45.75534800096648
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 18258403737206141519,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "77baa0655dd10e5d647abcf9928b18d1f5e38928c479b769a58042dd22103e3e",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 284708352,
+          "native_aggregation_ns": 54758,
+          "native_compute_ns": 284763110,
+          "native_serialization_ns": 423785,
+          "native_total_ns": 285186895,
+          "boundary_call_ns": 285457974,
+          "materialization_ns": 143697531,
+          "total_ns": 429156596,
+          "total_seconds": 0.429156596
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5750,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 284708352,
+          "aggregation_ns": 54758,
+          "serialization_ns": 423785
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 465036,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 465036,
+          "pruned_nodes": 364232,
+          "transposition_hits": 11024,
+          "terminal_fire_nodes": 67148,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-29f00fa17c621669d427416b",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 465036,
+    "root_rank": 10,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 600000,
+    "case": "empty_other_stream",
+    "action": 4,
+    "seconds": 0.6534712049979134,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 434.57389200193575,
+        "template": 108.81424399849493,
+        "response": 45.94249899673741
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 3824085283981496460,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "fa34d22df3765e7baab6030ac2ebfd8bb49b2219522a2fd5d3ece3db257d74cf",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 296847362,
+          "native_aggregation_ns": 48567,
+          "native_compute_ns": 296895929,
+          "native_serialization_ns": 395005,
+          "native_total_ns": 297290934,
+          "boundary_call_ns": 297551974,
+          "materialization_ns": 136414712,
+          "total_ns": 433967568,
+          "total_seconds": 0.433967568
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5750,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 296847362,
+          "aggregation_ns": 48567,
+          "serialization_ns": 395005
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 465036,
+          "generated_nodes": 465036,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 465036,
+          "pruned_nodes": 373070,
+          "transposition_hits": 8001,
+          "terminal_fire_nodes": 61333,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-584847ca6beb163a0643aab5",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 465036,
+    "root_rank": 4,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 600000,
+    "case": "gtr_partial",
+    "action": 0,
+    "seconds": 0.7835930500004906,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 516.7614840029273,
+        "template": 64.35294200491626,
+        "response": 87.38159700442338
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 5860796168008897835,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "77baa0655dd10e5d647abcf9928b18d1f5e38928c479b769a58042dd22103e3e",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 359689555,
+          "native_aggregation_ns": 105348,
+          "native_compute_ns": 359794903,
+          "native_serialization_ns": 551371,
+          "native_total_ns": 360346274,
+          "boundary_call_ns": 360670777,
+          "materialization_ns": 155511775,
+          "total_ns": 516184008,
+          "total_seconds": 0.516184008
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5693,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 359689555,
+          "aggregation_ns": 105348,
+          "serialization_ns": 551371
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 465032,
+          "generated_nodes": 465032,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 465032,
+          "pruned_nodes": 361437,
+          "transposition_hits": 12882,
+          "terminal_fire_nodes": 68081,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-4d4ed5808889efed2edab577",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 465032,
+    "root_rank": 20,
+    "tactic": "build_template"
+  },
+  {
+    "quota": 600000,
+    "case": "gtr_complete",
+    "action": 7,
+    "seconds": 0.7923241599928588,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 461.9228580049821,
+        "template": 68.98019099753583,
+        "response": 98.11743799946271
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 15433539615227493518,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "77baa0655dd10e5d647abcf9928b18d1f5e38928c479b769a58042dd22103e3e",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 332891768,
+          "native_aggregation_ns": 168927,
+          "native_compute_ns": 333060695,
+          "native_serialization_ns": 880129,
+          "native_total_ns": 333940824,
+          "boundary_call_ns": 334202066,
+          "materialization_ns": 127070285,
+          "total_ns": 461273306,
+          "total_seconds": 0.461273306
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5688,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 332891768,
+          "aggregation_ns": 168927,
+          "serialization_ns": 880129
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 458742,
+          "generated_nodes": 458742,
+          "invalid_nodes": 0,
+          "game_over_nodes": 1512,
+          "evaluated_nodes": 457230,
+          "pruned_nodes": 324442,
+          "transposition_hits": 14555,
+          "terminal_fire_nodes": 95883,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-afbdc5bb1b3f99433fc597df",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 458742,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 600000,
+    "case": "tower",
+    "action": 3,
+    "seconds": 0.650835744003416,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 449.6654589966056,
+        "template": 67.01246099692071,
+        "response": 53.90374799753772
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 11772484034551256575,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "77baa0655dd10e5d647abcf9928b18d1f5e38928c479b769a58042dd22103e3e",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 299172745,
+          "native_aggregation_ns": 285050,
+          "native_compute_ns": 299457795,
+          "native_serialization_ns": 323990,
+          "native_total_ns": 299781785,
+          "boundary_call_ns": 300055613,
+          "materialization_ns": 148978255,
+          "total_ns": 449035047,
+          "total_seconds": 0.449035047
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5689,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 299172745,
+          "aggregation_ns": 285050,
+          "serialization_ns": 323990
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 463094,
+          "generated_nodes": 463094,
+          "invalid_nodes": 0,
+          "game_over_nodes": 0,
+          "evaluated_nodes": 463094,
+          "pruned_nodes": 333214,
+          "transposition_hits": 10178,
+          "terminal_fire_nodes": 97082,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-90623d7ff51f09302e85d354",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 463094,
+    "root_rank": 0,
+    "tactic": "build_main"
+  },
+  {
+    "quota": 600000,
+    "case": "uneven",
+    "action": 0,
+    "seconds": 0.7074796380038606,
+    "search": {
+      "stage_elapsed_ms": {
+        "shared": 519.1588710003998,
+        "template": 73.37089000066044,
+        "response": 49.356623996573035
+      },
+      "backend": {
+        "schema_version": "puyo.deep_chain_builder.backend_diagnostics.v1",
+        "result_contract": "puyo.long_horizon_search_result.v1",
+        "requested_backend": "native",
+        "backend": "native",
+        "canonical": true,
+        "request_id": 7262812040207750517,
+        "profile": {
+          "name": "nextgen_safe_build",
+          "version": "1"
+        },
+        "configuration": {
+          "search_config_version": "nextgen.shared.v1",
+          "search_config_sha256": "8af6a44e6d7a0a80a09d404ae097855f5cb088017c155c70ada4f83f39572b73",
+          "minimum_chain_count": 10,
+          "evaluator_config_version": "v1.0",
+          "evaluator_config_sha256": "ba4dfb9e2bc79a1596aaeaa8c76cda85cb29be11d72183b50d97b5394e527616",
+          "backend_config_version": "nextgen.fixed_quotas.v1",
+          "backend_config_sha256": "91b9ad8d04741343df2bce483c3f3cf9bc9b1be9465456fe9b199d53c5d5e5cf"
+        },
+        "fallback": {
+          "used": false,
+          "reason": null,
+          "detail": ""
+        },
+        "execution_mode": "scenario-6",
+        "capabilities": {
+          "abi_version": 1,
+          "schema": {
+            "major": 1,
+            "minor_min": 0,
+            "minor_max": 0,
+            "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+            "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+          },
+          "limits": {
+            "max_request_bytes": 16777216,
+            "max_response_bytes": 16777216,
+            "max_sections": 64
+          },
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "python_abi": "cp312",
+          "cpu_features": [
+            "scalar",
+            "sse2",
+            "ssse3",
+            "sse4.1",
+            "avx2"
+          ],
+          "scalar_fallback": true,
+          "simd_path": "scalar",
+          "gil_detach": true,
+          "parallel": true,
+          "wheel_hash_hook": true,
+          "thread_modes": [
+            "oracle-1",
+            "scenario-6"
+          ],
+          "max_threads": 6,
+          "crate_version": "0.4.0",
+          "wire_name": "puyo.deep_chain_native.envelope.v1",
+          "compact_hot_result": {
+            "abi_version": 1,
+            "schema": "puyo.native_compact_hot_result.v1",
+            "child_state_bytes": 80,
+            "result_bytes": 24,
+            "flags_mask": 15
+          }
+        },
+        "provenance": {
+          "backend": "native",
+          "crate_version": "0.4.0",
+          "source_revision": "3defcc2b8c6f42824102166aa7011527dfd4fb9e",
+          "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+          "build_profile": "release",
+          "target": "x86_64-unknown-linux-gnu",
+          "wheel_hash": "external",
+          "thread_mode": "scenario-6",
+          "simd_path": "scalar",
+          "thread_count": 6
+        },
+        "timing": {
+          "native_search_ns": 335533223,
+          "native_aggregation_ns": 63908,
+          "native_compute_ns": 335597131,
+          "native_serialization_ns": 312268,
+          "native_total_ns": 335909399,
+          "boundary_call_ns": 336174782,
+          "materialization_ns": 182432354,
+          "total_ns": 518608166,
+          "total_seconds": 0.518608166
+        },
+        "telemetry": {
+          "arena_capacity_nodes": 6000,
+          "tt_capacity_slots": 16384,
+          "peak_live_nodes": 5516,
+          "scenario_jobs": 6,
+          "scenario_reruns": 0,
+          "pool_reuses": 1,
+          "search_ns": 335533223,
+          "aggregation_ns": 63908,
+          "serialization_ns": 312268
+        },
+        "boundary_call_count": 1,
+        "counters": {
+          "expanded_nodes": 458943,
+          "generated_nodes": 458943,
+          "invalid_nodes": 0,
+          "game_over_nodes": 2204,
+          "evaluated_nodes": 456739,
+          "pruned_nodes": 367622,
+          "transposition_hits": 10182,
+          "terminal_fire_nodes": 56303,
+          "reached_depth": 16,
+          "budget_exhausted": false
+        },
+        "native_result_digest": "native-long-horizon-ffe4f9355cadd26f2dd798a3",
+        "search_complete": true,
+        "budget_exhausted": false,
+        "record_counts": {
+          "root_evidence": 132,
+          "representatives": 22,
+          "diagnostics": 7
+        }
+      },
+      "shared_reuse": {
+        "hit": false,
+        "source_backend_request_id": null,
+        "quota_accounting": "full_evidence_nodes",
+        "backend_timing": "current_search"
+      },
+      "quotas": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "board_complete": false,
+      "root_legality": "public_board_estimate_intersect_reachable_mask",
+      "safety_guarantee": false,
+      "template_binding_budget": 4096
+    },
+    "nodes": 458943,
+    "root_rank": 0,
+    "tactic": "build_main"
+  }
+]

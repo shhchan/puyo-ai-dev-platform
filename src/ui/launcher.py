@@ -200,6 +200,15 @@ class LauncherService:
             deep_chain_profile=settings.deep_chain_profile,
             deep_chain_backend=settings.deep_chain_backend,
             deep_chain_target_chain=settings.deep_chain_target_chain,
+            nextgen_catalog_path=settings.nextgen_catalog_path,
+            nextgen_templates=settings.nextgen_templates,
+            nextgen_selection_mode=settings.nextgen_selection_mode,
+            nextgen_temperature=settings.nextgen_temperature,
+            nextgen_seed=settings.nextgen_seed,
+            nextgen_commit_turns=settings.nextgen_commit_turns,
+            nextgen_profile=settings.nextgen_profile,
+            nextgen_selector=settings.nextgen_selector,
+            nextgen_trajectory_path=settings.nextgen_trajectory_path,
             device_a=settings.device_a,
             device_b=settings.device_b,
             deterministic_a=settings.deterministic_a,
@@ -249,6 +258,15 @@ class LauncherService:
             deep_chain_profile=settings.deep_chain_profile,
             deep_chain_backend=settings.deep_chain_backend,
             deep_chain_target_chain=settings.deep_chain_target_chain,
+            nextgen_catalog_path=settings.nextgen_catalog_path,
+            nextgen_templates=settings.nextgen_templates,
+            nextgen_selection_mode=settings.nextgen_selection_mode,
+            nextgen_temperature=settings.nextgen_temperature,
+            nextgen_seed=settings.nextgen_seed,
+            nextgen_commit_turns=settings.nextgen_commit_turns,
+            nextgen_profile=settings.nextgen_profile,
+            nextgen_selector=settings.nextgen_selector,
+            nextgen_trajectory_path=settings.nextgen_trajectory_path,
             device_a=settings.device_a,
             device_b=settings.device_b,
             deterministic_a=settings.deterministic_a,
@@ -1021,6 +1039,20 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         config.deep_chain_backend,
         "--deep-chain-target-chain",
         str(config.deep_chain_target_chain),
+        "--nextgen-catalog",
+        config.nextgen_catalog_path,
+        "--nextgen-templates",
+        config.nextgen_templates,
+        "--nextgen-selection-mode",
+        config.nextgen_selection_mode,
+        "--nextgen-temperature",
+        str(config.nextgen_temperature),
+        "--nextgen-commit-turns",
+        str(config.nextgen_commit_turns),
+        "--nextgen-profile",
+        config.nextgen_profile,
+        "--nextgen-selector",
+        config.nextgen_selector,
         "--inference-latency-ticks",
         str(config.inference_latency_ticks),
         "--latency-mode",
@@ -1051,6 +1083,10 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         args.extend(["--result-json", config.result_json])
     if config.replay_path:
         args.extend(["--replay", config.replay_path])
+    if config.nextgen_seed is not None:
+        args.extend(["--nextgen-seed", str(config.nextgen_seed)])
+    if config.nextgen_trajectory_path:
+        args.extend(["--nextgen-trajectory", config.nextgen_trajectory_path])
     if config.qa_notes:
         args.extend(["--qa-notes", config.qa_notes])
     if config.qa_profile:

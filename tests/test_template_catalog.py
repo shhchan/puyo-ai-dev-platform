@@ -18,10 +18,12 @@ from agents.nextgen_contracts import PublicPlayerState, PublicSnapshot
 from agents.template_catalog import (
     TemplateCatalog,
     TemplateSelector,
+    _game,
+    _wire,
     load_template_catalog,
     match_templates,
 )
-from puyo_env.actions import NUM_ACTIONS
+from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS
 from src.core.constants import GRID_WIDTH, NORMAL_PUYO_COLORS
 
 
@@ -196,6 +198,35 @@ class TemplateCatalogTest(unittest.TestCase):
         self.assertEqual(fit.known_prefix_length, 2)
         self.assertEqual(len(fit.witness_actions), 2)
         self.assertEqual(fit.binding, (("A", 1),))
+
+    def test_selected_binding_can_place_tail_then_progress_on_later_pair(self):
+        config = TemplateCatalog.from_dict(catalog())
+        b = board(hidden=True)
+        key = ("fixture", "base", "identity", (("A", 1),))
+        first = match_templates(
+            config, b, ((2, 2),), node_budget=100, binding_budget=40,
+            reachable_mask=(True,) * NUM_ACTIONS, preferred_key=key,
+        )
+        neutral = next(c for c in first.candidates if c.key == key)
+        self.assertEqual(neutral.continuation_kind, "tail")
+        self.assertEqual(neutral.fit_status, "unknown")
+        self.assertTrue(neutral.compatible)
+        self.assertEqual(len(neutral.witness_actions), 1)
+        narrow = match_templates(
+            config, b, ((2, 2),), node_budget=100, binding_budget=1,
+            reachable_mask=(True,) * NUM_ACTIONS, preferred_key=key,
+        )
+        self.assertEqual(narrow.binding_trials, 1)
+        self.assertEqual(next(c for c in narrow.candidates if c.key == key).continuation_kind, "tail")
+        action = PLACEMENT_ACTIONS[neutral.witness_actions[0]]
+        game = _game(tuple(tuple(row) for row in reversed(b)), (2, 2))
+        game.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
+        next_board = tuple(reversed(_wire(game)))
+        second = match_templates(
+            config, next_board, ((1, 1),), node_budget=100, binding_budget=40,
+            reachable_mask=(True,) * NUM_ACTIONS, preferred_key=key,
+        )
+        self.assertEqual(next(c for c in second.candidates if c.key == key).fit_status, "fit")
 
     def test_static_fallback_scores_all_templates_before_search_quota(self):
         first = catalog()["templates"][0]

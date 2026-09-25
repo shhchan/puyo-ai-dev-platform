@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import uuid
 from collections import deque
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -26,6 +27,8 @@ from agents.deep_chain_builder import (
     validate_interactive_target_chain_count,
 )
 from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
+from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
+from agents.nextgen_profiles import DEFAULT_NEXTGEN_PROFILE, nextgen_search_settings
 from eval.lifecycle_audit import audit_realtime_lifecycle
 from eval.realtime_gui_qa import (
     GUI_QA_PROFILES,
@@ -52,6 +55,8 @@ from selfplay.policies import Policy, make_policy
 from src.core.constants import Action, Direction, PuyoColor
 from src.core.headless import PlacementAction
 from src.core.realtime import TickInput
+from src.ui.launcher_settings import NEXTGEN_CATALOG_PATH, NEXTGEN_PROFILE_CHOICES, resolve_nextgen_catalog
+from src.ui.nextgen_display import history_entries_for_tick
 
 if pygame is not None:
     from src.ui.keybindings import ACTION_ORDER, KeyBindings
@@ -68,6 +73,7 @@ REALTIME_POLICY_CHOICES = (
     "human", "first", "random", "greedy", "beam", "checkpoint", "manager", "manager_rule",
     "v1_7_analyzer_manager", "v1_7_bootstrap_manager",
     "deep_chain_builder",
+    "nextgen_tactic_manager",
     "worker_large", "worker_quick", "worker_punish", "worker_counter",
     "worker_fire", "worker_fire_max", "worker_survival",
 )
@@ -82,6 +88,7 @@ ASYNC_POLICY_TYPES = frozenset(
         "v1_7_analyzer_manager",
         "v1_7_bootstrap_manager",
         "deep_chain_builder",
+        "nextgen_tactic_manager",
     }
 )
 HUMAN_SOFT_DROP_REPEAT_TICKS = 2
@@ -170,6 +177,16 @@ class RealtimeVersusUiConfig:
     deep_chain_profile: str = "smoke"
     deep_chain_backend: str = "python"
     deep_chain_target_chain: int = DEFAULT_DEEP_CHAIN_TARGET_CHAIN_COUNT
+    nextgen_catalog_path: str = NEXTGEN_CATALOG_PATH
+    nextgen_templates: str = "gtr,daa,persian"
+    nextgen_selection_mode: str = "argmax"
+    nextgen_temperature: float = 0.2
+    nextgen_seed: int | None = None
+    nextgen_commit_turns: int = 14
+    nextgen_profile: str = DEFAULT_NEXTGEN_PROFILE
+    nextgen_backend: str = "native"
+    nextgen_selector: str = "rule"
+    nextgen_trajectory_path: str | None = None
     device_a: str | None = None
     device_b: str | None = None
     deterministic_a: bool | None = None
@@ -240,6 +257,28 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("exit_after_finish_frames must be positive")
     if config.replay_path is not None and not config.replay_path.strip():
         raise ValueError("replay_path must not be empty")
+    if "nextgen_tactic_manager" in policies:
+        for side in ("a", "b"):
+            if getattr(config, f"policy_{side}") == "nextgen_tactic_manager" and getattr(config, f"checkpoint_{side}"):
+                raise ValueError(f"checkpoint_{side} cannot be used with the rule nextgen selector")
+        resolve_nextgen_catalog(
+            catalog_path=config.nextgen_catalog_path,
+            templates=config.nextgen_templates,
+            mode=config.nextgen_selection_mode,
+            temperature=config.nextgen_temperature,
+            commit_turns=config.nextgen_commit_turns,
+            repo_root=ROOT,
+        )
+        if config.nextgen_selector != "rule":
+            raise ValueError("nextgen RL selector is not available yet")
+        if config.nextgen_profile not in NEXTGEN_PROFILE_CHOICES:
+            raise ValueError(f"nextgen_profile must be one of: {NEXTGEN_PROFILE_CHOICES}")
+        if config.nextgen_backend not in ("native", "python"):
+            raise ValueError("nextgen_backend must be native or python")
+        if config.nextgen_seed is not None and (type(config.nextgen_seed) is not int or config.nextgen_seed < 0):
+            raise ValueError("nextgen_seed must be a non-negative integer or auto")
+        if config.nextgen_trajectory_path is not None and not config.nextgen_trajectory_path.strip():
+            raise ValueError("nextgen_trajectory_path must not be empty")
     if not config.dataset_root.strip():
         raise ValueError("dataset_root must not be empty")
     for side in ("a", "b"):
@@ -269,6 +308,17 @@ class RealtimeVersusMatchController:
         validate_config(config)
         self.config = config
         self.policy_factory = policy_factory
+        self.nextgen_catalog = None
+        self.nextgen_resolved_catalog = None
+        if "nextgen_tactic_manager" in (config.policy_a, config.policy_b):
+            self.nextgen_catalog, self.nextgen_resolved_catalog = resolve_nextgen_catalog(
+                catalog_path=config.nextgen_catalog_path,
+                templates=config.nextgen_templates,
+                mode=config.nextgen_selection_mode,
+                temperature=config.nextgen_temperature,
+                commit_turns=config.nextgen_commit_turns,
+                repo_root=ROOT,
+            )
         self.decision_process_start_method = decision_process_start_method
         self._decision_executors: dict[str, PolicyProcessExecutor] = {}
         self.env = RealtimePuyoEnv(
@@ -302,6 +352,12 @@ class RealtimeVersusMatchController:
         self.collection_enabled = config.collection_enabled
         self.collection_replay_ticks: list[dict] = []
         self.replay_ticks: list[dict] = []
+        self.tactic_history: list[dict[str, Any]] = []
+        self.history_seen: dict[str, Any] = {}
+        self.history_open = False
+        self.history_offset = 0
+        self._public_packet_index = 0
+        self._public_resolution_index = 0
         self._last_replay_diagnostic_tokens: dict[str, tuple[Any, ...]] = {}
         self.collection_last_session_id: str | None = None
         self.collection_message = "COLLECTION ON" if self.collection_enabled else "COLLECTION OFF"
@@ -379,6 +435,15 @@ class RealtimeVersusMatchController:
                 if policy_type == "deep_chain_builder"
                 else None
             ),
+            "nextgen_catalog_digest": (
+                self.nextgen_catalog.semantic_digest
+                if policy_type == "nextgen_tactic_manager" and self.nextgen_catalog is not None
+                else None
+            ),
+            "nextgen_profile": self.config.nextgen_profile if policy_type == "nextgen_tactic_manager" else None,
+            "nextgen_backend": self.config.nextgen_backend if policy_type == "nextgen_tactic_manager" else None,
+            "nextgen_selector": self.config.nextgen_selector if policy_type == "nextgen_tactic_manager" else None,
+            "nextgen_template_seed": self.config.nextgen_seed if policy_type == "nextgen_tactic_manager" else None,
         }
 
     def tactical_diagnostics(self, agent: str) -> dict:
@@ -695,6 +760,11 @@ class RealtimeVersusMatchController:
         self.last_inputs = {}
         self.collection_replay_ticks = []
         self.replay_ticks = []
+        self.tactic_history = []
+        self.history_seen = {}
+        self.history_offset = 0
+        self._public_packet_index = 0
+        self._public_resolution_index = 0
         self._last_replay_diagnostic_tokens = {}
         self.latest_attack_diagnostics = {
             agent: {
@@ -745,6 +815,7 @@ class RealtimeVersusMatchController:
         match_result = self.infos["player_0"].get("match_result")
         if match_result is not None:
             tick_payload = self._build_replay_tick(inputs, match_result)
+            self.tactic_history.extend(history_entries_for_tick(tick_payload, self.history_seen))
             self._update_latest_attack_diagnostics(tick_payload["attack_diagnostics"])
             if self.config.replay_path:
                 self.replay_ticks.append(self._compact_replay_tick(tick_payload))
@@ -799,12 +870,39 @@ class RealtimeVersusMatchController:
             }
             for agent in REALTIME_AGENTS
         }
+        public_events = {agent: [] for agent in REALTIME_AGENTS}
+        if any(name == "nextgen_tactic_manager" for name in self.policy_names.values()):
+            public_history = self.env.match.public_timing_history()
+            for event in public_history.packets[self._public_packet_index:]:
+                public_events[f"player_{event.player_id}"].append({
+                    "type": event.kind,
+                    "data": {"packet_id": event.packet_id, "amount": event.amount, "event_id": event.event_id},
+                })
+            for event in public_history.resolutions[self._public_resolution_index:]:
+                public_events[f"player_{event.player_id}"].append({
+                    "type": "resolution_complete",
+                    "data": {
+                        "chain_count": event.chain_count,
+                        "generated": event.generated,
+                        "canceled": event.canceled,
+                        "outgoing": event.outgoing,
+                        "event_id": event.event_id,
+                    },
+                })
+            self._public_packet_index = len(public_history.packets)
+            self._public_resolution_index = len(public_history.resolutions)
+        for agent in REALTIME_AGENTS:
+            public_events[agent].extend(
+                {"type": "lock", "data": {"tick": event.tick}}
+                for event in match_result.player_results[agent].events if event.type == "lock"
+            )
         return {
             "tick": match_result.tick,
             "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
             "policy_diagnostics": {
                 agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
             },
+            "nextgen_agents": [agent for agent in REALTIME_AGENTS if self.policy_names[agent] == "nextgen_tactic_manager"],
             "controller_diagnostics": {
                 agent: self.controllers[agent].diagnostics.to_dict()
                 for agent in REALTIME_AGENTS
@@ -818,6 +916,7 @@ class RealtimeVersusMatchController:
             },
             "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
             "attack_diagnostics": attack_diagnostics,
+            "public_events": public_events,
             "snapshot_hash": match_result.snapshot_hash,
         }
 
@@ -876,6 +975,8 @@ class RealtimeVersusMatchController:
                 agent: self.policy_metadata(agent) for agent in REALTIME_AGENTS
             },
             "ticks": list(self.replay_ticks if ticks is None else ticks),
+            "tactic_history": list(self.tactic_history),
+            "nextgen_config": self.nextgen_resolved_catalog,
             "expected_final_hash": self.env.match.state_hash(),
             "outcome": {
                 "winner": self.winner,
@@ -1093,6 +1194,17 @@ class RealtimeVersusMatchController:
         if policy_seed is None:
             policy_seed = self.config.seed + (0 if side == "a" else 10_000)
 
+        if policy_type == "nextgen_tactic_manager" and self.policy_factory is make_policy:
+            profile, search_config = nextgen_search_settings(self.config.nextgen_profile, seed=policy_seed)
+            return NextgenTacticManagerPolicy(
+                catalog=self.nextgen_catalog,
+                seed=policy_seed,
+                template_seed=self.config.nextgen_seed,
+                profile=profile,
+                backend=self.config.nextgen_backend,
+                search_config=search_config,
+            )
+
         def side_value(name: str):
             value = getattr(self.config, f"{name}_{side}")
             return getattr(self.config, name) if value is None else value
@@ -1302,6 +1414,15 @@ class RealtimeVersusMatchController:
         elif key == pygame.K_o:
             enabled = not all(self.plan_overlay_enabled.values())
             self.plan_overlay_enabled = {agent: enabled for agent in REALTIME_AGENTS}
+        elif key == pygame.K_h:
+            self.history_open = not self.history_open
+            self.history_offset = 0
+        elif self.history_open and key in (pygame.K_PAGEUP, pygame.K_j):
+            self.history_offset = min(max(0, len(self.tactic_history) - 1), self.history_offset + 8)
+        elif self.history_open and key in (pygame.K_PAGEDOWN, pygame.K_k):
+            self.history_offset = max(0, self.history_offset - 8)
+        elif self.history_open and key in (pygame.K_END, pygame.K_l):
+            self.history_offset = 0
         elif key == pygame.K_c:
             self.toggle_collection()
         elif self.human is not None:
@@ -1332,6 +1453,22 @@ class RealtimeVersusMatchController:
 
     def shutdown(self) -> None:
         self._shutdown_decision_executors()
+
+    def nextgen_ledger_payload(self) -> dict[str, Any]:
+        return {
+            "schema_version": "puyo.nextgen.gui_ledger.v1",
+            "note": "Authoritative receipts and GUI events; rewards and formal training provenance are not supplied.",
+            "catalog": self.nextgen_resolved_catalog,
+            "history": list(self.tactic_history),
+            "players": {
+                agent: {
+                    "diagnostics": [item.to_dict() for item in controller.nextgen_scheduler.ledger],
+                    "metadata": list(controller.nextgen_scheduler.ledger_metadata),
+                }
+                for agent, controller in self.controllers.items()
+                if getattr(controller, "nextgen_scheduler", None) is not None
+            },
+        }
 
     def _shutdown_decision_executors(self) -> None:
         for executor in self._decision_executors.values():
@@ -1412,6 +1549,16 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
             "大連鎖の確認には reference/native を推奨します。"
         ),
     )
+    parser.add_argument("--nextgen-catalog", dest="nextgen_catalog_path", default=NEXTGEN_CATALOG_PATH)
+    parser.add_argument("--nextgen-templates", default="gtr,daa,persian")
+    parser.add_argument("--nextgen-selection-mode", choices=("argmax", "softmax"), default="argmax")
+    parser.add_argument("--nextgen-temperature", type=float, default=0.2)
+    parser.add_argument("--nextgen-seed", type=int)
+    parser.add_argument("--nextgen-commit-turns", type=int, default=14)
+    parser.add_argument("--nextgen-profile", choices=NEXTGEN_PROFILE_CHOICES, default=DEFAULT_NEXTGEN_PROFILE)
+    parser.add_argument("--nextgen-backend", choices=("native", "python"), default="native")
+    parser.add_argument("--nextgen-selector", choices=("rule", "rl"), default="rule")
+    parser.add_argument("--nextgen-trajectory", dest="nextgen_trajectory_path")
     for side in ("a", "b"):
         parser.add_argument(f"--beam-depth-{side}", type=int)
         parser.add_argument(f"--beam-width-{side}", type=int)
@@ -1482,6 +1629,16 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         deep_chain_profile=args.deep_chain_profile,
         deep_chain_backend=args.deep_chain_backend,
         deep_chain_target_chain=args.deep_chain_target_chain,
+        nextgen_catalog_path=args.nextgen_catalog_path,
+        nextgen_templates=args.nextgen_templates,
+        nextgen_selection_mode=args.nextgen_selection_mode,
+        nextgen_temperature=args.nextgen_temperature,
+        nextgen_seed=args.nextgen_seed,
+        nextgen_commit_turns=args.nextgen_commit_turns,
+        nextgen_profile=args.nextgen_profile,
+        nextgen_backend=args.nextgen_backend,
+        nextgen_selector=args.nextgen_selector,
+        nextgen_trajectory_path=args.nextgen_trajectory_path,
         beam_depth_a=args.beam_depth_a,
         beam_depth_b=args.beam_depth_b,
         beam_width_a=args.beam_width_a,
@@ -1580,10 +1737,20 @@ def run_ui(
                 config.replay_path,
                 controller.replay_payload(interrupted=interrupted),
             )
+        nextgen_config_path = None
+        if controller.nextgen_resolved_catalog is not None:
+            anchor = config.nextgen_trajectory_path or config.replay_path or f"runs/nextgen-gui/{uuid.uuid4().hex}.json"
+            nextgen_config_path = str(Path(anchor).with_suffix(".nextgen_config.json"))
+            _write_json(nextgen_config_path, controller.nextgen_resolved_catalog)
+        if config.nextgen_trajectory_path:
+            _write_json(config.nextgen_trajectory_path, controller.nextgen_ledger_payload())
         result = controller.qa_result(
             collection_manifest=collection_manifest,
             interrupted=interrupted,
         )
+        if nextgen_config_path is not None:
+            result["artifacts"]["nextgen_config"] = nextgen_config_path
+            result["artifacts"]["nextgen_ledger"] = config.nextgen_trajectory_path
         controller.shutdown()
         pygame.quit()
     return result
