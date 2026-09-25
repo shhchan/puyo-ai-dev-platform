@@ -1,0 +1,231 @@
+{
+  "catalog_digest": "38f1def9faab7143b9fcc8cb452f03748491073e7f4659a1ddd391afcb30742f",
+  "fixture_sha256": "469fa1aa56425e81b0e54664146f0ce76d41e3741a91ee73d43096520f33f002",
+  "gui_scenarios": [
+    {
+      "backend": "native",
+      "catalog": "gtr",
+      "id": "one_sided_normal",
+      "origin": "planned_human_gui_qa",
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "profile": "nextgen_safe_build",
+      "seed": 55,
+      "status": "not_measured"
+    },
+    {
+      "backend": "native",
+      "catalog": "gtr",
+      "id": "two_sided_normal",
+      "origin": "planned_human_gui_qa",
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "profile": "nextgen_safe_build",
+      "seed": 55,
+      "status": "not_measured"
+    }
+  ],
+  "persian_counterexamples": [
+    {
+      "action_index": 7,
+      "after_rows_bottom_up": [
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "chain_count": 0,
+      "game_over": false,
+      "id": "persian_flat_three",
+      "matcher_cutoff": true,
+      "origin": "synthetic",
+      "quiet_legal_alternatives": 21,
+      "selected_binding_fit_status": "fit",
+      "selected_binding_reason": "known_prefix_witness",
+      "selected_binding_witness_actions": [
+        1
+      ],
+      "shape_preserving_quiet_alternatives": 5,
+      "static_conflicts": 0,
+      "static_satisfied": 2
+    },
+    {
+      "action_index": 7,
+      "after_rows_bottom_up": [
+        [
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "chain_count": 1,
+      "game_over": false,
+      "id": "persian_l_corner",
+      "matcher_cutoff": true,
+      "origin": "synthetic",
+      "quiet_legal_alternatives": 14,
+      "selected_binding_fit_status": "fit",
+      "selected_binding_reason": "known_prefix_witness",
+      "selected_binding_witness_actions": [
+        5
+      ],
+      "shape_preserving_quiet_alternatives": 2,
+      "static_conflicts": 0,
+      "static_satisfied": 2
+    }
+  ],
+  "schema_version": "puyo.271.regression.v1",
+  "survival_counterexamples": [
+    {
+      "fatal": {
+        "chain_count": 0,
+        "game_over": true
+      },
+      "id": "near_choke_single_clear",
+      "origin": "synthetic",
+      "safe": {
+        "chain_count": 1,
+        "game_over": false
+      }
+    }
+  ],
+  "template_rollouts": [
+    {
+      "binding": {
+        "A": 1,
+        "B": 2,
+        "C": 1
+      },
+      "completed": true,
+      "decisions": 2,
+      "fit_statuses": [
+        "fit",
+        "fit"
+      ],
+      "id": "gtr_two_decision_rollout",
+      "origin": "synthetic",
+      "template_id": "gtr",
+      "witness_actions": [
+        0,
+        3
+      ]
+    },
+    {
+      "binding": {
+        "A": 1,
+        "B": 2
+      },
+      "completed": true,
+      "decisions": 2,
+      "fit_statuses": [
+        "fit",
+        "fit"
+      ],
+      "id": "daa_two_decision_rollout",
+      "origin": "synthetic",
+      "template_id": "daa",
+      "witness_actions": [
+        0,
+        3
+      ]
+    },
+    {
+      "binding": {
+        "A": 1,
+        "B": 2,
+        "C": 3
+      },
+      "completed": true,
+      "decisions": 2,
+      "fit_statuses": [
+        "fit",
+        "fit"
+      ],
+      "id": "persian_two_decision_rollout",
+      "origin": "synthetic",
+      "template_id": "persian",
+      "witness_actions": [
+        4,
+        11
+      ]
+    }
+  ],
+  "visibility_probes": [
+    {
+      "coverage_nodes": 1563,
+      "cutoff": false,
+      "fit_statuses": {
+        "fit": 1,
+        "unknown": 35
+      },
+      "has_fit": true,
+      "id": "known_current",
+      "known_prefix_length": 1,
+      "node_budget": 1800,
+      "origin": "synthetic"
+    },
+    {
+      "coverage_nodes": 0,
+      "cutoff": false,
+      "fit_statuses": {
+        "unknown": 36
+      },
+      "has_fit": false,
+      "id": "unknown_current",
+      "known_prefix_length": 0,
+      "node_budget": 1800,
+      "origin": "synthetic"
+    },
+    {
+      "coverage_nodes": 0,
+      "cutoff": true,
+      "fit_statuses": {
+        "unknown": 36
+      },
+      "has_fit": false,
+      "id": "zero_node_cutoff",
+      "known_prefix_length": 1,
+      "node_budget": 0,
+      "origin": "synthetic"
+    }
+  ]
+}
