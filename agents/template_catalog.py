@@ -519,6 +519,7 @@ class TemplateCandidate:
     compatible: bool = True
     continuation_kind: str = "none"
     continuation_score: float | None = None
+    root_progress: tuple[tuple[int, int], ...] = ()
 
     @property
     def key(self):
@@ -944,6 +945,7 @@ def match_templates(
             guards_known = all(b[y][x] is not None for x, y, _ in conditions[3])
             complete = len(before) == required and guards_known
             neutral = None
+            root_progress = []
             exhaustive = all_known and bool(known_pieces)
             conservative_visible = (
                 not all_known
@@ -1007,6 +1009,8 @@ def match_templates(
                             )
                             if after_conflicts or not previous_satisfied <= after:
                                 continue
+                            if depth == 0:
+                                root_progress.append((action_id, len(after) - len(before)))
                             next_actions = actions + (action_id,)
                             new_score = (
                                 (len(after) - after_conflicts)
@@ -1125,6 +1129,7 @@ def match_templates(
                 "progress" if status == "fit" else
                 "tail" if neutral is not None and witness_actions else "none",
                 neutral[0] if status != "fit" and neutral is not None else None,
+                tuple(root_progress),
             )
             variant_candidates.append(candidate)
         if not variant_candidates or all(

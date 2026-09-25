@@ -612,6 +612,7 @@ class SharedSearchBatchBuilder:
             # moves, without being promoted to public completion evidence.
             # A completion witness may belong to a different branch from the
             # sampled representative; only the root is an executable plan.
+            current_progress = dict(selected_candidate.root_progress)
             for rank, root in enumerate(shared.ranked_roots):
                 proof = shared.selected_template["roots"][root.root_action]
                 current_complete = (not proof["root_violation"]
@@ -626,7 +627,7 @@ class SharedSearchBatchBuilder:
                     _evidence(template_progress=(selected_candidate.progress,
                               "evaluated" if board_complete else "partial", source)),
                     (1, 0 if current_complete else 1 if proof["known_witness"] else 2,
-                     rank, root.root_action),
+                     -current_progress.get(root.root_action, 0), rank, root.root_action),
                 )
         for value in response.proposals:
             if not value.tactics or any(
@@ -789,6 +790,8 @@ class SharedSearchBatchBuilder:
                 "survival": survival_diagnostics,
                 "selected_template": {
                     "phase_key": selected_candidate.key if selected_candidate else None,
+                    "root_progress": selected_candidate.root_progress if selected_candidate else (),
+                    "ranking": "survival; current_completion; public_prefix_completion; current_progress; long_horizon",
                     "constraint": asdict(selected_constraint) if selected_constraint else None,
                     "result": shared.selected_template if shared else None,
                     "public_board_complete": board_complete,

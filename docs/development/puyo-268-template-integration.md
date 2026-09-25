@@ -34,7 +34,7 @@ PUYO-271 の凍結 fixture/before は変更していない．`replay_fixtures` �
 
 matcher は最初の進捗 root で止めず，予算内で同じ深さの候補を比較する．matcher の `_tail_score` は診断用の中間配置 witness に残るが，production の `build_template` 順位には使わない．
 
-shared backend へ phase が有効な間だけ compiled constraint を渡す．`build_template` は複数整合 root を候補とし，現在の 1 手で公開完成する root，公開 prefix で完成 witness を持つ root，それ以外の整合 root の順に並べる．各区分内は backend の将来連鎖順位を使う．sampled 完成は最後の区分に留め，公開完成の証明へ昇格させない．unknown/cutoff は未完成不能の証明ではなく，中間候補として利用できる．candidate の実行 plan は current root のみであり，後続 witness は実行 queue にしない．
+shared backend へ phase が有効な間だけ compiled constraint を渡す．`build_template` は複数整合 root を候補とし，現在の 1 手で公開完成する root，公開 prefix で完成 witness を持つ root，それ以外の整合 root の順に並べる．各区分内では matcher が同じ公開 root 層で評価した必須セルの増加数を比較し，同じ進捗なら backend の将来連鎖順位を使う．進捗 0 の支持・尾も候補から除かない．matcher quota の範囲外の root には進捗を捏造せず，0 と同順位に置く．全 root の進捗は `root_progress` に保存する．sampled 完成は最後の区分に留め，公開完成の証明へ昇格させない．unknown/cutoff は未完成不能の証明ではなく，中間候補として利用できる．candidate の実行 plan は current root のみであり，後続 witness は実行 queue にしない．
 
 例外は **`root_violation=False` かつ `known_witness==(root,)`** の現在完成 root だけである．完成後も制約を保持したまま探索した未来で代表継続が消えて `compatible=False` でも，現在の完成手を phase 終端候補として使う．`completion_boundary_roots` に列挙し，将来継続は unknown と明記する．sampled 完成，2 手目以降の完成，root 違反にはこの例外を使わない．backend 内で制約を途中解除しない．
 

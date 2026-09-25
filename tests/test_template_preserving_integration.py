@@ -154,6 +154,9 @@ class CatalogCompilerTests(unittest.TestCase):
         self.assertEqual(candidate.witness_actions, (1,))
         self.assertEqual(candidate.score, 1.0)
         self.assertEqual(candidate.coverage_nodes, 22)
+        self.assertEqual(dict(candidate.root_progress)[1], 2)
+        self.assertEqual(dict(candidate.root_progress)[0], 1)
+        self.assertGreater(len(candidate.root_progress), 1)
 
 
 class SharedConstraintTests(unittest.TestCase):
