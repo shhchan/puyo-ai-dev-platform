@@ -139,7 +139,7 @@ class RuleTacticSelector:
         )
         if tactic is None:
             raise ValueError("no reachable tactic; scheduler must handle this board")
-        return apply_envelope(batch, c.Selection(
+        return c.Selection(
             tactic,
             rows[tactic].best_id,
             batch.digest,
@@ -148,7 +148,7 @@ class RuleTacticSelector:
             None,
             None,
             "rule_priority_" + tactic,
-        ))
+        )
 
 
 def reconcile_phase(phase, result, public, history, identity):

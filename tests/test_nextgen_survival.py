@@ -30,7 +30,8 @@ def mask(*actions):
 
 def select(req, execution):
     batch = execution.batch
-    return RuleTacticSelector().select(req, batch, c.build_features({}, batch.action_mask), SimpleNamespace(threat='none'))
+    normal = RuleTacticSelector().select(req, batch, c.build_features({}, batch.action_mask), SimpleNamespace(threat='none'))
+    return apply_envelope(batch, normal)
 
 
 class SurvivalTests(unittest.TestCase):
@@ -110,6 +111,20 @@ class SurvivalTests(unittest.TestCase):
         unknown[-1] = (None,) * 6
         req = make_request(board=tuple(unknown), pieces=((1, 2),), incoming=0)
         self.assertEqual(build(req).diagnostics['survival']['status'], 'unknown')
+
+    def test_root_coverage_precedes_next_search_and_unknown_arrival_stays_unknown(self):
+        req = make_request(board=choke_board(), incoming=0, quota=22)
+        ex = build(req)
+        roots = ex.diagnostics['survival']['roots']
+        self.assertEqual(len(roots), 22)
+        self.assertTrue(all(row['root_chain'] is not None for row in roots))
+        self.assertEqual({row['status'] for row in roots}, {'fatal', 'cutoff'})
+        self.assertEqual(ex.batch.counters.response_nodes, 22)
+        req = make_request(board=choke_board(), pieces=((3, 4),), incoming=6,
+                           arrival=None, mask=mask(0), quota=256)
+        ex = build(req)
+        self.assertEqual(ex.diagnostics['survival']['roots'][0]['status'], 'unknown')
+        self.assertIsNone(value(ex.select('build_main'), 'survival_safe'))
 
     def test_no_threat_gate_and_border_do_not_search(self):
         req = make_request(board=((0,) * 6,) * 14, incoming=0)
