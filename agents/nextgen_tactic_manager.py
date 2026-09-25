@@ -25,6 +25,7 @@ from agents.deep_chain_search_backend import (
 )
 from agents.nextgen_profiles import nextgen_search_settings
 from agents.nextgen_response_search import PublicResponseProvider
+from agents.nextgen_survival import apply_envelope
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
     SharedSearchBatchBuilder,
@@ -138,7 +139,7 @@ class RuleTacticSelector:
         )
         if tactic is None:
             raise ValueError("no reachable tactic; scheduler must handle this board")
-        return c.Selection(
+        return apply_envelope(batch, c.Selection(
             tactic,
             rows[tactic].best_id,
             batch.digest,
@@ -147,7 +148,7 @@ class RuleTacticSelector:
             None,
             None,
             "rule_priority_" + tactic,
-        )
+        ))
 
 
 def reconcile_phase(phase, result, public, history, identity):
@@ -320,6 +321,7 @@ class SelectTacticStep(DecisionStep):
         selection = context.require("policy").selector.select(
             request, batch, features, context.require("timing_summary")
         )
+        selection = apply_envelope(batch, selection)
         candidate = selection.validate_batch(batch)
         diagnostics = c.Diagnostics(request, batch, features, selection, None)
         return StepResult(

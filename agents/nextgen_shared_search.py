@@ -28,6 +28,7 @@ from agents.long_horizon_search import (
     ScenarioPairSequence,
     build_scenario_sequences_from_known_pairs,
 )
+from agents.nextgen_survival import probe as survival_probe, evidence_for as survival_evidence
 from agents.template_catalog import MatchResult, TemplateCatalog, match_templates
 from src.core.constants import GRID_HEIGHT, PuyoColor
 
@@ -447,6 +448,13 @@ class SharedSearchBatchBuilder:
             stage_ms["template"] += prepared_template.elapsed_seconds * 1000
         stage_started = time.perf_counter()
         response_budget = ResponseBudget(profile.response_quota)
+        survival, survival_diagnostics = survival_probe(
+            request, state, roots, response_budget,
+            timing=getattr(self.response_provider, "timing", None),
+            board_complete=board_complete,
+        )
+        if any(v.status == "cutoff" for v in survival.values()):
+            cutoffs.append("survival_quota")
         response = ResponseSearchResult()
         threat = any(
             p.amount and p.landed_tick is None
@@ -646,6 +654,9 @@ class SharedSearchBatchBuilder:
             )
         # Preserve explicit missingness for every wire evidence dimension.
         for cid, (plan, tactics, evidence, key, fallback) in tuple(entries.items()):
+            result = survival.get(plan[0].action)
+            if result is not None:
+                evidence = (*evidence, *survival_evidence(result, board_complete=board_complete))
             by_name = {e.name: e for e in evidence}
             evidence = tuple(
                 by_name.get(
@@ -658,6 +669,14 @@ class SharedSearchBatchBuilder:
                 for name in c.EVIDENCE_NAMES
             )
             entries[cid] = (plan, tactics, evidence, key, fallback)
+        if survival_diagnostics.get("active"):
+            for tactic in c.TACTIC_IDS:
+                for cid, key in tuple(tactic_keys[tactic].items()):
+                    result = survival.get(entries[cid][0][0].action)
+                    safety_rank = (0 if result and result.status == "witness" and not result.root_chain
+                                   else 1 if result and result.status == "witness"
+                                   else 3 if result and result.status == "fatal" else 2)
+                    tactic_keys[tactic][cid] = (safety_rank, key)
         candidates = tuple(
             c.Candidate(
                 request.identity,
@@ -771,6 +790,7 @@ class SharedSearchBatchBuilder:
             root_rankings,
             {
                 "stage_elapsed_ms": stage_ms,
+                "survival": survival_diagnostics,
                 "backend": backend_diagnostics,
                 "shared_reuse": {
                     "hit": reuse_source is not None,

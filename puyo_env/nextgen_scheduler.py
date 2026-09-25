@@ -142,6 +142,10 @@ class NextgenScheduler:
         candidate = result.selection.validate_batch(result.batch)
         player = result.request.identity.player_id
         public, history = match.public_snapshot(player), match.public_timing_history()
+        reason = record.reason
+        if result.selection.reason in ("legitimate_survival_exception", "survival_safe_nonfire"):
+            adoption = "survival_adopted" if outcome == "activated" else "survival_not_adopted_" + outcome
+            reason = (adoption + ":" + result.selection.reason + ":" + reason)[:256]
         receipt = c.ExecutionReceipt(
             candidate.candidate_id,
             candidate.root_action,
@@ -152,7 +156,7 @@ class NextgenScheduler:
             record.activation_tick,
             result.request.execution.timeout_tick,
             public.digest,
-            record.reason,
+            reason,
         )
         diagnostics = replace(result, receipt=receipt)
         self.phase = self.result_phase
