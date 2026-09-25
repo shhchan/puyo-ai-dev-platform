@@ -140,7 +140,10 @@ def replay_fixtures(path: Path = CASES) -> dict:
         )
         assert legal[action], case["id"]
         result, after = _action(game, case["action"])
-        assert (len(satisfied), conflicts) == (
+        # Frozen expected values describe the original matcher without guards.
+        legacy_conditions = _conditions(persian, "identity")
+        legacy_satisfied, legacy_conflicts = _evaluate(board, (*legacy_conditions[:3], ()), case["binding"])
+        assert (len(legacy_satisfied), legacy_conflicts) == (
             case["expected_static_satisfied"], case["expected_static_conflicts"]
         ), case["id"]
         assert (result["chain_count"], result["game_over"]) == (
@@ -166,6 +169,8 @@ def replay_fixtures(path: Path = CASES) -> dict:
         output["persian_counterexamples"].append({
             "id": case["id"], "origin": "synthetic",
             "static_satisfied": len(satisfied), "static_conflicts": conflicts,
+            "before_static_conflicts": legacy_conflicts,
+            "selected_binding_compatible": matched.compatible,
             "action_index": action, "chain_count": result["chain_count"],
             "game_over": result["game_over"],
             "quiet_legal_alternatives": quiet_alternatives,

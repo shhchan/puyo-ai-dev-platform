@@ -171,6 +171,7 @@ def match_result_from_dict(value):
         item = dict(raw)
         item["binding"] = tuple(tuple(v) for v in item["binding"])
         item["witness_actions"] = tuple(item["witness_actions"])
+        item["root_progress"] = tuple(tuple(v) for v in item.get("root_progress", ()))
         candidates.append(TemplateCandidate(**item))
     return MatchResult(tuple(candidates), **values)
 

@@ -146,6 +146,9 @@ class NextgenScheduler:
         if result.selection.reason in ("legitimate_survival_exception", "survival_safe_nonfire"):
             adoption = "survival_adopted" if outcome == "activated" else "survival_not_adopted_" + outcome
             reason = (adoption + ":" + result.selection.reason + ":" + reason)[:256]
+        if result.selection.selected_tactic_id == "build_template":
+            adoption = "template_adopted" if outcome == "activated" else "template_not_adopted_" + outcome
+            reason = (adoption + ":" + reason)[:256]
         receipt = c.ExecutionReceipt(
             candidate.candidate_id,
             candidate.root_action,
@@ -176,6 +179,7 @@ class NextgenScheduler:
         template_selection = self.phase.selection
         self.ledger_metadata.append(
             {
+                "selected_template": copy.deepcopy(self.last_payload.get("search", {}).get("selected_template")),
                 "phase_after": self.phase.phase_snapshot().to_dict(),
                 "switch_reason": self.phase.exit_reason,
                 "template_score": template_selection.candidate.score
@@ -216,5 +220,8 @@ class NextgenScheduler:
             reward_components,
             elapsed_match_ticks,
             next_decision_id,
-            **{**self.ledger_metadata[index], **kwargs},
+            # Extended search traces stay in the replay/ledger metadata; the
+            # trajectory decision schema keeps its existing fields.
+            **{**{k: v for k, v in self.ledger_metadata[index].items()
+                  if k != "selected_template"}, **kwargs},
         )

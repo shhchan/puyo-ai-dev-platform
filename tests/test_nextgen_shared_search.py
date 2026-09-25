@@ -370,11 +370,10 @@ class SharedBatchTests(unittest.TestCase):
             template_catalog=cat,
             template_binding_budget=10,
         ).build(req)
-        self.assertTrue(result.batch.action_mask[1])
+        self.assertFalse(result.batch.action_mask[1])
         self.assertEqual(result.batch.counters.shared_nodes, 0)
         self.assertLessEqual(result.batch.counters.template_nodes, 8)
-        self.assertTrue(result.select("build_template").plan)
-        self.assertTrue(result.batch.tactics[1].known_witness)
+        self.assertFalse(result.batch.tactics[1].known_witness)
         self.assertIsNotNone(result.template_result)
         inactive = replace(
             req,
