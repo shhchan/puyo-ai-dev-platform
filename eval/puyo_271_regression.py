@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import platform
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -394,12 +395,12 @@ def analyze_runs(
         },
         "quality_verdict": "diagnostic_observation_only",
         "human_gui_qa": "not_performed",
-        "paired_comparison": "pending_integrated_comparison",
+        "paired_comparison": "separate_paired_comparison_json" if phase == "after" else "pending_integrated_comparison",
     }
     native = {
         "wheel_path_at_measurement": str(wheel) if wheel else None,
         "wheel_sha256": _sha256(wheel) if wheel else None,
-        "source_revision": declaration["source"]["commit"],
+        "source_revision": declaration["source"]["commit"] if phase == "before" else None,
         "build_profile": "release",
         "python_abi": "cp312",
         "execution_mode": "scenario-6",
@@ -421,11 +422,21 @@ def analyze_runs(
 
         capabilities = NativeDeepChainBackend(canonical=True).capabilities.to_dict()
         for key, expected in (
-            ("source_revision", declaration["source"]["commit"]),
             ("build_profile", "release"), ("python_abi", "cp312"),
         ):
             if capabilities.get(key) != expected:
                 raise ValueError(f"native capability mismatch: {key}")
+        if phase == "before" and capabilities["source_revision"] != declaration["source"]["commit"]:
+            raise ValueError("before native source revision mismatch")
+        if phase == "after":
+            import _puyo_deep_chain_native as native_module
+
+            if Path(native_module.__file__).resolve() != wheel.resolve():
+                raise ValueError("recorded native binary is not the loaded module")
+            native["binary_path_at_measurement"] = str(wheel.resolve())
+            native["binary_sha256"] = native.pop("wheel_sha256")
+            native.pop("wheel_path_at_measurement")
+            native["source_revision"] = capabilities["source_revision"]
         native["capabilities"] = capabilities
     manifest = {
         "schema_version": SCHEMA,
@@ -455,7 +466,7 @@ def analyze_runs(
             "capture_timing": "post-run analysis on the same host; the original diagnostic did not embed per-run affinity",
             "python_environment_at_measurement": (
                 "/tmp/puyo271-corpus-venv with read-only dependency path to main .venv"
-                if phase == "before" else "caller-provided; record separately"
+                if phase == "before" else sys.executable
             ),
             "platform": platform.platform(), "processor": _cpu_model(),
             "logical_cpus": os.cpu_count(),
@@ -466,8 +477,12 @@ def analyze_runs(
         "config_sha256": config_hashes,
         "raw_artifacts_sha256": artifacts,
         "run_command": "python -m eval.nextgen_safe_build_diagnostic --output <new-dir> --profile nextgen_safe_build --repeats 1",
-        "analysis_command": "python -m eval.puyo_271_regression analyze --run-dir <new-dir> --wheel <native-wheel>",
-        "gui_cadence": "not_measured; PUYO-269 owns GUI frame/input/event tracing",
+        "analysis_command": (
+            "python -m eval.puyo_271_regression analyze --run-dir <new-dir> --phase after --wheel <loaded-native-binary>"
+            if phase == "after" else
+            "python -m eval.puyo_271_regression analyze --run-dir <new-dir> --wheel <native-wheel>"
+        ),
+        "gui_cadence": "separate GUI trace; headless run has no frame/input/event timestamps" if phase == "after" else "not_measured; PUYO-269 owns GUI frame/input/event tracing",
         "formal_G2": "not_executed; PUYO-266 owns 30 seeds x 2 repeats",
     }
     return report, manifest
@@ -490,15 +505,288 @@ def verify(run_dir: Path) -> None:
     )
     if report != _load(run_dir / "regression_analysis.json"):
         raise ValueError("derived analysis changed")
+    if manifest["comparison_phase"] == "after":
+        paired = compare_saved_runs(
+            ROOT / "docs/benchmarks/puyo-271-regression/before", run_dir
+        )
+        if paired != _load(run_dir / "paired_comparison.json"):
+            raise ValueError("paired comparison changed")
+        gui_report, gui_manifest = summarize_gui(run_dir / "gui")
+        if gui_report != _load(run_dir / "gui/summary.json"):
+            raise ValueError("GUI summary changed")
+        if gui_manifest != _load(run_dir / "gui/manifest.json"):
+            raise ValueError("GUI manifest changed")
+        final = run_dir / "evidence_manifest.json"
+        if final.exists():
+            for relative, expected in _load(final)["artifacts_sha256"].items():
+                if _sha256(ROOT / relative) != expected:
+                    raise ValueError(f"evidence artifact changed: {relative}")
+
+
+def _replayed_score(run: dict) -> int:
+    """Recover the actual score from saved tick inputs, checking the final state."""
+    from eval.nextgen_gate_benchmark import SafeNoThreatMatch
+    from src.core.realtime import TickInput
+
+    match = SafeNoThreatMatch(run["seed"])
+    for item in run["semantic"]["inputs"]:
+        if match.tick != item["tick"]:
+            raise ValueError("saved input tick is discontinuous")
+        match.step({agent: TickInput.from_names(**edges)
+                    for agent, edges in item["inputs"].items()})
+    if match.state_hash() != run["semantic"]["final_hash"]:
+        raise ValueError("replayed score state does not match saved final hash")
+    return match.player_states["player_0"].simulator.game.score
+
+
+def audit_saved_run(path: Path) -> dict:
+    """Classify the actual scheduler decision against its bounded public probe."""
+    with gzip.open(path, "rt", encoding="utf-8") as stream:
+        run = json.load(stream)
+    if run["semantic_digest"] != _semantic_digest(run["semantic"]):
+        raise ValueError(f"semantic digest mismatch: {path}")
+    decisions = []
+    for index, row in enumerate(run["rows"], 1):
+        if run["policy"] != "nextgen":
+            decisions.append({"decision": index, "action": row["action"],
+                              "seconds": row["seconds"], "public_probe": None})
+            continue
+        diagnostic = run["ledger"][index - 1]
+        receipt = diagnostic["receipt"]
+        probe = row["search"].get("survival", {})
+        probe_measured = bool(probe)
+        roots = {root["action"]: root for root in probe.get("roots", ())}
+        witnesses = {action for action, root in roots.items() if root["status"] == "witness"}
+        quiet = {action for action in witnesses if roots[action]["root_chain"] == 0}
+        single = {action for action in witnesses if roots[action]["root_chain"] == 1}
+        candidates = {candidate["root_action"] for candidate in diagnostic["batch"]["candidates"]
+                      if candidate["root_legal"] and candidate["root_reachable"]}
+        selected = receipt["requested_action"]
+        executed = receipt["executed_action"]
+        board = diagnostic["request"]["public"]["own"]["visible_board"]
+        fire = next(t for t in diagnostic["batch"]["tactics"] if t["tactic_id"] == "fire_main")
+        fire_candidate = next((c for c in diagnostic["batch"]["candidates"]
+                               if c["candidate_id"] == fire["best_id"]), None)
+        decisions.append({
+            "decision": index, "action": row["action"], "seconds": row["seconds"],
+            "phase_id": row["phase"].get("phase_id"),
+            "phase_retention": row["phase"].get("constraint_retention"),
+            "phase_exit": row["phase"].get("constraint_release_reason") or row["phase"].get("exit_reason"),
+            "phase_consumed_decisions": row["phase"].get("consumed_decisions"),
+            "selected_tactic": row["selection"]["selected_tactic_id"],
+            "selection_reason": row["selection"]["reason"],
+            "shared_rank": row["shared_rank"],
+            "rank_error": None,
+            "rank_error_reason": "shared-search order differs from tactic ranking; no frozen optimal root oracle",
+            "receipt_outcome": receipt["outcome"],
+            "receipt_requested_action": selected,
+            "receipt_executed_action": executed,
+            "probe_status": probe.get("status"),
+            "probe_nodes": probe.get("nodes"),
+            "response_quota": row["search"]["quotas"]["response_quota"],
+            "probe_root_statuses": {str(action): {"status": root["status"],
+                "root_chain": root["root_chain"]} for action, root in roots.items()},
+            "witness_actions": sorted(witnesses),
+            "quiet_witness_actions": sorted(quiet),
+            "single_clear_witness_actions": sorted(single),
+            "candidate_witness_gap": sorted(witnesses - candidates) if probe_measured else None,
+            "selected_fatal_with_witness": bool(witnesses and roots.get(selected, {}).get("status") == "fatal") if probe_measured else None,
+            "executed_fatal_with_witness": bool(witnesses and roots.get(executed, {}).get("status") == "fatal") if probe_measured else None,
+            "survival_exception_required": bool(single and not quiet) if probe_measured else None,
+            "fire_main_available": fire["available"],
+            "fire_main_plan_depth": len(fire_candidate["plan"]) if fire_candidate else None,
+            "public_visible_board": board,
+            "public_known_pieces": diagnostic["request"]["public"]["own"]["known_pieces"],
+        })
+    if run["policy"] == "nextgen" and len(run["ledger"]) != len(decisions):
+        raise ValueError("scheduler ledger is incomplete")
+    completed_at = next((d["decision"] for d in decisions
+                         if d.get("phase_exit") == "completed"), None)
+    first_phase = next((d.get("phase_id") for d in decisions if d.get("phase_id")), None)
+    initial_exit = next((d for d in decisions if d.get("phase_id") == first_phase
+                         and d.get("phase_exit")), None)
+    after_chains = run["chains"][completed_at - 1:] if completed_at and len(run["chains"]) == len(decisions) else None
+    return {
+        "policy": run["policy"], "seed": run["seed"], "repeat": run["repeat"],
+        "raw_sha256": _sha256(path), "semantic_digest": run["semantic_digest"],
+        "placements": run["placements"], "completion": "complete" if run["placements"] == MAX_PLACEMENTS else "incomplete",
+        "incomplete_reason": None if run["placements"] == MAX_PLACEMENTS else
+            ("game_over_before_40" if run["game_over"] else "tick_limit_or_other_before_40"),
+        "max_actual_chain": run["max_chain"], "actual_score_replayed": _replayed_score(run),
+        "premature_fire_count": run["premature"], "game_over": run["game_over"],
+        "premature_exception_classification": (
+            "not_applicable_no_small_fire" if not run["premature"] else
+            "not_evaluated_reference_policy" if run["policy"] == "deep_chain" else
+            "requires_public_survival_counterfactual"
+        ),
+        "avoidable_suffocation": None,
+        "avoidable_suffocation_reason": (
+            "no_game_over_observed_through_40" if not run["game_over"] else
+            "finite public horizon cannot certify an earlier alternative trajectory"
+        ),
+        "chains": run["chains"], "decision_seconds": _distribution([d["seconds"] for d in decisions]),
+        "template_completed_at_decision": completed_at,
+        "initial_template_phase_id": first_phase,
+        "initial_template_exit_decision": initial_exit["decision"] if initial_exit else None,
+        "initial_template_exit_reason": initial_exit["phase_exit"] if initial_exit else None,
+        "initial_template_completed_at_decision": (
+            initial_exit["decision"] if initial_exit and initial_exit["phase_exit"] == "completed" else None
+        ),
+        "post_completion_decisions": len(decisions) - completed_at + 1 if completed_at else None,
+        "post_completion_max_actual_chain": max(after_chains, default=0) if after_chains is not None else None,
+        "candidate_witness_gap_count": (
+            sum(bool(d.get("candidate_witness_gap")) for d in decisions)
+            if run["policy"] == "nextgen" and all(d["candidate_witness_gap"] is not None for d in decisions)
+            else None
+        ),
+        "rank_error_count": None,
+        "rank_error_reason": "no optimal quality oracle for the diverging real trajectories",
+        "selected_fatal_with_witness_count": (
+            sum(d["selected_fatal_with_witness"] for d in decisions)
+            if run["policy"] == "nextgen" and all(d["selected_fatal_with_witness"] is not None for d in decisions)
+            else None
+        ),
+        "executed_fatal_with_witness_count": (
+            sum(d["executed_fatal_with_witness"] for d in decisions)
+            if run["policy"] == "nextgen" and all(d["executed_fatal_with_witness"] is not None for d in decisions)
+            else None
+        ),
+        "survival_exception_opportunity_count": (
+            sum(d["survival_exception_required"] for d in decisions)
+            if run["policy"] == "nextgen" and all(d["survival_exception_required"] is not None for d in decisions)
+            else None
+        ),
+        "receipt_nonactivated_count": sum(d.get("receipt_outcome") != "activated" for d in decisions) if run["policy"] == "nextgen" else None,
+        "timeout_count": run["controller"]["timeouts"],
+        "stale_decision_count": run["controller"]["stale_decisions"],
+        "errors": run["errors"], "decisions": decisions,
+    }
+
+
+def compare_saved_runs(before_dir: Path, after_dir: Path) -> dict:
+    before = _load(before_dir / "regression_analysis.json")
+    after = _load(after_dir / "regression_analysis.json")
+    if before["source_sha"] != BASELINE_SHA or after["source_sha"] == BASELINE_SHA:
+        raise ValueError("before/after source identity mismatch")
+    paired = []
+    for policy in POLICIES:
+        for seed in SEEDS:
+            name = f"{policy}-{seed}-1.json.gz"
+            old = audit_saved_run(before_dir / name)
+            new = audit_saved_run(after_dir / name)
+            paired.append({"policy": policy, "seed": seed, "repeat": 1,
+                           "before": old, "after": new})
+    old_synthetic = _load(before_dir.parent / "synthetic_results.json")
+    new_synthetic = _load(after_dir / "synthetic_results.json")
+    if old_synthetic["fixture_sha256"] != new_synthetic["fixture_sha256"]:
+        raise ValueError("synthetic fixture changed between phases")
+    guarded = {row["id"]: row for row in new_synthetic["persian_counterexamples"]}
+    persian = [{
+        "id": row["id"], "origin": "synthetic",
+        "before_static_fit": row["selected_binding_fit_status"],
+        "before_static_satisfied": row["static_satisfied"],
+        "before_static_conflicts": row["static_conflicts"],
+        "after_guard_fit": guarded[row["id"]]["selected_binding_fit_status"],
+        "after_guard_compatible": guarded[row["id"]]["selected_binding_compatible"],
+        "after_guard_conflicts": guarded[row["id"]]["static_conflicts"],
+        "action_chain_count": guarded[row["id"]]["chain_count"],
+    } for row in old_synthetic["persian_counterexamples"]]
+    return {
+        "schema_version": "puyo.271.paired_comparison.v1",
+        "before_source_sha": before["source_sha"], "after_source_sha": after["source_sha"],
+        "sample": "diagnostic_3_seeds_x_1_repeat; formal_G2_not_executed",
+        "limits": ["Same seed and public piece generator; trajectories and boards diverge after different actions.",
+                   "Nextgen hides ghost rows; deep-chain reference sees its own ghost rows.",
+                   "Bounded public survival witness is not a private-future guarantee or optimality oracle.",
+                   "Actual scores are deterministic replays of saved tick inputs, verified by final state hash."],
+        "synthetic": {
+            "fixture_sha256": new_synthetic["fixture_sha256"],
+            "persian_static_vs_guard": persian,
+            "survival_exception": new_synthetic["survival_counterexamples"],
+            "template_rollouts": new_synthetic["template_rollouts"],
+            "visibility_probes": new_synthetic["visibility_probes"],
+            "origin": "synthetic; not the user GUI replay",
+        },
+        "paired": paired,
+    }
+
+
+def summarize_gui(gui_dir: Path) -> tuple[dict, dict]:
+    """Reaggregate the measured GUI rows and check the saved sample summaries."""
+    names = ("nextgen-one-600.json.gz", "nextgen-both-360.json.gz")
+    scenarios = []
+    checksums = {}
+
+    def stats(values: list[float]) -> dict:
+        ordered = sorted(values)
+        if not ordered:
+            return {"n": 0, "p50": None, "p95": None, "p99": None, "max": None}
+
+        def pct(fraction: float) -> float:
+            position = (len(ordered) - 1) * fraction
+            low = int(position)
+            return ordered[low] + (ordered[min(low + 1, len(ordered) - 1)] - ordered[low]) * (position - low)
+
+        return {"n": len(ordered), "p50": pct(.5), "p95": pct(.95),
+                "p99": pct(.99), "max": ordered[-1]}
+
+    for name in names:
+        path = gui_dir / name
+        checksums[name] = _sha256(path)
+        with gzip.open(path, "rt", encoding="utf-8") as stream:
+            raw = json.load(stream)
+        for metric, values in raw["raw_samples"].items():
+            if metric == "tick_count":
+                continue
+            if stats(values) != raw["samples"][metric]:
+                raise ValueError(f"GUI sample summary mismatch: {name}/{metric}")
+        if len(raw["raw_samples"]["frame_interval_ms"]) != raw["frames"]:
+            raise ValueError("GUI frame count mismatch")
+        if len(raw["input_events"]) != len(raw["raw_samples"]["input_age_ms"]):
+            raise ValueError("GUI input event count mismatch")
+        if any(not 0 <= event["frame"] < raw["frames"] for event in raw["input_events"]):
+            raise ValueError("GUI input event outside measured frames")
+        frame = raw["samples"]["frame_interval_ms"]
+        input_age = raw["samples"]["input_age_ms"]
+        scenarios.append({
+            "id": name.removesuffix(".json.gz"), "raw_sha256": checksums[name],
+            "settings": raw["settings"], "frames": raw["frames"], "ticks": raw["ticks"],
+            "elapsed_seconds": raw["elapsed_seconds"],
+            "frame_interval_ms": frame, "input_age_ms": input_age,
+            "events_ms": raw["samples"]["events_ms"],
+            "update_ms": raw["samples"]["update_ms"],
+            "render_ms": raw["samples"]["render_ms"],
+            "input_event_rows": len(raw["input_events"]),
+            "gate_frame_p95_25ms": frame["p95"] <= 25,
+            "gate_frame_p99_50ms": frame["p99"] <= 50,
+            "gate_input_p95_25ms": input_age["p95"] <= 25,
+            "gate_input_p99_50ms": input_age["p99"] <= 50,
+            "decision_counters": {agent: {key: value.get(key) for key in (
+                "decision_requests", "decisions_activated", "placements_completed",
+                "timeouts", "deadline_misses", "stale_decisions", "fallback_actions",
+            )} for agent, value in raw["diagnostics"].items()},
+            "process_sample_rows": len(raw["process_samples"]),
+        })
+    report = {"schema_version": "puyo.271.gui_cadence.v1", "scenarios": scenarios,
+              "gate": "frame/input p95 <= 25 ms and p99 <= 50 ms; declared by PUYO-269",
+              "input_method": "thread-posted no-op F12 every 50 ms; not human keyboard QA",
+              "raw_rows": "per-frame interval/event/update/render/tick and individual input event timestamps"}
+    manifest = {"schema_version": "puyo.271.gui_manifest.v1",
+                "probe_sha256": _sha256(ROOT / "eval/puyo_271_gui_probe.py"),
+                "raw_artifacts_sha256": checksums,
+                "display": ":0", "source_sha": _load(gui_dir.parent / "declaration.json")["source"]["commit"],
+                "worker_cleanup": "confirmed by post-run process listing; no probe worker remained"}
+    return report, manifest
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("fixtures", "analyze", "verify"))
+    parser.add_argument("command", choices=("fixtures", "analyze", "verify", "compare", "gui", "finalize"))
     parser.add_argument("--run-dir", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--wheel", type=Path)
     parser.add_argument("--phase", choices=("before", "after"), default="before")
+    parser.add_argument("--before-dir", type=Path, default=ROOT / "docs/benchmarks/puyo-271-regression/before")
     args = parser.parse_args()
     if args.command == "fixtures":
         result = replay_fixtures()
@@ -506,6 +794,39 @@ def main() -> None:
             _write(args.output, result)
         else:
             print(json.dumps(result, ensure_ascii=False, indent=2))
+    elif args.command == "compare":
+        if args.run_dir is None or args.output is None:
+            parser.error("compare requires --run-dir and --output")
+        result = compare_saved_runs(args.before_dir, args.run_dir)
+        _write(args.output, result)
+        print(json.dumps({"paired_runs": len(result["paired"]), "output": str(args.output)}))
+    elif args.command == "gui":
+        if args.run_dir is None:
+            parser.error("gui requires --run-dir")
+        report, manifest = summarize_gui(args.run_dir / "gui")
+        _write(args.run_dir / "gui/summary.json", report)
+        _write(args.run_dir / "gui/manifest.json", manifest)
+        print(json.dumps([{key: value for key, value in row.items() if key in (
+            "id", "gate_frame_p95_25ms", "gate_input_p95_25ms")}
+            for row in report["scenarios"]]))
+    elif args.command == "finalize":
+        if args.run_dir is None:
+            parser.error("finalize requires --run-dir")
+        args.run_dir = args.run_dir.resolve()
+        names = ["README.md", "declaration.json", "summary.json", "regression_analysis.json",
+                 "regression_manifest.json", "paired_comparison.json", "synthetic_results.json",
+                 "gui/summary.json", "gui/manifest.json", "gui/nextgen-one-600.json.gz",
+                 "gui/nextgen-both-360.json.gz"]
+        names += [f"{policy}-{seed}-1.json.gz" for policy in POLICIES for seed in SEEDS]
+        paths = [args.run_dir / name for name in names]
+        paths += [ROOT / "eval/puyo_271_regression.py", ROOT / "eval/puyo_271_gui_probe.py",
+                  ROOT / "tests/test_puyo_271_integrated.py"]
+        _write(args.run_dir / "evidence_manifest.json", {
+            "schema_version": "puyo.271.evidence_manifest.v1",
+            "source_sha": _load(args.run_dir / "declaration.json")["source"]["commit"],
+            "artifacts_sha256": {str(path.relative_to(ROOT)): _sha256(path) for path in paths},
+        })
+        print("PUYO-271 evidence manifest finalized")
     else:
         if args.run_dir is None:
             parser.error("--run-dir is required")
