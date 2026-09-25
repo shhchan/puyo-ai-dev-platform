@@ -29,7 +29,7 @@ from agents.long_horizon_search import (
     build_scenario_sequences_from_known_pairs,
 )
 from agents.nextgen_survival import probe as survival_probe, evidence_for as survival_evidence
-from agents.template_catalog import MatchResult, TemplateCatalog, match_templates
+from agents.template_catalog import compile_selected_template, MatchResult, TemplateCatalog, match_templates
 from src.core.constants import GRID_HEIGHT, PuyoColor
 
 SCENARIO_GENERATOR_VERSION = "nextgen.long_horizon_scenarios.v1"
@@ -380,6 +380,39 @@ class SharedSearchBatchBuilder:
         if not board_complete:
             cutoffs.append("public_board_incomplete")
         stage_started = time.perf_counter()
+        template = None
+        phase = request.control.phase
+        if prepared_template is not None:
+            template = prepared_template.result
+            if template.cutoff:
+                cutoffs.append("template_quota")
+        elif reachable and phase.active:
+            if self.template_catalog is None:
+                cutoffs.append("template_provider_unavailable")
+            else:
+                template = match_templates(
+                    self.template_catalog,
+                    request.public.own.visible_board,
+                    known,
+                    node_budget=profile.template_quota,
+                    binding_budget=self.template_binding_budget,
+                    reachable_mask=request.execution.reachable_mask,
+                    preferred_key=template_key,
+                )
+                if template.cutoff:
+                    cutoffs.append("template_quota")
+        template_elapsed_ms = (time.perf_counter() - stage_started) * 1000
+        if prepared_template is not None:
+            template_elapsed_ms += prepared_template.elapsed_seconds * 1000
+        selected_constraint = None
+        selected_candidate = None
+        if template is not None and phase.active:
+            selected_candidate = next((v for v in sorted(template.candidates, key=lambda v: (-v.score, v.key))
+                                       if v.template_id == phase.template_id
+                                       and (template_key is None or v.key == template_key)), None)
+            if selected_candidate is not None:
+                selected_constraint = compile_selected_template(self.template_catalog, selected_candidate.key)
+        stage_started = time.perf_counter()
         if reachable and profile.shared_quota:
             config = replace(self.config, max_expanded_nodes=profile.shared_quota)
             h = c.semantic_digest(asdict(config))
@@ -399,6 +432,7 @@ class SharedSearchBatchBuilder:
                 int(c.semantic_digest(request.identity)[:16], 16),
                 self.backend.backend_id == "native",
                 False,
+                selected_template=selected_constraint,
             )
             if self.shared_cache is None:
                 execution = self.backend.search(backend_request)
@@ -421,31 +455,7 @@ class SharedSearchBatchBuilder:
                 cutoffs.append("shared_quota")
         elif reachable:
             cutoffs.append("shared_quota")
-        stage_ms = {"shared": (time.perf_counter() - stage_started) * 1000}
-        stage_started = time.perf_counter()
-        template = None
-        phase = request.control.phase
-        if prepared_template is not None:
-            template = prepared_template.result
-            if template.cutoff:
-                cutoffs.append("template_quota")
-        elif reachable and phase.active:
-            if self.template_catalog is None:
-                cutoffs.append("template_provider_unavailable")
-            else:
-                template = match_templates(
-                    self.template_catalog,
-                    request.public.own.visible_board,
-                    known,
-                    node_budget=profile.template_quota,
-                    binding_budget=self.template_binding_budget,
-                    reachable_mask=request.execution.reachable_mask,
-                )
-                if template.cutoff:
-                    cutoffs.append("template_quota")
-        stage_ms["template"] = (time.perf_counter() - stage_started) * 1000
-        if prepared_template is not None:
-            stage_ms["template"] += prepared_template.elapsed_seconds * 1000
+        stage_ms = {"shared": (time.perf_counter() - stage_started) * 1000, "template": template_elapsed_ms}
         stage_started = time.perf_counter()
         response_budget = ResponseBudget(profile.response_quota)
         survival, survival_diagnostics = survival_probe(
@@ -595,46 +605,28 @@ class SharedSearchBatchBuilder:
                         ),
                         (2, -fire.chain_score, fire.depth, fire.path),
                     )
-        if template is not None and phase.active:
-            for value in sorted(template.candidates, key=lambda v: (-v.score, v.key)):
-                if (
-                    value.template_id != phase.template_id
-                    or not value.witness_actions
-                    or not value.compatible
-                ):
+        completion_boundary_roots = []
+        if selected_constraint is not None and shared is not None:
+            # Prefer a public completion witness, then the backend long-horizon
+            # order. Unknown/sampled completions stay available as intermediate
+            # moves, without being promoted to public completion evidence.
+            # A completion witness may belong to a different branch from the
+            # sampled representative; only the root is an executable plan.
+            for rank, root in enumerate(shared.ranked_roots):
+                proof = shared.selected_template["roots"][root.root_action]
+                current_complete = (not proof["root_violation"]
+                                    and tuple(proof["known_witness"]) == (root.root_action,))
+                if not proof["compatible"] and not current_complete:
                     continue
-                if template_key is not None and value.key != template_key:
-                    continue
-                selected_template = next(
-                    t
-                    for t in self.template_catalog.templates
-                    if t.id == value.template_id
-                )
-                variant = next(
-                    v for v in selected_template.variants if v.id == value.variant_id
-                )
-                progress = (
-                    value.score
-                    * sum(v.weight for v in selected_template.variants)
-                    / variant.weight
-                )
+                if current_complete and not proof["compatible"]:
+                    completion_boundary_roots.append(root.root_action)
                 add(
-                    _plan(value.witness_actions, sequences[0]),
+                    (c.PlanStep(root.root_action, known[0], "public_known"),),
                     ("build_template",),
-                    _evidence(
-                        template_progress=(
-                            progress,
-                            "evaluated" if board_complete else "partial",
-                            source,
-                        ),
-                    ),
-                    (
-                        1,
-                        0 if value.continuation_kind == "progress" else 1,
-                        -(value.continuation_score or 0)
-                        if value.continuation_kind == "tail" else -value.score,
-                        value.key,
-                    ),
+                    _evidence(template_progress=(selected_candidate.progress,
+                              "evaluated" if board_complete else "partial", source)),
+                    (1, 0 if current_complete else 1 if proof["known_witness"] else 2,
+                     rank, root.root_action),
                 )
         for value in response.proposals:
             if not value.tactics or any(
@@ -738,8 +730,11 @@ class SharedSearchBatchBuilder:
                         not v.fallback
                         and all(s.provenance == "public_known" for s in v.plan)
                         and (
-                            tactic not in ("cancel", "counter")
-                            or any(
+                            tactic == "build_template" and shared is not None
+                            and shared.selected_template is not None
+                            and bool(shared.selected_template["roots"][v.root_action]["known_witness"])
+                            or tactic not in ("build_template", "cancel", "counter")
+                            or tactic in ("cancel", "counter") and any(
                                 e.name
                                 == (
                                     "canceled"
@@ -792,6 +787,15 @@ class SharedSearchBatchBuilder:
             {
                 "stage_elapsed_ms": stage_ms,
                 "survival": survival_diagnostics,
+                "selected_template": {
+                    "phase_key": selected_candidate.key if selected_candidate else None,
+                    "constraint": asdict(selected_constraint) if selected_constraint else None,
+                    "result": shared.selected_template if shared else None,
+                    "public_board_complete": board_complete,
+                    "retention": "active_phase" if selected_constraint else "released",
+                    "completion_boundary_roots": completion_boundary_roots,
+                    "completion_boundary_continuation": "unknown; recheck actual completion before release",
+                },
                 "backend": backend_diagnostics,
                 "shared_reuse": {
                     "hit": reuse_source is not None,

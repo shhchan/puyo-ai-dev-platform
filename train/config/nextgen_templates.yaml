@@ -15,6 +15,7 @@ templates:
         # C supports the raised right-hand B. A and C may share a color.
         different: [[A, B], [B, C]]
         same: []
+        forbidden_cells: [[0, 3, A]]
         empty_cells: []
         occupied_cells: []
         weight: 1.0
@@ -29,6 +30,7 @@ templates:
         pattern_rows_bottom_up: ["ABB", "AAB"]
         different: [[A, B]]
         same: []
+        forbidden_cells: [[0, 2, A], [1, 2, A], [2, 2, B]]
         empty_cells: []
         occupied_cells: []
         weight: 1.0
@@ -43,6 +45,9 @@ templates:
         pattern_rows_bottom_up: ["AAACCC", ".BCB..", "..BB.."]
         different: [[A, B], [A, C], [B, C]]
         same: []
+        # Only same-color attachment to the horizontal A/C triples is forbidden.
+        # Other colors may support the raised core or extend the tail.
+        forbidden_cells: [[0, 1, A], [4, 1, C], [5, 1, C]]
         empty_cells: []
         occupied_cells: []
         weight: 1.0

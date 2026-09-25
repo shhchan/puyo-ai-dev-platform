@@ -14,7 +14,10 @@ class Puyo271RegressionTest(unittest.TestCase):
             [0, 1],
         )
         self.assertGreater(persian["persian_l_corner"]["quiet_legal_alternatives"], 0)
-        self.assertGreater(persian["persian_l_corner"]["shape_preserving_quiet_alternatives"], 0)
+        self.assertEqual(persian["persian_l_corner"]["shape_preserving_quiet_alternatives"], 0)
+        self.assertEqual(persian["persian_l_corner"]["before_static_conflicts"], 0)
+        self.assertEqual(persian["persian_l_corner"]["static_conflicts"], 1)
+        self.assertFalse(persian["persian_l_corner"]["selected_binding_compatible"])
         survival = result["survival_counterexamples"][0]
         self.assertEqual(survival["safe"], {"chain_count": 1, "game_over": False})
         self.assertEqual(survival["fatal"], {"chain_count": 0, "game_over": True})

@@ -254,6 +254,9 @@ class TemplatePhaseController:
     def diagnostics(self) -> dict:
         return {
             "phase_id": self.phase.phase_id if self.phase else None,
+            "selected_key": self.candidate.key if self.candidate else None,
+            "constraint_retention": "active_phase" if self.can_build_template else "released",
+            "constraint_release_reason": self.exit_reason if not self.can_build_template else None,
             "exit_reason": self.exit_reason,
             "consumed_decisions": self.phase.consumed_decisions if self.phase else 0,
             "decision_limit": self.phase.limit if self.phase else self.catalog.default_commit_turns,
