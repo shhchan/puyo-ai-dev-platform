@@ -25,6 +25,7 @@ from agents.deep_chain_search_backend import (
 )
 from agents.nextgen_profiles import nextgen_search_settings
 from agents.nextgen_response_search import PublicResponseProvider
+from agents.nextgen_survival import apply_envelope
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
     SharedSearchBatchBuilder,
@@ -320,6 +321,7 @@ class SelectTacticStep(DecisionStep):
         selection = context.require("policy").selector.select(
             request, batch, features, context.require("timing_summary")
         )
+        selection = apply_envelope(batch, selection)
         candidate = selection.validate_batch(batch)
         diagnostics = c.Diagnostics(request, batch, features, selection, None)
         return StepResult(
