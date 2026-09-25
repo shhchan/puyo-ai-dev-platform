@@ -1,0 +1,26 @@
+{
+  "artifacts_sha256": {
+    "docs/benchmarks/puyo-271-regression/after/README.md": "669ef102f5f12b06f3cc76d16e4ac777581b4b3f073f3327d2cb4cf53a4ce553",
+    "docs/benchmarks/puyo-271-regression/after/declaration.json": "3fac49da062e39d8f976a87c2e7082b66e29d446277bdabb060fbf539db5b340",
+    "docs/benchmarks/puyo-271-regression/after/deep_chain-123-1.json.gz": "f5aa16300da2993cfae0bd4a2500226ccbdbdd9d6dcb00aa831cf2703431f153",
+    "docs/benchmarks/puyo-271-regression/after/deep_chain-124-1.json.gz": "14f64ee296e650c578851a6e98667bdfc0f7b2506cf385255f2666d3d337fc1a",
+    "docs/benchmarks/puyo-271-regression/after/deep_chain-55-1.json.gz": "d722e859dd819bbfa8764366dd235ae0c6b3a2d6eb23eb032c865f17104db99d",
+    "docs/benchmarks/puyo-271-regression/after/gui/manifest.json": "f81894a3eabd19949a5c066528d472e6fbaaa055915234c700b2ca8725cdddd9",
+    "docs/benchmarks/puyo-271-regression/after/gui/nextgen-both-360.json.gz": "2865cf7e6e07a65c51ec3c5d120a6be072ecdb45c10f674130478efb7f693295",
+    "docs/benchmarks/puyo-271-regression/after/gui/nextgen-one-600.json.gz": "dc2a2c030e3709785960bab6c4b6d5f4d3309efefacabf61b40dc25bc56fe71c",
+    "docs/benchmarks/puyo-271-regression/after/gui/summary.json": "586bd779fe3fd60a05d191f329d101a21cd25f561a440120f7ad543cdcca2c59",
+    "docs/benchmarks/puyo-271-regression/after/nextgen-123-1.json.gz": "e3fdc75ac049c44ce66233f2a63c72801e3ef1885f4c2fe0dc938d1af4e90466",
+    "docs/benchmarks/puyo-271-regression/after/nextgen-124-1.json.gz": "c4e60dec0e6ec966e640dec6c32647f0507f1db1fd4545d2045bb6e320a66966",
+    "docs/benchmarks/puyo-271-regression/after/nextgen-55-1.json.gz": "b3fdaa74287e25567c140359c4477c648837389bd3527f5db97347627b2c3410",
+    "docs/benchmarks/puyo-271-regression/after/paired_comparison.json": "25469b12e0d3112f449e949c0a89411adf7ddf082d65d2d717bb25248ea1cf1d",
+    "docs/benchmarks/puyo-271-regression/after/regression_analysis.json": "7e5ea5c70f3bc28c2785989886a72ac644fb988de1fda0da6a2d63627c301a94",
+    "docs/benchmarks/puyo-271-regression/after/regression_manifest.json": "6a7540cd66dcbca9b6787e2e6ec09cf5ed937898543cf747aa959f23be764530",
+    "docs/benchmarks/puyo-271-regression/after/summary.json": "bae9d26184bff5ff051f49d7776c8eeb20445929874b67055866aa0e4a8467fd",
+    "docs/benchmarks/puyo-271-regression/after/synthetic_results.json": "d2282066e83667b9207e969f5075db97f61d15da0196bb706d344dd99888d765",
+    "eval/puyo_271_gui_probe.py": "2363e24952707bccdd45de5aa4a5fb8409c1eba806234c8e1f72c30f45c91a10",
+    "eval/puyo_271_regression.py": "800cf0a5b47265626c8a465ec891f2b2f76f2f1323cb3716b71e9020145f839f",
+    "tests/test_puyo_271_integrated.py": "91517f3ce20c27816b638baa7386d26e1dd831f051f430ff23923b4ae7ec34e9"
+  },
+  "schema_version": "puyo.271.evidence_manifest.v1",
+  "source_sha": "258397624245407e402ebf81c5ca20bdc007a475"
+}
