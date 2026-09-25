@@ -69,7 +69,7 @@ def main():
                     'chosen_tactic': tactic, 'chosen_action': chosen.root_action,
                     'current_chain': resolved.chain_count,
                     'current_game_over': resolved.game_over,
-                    'long_horizon_digest': ex.shared_result.deterministic_digest(),
+                    'long_horizon_digest': ex.shared_result.deterministic_digest,
                     'maximum_search_chain': max((v.chain_count for r in ex.shared_result.ranked_roots
                         for scenario in r.scenario_values for v in (scenario.best_fire,) if v), default=0),
                 })
