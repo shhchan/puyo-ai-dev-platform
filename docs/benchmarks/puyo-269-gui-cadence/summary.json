@@ -2176,6 +2176,249 @@
           "max": 0.8912684210226871
         }
       }
+    },
+    "mask-after": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 13.046648634,
+      "ticks": 850,
+      "samples": {
+        "input_age_ms": {
+          "n": 20,
+          "p50": 6.6688945,
+          "p95": 9.0485882,
+          "p99": 9.12916644,
+          "max": 9.149311
+        },
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.369007,
+          "p95": 58.017074899999976,
+          "p99": 120.19328318999997,
+          "max": 229.608787
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 6.1825425,
+          "p95": 9.112451649999999,
+          "p99": 11.16098702,
+          "max": 12.156869
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.031315499999999996,
+          "p95": 0.06609369999999996,
+          "p99": 0.16041446999999975,
+          "max": 0.38721
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 4.330609,
+          "p95": 46.87116514999999,
+          "p99": 111.81933754999997,
+          "max": 213.980392
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 4.9433545,
+          "p95": 8.295144399999993,
+          "p99": 15.770083439999988,
+          "max": 95.664032
+        }
+      },
+      "tick_duration_ms": {
+        "n": 850,
+        "p50": 4.2469405,
+        "p95": 11.471079549999988,
+        "p99": 84.77504306,
+        "max": 121.072285
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 3.2000000000000455,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 20,
+          "p50": 75.4648085,
+          "p95": 80.96208455,
+          "p99": 83.26405691,
+          "max": 83.83955
+        },
+        "scheduler_prepare": {
+          "n": 15,
+          "p50": 78.557422,
+          "p95": 84.2135323,
+          "p99": 87.32422645999999,
+          "max": 88.1019
+        },
+        "_submit_decision": {
+          "n": 15,
+          "p50": 0.054667,
+          "p95": 0.2941885999999996,
+          "p99": 0.5101145199999998,
+          "max": 0.564096
+        },
+        "next_input_player_0": {
+          "n": 850,
+          "p50": 0.0138665,
+          "p95": 1.8304510999999621,
+          "p99": 79.89437095999999,
+          "max": 116.308301
+        },
+        "next_input_player_1": {
+          "n": 850,
+          "p50": 0.006521,
+          "p95": 1.3040791999999972,
+          "p99": 3.42602244,
+          "max": 8.025061
+        },
+        "env_step": {
+          "n": 850,
+          "p50": 3.6050050000000002,
+          "p95": 6.545852599999996,
+          "p99": 13.06255157,
+          "max": 49.585538
+        },
+        "tactical_diagnostics": {
+          "n": 3250,
+          "p50": 0.001608,
+          "p95": 0.005921649999999988,
+          "p99": 0.012188809999999993,
+          "max": 0.066991
+        },
+        "_build_replay_tick": {
+          "n": 850,
+          "p50": 0.235024,
+          "p95": 0.42221689999999995,
+          "p99": 0.7724793199999996,
+          "max": 6.400868
+        },
+        "_sync_display_boards": {
+          "n": 882,
+          "p50": 0.020779,
+          "p95": 0.06052919999999998,
+          "p99": 0.13039760999999891,
+          "max": 0.22207
+        },
+        "scheduler_accept": {
+          "n": 15,
+          "p50": 15.861781,
+          "p95": 19.5602616,
+          "p99": 20.19550992,
+          "max": 20.354322
+        },
+        "_plan_action": {
+          "n": 20,
+          "p50": 3.5273465,
+          "p95": 4.59506985,
+          "p99": 4.70768437,
+          "max": 4.735838
+        },
+        "_complete_decision": {
+          "n": 15,
+          "p50": 19.513112,
+          "p95": 23.5156105,
+          "p99": 24.0437437,
+          "max": 24.175777
+        },
+        "scheduler_stale": {
+          "n": 15,
+          "p50": 0.810908,
+          "p95": 1.1320708999999998,
+          "p99": 1.22431578,
+          "max": 1.247377
+        },
+        "scheduler_finish": {
+          "n": 15,
+          "p50": 7.790309,
+          "p95": 8.599097,
+          "p99": 8.6667954,
+          "max": 8.68372
+        },
+        "_activate_nextgen": {
+          "n": 15,
+          "p50": 11.803278,
+          "p95": 94.62601459999999,
+          "p99": 97.93271492,
+          "max": 98.75939
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 1518.761263,
+        "scheduler_prepare": 1171.908099,
+        "_submit_decision": 1.524052,
+        "next_input_player_0": 2112.676113,
+        "next_input_player_1": 166.702333,
+        "env_step": 3649.352698,
+        "tactical_diagnostics": 7.555382,
+        "_build_replay_tick": 230.441235,
+        "_sync_display_boards": 22.960809,
+        "scheduler_accept": 241.859317,
+        "_plan_action": 72.531227,
+        "_complete_decision": 298.28039,
+        "scheduler_stale": 12.701739,
+        "scheduler_finish": 116.725033,
+        "_activate_nextgen": 571.968292
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 15,
+          "decisions_activated": 5,
+          "stale_decisions": 10,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 5
+        },
+        "player_1": {
+          "decision_requests": 13,
+          "decisions_activated": 13,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 12
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 614277,
+          "max_rss_mib": 265.5,
+          "max_threads": 11,
+          "sampled_cpu_seconds": 8.79,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 614306,
+          "max_rss_mib": 342.9765625,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 13.82,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": true,
+        "input_age_ms.p99": true
+      }
     }
   }
 }

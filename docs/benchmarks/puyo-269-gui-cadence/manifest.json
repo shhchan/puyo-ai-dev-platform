@@ -82,6 +82,13 @@
       "path": "probe.py.txt",
       "sha256": "6a1828b5d69debba5485cc183362fd482b05d7df9d6406909ad485af29e05322",
       "bytes": 8301
+    },
+    "mask-after": {
+      "path": "raw/mask-after.json.gz",
+      "uncompressed_sha256": "f398faf9c753cd56088fcf18fc3aaa592e40f3b8f1b07d0f4e0d01b0c12d919b",
+      "compressed_sha256": "d713e673c4788c7dba3158d95dc6d71acd81c8f627df1094985cac9393408a08",
+      "uncompressed_bytes": 2974656,
+      "compressed_bytes": 92336
     }
   }
 }
