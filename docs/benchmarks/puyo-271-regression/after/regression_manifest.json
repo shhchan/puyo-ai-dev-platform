@@ -1,0 +1,259 @@
+{
+  "analysis_command": "python -m eval.puyo_271_regression analyze --run-dir <new-dir> --phase after --wheel <loaded-native-binary>",
+  "comparison_phase": "after",
+  "config_sha256": {
+    "agents/nextgen_profiles.py": "176db215bb60022039175f5889f8065b2eaf4a880e4a3433fbd53e290b4820e7",
+    "train/config/deep_chain_backend.yaml": "96db502c9feb1e9f97cd097456f5deb8bf1de93618d5b069a720c177f447bbc5",
+    "train/config/deep_chain_builder.yaml": "77e9668c52f704e1f6ed7fb5ce0babb0bbd4f40fe4689fabcd264ddd8ce0c20a",
+    "train/config/nextgen_templates.yaml": "e820e5a1b140aa587a9c6f7306fabbf1014c50c16d6b2c937be57512bd569467"
+  },
+  "fixture_sha256": "469fa1aa56425e81b0e54664146f0ce76d41e3741a91ee73d43096520f33f002",
+  "formal_G2": "not_executed; PUYO-266 owns 30 seeds x 2 repeats",
+  "gui_cadence": "separate GUI trace; headless run has no frame/input/event timestamps",
+  "host": {
+    "affinity_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "capture_timing": "post-run analysis on the same host; the original diagnostic did not embed per-run affinity",
+    "logical_cpus": 8,
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "processor": "Intel(R) Core(TM) Ultra 7 258V",
+    "python": "3.12.3",
+    "python_environment_at_measurement": "/tmp/puyo271-final-venv/bin/python",
+    "thread_env": {
+      "MKL_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "RAYON_NUM_THREADS": null
+    }
+  },
+  "input_conditions": {
+    "backend": "native",
+    "cache": "fresh policy instance for each policy/seed/repeat; one process; fixed nextgen-then-deep_chain order",
+    "comparison_limits": [
+      "Nextgen uses GTR then free build; deep_chain has no template phase.",
+      "Both use legacy-fixed-six completion but different public seed derivation.",
+      "Nextgen excludes hidden rows; deep_chain's existing adapter sees own ghost rows."
+    ],
+    "deep_chain_budget": {
+      "depth": 16,
+      "max_expanded_nodes": 600000,
+      "scenarios": 6,
+      "width": 250
+    },
+    "deep_chain_profile": "reference",
+    "deep_chain_quality_floor": 10,
+    "deep_chain_target": 10,
+    "latency_mode": "configured_zero_inference_ticks",
+    "max_placements": 40,
+    "native": {
+      "binary_path_at_measurement": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "binary_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+      "build_profile": "release",
+      "capabilities": {
+        "abi_version": 1,
+        "build_profile": "release",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "child_state_bytes": 80,
+          "flags_mask": 15,
+          "result_bytes": 24,
+          "schema": "puyo.native_compact_hot_result.v1"
+        },
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "crate_version": "0.4.0",
+        "gil_detach": true,
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "max_threads": 6,
+        "parallel": true,
+        "python_abi": "cp312",
+        "scalar_fallback": true,
+        "schema": {
+          "major": 1,
+          "minor_max": 0,
+          "minor_min": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "simd_path": "scalar",
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "target": "x86_64-unknown-linux-gnu",
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "wheel_hash_hook": true,
+        "wire_name": "puyo.deep_chain_native.envelope.v1"
+      },
+      "execution_mode": "scenario-6",
+      "python_abi": "cp312",
+      "scenario_threads": 6,
+      "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c"
+    },
+    "nextgen_profile": "nextgen_safe_build",
+    "nextgen_quotas": {
+      "response": 256,
+      "shared": 600000,
+      "template": 128
+    },
+    "opponent": "inactive_safe_no_threat",
+    "public_current_next_next2": true,
+    "repeats": 1,
+    "run_profiles": {
+      "deep_chain/123/1": {
+        "profile": {
+          "depth": 16,
+          "max_expanded_nodes": 600000,
+          "name": "reference",
+          "profile_id": "deep_chain_builder:reference@1.0",
+          "purpose": "canonical quality and benchmark execution",
+          "scenarios": 6,
+          "schema_version": "puyo.deep_chain_builder.profile.v1",
+          "version": "1.0",
+          "width": 250
+        },
+        "search_config": null
+      },
+      "deep_chain/124/1": {
+        "profile": {
+          "depth": 16,
+          "max_expanded_nodes": 600000,
+          "name": "reference",
+          "profile_id": "deep_chain_builder:reference@1.0",
+          "purpose": "canonical quality and benchmark execution",
+          "scenarios": 6,
+          "schema_version": "puyo.deep_chain_builder.profile.v1",
+          "version": "1.0",
+          "width": 250
+        },
+        "search_config": null
+      },
+      "deep_chain/55/1": {
+        "profile": {
+          "depth": 16,
+          "max_expanded_nodes": 600000,
+          "name": "reference",
+          "profile_id": "deep_chain_builder:reference@1.0",
+          "purpose": "canonical quality and benchmark execution",
+          "scenarios": 6,
+          "schema_version": "puyo.deep_chain_builder.profile.v1",
+          "version": "1.0",
+          "width": 250
+        },
+        "search_config": null
+      },
+      "nextgen/123/1": {
+        "profile": {
+          "profile_id": "nextgen_safe_build",
+          "response_quota": 256,
+          "shared_quota": 600000,
+          "template_quota": 128
+        },
+        "search_config": {
+          "decision_seed": 5130024,
+          "depth": 16,
+          "fire_context": "safe_build",
+          "future_sampling_mode": "legacy-fixed-six",
+          "max_expanded_nodes": 600000,
+          "minimum_chain_count": 10,
+          "premature_target_gap_penalty": 1000.0,
+          "root_survivor_quota": 1,
+          "scenario_seed": null,
+          "scenarios": 6,
+          "terminal_fire_chain_count": 1,
+          "terminal_fire_rule": "record_and_stop",
+          "use_transposition_table": true,
+          "width": 250,
+          "winning_score_threshold": null
+        }
+      },
+      "nextgen/124/1": {
+        "profile": {
+          "profile_id": "nextgen_safe_build",
+          "response_quota": 256,
+          "shared_quota": 600000,
+          "template_quota": 128
+        },
+        "search_config": {
+          "decision_seed": 5130031,
+          "depth": 16,
+          "fire_context": "safe_build",
+          "future_sampling_mode": "legacy-fixed-six",
+          "max_expanded_nodes": 600000,
+          "minimum_chain_count": 10,
+          "premature_target_gap_penalty": 1000.0,
+          "root_survivor_quota": 1,
+          "scenario_seed": null,
+          "scenarios": 6,
+          "terminal_fire_chain_count": 1,
+          "terminal_fire_rule": "record_and_stop",
+          "use_transposition_table": true,
+          "width": 250,
+          "winning_score_threshold": null
+        }
+      },
+      "nextgen/55/1": {
+        "profile": {
+          "profile_id": "nextgen_safe_build",
+          "response_quota": 256,
+          "shared_quota": 600000,
+          "template_quota": 128
+        },
+        "search_config": {
+          "decision_seed": 5130084,
+          "depth": 16,
+          "fire_context": "safe_build",
+          "future_sampling_mode": "legacy-fixed-six",
+          "max_expanded_nodes": 600000,
+          "minimum_chain_count": 10,
+          "premature_target_gap_penalty": 1000.0,
+          "root_survivor_quota": 1,
+          "scenario_seed": null,
+          "scenarios": 6,
+          "terminal_fire_chain_count": 1,
+          "terminal_fire_rule": "record_and_stop",
+          "use_transposition_table": true,
+          "width": 250,
+          "winning_score_threshold": null
+        }
+      }
+    },
+    "seeds": [
+      55,
+      123,
+      124
+    ]
+  },
+  "raw_artifacts_sha256": {
+    "declaration.json": "3fac49da062e39d8f976a87c2e7082b66e29d446277bdabb060fbf539db5b340",
+    "deep_chain-123-1.json.gz": "f5aa16300da2993cfae0bd4a2500226ccbdbdd9d6dcb00aa831cf2703431f153",
+    "deep_chain-124-1.json.gz": "14f64ee296e650c578851a6e98667bdfc0f7b2506cf385255f2666d3d337fc1a",
+    "deep_chain-55-1.json.gz": "d722e859dd819bbfa8764366dd235ae0c6b3a2d6eb23eb032c865f17104db99d",
+    "nextgen-123-1.json.gz": "e3fdc75ac049c44ce66233f2a63c72801e3ef1885f4c2fe0dc938d1af4e90466",
+    "nextgen-124-1.json.gz": "c4e60dec0e6ec966e640dec6c32647f0507f1db1fd4545d2045bb6e320a66966",
+    "nextgen-55-1.json.gz": "b3fdaa74287e25567c140359c4477c648837389bd3527f5db97347627b2c3410",
+    "summary.json": "bae9d26184bff5ff051f49d7776c8eeb20445929874b67055866aa0e4a8467fd"
+  },
+  "run_command": "python -m eval.nextgen_safe_build_diagnostic --output <new-dir> --profile nextgen_safe_build --repeats 1",
+  "schema_version": "puyo.271.regression.v1",
+  "source_sha": "258397624245407e402ebf81c5ca20bdc007a475",
+  "synthetic_before_result_sha256": null
+}
