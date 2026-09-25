@@ -643,7 +643,27 @@ def materialize_native_long_horizon_result(
         for name, value in tracker_counter_totals.items()
     ):
         raise InvalidNativeInputError("native result counters disagree with trackers")
-    return materialized
+    from dataclasses import replace
+    from agents.selected_template import decode_template_result
+
+    return replace(
+        materialized,
+        selected_template=decode_template_result(
+            result.selected_template,
+            request.selected_template,
+            materialized.counters,
+            representatives,
+            root_actions,
+            len(request.known_pairs),
+            request.search_config.depth,
+            expected_scenario_ids,
+        ),
+        template_check_ns=(
+            int.from_bytes(result.selected_template[-8:], "little")
+            if result.selected_template is not None
+            else 0
+        ),
+    )
 
 
 __all__ = [

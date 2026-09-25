@@ -19,6 +19,7 @@ from types import ModuleType
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from src.core.constants import PuyoColor
+from agents.selected_template import SelectedTemplate, validate_public_template_input
 
 if TYPE_CHECKING:
     from agents.chain_structure import ChainStructureConfig
@@ -74,6 +75,8 @@ REQUEST_SEARCH_CONFIG_TAG = 0x8003
 REQUEST_EVALUATOR_CONFIG_TAG = 0x8004
 REQUEST_SCHEMA_IDENTITIES_TAG = 0x8005
 REQUEST_EXECUTION_TAG = 0x8006
+REQUEST_SELECTED_TEMPLATE_TAG = 0x8007
+RESULT_SELECTED_TEMPLATE_TAG = 0x8307
 
 CAPABILITIES_METADATA_TAG = 0x8101
 CAPABILITIES_COMPACT_HOT_RESULT_TAG = 0x0102
@@ -498,8 +501,12 @@ class NativeDecisionRequest:
     execution_mode: str = "oracle-1"
     response_detail_flags: int = 0
     max_response_bytes: int = 4 * 1024 * 1024
+    selected_template: SelectedTemplate | None = None
 
     def __post_init__(self) -> None:
+        validate_public_template_input(
+            self.selected_template, self.known_pairs, self.search_config
+        )
         pairs = tuple(tuple(pair) for pair in self.known_pairs)
         if not pairs or len(pairs) > _MAX_KNOWN_PAIRS:
             raise InvalidNativeInputError("known_pairs has an invalid count")
@@ -915,12 +922,20 @@ def encode_request(request: NativeDecisionRequest) -> bytes:
         ),
         EnvelopeSection(REQUEST_EXECUTION_TAG, 1, _encode_execution(request)),
     )
+    if request.selected_template is not None:
+        sections += (
+            EnvelopeSection(
+                REQUEST_SELECTED_TEMPLATE_TAG, 1, request.selected_template.to_bytes()
+            ),
+        )
     return encode_envelope(EnvelopeKind.REQUEST, request.request_id, sections)
 
 
 def decode_request(payload: bytes | bytearray | memoryview) -> NativeDecisionRequest:
     envelope = decode_envelope(
-        payload, known_tags=_REQUEST_TAGS, maximum_bytes=_MAX_REQUEST_BYTES
+        payload,
+        known_tags=_REQUEST_TAGS | {REQUEST_SELECTED_TEMPLATE_TAG},
+        maximum_bytes=_MAX_REQUEST_BYTES,
     )
     if envelope.kind != EnvelopeKind.REQUEST:
         raise InvalidNativeInputError("expected a request envelope")
@@ -966,6 +981,11 @@ def decode_request(payload: bytes | bytearray | memoryview) -> NativeDecisionReq
         execution_mode=execution_mode,
         response_detail_flags=detail_flags,
         max_response_bytes=max_response_bytes,
+        selected_template=(
+            SelectedTemplate.from_bytes(sections[REQUEST_SELECTED_TEMPLATE_TAG].payload)
+            if REQUEST_SELECTED_TEMPLATE_TAG in sections
+            else None
+        ),
     )
 
 
@@ -1187,6 +1207,7 @@ class NativeDecisionResult:
     diagnostics: bytes
     record_counts: Mapping[str, int]
     provenance: Mapping[str, Any]
+    selected_template: bytes | None = None
 
 
 def _decode_record_section(payload: bytes, *, tag: int, name: str) -> tuple[bytes, int]:
@@ -1338,13 +1359,19 @@ def _decode_result(envelope: Envelope) -> NativeDecisionResult:
             "diagnostics": diagnostic_count,
         },
         provenance=provenance,
+        selected_template=(
+            sections[RESULT_SELECTED_TEMPLATE_TAG].payload
+            if RESULT_SELECTED_TEMPLATE_TAG in sections
+            else None
+        ),
     )
 
 
 def decode_response(payload: bytes | bytearray | memoryview) -> NativeDecisionResult:
     envelope = decode_envelope(
         payload,
-        known_tags=_RESULT_TAGS | frozenset({ERROR_DETAILS_TAG}),
+        known_tags=_RESULT_TAGS
+        | frozenset({ERROR_DETAILS_TAG, RESULT_SELECTED_TEMPLATE_TAG}),
         maximum_bytes=_MAX_RESPONSE_BYTES,
     )
     if envelope.kind == EnvelopeKind.ERROR:

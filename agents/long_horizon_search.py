@@ -29,6 +29,13 @@ from agents.compact_search import (
     legal_action_indices,
     transition,
 )
+from agents.selected_template import (
+    SelectedTemplate,
+    validate_public_template_input,
+    new_template_record,
+    check_template,
+    template_result,
+)
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.tsumo import PuyoSequence
@@ -1294,6 +1301,19 @@ class LongHorizonSearchResult:
     root_generated_scenarios: Mapping[int, tuple[int, ...]]
     root_diagnostics: Mapping[int, Mapping[str, Any]]
 
+    selected_template: Mapping[str, Any] | None = None
+    template_check_ns: int = 0
+
+    @property
+    def compatible_ranked_roots(self):
+        if self.selected_template is None:
+            return self.ranked_roots
+        return tuple(
+            root
+            for root in self.ranked_roots
+            if self.selected_template["roots"][root.root_action]["compatible"]
+        )
+
     @property
     def ranked_roots(self) -> tuple[ExpectedChainRootEvidence, ...]:
         return tuple(
@@ -1312,6 +1332,11 @@ class LongHorizonSearchResult:
     def deterministic_digest(self) -> str:
         return _stable_digest(
             {
+                **(
+                    {"selected_template": self.selected_template}
+                    if self.selected_template is not None
+                    else {}
+                ),
                 "root_evidence": [
                     evidence.to_dict() for evidence in self.root_evidence
                 ],
@@ -1965,6 +1990,7 @@ def run_compact_long_horizon_search(
     config: LongHorizonSearchConfig,
     *,
     evaluator: CompactNodeEvaluator | None = None,
+    selected_template: SelectedTemplate | None = None,
 ) -> LongHorizonSearchResult:
     """Run the search from an allowlisted observation snapshot."""
 
@@ -1973,6 +1999,7 @@ def run_compact_long_horizon_search(
         known_pairs,
         config,
         evaluator=evaluator,
+        selected_template=selected_template,
     )
 
 
@@ -1982,9 +2009,11 @@ def _run_long_horizon_search(
     config: LongHorizonSearchConfig,
     *,
     evaluator: CompactNodeEvaluator | None = None,
+    selected_template: SelectedTemplate | None = None,
 ) -> LongHorizonSearchResult:
     """Shared search implementation for simulator and visible-input callers."""
 
+    validate_public_template_input(selected_template, known_pairs, config)
     selected_evaluator = evaluator or ChainStructureEvaluator()
     root_evaluation = selected_evaluator.evaluate(
         root_state,
@@ -1999,6 +2028,11 @@ def _run_long_horizon_search(
     )
     roots = legal_action_indices(root_state)
     counters = LongHorizonSearchCounters()
+    template_records = {action: new_template_record() for action in roots}
+    initial_valid = (
+        selected_template is None
+        or selected_template.evaluate(root_state, root_state)[0]
+    )
     all_trackers: dict[tuple[int, int], _ScenarioTracker] = {}
 
     for sequence in sequences:
@@ -2038,6 +2072,18 @@ def _run_long_horizon_search(
             counters.generated_nodes += 1
             counters.reached_depth = max(counters.reached_depth, 1)
             path = (int(action),)
+            if selected_template is not None and not check_template(
+                selected_template,
+                template_records,
+                action,
+                result.state,
+                root_state,
+                path,
+                len(known_pairs),
+                initial_valid,
+                sequence.scenario_id,
+            ):
+                continue
             terminal = _should_stop_fire(config, result.chain_count)
             reason = _terminal_reason(config) if terminal else None
             evaluation = None
@@ -2144,6 +2190,18 @@ def _run_long_horizon_search(
                     counters.generated_nodes += 1
                     counters.reached_depth = max(counters.reached_depth, depth)
                     path = node.path + (int(action),)
+                    if selected_template is not None and not check_template(
+                        selected_template,
+                        template_records,
+                        node.root_action,
+                        result.state,
+                        node.state,
+                        path,
+                        len(known_pairs),
+                        initial_valid,
+                        sequence.scenario_id,
+                    ):
+                        continue
                     terminal = _should_stop_fire(config, result.chain_count)
                     reason = _terminal_reason(config) if terminal else None
                     evaluation = None
@@ -2225,6 +2283,9 @@ def _run_long_horizon_search(
                     if not config.use_transposition_table:
                         candidates.append(candidate)
                         continue
+                    # The table is request/scenario/depth local. With monotonic
+                    # required-cell retention, progress is a pure function of the
+                    # board; fixed binding cannot differ within this table.
                     key = (
                         int(node.root_action),
                         CompactTranspositionKey(
@@ -2324,7 +2385,9 @@ def _run_long_horizon_search(
         fatal_score=float(getattr(getattr(selected_evaluator, "config", None), "fatal_score", -1e12)),
     )
     return LongHorizonSearchResult(
-        root_evidence=tuple(sorted(guarded_evidence, key=lambda value: value.root_action)),
+        root_evidence=tuple(
+            sorted(guarded_evidence, key=lambda value: value.root_action)
+        ),
         representatives=representatives,
         scenario_sequences=sequences,
         root_evaluation=root_evaluation,
@@ -2334,6 +2397,12 @@ def _run_long_horizon_search(
         root_reached_depth=root_depth,
         root_generated_scenarios=root_scenarios,
         root_diagnostics=root_diagnostics,
+        selected_template=template_result(
+            selected_template, template_records, counters, representatives
+        ),
+        template_check_ns=sum(
+            record["_check_ns"] for record in template_records.values()
+        ),
     )
 
 
