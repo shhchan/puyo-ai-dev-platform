@@ -125,6 +125,29 @@ class SurvivalTests(unittest.TestCase):
             req = make_request(board=tuple(reversed(rows + [(0,) * 6] * (14 - height))), incoming=0)
             self.assertEqual(needs_probe(req), expected)
 
+    def test_safe_deliberate_fire_is_preserved_but_fatal_fire_is_repaired(self):
+        req = self.request(mask=mask(0, 7, 9))
+        ex = build(req)
+        for tactic in ('fire_main', 'cancel', 'counter', 'decisive_short_attack'):
+            for action, preserve in ((7, True), (9, False)):
+                chosen = next(v for v in ex.batch.candidates if v.root_action == action and len(v.plan) == 1)
+                candidates = tuple(replace(v, tactics=tuple(dict.fromkeys((*v.tactics, tactic))), fallback=False)
+                                   if v == chosen else v for v in ex.batch.candidates)
+                members = [v.candidate_id for v in candidates if tactic in v.tactics and v.root_reachable]
+                members.remove(chosen.candidate_id)
+                members.insert(0, chosen.candidate_id)
+                rows = tuple(replace(row, candidate_ids=tuple(members), best_id=members[0],
+                                     available=True, mask_reason='available', evaluation_status='partial')
+                             if row.tactic_id == tactic else row for row in ex.batch.tactics)
+                batch = replace(ex.batch, candidates=candidates, tactics=rows)
+                selection = c.Selection(tactic, chosen.candidate_id, batch.digest, 'rule', None, None, None, 'deliberate_fire')
+                actual = apply_envelope(batch, selection)
+                if preserve:
+                    self.assertEqual(actual, selection)
+                else:
+                    self.assertEqual(actual.validate_batch(batch).root_action, 0)
+                    self.assertEqual(actual.reason, 'survival_safe_nonfire')
+
     def test_rl_envelope_and_legacy_codecs(self):
         req = self.request(mask=mask(7, 9))
         ex = build(req)

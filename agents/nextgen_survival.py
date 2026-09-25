@@ -196,10 +196,14 @@ def apply_envelope(batch, selection):
     preferred = next((v for v in batch.candidates if v.candidate_id == row.best_id), None)
     if preferred is None or value(preferred, "survival_safe") != 1:
         return selection
-    if value(selected, "survival_safe") == 1 and (
-        not value(selected, "survival_root_chain") or value(preferred, "survival_root_chain")
-    ):
-        reason = "legitimate_survival_exception" if value(selected, "survival_root_chain") else "survival_safe_nonfire"
-        return replace(selection, reason=reason)
+    if value(selected, "survival_safe") == 1:
+        # Existing deliberate fire/cancel/counter judgments remain policy choices.
+        # Safety does not veto a safe large chain merely because quiet play exists.
+        if selection.selected_tactic_id not in ("build_main", "build_template"):
+            return selection
+        if not value(selected, "survival_root_chain"):
+            return replace(selection, reason="survival_safe_nonfire")
+        if value(preferred, "survival_root_chain"):
+            return replace(selection, reason="legitimate_survival_exception")
     reason = "legitimate_survival_exception" if value(preferred, "survival_root_chain") else "survival_safe_nonfire"
     return c.Selection("build_main", preferred.candidate_id, batch.digest, "rule", None, None, None, reason)

@@ -673,7 +673,8 @@ class SharedSearchBatchBuilder:
             for tactic in c.TACTIC_IDS:
                 for cid, key in tuple(tactic_keys[tactic].items()):
                     result = survival.get(entries[cid][0][0].action)
-                    safety_rank = (0 if result and result.status == "witness" and not result.root_chain
+                    safety_rank = (0 if result and result.status == "witness" and (
+                                       not result.root_chain or tactic not in ("build_main", "build_template"))
                                    else 1 if result and result.status == "witness"
                                    else 3 if result and result.status == "fatal" else 2)
                     tactic_keys[tactic][cid] = (safety_rank, key)
