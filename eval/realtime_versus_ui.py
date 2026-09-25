@@ -863,6 +863,7 @@ class RealtimeVersusMatchController:
         return "saves inputs / boards / AI plans / result / optional feedback"
 
     def _build_replay_tick(self, inputs: dict[str, TickInput], match_result) -> dict[str, Any]:
+        capture_full = bool(self.config.replay_path or self.collection_enabled)
         attack_diagnostics = {
             agent: {
                 **dict(match_result.attack_diagnostics[agent]),
@@ -896,29 +897,54 @@ class RealtimeVersusMatchController:
                 {"type": "lock", "data": {"tick": event.tick}}
                 for event in match_result.player_results[agent].events if event.type == "lock"
             )
-        return {
+        tick = {
             "tick": match_result.tick,
-            "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
             "policy_diagnostics": {
-                agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
+                agent: self.tactical_diagnostics(agent)
+                for agent in REALTIME_AGENTS
+                if capture_full or self.policy_names[agent] == "nextgen_tactic_manager"
             },
             "nextgen_agents": [agent for agent in REALTIME_AGENTS if self.policy_names[agent] == "nextgen_tactic_manager"],
-            "controller_diagnostics": {
-                agent: self.controllers[agent].diagnostics.to_dict()
-                for agent in REALTIME_AGENTS
-            },
-            "controller_status": {
-                agent: {
-                    **self.controllers[agent].status().to_dict(),
-                    "kind": "human" if agent == self.human_agent else "policy",
-                }
-                for agent in REALTIME_AGENTS
-            },
-            "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
             "attack_diagnostics": attack_diagnostics,
             "public_events": public_events,
-            "snapshot_hash": match_result.snapshot_hash,
         }
+        if capture_full:
+            tick.update({
+                "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
+                "controller_diagnostics": {
+                    agent: self.controllers[agent].diagnostics.to_dict()
+                    for agent in REALTIME_AGENTS
+                },
+                "controller_status": {
+                    agent: {
+                        **self.controllers[agent].status().to_dict(),
+                        "kind": "human" if agent == self.human_agent else "policy",
+                    }
+                    for agent in REALTIME_AGENTS
+                },
+                "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
+                "snapshot_hash": match_result.snapshot_hash,
+            })
+        else:
+            # Live history only reads the last receipt.  Serializing the full
+            # controller record here recursively copies its large search batch
+            # on every simulation tick, even while the decision is unchanged.
+            tick["controller_diagnostics"] = {}
+            for agent in REALTIME_AGENTS:
+                last = self.controllers[agent].diagnostics.last_decision
+                if last is None:
+                    tick["controller_diagnostics"][agent] = {}
+                    continue
+                tick["controller_diagnostics"][agent] = {"last_decision": {
+                    "nextgen_diagnostics": last.nextgen_diagnostics,
+                    "outcome": last.outcome,
+                    "reason": last.reason,
+                    "request_tick": last.request_tick,
+                    "completion_tick": last.completion_tick,
+                    "requested_action": last.requested_action,
+                    "executed_action": last.executed_action,
+                }}
+        return tick
 
     def _update_latest_attack_diagnostics(
         self,

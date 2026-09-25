@@ -1,0 +1,13 @@
+{
+  "source_sha": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a",
+  "host": "Intel Core Ultra 7 258V; DISPLAY=:0; 1120x780; pygame 2.6.1; CPython 3.12.3",
+  "conditions": "seed=55, 60 FPS cap, speed=1.0, 600 frames, max_ticks=2400, plan overlay off, random opponent or symmetric policies, native reference/safe_build, sequential runs, no replay write",
+  "gates_predeclared": {
+    "frame_interval_p95_ms": 25.0,
+    "frame_interval_p99_ms": 50.0,
+    "input_age_p95_ms": 25.0,
+    "input_age_p99_ms": 50.0,
+    "note": "Cadence target is 60 Hz (16.67 ms); p95 allows 1.5 frames and p99 allows 3 frames. Existing realtime_gui_qa gate checks decision progress, not frame cadence. Gate will not be relaxed after measurement."
+  },
+  "profiling_overhead": "Per-frame perf_counter_ns stage stamps and one no-op event every 30 frames; /proc parent/worker sample every 60 frames. To be checked against an uninstrumented light-policy run."
+}
