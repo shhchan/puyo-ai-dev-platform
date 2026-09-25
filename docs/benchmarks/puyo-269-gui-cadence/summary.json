@@ -1,0 +1,2424 @@
+{
+  "schema_version": "puyo.gui_cadence_summary.v1",
+  "note": "Percentiles and stage totals are the recorded profiler aggregates, not recomputed from per-frame observations.",
+  "cpu_ticks_per_second": 100,
+  "runs": {
+    "final-before-first": {
+      "settings": {
+        "policy_a": "first",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 9.753923359,
+      "ticks": 585,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.107458,
+          "p95": 19.346206649999996,
+          "p99": 23.2210933,
+          "max": 62.730216
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 10.153637,
+          "p95": 11.2185938,
+          "p99": 14.136908810000001,
+          "max": 14.185456
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.0386015,
+          "p95": 0.07843784999999998,
+          "p99": 0.13393423999999995,
+          "max": 0.723785
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 3.5133435,
+          "p95": 6.095617049999998,
+          "p99": 9.175830689999993,
+          "max": 47.628299
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 2.0250839999999997,
+          "p95": 2.4680025499999996,
+          "p99": 3.03467074,
+          "max": 15.67907
+        },
+        "input_age_ms": {
+          "n": 194,
+          "p50": 8.3314865,
+          "p95": 15.652525449999999,
+          "p99": 16.84634614999998,
+          "max": 45.80107
+        }
+      },
+      "tick_duration_ms": {
+        "n": 585,
+        "p50": 3.496323,
+        "p95": 5.804677599999997,
+        "p99": 8.07566487999999,
+        "max": 47.613091
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 2.0,
+        "max": 3
+      },
+      "functions_ms": {
+        "next_input_player_0": {
+          "n": 585,
+          "p50": 0.01296,
+          "p95": 0.9750673999999971,
+          "p99": 2.4964721199999906,
+          "max": 3.79788
+        },
+        "next_input_player_1": {
+          "n": 585,
+          "p50": 0.004302,
+          "p95": 1.2759667999999924,
+          "p99": 3.1254464,
+          "max": 3.869496
+        },
+        "env_step": {
+          "n": 585,
+          "p50": 3.10598,
+          "p95": 3.7160843999999993,
+          "p99": 4.566034399999994,
+          "max": 47.321627
+        },
+        "tactical_diagnostics": {
+          "n": 3570,
+          "p50": 0.0021845,
+          "p95": 0.004816199999999999,
+          "p99": 0.006526159999999998,
+          "max": 0.038
+        },
+        "_build_replay_tick": {
+          "n": 585,
+          "p50": 0.085041,
+          "p95": 0.12305019999999992,
+          "p99": 0.16990943999999958,
+          "max": 0.251801
+        },
+        "_sync_display_boards": {
+          "n": 621,
+          "p50": 0.017681,
+          "p95": 0.058203,
+          "p99": 0.07347119999999985,
+          "max": 0.165156
+        }
+      },
+      "functions_total_ms": {
+        "next_input_player_0": 96.514965,
+        "next_input_player_1": 105.442965,
+        "env_step": 1943.349489,
+        "tactical_diagnostics": 8.344823,
+        "_build_replay_tick": 52.930918,
+        "_sync_display_boards": 13.233835
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 12,
+          "decisions_activated": 12,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 10
+        },
+        "player_1": {
+          "decision_requests": 10,
+          "decisions_activated": 10,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 9
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 616094,
+          "max_rss_mib": 255.9453125,
+          "max_threads": 10,
+          "sampled_cpu_seconds": 3.03,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": true,
+        "frame_interval_ms.p99": true,
+        "input_age_ms.p95": true,
+        "input_age_ms.p99": true
+      }
+    },
+    "final-after-first": {
+      "settings": {
+        "policy_a": "first",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 9.742465146,
+      "ticks": 584,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.0788215,
+          "p95": 19.04328965,
+          "p99": 22.89128518,
+          "max": 59.212359
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 10.1553595,
+          "p95": 11.204234450000001,
+          "p99": 14.140440719999999,
+          "max": 14.219171
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.0366455,
+          "p95": 0.0793297,
+          "p99": 0.13489061,
+          "max": 0.665724
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 3.501678,
+          "p95": 5.876735749999997,
+          "p99": 8.874293339999987,
+          "max": 45.573174
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 2.0435255,
+          "p95": 2.4425236999999997,
+          "p99": 2.67309019,
+          "max": 19.064636
+        },
+        "input_age_ms": {
+          "n": 194,
+          "p50": 8.6461355,
+          "p95": 15.345069299999999,
+          "p99": 16.46928761,
+          "max": 41.172466
+        }
+      },
+      "tick_duration_ms": {
+        "n": 584,
+        "p50": 3.496115,
+        "p95": 5.708781050000001,
+        "p99": 7.535738179999966,
+        "max": 45.557451
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 1.0199999999999818,
+        "max": 3
+      },
+      "functions_ms": {
+        "tactical_diagnostics": {
+          "n": 2400,
+          "p50": 0.002197,
+          "p95": 0.004633449999999997,
+          "p99": 0.0064600299999999986,
+          "max": 0.03359
+        },
+        "next_input_player_0": {
+          "n": 584,
+          "p50": 0.0127875,
+          "p95": 0.9977836500000007,
+          "p99": 2.3909131799999974,
+          "max": 4.10058
+        },
+        "next_input_player_1": {
+          "n": 584,
+          "p50": 0.0042585,
+          "p95": 1.3899024500000037,
+          "p99": 2.959426439999991,
+          "max": 4.663898
+        },
+        "env_step": {
+          "n": 584,
+          "p50": 3.177264,
+          "p95": 3.7956443,
+          "p99": 5.002656169999974,
+          "max": 45.397883
+        },
+        "_build_replay_tick": {
+          "n": 584,
+          "p50": 0.013354,
+          "p95": 0.01746715,
+          "p99": 0.026903199999999895,
+          "max": 0.05965
+        },
+        "_sync_display_boards": {
+          "n": 618,
+          "p50": 0.0178865,
+          "p95": 0.054438499999999966,
+          "p99": 0.08526612000000008,
+          "max": 0.110552
+        }
+      },
+      "functions_total_ms": {
+        "tactical_diagnostics": 5.37966,
+        "next_input_player_0": 94.277892,
+        "next_input_player_1": 106.815647,
+        "env_step": 1978.452094,
+        "_build_replay_tick": 8.14669,
+        "_sync_display_boards": 13.17415
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 12,
+          "decisions_activated": 12,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 10
+        },
+        "player_1": {
+          "decision_requests": 10,
+          "decisions_activated": 10,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 9
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 615665,
+          "max_rss_mib": 252.359375,
+          "max_threads": 10,
+          "sampled_cpu_seconds": 3.06,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": true,
+        "frame_interval_ms.p99": true,
+        "input_age_ms.p95": true,
+        "input_age_ms.p99": true
+      }
+    },
+    "final-before-deep": {
+      "settings": {
+        "policy_a": "deep_chain_builder",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 10.327104056,
+      "ticks": 687,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.050883499999998,
+          "p95": 20.066518849999998,
+          "p99": 62.70072510999997,
+          "max": 161.674841
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 10.112784000000001,
+          "p95": 11.16720225,
+          "p99": 13.198012449999991,
+          "max": 14.206219
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.038514,
+          "p95": 0.0940109,
+          "p99": 0.15159875999999997,
+          "max": 0.483931
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 3.8502125,
+          "p95": 7.3081599999999955,
+          "p99": 58.023032299999976,
+          "max": 143.312105
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 2.220782,
+          "p95": 4.058288999999997,
+          "p99": 6.12633874,
+          "max": 17.598666
+        },
+        "input_age_ms": {
+          "n": 206,
+          "p50": 9.2027705,
+          "p95": 26.04615825,
+          "p99": 75.50491014999984,
+          "max": 112.12816
+        }
+      },
+      "tick_duration_ms": {
+        "n": 687,
+        "p50": 3.901007,
+        "p95": 7.187998299999999,
+        "p99": 10.014461339999999,
+        "max": 80.022411
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "next_input_player_0": {
+          "n": 687,
+          "p50": 0.015842,
+          "p95": 0.6453587999999999,
+          "p99": 3.1496169199999953,
+          "max": 4.421596
+        },
+        "next_input_player_1": {
+          "n": 687,
+          "p50": 0.006624,
+          "p95": 1.386275099999993,
+          "p99": 3.2302429799999977,
+          "max": 5.302995
+        },
+        "env_step": {
+          "n": 687,
+          "p50": 3.468651,
+          "p95": 5.919840299999996,
+          "p99": 8.032790979999998,
+          "max": 78.515314
+        },
+        "tactical_diagnostics": {
+          "n": 3774,
+          "p50": 0.0017565,
+          "p95": 0.009209749999999978,
+          "p99": 0.05102836999999999,
+          "max": 0.712836
+        },
+        "_build_replay_tick": {
+          "n": 687,
+          "p50": 0.101126,
+          "p95": 0.20707289999999995,
+          "p99": 0.4878693399999985,
+          "max": 2.835771
+        },
+        "_sync_display_boards": {
+          "n": 716,
+          "p50": 0.0198045,
+          "p95": 0.06452725000000001,
+          "p99": 0.11886075000000011,
+          "max": 0.364257
+        }
+      },
+      "functions_total_ms": {
+        "next_input_player_0": 89.789166,
+        "next_input_player_1": 130.604568,
+        "env_step": 2791.002486,
+        "tactical_diagnostics": 15.912225,
+        "_build_replay_tick": 87.257099,
+        "_sync_display_boards": 18.322752
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 6,
+          "decisions_activated": 6,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 5
+        },
+        "player_1": {
+          "decision_requests": 11,
+          "decisions_activated": 11,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 10
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 616346,
+          "max_rss_mib": 270.91015625,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 4.01,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 616372,
+          "max_rss_mib": 348.4140625,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 10.8,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": true,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "final-after-deep": {
+      "settings": {
+        "policy_a": "deep_chain_builder",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 10.299374018,
+      "ticks": 689,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.152314,
+          "p95": 20.61587729999999,
+          "p99": 60.674327899999874,
+          "max": 110.79127
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 10.1152835,
+          "p95": 11.191890399999998,
+          "p99": 14.140438130000001,
+          "max": 14.195568
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.037453,
+          "p95": 0.09170444999999998,
+          "p99": 0.16905325999999965,
+          "max": 2.720654
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 3.782948,
+          "p95": 7.771066699999998,
+          "p99": 56.77444908999986,
+          "max": 93.48117
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 2.2250505,
+          "p95": 4.3374033999999995,
+          "p99": 6.579299579999997,
+          "max": 16.296999
+        },
+        "input_age_ms": {
+          "n": 205,
+          "p50": 9.100585,
+          "p95": 30.993921399999902,
+          "p99": 61.46762672000003,
+          "max": 84.356352
+        }
+      },
+      "tick_duration_ms": {
+        "n": 689,
+        "p50": 3.852264,
+        "p95": 7.6337665999999995,
+        "p99": 10.038148320000003,
+        "max": 47.856835
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "next_input_player_0": {
+          "n": 689,
+          "p50": 0.016425,
+          "p95": 0.6508654000000008,
+          "p99": 3.211683640000001,
+          "max": 3.980476
+        },
+        "next_input_player_1": {
+          "n": 689,
+          "p50": 0.006546,
+          "p95": 1.3231344000000007,
+          "p99": 3.309820840000001,
+          "max": 7.454732
+        },
+        "env_step": {
+          "n": 689,
+          "p50": 3.476007,
+          "p95": 6.4837994000000005,
+          "p99": 8.997816040000002,
+          "max": 47.650115
+        },
+        "_build_replay_tick": {
+          "n": 689,
+          "p50": 0.014042,
+          "p95": 0.027392800000000002,
+          "p99": 0.05891152000000001,
+          "max": 1.12105
+        },
+        "_sync_display_boards": {
+          "n": 719,
+          "p50": 0.019257,
+          "p95": 0.0638733,
+          "p99": 0.11937216000000067,
+          "max": 0.231403
+        },
+        "tactical_diagnostics": {
+          "n": 2400,
+          "p50": 0.0016405,
+          "p95": 0.005808599999999991,
+          "p99": 0.023860089999999952,
+          "max": 0.156518
+        }
+      },
+      "functions_total_ms": {
+        "next_input_player_0": 93.26875,
+        "next_input_player_1": 140.094305,
+        "env_step": 2816.238855,
+        "_build_replay_tick": 13.430091000000001,
+        "_sync_display_boards": 17.87552,
+        "tactical_diagnostics": 6.522357
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 6,
+          "decisions_activated": 6,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 5
+        },
+        "player_1": {
+          "decision_requests": 11,
+          "decisions_activated": 11,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 10
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 615845,
+          "max_rss_mib": 267.98828125,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 4.09,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 615868,
+          "max_rss_mib": 347.31640625,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 13.03,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": true,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "final-before-nextgen": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 22.905172949,
+      "ticks": 1328,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.9568255,
+          "p95": 184.53800314999975,
+          "p99": 301.04828915999974,
+          "max": 431.828266
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 3.209281,
+          "p95": 7.13122375,
+          "p99": 11.319231429999993,
+          "max": 12.139148
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.0374155,
+          "p95": 0.09770034999999999,
+          "p99": 0.1793785399999999,
+          "max": 0.510116
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 7.031563,
+          "p95": 169.94177204999997,
+          "p99": 284.0296063199997,
+          "max": 387.466977
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 4.9873865,
+          "p95": 11.520224399999979,
+          "p99": 51.05022207999999,
+          "max": 86.976763
+        },
+        "input_age_ms": {
+          "n": 455,
+          "p50": 31.057536,
+          "p95": 243.61717249999998,
+          "p99": 337.19836205999997,
+          "max": 386.700728
+        }
+      },
+      "tick_duration_ms": {
+        "n": 1328,
+        "p50": 7.620527,
+        "p95": 36.89182944999986,
+        "p99": 88.12493577000005,
+        "max": 214.36086
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 12.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 31,
+          "p50": 69.224859,
+          "p95": 77.52752699999999,
+          "p99": 80.09689739999999,
+          "max": 80.789841
+        },
+        "scheduler_prepare": {
+          "n": 22,
+          "p50": 72.798191,
+          "p95": 80.04522804999999,
+          "p99": 82.24929245,
+          "max": 82.812146
+        },
+        "_submit_decision": {
+          "n": 22,
+          "p50": 0.0488795,
+          "p95": 0.06881865,
+          "p99": 0.5155036099999996,
+          "max": 0.634229
+        },
+        "next_input_player_0": {
+          "n": 1328,
+          "p50": 0.012424000000000001,
+          "p95": 1.5223052999999978,
+          "p99": 82.16109645000004,
+          "max": 201.995499
+        },
+        "next_input_player_1": {
+          "n": 1328,
+          "p50": 0.0053159999999999995,
+          "p95": 1.1039177999999963,
+          "p99": 3.3093863700000004,
+          "max": 6.213258
+        },
+        "env_step": {
+          "n": 1328,
+          "p50": 3.5990184999999997,
+          "p95": 5.94068825,
+          "p99": 9.086184480000025,
+          "max": 54.792747
+        },
+        "tactical_diagnostics": {
+          "n": 5056,
+          "p50": 0.0024355,
+          "p95": 0.00624125,
+          "p99": 0.011465349999999975,
+          "max": 0.088358
+        },
+        "_build_replay_tick": {
+          "n": 1328,
+          "p50": 2.8509655,
+          "p95": 11.856807349999997,
+          "p99": 57.931648240000015,
+          "max": 80.098885
+        },
+        "_sync_display_boards": {
+          "n": 1378,
+          "p50": 0.022866,
+          "p95": 0.05583109999999991,
+          "p99": 0.11702767000000001,
+          "max": 0.478966
+        },
+        "scheduler_accept": {
+          "n": 22,
+          "p50": 16.728530499999998,
+          "p95": 96.89911374999997,
+          "p99": 103.354722,
+          "max": 104.540109
+        },
+        "_plan_action": {
+          "n": 31,
+          "p50": 3.201654,
+          "p95": 4.734245,
+          "p99": 5.9035609,
+          "max": 6.107998
+        },
+        "_complete_decision": {
+          "n": 22,
+          "p50": 20.4659785,
+          "p95": 100.29684544999998,
+          "p99": 106.64590942,
+          "max": 107.83579
+        },
+        "scheduler_stale": {
+          "n": 22,
+          "p50": 0.8217095,
+          "p95": 1.5197136999999998,
+          "p99": 1.5965515899999998,
+          "max": 1.613608
+        },
+        "scheduler_finish": {
+          "n": 22,
+          "p50": 8.2968175,
+          "p95": 31.8733278,
+          "p99": 68.03889128999997,
+          "max": 77.629791
+        },
+        "_activate_nextgen": {
+          "n": 22,
+          "p50": 46.7451135,
+          "p95": 101.9862418,
+          "p99": 125.41547445999997,
+          "max": 131.63527
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 2135.187761,
+        "scheduler_prepare": 1562.77189,
+        "_submit_decision": 1.730257,
+        "next_input_player_0": 3711.717172,
+        "next_input_player_1": 238.402368,
+        "env_step": 5423.914672,
+        "tactical_diagnostics": 14.928736,
+        "_build_replay_tick": 7243.879184,
+        "_sync_display_boards": 38.119927,
+        "scheduler_accept": 738.550029,
+        "_plan_action": 106.565332,
+        "_complete_decision": 818.127122,
+        "scheduler_stale": 19.97649,
+        "scheduler_finish": 375.983866,
+        "_activate_nextgen": 1216.688558
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 22,
+          "decisions_activated": 9,
+          "stale_decisions": 13,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 9
+        },
+        "player_1": {
+          "decision_requests": 21,
+          "decisions_activated": 21,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 20
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 615037,
+          "max_rss_mib": 268.61328125,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 10.85,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 615061,
+          "max_rss_mib": 342.9453125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 15.23,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "final-after-nextgen": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 13.158453777,
+      "ticks": 864,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.402050000000003,
+          "p95": 58.80805059999997,
+          "p99": 121.18084427999997,
+          "max": 208.332049
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 6.1100105,
+          "p95": 8.169623,
+          "p99": 11.11511481,
+          "max": 11.288422
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.0363845,
+          "p95": 0.09381984999999987,
+          "p99": 0.1770179299999998,
+          "max": 0.460967
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 4.619524,
+          "p95": 41.998607249999594,
+          "p99": 114.08792141,
+          "max": 189.049284
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 5.242088,
+          "p95": 10.251062549999991,
+          "p99": 26.96924317999983,
+          "max": 51.469973
+        },
+        "input_age_ms": {
+          "n": 262,
+          "p50": 10.664117000000001,
+          "p95": 76.5984532,
+          "p99": 113.47506941999997,
+          "max": 158.665728
+        }
+      },
+      "tick_duration_ms": {
+        "n": 864,
+        "p50": 4.4730685,
+        "p95": 10.135955199999994,
+        "p99": 91.84862572,
+        "max": 168.925302
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 4.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 19,
+          "p50": 81.08113,
+          "p95": 101.62916499999999,
+          "p99": 103.37874339999999,
+          "max": 103.816138
+        },
+        "scheduler_prepare": {
+          "n": 14,
+          "p50": 83.288467,
+          "p95": 104.5594461,
+          "p99": 105.54166682,
+          "max": 105.787222
+        },
+        "_submit_decision": {
+          "n": 14,
+          "p50": 0.059958,
+          "p95": 0.46974395,
+          "p99": 0.48447919,
+          "max": 0.488163
+        },
+        "next_input_player_0": {
+          "n": 864,
+          "p50": 0.013471,
+          "p95": 1.1282451999999827,
+          "p99": 86.04345015000001,
+          "max": 164.575031
+        },
+        "next_input_player_1": {
+          "n": 864,
+          "p50": 0.0064525,
+          "p95": 1.3665320999999746,
+          "p99": 3.9609048000000002,
+          "max": 6.667685
+        },
+        "env_step": {
+          "n": 864,
+          "p50": 3.7856065,
+          "p95": 6.614661449999988,
+          "p99": 8.612392710000002,
+          "max": 45.344247
+        },
+        "tactical_diagnostics": {
+          "n": 3264,
+          "p50": 0.001781,
+          "p95": 0.006238599999999999,
+          "p99": 0.01261655999999998,
+          "max": 0.322309
+        },
+        "_build_replay_tick": {
+          "n": 864,
+          "p50": 0.24746400000000002,
+          "p95": 0.5358001999999996,
+          "p99": 0.9861346900000001,
+          "max": 5.562927
+        },
+        "_sync_display_boards": {
+          "n": 897,
+          "p50": 0.021606,
+          "p95": 0.06060739999999999,
+          "p99": 0.12387311999999993,
+          "max": 0.5355
+        },
+        "scheduler_accept": {
+          "n": 14,
+          "p50": 16.785603000000002,
+          "p95": 19.03171795,
+          "p99": 19.348739589999997,
+          "max": 19.427995
+        },
+        "_plan_action": {
+          "n": 19,
+          "p50": 3.665549,
+          "p95": 10.191703399999907,
+          "p99": 41.57801828000001,
+          "max": 49.424597
+        },
+        "_complete_decision": {
+          "n": 14,
+          "p50": 21.4738015,
+          "p95": 39.177356999999986,
+          "p99": 59.69497619999997,
+          "max": 64.824381
+        },
+        "scheduler_stale": {
+          "n": 14,
+          "p50": 0.816856,
+          "p95": 1.1833535,
+          "p99": 1.2435539,
+          "max": 1.258604
+        },
+        "scheduler_finish": {
+          "n": 14,
+          "p50": 7.8930145,
+          "p95": 9.47250435,
+          "p99": 9.57742007,
+          "max": 9.603649
+        },
+        "_activate_nextgen": {
+          "n": 14,
+          "p50": 12.150026,
+          "p95": 116.67845839999998,
+          "p99": 139.50234207999998,
+          "max": 145.208313
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 1567.972696,
+        "scheduler_prepare": 1196.752876,
+        "_submit_decision": 1.676192,
+        "next_input_player_0": 2224.2858420000002,
+        "next_input_player_1": 179.087261,
+        "env_step": 3651.060361,
+        "tactical_diagnostics": 8.607554,
+        "_build_replay_tick": 254.81432,
+        "_sync_display_boards": 24.875868,
+        "scheduler_accept": 236.240592,
+        "_plan_action": 116.824193,
+        "_complete_decision": 337.060725,
+        "scheduler_stale": 11.892803,
+        "scheduler_finish": 112.007262,
+        "_activate_nextgen": 619.304319
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 14,
+          "decisions_activated": 5,
+          "stale_decisions": 9,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 5
+        },
+        "player_1": {
+          "decision_requests": 13,
+          "decisions_activated": 13,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 12
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 615390,
+          "max_rss_mib": 265.6171875,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 9.21,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 615416,
+          "max_rss_mib": 343.02734375,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 13.94,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "final-before-nextgen-both": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "nextgen_tactic_manager",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 360,
+      "elapsed_seconds": 71.026940347,
+      "ticks": 2400,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 360,
+          "p50": 123.2538815,
+          "p95": 609.4992591500002,
+          "p99": 808.5865322200009,
+          "max": 1043.417933
+        },
+        "clock_wait_ms": {
+          "n": 360,
+          "p50": 0.083435,
+          "p95": 0.23193060000000001,
+          "p99": 4.59204612,
+          "max": 18.462763
+        },
+        "events_ms": {
+          "n": 360,
+          "p50": 0.054151500000000005,
+          "p95": 0.21801275000000003,
+          "p99": 0.35735299000000026,
+          "max": 0.911998
+        },
+        "update_ms": {
+          "n": 360,
+          "p50": 114.31123600000001,
+          "p95": 579.7874162000002,
+          "p99": 770.5921694300007,
+          "max": 1026.35152
+        },
+        "render_ms": {
+          "n": 360,
+          "p50": 18.3569045,
+          "p95": 38.438372300000005,
+          "p99": 91.52159502000003,
+          "max": 117.409067
+        },
+        "input_age_ms": {
+          "n": 1420,
+          "p50": 164.112327,
+          "p95": 548.1391143499999,
+          "p99": 727.9795371199998,
+          "max": 994.419541
+        }
+      },
+      "tick_duration_ms": {
+        "n": 2560,
+        "p50": 16.432408000000002,
+        "p95": 84.31526745000001,
+        "p99": 194.74189786999995,
+        "max": 422.93386
+      },
+      "tick_catchup": {
+        "n": 359,
+        "p50": 12.0,
+        "p95": 12.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 108,
+          "p50": 60.080938,
+          "p95": 92.6413274,
+          "p99": 110.54985606999993,
+          "max": 114.51465
+        },
+        "scheduler_prepare": {
+          "n": 58,
+          "p50": 61.9597135,
+          "p95": 94.0167398,
+          "p99": 114.5810853,
+          "max": 116.726229
+        },
+        "_submit_decision": {
+          "n": 58,
+          "p50": 0.056674,
+          "p95": 0.21847214999999978,
+          "p99": 0.5616694099999999,
+          "max": 0.636104
+        },
+        "next_input_player_0": {
+          "n": 2400,
+          "p50": 0.011636500000000001,
+          "p95": 0.9766029499999972,
+          "p99": 113.20421566999968,
+          "max": 247.691073
+        },
+        "next_input_player_1": {
+          "n": 2400,
+          "p50": 0.003672,
+          "p95": 0.8166507499999976,
+          "p99": 101.57086932999943,
+          "max": 210.896248
+        },
+        "env_step": {
+          "n": 2400,
+          "p50": 4.088881499999999,
+          "p95": 8.475830799999999,
+          "p99": 17.194637659999998,
+          "max": 138.080812
+        },
+        "tactical_diagnostics": {
+          "n": 6240,
+          "p50": 0.001655,
+          "p95": 0.00510505,
+          "p99": 0.008320659999999964,
+          "max": 0.163359
+        },
+        "_build_replay_tick": {
+          "n": 2400,
+          "p50": 11.7248585,
+          "p95": 59.31527839999976,
+          "p99": 96.80904797999973,
+          "max": 289.947752
+        },
+        "_sync_display_boards": {
+          "n": 2453,
+          "p50": 0.027272,
+          "p95": 0.07011100000000009,
+          "p99": 0.14481712000000002,
+          "max": 4.487818
+        },
+        "scheduler_accept": {
+          "n": 58,
+          "p50": 40.1495815,
+          "p95": 92.11372854999999,
+          "p99": 125.57227576,
+          "max": 138.171118
+        },
+        "_plan_action": {
+          "n": 108,
+          "p50": 2.9449864999999997,
+          "p95": 4.788013349999998,
+          "p99": 8.016786389999977,
+          "max": 53.328061
+        },
+        "_complete_decision": {
+          "n": 58,
+          "p50": 42.5241625,
+          "p95": 105.87898709999997,
+          "p99": 134.5021108,
+          "max": 143.639302
+        },
+        "scheduler_stale": {
+          "n": 58,
+          "p50": 1.2712444999999999,
+          "p95": 2.1774741,
+          "p99": 2.52776143,
+          "max": 2.750518
+        },
+        "scheduler_finish": {
+          "n": 58,
+          "p50": 21.182505499999998,
+          "p95": 52.80758594999997,
+          "p99": 83.72135307,
+          "max": 87.578799
+        },
+        "_activate_nextgen": {
+          "n": 58,
+          "p50": 87.4718555,
+          "p95": 126.93271494999999,
+          "p99": 139.16257240000002,
+          "max": 141.681733
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 6626.192328,
+        "scheduler_prepare": 3726.954815,
+        "_submit_decision": 4.906733,
+        "next_input_player_0": 6307.732831,
+        "next_input_player_1": 5839.043249,
+        "env_step": 12092.390088,
+        "tactical_diagnostics": 13.17393,
+        "_build_replay_tick": 37982.866155,
+        "_sync_display_boards": 87.04552699999999,
+        "scheduler_accept": 2740.679306,
+        "_plan_action": 371.820644,
+        "_complete_decision": 2978.16167,
+        "scheduler_stale": 75.857833,
+        "scheduler_finish": 1396.157284,
+        "_activate_nextgen": 4985.379422
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 30,
+          "decisions_activated": 25,
+          "stale_decisions": 5,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 24
+        },
+        "player_1": {
+          "decision_requests": 28,
+          "decisions_activated": 25,
+          "stale_decisions": 3,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 24
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 616560,
+          "max_rss_mib": 293.9921875,
+          "max_threads": 14,
+          "sampled_cpu_seconds": 67.09,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_1",
+          "pid": 616571,
+          "max_rss_mib": 346.88671875,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 63.73,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_2",
+          "pid": 616601,
+          "max_rss_mib": 346.58203125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 65.13,
+          "sample_count": 6
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "final-after-nextgen-both": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "nextgen_tactic_manager",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 360,
+      "elapsed_seconds": 18.287431526,
+      "ticks": 1220,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 360,
+          "p50": 20.480994,
+          "p95": 190.4044805000001,
+          "p99": 370.3444642800004,
+          "max": 558.821432
+        },
+        "clock_wait_ms": {
+          "n": 360,
+          "p50": 0.2098285,
+          "p95": 6.09947385,
+          "p99": 7.437965930000028,
+          "max": 16.176361
+        },
+        "events_ms": {
+          "n": 360,
+          "p50": 0.045329999999999995,
+          "p95": 0.12411055000000001,
+          "p99": 0.21365907000000064,
+          "max": 0.415966
+        },
+        "update_ms": {
+          "n": 360,
+          "p50": 6.9746500000000005,
+          "p95": 165.60703210000014,
+          "p99": 358.40320683000016,
+          "max": 484.60371
+        },
+        "render_ms": {
+          "n": 360,
+          "p50": 8.8995975,
+          "p95": 32.62093050000001,
+          "p99": 77.37388382000003,
+          "max": 104.568569
+        },
+        "input_age_ms": {
+          "n": 360,
+          "p50": 37.5183695,
+          "p95": 270.35154410000007,
+          "p99": 410.3611845000007,
+          "max": 526.915476
+        }
+      },
+      "tick_duration_ms": {
+        "n": 1220,
+        "p50": 5.053857,
+        "p95": 15.294544499999997,
+        "p99": 184.38153795999997,
+        "max": 484.590054
+      },
+      "tick_catchup": {
+        "n": 359,
+        "p50": 1.0,
+        "p95": 12.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 36,
+          "p50": 82.375697,
+          "p95": 109.74160375,
+          "p99": 120.644697,
+          "max": 120.828755
+        },
+        "scheduler_prepare": {
+          "n": 18,
+          "p50": 85.344322,
+          "p95": 110.18987714999997,
+          "p99": 120.25088582999997,
+          "max": 122.766138
+        },
+        "_submit_decision": {
+          "n": 18,
+          "p50": 0.0579825,
+          "p95": 0.5984582999999999,
+          "p99": 0.7000788599999997,
+          "max": 0.725484
+        },
+        "next_input_player_0": {
+          "n": 1220,
+          "p50": 0.012591,
+          "p95": 0.5131715,
+          "p99": 84.15367135999966,
+          "max": 270.096456
+        },
+        "next_input_player_1": {
+          "n": 1220,
+          "p50": 0.0039065,
+          "p95": 0.4173062499999997,
+          "p99": 92.52953426999977,
+          "max": 208.93468
+        },
+        "env_step": {
+          "n": 1220,
+          "p50": 4.393166,
+          "p95": 11.021555249999995,
+          "p99": 17.328495209999968,
+          "max": 215.063999
+        },
+        "tactical_diagnostics": {
+          "n": 3880,
+          "p50": 0.0012415,
+          "p95": 0.004838349999999998,
+          "p99": 0.00795562,
+          "max": 0.121607
+        },
+        "_build_replay_tick": {
+          "n": 1220,
+          "p50": 0.262702,
+          "p95": 0.5347145999999999,
+          "p99": 2.1950869899999956,
+          "max": 6.828135
+        },
+        "_sync_display_boards": {
+          "n": 1236,
+          "p50": 0.023539499999999998,
+          "p95": 0.051220749999999995,
+          "p99": 0.1181123,
+          "max": 4.072582
+        },
+        "scheduler_accept": {
+          "n": 18,
+          "p50": 24.9176445,
+          "p95": 118.96891489999997,
+          "p99": 130.95633977999995,
+          "max": 133.953196
+        },
+        "_plan_action": {
+          "n": 36,
+          "p50": 3.4946905,
+          "p95": 5.32824325,
+          "p99": 6.109134299999999,
+          "max": 6.358601
+        },
+        "_complete_decision": {
+          "n": 18,
+          "p50": 28.6085905,
+          "p95": 122.37632514999997,
+          "p99": 134.67449302999995,
+          "max": 137.749035
+        },
+        "scheduler_stale": {
+          "n": 18,
+          "p50": 0.810411,
+          "p95": 1.1983589499999983,
+          "p99": 2.0899429899999977,
+          "max": 2.312839
+        },
+        "scheduler_finish": {
+          "n": 18,
+          "p50": 11.795414000000001,
+          "p95": 34.954472599999995,
+          "p99": 38.586246519999996,
+          "max": 39.49419
+        },
+        "_activate_nextgen": {
+          "n": 18,
+          "p50": 105.1403845,
+          "p95": 133.7213923,
+          "p99": 140.66039926,
+          "max": 142.395151
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 3010.222501,
+        "scheduler_prepare": 1580.304366,
+        "_submit_decision": 2.287052,
+        "next_input_player_0": 2440.520617,
+        "next_input_player_1": 2154.309863,
+        "env_step": 6900.639415,
+        "tactical_diagnostics": 6.641496,
+        "_build_replay_tick": 411.782232,
+        "_sync_display_boards": 38.507387,
+        "scheduler_accept": 782.523543,
+        "_plan_action": 135.586139,
+        "_complete_decision": 855.166643,
+        "scheduler_stale": 15.965467,
+        "scheduler_finish": 310.695169,
+        "_activate_nextgen": 1952.38779
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 9,
+          "decisions_activated": 9,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 8
+        },
+        "player_1": {
+          "decision_requests": 9,
+          "decisions_activated": 9,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 8
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 617362,
+          "max_rss_mib": 277.234375,
+          "max_threads": 14,
+          "sampled_cpu_seconds": 11.48,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_1",
+          "pid": 617378,
+          "max_rss_mib": 345.8203125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 17.62,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_2",
+          "pid": 617402,
+          "max_rss_mib": 344.6328125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 17.8,
+          "sample_count": 6
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      }
+    },
+    "cache-before": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 360,
+      "elapsed_seconds": 11.188003798,
+      "ticks": 742,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 360,
+          "p50": 18.1532095,
+          "p95": 94.5629057,
+          "p99": 144.96066986000008,
+          "max": 254.975371
+        },
+        "clock_wait_ms": {
+          "n": 360,
+          "p50": 2.0999895000000004,
+          "p95": 6.14908945,
+          "p99": 10.13259537,
+          "max": 12.099439
+        },
+        "events_ms": {
+          "n": 360,
+          "p50": 0.0382375,
+          "p95": 0.10777700000000003,
+          "p99": 0.18730482000000015,
+          "max": 0.406125
+        },
+        "update_ms": {
+          "n": 360,
+          "p50": 8.189231,
+          "p95": 84.90391990000006,
+          "p99": 137.46807791000012,
+          "max": 214.284552
+        },
+        "render_ms": {
+          "n": 360,
+          "p50": 5.251552500000001,
+          "p95": 11.403113500000005,
+          "p99": 45.01351622000031,
+          "max": 68.651237
+        },
+        "input_age_ms": {
+          "n": 223,
+          "p50": 15.295201,
+          "p95": 100.51325489999999,
+          "p99": 148.24139684000002,
+          "max": 205.524227
+        }
+      },
+      "tick_duration_ms": {
+        "n": 742,
+        "p50": 7.276327500000001,
+        "p95": 18.371738699999977,
+        "p99": 92.33140536,
+        "max": 135.433622
+      },
+      "tick_catchup": {
+        "n": 359,
+        "p50": 1.0,
+        "p95": 8.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 15,
+          "p50": 80.510882,
+          "p95": 87.71288419999999,
+          "p99": 92.47845844,
+          "max": 93.669852
+        },
+        "scheduler_prepare": {
+          "n": 10,
+          "p50": 83.14621700000001,
+          "p95": 86.84312395,
+          "p99": 87.10540879,
+          "max": 87.17098
+        },
+        "_submit_decision": {
+          "n": 10,
+          "p50": 0.0475885,
+          "p95": 0.39504654999999933,
+          "p99": 0.61433731,
+          "max": 0.66916
+        },
+        "next_input_player_0": {
+          "n": 742,
+          "p50": 0.012739,
+          "p95": 1.2229924499999871,
+          "p99": 84.98440924,
+          "max": 128.118297
+        },
+        "next_input_player_1": {
+          "n": 742,
+          "p50": 0.005065999999999999,
+          "p95": 1.1786143999999972,
+          "p99": 4.156642480000001,
+          "max": 7.666493
+        },
+        "env_step": {
+          "n": 742,
+          "p50": 4.0907935,
+          "p95": 8.53282755,
+          "p99": 15.336797160000003,
+          "max": 56.586274
+        },
+        "tactical_diagnostics": {
+          "n": 2924,
+          "p50": 0.0027324999999999997,
+          "p95": 0.007343849999999996,
+          "p99": 0.015206819999999996,
+          "max": 0.167331
+        },
+        "_build_replay_tick": {
+          "n": 742,
+          "p50": 2.6144860000000003,
+          "p95": 5.328818349999988,
+          "p99": 12.12332537000003,
+          "max": 56.991107
+        },
+        "_sync_display_boards": {
+          "n": 770,
+          "p50": 0.023897,
+          "p95": 0.06799089999999998,
+          "p99": 0.16441831999999953,
+          "max": 6.923351
+        },
+        "scheduler_accept": {
+          "n": 10,
+          "p50": 18.597582000000003,
+          "p95": 22.286122999999996,
+          "p99": 22.7523302,
+          "max": 22.868882
+        },
+        "_plan_action": {
+          "n": 15,
+          "p50": 3.563099,
+          "p95": 4.629405399999999,
+          "p99": 5.049751479999999,
+          "max": 5.154838
+        },
+        "_complete_decision": {
+          "n": 10,
+          "p50": 22.13394,
+          "p95": 25.9217993,
+          "p99": 26.26971266,
+          "max": 26.356691
+        },
+        "scheduler_stale": {
+          "n": 10,
+          "p50": 0.7136750000000001,
+          "p95": 0.97926545,
+          "p99": 0.99280829,
+          "max": 0.996194
+        },
+        "scheduler_finish": {
+          "n": 10,
+          "p50": 8.636986499999999,
+          "p95": 35.96280234999995,
+          "p99": 53.02384927000001,
+          "max": 57.289111
+        },
+        "_activate_nextgen": {
+          "n": 10,
+          "p50": 76.8976365,
+          "p95": 104.0377984,
+          "p99": 106.07921008,
+          "max": 106.589563
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 1218.669508,
+        "scheduler_prepare": 820.250476,
+        "_submit_decision": 1.106598,
+        "next_input_player_0": 1723.233471,
+        "next_input_player_1": 155.778683,
+        "env_step": 3628.078845,
+        "tactical_diagnostics": 10.085025,
+        "_build_replay_tick": 2189.781873,
+        "_sync_display_boards": 30.807006,
+        "scheduler_accept": 186.024781,
+        "_plan_action": 55.584378,
+        "_complete_decision": 225.471429,
+        "scheduler_stale": 7.61571,
+        "scheduler_finish": 133.972265,
+        "_activate_nextgen": 602.75726
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 10,
+          "decisions_activated": 5,
+          "stale_decisions": 5,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 4
+        },
+        "player_1": {
+          "decision_requests": 11,
+          "decisions_activated": 11,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 11
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 618649,
+          "max_rss_mib": 267.7734375,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 8.13,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_1",
+          "pid": 618667,
+          "max_rss_mib": 342.3828125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 12.46,
+          "sample_count": 6
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      },
+      "cache": {
+        "hit_worker_seconds": {
+          "n": 5,
+          "p50": 0.16713005298515782,
+          "p95": 0.18342523378087208,
+          "p99": 0.18490937153575943,
+          "max": 0.18528040597448125
+        },
+        "miss_worker_seconds": {
+          "n": 5,
+          "p50": 0.8476638679858297,
+          "p95": 0.8978661882109009,
+          "p99": 0.9033125712559559,
+          "max": 0.9046741670172196
+        }
+      }
+    },
+    "cache-after": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 360,
+      "elapsed_seconds": 8.771995667,
+      "ticks": 606,
+      "samples": {
+        "frame_interval_ms": {
+          "n": 360,
+          "p50": 17.0102015,
+          "p95": 69.2570044,
+          "p99": 143.7504522800003,
+          "max": 214.688737
+        },
+        "clock_wait_ms": {
+          "n": 360,
+          "p50": 4.341837,
+          "p95": 8.1305611,
+          "p99": 8.233331670000002,
+          "max": 10.133821
+        },
+        "events_ms": {
+          "n": 360,
+          "p50": 0.0399025,
+          "p95": 0.12834440000000003,
+          "p99": 0.26514183000000024,
+          "max": 0.638277
+        },
+        "update_ms": {
+          "n": 360,
+          "p50": 5.430942,
+          "p95": 65.68598025,
+          "p99": 132.95435783000033,
+          "max": 194.741671
+        },
+        "render_ms": {
+          "n": 360,
+          "p50": 5.576067500000001,
+          "p95": 12.807250500000007,
+          "p99": 18.72486086000002,
+          "max": 58.942197
+        },
+        "input_age_ms": {
+          "n": 175,
+          "p50": 13.070266,
+          "p95": 99.11838999999992,
+          "p99": 142.07685303999995,
+          "max": 165.073112
+        }
+      },
+      "tick_duration_ms": {
+        "n": 606,
+        "p50": 4.998761999999999,
+        "p95": 12.70202475,
+        "p99": 98.73721425000001,
+        "max": 141.125262
+      },
+      "tick_catchup": {
+        "n": 359,
+        "p50": 1.0,
+        "p95": 7.0,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 12,
+          "p50": 89.75306549999999,
+          "p95": 99.1363432,
+          "p99": 99.96849584,
+          "max": 100.176534
+        },
+        "scheduler_prepare": {
+          "n": 9,
+          "p50": 93.279229,
+          "p95": 100.0434602,
+          "p99": 101.78102403999999,
+          "max": 102.215415
+        },
+        "_submit_decision": {
+          "n": 9,
+          "p50": 0.057402,
+          "p95": 0.5344879999999999,
+          "p99": 0.702056,
+          "max": 0.743948
+        },
+        "next_input_player_0": {
+          "n": 606,
+          "p50": 0.014661,
+          "p95": 0.74637675,
+          "p99": 93.90797680000003,
+          "max": 136.895068
+        },
+        "next_input_player_1": {
+          "n": 606,
+          "p50": 0.0067035,
+          "p95": 1.6522315,
+          "p99": 4.650422050000004,
+          "max": 6.504411
+        },
+        "env_step": {
+          "n": 606,
+          "p50": 4.2255575,
+          "p95": 7.876805,
+          "p99": 13.006232500000015,
+          "max": 54.627494
+        },
+        "tactical_diagnostics": {
+          "n": 2046,
+          "p50": 0.0018679999999999999,
+          "p95": 0.00740525,
+          "p99": 0.016862299999999972,
+          "max": 0.158242
+        },
+        "_build_replay_tick": {
+          "n": 606,
+          "p50": 0.260263,
+          "p95": 0.6008955,
+          "p99": 1.1109288500000012,
+          "max": 1.843469
+        },
+        "_sync_display_boards": {
+          "n": 628,
+          "p50": 0.0230075,
+          "p95": 0.05793644999999999,
+          "p99": 0.1273287200000001,
+          "max": 0.245514
+        },
+        "scheduler_accept": {
+          "n": 8,
+          "p50": 19.1464495,
+          "p95": 23.261126249999997,
+          "p99": 24.031458049999998,
+          "max": 24.224041
+        },
+        "_plan_action": {
+          "n": 11,
+          "p50": 3.991956,
+          "p95": 5.518452,
+          "p99": 6.231919200000001,
+          "max": 6.410286
+        },
+        "_complete_decision": {
+          "n": 8,
+          "p50": 24.586992000000002,
+          "p95": 27.123276999999998,
+          "p99": 27.6766242,
+          "max": 27.814961
+        },
+        "scheduler_stale": {
+          "n": 8,
+          "p50": 0.7829045,
+          "p95": 1.0146527499999998,
+          "p99": 1.0734121499999998,
+          "max": 1.088102
+        },
+        "scheduler_finish": {
+          "n": 8,
+          "p50": 9.2185375,
+          "p95": 9.79603165,
+          "p99": 9.87231513,
+          "max": 9.891386
+        },
+        "_activate_nextgen": {
+          "n": 8,
+          "p50": 12.478653999999999,
+          "p95": 111.54884519999999,
+          "p99": 114.82762503999999,
+          "max": 115.64732
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 1081.300481,
+        "scheduler_prepare": 836.187401,
+        "_submit_decision": 1.341974,
+        "next_input_player_0": 1453.160222,
+        "next_input_player_1": 153.792492,
+        "env_step": 2998.810906,
+        "tactical_diagnostics": 6.078084,
+        "_build_replay_tick": 188.958046,
+        "_sync_display_boards": 17.727269,
+        "scheduler_accept": 154.976114,
+        "_plan_action": 45.688295000000004,
+        "_complete_decision": 190.679391,
+        "scheduler_stale": 6.375033,
+        "scheduler_finish": 72.490622,
+        "_activate_nextgen": 376.035722
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 9,
+          "decisions_activated": 3,
+          "stale_decisions": 5,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 3
+        },
+        "player_1": {
+          "decision_requests": 10,
+          "decisions_activated": 10,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 9
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 618874,
+          "max_rss_mib": 264.140625,
+          "max_threads": 12,
+          "sampled_cpu_seconds": 5.78,
+          "sample_count": 6
+        },
+        {
+          "role": "worker_1",
+          "pid": 618884,
+          "max_rss_mib": 342.4453125,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 9.2,
+          "sample_count": 6
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": false,
+        "input_age_ms.p99": false
+      },
+      "cache": {
+        "hit_worker_seconds": {
+          "n": 4,
+          "p50": 0.17826152849011123,
+          "p95": 0.18834365235525183,
+          "p99": 0.18903600807650947,
+          "max": 0.18920909700682387
+        },
+        "miss_worker_seconds": {
+          "n": 4,
+          "p50": 0.8351710434944835,
+          "p95": 0.8834258879200206,
+          "p99": 0.8896999144021538,
+          "max": 0.8912684210226871
+        }
+      }
+    },
+    "mask-after": {
+      "settings": {
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0,
+        "max_ticks": 2400,
+        "plan_overlay": false,
+        "nextgen_profile": "nextgen_safe_build",
+        "nextgen_backend": "native",
+        "deep_chain_profile": "reference",
+        "deep_chain_backend": "native"
+      },
+      "frames": 600,
+      "elapsed_seconds": 13.046648634,
+      "ticks": 850,
+      "samples": {
+        "input_age_ms": {
+          "n": 20,
+          "p50": 6.6688945,
+          "p95": 9.0485882,
+          "p99": 9.12916644,
+          "max": 9.149311
+        },
+        "frame_interval_ms": {
+          "n": 600,
+          "p50": 16.369007,
+          "p95": 58.017074899999976,
+          "p99": 120.19328318999997,
+          "max": 229.608787
+        },
+        "clock_wait_ms": {
+          "n": 600,
+          "p50": 6.1825425,
+          "p95": 9.112451649999999,
+          "p99": 11.16098702,
+          "max": 12.156869
+        },
+        "events_ms": {
+          "n": 600,
+          "p50": 0.031315499999999996,
+          "p95": 0.06609369999999996,
+          "p99": 0.16041446999999975,
+          "max": 0.38721
+        },
+        "update_ms": {
+          "n": 600,
+          "p50": 4.330609,
+          "p95": 46.87116514999999,
+          "p99": 111.81933754999997,
+          "max": 213.980392
+        },
+        "render_ms": {
+          "n": 600,
+          "p50": 4.9433545,
+          "p95": 8.295144399999993,
+          "p99": 15.770083439999988,
+          "max": 95.664032
+        }
+      },
+      "tick_duration_ms": {
+        "n": 850,
+        "p50": 4.2469405,
+        "p95": 11.471079549999988,
+        "p99": 84.77504306,
+        "max": 121.072285
+      },
+      "tick_catchup": {
+        "n": 599,
+        "p50": 1.0,
+        "p95": 3.2000000000000455,
+        "p99": 12.0,
+        "max": 12
+      },
+      "functions_ms": {
+        "authoritative_mask": {
+          "n": 20,
+          "p50": 75.4648085,
+          "p95": 80.96208455,
+          "p99": 83.26405691,
+          "max": 83.83955
+        },
+        "scheduler_prepare": {
+          "n": 15,
+          "p50": 78.557422,
+          "p95": 84.2135323,
+          "p99": 87.32422645999999,
+          "max": 88.1019
+        },
+        "_submit_decision": {
+          "n": 15,
+          "p50": 0.054667,
+          "p95": 0.2941885999999996,
+          "p99": 0.5101145199999998,
+          "max": 0.564096
+        },
+        "next_input_player_0": {
+          "n": 850,
+          "p50": 0.0138665,
+          "p95": 1.8304510999999621,
+          "p99": 79.89437095999999,
+          "max": 116.308301
+        },
+        "next_input_player_1": {
+          "n": 850,
+          "p50": 0.006521,
+          "p95": 1.3040791999999972,
+          "p99": 3.42602244,
+          "max": 8.025061
+        },
+        "env_step": {
+          "n": 850,
+          "p50": 3.6050050000000002,
+          "p95": 6.545852599999996,
+          "p99": 13.06255157,
+          "max": 49.585538
+        },
+        "tactical_diagnostics": {
+          "n": 3250,
+          "p50": 0.001608,
+          "p95": 0.005921649999999988,
+          "p99": 0.012188809999999993,
+          "max": 0.066991
+        },
+        "_build_replay_tick": {
+          "n": 850,
+          "p50": 0.235024,
+          "p95": 0.42221689999999995,
+          "p99": 0.7724793199999996,
+          "max": 6.400868
+        },
+        "_sync_display_boards": {
+          "n": 882,
+          "p50": 0.020779,
+          "p95": 0.06052919999999998,
+          "p99": 0.13039760999999891,
+          "max": 0.22207
+        },
+        "scheduler_accept": {
+          "n": 15,
+          "p50": 15.861781,
+          "p95": 19.5602616,
+          "p99": 20.19550992,
+          "max": 20.354322
+        },
+        "_plan_action": {
+          "n": 20,
+          "p50": 3.5273465,
+          "p95": 4.59506985,
+          "p99": 4.70768437,
+          "max": 4.735838
+        },
+        "_complete_decision": {
+          "n": 15,
+          "p50": 19.513112,
+          "p95": 23.5156105,
+          "p99": 24.0437437,
+          "max": 24.175777
+        },
+        "scheduler_stale": {
+          "n": 15,
+          "p50": 0.810908,
+          "p95": 1.1320708999999998,
+          "p99": 1.22431578,
+          "max": 1.247377
+        },
+        "scheduler_finish": {
+          "n": 15,
+          "p50": 7.790309,
+          "p95": 8.599097,
+          "p99": 8.6667954,
+          "max": 8.68372
+        },
+        "_activate_nextgen": {
+          "n": 15,
+          "p50": 11.803278,
+          "p95": 94.62601459999999,
+          "p99": 97.93271492,
+          "max": 98.75939
+        }
+      },
+      "functions_total_ms": {
+        "authoritative_mask": 1518.761263,
+        "scheduler_prepare": 1171.908099,
+        "_submit_decision": 1.524052,
+        "next_input_player_0": 2112.676113,
+        "next_input_player_1": 166.702333,
+        "env_step": 3649.352698,
+        "tactical_diagnostics": 7.555382,
+        "_build_replay_tick": 230.441235,
+        "_sync_display_boards": 22.960809,
+        "scheduler_accept": 241.859317,
+        "_plan_action": 72.531227,
+        "_complete_decision": 298.28039,
+        "scheduler_stale": 12.701739,
+        "scheduler_finish": 116.725033,
+        "_activate_nextgen": 571.968292
+      },
+      "decision_counters": {
+        "player_0": {
+          "decision_requests": 15,
+          "decisions_activated": 5,
+          "stale_decisions": 10,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 5
+        },
+        "player_1": {
+          "decision_requests": 13,
+          "decisions_activated": 13,
+          "stale_decisions": 0,
+          "timeouts": 0,
+          "deadline_misses": 0,
+          "fallback_actions": 0,
+          "placements_completed": 12
+        }
+      },
+      "processes": [
+        {
+          "role": "gui",
+          "pid": 614277,
+          "max_rss_mib": 265.5,
+          "max_threads": 11,
+          "sampled_cpu_seconds": 8.79,
+          "sample_count": 10
+        },
+        {
+          "role": "worker_1",
+          "pid": 614306,
+          "max_rss_mib": 342.9765625,
+          "max_threads": 15,
+          "sampled_cpu_seconds": 13.82,
+          "sample_count": 10
+        }
+      ],
+      "cadence_gate": {
+        "frame_interval_ms.p95": false,
+        "frame_interval_ms.p99": false,
+        "input_age_ms.p95": true,
+        "input_age_ms.p99": true
+      }
+    }
+  }
+}
