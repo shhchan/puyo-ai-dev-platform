@@ -33,6 +33,7 @@ from agents.long_horizon_search import (
     run_compact_long_horizon_search,
 )
 from src.core.constants import PuyoColor
+from agents.selected_template import SelectedTemplate, validate_public_template_input
 
 LONG_HORIZON_BACKEND_CONFIG_SCHEMA_VERSION = "puyo.deep_chain_builder.backend_config.v1"
 LONG_HORIZON_BACKEND_DIAGNOSTICS_SCHEMA_VERSION = (
@@ -166,8 +167,12 @@ class LongHorizonBackendRequest:
     request_id: int
     canonical: bool
     allow_auto_fallback: bool
+    selected_template: SelectedTemplate | None = None
 
     def __post_init__(self) -> None:
+        validate_public_template_input(
+            self.selected_template, self.known_pairs, self.search_config
+        )
         pairs = tuple(tuple(pair) for pair in self.known_pairs)
         if not pairs or any(len(pair) != 2 for pair in pairs):
             raise ValueError("long-horizon backend requires visible color pairs")
@@ -219,6 +224,11 @@ def _base_diagnostics(
         "backend": resolved_backend,
         "canonical": bool(request.canonical),
         "request_id": int(request.request_id),
+        **(
+            {"selected_template_digest": request.selected_template.semantic_digest}
+            if request.selected_template is not None
+            else {}
+        ),
         "profile": {
             "name": request.profile_name,
             "version": request.profile_version,
@@ -226,9 +236,7 @@ def _base_diagnostics(
         "configuration": {
             "search_config_version": request.search_config_version,
             "search_config_sha256": request.search_config_sha256,
-            "minimum_chain_count": int(
-                request.search_config.minimum_chain_count
-            ),
+            "minimum_chain_count": int(request.search_config.minimum_chain_count),
             "evaluator_config_version": request.evaluator_config_version,
             "evaluator_config_sha256": request.evaluator_config_sha256,
             "backend_config_version": request.backend_config_version,
@@ -275,6 +283,7 @@ class PythonLongHorizonSearchBackend:
             request.known_pairs,
             request.search_config,
             evaluator=ChainStructureEvaluator(request.evaluator_config),
+            selected_template=request.selected_template,
         )
         total_ns = time.perf_counter_ns() - started
         diagnostics = _base_diagnostics(
@@ -295,6 +304,7 @@ class PythonLongHorizonSearchBackend:
                     "compute_ns": int(total_ns),
                     "serialization_ns": 0,
                     "materialization_ns": 0,
+                    "template_check_ns": result.template_check_ns,
                     "total_ns": int(total_ns),
                     "total_seconds": float(total_ns / 1_000_000_000.0),
                 },
@@ -377,6 +387,7 @@ class NativeLongHorizonSearchBackend:
             request_id=request.request_id,
             execution_mode=self.execution_mode,
             max_response_bytes=self.max_response_bytes,
+            selected_template=request.selected_template,
         )
         total_started = time.perf_counter_ns()
         call_started = time.perf_counter_ns()
@@ -417,6 +428,7 @@ class NativeLongHorizonSearchBackend:
                     ),
                     "boundary_call_ns": int(boundary_call_ns),
                     "materialization_ns": int(materialization_ns),
+                    "template_check_ns": result.template_check_ns,
                     "total_ns": int(total_ns),
                     "total_seconds": float(total_ns / 1_000_000_000.0),
                 },

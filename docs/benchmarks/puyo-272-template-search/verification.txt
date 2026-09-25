@@ -1,0 +1,35 @@
+Worktree: /home/sion2/workspaces/puyo-nextgen-20260925/272
+Branch: PUYO-272/template-search-backend
+PR base/start: PUYO-270/survival-override / fe0da9892a41c54a6ab3528d4a58b3fca079f428
+Verified code commit: 9b64186087ea8b6e1219861ddbb534b39233966c
+Native target: /home/sion2/workspaces/puyo-nextgen-20260925/272/.native-target
+Python: /home/sion2/workspaces/puyo-nextgen-20260925/272/.venv/bin/python
+
+Final release build (exec session 20446):
+PUYO_NATIVE_SOURCE_REVISION=9b64186087ea8b6e1219861ddbb534b39233966c PYO3_PYTHON=$PWD/.venv/bin/python CARGO_TARGET_DIR=$PWD/.native-target cargo build --release --locked --manifest-path native/deep_chain_native/Cargo.toml
+Release shared object copied to this worktree's .venv only.
+
+Final measurement and QA ran sequentially under exclusive CPU allocation in exec session 79684:
+.venv/bin/python docs/benchmarks/puyo-272-template-search/measure.py --output docs/benchmarks/puyo-272-template-search/common-quota.json
+.venv/bin/python docs/benchmarks/puyo-272-template-search/measure.py --full-native --output docs/benchmarks/puyo-272-template-search/native-production-quota.json
+All 24 case/backend/constraint groups and 72 measured decisions retained; none failed.
+Raw JSON compressed with gzip mtime=0 after validating source hashes and parity.
+Common quota cross-backend semantic digests and counters identical in all 8 matched groups.
+All 3 repeats per group have identical semantic digests.
+Code files match manifest SHA256 byte-for-byte and git code commit 9b641860.
+Native capabilities source revision equals the code commit; binary SHA256 fixed in manifests.
+The previous contract without sampled scenario ID is preserved separately under intermediate-without-scenario-id/.
+
+Final Python regression:
+.venv/bin/python -m unittest tests.test_selected_template_search tests.test_deep_chain_native tests.test_deep_chain_native_search tests.test_deep_chain_search_backend tests.test_long_horizon_search tests.test_nextgen_contracts tests.test_nextgen_shared_search tests.test_nextgen_trajectory tests.test_nextgen_survival
+........................................................................................................................
+----------------------------------------------------------------------
+Ran 120 tests in 129.093s
+
+OK
+
+Final Rust regression:
+PUYO_NATIVE_SOURCE_REVISION=9b64186087ea8b6e1219861ddbb534b39233966c CARGO_TARGET_DIR=$PWD/.native-target cargo test --locked --manifest-path native/deep_chain_native/Cargo.toml --lib
+test compact::tests::inserted_component_fast_path_matches_full_scanner ... ok
+
+test result: ok. 48 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.24s

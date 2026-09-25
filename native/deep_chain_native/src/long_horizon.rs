@@ -5,6 +5,7 @@
 //! completion seed. Only bounded evidence for roots and representatives is
 //! serialized after aggregation.
 
+use crate::selected_template::{Record as TemplateRecord, SelectedTemplate};
 use std::cmp::Ordering;
 use std::mem::MaybeUninit;
 use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -99,6 +100,7 @@ struct ExecutionConfig {
 #[derive(Clone)]
 pub(crate) struct Request {
     root_state: CompactState,
+    selected_template: Option<SelectedTemplate>,
     known_pairs: Vec<Pair>,
     search: SearchConfig,
     evaluator: EvaluationConfig,
@@ -445,6 +447,7 @@ impl Counters {
 #[derive(Clone, Debug)]
 struct ScenarioResult {
     trackers: Vec<Tracker>,
+    template_records: Vec<TemplateRecord>,
     counters: Counters,
     peak_live_nodes: u64,
     tt_capacity: u64,
@@ -464,6 +467,7 @@ struct Telemetry {
 }
 
 pub(crate) struct Output {
+    pub(crate) selected_template: Option<Vec<u8>>,
     pub(crate) decision: Vec<u8>,
     pub(crate) counters: Vec<u8>,
     pub(crate) root_evidence: Vec<u8>,
@@ -713,6 +717,7 @@ pub(crate) fn parse(
     search: &[u8],
     evaluator: &[u8],
     execution: &[u8],
+    selected_template: Option<&[u8]>,
 ) -> ContractResult<Request> {
     let root_state = CompactState::from_bytes(root_state)
         .map_err(|error| ContractError::invalid(REQUEST_ROOT_STATE_TAG, error.to_string()))?;
@@ -724,7 +729,15 @@ pub(crate) fn parse(
             "native v1 decisions require zero pair/scenario cursors",
         ));
     }
+    let selected_template = selected_template.map(SelectedTemplate::parse).transpose()?;
+    if selected_template.is_some() && (known_pairs.len() > 3 || search.forced_safety) {
+        return Err(ContractError::invalid(
+            crate::selected_template::TAG,
+            "template requires public prefix and safe_build context",
+        ));
+    }
     Ok(Request {
+        selected_template,
         root_state,
         known_pairs,
         search,
@@ -1261,6 +1274,11 @@ fn run_scenario(
     let mut table = TranspositionTable::new(maximum_candidates)?;
     let mut prune_workspace = PruneWorkspace::new(config, maximum_candidates);
     let mut counters = Counters::default();
+    let mut template_records = vec![TemplateRecord::default(); ACTION_COUNT];
+    let initial_valid = request
+        .selected_template
+        .as_ref()
+        .is_none_or(|t| t.evaluate(&request.root_state, &request.root_state).0);
     let mut peak_live_nodes = 0_u64;
 
     for (action, tracker) in trackers.iter_mut().enumerate() {
@@ -1287,6 +1305,20 @@ fn run_scenario(
         }
         counters.generated_nodes += 1;
         counters.reached_depth = counters.reached_depth.max(1);
+        if let Some(template) = &request.selected_template {
+            if !template_records[action].check(
+                template,
+                &state,
+                &request.root_state,
+                &[action as u8],
+                request.known_pairs.len(),
+                initial_valid,
+                transition.game_over(),
+                sequence.scenario_id,
+            ) {
+                continue;
+            }
+        }
         let terminal = config.record_and_stop
             && u16::from(transition.chain_count) >= config.terminal_fire_chain_count;
         let mut evaluation = None;
@@ -1394,6 +1426,22 @@ fn run_scenario(
                 }
                 counters.generated_nodes += 1;
                 counters.reached_depth = counters.reached_depth.max(depth as u64);
+                if let Some(template) = &request.selected_template {
+                    let mut path = node.path;
+                    path[depth - 1] = action as u8;
+                    if !template_records[usize::from(node.root_action)].check(
+                        template,
+                        &state,
+                        &node.state,
+                        &path[..depth],
+                        request.known_pairs.len(),
+                        initial_valid,
+                        transition.game_over(),
+                        sequence.scenario_id,
+                    ) {
+                        continue;
+                    }
+                }
                 let terminal = config.record_and_stop
                     && u16::from(transition.chain_count) >= config.terminal_fire_chain_count;
                 let mut evaluation = None;
@@ -1447,6 +1495,8 @@ fn run_scenario(
                     candidates.push(candidate);
                     continue;
                 }
+                // Request-local fixed binding + monotonic retention make all
+                // template progress derivable from this exact board identity.
                 let key = SearchStateKey::new(
                     &state,
                     node.root_action,
@@ -1486,6 +1536,7 @@ fn run_scenario(
     }
 
     Ok(ScenarioResult {
+        template_records,
         trackers,
         counters,
         peak_live_nodes,
@@ -1608,6 +1659,7 @@ fn scenario_pool() -> ContractResult<&'static ScenarioPool> {
 
 fn empty_scenario(request: &Request, sequence: ScenarioSequence, root_mask: u32) -> ScenarioResult {
     ScenarioResult {
+        template_records: vec![TemplateRecord::default(); ACTION_COUNT],
         trackers: initialize_trackers(root_mask, sequence.scenario_id),
         counters: Counters::default(),
         peak_live_nodes: 0,
@@ -2334,7 +2386,42 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
     let root_evidence = encode_root_evidence(&request, &scenarios, &root_actions);
     let representative_records = encode_representatives(&request, &representatives, &root_actions);
     let diagnostics = encode_diagnostics(&request, &sequences, root_evaluation);
-    let digest = semantic_digest(&root_evidence, &representative_records, &diagnostics);
+    let selected_template = request.selected_template.as_ref().map(|template| {
+        let mut output = Bytes::default();
+        output.u16(1);
+        output.raw(&template.digest);
+        output.u16(root_actions.len() as u16);
+        for &action in &root_actions {
+            let mut record = TemplateRecord::default();
+            for scenario in &scenarios {
+                record.add(&scenario.template_records[usize::from(action)]);
+            }
+            output.u8(action);
+            output.u64(record.checks);
+            output.u64(record.rejected);
+            output.u8(u8::from(record.root_violation));
+            for witness in [&record.known, &record.sampled] {
+                output.u8(witness.len() as u8);
+                output.raw(witness);
+            }
+            output.u8(record.sampled_scenario.unwrap_or(255));
+        }
+        output.u64(
+            scenarios
+                .iter()
+                .flat_map(|s| &s.template_records)
+                .map(|r| r.check_ns)
+                .sum(),
+        );
+        output.0
+    });
+    let mut digest = semantic_digest(&root_evidence, &representative_records, &diagnostics);
+    if let Some(template) = &selected_template {
+        let mut hash = Sha256::new();
+        hash.update(digest.as_bytes());
+        hash.update(&template[..template.len() - 8]);
+        digest = hex_prefix(&hash.finalize(), 64);
+    }
     let decision = encode_decision(
         selected_action,
         &ranked_actions,
@@ -2349,6 +2436,7 @@ pub(crate) fn execute(request: Request) -> ContractResult<Output> {
     let counter_payload = encode_counters(counters, telemetry);
     let provenance = encode_provenance(request.execution.mode);
     Ok(Output {
+        selected_template,
         decision,
         counters: counter_payload,
         root_evidence,
