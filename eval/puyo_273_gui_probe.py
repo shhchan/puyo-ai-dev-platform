@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+import sys
+import types
 import threading
 import time
 
@@ -24,6 +26,13 @@ from src.ui.versus_renderer import SCREEN_HEIGHT, SCREEN_WIDTH, VersusRenderer
 def run(args):
     source_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     source_diff = hashlib.sha256(subprocess.check_output(["git", "diff", "--", "puyo_env"])).hexdigest()
+    if args.geometric_reference:
+        module = types.ModuleType("puyo273_geometric_reference")
+        sys.modules[module.__name__] = module
+        source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/action_planner.py"], text=True)
+        exec(compile(source, "geometric_reference_planner", "exec"), module.__dict__)
+        ai.plan_placement_action = module.plan_placement_action
+        ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
     if args.reference_mask:
         # Baseline implementation at 595dbed, retained only in this evaluator.
         def reference(simulator, *, timing=None, max_expanded_states=2000):
@@ -45,6 +54,26 @@ def run(args):
     workers = [e.process_pid for e in controller._decision_executors.values() if e.process_pid]
     frame = 0
     active_frames = []
+    locks = []
+    env_step = controller.env.step
+    def step_with_lock_receipts(inputs):
+        expected = {}
+        for agent, item in controller.controllers.items():
+            plan = getattr(item, "_active_plan", None)
+            if plan is not None:
+                expected[agent] = [plan.action.axis_x, plan.expected_axis_y, plan.action.rotation.name]
+        result = env_step(inputs)
+        match_result = result[-1]["player_0"].get("match_result")
+        if match_result is not None:
+            for agent, step in match_result.player_results.items():
+                for event in step.events:
+                    if event.type == "lock":
+                        actual = [event.data["axis_x"], event.data["axis_y"], event.data["rotation"]]
+                        locks.append({"frame":frame,"tick":event.tick,"agent":agent,
+                                      "expected":expected.get(agent),"actual":actual,
+                                      "matches":expected.get(agent)==actual if agent in expected else None})
+        return result
+    controller.env.step = step_with_lock_receipts
 
     def wrap(obj, name, label):
         original = getattr(obj, name)
@@ -182,7 +211,9 @@ def run(args):
                                        if getattr(i,"nextgen_scheduler",None)},
                   "native": {"capabilities":NativeDeepChainBackend().capabilities.to_dict(),
                              "module":native.__file__, "sha256":hashlib.sha256(Path(native.__file__).read_bytes()).hexdigest()},
+                  "lock_receipts":locks,
                   "source_sha":source_sha, "reference_mask":args.reference_mask,
+                  "geometric_reference":args.geometric_reference,
                   "source_diff_sha256":source_diff,
                   "host":platform.uname()._asdict(),"display":os.environ.get("DISPLAY"),
                   "resolution":[SCREEN_WIDTH,SCREEN_HEIGHT],"clock_ticks":os.sysconf("SC_CLK_TCK")}
@@ -212,6 +243,7 @@ def main():
     parser.add_argument("--frames",type=int,default=600)
     parser.add_argument("--minimal",action="store_true")
     parser.add_argument("--reference-mask",action="store_true")
+    parser.add_argument("--geometric-reference",action="store_true")
     parser.add_argument("--output",required=True)
     run(parser.parse_args())
 
