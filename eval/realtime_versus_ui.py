@@ -102,6 +102,7 @@ class RealtimeHumanController:
         self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
         self._press: list[Action] = []
         self._release: list[Action] = []
+        self._edges: list[tuple[str, Action]] = []
         self._held: set[Action] = set()
         self._last_soft_drop_pulse_tick: int | None = None
 
@@ -111,6 +112,7 @@ class RealtimeHumanController:
     def reset(self) -> None:
         self._press.clear()
         self._release.clear()
+        self._edges.clear()
         self._held.clear()
         self._last_soft_drop_pulse_tick = None
         self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
@@ -119,15 +121,18 @@ class RealtimeHumanController:
         if action not in self._held:
             self._held.add(action)
             self._press.append(action)
+            self._edges.append(("press", action))
 
     def key_up(self, action: Action) -> None:
         if action in self._held:
             self._held.remove(action)
             self._release.append(action)
+            self._edges.append(("release", action))
 
     def next_input(self, match, *_args, **_kwargs) -> TickInput:
         press = list(self._press)
         release = list(self._release)
+        edges = list(self._edges)
         if Action.DOWN in press:
             self._last_soft_drop_pulse_tick = match.tick
         elif Action.DOWN in self._held and (
@@ -137,12 +142,14 @@ class RealtimeHumanController:
             # Re-arm the held input at the same cadence as placement planner pulses.
             release.append(Action.DOWN)
             press.append(Action.DOWN)
+            edges.extend((("release", Action.DOWN), ("press", Action.DOWN)))
             self._last_soft_drop_pulse_tick = match.tick
         if Action.DOWN in release and Action.DOWN not in self._held:
             self._last_soft_drop_pulse_tick = None
-        tick_input = TickInput(press=tuple(press), release=tuple(release))
+        tick_input = TickInput(press=tuple(press), release=tuple(release), edges=tuple(edges))
         self._press.clear()
         self._release.clear()
+        self._edges.clear()
         self.diagnostics.emitted_input_ticks += bool(tick_input.press or tick_input.release)
         self.diagnostics.last_event = "human_input" if tick_input.press or tick_input.release else "human_held"
         return tick_input

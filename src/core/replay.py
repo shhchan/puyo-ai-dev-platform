@@ -30,6 +30,7 @@ def inputs_from_fixture(fixture: Mapping[str, Any]) -> dict[int, TickInput]:
         inputs[tick] = TickInput.from_names(
             press=entry.get("press", ()),
             release=entry.get("release", ()),
+            edges=entry.get("edges", ()),
         )
     return inputs
 
