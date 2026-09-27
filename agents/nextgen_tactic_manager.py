@@ -242,6 +242,7 @@ class PreparePhaseStep(DecisionStep):
             reachable_mask=data["execution"].reachable_mask,
             preferred_key=phase.candidate.key if phase.candidate is not None else None,
             prioritize_static_binding=True,
+            evaluate_prefix_progress=phase.can_build_template,
         )
         elapsed = time.perf_counter() - started
         reconcile_phase(phase, result, public, data["history"], identity)

@@ -1,0 +1,786 @@
+{
+  "rows": [
+    {
+      "seed": 55,
+      "fresh_before": {
+        "seed": 55,
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 35,
+        "decision_seconds": {
+          "n": 35,
+          "p50": 0.6320200049958657,
+          "p95": 0.7984482460014988,
+          "max": 0.8277885910065379
+        },
+        "semantic_digest": "934d4d8a906ca201a6eb3fec71f1b9dbe1479327e2b1d8e7858682ed2fe4d4f2",
+        "errors": []
+      },
+      "after": {
+        "seed": 55,
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.6478472214948852,
+          "p95": 0.7998376304196426,
+          "max": 0.8341440020012669
+        },
+        "errors": [],
+        "initial_template_completed_at_placements": 10,
+        "initial_phase_exit": "completed",
+        "tactics": {
+          "build_template": 10,
+          "build_main": 29,
+          "fire_main": 1
+        },
+        "receipts": {
+          "activated": 40
+        },
+        "actions": [
+          7,
+          4,
+          2,
+          10,
+          13,
+          16,
+          12,
+          2,
+          2,
+          6,
+          14,
+          1,
+          18,
+          3,
+          12,
+          5,
+          4,
+          15,
+          18,
+          0,
+          4,
+          20,
+          15,
+          17,
+          19,
+          7,
+          19,
+          19,
+          0,
+          13,
+          7,
+          8,
+          14,
+          0,
+          13,
+          5,
+          7,
+          18,
+          12,
+          19
+        ],
+        "placements_geometry": [
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 1,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 4,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 2,
+            "rotation": "UP"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 2,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 6,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          }
+        ],
+        "maximum_visible_height": 12
+      },
+      "compact_matches_game_state_rollout": true,
+      "fresh_before_matches_saved_semantic_digest": true
+    },
+    {
+      "seed": 123,
+      "fresh_before": {
+        "seed": 123,
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.7476469500252279,
+          "p95": 0.973088191296847,
+          "max": 0.9964454149885569
+        },
+        "semantic_digest": "e91b0784a6d3772e00500a21715ec07264b5eda0dfd8ff7cdaf128322245b8b9",
+        "errors": []
+      },
+      "after": {
+        "seed": 123,
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.6077276719879592,
+          "p95": 0.7548651416524078,
+          "max": 0.9772255969874095
+        },
+        "errors": [],
+        "initial_template_completed_at_placements": 9,
+        "initial_phase_exit": "completed",
+        "tactics": {
+          "build_template": 9,
+          "build_main": 30,
+          "fire_main": 1
+        },
+        "receipts": {
+          "activated": 40
+        },
+        "actions": [
+          9,
+          4,
+          11,
+          8,
+          12,
+          0,
+          4,
+          2,
+          1,
+          4,
+          16,
+          18,
+          16,
+          8,
+          1,
+          1,
+          7,
+          13,
+          5,
+          0,
+          4,
+          12,
+          12,
+          0,
+          17,
+          8,
+          1,
+          1,
+          5,
+          12,
+          16,
+          9,
+          8,
+          13,
+          10,
+          7,
+          12,
+          15,
+          19,
+          18
+        ],
+        "placements_geometry": [
+          {
+            "column": 3,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "UP"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 1,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 2,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 3,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          }
+        ],
+        "maximum_visible_height": 12
+      },
+      "compact_matches_game_state_rollout": true,
+      "fresh_before_matches_saved_semantic_digest": true
+    },
+    {
+      "seed": 124,
+      "fresh_before": {
+        "seed": 124,
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.6839106389961671,
+          "p95": 0.8132098105343175,
+          "max": 0.8316032030270435
+        },
+        "semantic_digest": "0196a95079c80dec521b0452499fa2ef5d3cbd42fa7cc794b1f44a9649aaf227",
+        "errors": []
+      },
+      "after": {
+        "seed": 124,
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.6328195039823186,
+          "p95": 0.8251754672412059,
+          "max": 1.0067314760235604
+        },
+        "errors": [],
+        "initial_template_completed_at_placements": 9,
+        "initial_phase_exit": "completed",
+        "tactics": {
+          "build_template": 9,
+          "build_main": 30,
+          "fire_main": 1
+        },
+        "receipts": {
+          "activated": 40
+        },
+        "actions": [
+          7,
+          2,
+          21,
+          10,
+          10,
+          12,
+          10,
+          8,
+          6,
+          3,
+          18,
+          19,
+          18,
+          11,
+          16,
+          19,
+          15,
+          6,
+          19,
+          15,
+          4,
+          20,
+          4,
+          14,
+          21,
+          8,
+          13,
+          4,
+          12,
+          19,
+          0,
+          21,
+          16,
+          12,
+          15,
+          17,
+          13,
+          9,
+          18,
+          4
+        ],
+        "placements_geometry": [
+          {
+            "column": 3,
+            "rotation": "UP"
+          },
+          {
+            "column": 1,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 6,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 3,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 3,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 3,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 2,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 2,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 4,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 6,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 6,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 3,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 6,
+            "rotation": "UP"
+          },
+          {
+            "column": 1,
+            "rotation": "UP"
+          },
+          {
+            "column": 6,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 5,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 4,
+            "rotation": "RIGHT"
+          },
+          {
+            "column": 5,
+            "rotation": "UP"
+          },
+          {
+            "column": 5,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 4,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 3,
+            "rotation": "DOWN"
+          },
+          {
+            "column": 5,
+            "rotation": "LEFT"
+          },
+          {
+            "column": 2,
+            "rotation": "RIGHT"
+          }
+        ],
+        "maximum_visible_height": 12
+      },
+      "compact_matches_game_state_rollout": true,
+      "fresh_before_matches_saved_semantic_digest": true
+    }
+  ],
+  "constrained_backend_digest_equal": true,
+  "source_sha": "9ce014552d5b103f87290095b2156e29e83608a4",
+  "fresh_before_source_sha": "258397624245407e402ebf81c5ca20bdc007a475",
+  "native_binary_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+  "saved_reference_source_sha": "258397624245407e402ebf81c5ca20bdc007a475",
+  "saved_reference": [
+    {
+      "seed": 55,
+      "max_chain": 1,
+      "premature": 1,
+      "game_over": true,
+      "placements": 33,
+      "raw_sha256": "d722e859dd819bbfa8764366dd235ae0c6b3a2d6eb23eb032c865f17104db99d"
+    },
+    {
+      "seed": 123,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "raw_sha256": "f5aa16300da2993cfae0bd4a2500226ccbdbdd9d6dcb00aa831cf2703431f153"
+    },
+    {
+      "seed": 124,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "raw_sha256": "14f64ee296e650c578851a6e98667bdfc0f7b2506cf385255f2666d3d337fc1a"
+    }
+  ],
+  "host_at_analysis": {
+    "hostname": "DESKTOP-G4HAPVQ",
+    "cpu_model": "Intel(R) Core(TM) Ultra 7 258V"
+  }
+}
