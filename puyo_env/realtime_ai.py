@@ -1248,7 +1248,7 @@ def realtime_reachable_action_mask(
         return numpy.zeros(NUM_ACTIONS, dtype=numpy.bool_)
     return numpy.asarray(
         reachable_placement_actions(
-            simulator, PLACEMENT_ACTIONS, max_expanded_states=max_expanded_states
+            simulator, PLACEMENT_ACTIONS, timing=timing, max_expanded_states=max_expanded_states
         ),
         dtype=numpy.bool_,
     )

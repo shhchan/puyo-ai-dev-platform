@@ -48,6 +48,135 @@ def _coerce_game(game_or_simulator: GameState | HeadlessPuyoSimulator | Realtime
     return game_or_simulator.game
 
 
+def _geometric_paths(source_game, actions, max_expanded_states, repair_budget=None):
+    """One bounded BFS supplies candidate input paths, not execution guarantees."""
+    targets = {
+        action: (action.axis_x, source_game.find_landing_y(action.axis_x, action.rotation), action.rotation)
+        for action in actions
+    }
+    remaining = {target for target in targets.values() if target[1] is not None}
+    found = {}
+    start = (source_game.puyo_x, source_game.puyo_y, source_game.puyo_rot,
+             source_game.blocked_rotate_input_count)
+    queue = deque([start])
+    previous = {start: None}
+    while queue and remaining:
+        state = queue.popleft()
+        target = state[:3]
+        if target in remaining:
+            found[target] = tuple(_reconstruct_actions(previous, state))
+            remaining.remove(target)
+        if len(previous) > max_expanded_states:
+            break
+        if repair_budget is not None:
+            if repair_budget[0] <= 0:
+                break
+            repair_budget[0] -= 1
+        for action in PLANNER_ACTIONS:
+            next_state = _transition_piece_state(source_game, state, action)
+            if next_state is None or next_state in previous:
+                continue
+            previous[next_state] = (state, action)
+            queue.append(next_state)
+    return {action: (target, found.get(target)) for action, target in targets.items()}
+
+
+class _ControlProbeGame(GameState):
+    """Use authoritative control methods; copy the shared field only at lock."""
+
+    def lock_puyo(self):
+        # lock_puyo replaces grid cells; it never mutates existing Puyo values.
+        # The probe stops at lock and never runs animation/chain resolution.
+        self.field = copy.copy(self.field)
+        self.field.grid = [row[:] for row in self.field.grid]
+        locked = super().lock_puyo()
+        if locked:
+            self._planner_lock = (self.puyo_x, self.puyo_y, self.puyo_rot)
+        return locked
+
+
+def _control_probe(source, timing):
+    if isinstance(source, RealtimeHeadlessSimulator):
+        # The absolute gravity deadline and repeat state are part of the root.
+        probe = copy.copy(source)
+        probe.held_actions = set(source.held_actions)
+        probe._next_repeat_tick = dict(source._next_repeat_tick)
+    else:
+        probe = RealtimeHeadlessSimulator(game_state=copy.deepcopy(_coerce_game(source)), timing=timing)
+    game = object.__new__(_ControlProbeGame)
+    game.__dict__ = probe.game.__dict__.copy()
+    game._planner_lock = None
+    probe.game = game
+    return probe
+
+
+def _step_control_probe(probe, tick_input):
+    """Mirror the control branch of step without snapshots or chain animation."""
+    fired = probe._collect_fired_actions(probe.tick, tick_input)
+    probe.game.update(fired, held_actions={a: True for a in probe.held_actions})
+    probe._apply_gravity_if_due(probe.tick)
+    probe.tick += 1
+
+
+def _verify_path(source, action, target, path, *, timing, max_expanded_states, repair_budget):
+    probe = _control_probe(source, timing)
+    inputs, actions = [], []
+    remaining = deque(path)
+    repairs = 0
+    # At most two geometry repairs; rejection is conservative, never an
+    # unverified success. All actual motion uses the live clock and counters.
+    while remaining and probe.game.state == "control":
+        current = (probe.game.puyo_x, probe.game.puyo_y, probe.game.puyo_rot,
+                   probe.game.blocked_rotate_input_count)
+        step_action = remaining.popleft()
+        predicted = _transition_piece_state(probe.game, current, step_action)
+        actions.append(step_action)
+        for tick_input in inputs_from_action_pulses((step_action,)):
+            if probe.game.state != "control":
+                break
+            inputs.append(tick_input)
+            _step_control_probe(probe, tick_input)
+        actual = (probe.game.puyo_x, probe.game.puyo_y, probe.game.puyo_rot,
+                  probe.game.blocked_rotate_input_count)
+        if probe.game.state == "control" and actual != predicted:
+            if repairs >= 2:
+                return None
+            repaired_target, repaired = _geometric_paths(probe.game, (action,), max_expanded_states, repair_budget)[action]
+            if repaired is None or repaired_target != target:
+                return None
+            remaining = deque(repaired)
+            repairs += 1
+    for _ in range(probe.timing.lock_frame_limit + 2):
+        if probe.game.state != "control":
+            break
+        tick_input = TickInput()
+        inputs.append(tick_input)
+        _step_control_probe(probe, tick_input)
+    if probe.game._planner_lock != target:
+        return None
+    # Never leave an input pressed across the next pair, even if lock occurred
+    # on a press tick before that pulse's usual release tick.
+    if probe.held_actions:
+        inputs.append(TickInput(release=tuple(sorted(probe.held_actions, key=lambda a: a.value))))
+    return PlannedPlacement(action, True, tuple(inputs), tuple(actions), target[1])
+
+
+def _plans_for_actions(source, actions, *, timing=None, max_expanded_states=2000):
+    timing = source.timing if isinstance(source, RealtimeHeadlessSimulator) else (timing or DEFAULT_REALTIME_TIMING)
+    probe = _control_probe(source, timing)
+    if probe.game.state != "control" or probe.game.game_over:
+        return {}
+    paths = _geometric_paths(probe.game, actions, max_expanded_states)
+    # One additional expansion budget for the entire batch, in action order.
+    # Exhaustion may omit a valid root but can never admit an unverified root.
+    repair_budget = [max(0, max_expanded_states)]
+    return {
+        action: _verify_path(probe, action, target, path, timing=timing,
+                             max_expanded_states=max_expanded_states, repair_budget=repair_budget)
+        for action, (target, path) in paths.items() if path is not None
+    }
+
+
 def plan_placement_action(
     game_or_simulator: GameState | HeadlessPuyoSimulator | RealtimeHeadlessSimulator,
     action: PlacementAction | tuple[int, Direction],
@@ -55,136 +184,37 @@ def plan_placement_action(
     timing: RealtimeTimingConfig | None = None,
     max_expanded_states: int = 2_000,
 ) -> PlannedPlacement:
-    """Plan a press/release input sequence for a placement action.
+    """Return a bounded input witness whose first actual lock matches the root.
 
-    The planner searches over the same board geometry and rotation helpers used
-    by ``GameState``. It reports unreachable targets instead of manufacturing a
-    partial sequence.
+    Realtime sources retain their clock, gravity deadline, held/repeat state
+    and lock counters. GameState/headless sources start a new realtime clock.
+    A geometrically reachable target without a verified timed path is rejected.
     """
-
-    timing = timing or DEFAULT_REALTIME_TIMING
     if not isinstance(action, PlacementAction):
         action = PlacementAction(action[0], action[1])
-
-    source_game = copy.deepcopy(_coerce_game(game_or_simulator))
-    if source_game.state == "ready":
-        source_game.spawn_puyo()
-    if source_game.state != "control":
-        return PlannedPlacement(
-            action=action,
-            reachable=False,
-            inputs=(),
-            high_level_actions=(),
-            expected_axis_y=None,
-            reason=f"game state {source_game.state!r} cannot accept control input",
-        )
-
-    target_y = source_game.find_landing_y(action.axis_x, action.rotation)
-    if target_y is None:
-        return PlannedPlacement(
-            action=action,
-            reachable=False,
-            inputs=(),
-            high_level_actions=(),
-            expected_axis_y=None,
-            reason="target placement is not legal on the current field",
-        )
-
-    start = (
-        source_game.puyo_x,
-        source_game.puyo_y,
-        source_game.puyo_rot,
-        source_game.blocked_rotate_input_count,
-    )
-    target = (action.axis_x, target_y, action.rotation)
-    queue: deque[tuple[int, int, Direction, int]] = deque([start])
-    previous: dict[
-        tuple[int, int, Direction, int],
-        tuple[tuple[int, int, Direction, int], Action] | None,
-    ] = {start: None}
-
-    found_state = None
-    while queue:
-        state = queue.popleft()
-        if state[:3] == target:
-            found_state = state
-            break
-        if len(previous) > max_expanded_states:
-            break
-
-        for planner_action in PLANNER_ACTIONS:
-            next_state = _transition_piece_state(source_game, state, planner_action)
-            if next_state is None or next_state in previous:
-                continue
-            previous[next_state] = (state, planner_action)
-            queue.append(next_state)
-
-    if found_state is None:
-        return PlannedPlacement(
-            action=action,
-            reachable=False,
-            inputs=(),
-            high_level_actions=(),
-            expected_axis_y=target_y,
-            reason="no low-level path reached the target placement",
-        )
-
-    high_level_actions = _reconstruct_actions(previous, found_state)
-    inputs = list(inputs_from_action_pulses(high_level_actions))
-    inputs.extend(TickInput() for _ in range(timing.lock_frame_limit + 2))
-    return PlannedPlacement(
-        action=action,
-        reachable=True,
-        inputs=tuple(inputs),
-        high_level_actions=tuple(high_level_actions),
-        expected_axis_y=target_y,
-    )
+    result = _plans_for_actions(game_or_simulator, (action,), timing=timing,
+                                max_expanded_states=max_expanded_states).get(action)
+    if result is not None:
+        return result
+    game = _coerce_game(game_or_simulator)
+    reason = ("target placement is not legal on the current field"
+              if game.find_landing_y(action.axis_x, action.rotation) is None
+              else "no verified timed input path reached the target lock")
+    return PlannedPlacement(action, False, (), (), None, reason)
 
 
 def reachable_placement_actions(
     game_or_simulator: GameState | HeadlessPuyoSimulator | RealtimeHeadlessSimulator,
     actions: Iterable[PlacementAction],
     *,
+    timing: RealtimeTimingConfig | None = None,
     max_expanded_states: int = 2_000,
 ) -> tuple[bool, ...]:
-    """Check all targets with one traversal of the current piece's state graph.
-
-    Each single-target planner visits the same BFS prefix. Keep its dequeue,
-    target-check and expansion-limit order exactly, including a target found
-    on the first dequeue after the limit is exceeded. No state survives this
-    call: activation must recompute against the authoritative falling pair.
-    """
+    """Share geometry BFS and return only roots with verified timed witnesses."""
     actions = tuple(actions)
-    source_game = copy.deepcopy(_coerce_game(game_or_simulator))
-    if source_game.state == "ready":
-        source_game.spawn_puyo()
-    if source_game.state != "control":
-        return (False,) * len(actions)
-    targets = [
-        (action.axis_x, source_game.find_landing_y(action.axis_x, action.rotation), action.rotation)
-        for action in actions
-    ]
-    remaining = {target for target in targets if target[1] is not None}
-    reached = set()
-    start = (source_game.puyo_x, source_game.puyo_y, source_game.puyo_rot,
-             source_game.blocked_rotate_input_count)
-    queue = deque([start])
-    visited = {start}
-    while queue and remaining:
-        state = queue.popleft()
-        target = state[:3]
-        if target in remaining:
-            reached.add(target)
-            remaining.remove(target)
-        if len(visited) > max_expanded_states:
-            break
-        for planner_action in PLANNER_ACTIONS:
-            next_state = _transition_piece_state(source_game, state, planner_action)
-            if next_state is None or next_state in visited:
-                continue
-            visited.add(next_state)
-            queue.append(next_state)
-    return tuple(target in reached for target in targets)
+    plans = _plans_for_actions(game_or_simulator, actions, timing=timing,
+                               max_expanded_states=max_expanded_states)
+    return tuple(plans.get(action) is not None for action in actions)
 
 
 def execute_planned_placement(
@@ -196,9 +226,11 @@ def execute_planned_placement(
 ) -> RealtimeHeadlessSimulator:
     """Run a planned input sequence on a copied realtime simulator."""
 
-    timing = timing or DEFAULT_REALTIME_TIMING
-    source_game = copy.deepcopy(_coerce_game(game_or_simulator))
-    sim = RealtimeHeadlessSimulator(game_state=source_game, timing=timing)
+    if isinstance(game_or_simulator, RealtimeHeadlessSimulator):
+        sim = game_or_simulator.clone()
+    else:
+        source_game = copy.deepcopy(_coerce_game(game_or_simulator))
+        sim = RealtimeHeadlessSimulator(game_state=source_game, timing=timing)
     for tick_input in plan.inputs:
         sim.step(tick_input)
     sim.run_until_control_or_game_over(max_ticks=max_resolution_ticks)
