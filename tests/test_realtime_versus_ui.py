@@ -201,6 +201,22 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestRealtimeVersusMatchController(unittest.TestCase):
+    def test_human_tap_during_catchup_moves_once_without_stale_hold(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="human", policy_b="first")
+        )
+        try:
+            sim = controller.env.player_states["player_0"].simulator
+            start_x = sim.game.puyo_x
+            controller.human.key_down(Action.RIGHT)
+            controller.human.key_up(Action.RIGHT)
+            controller.update(0.2)
+            self.assertEqual(controller.env.match.tick, 12)
+            self.assertEqual(sim.game.puyo_x, start_x + 1)
+            self.assertNotIn(Action.RIGHT, sim.held_actions)
+        finally:
+            controller.shutdown()
+
     def test_human_same_tick_edges_keep_simulator_hold_in_sync(self):
         controller = RealtimeVersusMatchController(
             RealtimeVersusUiConfig(policy_a="human", policy_b="first")
