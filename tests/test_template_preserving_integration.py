@@ -1,18 +1,21 @@
 """PUYO-268: committed catalog constraints through batch, selector and receipt."""
 import json
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 from pathlib import Path
 
 from agents import nextgen_contracts as c
+from agents import template_catalog as template_module
 from agents.compact_search import transition
 from agents.deep_chain_search_backend import NativeLongHorizonSearchBackend, PythonLongHorizonSearchBackend
 from agents.nextgen_shared_search import SharedSearchBatchBuilder, SharedSearchCache, _pairs, _public_state, scenario_provenance
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
-from agents.template_catalog import TemplateCatalog, _conditions, _evaluate, compile_selected_template, load_template_catalog, match_templates
+from agents.template_catalog import TemplateCatalog, _conditions, _evaluate, _game, _wire, compile_selected_template, load_template_catalog, match_templates
 from agents.template_phase import TemplatePhaseController
 from eval.nextgen_gate_benchmark import SafeNoThreatMatch
 from puyo_env.realtime_ai import RealtimePolicyController, RealtimeDecisionConfig
+from puyo_env.actions import PLACEMENT_ACTIONS
 from src.core.puyo import Puyo
 from tests.test_nextgen_shared_search import config, request
 from tests.test_selected_template_search import state
@@ -56,6 +59,37 @@ def make_request(cat, cfg, rows=(), known=((1, 3), (2, 3), (2, 2)), quota=132, u
 
 
 class CatalogCompilerTests(unittest.TestCase):
+    def test_compact_prefix_transitions_match_game_state_for_three_shapes(self):
+        original = template_module.compact_transition
+        checked = 0
+
+        def compare(current, pair, action_id):
+            nonlocal checked
+            inverse = {color: index for index, color in enumerate(c.PUBLIC_CELL_TO_COLOR)}
+            board = tuple(tuple(inverse[color] for color in row) for row in current.to_color_grid())
+            game = _game(board, tuple(inverse[color] for color in pair))
+            action = PLACEMENT_ACTIONS[action_id]
+            oracle = game.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
+            result = original(current, pair, action_id)
+            self.assertEqual(result.valid, oracle is not None)
+            if oracle is not None:
+                self.assertEqual(result.chain_count, oracle['chain_count'])
+                self.assertEqual(result.game_over, oracle['game_over'])
+                self.assertEqual(result.state.to_color_grid(), tuple(tuple(p.color for p in row) for row in game.field.grid))
+            checked += 1
+            return result
+
+        with patch.object(template_module, 'compact_transition', side_effect=compare):
+            for name, binding in (('gtr', {'A': 1, 'B': 2, 'C': 3}),
+                                  ('daa', {'A': 1, 'B': 2}),
+                                  ('persian', {'A': 1, 'B': 2, 'C': 3})):
+                before = checked
+                cat = selected_catalog(name)
+                match_templates(cat, public_board([], unknown=True), ((1, 2), (2, 3), (1, 3)),
+                                node_budget=128, binding_budget=1, reachable_mask=(True,) * 22,
+                                preferred_key=key(cat, binding), evaluate_prefix_progress=True)
+                self.assertGreater(checked, before)
+
     def test_frozen_horizontal_and_l_now_have_distinct_conflicts(self):
         cat = selected_catalog('persian')
         variant = cat.templates[0].variants[0]
@@ -158,8 +192,70 @@ class CatalogCompilerTests(unittest.TestCase):
         self.assertEqual(dict(candidate.root_progress)[0], 1)
         self.assertGreater(len(candidate.root_progress), 1)
 
+    def test_public_prefix_progress_preserves_fixed_shape_within_quota(self):
+        # The sixth public request of the saved machine seed-123 trajectory.
+        # Equal immediate progress hides that only root 0 can use the next A.
+        cat = selected_catalog('gtr')
+        rows = ['013330', '001100', '004400', '001300']
+        for colors in ({1: 1, 2: 2, 3: 3, 4: 4}, {1: 3, 2: 4, 3: 1, 4: 2}):
+            fixed = key(cat, {'A': colors[2], 'B': colors[1], 'C': colors[3]})
+            board = [list(row) for row in public_board(rows)]
+            board[:2] = [[None] * 6, [None] * 6]
+            board = [[colors.get(cell, cell) for cell in row] for row in board]
+            pairs = tuple(tuple(colors[c] for c in pair) for pair in ((1, 2), (2, 3), (3, 2)))
+            for quota in (0, 22, 128):
+                result = match_templates(cat, board, pairs, node_budget=quota, binding_budget=1,
+                                         preferred_key=fixed, reachable_mask=(True,) * 22,
+                                         evaluate_prefix_progress=True)
+                candidate = next(v for v in result.candidates if v.key == fixed)
+                self.assertLessEqual(result.coverage_nodes, quota)
+                if quota != 128:
+                    self.assertTrue(all(len(path) == 1 for _, _, path in candidate.root_prefix_progress))
+                    continue
+                immediate = dict(candidate.root_progress)
+                future = {root: (gain, path) for root, gain, path in candidate.root_prefix_progress}
+                self.assertEqual((immediate[0], immediate[1]), (2, 2))
+                self.assertEqual(future[0], (3, (0, 0)))
+                self.assertEqual(future[1], (2, (1,)))
+                self.assertTrue(candidate.cutoff)  # lower bounds, not exhaustive impossibility
+                self.assertFalse(candidate.complete)
+                self.assertEqual(candidate.binding, fixed[3])
+                for _, gain, path in candidate.root_prefix_progress:
+                    current = board[::-1]
+                    conditions = _conditions(cat.templates[0].variants[0], 'identity')
+                    original, _ = _evaluate(current, conditions, dict(fixed[3]))
+                    for pair, action_id in zip(pairs, path):
+                        game = _game(current, pair)
+                        action = PLACEMENT_ACTIONS[action_id]
+                        step = game.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
+                        self.assertEqual(step['chain_count'], 0)
+                        self.assertFalse(step['game_over'])
+                        current = _wire(game)
+                        reached, conflicts = _evaluate(current, conditions, dict(fixed[3]))
+                        self.assertFalse(conflicts)
+                        self.assertTrue(original <= reached)
+                        self.assertFalse(any(cell for row in current[12:] for cell in row))
+                    self.assertEqual(len(reached) - len(original), gain)
+
 
 class SharedConstraintTests(unittest.TestCase):
+    def test_prefix_progress_reaches_candidate_order_without_claiming_completion(self):
+        cat = selected_catalog('gtr')
+        cfg = replace(config(), depth=1, scenarios=1)
+        req = make_request(cat, cfg, ['013330', '001100', '004400', '001300'],
+                           known=((1, 2), (2, 3), (3, 2)), quota=22, unknown=True)
+        req = replace(req, control=replace(req.control, search_profile=replace(req.control.search_profile, template_quota=128)))
+        ex = SharedSearchBatchBuilder(PythonLongHorizonSearchBackend(), cfg, template_catalog=cat).build(
+            req, template_key=key(cat, {'A': 2, 'B': 1, 'C': 3}))
+        chosen = ex.select('build_template')
+        self.assertEqual(chosen.root_action, 0)
+        self.assertEqual(len(chosen.plan), 1)
+        self.assertFalse(ex.batch.tactics[1].known_witness)
+        trace = ex.diagnostics['selected_template']
+        self.assertEqual(trace['prefix_progress_status'], 'public_no_clear_witness_lower_bound')
+        self.assertTrue(trace['matcher_cutoff'])
+        self.assertEqual(trace['retention'], 'active_phase')
+
     def test_python_native_multiple_roots_ranking_and_destructive_rejection(self):
         cat = selected_catalog('persian')
         cfg = replace(config(), depth=3, width=4, scenarios=2)

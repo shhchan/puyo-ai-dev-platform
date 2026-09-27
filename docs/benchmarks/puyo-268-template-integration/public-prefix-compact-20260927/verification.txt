@@ -1,0 +1,15 @@
+Source: 9ce014552d5b103f87290095b2156e29e83608a4
+Command: .venv/bin/python -m unittest tests.test_template_preserving_integration tests.test_template_catalog tests.test_nextgen_template_catalog tests.test_template_phase tests.test_nextgen_shared_search tests.test_nextgen_tactic_manager tests.test_nextgen_survival tests.test_puyo_271_regression
+Additional oracle command: .venv/bin/python -m unittest tests.test_template_preserving_integration.CatalogCompilerTests.test_compact_prefix_transitions_match_game_state_for_three_shapes
+105 existing/new tests plus one subsequently added oracle test = 106 distinct passing tests.
+
+.........................................................................................................
+----------------------------------------------------------------------
+Ran 105 tests in 44.575s
+
+OK
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.177s
+
+OK
