@@ -17,7 +17,7 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     np = None
 
-from puyo_env.action_planner import PlannedPlacement, plan_placement_action
+from puyo_env.action_planner import PlannedPlacement, plan_placement_action, reachable_placement_actions
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS, action_to_placement
 from puyo_env.obs import encode_board, encode_ghost_row, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
@@ -1247,15 +1247,9 @@ def realtime_reachable_action_mask(
     if simulator.game.state != "control" or simulator.game.game_over:
         return numpy.zeros(NUM_ACTIONS, dtype=numpy.bool_)
     return numpy.asarray(
-        [
-            plan_placement_action(
-                simulator,
-                action,
-                timing=timing,
-                max_expanded_states=max_expanded_states,
-            ).reachable
-            for action in PLACEMENT_ACTIONS
-        ],
+        reachable_placement_actions(
+            simulator, PLACEMENT_ACTIONS, max_expanded_states=max_expanded_states
+        ),
         dtype=numpy.bool_,
     )
 

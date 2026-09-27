@@ -141,6 +141,52 @@ def plan_placement_action(
     )
 
 
+def reachable_placement_actions(
+    game_or_simulator: GameState | HeadlessPuyoSimulator | RealtimeHeadlessSimulator,
+    actions: Iterable[PlacementAction],
+    *,
+    max_expanded_states: int = 2_000,
+) -> tuple[bool, ...]:
+    """Check all targets with one traversal of the current piece's state graph.
+
+    Each single-target planner visits the same BFS prefix. Keep its dequeue,
+    target-check and expansion-limit order exactly, including a target found
+    on the first dequeue after the limit is exceeded. No state survives this
+    call: activation must recompute against the authoritative falling pair.
+    """
+    actions = tuple(actions)
+    source_game = copy.deepcopy(_coerce_game(game_or_simulator))
+    if source_game.state == "ready":
+        source_game.spawn_puyo()
+    if source_game.state != "control":
+        return (False,) * len(actions)
+    targets = [
+        (action.axis_x, source_game.find_landing_y(action.axis_x, action.rotation), action.rotation)
+        for action in actions
+    ]
+    remaining = {target for target in targets if target[1] is not None}
+    reached = set()
+    start = (source_game.puyo_x, source_game.puyo_y, source_game.puyo_rot,
+             source_game.blocked_rotate_input_count)
+    queue = deque([start])
+    visited = {start}
+    while queue and remaining:
+        state = queue.popleft()
+        target = state[:3]
+        if target in remaining:
+            reached.add(target)
+            remaining.remove(target)
+        if len(visited) > max_expanded_states:
+            break
+        for planner_action in PLANNER_ACTIONS:
+            next_state = _transition_piece_state(source_game, state, planner_action)
+            if next_state is None or next_state in visited:
+                continue
+            visited.add(next_state)
+            queue.append(next_state)
+    return tuple(target in reached for target in targets)
+
+
 def execute_planned_placement(
     game_or_simulator: GameState | HeadlessPuyoSimulator | RealtimeHeadlessSimulator,
     plan: PlannedPlacement,
