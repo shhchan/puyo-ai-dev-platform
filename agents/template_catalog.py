@@ -18,6 +18,7 @@ from pathlib import Path
 
 import yaml
 
+from agents.compact_search import CompactSearchState, find_landing_y as compact_landing_y, transition as compact_transition
 from agents.nextgen_contracts import PUBLIC_CELL_TO_COLOR, PUBLIC_GARBAGE_ID
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS
@@ -1018,10 +1019,10 @@ def match_templates(
                                 continue
                             if depth == 0:
                                 root_progress.append((action_id, len(after) - len(before)))
-                                if evaluate_prefix_progress and not step["chain_count"] and not any(
+                                if evaluate_prefix_progress and not complete and not step["chain_count"] and not any(
                                     after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)
                                 ):
-                                    root_boards.append((after_board, (action_id,)))
+                                    root_boards.append((CompactSearchState.from_game(branch), after_board, (action_id,)))
                             next_actions = actions + (action_id,)
                             new_score = (
                                 (len(after) - after_conflicts)
@@ -1120,29 +1121,29 @@ def match_templates(
             # spending the remaining budget on the first root alone.
             if evaluate_prefix_progress and root_boards and preferred_key == (template.id, variant.id, transform, binding_tuple):
                 current_gains = dict(root_progress)
-                root_prefix_progress = {path[0]: (current_gains[path[0]], path) for _, path in root_boards}
+                root_prefix_progress = {path[0]: (current_gains[path[0]], path) for _, _, path in root_boards}
                 frontier = root_boards
+                inverse = {color: index for index, color in enumerate(PUBLIC_CELL_TO_COLOR)}
                 for next_pair in known_pieces[1:]:
                     if not frontier:
                         break
                     if nodes >= node_budget:
                         prefix_cutoff = True
                         break
-                    games = [(_game(board, next_pair), board, path) for board, path in frontier]
+                    pair = tuple(PUBLIC_CELL_TO_COLOR[color] for color in next_pair)
                     next_frontier = []
                     for action_id, action in enumerate(PLACEMENT_ACTIONS):
-                        for game, previous, path in games:
+                        for current_state, previous, path in frontier:
                             if nodes >= node_budget:
                                 prefix_cutoff = True
                                 break
-                            if game.find_landing_y(action.axis_x, action.rotation) is None:
+                            if compact_landing_y(current_state, action) is None:
                                 continue
                             nodes += 1
-                            branch = copy.deepcopy(game)
-                            step = branch.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
-                            if step is None or step["game_over"] or step["chain_count"]:
+                            step = compact_transition(current_state, pair, action_id)
+                            if not step.valid or step.game_over or step.chain_count:
                                 continue
-                            after_board = _wire(branch)
+                            after_board = tuple(tuple(inverse[color] for color in row) for row in step.state.to_color_grid())
                             if any(after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)):
                                 continue
                             after, after_conflicts = evaluate(after_board, conditions, binding)
@@ -1154,7 +1155,7 @@ def match_templates(
                             old_gain, old_path = root_prefix_progress[path[0]]
                             if gain > old_gain or (gain == old_gain and (len(actions), actions) < (len(old_path), old_path)):
                                 root_prefix_progress[path[0]] = (gain, actions)
-                            next_frontier.append((after_board, actions))
+                            next_frontier.append((step.state, after_board, actions))
                         if prefix_cutoff:
                             break
                     if prefix_cutoff:

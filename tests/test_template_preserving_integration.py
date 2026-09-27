@@ -1,10 +1,12 @@
 """PUYO-268: committed catalog constraints through batch, selector and receipt."""
 import json
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 from pathlib import Path
 
 from agents import nextgen_contracts as c
+from agents import template_catalog as template_module
 from agents.compact_search import transition
 from agents.deep_chain_search_backend import NativeLongHorizonSearchBackend, PythonLongHorizonSearchBackend
 from agents.nextgen_shared_search import SharedSearchBatchBuilder, SharedSearchCache, _pairs, _public_state, scenario_provenance
@@ -57,6 +59,37 @@ def make_request(cat, cfg, rows=(), known=((1, 3), (2, 3), (2, 2)), quota=132, u
 
 
 class CatalogCompilerTests(unittest.TestCase):
+    def test_compact_prefix_transitions_match_game_state_for_three_shapes(self):
+        original = template_module.compact_transition
+        checked = 0
+
+        def compare(current, pair, action_id):
+            nonlocal checked
+            inverse = {color: index for index, color in enumerate(c.PUBLIC_CELL_TO_COLOR)}
+            board = tuple(tuple(inverse[color] for color in row) for row in current.to_color_grid())
+            game = _game(board, tuple(inverse[color] for color in pair))
+            action = PLACEMENT_ACTIONS[action_id]
+            oracle = game.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
+            result = original(current, pair, action_id)
+            self.assertEqual(result.valid, oracle is not None)
+            if oracle is not None:
+                self.assertEqual(result.chain_count, oracle['chain_count'])
+                self.assertEqual(result.game_over, oracle['game_over'])
+                self.assertEqual(result.state.to_color_grid(), tuple(tuple(p.color for p in row) for row in game.field.grid))
+            checked += 1
+            return result
+
+        with patch.object(template_module, 'compact_transition', side_effect=compare):
+            for name, binding in (('gtr', {'A': 1, 'B': 2, 'C': 3}),
+                                  ('daa', {'A': 1, 'B': 2}),
+                                  ('persian', {'A': 1, 'B': 2, 'C': 3})):
+                before = checked
+                cat = selected_catalog(name)
+                match_templates(cat, public_board([], unknown=True), ((1, 2), (2, 3), (1, 3)),
+                                node_budget=128, binding_budget=1, reachable_mask=(True,) * 22,
+                                preferred_key=key(cat, binding), evaluate_prefix_progress=True)
+                self.assertGreater(checked, before)
+
     def test_frozen_horizontal_and_l_now_have_distinct_conflicts(self):
         cat = selected_catalog('persian')
         variant = cat.templates[0].variants[0]
