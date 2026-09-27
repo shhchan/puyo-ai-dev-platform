@@ -57,16 +57,26 @@ def summarize(d):
             for k in ['frame_interval_ms','input_schedule_ms','input_to_render_ms']}
     cache = {str(hit):stats([r['worker_seconds']*1000 for r in d['cache_samples']
                            if r['hit'] is hit and r['worker_seconds'] is not None]) for hit in [True,False,None]}
-    return dict(settings=d['settings'], source_sha=d['source_sha'], reference_mask=d['reference_mask'],
+    result = dict(settings=d['settings'], source_sha=d['source_sha'], reference_mask=d['reference_mask'],
                 native=d['native'], frames=d['frames'], active_frames=sum(d['active_frames']),
                 elapsed_seconds=d['elapsed_seconds'],ticks=d['ticks'],samples=samples,active_samples=active,
                 functions_ms=d['functions_ms'],functions_total_ms={k:sum(r['ms'] for r in v) for k,v in d['functions_raw'].items()},
                 resources=resources,worker_cleanup=d['worker_cleanup'],worker_cache_ms=cache,
                 diagnostics=counts,scheduler_errors=d['scheduler_errors'],input_integrity=integrity,gate=gate)
+    if 'lock_receipts' in d:
+        result['geometric_reference'] = d['geometric_reference']
+        result['lock_receipts'] = d['lock_receipts']
+        result['lock_mismatch_count'] = sum(r['matches'] is False for r in d['lock_receipts'])
+    return result
 
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--write',action='store_true');args=ap.parse_args()
+    global ROOT
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--write',action='store_true')
+    ap.add_argument('--directory',type=Path,default=ROOT)
+    args=ap.parse_args()
+    ROOT=args.directory
     manifest=json.loads((ROOT/'manifest.json').read_text())
     summary={}
     for name,meta in manifest['traces'].items():

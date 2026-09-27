@@ -1,0 +1,44 @@
+{
+  "gate_ms": {
+    "p95": 25,
+    "p99": 50
+  },
+  "source_sha": "c987ee9e1e1b7e3bf77d09105c681c87e5134516",
+  "baseline_geometry_sha": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02",
+  "seed": 55,
+  "display": ":0",
+  "resolution": [
+    1120,
+    780
+  ],
+  "fps": 60,
+  "speed": 1,
+  "frames": {
+    "one": 600,
+    "both": 360,
+    "human": 600,
+    "first": 600
+  },
+  "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+  "host": {
+    "system": "Linux",
+    "node": "DESKTOP-G4HAPVQ",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "human_qa": "scripted only; human acceptance not performed",
+  "note": "Final comparison including active input suffix validation; geometric reference restores f532 planner and abort method.",
+  "config_sha256": {
+    "after-both": "1fcf631cef6350bff992aabf06b247dbd394121a14a9ea75a7283471ef416903",
+    "after-first": "3c36716b080f0bb338780a802ccb33d121d8b4733a652246937cbb28445df0f6",
+    "after-human": "589489e838ba076c3ef4dd118b694937239e68cbd1549a9a4d7832ebb4fb1e88",
+    "after-one": "f30d30634e897c6c319a71f8a5107d7df6769acc0f406d4e1c8ee93ae2d044ad",
+    "before-both": "1fcf631cef6350bff992aabf06b247dbd394121a14a9ea75a7283471ef416903",
+    "before-human": "589489e838ba076c3ef4dd118b694937239e68cbd1549a9a4d7832ebb4fb1e88",
+    "before-one": "f30d30634e897c6c319a71f8a5107d7df6769acc0f406d4e1c8ee93ae2d044ad",
+    "minimal-one": "f30d30634e897c6c319a71f8a5107d7df6769acc0f406d4e1c8ee93ae2d044ad"
+  },
+  "config_hash_encoding": "SHA-256 of UTF-8 JSON settings with sorted keys and compact separators"
+}

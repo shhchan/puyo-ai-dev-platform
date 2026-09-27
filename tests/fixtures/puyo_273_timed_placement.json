@@ -1,0 +1,652 @@
+[
+  {
+    "seed": 137,
+    "hand": 34,
+    "source_raw_sha256": "5e09dd54fa827214bdba61995283161431c98dd861dce35fe8be7087c6ba3183",
+    "source_semantic_digest": "7beca70fe6c9f07435196cd44b697147d675d5a0e1c6e9d6089464ea52f5d168",
+    "source_public_digest": "4575aae56692cbf166048ef9f8b8402ddcf7fa452780f4d726808063c219a016",
+    "action": 12,
+    "old_lock": [
+      2,
+      11,
+      "RIGHT"
+    ],
+    "old_chain": 1,
+    "predicted_chain": 12,
+    "timing": {
+      "tick_rate": 60,
+      "gravity_interval_ticks": 300,
+      "das_initial_delay_ticks": 9,
+      "das_repeat_interval_ticks": 3,
+      "soft_drop_repeat_interval_ticks": 5,
+      "vanish_flash_ticks": 30,
+      "chain_drop_tween_ticks": 14,
+      "lock_frame_limit": 32,
+      "attack_delay_ticks": 0
+    },
+    "tick": 1800,
+    "next_gravity_tick": 1800,
+    "board": [
+      [
+        "BLUE",
+        "BLUE",
+        "RED",
+        "YELLOW",
+        "YELLOW",
+        "GREEN"
+      ],
+      [
+        "RED",
+        "RED",
+        "BLUE",
+        "YELLOW",
+        "GREEN",
+        "GREEN"
+      ],
+      [
+        "RED",
+        "BLUE",
+        "YELLOW",
+        "GREEN",
+        "YELLOW",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "GREEN",
+        "YELLOW",
+        "YELLOW",
+        "BLUE",
+        "YELLOW"
+      ],
+      [
+        "RED",
+        "GREEN",
+        "BLUE",
+        "RED",
+        "BLUE",
+        "GREEN"
+      ],
+      [
+        "YELLOW",
+        "BLUE",
+        "BLUE",
+        "GREEN",
+        "GREEN",
+        "BLUE"
+      ],
+      [
+        "GREEN",
+        "GREEN",
+        "YELLOW",
+        "BLUE",
+        "GREEN",
+        "BLUE"
+      ],
+      [
+        "RED",
+        "YELLOW",
+        "YELLOW",
+        "RED",
+        "RED",
+        "RED"
+      ],
+      [
+        "GREEN",
+        "BLUE",
+        "BLUE",
+        "EMPTY",
+        "YELLOW",
+        "YELLOW"
+      ],
+      [
+        "GREEN",
+        "BLUE",
+        "YELLOW",
+        "EMPTY",
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "EMPTY",
+        "RED",
+        "BLUE",
+        "EMPTY",
+        "GREEN",
+        "RED"
+      ],
+      [
+        "EMPTY",
+        "BLUE",
+        "EMPTY",
+        "EMPTY",
+        "RED",
+        "YELLOW"
+      ],
+      [
+        "EMPTY",
+        "RED",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ]
+    ],
+    "pair": [
+      "BLUE",
+      "RED"
+    ],
+    "position": [
+      2,
+      12,
+      "UP"
+    ],
+    "control": {
+      "blocked_rotate_input_count": 0,
+      "ground_frame_count": 0,
+      "ground_contact_count": 0,
+      "was_grounded_prev_frame": false,
+      "vertical_interpolation_progress": 0.0,
+      "floor_kick_horizontal_grace": false
+    },
+    "old_inputs": [
+      {
+        "press": [
+          "RIGHT"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "RIGHT"
+        ]
+      },
+      {
+        "press": [
+          "ROTATE_RIGHT"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "ROTATE_RIGHT"
+        ]
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      }
+    ]
+  },
+  {
+    "seed": 148,
+    "hand": 21,
+    "source_raw_sha256": "ccce72a12654ce886bae75732ac05ccb8672dcbc358ef7ed05676a0637477c88",
+    "source_semantic_digest": "92bdb85019798885019775abf347fa9f0b988872a545449e078f48893f39bcb0",
+    "source_public_digest": "15b51846a0678ddc9ae0b4a88911eb7f91e071489911d535c200e668730b3d5b",
+    "action": 18,
+    "old_lock": [
+      3,
+      7,
+      "LEFT"
+    ],
+    "old_chain": 8,
+    "predicted_chain": 0,
+    "timing": {
+      "tick_rate": 60,
+      "gravity_interval_ticks": 300,
+      "das_initial_delay_ticks": 9,
+      "das_repeat_interval_ticks": 3,
+      "soft_drop_repeat_interval_ticks": 5,
+      "vanish_flash_ticks": 30,
+      "chain_drop_tween_ticks": 14,
+      "lock_frame_limit": 32,
+      "attack_delay_ticks": 0
+    },
+    "tick": 1198,
+    "next_gravity_tick": 1200,
+    "board": [
+      [
+        "RED",
+        "RED",
+        "YELLOW",
+        "YELLOW",
+        "YELLOW",
+        "GREEN"
+      ],
+      [
+        "BLUE",
+        "BLUE",
+        "RED",
+        "GREEN",
+        "RED",
+        "GREEN"
+      ],
+      [
+        "BLUE",
+        "RED",
+        "GREEN",
+        "RED",
+        "RED",
+        "GREEN"
+      ],
+      [
+        "GREEN",
+        "YELLOW",
+        "GREEN",
+        "YELLOW",
+        "GREEN",
+        "BLUE"
+      ],
+      [
+        "BLUE",
+        "YELLOW",
+        "YELLOW",
+        "RED",
+        "YELLOW",
+        "GREEN"
+      ],
+      [
+        "EMPTY",
+        "GREEN",
+        "EMPTY",
+        "BLUE",
+        "YELLOW",
+        "GREEN"
+      ],
+      [
+        "EMPTY",
+        "YELLOW",
+        "EMPTY",
+        "RED",
+        "YELLOW",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "GREEN",
+        "EMPTY",
+        "EMPTY",
+        "BLUE",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "YELLOW",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ],
+      [
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY",
+        "EMPTY"
+      ]
+    ],
+    "pair": [
+      "BLUE",
+      "YELLOW"
+    ],
+    "position": [
+      2,
+      12,
+      "UP"
+    ],
+    "control": {
+      "blocked_rotate_input_count": 0,
+      "ground_frame_count": 0,
+      "ground_contact_count": 0,
+      "was_grounded_prev_frame": false,
+      "vertical_interpolation_progress": 0.0,
+      "floor_kick_horizontal_grace": false
+    },
+    "old_inputs": [
+      {
+        "press": [
+          "DOWN"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "DOWN"
+        ]
+      },
+      {
+        "press": [
+          "DOWN"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "DOWN"
+        ]
+      },
+      {
+        "press": [
+          "DOWN"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "DOWN"
+        ]
+      },
+      {
+        "press": [
+          "DOWN"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "DOWN"
+        ]
+      },
+      {
+        "press": [
+          "ROTATE_LEFT"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "ROTATE_LEFT"
+        ]
+      },
+      {
+        "press": [
+          "RIGHT"
+        ],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": [
+          "RIGHT"
+        ]
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      },
+      {
+        "press": [],
+        "release": []
+      }
+    ]
+  }
+]
