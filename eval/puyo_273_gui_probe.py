@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 from collections import defaultdict
 import hashlib
 import json
@@ -33,6 +34,12 @@ def run(args):
         exec(compile(source, "geometric_reference_planner", "exec"), module.__dict__)
         ai.plan_placement_action = module.plan_placement_action
         ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
+        controller_source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/realtime_ai.py"], text=True)
+        cls = next(node for node in ast.parse(controller_source).body if isinstance(node, ast.ClassDef) and node.name == "RealtimePolicyController")
+        method = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "_should_abort_active_plan")
+        namespace = dict(vars(ai))
+        exec(compile(ast.Module(body=[method], type_ignores=[]), "geometric_reference_abort", "exec"), namespace)
+        ai.RealtimePolicyController._should_abort_active_plan = namespace["_should_abort_active_plan"]
     if args.reference_mask:
         # Baseline implementation at 595dbed, retained only in this evaluator.
         def reference(simulator, *, timing=None, max_expanded_states=2000):

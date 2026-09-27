@@ -237,6 +237,19 @@ def reachable_placement_actions(
     return tuple(plans.get(action) is not None for action in actions)
 
 
+def planned_inputs_reach_target(simulator, plan, *, start_index=0):
+    """Check the queued suffix, including its releases, against the live clock."""
+    if not plan.reachable or not 0 <= start_index <= len(plan.inputs):
+        return False
+    probe = _control_probe(simulator, simulator.timing)
+    target = (plan.action.axis_x, plan.expected_axis_y, plan.action.rotation)
+    for tick_input in plan.inputs[start_index:]:
+        if probe.game.state != "control":
+            break
+        _step_control_probe(probe, tick_input)
+    return probe.game._planner_lock == target
+
+
 def execute_planned_placement(
     game_or_simulator: GameState | HeadlessPuyoSimulator | RealtimeHeadlessSimulator,
     plan: PlannedPlacement,

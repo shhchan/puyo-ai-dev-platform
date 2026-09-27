@@ -7,7 +7,7 @@ import unittest
 
 from puyo_env.action_planner import (
     PlannedPlacement, _control_probe, _step_control_probe,
-    execute_planned_placement, plan_placement_action,
+    execute_planned_placement, plan_placement_action, planned_inputs_reach_target,
 )
 from puyo_env.actions import PLACEMENT_ACTIONS, action_to_placement
 from puyo_env.realtime_ai import nextgen_authoritative_action_mask
@@ -148,6 +148,38 @@ class TimedPlacementTests(unittest.TestCase):
                     self.assertEqual(first_lock(source.clone(), plan.inputs),
                                      (action.axis_x, plan.expected_axis_y, action.rotation.name))
             self.assertEqual(before, pickle.dumps(source))
+
+    def test_each_queued_suffix_including_release_remains_valid(self):
+        for case in CASES:
+            source = simulator(case)
+            plan = plan_placement_action(source, action_to_placement(case['action']))
+            for index, tick_input in enumerate(plan.inputs):
+                if source.game.state != 'control':
+                    break
+                with self.subTest(seed=case['seed'], cursor=index, held=source.held_actions):
+                    self.assertTrue(planned_inputs_reach_target(source, plan, start_index=index))
+                source.step(tick_input)
+
+    def test_pending_horizontal_release_is_not_replaced_by_a_fresh_plan(self):
+        source = RealtimeHeadlessSimulator(seed=55)
+        source.game.puyo_x, source.game.puyo_y = 3, 0
+        source.held_actions.add(Action.RIGHT)
+        source._next_repeat_tick[Action.RIGHT] = source.tick + 1
+        action = PlacementAction(3, Direction.UP)
+        suffix = PlannedPlacement(action, True,
+            (TickInput(release=(Action.RIGHT,)),) + (TickInput(),)*33, (), 0)
+        self.assertTrue(planned_inputs_reach_target(source, suffix))
+        self.assertFalse(planned_inputs_reach_target(source, suffix, start_index=1))
+        before = pickle.dumps(source)
+        from puyo_env.realtime_ai import RealtimePolicyController
+        from selfplay.policies import FirstLegalPolicy
+        controller = RealtimePolicyController(FirstLegalPolicy())
+        controller._active_plan = suffix
+        controller._active_action_index = PLACEMENT_ACTIONS.index(action)
+        controller._input_cursor = 0
+        controller._last_replan_check_tick = source.tick - 8
+        self.assertFalse(controller._should_abort_active_plan(source))
+        self.assertEqual(before, pickle.dumps(source))
 
     def test_small_budget_conservatively_rejects_timed_root(self):
         for case in CASES:
