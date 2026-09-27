@@ -79,7 +79,15 @@ def summarize(name: str, data: dict, raw: bytes) -> dict:
             for key in ("scheduler_accept", "scheduler_finish", "simulation",
                         "authoritative_mask", "_complete_decision", "_activate_nextgen")
         },
-        "diagnostics": data["diagnostics"],
+        "diagnostics": {
+            agent: {
+                key: values.get(key)
+                for key in ("decisions_started", "decisions_activated", "timeouts",
+                            "stale_decisions", "deadline_misses", "fallback_actions",
+                            "masked_actions", "unreachable_plans")
+            }
+            for agent, values in data["diagnostics"].items()
+        },
         "scheduler_errors": data["scheduler_errors"],
         "worker_cleanup": data["worker_cleanup"],
         "processes": cpu,
