@@ -1,4 +1,5 @@
 """Timed input witnesses must lock the root predicted by the search contract."""
+import copy
 import json
 import pickle
 from pathlib import Path
@@ -11,7 +12,7 @@ from puyo_env.action_planner import (
 from puyo_env.actions import PLACEMENT_ACTIONS, action_to_placement
 from puyo_env.realtime_ai import nextgen_authoritative_action_mask
 from src.core.constants import Action, Direction, PuyoColor
-from src.core.headless import PlacementAction
+from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 from src.core.puyo import Puyo
 from src.core.realtime import RealtimeHeadlessSimulator, RealtimeTimingConfig, TickInput
 
@@ -63,12 +64,15 @@ class TimedPlacementTests(unittest.TestCase):
                 self.assertTrue(plan.reachable, plan.reason)
                 self.assertTrue(nextgen_authoritative_action_mask(sim)[case['action']])
                 self.assertEqual(before, pickle.dumps(sim))
+                expected = HeadlessPuyoSimulator(game_state=copy.deepcopy(sim.game), auto_spawn=False)
+                expected.step(action)
                 actual = sim.clone()
                 self.assertEqual(first_lock(actual, plan.inputs),
                                  (action.axis_x, plan.expected_axis_y, action.rotation.name))
                 events = actual.run_until_control_or_game_over()
                 self.assertEqual([e.data['chain_count'] for r in events for e in r.events
                                   if e.type == 'resolution_complete'], [case['predicted_chain']])
+                self.assertEqual(actual.game.field.to_color_grid(), expected.game.field.to_color_grid())
 
     def test_execution_helper_retains_live_clock_instead_of_hiding_gravity_collision(self):
         for case in CASES:

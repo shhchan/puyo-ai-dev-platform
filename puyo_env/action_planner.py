@@ -48,7 +48,7 @@ def _coerce_game(game_or_simulator: GameState | HeadlessPuyoSimulator | Realtime
     return game_or_simulator.game
 
 
-def _geometric_paths(source_game, actions, max_expanded_states, repair_budget=None):
+def _geometric_paths(source_game, actions, max_expanded_states, repair_budget=None, transition_cache=None):
     """One bounded BFS supplies candidate input paths, not execution guarantees."""
     targets = {
         action: (action.axis_x, source_game.find_landing_y(action.axis_x, action.rotation), action.rotation)
@@ -73,12 +73,21 @@ def _geometric_paths(source_game, actions, max_expanded_states, repair_budget=No
                 break
             repair_budget[0] -= 1
         for action in PLANNER_ACTIONS:
-            next_state = _transition_piece_state(source_game, state, action)
+            next_state = _geometry_transition(source_game, state, action, transition_cache)
             if next_state is None or next_state in previous:
                 continue
             previous[next_state] = (state, action)
             queue.append(next_state)
     return {action: (target, found.get(target)) for action, target in targets.items()}
+
+
+def _geometry_transition(game, state, action, cache):
+    if cache is None:
+        return _transition_piece_state(game, state, action)
+    key = (state, action)
+    if key not in cache:
+        cache[key] = _transition_piece_state(game, state, action)
+    return cache[key]
 
 
 class _ControlProbeGame(GameState):
@@ -118,7 +127,7 @@ def _step_control_probe(probe, tick_input):
     probe.tick += 1
 
 
-def _verify_path(source, action, target, path, *, timing, max_expanded_states, repair_budget):
+def _verify_path(source, action, target, path, *, timing, max_expanded_states, repair_budget, repair_cache, all_actions, transition_cache):
     probe = _control_probe(source, timing)
     inputs, actions = [], []
     remaining = deque(path)
@@ -129,7 +138,7 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
         current = (probe.game.puyo_x, probe.game.puyo_y, probe.game.puyo_rot,
                    probe.game.blocked_rotate_input_count)
         step_action = remaining.popleft()
-        predicted = _transition_piece_state(probe.game, current, step_action)
+        predicted = _geometry_transition(probe.game, current, step_action, transition_cache)
         actions.append(step_action)
         for tick_input in inputs_from_action_pulses((step_action,)):
             if probe.game.state != "control":
@@ -141,7 +150,14 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
         if probe.game.state == "control" and actual != predicted:
             if repairs >= 2:
                 return None
-            repaired_target, repaired = _geometric_paths(probe.game, (action,), max_expanded_states, repair_budget)[action]
+            # A common prefix can cross the gravity boundary for many roots.
+            # Share only its geometric search within this immutable-board call;
+            # every timed witness is still checked against its own live clock.
+            if actual not in repair_cache:
+                repair_cache[actual] = _geometric_paths(
+                    probe.game, all_actions, max_expanded_states, repair_budget, transition_cache
+                )
+            repaired_target, repaired = repair_cache[actual][action]
             if repaired is None or repaired_target != target:
                 return None
             remaining = deque(repaired)
@@ -166,13 +182,17 @@ def _plans_for_actions(source, actions, *, timing=None, max_expanded_states=2000
     probe = _control_probe(source, timing)
     if probe.game.state != "control" or probe.game.game_over:
         return {}
-    paths = _geometric_paths(probe.game, actions, max_expanded_states)
+    actions = tuple(actions)
+    transition_cache = {}
+    paths = _geometric_paths(probe.game, actions, max_expanded_states, transition_cache=transition_cache)
     # One additional expansion budget for the entire batch, in action order.
     # Exhaustion may omit a valid root but can never admit an unverified root.
     repair_budget = [max(0, max_expanded_states)]
+    repair_cache = {}
     return {
         action: _verify_path(probe, action, target, path, timing=timing,
-                             max_expanded_states=max_expanded_states, repair_budget=repair_budget)
+                             max_expanded_states=max_expanded_states, repair_budget=repair_budget,
+                             repair_cache=repair_cache, all_actions=actions, transition_cache=transition_cache)
         for action, (target, path) in paths.items() if path is not None
     }
 
