@@ -50,4 +50,4 @@ PUYO-270 の probe/response quota と `apply_envelope` を維持する．到達 
 
 `search.selected_template` に元 key，compiled required/forbidden，digest，全 root の known/sample witness・status・reason を保存する．scheduler replay payload と ledger metadata が同じ trace を保持する．receipt は requested/executed/outcome に加えて `template_adopted`/`template_not_adopted_<outcome>` を記録し，270 の survival reason を保持する．trajectory の既存 DecisionRecord schema は変更せず，拡張探索 trace は replay/ledger metadata に保存する．
 
-[検証と測定](../benchmarks/puyo-268-template-integration/README.md) を参照．統合 3 seed の品質比較は PUYO-271 後半，人間の GUI QA は未実施，正式 G2 は PUYO-266 の範囲である．
+[検証と測定](../benchmarks/puyo-268-template-integration/README.md) を参照．PUYO-271 後半の旧 3 seed と 2026-09-27 の新規 3 seed を比較した．人間 GUI の元 raw は未保存で同一性は未確定，修正後の人間確認と正式 G2 は未実施である．正式 G2 は PUYO-266 の範囲に残る．
