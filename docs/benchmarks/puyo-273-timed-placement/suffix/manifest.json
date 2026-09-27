@@ -1,0 +1,60 @@
+{
+  "traces": {
+    "after-both": {
+      "path": "raw/after-both.json.gz",
+      "raw_sha256": "1d6df3561ae7922c45ab7c7bdf06297d26a5d7ee64c3beeeace5388de1669a5b",
+      "gzip_sha256": "6b5e9954083fcdfd36a648864a1ffd0c227e1c5d241c4a26e3b2bdd9b7434845",
+      "bytes": 1005180,
+      "gzip_bytes": 76632
+    },
+    "after-first": {
+      "path": "raw/after-first.json.gz",
+      "raw_sha256": "c1966ba3e9254de15377730784ca6b84910ea8915ddfb7c371d62a619470ae5b",
+      "gzip_sha256": "2bc54f53ea065283433e672104ee454ccd72043f4399c33cf314073eb503b66c",
+      "bytes": 512007,
+      "gzip_bytes": 63570
+    },
+    "after-human": {
+      "path": "raw/after-human.json.gz",
+      "raw_sha256": "300e73ee0e8a9f5fdfff36a1e8895eae719ac344103018ac2ca3f723e5024e4d",
+      "gzip_sha256": "d869cd7c5d15df997f29e750fce00a979b2ef857be54e1c782985f6cc9e76c31",
+      "bytes": 1324342,
+      "gzip_bytes": 95220
+    },
+    "after-one": {
+      "path": "raw/after-one.json.gz",
+      "raw_sha256": "06ea38758fd525b1ea7956752740caedb47fb1fec7c39ecd49cb4f2838ef31c7",
+      "gzip_sha256": "ee7e2db5dea0f2a2d12bf735d76d409610d73bfdccb5127ff79df462a53af4f4",
+      "bytes": 1044055,
+      "gzip_bytes": 87626
+    },
+    "before-both": {
+      "path": "raw/before-both.json.gz",
+      "raw_sha256": "e520392e046e482f0d6b2fce8aa4f661a3934ad7935a64cef78eaaa7252e84f4",
+      "gzip_sha256": "cef98004e603783f6797bb4effb13cc7761b6dc60563df7b2a4524e6bca408ab",
+      "bytes": 940996,
+      "gzip_bytes": 71585
+    },
+    "before-human": {
+      "path": "raw/before-human.json.gz",
+      "raw_sha256": "b74e464ea2634e0d4b8d314dcf4be42d0acdf180397e84969ee1a2ca77835df5",
+      "gzip_sha256": "18e6584cdc6d7bad365e2ca012356b85935aa868b4dbdc7cb9b1499aa12d07c6",
+      "bytes": 1325403,
+      "gzip_bytes": 95631
+    },
+    "before-one": {
+      "path": "raw/before-one.json.gz",
+      "raw_sha256": "6d1f64117705cfcd1c65d43ab7c466ba70aa946bbd48142e0ea901b509fdd51b",
+      "gzip_sha256": "39dd8ce4873572f9a2c3c46479f9739e53b96d75235a69f7c2a018596d970b51",
+      "bytes": 1031183,
+      "gzip_bytes": 85788
+    },
+    "minimal-one": {
+      "path": "raw/minimal-one.json.gz",
+      "raw_sha256": "3309810ed482072b17cd7fd9e9085f2c1a3c1053d2e0cd0126cd05d1a2cce507",
+      "gzip_sha256": "16670a9364f53fc43c1bdfe6339217c760164c163acdcec9e69dc29e00f963b8",
+      "bytes": 639787,
+      "gzip_bytes": 49962
+    }
+  }
+}

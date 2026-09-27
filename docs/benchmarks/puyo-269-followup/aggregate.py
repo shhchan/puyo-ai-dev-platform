@@ -97,17 +97,37 @@ def summarize(name: str, data: dict, raw: bytes) -> dict:
             "unprocessed_ids": sorted(set(posted) - set(processed)),
         },
         "human": human,
+        "locks": {
+            "total": len(data.get("lock_receipts", [])),
+            "compared": sum(row["matches"] is not None for row in data.get("lock_receipts", [])),
+            "mismatch": sum(row["matches"] is False for row in data.get("lock_receipts", [])),
+            "by_agent": {
+                agent: {
+                    "total": sum(row["agent"] == agent for row in data.get("lock_receipts", [])),
+                    "compared": sum(row["agent"] == agent and row["matches"] is not None
+                                    for row in data.get("lock_receipts", [])),
+                    "mismatch": sum(row["agent"] == agent and row["matches"] is False
+                                    for row in data.get("lock_receipts", [])),
+                }
+                for agent in sorted({row["agent"] for row in data.get("lock_receipts", [])})
+            },
+        },
     }
 
 
-def main() -> None:
+def aggregate(directory: Path) -> None:
     result = {}
-    for path in sorted((ROOT / "raw").glob("*.json.gz")):
+    for path in sorted((directory / "raw").glob("*.json.gz")):
         raw = gzip.decompress(path.read_bytes())
         name = path.name.removesuffix(".json.gz")
         result[name] = summarize(name, json.loads(raw), raw)
-    (ROOT / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(f"Recomputed {len(result)} raw traces")
+    (directory / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(f"Recomputed {len(result)} raw traces in {directory}")
+
+
+def main() -> None:
+    aggregate(ROOT)
+    aggregate(ROOT / "integrated")
 
 
 if __name__ == "__main__":

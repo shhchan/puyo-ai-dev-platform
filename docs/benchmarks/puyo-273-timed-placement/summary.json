@@ -1,0 +1,5442 @@
+{
+  "before-one": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 11.043014031,
+    "ticks": 661,
+    "samples": {
+      "tick_ms": {
+        "n": 661,
+        "p50": 4.394526,
+        "p95": 9.733538,
+        "p99": 47.929642399999985,
+        "max": 126.156291
+      },
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.2562585,
+        "p95": 27.628015949999984,
+        "p99": 69.45195839999998,
+        "max": 134.22863
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.039502,
+        "p95": 0.09762909999999984,
+        "p99": 0.18206637999999956,
+        "max": 0.555109
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 4.416468999999999,
+        "p95": 17.31385929999999,
+        "p99": 48.49658200999997,
+        "max": 126.16989
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.575072499999999,
+        "p95": 9.750660199999995,
+        "p99": 15.986148309999994,
+        "max": 91.423285
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      },
+      "input_queue_ms": {
+        "n": 220,
+        "p50": 5.163446,
+        "p95": 15.280047299999994,
+        "p99": 41.25467767,
+        "max": 79.903496
+      },
+      "input_schedule_ms": {
+        "n": 220,
+        "p50": 8.410408499999999,
+        "p95": 33.00612745,
+        "p99": 58.68477827,
+        "max": 85.830687
+      },
+      "input_to_state_ms": {
+        "n": 220,
+        "p50": 10.640407499999998,
+        "p95": 36.81147409999999,
+        "p99": 70.86957483000005,
+        "max": 126.364683
+      },
+      "input_to_render_ms": {
+        "n": 220,
+        "p50": 16.5009725,
+        "p95": 55.195600699999986,
+        "p99": 81.50237567000002,
+        "max": 134.295849
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.2562585,
+        "p95": 27.628015949999984,
+        "p99": 69.45195839999998,
+        "max": 134.22863
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.039502,
+        "p95": 0.09762909999999984,
+        "p99": 0.18206637999999956,
+        "max": 0.555109
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 4.416468999999999,
+        "p95": 17.31385929999999,
+        "p99": 48.49658200999997,
+        "max": 126.16989
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.575072499999999,
+        "p95": 9.750660199999995,
+        "p99": 15.986148309999994,
+        "max": 91.423285
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      },
+      "input_queue_ms": {
+        "n": 220,
+        "p50": 5.163446,
+        "p95": 15.280047299999994,
+        "p99": 41.25467767,
+        "max": 79.903496
+      },
+      "input_schedule_ms": {
+        "n": 220,
+        "p50": 8.410408499999999,
+        "p95": 33.00612745,
+        "p99": 58.68477827,
+        "max": 85.830687
+      },
+      "input_to_state_ms": {
+        "n": 220,
+        "p50": 10.640407499999998,
+        "p95": 36.81147409999999,
+        "p99": 70.86957483000005,
+        "max": 126.364683
+      },
+      "input_to_render_ms": {
+        "n": 220,
+        "p50": 16.5009725,
+        "p95": 55.195600699999986,
+        "p99": 81.50237567000002,
+        "max": 134.295849
+      }
+    },
+    "functions_ms": {
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 4.5505765,
+        "p95": 4.8806145,
+        "p99": 4.9685541,
+        "max": 4.990539
+      },
+      "scheduler_prepare": {
+        "n": 10,
+        "p50": 6.212944,
+        "p95": 7.212736349999999,
+        "p99": 7.47543447,
+        "max": 7.541109
+      },
+      "ipc_submit_enqueue": {
+        "n": 10,
+        "p50": 0.0293385,
+        "p95": 0.47805354999999916,
+        "p99": 0.7671627100000001,
+        "max": 0.83944
+      },
+      "_submit_decision": {
+        "n": 10,
+        "p50": 0.053618,
+        "p95": 0.5351707999999993,
+        "p99": 0.79948136,
+        "max": 0.865559
+      },
+      "next_input_player_0": {
+        "n": 661,
+        "p50": 0.014975,
+        "p95": 1.589282,
+        "p99": 40.79324199999992,
+        "max": 121.937876
+      },
+      "next_input_player_1": {
+        "n": 661,
+        "p50": 0.007617,
+        "p95": 1.803921,
+        "p99": 4.138371399999997,
+        "max": 6.734582
+      },
+      "simulation": {
+        "n": 661,
+        "p50": 3.645557,
+        "p95": 6.651106,
+        "p99": 12.496980999999893,
+        "max": 47.767382
+      },
+      "tactical_diagnostics": {
+        "n": 3061,
+        "p50": 0.001465,
+        "p95": 0.006146,
+        "p99": 0.01268560000000004,
+        "max": 0.119008
+      },
+      "_build_replay_tick": {
+        "n": 661,
+        "p50": 0.23997,
+        "p95": 0.437589,
+        "p99": 0.6353927999999998,
+        "max": 1.313169
+      },
+      "_sync_display_boards": {
+        "n": 689,
+        "p50": 0.020839,
+        "p95": 0.06714760000000003,
+        "p99": 0.20566996000000004,
+        "max": 1.574567
+      },
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 22.447012,
+        "p95": 47.76589259999998,
+        "p99": 55.51033932000001,
+        "max": 57.446451
+      },
+      "_plan_action": {
+        "n": 16,
+        "p50": 3.6517235,
+        "p95": 4.48712,
+        "p99": 4.5885248,
+        "max": 4.613876
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 26.5124745,
+        "p95": 51.33137609999998,
+        "p99": 58.98751122,
+        "max": 60.901545
+      },
+      "scheduler_stale": {
+        "n": 10,
+        "p50": 0.792497,
+        "p95": 1.0093081999999998,
+        "p99": 1.06673684,
+        "max": 1.081094
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 9.6906745,
+        "p95": 46.45825094999995,
+        "p99": 63.30099099,
+        "max": 67.511676
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 21.412154,
+        "p95": 57.858277849999936,
+        "p99": 77.39635157000001,
+        "max": 82.28087
+      }
+    },
+    "functions_total_ms": {
+      "authoritative_mask": 71.466967,
+      "scheduler_prepare": 63.438617,
+      "ipc_submit_enqueue": 1.108246,
+      "_submit_decision": 1.40704,
+      "next_input_player_0": 708.024584,
+      "next_input_player_1": 151.347243,
+      "simulation": 2911.077031,
+      "tactical_diagnostics": 7.290801,
+      "_build_replay_tick": 177.970899,
+      "_sync_display_boards": 21.169203,
+      "scheduler_accept": 274.394201,
+      "_plan_action": 58.295503000000004,
+      "_complete_decision": 312.461437,
+      "scheduler_stale": 8.097458,
+      "scheduler_finish": 164.898652,
+      "_activate_nextgen": 259.726248
+    },
+    "resources": {
+      "979976": {
+        "cpu_seconds": 6.7,
+        "max_rss_kb": 272984,
+        "max_threads": 12
+      },
+      "980020": {
+        "cpu_seconds": 12.1,
+        "max_rss_kb": 351576,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980020": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 4,
+        "p50": 163.26423648570199,
+        "p95": 175.8919949963456,
+        "p99": 177.02656139794271,
+        "max": 177.310202998342
+      },
+      "False": {
+        "n": 6,
+        "p50": 585.5034940032056,
+        "p95": 626.6729637500248,
+        "p99": 630.0989639523323,
+        "max": 630.9554640029091
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 10,
+        "decisions_started": 10,
+        "decisions_activated": 6,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 350,
+        "idle_ticks": 311,
+        "stale_decisions": 4,
+        "policy_elapsed_seconds": 4.183905002952088,
+        "inference_latency_ticks": 282,
+        "planned_input_ticks": 594,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 418.39050029520877,
+        "mean_inference_latency_ticks": 28.2
+      },
+      "player_1": {
+        "decision_requests": 11,
+        "decisions_started": 11,
+        "decisions_activated": 11,
+        "placements_completed": 10,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 601,
+        "idle_ticks": 60,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0006234119646251202,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 630,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 0.056673814965920014,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "input_integrity": {
+      "posted": 221,
+      "handled": 220,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [
+        220
+      ],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": true,
+    "lock_receipts": [
+      {
+        "frame": 55,
+        "tick": 59,
+        "agent": "player_1",
+        "expected": [
+          5,
+          0,
+          "UP"
+        ],
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 85,
+        "tick": 90,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 120,
+        "tick": 124,
+        "agent": "player_1",
+        "expected": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 174,
+        "tick": 187,
+        "agent": "player_1",
+        "expected": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 184,
+        "tick": 197,
+        "agent": "player_0",
+        "expected": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 239,
+        "tick": 256,
+        "agent": "player_1",
+        "expected": [
+          3,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          3,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 288,
+        "tick": 306,
+        "agent": "player_0",
+        "expected": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 308,
+        "tick": 325,
+        "agent": "player_1",
+        "expected": [
+          3,
+          2,
+          "LEFT"
+        ],
+        "actual": [
+          3,
+          2,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 364,
+        "tick": 392,
+        "agent": "player_1",
+        "expected": [
+          4,
+          3,
+          "UP"
+        ],
+        "actual": [
+          4,
+          3,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 388,
+        "tick": 415,
+        "agent": "player_0",
+        "expected": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "actual": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 421,
+        "tick": 447,
+        "agent": "player_1",
+        "expected": [
+          4,
+          6,
+          "DOWN"
+        ],
+        "actual": [
+          4,
+          6,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 466,
+        "tick": 504,
+        "agent": "player_1",
+        "expected": [
+          3,
+          3,
+          "LEFT"
+        ],
+        "actual": [
+          3,
+          3,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 500,
+        "tick": 541,
+        "agent": "player_0",
+        "expected": [
+          3,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          3,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 532,
+        "tick": 575,
+        "agent": "player_1",
+        "expected": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "actual": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 568,
+        "tick": 628,
+        "agent": "player_1",
+        "expected": [
+          5,
+          7,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          7,
+          "LEFT"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "before-both": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 360,
+    "active_frames": 360,
+    "elapsed_seconds": 9.261518254,
+    "ticks": 554,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 360,
+        "p50": 17.978115,
+        "p95": 67.69626215000001,
+        "p99": 99.02102444000016,
+        "max": 161.816991
+      },
+      "event_ms": {
+        "n": 360,
+        "p50": 0.042721999999999996,
+        "p95": 0.12507300000000007,
+        "p99": 0.22036166000000001,
+        "max": 1.565638
+      },
+      "update_ms": {
+        "n": 360,
+        "p50": 5.748444,
+        "p95": 47.86949960000001,
+        "p99": 81.51974241000005,
+        "max": 133.492538
+      },
+      "render_ms": {
+        "n": 360,
+        "p50": 9.29782,
+        "p95": 23.467417050000005,
+        "p99": 58.945199460000055,
+        "max": 72.358523
+      },
+      "tick_catchup": {
+        "n": 360,
+        "p50": 1.0,
+        "p95": 4.0,
+        "p99": 6.410000000000025,
+        "max": 10
+      },
+      "tick_ms": {
+        "n": 554,
+        "p50": 5.404571499999999,
+        "p95": 15.808595850000001,
+        "p99": 57.28954122000001,
+        "max": 111.905111
+      },
+      "input_queue_ms": {
+        "n": 184,
+        "p50": 6.279273,
+        "p95": 60.772542399999956,
+        "p99": 101.30803480999998,
+        "max": 120.038899
+      },
+      "input_schedule_ms": {
+        "n": 184,
+        "p50": 12.530135000000001,
+        "p95": 69.11581334999998,
+        "p99": 106.45573466999987,
+        "max": 123.383698
+      },
+      "input_to_state_ms": {
+        "n": 184,
+        "p50": 12.786617,
+        "p95": 78.97602219999999,
+        "p99": 123.3250860899999,
+        "max": 136.309462
+      },
+      "input_to_render_ms": {
+        "n": 184,
+        "p50": 30.9478205,
+        "p95": 142.76110809999997,
+        "p99": 167.97385337999998,
+        "max": 187.699831
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 360,
+        "p50": 17.978115,
+        "p95": 67.69626215000001,
+        "p99": 99.02102444000016,
+        "max": 161.816991
+      },
+      "event_ms": {
+        "n": 360,
+        "p50": 0.042721999999999996,
+        "p95": 0.12507300000000007,
+        "p99": 0.22036166000000001,
+        "max": 1.565638
+      },
+      "update_ms": {
+        "n": 360,
+        "p50": 5.748444,
+        "p95": 47.86949960000001,
+        "p99": 81.51974241000005,
+        "max": 133.492538
+      },
+      "render_ms": {
+        "n": 360,
+        "p50": 9.29782,
+        "p95": 23.467417050000005,
+        "p99": 58.945199460000055,
+        "max": 72.358523
+      },
+      "tick_catchup": {
+        "n": 360,
+        "p50": 1.0,
+        "p95": 4.0,
+        "p99": 6.410000000000025,
+        "max": 10
+      },
+      "input_queue_ms": {
+        "n": 184,
+        "p50": 6.279273,
+        "p95": 60.772542399999956,
+        "p99": 101.30803480999998,
+        "max": 120.038899
+      },
+      "input_schedule_ms": {
+        "n": 184,
+        "p50": 12.530135000000001,
+        "p95": 69.11581334999998,
+        "p99": 106.45573466999987,
+        "max": 123.383698
+      },
+      "input_to_state_ms": {
+        "n": 184,
+        "p50": 12.786617,
+        "p95": 78.97602219999999,
+        "p99": 123.3250860899999,
+        "max": 136.309462
+      },
+      "input_to_render_ms": {
+        "n": 184,
+        "p50": 30.9478205,
+        "p95": 142.76110809999997,
+        "p99": 167.97385337999998,
+        "max": 187.699831
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 2548,
+        "p50": 0.0012195,
+        "p95": 0.004351600000000002,
+        "p99": 0.007904540000000003,
+        "max": 0.066828
+      },
+      "authoritative_mask": {
+        "n": 23,
+        "p50": 5.469621,
+        "p95": 9.591919899999997,
+        "p99": 11.740626840000003,
+        "max": 12.276157
+      },
+      "scheduler_prepare": {
+        "n": 13,
+        "p50": 8.024383,
+        "p95": 12.721254599999991,
+        "p99": 15.465930119999994,
+        "max": 16.152099
+      },
+      "ipc_submit_enqueue": {
+        "n": 13,
+        "p50": 0.032224,
+        "p95": 0.6774687999999999,
+        "p99": 0.7259425599999999,
+        "max": 0.738061
+      },
+      "_submit_decision": {
+        "n": 13,
+        "p50": 0.060569,
+        "p95": 0.7061891999999999,
+        "p99": 0.7519826399999998,
+        "max": 0.763431
+      },
+      "next_input_player_0": {
+        "n": 554,
+        "p50": 0.013413999999999999,
+        "p95": 1.4149058500000038,
+        "p99": 32.253425530000925,
+        "max": 59.646675
+      },
+      "next_input_player_1": {
+        "n": 554,
+        "p50": 0.0042725,
+        "p95": 1.6015240500000034,
+        "p99": 46.26151798000002,
+        "max": 56.613273
+      },
+      "simulation": {
+        "n": 554,
+        "p50": 4.5775755,
+        "p95": 13.559470400000002,
+        "p99": 17.785843360000005,
+        "max": 50.008714
+      },
+      "_build_replay_tick": {
+        "n": 554,
+        "p50": 0.2650485,
+        "p95": 0.49470980000000003,
+        "p99": 1.2658825000000011,
+        "max": 5.070553
+      },
+      "_sync_display_boards": {
+        "n": 567,
+        "p50": 0.022725,
+        "p95": 0.06101039999999998,
+        "p99": 0.12759948000000035,
+        "max": 0.645613
+      },
+      "scheduler_accept": {
+        "n": 13,
+        "p50": 23.16674,
+        "p95": 26.248726599999998,
+        "p99": 27.03233572,
+        "max": 27.228238
+      },
+      "_plan_action": {
+        "n": 23,
+        "p50": 3.946154,
+        "p95": 5.658897199999998,
+        "p99": 5.75910872,
+        "max": 5.760632
+      },
+      "_complete_decision": {
+        "n": 13,
+        "p50": 26.587855,
+        "p95": 31.5122828,
+        "p99": 31.61182616,
+        "max": 31.636712
+      },
+      "scheduler_stale": {
+        "n": 13,
+        "p50": 0.763475,
+        "p95": 1.4233577999999991,
+        "p99": 1.6997955599999994,
+        "max": 1.768905
+      },
+      "scheduler_finish": {
+        "n": 13,
+        "p50": 12.019934,
+        "p95": 12.836410999999998,
+        "p99": 13.2209126,
+        "max": 13.317038
+      },
+      "_activate_nextgen": {
+        "n": 13,
+        "p50": 24.775739,
+        "p95": 29.108004399999995,
+        "p99": 30.664289679999996,
+        "max": 31.053361
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 4.157028,
+      "authoritative_mask": 136.599506,
+      "scheduler_prepare": 113.280503,
+      "ipc_submit_enqueue": 1.773881,
+      "_submit_decision": 2.1634729999999998,
+      "next_input_player_0": 437.748019,
+      "next_input_player_1": 467.386384,
+      "simulation": 3160.633509,
+      "_build_replay_tick": 181.851544,
+      "_sync_display_boards": 16.737033,
+      "scheduler_accept": 301.214048,
+      "_plan_action": 94.316795,
+      "_complete_decision": 356.27180599999997,
+      "scheduler_stale": 11.543524999999999,
+      "scheduler_finish": 149.318902,
+      "_activate_nextgen": 308.982523
+    },
+    "resources": {
+      "980138": {
+        "cpu_seconds": 6.11,
+        "max_rss_kb": 273880,
+        "max_threads": 14
+      },
+      "980159": {
+        "cpu_seconds": 8.35,
+        "max_rss_kb": 348180,
+        "max_threads": 15
+      },
+      "980181": {
+        "cpu_seconds": 8.34,
+        "max_rss_kb": 347620,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980159": true,
+      "980181": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 3,
+        "p50": 141.19394900626503,
+        "p95": 154.3596953008091,
+        "p99": 155.52998386032414,
+        "max": 155.8225560002029
+      },
+      "False": {
+        "n": 10,
+        "p50": 809.909505493124,
+        "p95": 903.5107578645693,
+        "p99": 909.3992371862987,
+        "max": 910.871357016731
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 6,
+        "decisions_started": 6,
+        "decisions_activated": 5,
+        "placements_completed": 4,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 264,
+        "idle_ticks": 290,
+        "stale_decisions": 1,
+        "policy_elapsed_seconds": 4.263829321047524,
+        "inference_latency_ticks": 265,
+        "planned_input_ticks": 348,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 710.6382201745873,
+        "mean_inference_latency_ticks": 44.166666666666664
+      },
+      "player_1": {
+        "decision_requests": 7,
+        "decisions_started": 7,
+        "decisions_activated": 5,
+        "placements_completed": 4,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 266,
+        "idle_ticks": 288,
+        "stale_decisions": 2,
+        "policy_elapsed_seconds": 4.25961309694685,
+        "inference_latency_ticks": 272,
+        "planned_input_ticks": 424,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 608.5161567066929,
+        "mean_inference_latency_ticks": 38.857142857142854
+      }
+    },
+    "scheduler_errors": {
+      "player_0": [],
+      "player_1": []
+    },
+    "input_integrity": {
+      "posted": 185,
+      "handled": 184,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [
+        184
+      ],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": true,
+    "lock_receipts": [
+      {
+        "frame": 76,
+        "tick": 100,
+        "agent": "player_1",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 77,
+        "tick": 101,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 151,
+        "tick": 205,
+        "agent": "player_1",
+        "expected": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 152,
+        "tick": 206,
+        "agent": "player_0",
+        "expected": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 226,
+        "tick": 331,
+        "agent": "player_0",
+        "expected": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 232,
+        "tick": 337,
+        "agent": "player_1",
+        "expected": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          1,
+          1,
+          "UP"
+        ],
+        "matches": false
+      },
+      {
+        "frame": 306,
+        "tick": 450,
+        "agent": "player_0",
+        "expected": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "actual": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 307,
+        "tick": 452,
+        "agent": "player_1",
+        "expected": [
+          1,
+          3,
+          "RIGHT"
+        ],
+        "actual": [
+          1,
+          3,
+          "RIGHT"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 1
+  },
+  "before-human": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "human",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 11.326510185,
+    "ticks": 678,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.4907905,
+        "p95": 30.27485689999996,
+        "p99": 66.40857228999997,
+        "max": 118.723385
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.041829,
+        "p95": 0.11932689999999999,
+        "p99": 0.22062616,
+        "max": 0.603405
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 4.9451215,
+        "p95": 16.1851116,
+        "p99": 50.852137459999945,
+        "max": 102.58626
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 6.365041,
+        "p95": 11.672361049999978,
+        "p99": 51.85646342,
+        "max": 82.142327
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 7
+      },
+      "tick_ms": {
+        "n": 678,
+        "p50": 4.8354475,
+        "p95": 9.722333999999998,
+        "p99": 49.433174750000035,
+        "max": 90.527203
+      },
+      "input_queue_ms": {
+        "n": 226,
+        "p50": 5.6532895,
+        "p95": 17.3188165,
+        "p99": 68.7363535,
+        "max": 99.034569
+      },
+      "input_schedule_ms": {
+        "n": 226,
+        "p50": 11.0074255,
+        "p95": 46.146514749999994,
+        "p99": 71.81425325000001,
+        "max": 108.463184
+      },
+      "input_to_state_ms": {
+        "n": 226,
+        "p50": 10.897926,
+        "p95": 40.968686250000005,
+        "p99": 91.167537,
+        "max": 106.879935
+      },
+      "input_to_render_ms": {
+        "n": 226,
+        "p50": 18.305585999999998,
+        "p95": 59.373298,
+        "p99": 133.86187999999999,
+        "max": 155.123837
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.4907905,
+        "p95": 30.27485689999996,
+        "p99": 66.40857228999997,
+        "max": 118.723385
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.041829,
+        "p95": 0.11932689999999999,
+        "p99": 0.22062616,
+        "max": 0.603405
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 4.9451215,
+        "p95": 16.1851116,
+        "p99": 50.852137459999945,
+        "max": 102.58626
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 6.365041,
+        "p95": 11.672361049999978,
+        "p99": 51.85646342,
+        "max": 82.142327
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 7
+      },
+      "input_queue_ms": {
+        "n": 226,
+        "p50": 5.6532895,
+        "p95": 17.3188165,
+        "p99": 68.7363535,
+        "max": 99.034569
+      },
+      "input_schedule_ms": {
+        "n": 226,
+        "p50": 11.0074255,
+        "p95": 46.146514749999994,
+        "p99": 71.81425325000001,
+        "max": 108.463184
+      },
+      "input_to_state_ms": {
+        "n": 226,
+        "p50": 10.897926,
+        "p95": 40.968686250000005,
+        "p99": 91.167537,
+        "max": 106.879935
+      },
+      "input_to_render_ms": {
+        "n": 226,
+        "p50": 18.305585999999998,
+        "p95": 59.373298,
+        "p99": 133.86187999999999,
+        "max": 155.123837
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 3078,
+        "p50": 0.001605,
+        "p95": 0.004841099999999995,
+        "p99": 0.008937930000000002,
+        "max": 0.100857
+      },
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 4.6241685,
+        "p95": 6.0845895,
+        "p99": 6.8585859,
+        "max": 7.052085
+      },
+      "scheduler_prepare": {
+        "n": 10,
+        "p50": 7.043423,
+        "p95": 7.6019148,
+        "p99": 7.63951896,
+        "max": 7.64892
+      },
+      "ipc_submit_enqueue": {
+        "n": 10,
+        "p50": 0.0305415,
+        "p95": 0.2711462499999996,
+        "p99": 0.4180316500000001,
+        "max": 0.454753
+      },
+      "_submit_decision": {
+        "n": 10,
+        "p50": 0.0519835,
+        "p95": 0.29712344999999957,
+        "p99": 0.4461126900000001,
+        "max": 0.48336
+      },
+      "next_input_player_0": {
+        "n": 678,
+        "p50": 0.014561000000000001,
+        "p95": 1.436257399999991,
+        "p99": 41.90949809000006,
+        "max": 85.557263
+      },
+      "next_input_player_1": {
+        "n": 678,
+        "p50": 0.009714,
+        "p95": 0.03139934999999999,
+        "p99": 0.046605680000000003,
+        "max": 0.195225
+      },
+      "simulation": {
+        "n": 678,
+        "p50": 4.151282999999999,
+        "p95": 7.1946791999999995,
+        "p99": 10.676114880000007,
+        "max": 68.343551
+      },
+      "_build_replay_tick": {
+        "n": 678,
+        "p50": 0.2566965,
+        "p95": 0.5409478499999999,
+        "p99": 0.9083690100000003,
+        "max": 9.416606
+      },
+      "_sync_display_boards": {
+        "n": 711,
+        "p50": 0.022508,
+        "p95": 0.068127,
+        "p99": 0.1345701,
+        "max": 0.257611
+      },
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 21.3182,
+        "p95": 41.540069349999996,
+        "p99": 41.87593387,
+        "max": 41.9599
+      },
+      "_plan_action": {
+        "n": 16,
+        "p50": 3.916451,
+        "p95": 5.05896525,
+        "p99": 5.15963145,
+        "max": 5.184798
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 25.4446955,
+        "p95": 45.979745,
+        "p99": 47.0024906,
+        "max": 47.258177
+      },
+      "scheduler_stale": {
+        "n": 10,
+        "p50": 0.7682315,
+        "p95": 1.0457157499999998,
+        "p99": 1.09276955,
+        "max": 1.104533
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 12.6363475,
+        "p95": 20.44683305,
+        "p99": 21.53549861,
+        "max": 21.807665
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 23.231028000000002,
+        "p95": 34.41795539999999,
+        "p99": 37.35640788,
+        "max": 38.091021
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 6.298355,
+      "authoritative_mask": 75.165436,
+      "scheduler_prepare": 68.76125,
+      "ipc_submit_enqueue": 0.7377560000000001,
+      "_submit_decision": 0.960385,
+      "next_input_player_0": 669.76986,
+      "next_input_player_1": 8.224099,
+      "simulation": 3282.496854,
+      "_build_replay_tick": 214.569161,
+      "_sync_display_boards": 20.88523,
+      "scheduler_accept": 249.308211,
+      "_plan_action": 62.334039,
+      "_complete_decision": 290.032801,
+      "scheduler_stale": 8.001405,
+      "scheduler_finish": 138.538269,
+      "_activate_nextgen": 238.104717
+    },
+    "resources": {
+      "980298": {
+        "cpu_seconds": 7.44,
+        "max_rss_kb": 273288,
+        "max_threads": 12
+      },
+      "980324": {
+        "cpu_seconds": 13.18,
+        "max_rss_kb": 350720,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980324": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 4,
+        "p50": 144.06426600180566,
+        "p95": 173.77577899897005,
+        "p99": 177.7821325993864,
+        "max": 178.78372099949047
+      },
+      "False": {
+        "n": 6,
+        "p50": 659.749752987409,
+        "p95": 708.8645967523917,
+        "p99": 710.8954921524855,
+        "max": 711.403216002509
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 10,
+        "decisions_started": 10,
+        "decisions_activated": 6,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 341,
+        "idle_ticks": 337,
+        "stale_decisions": 4,
+        "policy_elapsed_seconds": 4.5576482029864565,
+        "inference_latency_ticks": 308,
+        "planned_input_ticks": 600,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 455.76482029864565,
+        "mean_inference_latency_ticks": 30.8
+      },
+      "player_1": {
+        "decision_requests": 0,
+        "decisions_started": 0,
+        "decisions_activated": 0,
+        "placements_completed": 0,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 418,
+        "idle_ticks": 0,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 0,
+        "latency_mode": "configured",
+        "last_event": "human_input",
+        "last_emitted_input": null,
+        "last_decision": null,
+        "mean_policy_elapsed_ms": 0.0,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "input_integrity": {
+      "posted": 226,
+      "handled": 226,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [],
+      "unique_human_ticks": 678,
+      "held_mismatch_ticks": 58,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 23,
+          "fired": 28,
+          "fired_after_ui_release": 7,
+          "repeat_after_ui_release": 6
+        },
+        "RIGHT": {
+          "emitted_press": 23,
+          "fired": 29,
+          "fired_after_ui_release": 7,
+          "repeat_after_ui_release": 6
+        },
+        "DOWN": {
+          "emitted_press": 311,
+          "fired": 311,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 22,
+          "fired": 22,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 23,
+          "fired": 23,
+          "fired_after_ui_release": 1,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": true,
+    "lock_receipts": [
+      {
+        "frame": 51,
+        "tick": 55,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 92,
+        "tick": 98,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 106,
+        "tick": 112,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 149,
+        "tick": 165,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 195,
+        "tick": 210,
+        "agent": "player_0",
+        "expected": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          1,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 204,
+        "tick": 222,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          0,
+          "RIGHT"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 251,
+        "tick": 276,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          1,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 298,
+        "tick": 322,
+        "agent": "player_0",
+        "expected": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 301,
+        "tick": 325,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          3,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 352,
+        "tick": 383,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          0,
+          1,
+          "DOWN"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 385,
+        "tick": 418,
+        "agent": "player_0",
+        "expected": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "actual": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 403,
+        "tick": 436,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          0,
+          2,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 449,
+        "tick": 487,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          2,
+          3,
+          "LEFT"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 488,
+        "tick": 534,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          5,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 517,
+        "tick": 562,
+        "agent": "player_0",
+        "expected": [
+          3,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          3,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 534,
+        "tick": 583,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 568,
+        "tick": 636,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": null
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "after-one": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 11.889072441,
+    "ticks": 712,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.4828105,
+        "p95": 45.70670174999977,
+        "p99": 79.86593918,
+        "max": 151.38365
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.040832,
+        "p95": 0.12411404999999993,
+        "p99": 0.24134560999999993,
+        "max": 0.505934
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.1724429999999995,
+        "p95": 27.1702603499999,
+        "p99": 71.53625666999999,
+        "max": 142.574283
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.887166,
+        "p95": 10.516723899999997,
+        "p99": 15.989501329999982,
+        "max": 49.85659
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 5.0,
+        "max": 9
+      },
+      "tick_ms": {
+        "n": 712,
+        "p50": 4.852168,
+        "p95": 12.472832399999973,
+        "p99": 65.84484119999999,
+        "max": 142.550843
+      },
+      "input_queue_ms": {
+        "n": 237,
+        "p50": 4.653043,
+        "p95": 42.94752379999997,
+        "p99": 104.90570715999948,
+        "max": 129.97109
+      },
+      "input_schedule_ms": {
+        "n": 237,
+        "p50": 8.91363,
+        "p95": 53.9737478,
+        "p99": 110.5359117999995,
+        "max": 136.727743
+      },
+      "input_to_state_ms": {
+        "n": 237,
+        "p50": 10.689899,
+        "p95": 61.46188059999998,
+        "p99": 116.26712175999971,
+        "max": 164.718238
+      },
+      "input_to_render_ms": {
+        "n": 237,
+        "p50": 17.751899,
+        "p95": 87.33944199999983,
+        "p99": 152.2597638399996,
+        "max": 203.629849
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.4828105,
+        "p95": 45.70670174999977,
+        "p99": 79.86593918,
+        "max": 151.38365
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.040832,
+        "p95": 0.12411404999999993,
+        "p99": 0.24134560999999993,
+        "max": 0.505934
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.1724429999999995,
+        "p95": 27.1702603499999,
+        "p99": 71.53625666999999,
+        "max": 142.574283
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.887166,
+        "p95": 10.516723899999997,
+        "p99": 15.989501329999982,
+        "max": 49.85659
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 5.0,
+        "max": 9
+      },
+      "input_queue_ms": {
+        "n": 237,
+        "p50": 4.653043,
+        "p95": 42.94752379999997,
+        "p99": 104.90570715999948,
+        "max": 129.97109
+      },
+      "input_schedule_ms": {
+        "n": 237,
+        "p50": 8.91363,
+        "p95": 53.9737478,
+        "p99": 110.5359117999995,
+        "max": 136.727743
+      },
+      "input_to_state_ms": {
+        "n": 237,
+        "p50": 10.689899,
+        "p95": 61.46188059999998,
+        "p99": 116.26712175999971,
+        "max": 164.718238
+      },
+      "input_to_render_ms": {
+        "n": 237,
+        "p50": 17.751899,
+        "p95": 87.33944199999983,
+        "p99": 152.2597638399996,
+        "max": 203.629849
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 3112,
+        "p50": 0.0016255,
+        "p95": 0.007354049999999995,
+        "p99": 0.01373648999999997,
+        "max": 0.090806
+      },
+      "authoritative_mask": {
+        "n": 26,
+        "p50": 11.7057355,
+        "p95": 52.15154475,
+        "p99": 53.48586925,
+        "max": 53.857732
+      },
+      "scheduler_prepare": {
+        "n": 15,
+        "p50": 13.606905,
+        "p95": 31.062380699999963,
+        "p99": 50.259790539999976,
+        "max": 55.059143
+      },
+      "ipc_submit_enqueue": {
+        "n": 15,
+        "p50": 0.029652,
+        "p95": 0.15917369999999964,
+        "p99": 0.3506931399999998,
+        "max": 0.398573
+      },
+      "_submit_decision": {
+        "n": 15,
+        "p50": 0.054593,
+        "p95": 0.18630979999999964,
+        "p99": 0.3798043599999998,
+        "max": 0.428178
+      },
+      "next_input_player_0": {
+        "n": 712,
+        "p50": 0.015474,
+        "p95": 2.3209222499999873,
+        "p99": 55.487399069999995,
+        "max": 122.864944
+      },
+      "next_input_player_1": {
+        "n": 712,
+        "p50": 0.007299,
+        "p95": 1.5785486499999952,
+        "p99": 5.737774919999999,
+        "max": 135.937879
+      },
+      "simulation": {
+        "n": 712,
+        "p50": 4.065007,
+        "p95": 6.932039149999995,
+        "p99": 8.89235619,
+        "max": 51.843785
+      },
+      "_build_replay_tick": {
+        "n": 712,
+        "p50": 0.256586,
+        "p95": 0.5415901999999997,
+        "p99": 0.8998536399999992,
+        "max": 2.900658
+      },
+      "_sync_display_boards": {
+        "n": 741,
+        "p50": 0.022803,
+        "p95": 0.06705,
+        "p99": 0.1478492000000002,
+        "max": 0.276302
+      },
+      "scheduler_accept": {
+        "n": 15,
+        "p50": 20.47705,
+        "p95": 23.066999799999998,
+        "p99": 24.435027159999997,
+        "max": 24.777034
+      },
+      "_plan_action": {
+        "n": 36,
+        "p50": 4.471175499999999,
+        "p95": 6.16966,
+        "p99": 7.064986899999998,
+        "max": 7.464073
+      },
+      "_complete_decision": {
+        "n": 15,
+        "p50": 25.435446,
+        "p95": 32.338638599999996,
+        "p99": 34.615190919999996,
+        "max": 35.184329
+      },
+      "scheduler_stale": {
+        "n": 15,
+        "p50": 0.849853,
+        "p95": 1.1309029,
+        "p99": 1.15539338,
+        "max": 1.161516
+      },
+      "scheduler_finish": {
+        "n": 15,
+        "p50": 9.679534,
+        "p95": 11.715646499999998,
+        "p99": 12.7653413,
+        "max": 13.027765
+      },
+      "_activate_nextgen": {
+        "n": 15,
+        "p50": 29.538713,
+        "p95": 79.51548109999997,
+        "p99": 93.66158341999999,
+        "max": 97.198109
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 8.120047,
+      "authoritative_mask": 431.355702,
+      "scheduler_prepare": 253.239952,
+      "ipc_submit_enqueue": 0.836163,
+      "_submit_decision": 1.207673,
+      "next_input_player_0": 1266.469552,
+      "next_input_player_1": 434.233308,
+      "simulation": 3271.171744,
+      "_build_replay_tick": 212.956631,
+      "_sync_display_boards": 22.29688,
+      "scheduler_accept": 307.522091,
+      "_plan_action": 132.140404,
+      "_complete_decision": 391.905961,
+      "scheduler_stale": 13.088617,
+      "scheduler_finish": 149.38080300000001,
+      "_activate_nextgen": 537.318475
+    },
+    "resources": {
+      "980447": {
+        "cpu_seconds": 8.22,
+        "max_rss_kb": 273360,
+        "max_threads": 12
+      },
+      "980475": {
+        "cpu_seconds": 13.83,
+        "max_rss_kb": 351608,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980475": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 9,
+        "p50": 113.85556901223026,
+        "p95": 156.71421299339272,
+        "p99": 159.28049940266646,
+        "max": 159.9220710049849
+      },
+      "False": {
+        "n": 6,
+        "p50": 637.2152710100636,
+        "p95": 705.3870327290497,
+        "p99": 712.5028017253499,
+        "max": 714.2817439744249
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 15,
+        "decisions_started": 15,
+        "decisions_activated": 11,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 1,
+        "masked_actions": 0,
+        "fallback_actions": 1,
+        "replans": 5,
+        "emitted_input_ticks": 293,
+        "idle_ticks": 419,
+        "stale_decisions": 5,
+        "policy_elapsed_seconds": 4.933553130016662,
+        "inference_latency_ticks": 377,
+        "planned_input_ticks": 780,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 328.9035420011108,
+        "mean_inference_latency_ticks": 25.133333333333333
+      },
+      "player_1": {
+        "decision_requests": 15,
+        "decisions_started": 15,
+        "decisions_activated": 15,
+        "placements_completed": 11,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 2,
+        "masked_actions": 0,
+        "fallback_actions": 2,
+        "replans": 3,
+        "emitted_input_ticks": 629,
+        "idle_ticks": 83,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.000979866978013888,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 798,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 0.06532446520092587,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "input_integrity": {
+      "posted": 238,
+      "handled": 237,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [
+        237
+      ],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": false,
+    "lock_receipts": [
+      {
+        "frame": 53,
+        "tick": 59,
+        "agent": "player_1",
+        "expected": [
+          5,
+          0,
+          "UP"
+        ],
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 87,
+        "tick": 95,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 111,
+        "tick": 120,
+        "agent": "player_1",
+        "expected": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 157,
+        "tick": 179,
+        "agent": "player_1",
+        "expected": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 187,
+        "tick": 217,
+        "agent": "player_0",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 215,
+        "tick": 249,
+        "agent": "player_1",
+        "expected": [
+          4,
+          2,
+          "UP"
+        ],
+        "actual": [
+          4,
+          2,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 255,
+        "tick": 300,
+        "agent": "player_1",
+        "expected": [
+          4,
+          4,
+          "UP"
+        ],
+        "actual": [
+          4,
+          4,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 298,
+        "tick": 347,
+        "agent": "player_0",
+        "expected": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 298,
+        "tick": 347,
+        "agent": "player_1",
+        "expected": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "actual": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 347,
+        "tick": 405,
+        "agent": "player_1",
+        "expected": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "actual": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 388,
+        "tick": 452,
+        "agent": "player_1",
+        "expected": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 401,
+        "tick": 467,
+        "agent": "player_0",
+        "expected": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 463,
+        "tick": 558,
+        "agent": "player_1",
+        "expected": [
+          4,
+          6,
+          "UP"
+        ],
+        "actual": [
+          4,
+          6,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 499,
+        "tick": 596,
+        "agent": "player_0",
+        "expected": [
+          0,
+          5,
+          "UP"
+        ],
+        "actual": [
+          0,
+          5,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 520,
+        "tick": 617,
+        "agent": "player_1",
+        "expected": [
+          1,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          1,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 564,
+        "tick": 672,
+        "agent": "player_1",
+        "expected": [
+          3,
+          1,
+          "UP"
+        ],
+        "actual": [
+          3,
+          1,
+          "UP"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "after-both": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 360,
+    "active_frames": 360,
+    "elapsed_seconds": 11.103886556,
+    "ticks": 657,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 360,
+        "p50": 18.5495625,
+        "p95": 86.49054535000002,
+        "p99": 156.11444950000072,
+        "max": 309.52962
+      },
+      "event_ms": {
+        "n": 360,
+        "p50": 0.044933,
+        "p95": 0.12710795000000003,
+        "p99": 0.21205228000000054,
+        "max": 0.454838
+      },
+      "update_ms": {
+        "n": 360,
+        "p50": 6.0442564999999995,
+        "p95": 70.97464925,
+        "p99": 115.12302207000026,
+        "max": 173.884572
+      },
+      "render_ms": {
+        "n": 360,
+        "p50": 9.638228999999999,
+        "p95": 28.039959950000014,
+        "p99": 57.81629415000004,
+        "max": 231.752838
+      },
+      "tick_catchup": {
+        "n": 360,
+        "p50": 1.0,
+        "p95": 5.0,
+        "p99": 11.0,
+        "max": 12
+      },
+      "tick_ms": {
+        "n": 657,
+        "p50": 5.559182,
+        "p95": 23.564031999999916,
+        "p99": 74.96278959999974,
+        "max": 173.872405
+      },
+      "input_queue_ms": {
+        "n": 219,
+        "p50": 6.74539,
+        "p95": 75.69526699999996,
+        "p99": 137.60831761999992,
+        "max": 256.767186
+      },
+      "input_schedule_ms": {
+        "n": 219,
+        "p50": 15.224273,
+        "p95": 95.77673239999997,
+        "p99": 166.70870841999994,
+        "max": 257.484641
+      },
+      "input_to_state_ms": {
+        "n": 219,
+        "p50": 14.698242,
+        "p95": 109.9239993,
+        "p99": 160.23314111999997,
+        "max": 271.61124
+      },
+      "input_to_render_ms": {
+        "n": 219,
+        "p50": 38.883315,
+        "p95": 180.33473689999994,
+        "p99": 300.8063151799998,
+        "max": 369.841918
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 360,
+        "p50": 18.5495625,
+        "p95": 86.49054535000002,
+        "p99": 156.11444950000072,
+        "max": 309.52962
+      },
+      "event_ms": {
+        "n": 360,
+        "p50": 0.044933,
+        "p95": 0.12710795000000003,
+        "p99": 0.21205228000000054,
+        "max": 0.454838
+      },
+      "update_ms": {
+        "n": 360,
+        "p50": 6.0442564999999995,
+        "p95": 70.97464925,
+        "p99": 115.12302207000026,
+        "max": 173.884572
+      },
+      "render_ms": {
+        "n": 360,
+        "p50": 9.638228999999999,
+        "p95": 28.039959950000014,
+        "p99": 57.81629415000004,
+        "max": 231.752838
+      },
+      "tick_catchup": {
+        "n": 360,
+        "p50": 1.0,
+        "p95": 5.0,
+        "p99": 11.0,
+        "max": 12
+      },
+      "input_queue_ms": {
+        "n": 219,
+        "p50": 6.74539,
+        "p95": 75.69526699999996,
+        "p99": 137.60831761999992,
+        "max": 256.767186
+      },
+      "input_schedule_ms": {
+        "n": 219,
+        "p50": 15.224273,
+        "p95": 95.77673239999997,
+        "p99": 166.70870841999994,
+        "max": 257.484641
+      },
+      "input_to_state_ms": {
+        "n": 219,
+        "p50": 14.698242,
+        "p95": 109.9239993,
+        "p99": 160.23314111999997,
+        "max": 271.61124
+      },
+      "input_to_render_ms": {
+        "n": 219,
+        "p50": 38.883315,
+        "p95": 180.33473689999994,
+        "p99": 300.8063151799998,
+        "max": 369.841918
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 2754,
+        "p50": 0.0012725,
+        "p95": 0.004685799999999999,
+        "p99": 0.008293469999999999,
+        "max": 0.211357
+      },
+      "authoritative_mask": {
+        "n": 38,
+        "p50": 13.3026705,
+        "p95": 24.7686725,
+        "p99": 45.46542947000008,
+        "max": 57.096516
+      },
+      "scheduler_prepare": {
+        "n": 22,
+        "p50": 16.506191,
+        "p95": 27.522126499999995,
+        "p99": 52.99866197999997,
+        "max": 59.694609
+      },
+      "ipc_submit_enqueue": {
+        "n": 22,
+        "p50": 0.033339,
+        "p95": 0.4243243499999998,
+        "p99": 0.6468303899999998,
+        "max": 0.701271
+      },
+      "_submit_decision": {
+        "n": 22,
+        "p50": 0.0596555,
+        "p95": 0.4504377999999998,
+        "p99": 0.6797661899999997,
+        "max": 0.736563
+      },
+      "next_input_player_0": {
+        "n": 657,
+        "p50": 0.01285,
+        "p95": 1.1328717999999256,
+        "p99": 59.88426711999997,
+        "max": 116.86756
+      },
+      "next_input_player_1": {
+        "n": 657,
+        "p50": 0.004546,
+        "p95": 0.7382345999999991,
+        "p99": 48.7216383999996,
+        "max": 66.215482
+      },
+      "simulation": {
+        "n": 657,
+        "p50": 4.685389,
+        "p95": 11.327085,
+        "p99": 21.244789679999993,
+        "max": 80.546068
+      },
+      "_build_replay_tick": {
+        "n": 657,
+        "p50": 0.277909,
+        "p95": 0.6317525999999991,
+        "p99": 4.368951439999998,
+        "max": 9.948789
+      },
+      "_sync_display_boards": {
+        "n": 673,
+        "p50": 0.024547,
+        "p95": 0.061602799999999916,
+        "p99": 0.10483519999999986,
+        "max": 0.223627
+      },
+      "scheduler_accept": {
+        "n": 20,
+        "p50": 22.5692455,
+        "p95": 25.8687765,
+        "p99": 26.0579177,
+        "max": 26.105203
+      },
+      "_plan_action": {
+        "n": 36,
+        "p50": 5.219666,
+        "p95": 9.839865750000001,
+        "p99": 14.782307150000001,
+        "max": 14.907457
+      },
+      "_complete_decision": {
+        "n": 20,
+        "p50": 28.538113,
+        "p95": 33.7065463,
+        "p99": 38.08709965999999,
+        "max": 39.182238
+      },
+      "scheduler_stale": {
+        "n": 20,
+        "p50": 0.7537324999999999,
+        "p95": 1.6789743500000074,
+        "p99": 9.562338069999987,
+        "max": 11.533179
+      },
+      "scheduler_finish": {
+        "n": 20,
+        "p50": 10.409152500000001,
+        "p95": 14.052685050000004,
+        "p99": 19.17195460999999,
+        "max": 20.451772
+      },
+      "_activate_nextgen": {
+        "n": 20,
+        "p50": 31.671574,
+        "p95": 39.95251055000003,
+        "p99": 70.00915090999996,
+        "max": 77.523311
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 4.932306,
+      "authoritative_mask": 585.80812,
+      "scheduler_prepare": 416.971072,
+      "ipc_submit_enqueue": 1.910614,
+      "_submit_decision": 2.579921,
+      "next_input_player_0": 1023.537771,
+      "next_input_player_1": 744.357541,
+      "simulation": 3750.50045,
+      "_build_replay_tick": 264.671636,
+      "_sync_display_boards": 19.663891,
+      "scheduler_accept": 449.593444,
+      "_plan_action": 207.650173,
+      "_complete_decision": 571.494985,
+      "scheduler_stale": 26.361193,
+      "scheduler_finish": 224.219222,
+      "_activate_nextgen": 631.142359
+    },
+    "resources": {
+      "980610": {
+        "cpu_seconds": 7.66,
+        "max_rss_kb": 275008,
+        "max_threads": 14
+      },
+      "980642": {
+        "cpu_seconds": 10.25,
+        "max_rss_kb": 350708,
+        "max_threads": 15
+      },
+      "980680": {
+        "cpu_seconds": 12.42,
+        "max_rss_kb": 350872,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980642": true,
+      "980680": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 10,
+        "p50": 111.44116200739518,
+        "p95": 148.4668438846711,
+        "p99": 152.54251835984178,
+        "max": 153.56143697863445
+      },
+      "False": {
+        "n": 10,
+        "p50": 815.1832509902306,
+        "p95": 968.5156563835335,
+        "p99": 987.2930936669582,
+        "max": 991.9874529878143
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 12,
+        "decisions_started": 12,
+        "decisions_activated": 9,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 4,
+        "emitted_input_ticks": 256,
+        "idle_ticks": 401,
+        "stale_decisions": 2,
+        "policy_elapsed_seconds": 4.888256990874652,
+        "inference_latency_ticks": 366,
+        "planned_input_ticks": 584,
+        "latency_mode": "measured",
+        "last_event": "thinking",
+        "mean_policy_elapsed_ms": 407.35474923955434,
+        "mean_inference_latency_ticks": 30.5
+      },
+      "player_1": {
+        "decision_requests": 10,
+        "decisions_started": 10,
+        "decisions_activated": 7,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 2,
+        "emitted_input_ticks": 276,
+        "idle_ticks": 381,
+        "stale_decisions": 2,
+        "policy_elapsed_seconds": 4.722022958943853,
+        "inference_latency_ticks": 332,
+        "planned_input_ticks": 490,
+        "latency_mode": "measured",
+        "last_event": "thinking",
+        "mean_policy_elapsed_ms": 472.2022958943853,
+        "mean_inference_latency_ticks": 33.2
+      }
+    },
+    "scheduler_errors": {
+      "player_0": [],
+      "player_1": []
+    },
+    "input_integrity": {
+      "posted": 222,
+      "handled": 219,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [
+        219,
+        220,
+        221
+      ],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": false,
+    "lock_receipts": [
+      {
+        "frame": 79,
+        "tick": 108,
+        "agent": "player_1",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 80,
+        "tick": 109,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 134,
+        "tick": 232,
+        "agent": "player_0",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 149,
+        "tick": 252,
+        "agent": "player_1",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 214,
+        "tick": 375,
+        "agent": "player_0",
+        "expected": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 217,
+        "tick": 379,
+        "agent": "player_1",
+        "expected": [
+          5,
+          1,
+          "DOWN"
+        ],
+        "actual": [
+          5,
+          1,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 272,
+        "tick": 496,
+        "agent": "player_1",
+        "expected": [
+          0,
+          2,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          2,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 291,
+        "tick": 516,
+        "agent": "player_0",
+        "expected": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 344,
+        "tick": 627,
+        "agent": "player_1",
+        "expected": [
+          0,
+          3,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          3,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 356,
+        "tick": 639,
+        "agent": "player_0",
+        "expected": [
+          0,
+          5,
+          "UP"
+        ],
+        "actual": [
+          0,
+          5,
+          "UP"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "after-human": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "human",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 12.118860065,
+    "ticks": 726,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.618600999999998,
+        "p95": 53.45496424999989,
+        "p99": 71.90380944,
+        "max": 140.056826
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.044049000000000005,
+        "p95": 0.14473875,
+        "p99": 0.3435951399999992,
+        "max": 0.756643
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.3447915,
+        "p95": 32.17592024999998,
+        "p99": 60.89842154999999,
+        "max": 132.995744
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 6.3606155,
+        "p95": 10.993549899999998,
+        "p99": 52.201531939999995,
+        "max": 64.566283
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 4.0,
+        "max": 8
+      },
+      "tick_ms": {
+        "n": 726,
+        "p50": 5.1296035,
+        "p95": 17.139277999999997,
+        "p99": 59.7651245,
+        "max": 100.920113
+      },
+      "input_queue_ms": {
+        "n": 242,
+        "p50": 4.7775805,
+        "p95": 38.021652099999955,
+        "p99": 59.17843801000001,
+        "max": 103.236677
+      },
+      "input_schedule_ms": {
+        "n": 242,
+        "p50": 9.5367565,
+        "p95": 48.77741679999998,
+        "p99": 63.982498610000015,
+        "max": 106.689539
+      },
+      "input_to_state_ms": {
+        "n": 242,
+        "p50": 11.07369,
+        "p95": 61.18146445,
+        "p99": 81.32589990000001,
+        "max": 108.181988
+      },
+      "input_to_render_ms": {
+        "n": 242,
+        "p50": 18.7712815,
+        "p95": 83.56122644999994,
+        "p99": 109.46469554000001,
+        "max": 149.133191
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.618600999999998,
+        "p95": 53.45496424999989,
+        "p99": 71.90380944,
+        "max": 140.056826
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.044049000000000005,
+        "p95": 0.14473875,
+        "p99": 0.3435951399999992,
+        "max": 0.756643
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.3447915,
+        "p95": 32.17592024999998,
+        "p99": 60.89842154999999,
+        "max": 132.995744
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 6.3606155,
+        "p95": 10.993549899999998,
+        "p99": 52.201531939999995,
+        "max": 64.566283
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 4.0,
+        "max": 8
+      },
+      "input_queue_ms": {
+        "n": 242,
+        "p50": 4.7775805,
+        "p95": 38.021652099999955,
+        "p99": 59.17843801000001,
+        "max": 103.236677
+      },
+      "input_schedule_ms": {
+        "n": 242,
+        "p50": 9.5367565,
+        "p95": 48.77741679999998,
+        "p99": 63.982498610000015,
+        "max": 106.689539
+      },
+      "input_to_state_ms": {
+        "n": 242,
+        "p50": 11.07369,
+        "p95": 61.18146445,
+        "p99": 81.32589990000001,
+        "max": 108.181988
+      },
+      "input_to_render_ms": {
+        "n": 242,
+        "p50": 18.7712815,
+        "p95": 83.56122644999994,
+        "p99": 109.46469554000001,
+        "max": 149.133191
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 3126,
+        "p50": 0.0017695,
+        "p95": 0.00513275,
+        "p99": 0.009282249999999999,
+        "max": 0.151001
+      },
+      "authoritative_mask": {
+        "n": 28,
+        "p50": 12.083231,
+        "p95": 20.35467575,
+        "p99": 44.587159800000016,
+        "max": 53.329965
+      },
+      "scheduler_prepare": {
+        "n": 17,
+        "p50": 15.113116,
+        "p95": 29.398458999999978,
+        "p99": 50.2647694,
+        "max": 55.481347
+      },
+      "ipc_submit_enqueue": {
+        "n": 17,
+        "p50": 0.033532,
+        "p95": 0.12073579999999973,
+        "p99": 0.37249836,
+        "max": 0.435439
+      },
+      "_submit_decision": {
+        "n": 17,
+        "p50": 0.057835,
+        "p95": 0.1552147999999997,
+        "p99": 0.4006925599999999,
+        "max": 0.462062
+      },
+      "next_input_player_0": {
+        "n": 726,
+        "p50": 0.015747499999999998,
+        "p95": 2.9648452499999998,
+        "p99": 55.6562255,
+        "max": 96.566076
+      },
+      "next_input_player_1": {
+        "n": 726,
+        "p50": 0.009567,
+        "p95": 0.025612,
+        "p99": 0.04381475,
+        "max": 0.09187
+      },
+      "simulation": {
+        "n": 726,
+        "p50": 4.3904815,
+        "p95": 7.7797365,
+        "p99": 11.626222,
+        "max": 55.611085
+      },
+      "_build_replay_tick": {
+        "n": 726,
+        "p50": 0.27150450000000004,
+        "p95": 0.612649,
+        "p99": 0.89450725,
+        "max": 6.100695
+      },
+      "_sync_display_boards": {
+        "n": 757,
+        "p50": 0.023556,
+        "p95": 0.06431179999999996,
+        "p99": 0.15297159999999904,
+        "max": 0.276075
+      },
+      "scheduler_accept": {
+        "n": 17,
+        "p50": 21.974118,
+        "p95": 31.92385979999998,
+        "p99": 47.82974716,
+        "max": 51.806219
+      },
+      "_plan_action": {
+        "n": 28,
+        "p50": 4.5898085,
+        "p95": 7.0953681,
+        "p99": 7.169544500000001,
+        "max": 7.181384
+      },
+      "_complete_decision": {
+        "n": 17,
+        "p50": 27.730573,
+        "p95": 37.01284299999998,
+        "p99": 54.0044974,
+        "max": 58.252411
+      },
+      "scheduler_stale": {
+        "n": 17,
+        "p50": 0.892467,
+        "p95": 1.2847259999999998,
+        "p99": 1.4506971999999998,
+        "max": 1.49219
+      },
+      "scheduler_finish": {
+        "n": 17,
+        "p50": 9.835626,
+        "p95": 11.8414806,
+        "p99": 12.58125852,
+        "max": 12.766203
+      },
+      "_activate_nextgen": {
+        "n": 17,
+        "p50": 27.813675,
+        "p95": 44.733423199999976,
+        "p99": 65.74989743999998,
+        "max": 71.004016
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 6.861636,
+      "authoritative_mask": 392.835044,
+      "scheduler_prepare": 298.194389,
+      "ipc_submit_enqueue": 0.9674470000000001,
+      "_submit_decision": 1.3818949999999999,
+      "next_input_player_0": 1338.039552,
+      "next_input_player_1": 8.250291,
+      "simulation": 3574.530863,
+      "_build_replay_tick": 235.014879,
+      "_sync_display_boards": 22.669753,
+      "scheduler_accept": 405.78332,
+      "_plan_action": 129.237136,
+      "_complete_decision": 491.609371,
+      "scheduler_stale": 16.141225,
+      "scheduler_finish": 171.456239,
+      "_activate_nextgen": 467.506809
+    },
+    "resources": {
+      "980811": {
+        "cpu_seconds": 8.4,
+        "max_rss_kb": 273872,
+        "max_threads": 12
+      },
+      "980850": {
+        "cpu_seconds": 13.09,
+        "max_rss_kb": 351264,
+        "max_threads": 15
+      }
+    },
+    "worker_cleanup": {
+      "980850": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 11,
+        "p50": 111.45791201852262,
+        "p95": 160.28108549653552,
+        "p99": 163.08632748550735,
+        "max": 163.7876379827503
+      },
+      "False": {
+        "n": 6,
+        "p50": 669.3002014944796,
+        "p95": 772.1225999921444,
+        "p99": 793.3978071887395,
+        "max": 798.7166089878883
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 17,
+        "decisions_started": 17,
+        "decisions_activated": 11,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 5,
+        "emitted_input_ticks": 272,
+        "idle_ticks": 454,
+        "stale_decisions": 6,
+        "policy_elapsed_seconds": 5.389077530999202,
+        "inference_latency_ticks": 410,
+        "planned_input_ticks": 885,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 317.0045606470119,
+        "mean_inference_latency_ticks": 24.11764705882353
+      },
+      "player_1": {
+        "decision_requests": 0,
+        "decisions_started": 0,
+        "decisions_activated": 0,
+        "placements_completed": 0,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 457,
+        "idle_ticks": 0,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 0,
+        "latency_mode": "configured",
+        "last_event": "human_input",
+        "last_emitted_input": null,
+        "last_decision": null,
+        "mean_policy_elapsed_ms": 0.0,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "input_integrity": {
+      "posted": 242,
+      "handled": 242,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [],
+      "unique_human_ticks": 726,
+      "held_mismatch_ticks": 124,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 25,
+          "fired": 40,
+          "fired_after_ui_release": 17,
+          "repeat_after_ui_release": 16
+        },
+        "RIGHT": {
+          "emitted_press": 24,
+          "fired": 27,
+          "fired_after_ui_release": 8,
+          "repeat_after_ui_release": 6
+        },
+        "DOWN": {
+          "emitted_press": 338,
+          "fired": 338,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 24,
+          "fired": 24,
+          "fired_after_ui_release": 1,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 24,
+          "fired": 24,
+          "fired_after_ui_release": 1,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": false,
+    "lock_receipts": [
+      {
+        "frame": 48,
+        "tick": 54,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 89,
+        "tick": 96,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 102,
+        "tick": 110,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 143,
+        "tick": 166,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 184,
+        "tick": 217,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          2,
+          "LEFT"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 200,
+        "tick": 232,
+        "agent": "player_0",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 240,
+        "tick": 284,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          3,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 278,
+        "tick": 337,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          0,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 308,
+        "tick": 366,
+        "agent": "player_0",
+        "expected": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 328,
+        "tick": 389,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          3,
+          2,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 365,
+        "tick": 445,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          0,
+          2,
+          "DOWN"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 404,
+        "tick": 487,
+        "agent": "player_0",
+        "expected": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 414,
+        "tick": 497,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          2,
+          2,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 486,
+        "tick": 591,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          1,
+          2,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 515,
+        "tick": 619,
+        "agent": "player_0",
+        "expected": [
+          0,
+          5,
+          "UP"
+        ],
+        "actual": [
+          0,
+          5,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 535,
+        "tick": 640,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          2,
+          3,
+          "UP"
+        ],
+        "matches": null
+      },
+      {
+        "frame": 579,
+        "tick": 696,
+        "agent": "player_1",
+        "expected": null,
+        "actual": [
+          4,
+          0,
+          "UP"
+        ],
+        "matches": null
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "after-first": {
+    "settings": {
+      "policy_a": "first",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 10.052380676,
+    "ticks": 602,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.01084,
+        "p95": 20.370673649999986,
+        "p99": 34.65576384999995,
+        "max": 155.548976
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.040260000000000004,
+        "p95": 0.0813438,
+        "p99": 0.13457306999999982,
+        "max": 0.586918
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 3.637212,
+        "p95": 7.875008949999999,
+        "p99": 24.973014529999986,
+        "max": 147.116989
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 2.135024,
+        "p95": 2.98654105,
+        "p99": 3.8780811499999936,
+        "max": 23.758024
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 2.0,
+        "max": 9
+      },
+      "tick_ms": {
+        "n": 602,
+        "p50": 3.6201964999999996,
+        "p95": 7.046130149999983,
+        "p99": 12.732370450000001,
+        "max": 147.094404
+      },
+      "input_queue_ms": {
+        "n": 200,
+        "p50": 7.589962,
+        "p95": 12.251723599999995,
+        "p99": 78.7682512699999,
+        "max": 128.630366
+      },
+      "input_schedule_ms": {
+        "n": 200,
+        "p50": 8.827342,
+        "p95": 16.827448649999997,
+        "p99": 84.09399098999988,
+        "max": 133.957658
+      },
+      "input_to_state_ms": {
+        "n": 200,
+        "p50": 11.664512,
+        "p95": 31.197989599999993,
+        "p99": 82.6091234199999,
+        "max": 132.493191
+      },
+      "input_to_render_ms": {
+        "n": 200,
+        "p50": 14.160724,
+        "p95": 33.21129219999999,
+        "p99": 117.63496285999999,
+        "max": 168.675732
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.01084,
+        "p95": 20.370673649999986,
+        "p99": 34.65576384999995,
+        "max": 155.548976
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.040260000000000004,
+        "p95": 0.0813438,
+        "p99": 0.13457306999999982,
+        "max": 0.586918
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 3.637212,
+        "p95": 7.875008949999999,
+        "p99": 24.973014529999986,
+        "max": 147.116989
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 2.135024,
+        "p95": 2.98654105,
+        "p99": 3.8780811499999936,
+        "max": 23.758024
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 2.0,
+        "max": 9
+      },
+      "input_queue_ms": {
+        "n": 200,
+        "p50": 7.589962,
+        "p95": 12.251723599999995,
+        "p99": 78.7682512699999,
+        "max": 128.630366
+      },
+      "input_schedule_ms": {
+        "n": 200,
+        "p50": 8.827342,
+        "p95": 16.827448649999997,
+        "p99": 84.09399098999988,
+        "max": 133.957658
+      },
+      "input_to_state_ms": {
+        "n": 200,
+        "p50": 11.664512,
+        "p95": 31.197989599999993,
+        "p99": 82.6091234199999,
+        "max": 132.493191
+      },
+      "input_to_render_ms": {
+        "n": 200,
+        "p50": 14.160724,
+        "p95": 33.21129219999999,
+        "p99": 117.63496285999999,
+        "max": 168.675732
+      }
+    },
+    "functions_ms": {
+      "tactical_diagnostics": {
+        "n": 2400,
+        "p50": 0.0022305,
+        "p95": 0.005474149999999999,
+        "p99": 0.008474119999999903,
+        "max": 0.065924
+      },
+      "next_input_player_0": {
+        "n": 602,
+        "p50": 0.0126775,
+        "p95": 0.7183314499999885,
+        "p99": 3.223091900000001,
+        "max": 7.275157
+      },
+      "next_input_player_1": {
+        "n": 602,
+        "p50": 0.005712,
+        "p95": 1.158385249999995,
+        "p99": 6.394793180000006,
+        "max": 141.948517
+      },
+      "simulation": {
+        "n": 602,
+        "p50": 3.3635125,
+        "p95": 4.885087499999997,
+        "p99": 6.0907797100000005,
+        "max": 44.064008
+      },
+      "_build_replay_tick": {
+        "n": 602,
+        "p50": 0.014062499999999999,
+        "p95": 0.021210449999999992,
+        "p99": 0.04591302000000002,
+        "max": 0.073125
+      },
+      "_sync_display_boards": {
+        "n": 637,
+        "p50": 0.019682,
+        "p95": 0.06112979999999999,
+        "p99": 0.11205047999999994,
+        "max": 0.203063
+      }
+    },
+    "functions_total_ms": {
+      "tactical_diagnostics": 6.069429,
+      "next_input_player_0": 90.921514,
+      "next_input_player_1": 382.819007,
+      "simulation": 2215.090533,
+      "_build_replay_tick": 9.219584,
+      "_sync_display_boards": 15.599779
+    },
+    "resources": {
+      "981011": {
+        "cpu_seconds": 3.66,
+        "max_rss_kb": 268108,
+        "max_threads": 10
+      }
+    },
+    "worker_cleanup": {},
+    "worker_cache_ms": {
+      "True": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "False": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 12,
+        "decisions_started": 12,
+        "decisions_activated": 12,
+        "placements_completed": 12,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 0,
+        "emitted_input_ticks": 562,
+        "idle_ticks": 40,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0006154309376142919,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 562,
+        "latency_mode": "measured",
+        "last_event": "waiting_for_animate",
+        "mean_policy_elapsed_ms": 0.05128591146785766,
+        "mean_inference_latency_ticks": 0.0
+      },
+      "player_1": {
+        "decision_requests": 13,
+        "decisions_started": 13,
+        "decisions_activated": 13,
+        "placements_completed": 9,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 2,
+        "masked_actions": 0,
+        "fallback_actions": 2,
+        "replans": 3,
+        "emitted_input_ticks": 521,
+        "idle_ticks": 81,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0006587430252693594,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 690,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 0.05067254040533534,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {},
+    "input_integrity": {
+      "posted": 201,
+      "handled": 200,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [
+        200
+      ],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": true,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": false,
+    "lock_receipts": [
+      {
+        "frame": 57,
+        "tick": 57,
+        "agent": "player_0",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 59,
+        "tick": 59,
+        "agent": "player_1",
+        "expected": [
+          5,
+          0,
+          "UP"
+        ],
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 114,
+        "tick": 112,
+        "agent": "player_0",
+        "expected": [
+          0,
+          2,
+          "UP"
+        ],
+        "actual": [
+          0,
+          2,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 122,
+        "tick": 120,
+        "agent": "player_1",
+        "expected": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 165,
+        "tick": 163,
+        "agent": "player_0",
+        "expected": [
+          0,
+          4,
+          "UP"
+        ],
+        "actual": [
+          0,
+          4,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 182,
+        "tick": 179,
+        "agent": "player_1",
+        "expected": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 204,
+        "tick": 210,
+        "agent": "player_0",
+        "expected": [
+          0,
+          6,
+          "UP"
+        ],
+        "actual": [
+          0,
+          6,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 244,
+        "tick": 249,
+        "agent": "player_1",
+        "expected": [
+          4,
+          2,
+          "UP"
+        ],
+        "actual": [
+          4,
+          2,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 248,
+        "tick": 253,
+        "agent": "player_0",
+        "expected": [
+          0,
+          8,
+          "UP"
+        ],
+        "actual": [
+          0,
+          8,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 289,
+        "tick": 292,
+        "agent": "player_0",
+        "expected": [
+          0,
+          10,
+          "UP"
+        ],
+        "actual": [
+          0,
+          10,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 297,
+        "tick": 300,
+        "agent": "player_1",
+        "expected": [
+          4,
+          4,
+          "UP"
+        ],
+        "actual": [
+          4,
+          4,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 324,
+        "tick": 327,
+        "agent": "player_0",
+        "expected": [
+          0,
+          12,
+          "UP"
+        ],
+        "actual": [
+          0,
+          12,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 343,
+        "tick": 347,
+        "agent": "player_1",
+        "expected": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "actual": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 381,
+        "tick": 384,
+        "agent": "player_0",
+        "expected": [
+          1,
+          0,
+          "UP"
+        ],
+        "actual": [
+          1,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 403,
+        "tick": 405,
+        "agent": "player_1",
+        "expected": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "actual": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 436,
+        "tick": 437,
+        "agent": "player_0",
+        "expected": [
+          1,
+          2,
+          "UP"
+        ],
+        "actual": [
+          1,
+          2,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 452,
+        "tick": 452,
+        "agent": "player_1",
+        "expected": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 487,
+        "tick": 486,
+        "agent": "player_0",
+        "expected": [
+          1,
+          4,
+          "UP"
+        ],
+        "actual": [
+          1,
+          4,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 526,
+        "tick": 531,
+        "agent": "player_0",
+        "expected": [
+          1,
+          6,
+          "UP"
+        ],
+        "actual": [
+          1,
+          6,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 554,
+        "tick": 558,
+        "agent": "player_1",
+        "expected": [
+          4,
+          6,
+          "UP"
+        ],
+        "actual": [
+          4,
+          6,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 590,
+        "tick": 593,
+        "agent": "player_0",
+        "expected": [
+          1,
+          8,
+          "UP"
+        ],
+        "actual": [
+          1,
+          8,
+          "UP"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 0
+  },
+  "minimal-one": {
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "source_sha": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d",
+    "reference_mask": false,
+    "native": {
+      "capabilities": {
+        "abi_version": 1,
+        "schema": {
+          "major": 1,
+          "minor_min": 0,
+          "minor_max": 0,
+          "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+          "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+        },
+        "limits": {
+          "max_request_bytes": 16777216,
+          "max_response_bytes": 16777216,
+          "max_sections": 64
+        },
+        "source_revision": "9b64186087ea8b6e1219861ddbb534b39233966c",
+        "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+        "build_profile": "release",
+        "target": "x86_64-unknown-linux-gnu",
+        "python_abi": "cp312",
+        "cpu_features": [
+          "scalar",
+          "sse2",
+          "ssse3",
+          "sse4.1",
+          "avx2"
+        ],
+        "scalar_fallback": true,
+        "simd_path": "scalar",
+        "gil_detach": true,
+        "parallel": true,
+        "wheel_hash_hook": true,
+        "thread_modes": [
+          "oracle-1",
+          "scenario-6"
+        ],
+        "max_threads": 6,
+        "crate_version": "0.4.0",
+        "wire_name": "puyo.deep_chain_native.envelope.v1",
+        "compact_hot_result": {
+          "abi_version": 1,
+          "schema": "puyo.native_compact_hot_result.v1",
+          "child_state_bytes": 80,
+          "result_bytes": 24,
+          "flags_mask": 15
+        }
+      },
+      "module": "/tmp/puyo271-final-venv/lib/python3.12/site-packages/_puyo_deep_chain_native.so",
+      "sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2"
+    },
+    "frames": 600,
+    "active_frames": 600,
+    "elapsed_seconds": 12.41672199,
+    "ticks": 744,
+    "samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.502456000000002,
+        "p95": 56.8264821499999,
+        "p99": 95.19348761999993,
+        "max": 146.993642
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.041485999999999995,
+        "p95": 0.12262429999999988,
+        "p99": 0.21576606999999964,
+        "max": 0.51417
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.2215185,
+        "p95": 35.55850324999997,
+        "p99": 77.77662555999991,
+        "max": 141.285898
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.997795,
+        "p95": 10.123534299999996,
+        "p99": 48.442063399999995,
+        "max": 106.108247
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 6.0,
+        "max": 9
+      },
+      "tick_ms": {
+        "n": 744,
+        "p50": 4.9865175,
+        "p95": 16.79386105,
+        "p99": 63.96789552000016,
+        "max": 141.261971
+      },
+      "input_queue_ms": {
+        "n": 248,
+        "p50": 4.928307,
+        "p95": 41.28900054999993,
+        "p99": 82.67912154000003,
+        "max": 125.095735
+      },
+      "input_schedule_ms": {
+        "n": 248,
+        "p50": 10.58864,
+        "p95": 51.19319389999999,
+        "p99": 92.6157788,
+        "max": 130.386082
+      },
+      "input_to_state_ms": {
+        "n": 248,
+        "p50": 10.855708499999999,
+        "p95": 67.20818634999999,
+        "p99": 104.90250074000002,
+        "max": 135.854503
+      },
+      "input_to_render_ms": {
+        "n": 248,
+        "p50": 18.051304000000002,
+        "p95": 94.77550589999997,
+        "p99": 137.77101019,
+        "max": 186.864704
+      }
+    },
+    "active_samples": {
+      "frame_interval_ms": {
+        "n": 600,
+        "p50": 16.502456000000002,
+        "p95": 56.8264821499999,
+        "p99": 95.19348761999993,
+        "max": 146.993642
+      },
+      "event_ms": {
+        "n": 600,
+        "p50": 0.041485999999999995,
+        "p95": 0.12262429999999988,
+        "p99": 0.21576606999999964,
+        "max": 0.51417
+      },
+      "update_ms": {
+        "n": 600,
+        "p50": 5.2215185,
+        "p95": 35.55850324999997,
+        "p99": 77.77662555999991,
+        "max": 141.285898
+      },
+      "render_ms": {
+        "n": 600,
+        "p50": 5.997795,
+        "p95": 10.123534299999996,
+        "p99": 48.442063399999995,
+        "max": 106.108247
+      },
+      "tick_catchup": {
+        "n": 600,
+        "p50": 1.0,
+        "p95": 3.0,
+        "p99": 6.0,
+        "max": 9
+      },
+      "input_queue_ms": {
+        "n": 248,
+        "p50": 4.928307,
+        "p95": 41.28900054999993,
+        "p99": 82.67912154000003,
+        "max": 125.095735
+      },
+      "input_schedule_ms": {
+        "n": 248,
+        "p50": 10.58864,
+        "p95": 51.19319389999999,
+        "p99": 92.6157788,
+        "max": 130.386082
+      },
+      "input_to_state_ms": {
+        "n": 248,
+        "p50": 10.855708499999999,
+        "p95": 67.20818634999999,
+        "p99": 104.90250074000002,
+        "max": 135.854503
+      },
+      "input_to_render_ms": {
+        "n": 248,
+        "p50": 18.051304000000002,
+        "p95": 94.77550589999997,
+        "p99": 137.77101019,
+        "max": 186.864704
+      }
+    },
+    "functions_ms": {},
+    "functions_total_ms": {},
+    "resources": {},
+    "worker_cleanup": {
+      "981173": true
+    },
+    "worker_cache_ms": {
+      "True": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "False": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      },
+      "None": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "p99": null,
+        "max": null
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decision_requests": 18,
+        "decisions_started": 18,
+        "decisions_activated": 11,
+        "placements_completed": 5,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 0,
+        "masked_actions": 0,
+        "fallback_actions": 0,
+        "replans": 5,
+        "emitted_input_ticks": 294,
+        "idle_ticks": 450,
+        "stale_decisions": 7,
+        "policy_elapsed_seconds": 5.37463538305019,
+        "inference_latency_ticks": 405,
+        "planned_input_ticks": 943,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 298.59085461389947,
+        "mean_inference_latency_ticks": 22.5
+      },
+      "player_1": {
+        "decision_requests": 16,
+        "decisions_started": 16,
+        "decisions_activated": 16,
+        "placements_completed": 12,
+        "timeouts": 0,
+        "deadline_misses": 0,
+        "unreachable_plans": 2,
+        "masked_actions": 0,
+        "fallback_actions": 2,
+        "replans": 3,
+        "emitted_input_ticks": 646,
+        "idle_ticks": 98,
+        "stale_decisions": 0,
+        "policy_elapsed_seconds": 0.0011198880383744836,
+        "inference_latency_ticks": 0,
+        "planned_input_ticks": 850,
+        "latency_mode": "measured",
+        "last_event": "executing_plan",
+        "mean_policy_elapsed_ms": 0.06999300239840522,
+        "mean_inference_latency_ticks": 0.0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "input_integrity": {
+      "posted": 248,
+      "handled": 248,
+      "duplicate_event_ids": 0,
+      "pending_at_stop": [],
+      "unique_human_ticks": 0,
+      "held_mismatch_ticks": 0,
+      "same_tick_opposite_presses": 0,
+      "actions": {
+        "LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "DOWN": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_LEFT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        },
+        "ROTATE_RIGHT": {
+          "emitted_press": 0,
+          "fired": 0,
+          "fired_after_ui_release": 0,
+          "repeat_after_ui_release": 0
+        }
+      }
+    },
+    "gate": {
+      "frame_interval_ms": false,
+      "input_schedule_ms": false,
+      "input_to_render_ms": false
+    },
+    "geometric_reference": false,
+    "lock_receipts": [
+      {
+        "frame": 53,
+        "tick": 59,
+        "agent": "player_1",
+        "expected": [
+          5,
+          0,
+          "UP"
+        ],
+        "actual": [
+          5,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 87,
+        "tick": 95,
+        "agent": "player_0",
+        "expected": [
+          2,
+          0,
+          "UP"
+        ],
+        "actual": [
+          2,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 112,
+        "tick": 120,
+        "agent": "player_1",
+        "expected": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          4,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 154,
+        "tick": 179,
+        "agent": "player_1",
+        "expected": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          2,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 180,
+        "tick": 215,
+        "agent": "player_0",
+        "expected": [
+          0,
+          0,
+          "UP"
+        ],
+        "actual": [
+          0,
+          0,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 212,
+        "tick": 249,
+        "agent": "player_1",
+        "expected": [
+          4,
+          2,
+          "UP"
+        ],
+        "actual": [
+          4,
+          2,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 248,
+        "tick": 300,
+        "agent": "player_1",
+        "expected": [
+          4,
+          4,
+          "UP"
+        ],
+        "actual": [
+          4,
+          4,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 287,
+        "tick": 341,
+        "agent": "player_0",
+        "expected": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "actual": [
+          0,
+          3,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 293,
+        "tick": 347,
+        "agent": "player_1",
+        "expected": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "actual": [
+          4,
+          7,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 336,
+        "tick": 405,
+        "agent": "player_1",
+        "expected": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "actual": [
+          5,
+          4,
+          "DOWN"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 371,
+        "tick": 452,
+        "agent": "player_1",
+        "expected": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "actual": [
+          5,
+          8,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 393,
+        "tick": 476,
+        "agent": "player_0",
+        "expected": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "actual": [
+          0,
+          4,
+          "RIGHT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 446,
+        "tick": 558,
+        "agent": "player_1",
+        "expected": [
+          4,
+          6,
+          "UP"
+        ],
+        "actual": [
+          4,
+          6,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 495,
+        "tick": 617,
+        "agent": "player_1",
+        "expected": [
+          1,
+          0,
+          "LEFT"
+        ],
+        "actual": [
+          1,
+          0,
+          "LEFT"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 497,
+        "tick": 619,
+        "agent": "player_0",
+        "expected": [
+          0,
+          5,
+          "UP"
+        ],
+        "actual": [
+          0,
+          5,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 545,
+        "tick": 672,
+        "agent": "player_1",
+        "expected": [
+          3,
+          1,
+          "UP"
+        ],
+        "actual": [
+          3,
+          1,
+          "UP"
+        ],
+        "matches": true
+      },
+      {
+        "frame": 585,
+        "tick": 727,
+        "agent": "player_1",
+        "expected": [
+          2,
+          1,
+          "LEFT"
+        ],
+        "actual": [
+          2,
+          1,
+          "LEFT"
+        ],
+        "matches": true
+      }
+    ],
+    "lock_mismatch_count": 0
+  }
+}

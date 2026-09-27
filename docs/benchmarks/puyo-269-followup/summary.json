@@ -204,6 +204,12 @@
           23
         ]
       }
+    },
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
     }
   },
   "after-light-minimal": {
@@ -342,7 +348,13 @@
         195
       ]
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "after-light": {
     "raw_sha256": "d412b5f12e0a3d18329eb9ab2b4d8cb246a39616a7f5359eca16542c70edfc4f",
@@ -493,7 +505,13 @@
         195
       ]
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "after-one-minimal": {
     "raw_sha256": "0b99e0a40757890f828564583cc7918ae37bd8845288c427445bc4bb9676dc95",
@@ -635,7 +653,13 @@
         222
       ]
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "after-one": {
     "raw_sha256": "51e0b1d1cc8584eca14d5a920d2c41014112b5256291cfbd0b5de30efee1cd48",
@@ -824,7 +848,13 @@
       "duplicate_processed_ids": 0,
       "unprocessed_ids": []
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "after-two": {
     "raw_sha256": "3d9770949f0a562d030d3bf570e24ad8b0ea533fa8cbe15724dbf821230674bd",
@@ -1023,7 +1053,13 @@
         193
       ]
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "before-human": {
     "raw_sha256": "399f8f1646bcfc54746ec948c209b775d6e893d7c4de555c3382c61790698e08",
@@ -1230,6 +1266,12 @@
           22
         ]
       }
+    },
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
     }
   },
   "before-light": {
@@ -1379,7 +1421,13 @@
       "duplicate_processed_ids": 0,
       "unprocessed_ids": []
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "before-one": {
     "raw_sha256": "1a5f1977d2e079ca7eaeb5e42e04cb5464ade8146de9560634a5d3216d56a378",
@@ -1568,7 +1616,13 @@
       "duplicate_processed_ids": 0,
       "unprocessed_ids": []
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   },
   "before-two": {
     "raw_sha256": "c8f79cf757dca38a2afa51701f4cd0b6aa6de8cc38f8178be47f812f0d5ddaf3",
@@ -1765,6 +1819,12 @@
       "duplicate_processed_ids": 0,
       "unprocessed_ids": []
     },
-    "human": null
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
   }
 }

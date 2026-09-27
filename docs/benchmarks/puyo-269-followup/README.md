@@ -2,6 +2,8 @@
 
 **状態：未完了．frame/input gate は未達．実人間の配置操作 QA は未実施．**
 
+PUYO-273 の確定 head を通常 merge した合成 source の追加測定は [integrated/README.md](integrated/README.md) に保存した．以下の初回 A/B とは source が異なる．
+
 ## 条件と再現
 
 Intel Core Ultra 7 258V，WSL2 Linux，CPython 3.12.3，pygame 2.6.1，DISPLAY `:0`，1120×780，seed 55，60 FPS 上限，速度 1.0，overlay off，最大 2400 tick．軽量 `first/random`，片側 `nextgen_tactic_manager/random`，両側 `nextgen_tactic_manager/nextgen_tactic_manager`，1P nextgen／2P human を別 process で直列測定した．軽量・片側・human は各 600 frame，両側は 360 frame．全 run の全 frame で match が活動中だった．human は 50 ms ごとの合成 key edge で，実人間の操作ではない．
