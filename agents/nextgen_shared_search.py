@@ -398,6 +398,7 @@ class SharedSearchBatchBuilder:
                     binding_budget=self.template_binding_budget,
                     reachable_mask=request.execution.reachable_mask,
                     preferred_key=template_key,
+                    evaluate_prefix_progress=True,
                 )
                 if template.cutoff:
                     cutoffs.append("template_quota")
@@ -607,12 +608,14 @@ class SharedSearchBatchBuilder:
                     )
         completion_boundary_roots = []
         if selected_constraint is not None and shared is not None:
-            # Prefer a public completion witness, then the backend long-horizon
-            # order. Unknown/sampled completions stay available as intermediate
+            # Prefer public completion, then witnessed public-prefix progress,
+            # immediate progress and the backend long-horizon order.
+            # Unknown/sampled completions stay available as intermediate
             # moves, without being promoted to public completion evidence.
             # A completion witness may belong to a different branch from the
             # sampled representative; only the root is an executable plan.
             current_progress = dict(selected_candidate.root_progress)
+            prefix_progress = {root: gain for root, gain, _ in selected_candidate.root_prefix_progress}
             for rank, root in enumerate(shared.ranked_roots):
                 proof = shared.selected_template["roots"][root.root_action]
                 current_complete = (not proof["root_violation"]
@@ -627,6 +630,7 @@ class SharedSearchBatchBuilder:
                     _evidence(template_progress=(selected_candidate.progress,
                               "evaluated" if board_complete else "partial", source)),
                     (1, 0 if current_complete else 1 if proof["known_witness"] else 2,
+                     -prefix_progress.get(root.root_action, current_progress.get(root.root_action, 0)),
                      -current_progress.get(root.root_action, 0), rank, root.root_action),
                 )
         for value in response.proposals:
@@ -791,7 +795,10 @@ class SharedSearchBatchBuilder:
                 "selected_template": {
                     "phase_key": selected_candidate.key if selected_candidate else None,
                     "root_progress": selected_candidate.root_progress if selected_candidate else (),
-                    "ranking": "survival; current_completion; public_prefix_completion; current_progress; long_horizon",
+                    "root_prefix_progress": selected_candidate.root_prefix_progress if selected_candidate else (),
+                    "prefix_progress_status": "public_no_clear_witness_lower_bound" if selected_candidate and selected_candidate.root_prefix_progress else "unavailable",
+                    "matcher_cutoff": selected_candidate.cutoff if selected_candidate else None,
+                    "ranking": "survival; current_completion; public_prefix_completion; public_prefix_progress; current_progress; long_horizon",
                     "constraint": asdict(selected_constraint) if selected_constraint else None,
                     "result": shared.selected_template if shared else None,
                     "public_board_complete": board_complete,

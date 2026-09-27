@@ -520,6 +520,9 @@ class TemplateCandidate:
     continuation_kind: str = "none"
     continuation_score: float | None = None
     root_progress: tuple[tuple[int, int], ...] = ()
+    # Public-prefix lower bounds, never a proof that an unvisited root cannot
+    # progress. Each tuple is (root, gained required cells, witness actions).
+    root_prefix_progress: tuple[tuple[int, int, tuple[int, ...]], ...] = ()
 
     @property
     def key(self):
@@ -759,6 +762,7 @@ def match_templates(
     static_binding_cap: int = 4096,
     preferred_key: tuple | None = None,
     prioritize_static_binding: bool = False,
+    evaluate_prefix_progress: bool = False,
 ) -> MatchResult:
     """Static score every enabled template, then spend bounded node/binding quota.
 
@@ -946,6 +950,9 @@ def match_templates(
             complete = len(before) == required and guards_known
             neutral = None
             root_progress = []
+            root_boards = []
+            root_prefix_progress = {}
+            prefix_cutoff = False
             exhaustive = all_known and bool(known_pieces)
             conservative_visible = (
                 not all_known
@@ -1011,6 +1018,10 @@ def match_templates(
                                 continue
                             if depth == 0:
                                 root_progress.append((action_id, len(after) - len(before)))
+                                if evaluate_prefix_progress and not step["chain_count"] and not any(
+                                    after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)
+                                ):
+                                    root_boards.append((after_board, (action_id,)))
                             next_actions = actions + (action_id,)
                             new_score = (
                                 (len(after) - after_conflicts)
@@ -1101,6 +1112,54 @@ def match_templates(
                                 if conservative_visible else "node_budget_exhausted",
                             )
                         )
+            # Production boards have unobserved ghost rows, so the matcher
+            # above conservatively stops at the current placement. Continue
+            # the committed shape through public NEXT/NEXT2 only when every
+            # transition is confined to visible rows and causes no clearing.
+            # Use the same node budget and interleave roots by action, avoiding
+            # spending the remaining budget on the first root alone.
+            if evaluate_prefix_progress and root_boards and preferred_key == (template.id, variant.id, transform, binding_tuple):
+                current_gains = dict(root_progress)
+                root_prefix_progress = {path[0]: (current_gains[path[0]], path) for _, path in root_boards}
+                frontier = root_boards
+                for next_pair in known_pieces[1:]:
+                    if not frontier:
+                        break
+                    if nodes >= node_budget:
+                        prefix_cutoff = True
+                        break
+                    games = [(_game(board, next_pair), board, path) for board, path in frontier]
+                    next_frontier = []
+                    for action_id, action in enumerate(PLACEMENT_ACTIONS):
+                        for game, previous, path in games:
+                            if nodes >= node_budget:
+                                prefix_cutoff = True
+                                break
+                            if game.find_landing_y(action.axis_x, action.rotation) is None:
+                                continue
+                            nodes += 1
+                            branch = copy.deepcopy(game)
+                            step = branch.place_current_pair_and_resolve(action.axis_x, action.rotation, spawn_next=False)
+                            if step is None or step["game_over"] or step["chain_count"]:
+                                continue
+                            after_board = _wire(branch)
+                            if any(after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)):
+                                continue
+                            after, after_conflicts = evaluate(after_board, conditions, binding)
+                            previous_satisfied, _ = evaluate(previous, conditions, binding)
+                            if after_conflicts or not previous_satisfied <= after:
+                                continue
+                            actions = path + (action_id,)
+                            gain = len(after) - len(before)
+                            old_gain, old_path = root_prefix_progress[path[0]]
+                            if gain > old_gain or (gain == old_gain and (len(actions), actions) < (len(old_path), old_path)):
+                                root_prefix_progress[path[0]] = (gain, actions)
+                            next_frontier.append((after_board, actions))
+                        if prefix_cutoff:
+                            break
+                    if prefix_cutoff:
+                        break
+                    frontier = next_frontier
             if binding_search.cutoff and status != "fit" and not fixed_conflict:
                 status, reason = "unknown", "binding_budget_exhausted"
             source = (
@@ -1122,6 +1181,7 @@ def match_templates(
                 witness_actions,
                 prefix,
                 binding_search.cutoff
+                or prefix_cutoff
                 or (not exhaustive and status != "fit" and nodes >= node_budget),
                 source,
                 nodes - nodes_before,
@@ -1130,6 +1190,7 @@ def match_templates(
                 "tail" if neutral is not None and witness_actions else "none",
                 neutral[0] if status != "fit" and neutral is not None else None,
                 tuple(root_progress),
+                tuple((root, gain, path) for root, (gain, path) in sorted(root_prefix_progress.items())),
             )
             variant_candidates.append(candidate)
         if not variant_candidates or all(
