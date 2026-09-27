@@ -89,7 +89,7 @@ python -m eval.nextgen_asset_diagnostic /tmp/new-native-g2/seed-123-repeat-1.jso
 
 seed 137／148 の当該連鎖予測は公開盤面と offline 完全盤面で同じであり，hidden 行では配置差を説明できない．activation は入力計画の開始を表し，その root の実 lock を保証していない．幾何探索と実 tick／gravity の境界を PUYO-273 へ渡した．この PR は core／planner を編集しない．保存した旧入力を使う回帰は歴史的失敗を再現するもので，planner 修正後の新しい入力計画を評価するものではない．
 
-別の原因も混同しない．seed 142／decision 29 は root が一致し，公開予測 9／完全盤面予測 10／実結果 10 だったため hidden 行の差である．seed 151 は 41 判断に対して 40 配置で，未 lock の採用後に再計画するため，資産診断は行対応の曖昧さを拒否する．seed 135 の単発は `build_template` 中で quiet root が存在し，完成後の本件と異なる PUYO-268 の構築順位境界である．seed 144 の単発時には到達可能 root 7／9 の両方が発火し，quiet root はなかった．元 GUI の有効な逆 10 連鎖とは別条件である．
+別の原因も混同しない．seed 142／decision 29 は root が一致し，公開予測 9／完全盤面予測 10／実結果 10 だったため hidden 行の差である．seed 151 は 41 判断に対して 40 配置で，未 lock の採用後に再計画するため，資産診断は行対応の曖昧さを拒否する．seed 135 の単発は `build_template` 中に発生した．PUYO-268 の読取調査では，手 7／9 の quiet roots 0／1／2／6 はすべて固定定型に違反し，build_template の 14 候補はすべて 1 連鎖だった．採用 root 3 は rank 0／compatible=true で，必須 4／8 セルを保持し，消去位置 (3,3)／(3,4) は定型外である．手 6 の整合 quiet roots 15／17 も同じ後盤面へ至る．したがって PUYO-268 の順位バグとは確認できず，固定定型を継続するか明示解除するかの phase／発火方針を PUYO-266 の残課題とする．quiet 優先の重み変更は採用しない．seed 144 の単発時には到達可能 root 7／9 の両方が発火し，quiet root はなかった．元 GUI の有効な逆 10 連鎖とは別条件である．
 
 ```bash
 python -m eval.nextgen_adoption_replay \
