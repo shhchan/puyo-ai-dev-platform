@@ -1,0 +1,79 @@
+{
+  "latest_saved_268_vs_new_80_first40": [
+    {
+      "seed": 55,
+      "chain_prefix_equal": true,
+      "selection_phase_action_prefix_equal": true,
+      "public_input_prefix_equal": true,
+      "receipt_prefix_equal": true,
+      "profile_equal": true,
+      "search_config_equal": true
+    },
+    {
+      "seed": 123,
+      "chain_prefix_equal": true,
+      "selection_phase_action_prefix_equal": true,
+      "public_input_prefix_equal": true,
+      "receipt_prefix_equal": true,
+      "profile_equal": true,
+      "search_config_equal": true
+    },
+    {
+      "seed": 124,
+      "chain_prefix_equal": true,
+      "selection_phase_action_prefix_equal": true,
+      "public_input_prefix_equal": true,
+      "receipt_prefix_equal": true,
+      "profile_equal": true,
+      "search_config_equal": true
+    }
+  ],
+  "reference_runs": [
+    {
+      "seed": 55,
+      "max_chain": 1,
+      "premature": 1,
+      "game_over": true,
+      "placements": 33,
+      "decision_seconds": {
+        "n": 33,
+        "p50": 0.48353201599093154,
+        "p95": 0.6271743491815868,
+        "max": 0.6921449940127786
+      }
+    },
+    {
+      "seed": 123,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.5988893319736235,
+        "p95": 0.8296400561797781,
+        "max": 0.9162635399552528
+      }
+    },
+    {
+      "seed": 124,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.5877164345147321,
+        "p95": 0.6648714544673566,
+        "max": 0.6725869299843907
+      }
+    }
+  ],
+  "reference_combined_latency": {
+    "n": 113,
+    "p50": 0.5627728939871304,
+    "p95": 0.712418187817093,
+    "max": 0.9162635399552528
+  },
+  "limits": "Reference adapter sees own ghost rows and uses different public scenario seed derivation; not identical-public-input selector comparison."
+}

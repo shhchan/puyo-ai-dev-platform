@@ -1,0 +1,181 @@
+{
+  "artifacts": {
+    "seed-123-repeat-1.json.gz": "a550415480271cf5c85e653bb81a30eb33c702a9b8253031ed556fad6b3693d9",
+    "seed-123-repeat-2.json.gz": "39f5ec018f1b2dff96e06d99f666d34f65a30773f69cd5aade27806fcd40b518",
+    "seed-124-repeat-1.json.gz": "f1cec0cda98b1a4d4629020b8fe70608bd59b43e8d2064cb5eec2aea7d4c9bbf",
+    "seed-124-repeat-2.json.gz": "cb5098adb13218ade5f5ff42d6e91a463e6f9dea52085619f90b17f7bf0aef05",
+    "seed-125-repeat-1.json.gz": "e5e0a549f734195a6acf49e130d675beb81d5e2cdc02e8102c0457b7a2727180",
+    "seed-125-repeat-2.json.gz": "feedf80393b6e821d15fa3c52d299961e91a5c0bd1c43ea0da9d34f97539566b",
+    "seed-126-repeat-1.json.gz": "0419ba8d09e21a1d9c3474eeba974fa5287e68cf66c264e1aa93f2e61f1bc8f9",
+    "seed-126-repeat-2.json.gz": "562f62d5be5b1ab1e056a1539008be3a220997c01abed0881530aa96c28a79bc",
+    "seed-127-repeat-1.json.gz": "3da848ed399ee2930b9f0869d88fcbc64882afdf9a241e2080d03c3da0cc948d",
+    "seed-127-repeat-2.json.gz": "eb99c6649cb8a1d38078b8608b0c6549d879c9855b1a2f499625c722b9dbefa6",
+    "seed-128-repeat-1.json.gz": "cacd223f553c5fa21cd1485987e682c22a8ed4da22ff2e84b95cd68bd71caa7b",
+    "seed-128-repeat-2.json.gz": "09196fb55e4a7bbdab41da667b6581e7100abf49aa1bb1970fcb44f9f08409df",
+    "seed-129-repeat-1.json.gz": "3f8369031ee0529ff4be13e4ef5724aa78749b297d59bfe64d5459794b29186a",
+    "seed-129-repeat-2.json.gz": "a1db9c8f1c6e540054176318896b17d1de98578b98c3a651beb68ceee8a04fcc",
+    "seed-130-repeat-1.json.gz": "157791aff031472c2e135ce6ce840e3c54c85b3ce9831b64fda1c9dfdef58ab8",
+    "seed-130-repeat-2.json.gz": "00e05b6cc80db407378197807020a07f86c26e60c35ea449cc7e208fc9f4d2f5",
+    "seed-131-repeat-1.json.gz": "4a54c894585ed4c493c7d26682b89e46260cb38c7f900e847865435b93604946",
+    "seed-131-repeat-2.json.gz": "adc33777a9823cac61bdc3273ca1d4b40485455619f1dece38408ba9fb6c726f",
+    "seed-132-repeat-1.json.gz": "f19e1c8668f9d17537059f94d9205d7f7a71f44b098b36b9300c0c7d7a83f76f",
+    "seed-132-repeat-2.json.gz": "f47c9e65034b8881d4c7fe62b2029171c1ebd7b4d62b1ae7a22c22ed756916c6",
+    "seed-133-repeat-1.json.gz": "10c128efe3e485b0b88500b0cea3ee0812b47cf9d5151ece15b0065dba401540",
+    "seed-133-repeat-2.json.gz": "47ed5c80ad36c13996ab04758eb2d7a9f1f5989fd5949bf5e617f77845fe3d6c",
+    "seed-134-repeat-1.json.gz": "0292c8f1e260bb2066ab7ed37affd0ad2ac2c2503da14b651e14affe024281ba",
+    "seed-134-repeat-2.json.gz": "203663bc0bd796cf760aafb35302e887ac7e2a66af7a93f881b846a02e03a07d",
+    "seed-135-repeat-1.json.gz": "d2cde607078e98b22925b1af3d02485b53ea4e6d849b8f3cc3903343ebe95873",
+    "seed-135-repeat-2.json.gz": "1561138f083b5231635ce050da45023f2f52e08298636087405f39731633a3f4",
+    "seed-136-repeat-1.json.gz": "f6d279b08f68435cafac588c996c6733de690f6bd48b9c90def2227b8ec26a2a",
+    "seed-136-repeat-2.json.gz": "56dc43c366a5acf58f7bb80a71dc3087ef0b6a7a0ef7dac3514cbc473a4991c9",
+    "seed-137-repeat-1.json.gz": "5e09dd54fa827214bdba61995283161431c98dd861dce35fe8be7087c6ba3183",
+    "seed-137-repeat-2.json.gz": "577ae47fefc59fb5e5e9e5a22344f9b8d2220e81ec6ece3359238bf0d5d44096",
+    "seed-138-repeat-1.json.gz": "06a8c6653409dd633957c96fbbec735603ad12bf81e086c8b6d936bed22ccc1d",
+    "seed-138-repeat-2.json.gz": "f0a3bad10ad7badcbdc312478cce35d8a1b15c18e10c4e4dcd7dcf8864021762",
+    "seed-139-repeat-1.json.gz": "0de99610557712dabf359216948734fde35816628f766b204b0c6c3834585720",
+    "seed-139-repeat-2.json.gz": "66168e051a1023e9b41fa75668744ff2c8451223ec32e13d0504321e1fe4c47f",
+    "seed-140-repeat-1.json.gz": "b4558fecd26be67a5034c0d86ab4497006d24b2875bf3050467c1d3658edbcb0",
+    "seed-140-repeat-2.json.gz": "e577417e8fe06332d60572cb3c24362375bd4623061f3650ccb002324b1118fe",
+    "seed-141-repeat-1.json.gz": "104a103fdb5ac101a1028fe55220c1191e20f4beb04f2eb03ccad9b8bbc12d6e",
+    "seed-141-repeat-2.json.gz": "ee2b44ce7feb886c0ec4d80387006f41714cddf19a20315fe3d4c85e17bfedb2",
+    "seed-142-repeat-1.json.gz": "a6fd71af192b7c1624677b31dc35d2bea50074fc2180719a22f9af145de69e8c",
+    "seed-142-repeat-2.json.gz": "075f73cea11bc79cb0286644ec0d8a662798bf3371072ba35571176d35d734ee",
+    "seed-143-repeat-1.json.gz": "3ecec8655403a3deb0dcb025abaaee836643c0aeff8b777a367a79b57a538e11",
+    "seed-143-repeat-2.json.gz": "f928b458c4f33cefcb2db155dbe55cbce948052354930d2b0c03bfaa3dceec59",
+    "seed-144-repeat-1.json.gz": "b7cd82b9a9b6e90622630100fee6b0823da5e9647a18aff7d6e9cd73ffea640e",
+    "seed-144-repeat-2.json.gz": "e5ea371d74a76af675891085b10aecee4889d457cbe73e6ea3ecc821f8014808",
+    "seed-145-repeat-1.json.gz": "cf3f85b7638b2176029dafaab12c4e66101ca2046baf18e5b2beece98d0bed04",
+    "seed-145-repeat-2.json.gz": "f40ce7d99006b09266ead8cc2d99cc6ebaa856bcdc7882b0b552f204c3f59544",
+    "seed-146-repeat-1.json.gz": "ad0beb2f4661f3cdb5b405cb8a79ac61f82898a12579bed58ad134bbd4097d93",
+    "seed-146-repeat-2.json.gz": "b84e3236a68e6337b68c7080e340c087afb95b6c5662a3da5c737860f3b57344",
+    "seed-147-repeat-1.json.gz": "69e6d890f9e0b4b528d19a6d773708ff9c452a849ba9a35c6ba6df0af2961a37",
+    "seed-147-repeat-2.json.gz": "14bed22b7feb629570c5335974253e7553b6820cecca9aba624a641a8ec0b3e3",
+    "seed-148-repeat-1.json.gz": "ccce72a12654ce886bae75732ac05ccb8672dcbc358ef7ed05676a0637477c88",
+    "seed-148-repeat-2.json.gz": "316594b750ee7e6b9ad2f83819438a5b2aea25b9c8141c0fd136818d6836efd0",
+    "seed-149-repeat-1.json.gz": "271ae98393d8036d32844dcab661d7568a44b01d880bf4d1492cae8895c0ad8e",
+    "seed-149-repeat-2.json.gz": "17a885bc006e5226ce344ef0f079111a12a110ca533dd6fb7029a077c1025eac",
+    "seed-150-repeat-1.json.gz": "9e608bdb728b4b710b1ed66e18a733cfdcbddede7de256d58f94a764cc5778e0",
+    "seed-150-repeat-2.json.gz": "90e4cb6cdec78457bbac7c2b75a7fe501d566d17876075aa3ac781401cb94f10",
+    "seed-151-repeat-1.json.gz": "0784aba03c3fe02ebb036f9f70698f92bca2be41e922c3bf1339a6a62d854bcc",
+    "seed-151-repeat-2.json.gz": "47b70598d11e001b255833df64cf53558fe34d0d16edcc51e74b12371b72af13",
+    "seed-152-repeat-1.json.gz": "e07ad6cec763f7be3c4176525d7ec0d4fec89cb4a36ae0d7fa5e03bf120c14ac",
+    "seed-152-repeat-2.json.gz": "38775f6c878126ad2ffb89052c5d990495f4c544067d024d00966319e240507d"
+  },
+  "evidence_note": "This cohort establishes only the safe-build measurements. G0/G1 and threat fixture evidence are not inferred.",
+  "failed_workers": [],
+  "gates": {
+    "G0": {
+      "checks": {
+        "fixtures": null,
+        "legality": null,
+        "parity": null,
+        "public_boundary": null,
+        "replay": null,
+        "schema": null,
+        "six_tactic_masks": null
+      },
+      "status": "BLOCKED"
+    },
+    "G1": {
+      "checks": {
+        "gui_ledger": null,
+        "illegal_zero": null,
+        "leak_zero": null,
+        "missing_zero": null,
+        "rule_ledger": null,
+        "template_fixtures": null
+      },
+      "status": "BLOCKED"
+    },
+    "G2": {
+      "checks": {
+        "G0_passed": false,
+        "G1_passed": false,
+        "all_60_complete": true,
+        "game_over_zero": false,
+        "known_solution_gap_zero": false,
+        "mean_chain_at_least_10": false,
+        "premature_zero": false,
+        "public_runtime": true,
+        "reference_profile_calibrated": true,
+        "repeat_digest_match": true,
+        "required_threat_fixtures": false
+      },
+      "failed_conditions": [
+        "mean_chain_at_least_10",
+        "premature_zero",
+        "game_over_zero",
+        "required_threat_fixtures",
+        "known_solution_gap_zero",
+        "G0_passed",
+        "G1_passed"
+      ],
+      "status": "BLOCKED"
+    },
+    "G3": {
+      "blocked_by": "G2",
+      "checks": {
+        "all_training_seeds": null,
+        "held_out_quality": null,
+        "mask_return_reward": null
+      },
+      "status": "BLOCKED"
+    },
+    "G4": {
+      "blocked_by": "G3",
+      "checks": {
+        "artifact_lineage": null,
+        "frozen_human_latency_thresholds": null,
+        "measured_latency": null,
+        "noninferiority": null,
+        "normal_gui_qa": null,
+        "opponent_strata_ci": null,
+        "paired_win_ci": null,
+        "quality": null,
+        "resource_adoption": null
+      },
+      "status": "BLOCKED"
+    }
+  },
+  "long_training_allowed": false,
+  "manifest_sha256": "b6b327830813c28e69a6d2d5f837177c40b3c811702aeeeb7aa028ab7dd3ec56",
+  "observed_quality": {
+    "expected_runs": 60,
+    "failed_conditions": [
+      "mean_chain_below_10",
+      "premature",
+      "game_over"
+    ],
+    "observed_runs": 60,
+    "scope": "observed profile only; not reference G2 qualification",
+    "status": "FAIL"
+  },
+  "safe_build": {
+    "completed_runs": 60,
+    "decision_latency_seconds": {
+      "mean": 0.6239723834297567,
+      "n": 2356,
+      "p50": 0.644870538948453,
+      "p95": 0.8149951632585726
+    },
+    "expected_runs": 60,
+    "game_over": 12,
+    "mean_max_chain": 8.466666666666667,
+    "missing": [],
+    "observed_runs": 60,
+    "placement_denominator": 2354,
+    "premature": 10,
+    "repeat_mismatch_seeds": [],
+    "repeat_pairs": 30,
+    "unfinished": [],
+    "unique_seed_denominator": 30
+  },
+  "safe_build_performance": {
+    "limit_seconds": 1,
+    "p95_seconds": 0.8149951632585726,
+    "status": "PASS"
+  },
+  "scheduler_errors": [],
+  "schema": "puyo.nextgen.gates.v1",
+  "source_changed_since_declaration": false
+}

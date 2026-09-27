@@ -1,0 +1,699 @@
+{
+  "cohort": [
+    {
+      "seed": 123,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 32,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 31,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 124,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 32,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 31,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 125,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 34,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 33,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 126,
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": []
+    },
+    {
+      "seed": 127,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 26,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 128,
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": []
+    },
+    {
+      "seed": 129,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 27,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 130,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 27,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 131,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 24,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 132,
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": []
+    },
+    {
+      "seed": 133,
+      "max_chain": 12,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 35,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 34,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 12,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 134,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [
+        16
+      ],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 17,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 31,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 135,
+      "max_chain": 1,
+      "premature": 2,
+      "game_over": true,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 7,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 1,
+          "used": 0,
+          "remaining": 0
+        },
+        {
+          "placement": 9,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 1,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 136,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 40,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 39,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 137,
+      "max_chain": 1,
+      "premature": 1,
+      "game_over": true,
+      "lock_mismatch_decisions": [
+        34
+      ],
+      "final_hash_matches": true,
+      "asset_status": "blocked",
+      "reason": "public predicted chain differs from actual resolution"
+    },
+    {
+      "seed": 138,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 31,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 30,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 139,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 30,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 140,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 31,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 30,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 141,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 24,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 142,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "blocked",
+      "reason": "public predicted chain differs from actual resolution"
+    },
+    {
+      "seed": 143,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 25,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 144,
+      "max_chain": 1,
+      "premature": 1,
+      "game_over": true,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 34,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 33,
+          "asset_status": "unused",
+          "public_asset_using_alternatives": 0,
+          "chain": 1,
+          "used": 0,
+          "remaining": 8
+        }
+      ]
+    },
+    {
+      "seed": 145,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 27,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 146,
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 33,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 147,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 31,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 30,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 148,
+      "max_chain": 8,
+      "premature": 1,
+      "game_over": false,
+      "lock_mismatch_decisions": [
+        21,
+        25
+      ],
+      "final_hash_matches": true,
+      "asset_status": "blocked",
+      "reason": "public predicted chain differs from actual resolution"
+    },
+    {
+      "seed": 149,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 30,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 29,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 150,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [],
+      "asset_fires": [
+        {
+          "placement": 26,
+          "asset_status": "no_tracked_asset",
+          "public_asset_using_alternatives": 0,
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 151,
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "blocked",
+      "reason": "requires one settled receipt per diagnostic row"
+    },
+    {
+      "seed": 152,
+      "max_chain": 13,
+      "premature": 0,
+      "game_over": false,
+      "lock_mismatch_decisions": [],
+      "final_hash_matches": true,
+      "asset_status": "audited",
+      "asset_gaps": [
+        {
+          "placement": 37,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "asset_fires": [
+        {
+          "placement": 36,
+          "asset_status": "fully_used",
+          "public_asset_using_alternatives": 0,
+          "chain": 13,
+          "used": 8,
+          "remaining": 0
+        }
+      ]
+    }
+  ],
+  "extended": [
+    {
+      "seed": 123,
+      "gaps": [
+        {
+          "placement": 32,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "fires": [
+        {
+          "placement": 31,
+          "asset_status": "fully_used",
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        },
+        {
+          "placement": 47,
+          "asset_status": "no_tracked_asset",
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        },
+        {
+          "placement": 78,
+          "asset_status": "no_tracked_asset",
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 124,
+      "gaps": [
+        {
+          "placement": 32,
+          "reason": "public_board_discontinuity"
+        }
+      ],
+      "fires": [
+        {
+          "placement": 31,
+          "asset_status": "fully_used",
+          "chain": 11,
+          "used": 8,
+          "remaining": 0
+        },
+        {
+          "placement": 54,
+          "asset_status": "no_tracked_asset",
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        },
+        {
+          "placement": 76,
+          "asset_status": "no_tracked_asset",
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "seed": 55,
+      "gaps": [],
+      "fires": [
+        {
+          "placement": 32,
+          "asset_status": "fully_used",
+          "chain": 10,
+          "used": 8,
+          "remaining": 0
+        },
+        {
+          "placement": 53,
+          "asset_status": "no_tracked_asset",
+          "chain": 10,
+          "used": 0,
+          "remaining": 0
+        }
+      ]
+    }
+  ],
+  "asset_evidence_source": "public_model_prediction, conditioned on root realization; activation receipt plus equal chain count is not observed cell identity"
+}
