@@ -13,6 +13,8 @@ import threading
 import time
 
 import pygame
+import _puyo_deep_chain_native as native
+from agents.deep_chain_native import NativeDeepChainBackend
 import puyo_env.realtime_ai as ai
 from eval.puyo_271_gui_probe import proc, stats
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
@@ -176,6 +178,10 @@ def run(args):
                   "functions_raw":dict(functions),"cache_samples":cache,"input_events":events,
                   "human_ticks":ticks,"process_samples":processes,
                   "diagnostics":{a:i.diagnostics.to_dict() for a,i in controller.controllers.items()},
+                  "scheduler_errors": {a:i.nextgen_scheduler.errors for a,i in controller.controllers.items()
+                                       if getattr(i,"nextgen_scheduler",None)},
+                  "native": {"capabilities":NativeDeepChainBackend().capabilities.to_dict(),
+                             "module":native.__file__, "sha256":hashlib.sha256(Path(native.__file__).read_bytes()).hexdigest()},
                   "source_sha":source_sha, "reference_mask":args.reference_mask,
                   "source_diff_sha256":source_diff,
                   "host":platform.uname()._asdict(),"display":os.environ.get("DISPLAY"),
