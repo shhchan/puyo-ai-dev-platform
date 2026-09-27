@@ -134,6 +134,8 @@ def cohort_row(value, manifest):
         raise ValueError("run belongs to another declaration")
     if digest(value["semantic"]) != value["semantic_digest"]:
         raise ValueError("trajectory checksum mismatch")
+    if value["semantic"]["chains"] != value["chains"]:
+        raise ValueError("summary chains differ from the recorded trajectory")
     if (value["placements"] != len(value["chains"])
             or value["max_chain"] != max(value["chains"], default=0)
             or value["premature"] != sum(0 < n < 10 for n in value["chains"])):
