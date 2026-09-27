@@ -91,7 +91,7 @@ def run(args):
         result = advance()
         ended = time.perf_counter_ns()
         samples["tick_ms"].append((ended-started)/1e6)
-        if args.opponent == "human":
+        if args.opponent == "human" and controller.env.match.tick != old_tick:
             tick_input = controller.last_inputs.get("player_1")
             ticks.append({"frame": frame, "tick": controller.env.match.tick, "before": before,
                           "after": human_state(),
