@@ -12,7 +12,7 @@ from dataclasses import dataclass, replace
 
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices, transition
-from src.core.constants import GRID_HEIGHT, GRID_WIDTH, VISIBLE_HEIGHT
+from src.core.constants import VISIBLE_HEIGHT
 
 SURVIVAL_NODE_LIMIT = 128
 SURVIVAL_STATUS = {"witness": 1, "fatal": 2, "unknown": 3, "cutoff": 4, "deadline_unreachable": 5}
@@ -59,17 +59,6 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
     if not known or not reachable or not needs_probe(request):
         return {}, {"status": "not_needed", "nodes": 0, "horizon": len(known)}
     start_nodes = budget.nodes
-    # The public compact board fills unobserved rows with empty cells. A
-    # continuation that stacks into those rows cannot use that optimistic
-    # capacity as a survival witness. Keep it unknown, rather than declaring
-    # either death or safety from a placement height we cannot observe.
-    unknown_hidden = sum(
-        1 << (y * GRID_WIDTH + x)
-        for y in range(VISIBLE_HEIGHT, GRID_HEIGHT)
-        for x in range(GRID_WIDTH)
-        if y >= len(request.public.own.visible_board)
-        or request.public.own.visible_board[-1 - y][x] is None
-    )
     visible_complete = all(v is not None for row in request.public.own.visible_board[-VISIBLE_HEIGHT:] for v in row)
     reason = None
     if not visible_complete or (packets and timing is None):
@@ -96,8 +85,6 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
                 root_chains[action] = result.chain_count
             if not result.valid or result.game_over:
                 return "fatal", ()
-            if result.state.occupied_mask & unknown_hidden:
-                return "unknown", ()
             plan = node.plan + (c.PlanStep(action, known[depth], "public_known"),)
             remaining, carry, end = node.packets, node.carry, node.ready
             if provider:
@@ -172,7 +159,6 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
         "horizon": len(known), "board_complete": board_complete,
         "source": "visible_exact" if board_complete else "public_estimate",
         "scope": "known_prefix_geometric_continuations; replan_each_spawn",
-        "hidden_capacity": "unknown_if_occupied_after_resolution",
         "safety_guarantee": False,
         "roots": [{"action": a, "status": v.status, "root_chain": v.root_chain,
                    "witness": list(v.witness)} for a, v in sorted(results.items())],
