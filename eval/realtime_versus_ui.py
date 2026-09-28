@@ -672,9 +672,62 @@ class RealtimeVersusMatchController:
     def plan_overlay(self, agent: str) -> dict:
         if not self.plan_overlay_enabled.get(agent, False):
             return {}
+        if self.policy_names.get(agent) == "nextgen_tactic_manager":
+            return self._nextgen_preview(agent)[0]
         diagnostics = self.tactical_diagnostics(agent)
         plan = diagnostics.get("plan", {})
         return plan if isinstance(plan, dict) else {}
+
+    def _nextgen_preview(self, agent: str) -> tuple[dict, dict]:
+        """Bind a reference preview to the currently adopted public root."""
+        diagnostics = self.tactical_diagnostics(agent)
+        metadata = diagnostics.get("plan_preview", {})
+
+        def hidden(reason):
+            return {}, {**metadata, "status": "hidden", "reason": reason}
+
+        if not self.plan_overlay_enabled.get(agent, False):
+            return hidden("overlay_off")
+        runtime = self.controllers[agent]
+        last = runtime.diagnostics.last_decision
+        if last is None or last.outcome != "activated":
+            return hidden("adoption_pending" if last is None else "not_adopted_" + last.outcome)
+        plan = diagnostics.get("plan")
+        if not isinstance(plan, dict) or not plan.get("steps"):
+            return hidden(metadata.get("reason", "preview_unavailable"))
+        receipt_diagnostics = last.nextgen_diagnostics or {}
+        request = receipt_diagnostics.get("request", {})
+        identity = request.get("identity", {})
+        receipt = receipt_diagnostics.get("receipt", {})
+        if (
+            plan.get("schema_version") != "n-turn-plan-v1"
+            or plan.get("plan_id") != diagnostics.get("plan_id")
+            or plan.get("request_identity") != identity
+            or plan.get("candidate_id") != receipt.get("requested_candidate_id")
+            or receipt.get("outcome") != "activated"
+            or plan.get("root_action") != receipt.get("executed_action")
+            or plan["steps"][0].get("action") != receipt.get("executed_action")
+            or last.executed_action != receipt.get("executed_action")
+            or plan.get("public_snapshot_digest") != identity.get("snapshot_digest")
+        ):
+            return hidden("receipt_mismatch")
+        scheduler = getattr(runtime, "nextgen_scheduler", None)
+        if (scheduler is None or scheduler.data is None
+                or scheduler.data["identity"].to_dict() != identity):
+            return hidden("decision_changed")
+        game = self.env.match.player_states[agent].simulator.game
+        if (game.state != "control" or game.game_over
+                or runtime.active_action_index != last.executed_action):
+            return hidden("piece_finished")
+        # Public snapshots omit the moving pair's x/y. Changes to the locked
+        # board, public pieces or threats invalidate this reference projection.
+        public = self.env.match.public_snapshot(int(agent.rsplit("_", 1)[1]))
+        if public.digest != plan["public_snapshot_digest"]:
+            return hidden("public_state_changed")
+        return plan, dict(metadata)
+
+    def plan_preview_status(self, agent: str) -> dict:
+        return self._nextgen_preview(agent)[1]
 
     def realtime_diagnostics(self, agent: str) -> dict[str, str]:
         controller = self.controllers[agent]

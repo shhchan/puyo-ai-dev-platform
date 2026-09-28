@@ -676,6 +676,16 @@ class VersusRenderer:
                     (f"要求 {receipt['requested_action']} / 実行 {receipt['executed_action']}", (190, 198, 215)),
                 )
             stats += (("計算中" if status.pending_ready_tick is not None else "実行中" if status.active_action_index is not None else "待機中", (255, 220, 145)),)
+            preview_status = getattr(controller, "plan_preview_status", None)
+            if callable(preview_status):
+                preview = preview_status(agent)
+                if preview.get("status") in {"available", "partial"}:
+                    label = f"先読み {preview.get('available_steps', 0)}/3 参考（次手保証なし）"
+                elif preview.get("reason") == "overlay_off":
+                    label = "先読み OFF (o)"
+                else:
+                    label = "先読み非表示: " + str(preview.get("reason", "待機中"))
+                stats += ((label, (190, 198, 215)),)
         elif summary.get("deep_chain"):
             flow_steps = tuple(
                 item
