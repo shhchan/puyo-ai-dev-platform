@@ -719,10 +719,17 @@ class RealtimeVersusMatchController:
         if (game.state != "control" or game.game_over
                 or runtime.active_action_index != last.executed_action):
             return hidden("piece_finished")
-        # Public snapshots omit the moving pair's x/y. Changes to the locked
-        # board, public pieces or threats invalidate this reference projection.
-        public = self.env.match.public_snapshot(int(agent.rsplit("_", 1)[1]))
-        if public.digest != plan["public_snapshot_digest"]:
+        # Keep the receipt's full request digest binding above, but do not hide
+        # an adopted reference merely because the opponent progresses. Only the
+        # player's public board/pieces/phase/incoming and piece identity affect
+        # this display-only projection. Movement x/y is absent from own state.
+        player = int(agent.rsplit("_", 1)[1])
+        public = self.env.match.public_snapshot(player)
+        prepared = scheduler.data["public"]
+        def placements(snapshot):
+            return tuple(e.event_id for e in snapshot.events
+                         if e.player_id == player and e.kind == "placement")
+        if public.own != prepared.own or placements(public) != placements(prepared):
             return hidden("public_state_changed")
         return plan, dict(metadata)
 

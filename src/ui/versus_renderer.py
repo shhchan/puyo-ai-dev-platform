@@ -684,7 +684,19 @@ class VersusRenderer:
                 elif preview.get("reason") == "overlay_off":
                     label = "先読み OFF (o)"
                 else:
-                    label = "先読み非表示: " + str(preview.get("reason", "待機中"))
+                    reason = preview.get("reason", "")
+                    message = {
+                        "adoption_pending": "判断待ち",
+                        "piece_finished": "配置更新待ち",
+                        "decision_changed": "配置更新待ち",
+                        "public_state_changed": "盤面更新待ち",
+                        "incoming_event_requires_replan": "着弾で再判断",
+                        "public_prefix_exhausted": "公開された先読み不足",
+                        "candidate_prefix_short": "公開された先読み不足",
+                        "representative_prefix_short": "公開された先読み不足",
+                        "preview_unavailable": "先読み情報待ち",
+                    }.get(reason, "再判断待ち")
+                    label = "先読み: " + message
                 stats += ((label, (190, 198, 215)),)
         elif summary.get("deep_chain"):
             flow_steps = tuple(

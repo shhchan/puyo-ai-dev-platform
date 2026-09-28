@@ -20,7 +20,8 @@ class NextgenPreviewGuiTests(unittest.TestCase):
         self.addCleanup(self.controller.shutdown)
         self.runtime = self.controller.controllers["player_0"]
         self.controller.config = replace(self.controller.config, policy_a="nextgen_tactic_manager")
-        digest = self.controller.env.match.public_snapshot(0).digest
+        self.public = self.controller.env.match.public_snapshot(0)
+        digest = self.public.digest
         self.identity = {"episode_id": "episode-1", "player_id": 0, "decision_id": 1,
                          "request_id": "request-1", "snapshot_digest": digest}
         receipt = {"requested_candidate_id": "candidate-1", "requested_action": 2,
@@ -32,7 +33,7 @@ class NextgenPreviewGuiTests(unittest.TestCase):
         self.runtime.diagnostics.last_decision = self.last
         self.runtime._active_action_index = 2
         self.runtime.nextgen_scheduler = SimpleNamespace(data={
-            "identity": SimpleNamespace(to_dict=lambda: self.identity)
+            "identity": SimpleNamespace(to_dict=lambda: self.identity), "public": self.public,
         })
         self.plan = {"schema_version": "n-turn-plan-v1", "plan_id": "plan-1",
                      "candidate_id": "candidate-1", "root_action": 2,
@@ -73,8 +74,14 @@ class NextgenPreviewGuiTests(unittest.TestCase):
         self.assertEqual(self.controller.plan_preview_status("player_0")["reason"], "piece_finished")
         self.runtime._active_action_index = 2
         with patch.object(self.controller.env.match, "public_snapshot",
-                          return_value=SimpleNamespace(digest="new-state")):
+                          return_value=replace(self.public, own=replace(self.public.own, score_carry=1))):
             self.assertEqual(self.controller.plan_preview_status("player_0")["reason"], "public_state_changed")
+
+    def test_opponent_progress_alone_keeps_adopted_own_preview(self):
+        changed = replace(self.public, opponent=replace(self.public.opponent, phase="resolving"))
+        self.assertNotEqual(changed.digest, self.public.digest)
+        with patch.object(self.controller.env.match, "public_snapshot", return_value=changed):
+            self.assertEqual(self.controller.plan_overlay("player_0"), self.plan)
 
     def test_live_summary_matches_full_read_without_returning_mutable_diagnostics(self):
         before = copy.deepcopy(self.payload)
