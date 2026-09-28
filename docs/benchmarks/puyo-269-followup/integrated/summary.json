@@ -1,0 +1,818 @@
+{
+  "human": {
+    "raw_sha256": "e1b72d0e4898804dc27828c1824c2ae003b34e704327a86017149fc7ba48e442",
+    "source_sha": "5bcdd1278cc70cee3f1edb396706d8d1552c68b3",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "human",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.04344182,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.344229,
+        "p95": 31.072136699999916,
+        "p99": 64.25940948999998,
+        "max": 93.070759
+      },
+      "input_schedule_ms": {
+        "p50": 9.0343175,
+        "p95": 36.00082804999995,
+        "p99": 54.721008350000005,
+        "max": 57.518644
+      },
+      "input_queue_ms": {
+        "p50": 4.8172615,
+        "p95": 21.835466849999975,
+        "p99": 46.166452580000026,
+        "max": 55.211271
+      },
+      "input_to_state_ms": {
+        "p50": 10.809084,
+        "p95": 41.13934504999998,
+        "p99": 63.80506496000001,
+        "max": 87.354442
+      },
+      "input_to_render_ms": {
+        "p50": 17.621525,
+        "p95": 58.0285484499999,
+        "p99": 89.16015583000001,
+        "max": 98.196478
+      },
+      "event_ms": {
+        "p50": 0.041825,
+        "p95": 0.1403667499999997,
+        "p99": 0.35701055999999953,
+        "max": 5.015464
+      },
+      "update_ms": {
+        "p50": 4.8940845,
+        "p95": 18.53666929999996,
+        "p99": 52.596947819999976,
+        "max": 82.173056
+      },
+      "render_ms": {
+        "p50": 6.0684664999999995,
+        "p95": 10.85813815,
+        "p99": 46.29890318999999,
+        "max": 53.439007
+      },
+      "tick_ms": {
+        "p50": 4.757599,
+        "p95": 11.134262,
+        "p99": 49.318520399999876,
+        "max": 82.148519
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 5
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 18.270256500000002,
+        "p95": 46.497171749999964,
+        "p99": 60.304779150000016,
+        "max": 63.756681
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 6.25638,
+        "p95": 7.887208149999999,
+        "p99": 7.97632003,
+        "max": 7.998598
+      },
+      "simulation": {
+        "n": 661,
+        "p50": 4.13293,
+        "p95": 7.430899,
+        "p99": 12.463983599999999,
+        "max": 46.69222
+      },
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 14.3274685,
+        "p95": 25.574281,
+        "p99": 47.951429799999985,
+        "max": 53.545717
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 23.7533685,
+        "p95": 51.73377144999996,
+        "p99": 64.77580789000001,
+        "max": 68.036317
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 20.3626125,
+        "p95": 31.8949817,
+        "p99": 32.06338754,
+        "max": 32.105489
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 11,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 5,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 0,
+        "decisions_activated": 0,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "987424": true
+    },
+    "processes": [
+      {
+        "pid": 987404,
+        "sampled_cpu_cores": 0.669,
+        "max_rss_mib": 267.0,
+        "max_threads": 12
+      },
+      {
+        "pid": 987424,
+        "sampled_cpu_cores": 1.089,
+        "max_rss_mib": 343.0,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 221,
+      "processed": 220,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        220
+      ]
+    },
+    "human": {
+      "held_mismatch_ticks": 0,
+      "excess_horizontal_fired": {
+        "LEFT": 0,
+        "RIGHT": 0
+      },
+      "rotation_emitted_fired": {
+        "ROTATE_LEFT": [
+          22,
+          22
+        ],
+        "ROTATE_RIGHT": [
+          22,
+          22
+        ]
+      }
+    },
+    "locks": {
+      "total": 16,
+      "compared": 5,
+      "mismatch": 0,
+      "by_agent": {
+        "player_0": {
+          "total": 5,
+          "compared": 5,
+          "mismatch": 0
+        },
+        "player_1": {
+          "total": 11,
+          "compared": 0,
+          "mismatch": 0
+        }
+      }
+    }
+  },
+  "light": {
+    "raw_sha256": "10638f201291d3dcea798e693aa5ff6d9663e757f4af3398bbe69d31e763cd1e",
+    "source_sha": "5bcdd1278cc70cee3f1edb396706d8d1552c68b3",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "first",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 9.749130743,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.1233005,
+        "p95": 19.26084975,
+        "p99": 22.30323734999999,
+        "max": 56.211101
+      },
+      "input_schedule_ms": {
+        "p50": 8.192358500000001,
+        "p95": 15.68884435,
+        "p99": 16.62216067,
+        "max": 17.118889
+      },
+      "input_queue_ms": {
+        "p50": 7.861807499999999,
+        "p95": 11.547737999999999,
+        "p99": 11.750962929999993,
+        "max": 14.346905
+      },
+      "input_to_state_ms": {
+        "p50": 11.5659455,
+        "p95": 17.08904164999999,
+        "p99": 32.63353690999998,
+        "max": 51.515928
+      },
+      "input_to_render_ms": {
+        "p50": 13.737586,
+        "p95": 19.49615214999999,
+        "p99": 34.745906889999986,
+        "max": 53.451654
+      },
+      "event_ms": {
+        "p50": 0.037591,
+        "p95": 0.08483659999999998,
+        "p99": 0.13769610999999995,
+        "max": 0.658787
+      },
+      "update_ms": {
+        "p50": 3.4051425,
+        "p95": 4.227840799999999,
+        "p99": 8.670093709999989,
+        "max": 44.025223
+      },
+      "render_ms": {
+        "p50": 2.026072,
+        "p95": 2.4080424999999996,
+        "p99": 2.64356364,
+        "max": 18.619148
+      },
+      "tick_ms": {
+        "p50": 3.3920969999999997,
+        "p95": 4.12931615,
+        "p99": 7.605264499999989,
+        "max": 44.008847
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "max": 3
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": null,
+      "scheduler_finish": null,
+      "simulation": {
+        "n": 584,
+        "p50": 3.1679855000000003,
+        "p95": 3.6479968000000005,
+        "p99": 3.981462549999998,
+        "max": 43.828081
+      },
+      "authoritative_mask": null,
+      "_complete_decision": null,
+      "_activate_nextgen": null
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 12,
+        "decisions_activated": 12,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 10,
+        "decisions_activated": 10,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {},
+    "worker_cleanup": {},
+    "processes": [
+      {
+        "pid": 986934,
+        "sampled_cpu_cores": 0.302,
+        "max_rss_mib": 262.2,
+        "max_threads": 10
+      }
+    ],
+    "input_events": {
+      "posted": 195,
+      "processed": 194,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        194
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 21,
+      "compared": 21,
+      "mismatch": 0,
+      "by_agent": {
+        "player_0": {
+          "total": 12,
+          "compared": 12,
+          "mismatch": 0
+        },
+        "player_1": {
+          "total": 9,
+          "compared": 9,
+          "mismatch": 0
+        }
+      }
+    }
+  },
+  "one": {
+    "raw_sha256": "3da3676f42761f730b57c3c67b3c5fd687098796e6859aee59a83ed18723ffe4",
+    "source_sha": "5bcdd1278cc70cee3f1edb396706d8d1552c68b3",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.193310397,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.2693285,
+        "p95": 30.933397749999905,
+        "p99": 70.90911789999996,
+        "max": 166.129408
+      },
+      "input_schedule_ms": {
+        "p50": 9.492622,
+        "p95": 32.61181669999995,
+        "p99": 71.3222738,
+        "max": 125.673472
+      },
+      "input_queue_ms": {
+        "p50": 5.559503,
+        "p95": 17.047006899999985,
+        "p99": 54.947583640000005,
+        "max": 120.412944
+      },
+      "input_to_state_ms": {
+        "p50": 10.502701,
+        "p95": 38.64270479999998,
+        "p99": 94.31163098000002,
+        "max": 163.051671
+      },
+      "input_to_render_ms": {
+        "p50": 16.815651,
+        "p95": 65.24493439999996,
+        "p99": 154.80240864000007,
+        "max": 216.144247
+      },
+      "event_ms": {
+        "p50": 0.040099,
+        "p95": 0.10189274999999995,
+        "p99": 0.17574597,
+        "max": 0.571979
+      },
+      "update_ms": {
+        "p50": 4.3525835,
+        "p95": 15.569468899999986,
+        "p99": 54.79738591999996,
+        "max": 157.278512
+      },
+      "render_ms": {
+        "p50": 5.7336545,
+        "p95": 10.935351099999997,
+        "p99": 45.17086944,
+        "max": 75.175142
+      },
+      "tick_ms": {
+        "p50": 4.297287,
+        "p95": 9.806212949999995,
+        "p99": 53.893936219999944,
+        "max": 157.258188
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 10
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 17.361914,
+        "p95": 34.85735854999999,
+        "p99": 38.03436611,
+        "max": 38.828618
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 5.972051,
+        "p95": 9.714830899999999,
+        "p99": 9.92507018,
+        "max": 9.97763
+      },
+      "simulation": {
+        "n": 670,
+        "p50": 3.7106675,
+        "p95": 6.1395104,
+        "p99": 9.99917456999996,
+        "max": 66.925202
+      },
+      "authoritative_mask": {
+        "n": 17,
+        "p50": 12.760783,
+        "p95": 51.2439874,
+        "p99": 51.38227348,
+        "max": 51.416845
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 22.2717365,
+        "p95": 42.361964349999994,
+        "p99": 45.095803270000005,
+        "max": 45.779263
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 25.401573,
+        "p95": 88.71336599999995,
+        "p99": 103.6130892,
+        "max": 107.33802
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 11,
+        "decisions_activated": 6,
+        "timeouts": 0,
+        "stale_decisions": 4,
+        "deadline_misses": 0,
+        "fallback_actions": 1,
+        "masked_actions": 0,
+        "unreachable_plans": 1
+      },
+      "player_1": {
+        "decisions_started": 11,
+        "decisions_activated": 11,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "987101": true
+    },
+    "processes": [
+      {
+        "pid": 987063,
+        "sampled_cpu_cores": 0.598,
+        "max_rss_mib": 268.0,
+        "max_threads": 12
+      },
+      {
+        "pid": 987101,
+        "sampled_cpu_cores": 1.07,
+        "max_rss_mib": 341.5,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 224,
+      "processed": 223,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        223
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 17,
+      "compared": 17,
+      "mismatch": 0,
+      "by_agent": {
+        "player_0": {
+          "total": 6,
+          "compared": 6,
+          "mismatch": 0
+        },
+        "player_1": {
+          "total": 11,
+          "compared": 11,
+          "mismatch": 0
+        }
+      }
+    }
+  },
+  "two": {
+    "raw_sha256": "da0b2ddd13311e376ead51fb53538d8ccc98edbe2670e9591893b2ca1e6e6abd",
+    "source_sha": "5bcdd1278cc70cee3f1edb396706d8d1552c68b3",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 360,
+    "elapsed_seconds": 9.406690153,
+    "active_frames": 360,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 18.089668500000002,
+        "p95": 71.6486915,
+        "p99": 97.33865329,
+        "max": 160.26133
+      },
+      "input_schedule_ms": {
+        "p50": 13.37078,
+        "p95": 63.203764699999994,
+        "p99": 92.6546262,
+        "max": 142.54693
+      },
+      "input_queue_ms": {
+        "p50": 6.208979,
+        "p95": 58.1431317,
+        "p99": 75.76418569999991,
+        "max": 83.630192
+      },
+      "input_to_state_ms": {
+        "p50": 12.21625,
+        "p95": 72.74538579999998,
+        "p99": 103.45785771999982,
+        "max": 126.076713
+      },
+      "input_to_render_ms": {
+        "p50": 30.471671,
+        "p95": 135.00772129999996,
+        "p99": 147.65671897999997,
+        "max": 191.867037
+      },
+      "event_ms": {
+        "p50": 0.043252,
+        "p95": 0.11246700000000005,
+        "p99": 0.24770578000000065,
+        "max": 0.701622
+      },
+      "update_ms": {
+        "p50": 5.4750879999999995,
+        "p95": 52.26167730000003,
+        "p99": 76.74092103000001,
+        "max": 128.852316
+      },
+      "render_ms": {
+        "p50": 9.311202999999999,
+        "p95": 22.97448130000001,
+        "p99": 55.45946800000001,
+        "max": 65.615291
+      },
+      "tick_ms": {
+        "p50": 5.240495,
+        "p95": 20.328303099999978,
+        "p99": 60.608877539999966,
+        "max": 94.139078
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 4.0,
+        "p99": 6.0,
+        "max": 10
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 14,
+        "p50": 18.118279,
+        "p95": 21.09064545,
+        "p99": 21.262165890000002,
+        "max": 21.305046
+      },
+      "scheduler_finish": {
+        "n": 14,
+        "p50": 5.6541855,
+        "p95": 8.19253085,
+        "p99": 8.64901337,
+        "max": 8.763134
+      },
+      "simulation": {
+        "n": 563,
+        "p50": 4.474778,
+        "p95": 12.63875529999997,
+        "p99": 19.225020759999996,
+        "max": 93.631648
+      },
+      "authoritative_mask": {
+        "n": 24,
+        "p50": 13.9644335,
+        "p95": 32.56708939999998,
+        "p99": 49.90175298999999,
+        "max": 54.589587
+      },
+      "_complete_decision": {
+        "n": 14,
+        "p50": 24.6155345,
+        "p95": 26.70662745,
+        "p99": 27.05079829,
+        "max": 27.136841
+      },
+      "_activate_nextgen": {
+        "n": 14,
+        "p50": 26.960276,
+        "p95": 40.99321265,
+        "p99": 46.68002572999999,
+        "max": 48.101729
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 7,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 2,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 7,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 2,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": [],
+      "player_1": []
+    },
+    "worker_cleanup": {
+      "987247": true,
+      "987280": true
+    },
+    "processes": [
+      {
+        "pid": 987222,
+        "sampled_cpu_cores": 0.668,
+        "max_rss_mib": 267.2,
+        "max_threads": 14
+      },
+      {
+        "pid": 987247,
+        "sampled_cpu_cores": 0.951,
+        "max_rss_mib": 340.8,
+        "max_threads": 15
+      },
+      {
+        "pid": 987280,
+        "sampled_cpu_cores": 0.907,
+        "max_rss_mib": 339.0,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 188,
+      "processed": 187,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        187
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 8,
+      "compared": 8,
+      "mismatch": 0,
+      "by_agent": {
+        "player_0": {
+          "total": 4,
+          "compared": 4,
+          "mismatch": 0
+        },
+        "player_1": {
+          "total": 4,
+          "compared": 4,
+          "mismatch": 0
+        }
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ import unittest
 from concurrent.futures import Future
 
 from puyo_env.action_planner import plan_placement_action
-from puyo_env.actions import NUM_ACTIONS
+from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.realtime_ai import (
     REALTIME_OBSERVATION_SCHEMA_VERSION,
     PolicyProcessExecutor,
@@ -258,7 +258,9 @@ class TestRealtimeAI(unittest.TestCase):
             FirstLegalPolicy(),
             config=RealtimeDecisionConfig(
                 latency_mode="measured",
-                action_deadline_ticks=62,
+                action_deadline_ticks=plan_placement_action(
+                    match.player_states["player_0"].simulator, action_to_placement(0)
+                ).tick_count,
             ),
             decision_executor=executor,
         )

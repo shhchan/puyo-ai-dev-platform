@@ -17,7 +17,9 @@ try:
 except ImportError:  # pragma: no cover - dependency guard
     np = None
 
-from puyo_env.action_planner import PlannedPlacement, plan_placement_action
+from puyo_env.action_planner import (
+    PlannedPlacement, plan_placement_action, planned_inputs_reach_target, reachable_placement_actions,
+)
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS, action_to_placement
 from puyo_env.obs import encode_board, encode_ghost_row, encode_next_pairs, encode_scalars
 from puyo_env.rewards import score_to_ojama
@@ -1060,13 +1062,9 @@ class RealtimePolicyController:
         if simulator.tick - self._last_replan_check_tick < self.config.replan_check_interval_ticks:
             return False
         self._last_replan_check_tick = simulator.tick
-        probe = plan_placement_action(
-            simulator,
-            self._active_plan.action,
-            timing=self.timing,
-            max_expanded_states=self.config.max_plan_expanded_states,
+        return not planned_inputs_reach_target(
+            simulator, self._active_plan, start_index=self._input_cursor
         )
-        return not probe.reachable
 
     def _emit_active_plan_input(self) -> TickInput:
         if self._active_plan is None or self._input_cursor >= len(self._active_plan.inputs):
@@ -1247,15 +1245,9 @@ def realtime_reachable_action_mask(
     if simulator.game.state != "control" or simulator.game.game_over:
         return numpy.zeros(NUM_ACTIONS, dtype=numpy.bool_)
     return numpy.asarray(
-        [
-            plan_placement_action(
-                simulator,
-                action,
-                timing=timing,
-                max_expanded_states=max_expanded_states,
-            ).reachable
-            for action in PLACEMENT_ACTIONS
-        ],
+        reachable_placement_actions(
+            simulator, PLACEMENT_ACTIONS, timing=timing, max_expanded_states=max_expanded_states
+        ),
         dtype=numpy.bool_,
     )
 

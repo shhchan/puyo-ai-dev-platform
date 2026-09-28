@@ -1,0 +1,11 @@
+{
+  "display": ":0",
+  "probe_sha256": "2363e24952707bccdd45de5aa4a5fb8409c1eba806234c8e1f72c30f45c91a10",
+  "raw_artifacts_sha256": {
+    "nextgen-both-360.json.gz": "2865cf7e6e07a65c51ec3c5d120a6be072ecdb45c10f674130478efb7f693295",
+    "nextgen-one-600.json.gz": "dc2a2c030e3709785960bab6c4b6d5f4d3309efefacabf61b40dc25bc56fe71c"
+  },
+  "schema_version": "puyo.271.gui_manifest.v1",
+  "source_sha": "258397624245407e402ebf81c5ca20bdc007a475",
+  "worker_cleanup": "confirmed by post-run process listing; no probe worker remained"
+}

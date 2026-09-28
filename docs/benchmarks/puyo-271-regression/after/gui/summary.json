@@ -1,0 +1,168 @@
+{
+  "gate": "frame/input p95 <= 25 ms and p99 <= 50 ms; declared by PUYO-269",
+  "input_method": "thread-posted no-op F12 every 50 ms; not human keyboard QA",
+  "raw_rows": "per-frame interval/event/update/render/tick and individual input event timestamps",
+  "scenarios": [
+    {
+      "decision_counters": {
+        "player_0": {
+          "deadline_misses": 0,
+          "decision_requests": 14,
+          "decisions_activated": 6,
+          "fallback_actions": 0,
+          "placements_completed": 6,
+          "stale_decisions": 7,
+          "timeouts": 0
+        },
+        "player_1": {
+          "deadline_misses": 0,
+          "decision_requests": 13,
+          "decisions_activated": 13,
+          "fallback_actions": 0,
+          "placements_completed": 12,
+          "stale_decisions": 0,
+          "timeouts": 0
+        }
+      },
+      "elapsed_seconds": 12.907504831,
+      "events_ms": {
+        "max": 0.771672,
+        "n": 600,
+        "p50": 0.034928,
+        "p95": 0.08306949999999984,
+        "p99": 0.16149627999999994
+      },
+      "frame_interval_ms": {
+        "max": 175.441675,
+        "n": 600,
+        "p50": 16.28443,
+        "p95": 62.45112134999995,
+        "p99": 114.59410080999999
+      },
+      "frames": 600,
+      "gate_frame_p95_25ms": false,
+      "gate_frame_p99_50ms": false,
+      "gate_input_p95_25ms": false,
+      "gate_input_p99_50ms": false,
+      "id": "nextgen-one-600",
+      "input_age_ms": {
+        "max": 139.622008,
+        "n": 257,
+        "p50": 11.673755,
+        "p95": 67.38378,
+        "p99": 87.1943778
+      },
+      "input_event_rows": 257,
+      "process_sample_rows": 10,
+      "raw_sha256": "dc2a2c030e3709785960bab6c4b6d5f4d3309efefacabf61b40dc25bc56fe71c",
+      "render_ms": {
+        "max": 65.77515,
+        "n": 600,
+        "p50": 4.96058,
+        "p95": 10.782053999999984,
+        "p99": 45.00140637999996
+      },
+      "settings": {
+        "deep_chain_backend": "native",
+        "deep_chain_profile": "reference",
+        "max_ticks": 2400,
+        "nextgen_backend": "native",
+        "nextgen_profile": "nextgen_safe_build",
+        "plan_overlay": false,
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "random",
+        "seed": 55,
+        "speed": 1.0
+      },
+      "ticks": 838,
+      "update_ms": {
+        "max": 155.547534,
+        "n": 600,
+        "p50": 3.9735519999999998,
+        "p95": 50.431680599999964,
+        "p99": 103.54073883
+      }
+    },
+    {
+      "decision_counters": {
+        "player_0": {
+          "deadline_misses": 0,
+          "decision_requests": 8,
+          "decisions_activated": 8,
+          "fallback_actions": 0,
+          "placements_completed": 8,
+          "stale_decisions": 0,
+          "timeouts": 0
+        },
+        "player_1": {
+          "deadline_misses": 0,
+          "decision_requests": 8,
+          "decisions_activated": 8,
+          "fallback_actions": 0,
+          "placements_completed": 8,
+          "stale_decisions": 0,
+          "timeouts": 0
+        }
+      },
+      "elapsed_seconds": 14.526503313,
+      "events_ms": {
+        "max": 0.697021,
+        "n": 360,
+        "p50": 0.034557,
+        "p95": 0.10224345000000003,
+        "p99": 0.16999656000000013
+      },
+      "frame_interval_ms": {
+        "max": 395.661751,
+        "n": 360,
+        "p50": 18.567506,
+        "p95": 151.21802335000007,
+        "p99": 295.2970188100001
+      },
+      "frames": 360,
+      "gate_frame_p95_25ms": false,
+      "gate_frame_p99_50ms": false,
+      "gate_input_p95_25ms": false,
+      "gate_input_p99_50ms": false,
+      "id": "nextgen-both-360",
+      "input_age_ms": {
+        "max": 356.231583,
+        "n": 290,
+        "p50": 22.941359499999997,
+        "p95": 208.93698060000003,
+        "p99": 284.2581496100003
+      },
+      "input_event_rows": 290,
+      "process_sample_rows": 6,
+      "raw_sha256": "2865cf7e6e07a65c51ec3c5d120a6be072ecdb45c10f674130478efb7f693295",
+      "render_ms": {
+        "max": 83.969906,
+        "n": 360,
+        "p50": 9.3124885,
+        "p95": 26.39882810000001,
+        "p99": 60.48159818000008
+      },
+      "settings": {
+        "deep_chain_backend": "native",
+        "deep_chain_profile": "reference",
+        "max_ticks": 2400,
+        "nextgen_backend": "native",
+        "nextgen_profile": "nextgen_safe_build",
+        "plan_overlay": false,
+        "policy_a": "nextgen_tactic_manager",
+        "policy_b": "nextgen_tactic_manager",
+        "seed": 55,
+        "speed": 1.0
+      },
+      "ticks": 998,
+      "update_ms": {
+        "max": 338.279094,
+        "n": 360,
+        "p50": 4.580171,
+        "p95": 135.92325550000004,
+        "p99": 285.80292591000017
+      }
+    }
+  ],
+  "schema_version": "puyo.271.gui_cadence.v1"
+}

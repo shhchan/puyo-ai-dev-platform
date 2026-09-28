@@ -22,7 +22,8 @@ from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 
 REQUEST_SCHEMA_VERSION = "puyo.nextgen.request.v1"
 LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v1"
-CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v2"
+PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v2"
+CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v3"
 FEATURE_SCHEMA_VERSION = "puyo.nextgen.features.v1"
 SELECTION_SCHEMA_VERSION = "puyo.nextgen.selection.v1"
 DIAGNOSTICS_SCHEMA_VERSION = "puyo.nextgen.diagnostics.v1"
@@ -457,6 +458,10 @@ EVIDENCE_NAMES = (
     "scenario_worst",
     "fatal_rate",
     "template_progress",
+    "survival_safe",
+    "survival_status",
+    "survival_root_chain",
+    "survival_depth",
 )
 
 
@@ -610,7 +615,7 @@ class SearchCounters(Contract):
 @dataclass(frozen=True)
 class CandidateBatch(Contract):
     SCHEMA: ClassVar[str] = CANDIDATE_BATCH_SCHEMA_VERSION
-    READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION,)
+    READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION, PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION,)
     identity: DecisionIdentity
     status: Literal["complete", "partial", "unavailable"]
     cutoff_reason: str | None
@@ -639,6 +644,9 @@ class CandidateBatch(Contract):
             "duplicate fixed rank",
         )
         for c in self.candidates:
+            if self.schema_version != CANDIDATE_BATCH_SCHEMA_VERSION:
+                _require(not any(e.name.startswith("survival_") for e in c.evidence),
+                         "survival evidence requires candidate batch v3")
             _require(
                 c.identity == self.identity, "candidate decision identity mismatch"
             )
@@ -1018,6 +1026,7 @@ _SCHEMA_TYPES = {
     for c in (NextgenRequest, CandidateBatch, PolicyFeatures, Selection, Diagnostics)
 }
 _SCHEMA_TYPES[LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION] = CandidateBatch
+_SCHEMA_TYPES[PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION] = CandidateBatch
 
 
 def from_dict(payload: Mapping) -> Contract:

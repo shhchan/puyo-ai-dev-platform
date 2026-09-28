@@ -1,0 +1,18 @@
+import cProfile
+from pathlib import Path
+import sys
+sys.path.insert(0, '/home/sion2/workspaces/puyo-nextgen-20260927/273')
+from puyo_env.nextgen_scheduler import NextgenScheduler
+from eval.puyo_273_gui_probe import main
+
+if __name__ == '__main__':
+    profile = cProfile.Profile()
+    for name in ('accept','finish'):
+        original = getattr(NextgenScheduler,name)
+        def measured(*args, _original=original, **kwargs):
+            return profile.runcall(_original,*args,**kwargs)
+        setattr(NextgenScheduler,name,measured)
+    try:
+        main()
+    finally:
+        profile.dump_stats('/tmp/puyo273/scheduler.pstats')

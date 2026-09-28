@@ -373,6 +373,7 @@ def replay_realtime_match(replay: Mapping[str, Any]) -> str:
             agent: TickInput.from_names(
                 press=payload.get("press", ()),
                 release=payload.get("release", ()),
+                edges=payload.get("edges", ()),
             )
             for agent, payload in entry.get("inputs", {}).items()
         }

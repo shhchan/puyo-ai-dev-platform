@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from agents import nextgen_contracts as c
 from agents import nextgen_response_search as response
+from agents import nextgen_survival as survival
 from agents.nextgen_shared_search import scenario_provenance
 from eval.nextgen_response_fixtures import (
     CONFIG,
@@ -211,6 +212,7 @@ class PublicResponseTests(unittest.TestCase):
         for quota in (0, 1, 23, 200):
             req = make_request(board=COUNTER, incoming=61, quota=quota)
             with (
+                patch.object(survival, "transition", wraps=survival.transition) as survival_placements,
                 patch.object(
                     response, "transition", wraps=response.transition
                 ) as placements,
@@ -227,7 +229,7 @@ class PublicResponseTests(unittest.TestCase):
                 result = build(req)
             self.assertEqual(
                 result.batch.counters.response_nodes,
-                placements.call_count + drops.call_count,
+                placements.call_count + survival_placements.call_count + drops.call_count,
             )
             self.assertEqual(
                 result.batch.counters.feature_evaluations, features.call_count

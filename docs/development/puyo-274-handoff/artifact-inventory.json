@@ -1,0 +1,567 @@
+{
+  "audited_at": "2026-09-28",
+  "source_branch_head": "d3acb77d9542e66209618deb36eaae6d2bcaca9d",
+  "records": [
+    {
+      "source_notebook": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/AGENTS.md",
+      "destination": "AGENTS.md",
+      "source_bytes": 11885,
+      "source_sha256": "ade2b5777003d6ae3e184820b301287b12035702e97e86a890348b951f7d556c",
+      "copy_mode": "byte-identical"
+    },
+    {
+      "source_notebook": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/docs/development/puyo-sprint-12-codex-batch-prompts.local.md",
+      "destination": "docs/development/puyo-sprint-12-codex-batch-prompts.local.md",
+      "source_bytes": 57705,
+      "source_sha256": "363e94910329b58b234f8ee2e5aa25d9ff9142b446eb900a3106026a3e1323a0",
+      "copy_mode": "exact body with top notice"
+    },
+    {
+      "source_notebook": "/tmp/puyo-268-272-execution-20260925.md",
+      "destination": "docs/development/puyo-274-handoff/execution-20260925.md",
+      "source_bytes": 7255,
+      "source_sha256": "7900a417b4fdebab6c39e56c90fae2cb8a4a7794ba33ecad3be9e16eb7c43b4a",
+      "copy_mode": "byte-identical"
+    },
+    {
+      "source_notebook": "/tmp/puyo-qa-20260927-execution.md",
+      "destination": "docs/development/puyo-274-handoff/execution-20260927.md",
+      "source_bytes": 11001,
+      "source_sha256": "dc3d8272d9e54ea00bc9a429fac98a0ec733fe4199938b29fd35912049d3af8d",
+      "copy_mode": "byte-identical"
+    },
+    {
+      "path": "docs/benchmarks/puyo-266-safe-build",
+      "tracked_files": 383,
+      "bytes": 231697923,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-268-template-integration",
+      "tracked_files": 28,
+      "bytes": 11132206,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-269-followup",
+      "tracked_files": 19,
+      "bytes": 1114607,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-269-gui-cadence",
+      "tracked_files": 17,
+      "bytes": 1502358,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-270-survival",
+      "tracked_files": 26,
+      "bytes": 9893661,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-271-regression",
+      "tracked_files": 30,
+      "bytes": 7985610,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-272-template-search",
+      "tracked_files": 8,
+      "bytes": 97614,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-273-reachable-mask",
+      "tracked_files": 16,
+      "bytes": 877694,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "path": "docs/benchmarks/puyo-273-timed-placement",
+      "tracked_files": 24,
+      "bytes": 1647519,
+      "transfer": "existing Git branch, do not recopy tmp raw"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/human_datasets",
+      "files": 25,
+      "bytes": 685235815,
+      "mtime_range_local": [
+        "2026-06-28T12:01:40.075354",
+        "2026-09-24T08:26:19.757975"
+      ],
+      "reason": "unrelated historical user datasets/recordings; not cache; originals preserved; not included in handoff commit"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/dev/puyo_ai_dev_platform/runs",
+      "files": 518,
+      "bytes": 1630572088,
+      "mtime_range_local": [
+        "2026-06-12T01:47:15.426849",
+        "2026-07-31T00:50:26.889257"
+      ],
+      "reason": "unrelated historical user datasets/recordings; not cache; originals preserved; not included in handoff commit"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260925/269/human_datasets",
+      "files": 1,
+      "bytes": 522,
+      "mtime_range_local": [
+        "2026-09-25T20:42:23.107951",
+        "2026-09-25T20:42:23.107951"
+      ],
+      "reason": "Historical collection audit; unrelated local record, not cache; original preserved"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/human_datasets",
+      "files": 1,
+      "bytes": 2871,
+      "mtime_range_local": [
+        "2026-09-27T09:40:49.304666",
+        "2026-09-27T09:40:49.304666"
+      ],
+      "reason": "Historical collection audit; unrelated local record, not cache; original preserved"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs",
+      "files": 27,
+      "bytes": 83210,
+      "mtime_range_local": [
+        "2026-09-26T21:13:30.586313",
+        "2026-09-27T09:44:40.951466"
+      ],
+      "reason": "Generated GUI catalog files; unique contents retained in launch-configs with provenance; duplicate source occurrences remain local; no seed/argv/source/speed in catalog"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/human_datasets",
+      "files": 1,
+      "bytes": 4959,
+      "mtime_range_local": [
+        "2026-09-28T09:25:44.767883",
+        "2026-09-28T09:25:44.767883"
+      ],
+      "reason": "Historical collection audit; unrelated local record, not cache; original preserved"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs",
+      "files": 27,
+      "bytes": 83210,
+      "mtime_range_local": [
+        "2026-09-27T13:35:01.091162",
+        "2026-09-28T09:48:35.441266"
+      ],
+      "reason": "Generated GUI catalog files; unique contents retained in launch-configs with provenance; duplicate source occurrences remain local; no seed/argv/source/speed in catalog"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260927/269/human_datasets",
+      "files": 1,
+      "bytes": 3132,
+      "mtime_range_local": [
+        "2026-09-27T12:08:14.653831",
+        "2026-09-27T12:08:14.653831"
+      ],
+      "reason": "Historical collection audit; unrelated local record, not cache; original preserved"
+    },
+    {
+      "excluded_notebook_path": "/home/sion2/workspaces/puyo-nextgen-20260927/273/human_datasets",
+      "files": 1,
+      "bytes": 4437,
+      "mtime_range_local": [
+        "2026-09-27T12:04:14.386222",
+        "2026-09-27T12:04:14.386222"
+      ],
+      "reason": "Historical collection audit; unrelated local record, not cache; original preserved"
+    }
+  ],
+  "missing_relevant_originals": [
+    "Human daa/random upper-field death original replay, speed, source/config/native SHA not provided or verified; existence of original raw unknown",
+    "Human gtr seed123 original GUI raw not saved",
+    "Second GTR reverse ignition seed unknown",
+    "N=3 preview disappearance exact run unknown"
+  ],
+  "excluded_regenerable": [
+    "venv",
+    ".pytest_cache",
+    ".ruff_cache",
+    "__pycache__",
+    "native/deep_chain_native/target",
+    "dist/native"
+  ],
+  "excluded_invalid_measurement": {
+    "path": "/tmp/puyo273/rejected-old-native",
+    "files": 10,
+    "bytes": 4391190,
+    "reason": "old native binary; excluded from gates; exclusion preserved in archived execution table"
+  },
+  "duplicate_tmp_raw": [
+    "/tmp/puyo266-native-g2-20260927: 64 files byte-identical to tracked artifacts",
+    "/tmp/puyo269-followup: 10 raw JSON match decompressed tracked gzip",
+    "/tmp/puyo269-integrated: 4 GUI raw JSON match decompressed tracked gzip"
+  ],
+  "credentials_scan": "No credential-like field names found in copied notes; user configuration/authentication/rollout files excluded",
+  "launch_configs": [
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/daa-286858138615.json",
+      "sha256": "2868581386152d69f6252f326cebd1c62a102b67adce1a5af7d8cf89cfda9f94",
+      "enabled_templates": [
+        "daa"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/5927d177acc54c3e9690304113f81da8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:51:39.741449"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/761f9a06b85b4d4e9a0b7759ba93ab24.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:27:28.115641"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/8b8337ada706447bb1c26564aef75769.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:58:49.602394"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/9a6c7bb4dda347bbb8d24d4d47632632.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:26:18.982273"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/d773c768d03847f0abb6d6bc025e6d27.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:25:18.362118"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/011deee8ced54b2e93363731bf98746a.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:25:45.121550"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/10982b83ddcc4ed2958285ae6b7b64b1.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:40:44.422834"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/1c6261888e1942b1a5fe961f29f53bf8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:37:16.417099"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/2633a50f4bad45909cb97c1189fdbdc1.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:22:52.913094"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/481d880a3ec34e398f8de7a7745bdb32.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:27:30.683977"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/77374782cebc4e108dc34a520be86d63.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:43:14.881241"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/7c810eb4f714490789762540b35007e0.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:41:37.235651"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/860f5d028e734e57be2b1cf30df29386.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:29:06.116089"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/97ba5ae818bb495cab6b00a7f39a6b50.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:42:14.777420"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/9e73021e906744fdb8d770bbe5de156f.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:48:35.441266"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/9f40109bea4e471194875ce6829b81a8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:27:52.003046"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/d21028c2917e47bfbccbfe6b0208e46a.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:38:18.428801"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/dd59f871516b4556b16120021c0bc45b.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:30:10.186331"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/eaf1b49a901843aead7e9a9d0ba68b69.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:44:18.908601"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/daa-persian-478be514cfe6.json",
+      "sha256": "478be514cfe6deaffb0ee4e60f4e18b8c13b797f08e74d9b7ce6f3003ce37204",
+      "enabled_templates": [
+        "daa",
+        "persian"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/7862a1dd498544d5bdc0cfe967069525.nextgen_config.json",
+          "bytes": 3081,
+          "mtime_local": "2026-09-27T13:53:52.340115"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/b1bd6094da3843c7b2cc4e56020bce02.nextgen_config.json",
+          "bytes": 3081,
+          "mtime_local": "2026-09-27T13:52:17.380356"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/persian-47efd0a96cdd.json",
+      "sha256": "47efd0a96cddd1c81adfa70b75363d4d301b877e48161d5df982d28c0f8130fa",
+      "enabled_templates": [
+        "persian"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/28bb9e3793c54fab9fa8df89790a0a74.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T07:37:21.194935"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/f29b5913cafe4f7eb0c1eba8e1d8073b.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:29:07.237022"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/daa-56e4df3dec8a.json",
+      "sha256": "56e4df3dec8af9a1d7f07a5e8f08fd31563a7d12b3d1a9ea97c74bf37e64f04c",
+      "enabled_templates": [
+        "daa"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/3b31d798b43841bd897fbce552bd7c00.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:24:46.490912"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/gtr-5b98acd0a18a.json",
+      "sha256": "5b98acd0a18abd6c37b4f1ed62de80df9be6cca0ee8a9033ed3ec3e477fe6fd8",
+      "enabled_templates": [
+        "gtr"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/624af3337d3e4f5eb1bcf015bb4f233b.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:48:35.998431"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/deb06d9db2bb423e8db61f32f5809af8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:23:52.120159"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/ebd10e557125452fabdfa2f667b5dbb9.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:00:15.045721"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/0ee49a7e63b4423391917f40952d0df8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:35:35.819037"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/35e50f8b5de74b838c6b24ca815ec38b.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:45:42.089375"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/4d255bb9703b40dca72c2147074cda4b.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:42:44.837869"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/4e9b3cec1c9e4682817071177cf54ac3.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:41:31.286060"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/5a75d9bd3420447495e8556fa6ec0a4f.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T09:21:12.804344"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/734b8008875842a2b33c1a7471cc147d.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:43:51.541682"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/edd891942d3c4d0d871d618ad1a1202a.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:35:01.091162"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/gtr-daa-persian-ada9184b7cfb.json",
+      "sha256": "ada9184b7cfbcb2d59c8fee1e3927efb131ffe1dbfb5455d6fe1bd9b947fa31d",
+      "enabled_templates": [
+        "gtr",
+        "daa",
+        "persian"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/aa92e3568e0b45ff8e6c119c9c84c883.nextgen_config.json",
+          "bytes": 3080,
+          "mtime_local": "2026-09-27T07:40:18.712292"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/af24bd32f929421daf97d0d77daa999e.nextgen_config.json",
+          "bytes": 3080,
+          "mtime_local": "2026-09-27T07:41:53.832221"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/1b31926050d74a37b39142a2d335bb78.nextgen_config.json",
+          "bytes": 3080,
+          "mtime_local": "2026-09-27T13:50:11.060691"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/persian-bcfc3a2da5e1.json",
+      "sha256": "bcfc3a2da5e1b23ce605000ce0eb9bd6c821b7c70cc0ed9cced52ccaaba2d45f",
+      "enabled_templates": [
+        "persian"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/077124c8926f4fe0944a7dac407fd0fd.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T09:37:46.973626"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/20d4d5206c2241cc841f61fba81d51d9.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:35:38.163122"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/3ee6aaf04bd147c6bf80c87eb2d046eb.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:29:44.204124"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/4101fba2bac74dd7b67fa986c191a881.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T09:30:29.037533"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/9cedd1815ba249fb8b4272a547fa11e3.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T09:44:40.951466"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/a0922fc2e0a349d7954eac753980b714.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:28:16.624967"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/a4af68b8e50e4ab9bd0fc6f7d209e378.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T09:40:37.530886"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/d1dd96e8b496449caaf47a6e58994849.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T08:38:17.148992"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/eaf277bbf8464e83bb4b914d8f6d7ff7.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T09:21:11.987387"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/510247bb9bba4558a6975d0f20679f16.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-28T01:36:47.884513"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/6e6ea694ff494c85bc7e5dc38599debf.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T14:06:41.962561"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260927/266/runs/nextgen-gui/8781804d31db40e4a7e11dde05652591.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T13:47:45.929070"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    },
+    {
+      "destination": "docs/development/puyo-274-handoff/launch-configs/gtr-c99f74a8d206.json",
+      "sha256": "c99f74a8d20624ead7929ad50756758d5186c994eb1749a18102f9c6ff2f7920",
+      "enabled_templates": [
+        "gtr"
+      ],
+      "sources": [
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/36ac0dd945294c10918f5f6e85591dd8.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:22:12.930954"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/397281e60be041ab9532d0bd0df42893.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:13:30.586313"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/818d841259c246dc8d51da817b4aed83.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-27T07:42:51.454029"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/8fb0a0c30f10416da910f87d3e9219c2.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:15:23.605968"
+        },
+        {
+          "path": "/home/sion2/workspaces/puyo-nextgen-20260925/271-final/runs/nextgen-gui/fa93b1cacb4d49b3b9d338f14a174ce0.nextgen_config.json",
+          "bytes": 3082,
+          "mtime_local": "2026-09-26T21:16:16.382061"
+        }
+      ],
+      "seed_source_argv": "These template catalog configs contain no match seed, seed-a, seed-b, source revision, speed, or argv. daa-only config cannot establish identity with supplied seed59/a55/b59 human run.",
+      "reason": "Preserve unique GUI-generated template catalog config; exact duplicate occurrences summarized by provenance; not proof of human run identity"
+    }
+  ]
+}

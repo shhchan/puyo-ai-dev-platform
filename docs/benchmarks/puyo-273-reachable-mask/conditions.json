@@ -1,0 +1,32 @@
+{
+  "baseline_sha": "595dbed7851c4a995f1426103c1660fa8f0f0550",
+  "gate_ms": {
+    "p95": 25,
+    "p99": 50
+  },
+  "seed": 55,
+  "display": ":0",
+  "resolution": [
+    1120,
+    780
+  ],
+  "fps": 60,
+  "speed": 1,
+  "frames": {
+    "first_random": 600,
+    "nextgen_random": 600,
+    "nextgen_nextgen": 360,
+    "nextgen_human": 600
+  },
+  "profiling": "full versus minimal on first/random and nextgen/random",
+  "human_qa": "not performed; scripted edges only",
+  "mask_cache": "no cross-state cache; shared BFS will recompute on each call",
+  "host": {
+    "system": "Linux",
+    "node": "DESKTOP-G4HAPVQ",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  }
+}

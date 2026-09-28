@@ -19,6 +19,7 @@ from typing import Any, Iterator, Mapping, Sequence
 from agents.nextgen_contracts import (
     CANDIDATE_BATCH_SCHEMA_VERSION,
     LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION,
+    PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION,
     DIAGNOSTICS_SCHEMA_VERSION,
     FEATURE_REGISTRY,
     FEATURE_REGISTRY_HASH,
@@ -354,7 +355,7 @@ def validate_nextgen_run(run_dir: str | Path) -> dict[str, Any]:
                     "selection_schema", "feature_registry_hash", "tactic_registry_hash", "episode_ids", "provenance"}, "nextgen")
     _require(nextgen["schema_version"] == RUN_SCHEMA and nextgen["trajectory_schema"] == TRAJECTORY_SCHEMA
              and nextgen["request_schema"] == REQUEST_SCHEMA_VERSION
-             and nextgen["batch_schema"] in (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION, CANDIDATE_BATCH_SCHEMA_VERSION)
+             and nextgen["batch_schema"] in (LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION, PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION, CANDIDATE_BATCH_SCHEMA_VERSION)
              and nextgen["diagnostics_schema"] == DIAGNOSTICS_SCHEMA_VERSION
              and nextgen["selection_schema"] == SELECTION_SCHEMA_VERSION
              and nextgen["feature_registry_hash"] == FEATURE_REGISTRY_HASH

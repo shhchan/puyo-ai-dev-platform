@@ -1,0 +1,253 @@
+{
+  "comparison_phase": "before",
+  "human_gui_qa": "not_performed",
+  "paired_comparison": "pending_integrated_comparison",
+  "policies": {
+    "deep_chain": {
+      "decision_seconds": {
+        "max": 0.7387449769885279,
+        "n": 113,
+        "p50": 0.5443685379286762,
+        "p95": 0.6416871152003295
+      },
+      "game_over_count": 1,
+      "max_actual_chains_by_seed": {
+        "123": 10,
+        "124": 10,
+        "55": 1
+      },
+      "premature_fire_count": 1
+    },
+    "nextgen": {
+      "decision_seconds": {
+        "max": 0.9242864700208884,
+        "n": 120,
+        "p50": 0.7060560359968804,
+        "p95": 0.8850238372164313
+      },
+      "game_over_count": 0,
+      "max_actual_chains_by_seed": {
+        "123": 10,
+        "124": 10,
+        "55": 12
+      },
+      "premature_fire_count": 0
+    }
+  },
+  "quality_verdict": "diagnostic_observation_only",
+  "rows": [
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "complete",
+      "decision_seconds": {
+        "max": 0.8147996189945843,
+        "n": 40,
+        "p50": 0.6639293950138381,
+        "p95": 0.8045159895031248
+      },
+      "game_over": false,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": null,
+      "max_actual_chain": 12,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 40,
+      "policy": "nextgen",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 0,
+      "receipt_action_mismatch_count": 0,
+      "receipt_count": 40,
+      "receipt_nonactivated_count": 0,
+      "repeat": 1,
+      "seed": 55,
+      "selection_tactics": {
+        "build_main": 12,
+        "build_template": 27,
+        "fire_main": 1
+      },
+      "selection_to_receipt_request_mismatch_count": 0,
+      "semantic_digest": "c8dd392fc56feb16fb4f825c687c4669541088f53b987f7bcc5a84928e5d670e",
+      "shared_rank_nonzero_count": 24,
+      "shared_rank_scope": "selected action versus shared-search order; this alone is not a tactic or quality ranking error"
+    },
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "complete",
+      "decision_seconds": {
+        "max": 0.9242864700208884,
+        "n": 40,
+        "p50": 0.7523036200000206,
+        "p95": 0.9016836449911352
+      },
+      "game_over": false,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": null,
+      "max_actual_chain": 10,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 40,
+      "policy": "nextgen",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 0,
+      "receipt_action_mismatch_count": 0,
+      "receipt_count": 40,
+      "receipt_nonactivated_count": 0,
+      "repeat": 1,
+      "seed": 123,
+      "selection_tactics": {
+        "build_main": 30,
+        "build_template": 9,
+        "fire_main": 1
+      },
+      "selection_to_receipt_request_mismatch_count": 0,
+      "semantic_digest": "0d0ee96e0bf5323aca670fa12dcad6cc97e2d348bd9ec1826e33e7c952fbae30",
+      "shared_rank_nonzero_count": 9,
+      "shared_rank_scope": "selected action versus shared-search order; this alone is not a tactic or quality ranking error"
+    },
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "complete",
+      "decision_seconds": {
+        "max": 0.9155891329864971,
+        "n": 40,
+        "p50": 0.7017320644954452,
+        "p95": 0.8858876426675123
+      },
+      "game_over": false,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": null,
+      "max_actual_chain": 10,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 40,
+      "policy": "nextgen",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 0,
+      "receipt_action_mismatch_count": 0,
+      "receipt_count": 40,
+      "receipt_nonactivated_count": 0,
+      "repeat": 1,
+      "seed": 124,
+      "selection_tactics": {
+        "build_main": 29,
+        "build_template": 10,
+        "fire_main": 1
+      },
+      "selection_to_receipt_request_mismatch_count": 0,
+      "semantic_digest": "628b19f7935eab2e19ccc1a86a680afdab6a2f79ecfd17c184efb9aa73677a67",
+      "shared_rank_nonzero_count": 11,
+      "shared_rank_scope": "selected action versus shared-search order; this alone is not a tactic or quality ranking error"
+    },
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "incomplete",
+      "decision_seconds": {
+        "max": 0.6462772979866713,
+        "n": 33,
+        "p50": 0.5059025099908467,
+        "p95": 0.621755525592016
+      },
+      "game_over": true,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": "game_over_before_40",
+      "max_actual_chain": 1,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 33,
+      "policy": "deep_chain",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 1,
+      "receipt_action_mismatch_count": null,
+      "receipt_count": null,
+      "receipt_nonactivated_count": null,
+      "repeat": 1,
+      "seed": 55,
+      "selection_tactics": null,
+      "selection_to_receipt_request_mismatch_count": null,
+      "semantic_digest": "6c75d0e80acb0d34c1731a1d15d62998eaa655efae38f0bd4abe6e95145ef620",
+      "shared_rank_nonzero_count": null,
+      "shared_rank_scope": null
+    },
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "complete",
+      "decision_seconds": {
+        "max": 0.7387449769885279,
+        "n": 40,
+        "p50": 0.5830570160032948,
+        "p95": 0.6590210863127138
+      },
+      "game_over": false,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": null,
+      "max_actual_chain": 10,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 40,
+      "policy": "deep_chain",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 0,
+      "receipt_action_mismatch_count": null,
+      "receipt_count": null,
+      "receipt_nonactivated_count": null,
+      "repeat": 1,
+      "seed": 123,
+      "selection_tactics": null,
+      "selection_to_receipt_request_mismatch_count": null,
+      "semantic_digest": "2f02f861711fde2eaac1222c52a4a692f156320d8e40fbf642acf6effbb8f1c3",
+      "shared_rank_nonzero_count": null,
+      "shared_rank_scope": null
+    },
+    {
+      "actual_score": null,
+      "actual_score_reason": "existing safe-build diagnostic does not export a comparable score ledger",
+      "candidate_gap": null,
+      "candidate_gap_reason": "No frozen per-decision safe/template oracle for these seeded trajectories",
+      "completion": "complete",
+      "decision_seconds": {
+        "max": 0.6848176390049048,
+        "n": 40,
+        "p50": 0.551453666514135,
+        "p95": 0.6182945694963564
+      },
+      "game_over": false,
+      "gui_frame_cadence": null,
+      "gui_frame_cadence_reason": "headless diagnostic has no GUI frame/input/event timestamps",
+      "incomplete_reason": null,
+      "max_actual_chain": 10,
+      "origin": "seeded_simulation; not the user GUI replay",
+      "placements": 40,
+      "policy": "deep_chain",
+      "premature_exception_classification": "not_evaluated",
+      "premature_fire_count": 0,
+      "receipt_action_mismatch_count": null,
+      "receipt_count": null,
+      "receipt_nonactivated_count": null,
+      "repeat": 1,
+      "seed": 124,
+      "selection_tactics": null,
+      "selection_to_receipt_request_mismatch_count": null,
+      "semantic_digest": "9025b5c1add5811623511efce19c65f6614685b6fd9f27b023ab492ccdb3608e",
+      "shared_rank_nonzero_count": null,
+      "shared_rank_scope": null
+    }
+  ],
+  "sample": "diagnostic_3_seeds_x_1_repeat; formal_G2_not_executed",
+  "schema_version": "puyo.271.regression.v1",
+  "source_sha": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a"
+}

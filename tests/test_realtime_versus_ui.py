@@ -201,6 +201,58 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestRealtimeVersusMatchController(unittest.TestCase):
+    def test_human_tap_during_catchup_moves_once_without_stale_hold(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="human", policy_b="first")
+        )
+        try:
+            sim = controller.env.player_states["player_0"].simulator
+            start_x = sim.game.puyo_x
+            controller.human.key_down(Action.RIGHT)
+            controller.human.key_up(Action.RIGHT)
+            controller.update(0.2)
+            self.assertEqual(controller.env.match.tick, 12)
+            self.assertEqual(sim.game.puyo_x, start_x + 1)
+            self.assertNotIn(Action.RIGHT, sim.held_actions)
+        finally:
+            controller.shutdown()
+
+    def test_human_same_tick_edges_keep_simulator_hold_in_sync(self):
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="human", policy_b="first")
+        )
+        try:
+            human = controller.human
+            sim = controller.env.player_states["player_0"].simulator
+            human.key_down(Action.RIGHT)
+            human.key_up(Action.RIGHT)
+            controller.advance_tick()
+            self.assertEqual(human._held & {Action.LEFT, Action.RIGHT, Action.DOWN}, sim.held_actions)
+            self.assertNotIn(Action.RIGHT, sim.held_actions)
+            human.key_down(Action.RIGHT)
+            controller.advance_tick()
+            human.key_up(Action.RIGHT)
+            human.key_down(Action.RIGHT)
+            controller.advance_tick()
+            self.assertIn(Action.RIGHT, sim.held_actions)
+            self.assertEqual(human._held & {Action.LEFT, Action.RIGHT, Action.DOWN}, sim.held_actions)
+            human.key_up(Action.RIGHT)
+            controller.advance_tick()
+            human.key_down(Action.DOWN)
+            human.key_down(Action.LEFT)
+            human.key_down(Action.ROTATE_RIGHT)
+            controller.advance_tick()
+            self.assertEqual(human._held & {Action.LEFT, Action.RIGHT, Action.DOWN}, sim.held_actions)
+            for _ in range(8):
+                controller.advance_tick()
+                self.assertEqual(human._held & {Action.LEFT, Action.RIGHT, Action.DOWN}, sim.held_actions)
+            human.key_up(Action.LEFT)
+            human.key_up(Action.DOWN)
+            controller.advance_tick()
+            self.assertEqual(human._held & {Action.LEFT, Action.RIGHT, Action.DOWN}, sim.held_actions)
+        finally:
+            controller.shutdown()
+
     @classmethod
     def setUpClass(cls):
         pygame.init()

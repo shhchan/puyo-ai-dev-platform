@@ -25,6 +25,7 @@ from agents.deep_chain_search_backend import (
 )
 from agents.nextgen_profiles import nextgen_search_settings
 from agents.nextgen_response_search import PublicResponseProvider
+from agents.nextgen_survival import apply_envelope
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
     SharedSearchBatchBuilder,
@@ -170,6 +171,7 @@ def match_result_from_dict(value):
         item = dict(raw)
         item["binding"] = tuple(tuple(v) for v in item["binding"])
         item["witness_actions"] = tuple(item["witness_actions"])
+        item["root_progress"] = tuple(tuple(v) for v in item.get("root_progress", ()))
         candidates.append(TemplateCandidate(**item))
     return MatchResult(tuple(candidates), **values)
 
@@ -240,6 +242,7 @@ class PreparePhaseStep(DecisionStep):
             reachable_mask=data["execution"].reachable_mask,
             preferred_key=phase.candidate.key if phase.candidate is not None else None,
             prioritize_static_binding=True,
+            evaluate_prefix_progress=phase.can_build_template,
         )
         elapsed = time.perf_counter() - started
         reconcile_phase(phase, result, public, data["history"], identity)
@@ -320,6 +323,7 @@ class SelectTacticStep(DecisionStep):
         selection = context.require("policy").selector.select(
             request, batch, features, context.require("timing_summary")
         )
+        selection = apply_envelope(batch, selection)
         candidate = selection.validate_batch(batch)
         diagnostics = c.Diagnostics(request, batch, features, selection, None)
         return StepResult(

@@ -3,6 +3,7 @@ mod chain_structure_batch;
 mod compact;
 mod compact_batch;
 mod long_horizon;
+mod selected_template;
 
 use std::collections::BTreeMap;
 use std::hint::black_box;
@@ -356,6 +357,7 @@ fn known_request_tag(tag: u16) -> bool {
             | REQUEST_EVALUATOR_CONFIG_TAG
             | REQUEST_SCHEMA_IDENTITIES_TAG
             | REQUEST_EXECUTION_TAG
+            | selected_template::TAG
     )
 }
 
@@ -747,6 +749,9 @@ fn validate_request(data: &[u8]) -> ContractResult<u64> {
     validate_evaluator(envelope.sections[&REQUEST_EVALUATOR_CONFIG_TAG])?;
     validate_schema_identities(envelope.sections[&REQUEST_SCHEMA_IDENTITIES_TAG])?;
     validate_execution(envelope.sections[&REQUEST_EXECUTION_TAG])?;
+    if let Some(data) = envelope.sections.get(&selected_template::TAG) {
+        selected_template::SelectedTemplate::parse(data)?;
+    }
     Ok(envelope.request_id)
 }
 
@@ -818,20 +823,21 @@ fn guarded_decide(data: &[u8]) -> Vec<u8> {
             envelope.sections[&REQUEST_SEARCH_CONFIG_TAG],
             envelope.sections[&REQUEST_EVALUATOR_CONFIG_TAG],
             envelope.sections[&REQUEST_EXECUTION_TAG],
+            envelope.sections.get(&selected_template::TAG).copied(),
         )?;
         let output = long_horizon::execute(request)?;
-        let response = encode_envelope(
-            SUCCESS_KIND,
-            envelope.request_id,
-            &[
-                (RESULT_DECISION_TAG, 1, output.decision),
-                (RESULT_COUNTERS_TAG, 1, output.counters),
-                (RESULT_ROOT_EVIDENCE_TAG, 1, output.root_evidence),
-                (RESULT_REPRESENTATIVES_TAG, 1, output.representatives),
-                (RESULT_DIAGNOSTICS_TAG, 1, output.diagnostics),
-                (RESULT_PROVENANCE_TAG, 1, output.provenance),
-            ],
-        );
+        let mut sections = vec![
+            (RESULT_DECISION_TAG, 1, output.decision),
+            (RESULT_COUNTERS_TAG, 1, output.counters),
+            (RESULT_ROOT_EVIDENCE_TAG, 1, output.root_evidence),
+            (RESULT_REPRESENTATIVES_TAG, 1, output.representatives),
+            (RESULT_DIAGNOSTICS_TAG, 1, output.diagnostics),
+            (RESULT_PROVENANCE_TAG, 1, output.provenance),
+        ];
+        if let Some(template) = output.selected_template {
+            sections.push((selected_template::RESULT_TAG, 1, template));
+        }
+        let response = encode_envelope(SUCCESS_KIND, envelope.request_id, &sections);
         if response.len() > output.max_response_bytes || response.len() > MAX_RESPONSE_BYTES {
             return Err(ContractError::resource(
                 "native search response exceeds the requested bound",

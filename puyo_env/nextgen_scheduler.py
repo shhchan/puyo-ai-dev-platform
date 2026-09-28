@@ -23,6 +23,7 @@ class NextgenScheduler:
         self.episode_id = f"nextgen-episode-{self.episode_index}"
         self.data = None
         self.result = None
+        self.result_candidate = None
         self.result_phase = None
         self.ledger = []
         self.ledger_metadata = []
@@ -73,6 +74,7 @@ class NextgenScheduler:
             "piece_id": f"piece-{sum(e.kind == 'placement' and e.player_id == player for e in public.events)}",
         }
         self.result = None
+        self.result_candidate = None
         self.result_phase = None
         self.last_payload = {}
         # No simulator, queue, RNG, observation board or privileged runtime info
@@ -110,10 +112,13 @@ class NextgenScheduler:
             if phase.phase_snapshot() != request.control.phase:
                 raise ValueError("worker phase mismatch")
             self.result, self.result_phase = diagnostics, phase
+            self.result_candidate = candidate
             # Initial selection/reconciliation is control state, not a tactic
             # activation. Keep it across timeout/retry; consumption is below.
             self.phase = phase
-            self.last_payload = copy.deepcopy(payload)
+            # The executor hands off an owned result. Only top-level keys are
+            # replaced below; the controller still takes its detached copy.
+            self.last_payload = dict(payload)
             return None
         except (KeyError, TypeError, ValueError, AttributeError) as exc:
             reason = f"nextgen_policy_error: {exc}"
@@ -139,9 +144,17 @@ class NextgenScheduler:
         if self.result is None:
             return replace(record, outcome=outcome)
         result = self.result
-        candidate = result.selection.validate_batch(result.batch)
+        # accept validated the selected candidate against the complete batch.
+        candidate = self.result_candidate
         player = result.request.identity.player_id
         public, history = match.public_snapshot(player), match.public_timing_history()
+        reason = record.reason
+        if result.selection.reason in ("legitimate_survival_exception", "survival_safe_nonfire"):
+            adoption = "survival_adopted" if outcome == "activated" else "survival_not_adopted_" + outcome
+            reason = (adoption + ":" + result.selection.reason + ":" + reason)[:256]
+        if result.selection.selected_tactic_id == "build_template":
+            adoption = "template_adopted" if outcome == "activated" else "template_not_adopted_" + outcome
+            reason = (adoption + ":" + reason)[:256]
         receipt = c.ExecutionReceipt(
             candidate.candidate_id,
             candidate.root_action,
@@ -152,7 +165,7 @@ class NextgenScheduler:
             record.activation_tick,
             result.request.execution.timeout_tick,
             public.digest,
-            record.reason,
+            reason,
         )
         diagnostics = replace(result, receipt=receipt)
         self.phase = self.result_phase
@@ -172,6 +185,7 @@ class NextgenScheduler:
         template_selection = self.phase.selection
         self.ledger_metadata.append(
             {
+                "selected_template": copy.deepcopy(self.last_payload.get("search", {}).get("selected_template")),
                 "phase_after": self.phase.phase_snapshot().to_dict(),
                 "switch_reason": self.phase.exit_reason,
                 "template_score": template_selection.candidate.score
@@ -185,11 +199,12 @@ class NextgenScheduler:
                 else None,
             }
         )
-        self.last_payload["nextgen"] = diagnostics.to_dict()
+        diagnostics_dict = diagnostics.to_dict()
+        self.last_payload["nextgen"] = diagnostics_dict
         self.last_payload["template_phase"] = self.phase.diagnostics()
         return replace(
             record,
-            nextgen_diagnostics=diagnostics.to_dict(),
+            nextgen_diagnostics=diagnostics_dict,
             requested_action=candidate.root_action,
             executed_action=receipt.executed_action,
             outcome=outcome,
@@ -212,5 +227,8 @@ class NextgenScheduler:
             reward_components,
             elapsed_match_ticks,
             next_decision_id,
-            **{**self.ledger_metadata[index], **kwargs},
+            # Extended search traces stay in the replay/ledger metadata; the
+            # trajectory decision schema keeps its existing fields.
+            **{**{k: v for k, v in self.ledger_metadata[index].items()
+                  if k != "selected_template"}, **kwargs},
         )

@@ -1,0 +1,35 @@
+Worktree: /home/sion2/workspaces/puyo-nextgen-20260925/268
+Final implementation SHA: b991c920fcb94e4407fcfeb706fe1a66a150187c
+Native SHA256: 79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2
+CPU: Intel(R) Core(TM) Ultra 7 258V
+Final command: .venv/bin/python -m unittest tests.test_template_preserving_integration tests.test_template_catalog tests.test_nextgen_template_catalog tests.test_template_phase tests.test_nextgen_shared_search tests.test_nextgen_tactic_manager tests.test_nextgen_survival tests.test_puyo_271_regression
+Initial additional modules: tests.test_nextgen_contracts tests.test_nextgen_trajectory tests.test_nextgen_response_search tests.test_selected_template_search
+
+Initial integration: 154 tests
+..........................................................................................................................................................
+----------------------------------------------------------------------
+Ran 154 tests in 85.878s
+
+OK
+
+
+Unknown guard finalization: 46 tests
+..............................................
+----------------------------------------------------------------------
+Ran 46 tests in 4.142s
+
+OK
+
+
+Final progress ranking: 103 tests
+.......................................................................................................
+----------------------------------------------------------------------
+Ran 103 tests in 39.889s
+
+OK
+
+
+Measurement initial helper failure: deterministic_digest is a property; fixed before any artifacts were emitted.
+Intermediate source efc2421: completed measurement, GTR uncompleted at 14.
+Final source b991c92: completed measurement, GTR completed at 12.
+Intermediate progress-suite failure: old seed55 expectation hard-coded second-pair unknown; new valid progress makes it fit. Updated expectation and reran all 103 successfully.

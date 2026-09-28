@@ -1,0 +1,94 @@
+{
+  "schema_version": "puyo.gui_cadence_evidence.v1",
+  "source_commit": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a",
+  "change_commit": "0be88b9c6d9afe1ddda8bb4df8aa350bb2433f4b",
+  "source_files": {
+    "final-before-first": {
+      "path": "raw/final-before-first.json.gz",
+      "uncompressed_sha256": "7d46a8fba0a9ec9a06e2e5ef2e98339ae191d34b01b57a1410ab4e9b9748b794",
+      "compressed_sha256": "b9a83e82d46b5e920504f046a403928cfd61984e2f047541758832e23b787389",
+      "uncompressed_bytes": 8019,
+      "compressed_bytes": 1731
+    },
+    "final-after-first": {
+      "path": "raw/final-after-first.json.gz",
+      "uncompressed_sha256": "d8ac79fca50983fd4fa48a1079d793e1646f2eae2b91bd1cf606a0afed7506a7",
+      "compressed_sha256": "32c8dc1e4a1d6d0286b084c55004561acab9f1c32dbdaefd9647073f33c8172e",
+      "uncompressed_bytes": 8010,
+      "compressed_bytes": 1724
+    },
+    "final-before-deep": {
+      "path": "raw/final-before-deep.json.gz",
+      "uncompressed_sha256": "d231705e3e2bcd8caba0cb2705c232af96d3510ea55244e31b561c737bc0e570",
+      "compressed_sha256": "843cd76e422592f8045b3e613f7bde6f46e2f0964393cc01a175ca2d574098ad",
+      "uncompressed_bytes": 9598,
+      "compressed_bytes": 2010
+    },
+    "final-after-deep": {
+      "path": "raw/final-after-deep.json.gz",
+      "uncompressed_sha256": "6524113188fecf592cf643c22558d6a4f20a1de38a31c99739425d6db673c26b",
+      "compressed_sha256": "cab3e5de4ff124284d0a4e347b7b56cea4e91d12fdb3245e9977c7aca306ab71",
+      "uncompressed_bytes": 9579,
+      "compressed_bytes": 1997
+    },
+    "final-before-nextgen": {
+      "path": "raw/final-before-nextgen.json.gz",
+      "uncompressed_sha256": "49662f52ef0b376eea226675a4ba7697f169037ce33db1f9e749ef23c6009dcc",
+      "compressed_sha256": "dae2bc8d3bb64f24f56e265d263068efbe291f00f5982b15853c54940f9c2eff",
+      "uncompressed_bytes": 7830235,
+      "compressed_bytes": 211320
+    },
+    "final-after-nextgen": {
+      "path": "raw/final-after-nextgen.json.gz",
+      "uncompressed_sha256": "e137fc17a73e5dc65f30e3951ea8e1e4fba6f647dfd93fb7676dca8dc3e22bc3",
+      "compressed_sha256": "a09dc0839c94cb6f137bd07e04a328dfd546d8643b0af6a99efdc9a36d5d62fc",
+      "uncompressed_bytes": 2790345,
+      "compressed_bytes": 86848
+    },
+    "final-before-nextgen-both": {
+      "path": "raw/final-before-nextgen-both.json.gz",
+      "uncompressed_sha256": "8a4c343359ebdebf227c02e0e096f86dec312847f89d6bca23434a81554dc659",
+      "compressed_sha256": "3a7e2dc58c0b04bc2ca1974da84cec806d15aef71bb8232ae244719c75ca98ac",
+      "uncompressed_bytes": 27018428,
+      "compressed_bytes": 709034
+    },
+    "final-after-nextgen-both": {
+      "path": "raw/final-after-nextgen-both.json.gz",
+      "uncompressed_sha256": "ae1774bb8bfc95a7a80bfe3d541398068b5f7a9049aa7344e75d34078d8c4fb9",
+      "compressed_sha256": "8cdca6bdc39554f60ade8af6a5e310525a81709b195be18c4deb847332935076",
+      "uncompressed_bytes": 7258564,
+      "compressed_bytes": 188076
+    },
+    "cache-before": {
+      "path": "raw/cache-before.json.gz",
+      "uncompressed_sha256": "3891d99cc02b9b2685b7dc3ad82db33aea372ace7b42b6e291fdb3db18a6924e",
+      "compressed_sha256": "9250aaa1f92611e448682d74cebb04dcb3524b614955d03aaace7c1b0a2b92e3",
+      "uncompressed_bytes": 2041086,
+      "compressed_bytes": 63703
+    },
+    "cache-after": {
+      "path": "raw/cache-after.json.gz",
+      "uncompressed_sha256": "64f31e196513df4f9654964764bf5d0993ba264be901fee2ec46dddc737fab64",
+      "compressed_sha256": "05d1a5268f9a1a0a0dead492b366aaeb040f97d96ed0306cab654d6de498e924",
+      "uncompressed_bytes": 1662136,
+      "compressed_bytes": 51940
+    },
+    "conditions.json": {
+      "path": "conditions.json",
+      "sha256": "6716d4f92b4a4e13490b3a795f1f4ac4f5db34630ccd37076e25051fd6c62d00",
+      "bytes": 931
+    },
+    "probe.py.txt": {
+      "path": "probe.py.txt",
+      "sha256": "6a1828b5d69debba5485cc183362fd482b05d7df9d6406909ad485af29e05322",
+      "bytes": 8301
+    },
+    "mask-after": {
+      "path": "raw/mask-after.json.gz",
+      "uncompressed_sha256": "f398faf9c753cd56088fcf18fc3aaa592e40f3b8f1b07d0f4e0d01b0c12d919b",
+      "compressed_sha256": "d713e673c4788c7dba3158d95dc6d71acd81c8f627df1094985cac9393408a08",
+      "uncompressed_bytes": 2974656,
+      "compressed_bytes": 92336
+    }
+  }
+}

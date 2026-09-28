@@ -102,6 +102,7 @@ class RealtimeHumanController:
         self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
         self._press: list[Action] = []
         self._release: list[Action] = []
+        self._edges: list[tuple[str, Action]] = []
         self._held: set[Action] = set()
         self._last_soft_drop_pulse_tick: int | None = None
 
@@ -111,6 +112,7 @@ class RealtimeHumanController:
     def reset(self) -> None:
         self._press.clear()
         self._release.clear()
+        self._edges.clear()
         self._held.clear()
         self._last_soft_drop_pulse_tick = None
         self.diagnostics = RealtimeControllerDiagnostics(last_event="human_ready")
@@ -119,15 +121,18 @@ class RealtimeHumanController:
         if action not in self._held:
             self._held.add(action)
             self._press.append(action)
+            self._edges.append(("press", action))
 
     def key_up(self, action: Action) -> None:
         if action in self._held:
             self._held.remove(action)
             self._release.append(action)
+            self._edges.append(("release", action))
 
     def next_input(self, match, *_args, **_kwargs) -> TickInput:
         press = list(self._press)
         release = list(self._release)
+        edges = list(self._edges)
         if Action.DOWN in press:
             self._last_soft_drop_pulse_tick = match.tick
         elif Action.DOWN in self._held and (
@@ -137,12 +142,14 @@ class RealtimeHumanController:
             # Re-arm the held input at the same cadence as placement planner pulses.
             release.append(Action.DOWN)
             press.append(Action.DOWN)
+            edges.extend((("release", Action.DOWN), ("press", Action.DOWN)))
             self._last_soft_drop_pulse_tick = match.tick
         if Action.DOWN in release and Action.DOWN not in self._held:
             self._last_soft_drop_pulse_tick = None
-        tick_input = TickInput(press=tuple(press), release=tuple(release))
+        tick_input = TickInput(press=tuple(press), release=tuple(release), edges=tuple(edges))
         self._press.clear()
         self._release.clear()
+        self._edges.clear()
         self.diagnostics.emitted_input_ticks += bool(tick_input.press or tick_input.release)
         self.diagnostics.last_event = "human_input" if tick_input.press or tick_input.release else "human_held"
         return tick_input
@@ -863,6 +870,7 @@ class RealtimeVersusMatchController:
         return "saves inputs / boards / AI plans / result / optional feedback"
 
     def _build_replay_tick(self, inputs: dict[str, TickInput], match_result) -> dict[str, Any]:
+        capture_full = bool(self.config.replay_path or self.collection_enabled)
         attack_diagnostics = {
             agent: {
                 **dict(match_result.attack_diagnostics[agent]),
@@ -896,29 +904,54 @@ class RealtimeVersusMatchController:
                 {"type": "lock", "data": {"tick": event.tick}}
                 for event in match_result.player_results[agent].events if event.type == "lock"
             )
-        return {
+        tick = {
             "tick": match_result.tick,
-            "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
             "policy_diagnostics": {
-                agent: self.tactical_diagnostics(agent) for agent in REALTIME_AGENTS
+                agent: self.tactical_diagnostics(agent)
+                for agent in REALTIME_AGENTS
+                if capture_full or self.policy_names[agent] == "nextgen_tactic_manager"
             },
             "nextgen_agents": [agent for agent in REALTIME_AGENTS if self.policy_names[agent] == "nextgen_tactic_manager"],
-            "controller_diagnostics": {
-                agent: self.controllers[agent].diagnostics.to_dict()
-                for agent in REALTIME_AGENTS
-            },
-            "controller_status": {
-                agent: {
-                    **self.controllers[agent].status().to_dict(),
-                    "kind": "human" if agent == self.human_agent else "policy",
-                }
-                for agent in REALTIME_AGENTS
-            },
-            "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
             "attack_diagnostics": attack_diagnostics,
             "public_events": public_events,
-            "snapshot_hash": match_result.snapshot_hash,
         }
+        if capture_full:
+            tick.update({
+                "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
+                "controller_diagnostics": {
+                    agent: self.controllers[agent].diagnostics.to_dict()
+                    for agent in REALTIME_AGENTS
+                },
+                "controller_status": {
+                    agent: {
+                        **self.controllers[agent].status().to_dict(),
+                        "kind": "human" if agent == self.human_agent else "policy",
+                    }
+                    for agent in REALTIME_AGENTS
+                },
+                "all_clear_diagnostics": self.env.match.all_clear_diagnostics(),
+                "snapshot_hash": match_result.snapshot_hash,
+            })
+        else:
+            # Live history only reads the last receipt.  Serializing the full
+            # controller record here recursively copies its large search batch
+            # on every simulation tick, even while the decision is unchanged.
+            tick["controller_diagnostics"] = {}
+            for agent in REALTIME_AGENTS:
+                last = self.controllers[agent].diagnostics.last_decision
+                if last is None:
+                    tick["controller_diagnostics"][agent] = {}
+                    continue
+                tick["controller_diagnostics"][agent] = {"last_decision": {
+                    "nextgen_diagnostics": last.nextgen_diagnostics,
+                    "outcome": last.outcome,
+                    "reason": last.reason,
+                    "request_tick": last.request_tick,
+                    "completion_tick": last.completion_tick,
+                    "requested_action": last.requested_action,
+                    "executed_action": last.executed_action,
+                }}
+        return tick
 
     def _update_latest_attack_diagnostics(
         self,

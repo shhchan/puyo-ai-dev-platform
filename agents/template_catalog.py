@@ -18,6 +18,7 @@ from pathlib import Path
 
 import yaml
 
+from agents.compact_search import CompactSearchState, find_landing_y as compact_landing_y, transition as compact_transition
 from agents.nextgen_contracts import PUBLIC_CELL_TO_COLOR, PUBLIC_GARBAGE_ID
 from puyo_env.actions import NUM_ACTIONS, PLACEMENT_ACTIONS
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, NORMAL_PUYO_COLORS
@@ -164,6 +165,8 @@ class Variant:
     different_classes: tuple[tuple[int, int], ...]
     seed_binding: tuple[tuple[str, int], ...]
 
+    forbidden_cells: tuple[tuple[int, int, str], ...] = ()
+
     @property
     def width(self):
         return len(self.rows[0])
@@ -265,6 +268,7 @@ class TemplateCatalog:
                         "weight",
                         "transforms",
                     },
+                    optional={"forbidden_cells"},
                     path="variant",
                 )
                 vid = _id(raw["id"], "variant.id")
@@ -310,6 +314,18 @@ class TemplateCatalog:
                     not origin[0] <= x < origin[0] + width for x, _ in empty + occupied
                 ):
                     raise ValueError("structural cell outside pattern mirror width")
+                if type(raw.get("forbidden_cells", [])) is not list:
+                    raise ValueError("forbidden color cells must be a list")
+                forbidden = []
+                for cell in raw.get("forbidden_cells", []):
+                    if type(cell) is not list or len(cell) != 3 or type(cell[2]) is not str or cell[2] not in symbols:
+                        raise ValueError("invalid forbidden color cell")
+                    x, y = _coord(cell[:2], "forbidden_cells")
+                    if not origin[0] <= x < origin[0] + width:
+                        raise ValueError("forbidden cell outside pattern mirror width")
+                    forbidden.append((x, y, cell[2]))
+                if len(set(forbidden)) != len(forbidden):
+                    raise ValueError("duplicate forbidden color cell")
                 symbol_cells = {
                     (origin[0] + x, origin[1] + y)
                     for y, row in enumerate(rows)
@@ -396,6 +412,7 @@ class TemplateCatalog:
                         classes,
                         tuple(sorted(diff_classes)),
                         feasible.bindings[0],
+                        tuple(sorted(forbidden)),
                     )
                 )
             templates.append(
@@ -434,6 +451,7 @@ class TemplateCatalog:
                             "occupied_cells": [
                                 list(p) for p in sorted(v.occupied_cells)
                             ],
+                            **({"forbidden_cells": [list(p) for p in v.forbidden_cells]} if v.forbidden_cells else {}),
                             "weight": v.weight,
                             "transforms": sorted(v.transforms),
                         }
@@ -502,6 +520,10 @@ class TemplateCandidate:
     compatible: bool = True
     continuation_kind: str = "none"
     continuation_score: float | None = None
+    root_progress: tuple[tuple[int, int], ...] = ()
+    # Public-prefix lower bounds, never a proof that an unvisited root cannot
+    # progress. Each tuple is (root, gained required cells, witness actions).
+    root_prefix_progress: tuple[tuple[int, int, tuple[int, ...]], ...] = ()
 
     @property
     def key(self):
@@ -617,11 +639,46 @@ def _conditions(variant, transform):
             )
         return tuple(result)
 
-    return symbols, structural(variant.empty_cells), structural(variant.occupied_cells)
+    forbidden = tuple((structural(((x, y),))[0] + (symbol,))
+                      for x, y, symbol in variant.forbidden_cells)
+    return symbols, structural(variant.empty_cells), structural(variant.occupied_cells), forbidden
+
+
+def compile_selected_template(catalog, key):
+    """Compile one committed catalog identity; dots impose no empty condition.
+
+    Catalog labels may alias a color. Merge those labels for the backend's
+    injective wire binding while retaining the original key in phase evidence.
+    Generic occupied support cannot be expressed by the backend v1 contract;
+    reject it explicitly instead of silently weakening that catalog condition.
+    """
+    from agents.selected_template import SelectedTemplate
+
+    tid, vid, transform, binding_tuple = key
+    template = next(t for t in catalog.templates if t.id == tid and t.enabled)
+    variant = next(v for v in template.variants if v.id == vid)
+    binding = dict(binding_tuple)
+    if (transform not in variant.transforms or len(binding) != len(binding_tuple)
+            or set(binding) != {s for group in variant.classes for s in group}
+            or any(type(c) is not int or not 1 <= c <= 5 for c in binding.values())
+            or any(binding[a] != binding[b] for a, b in variant.same)
+            or any(binding[a] == binding[b] for a, b in variant.different)):
+        raise ValueError("invalid committed template identity")
+    symbols, empty, occupied, forbidden = _conditions(variant, transform)
+    if occupied:
+        raise ValueError("selected-template backend cannot encode arbitrary occupied support")
+    aliases = tuple(("=".join(sorted(s for s, c in binding.items() if c == color)), color)
+                    for color in sorted(set(binding.values())))
+    return SelectedTemplate(
+        tid, vid, transform, aliases,
+        tuple((x, y, binding[s]) for x, y, s in symbols),
+        tuple((x, y, 0) for x, y in empty)
+        + tuple((x, y, binding[s]) for x, y, s in forbidden),
+    )
 
 
 def _evaluate(board, conditions, binding):
-    symbols, empty, occupied = conditions
+    symbols, empty, occupied, forbidden = conditions
     satisfied = set()
     conflicts = 0
     for x, y, symbol in symbols:
@@ -641,6 +698,7 @@ def _evaluate(board, conditions, binding):
                 satisfied.add(key)
             elif cell is not None:
                 conflicts += 1
+    conflicts += sum(board[y][x] == binding[symbol] for x, y, symbol in forbidden)
     return satisfied, conflicts
 
 
@@ -663,7 +721,7 @@ def _wire(game):
 
 def _tail_score(before, after, conditions):
     """Prefer connected, low tail cells outside the selected template footprint."""
-    symbols, empty, occupied = conditions
+    symbols, empty, occupied, forbidden = conditions
     reserved = {(x, y) for x, y, _ in symbols} | set(empty) | set(occupied)
     changed = [
         (x, y, after[y][x])
@@ -705,6 +763,7 @@ def match_templates(
     static_binding_cap: int = 4096,
     preferred_key: tuple | None = None,
     prioritize_static_binding: bool = False,
+    evaluate_prefix_progress: bool = False,
 ) -> MatchResult:
     """Static score every enabled template, then spend bounded node/binding quota.
 
@@ -829,6 +888,17 @@ def match_templates(
         fallback_binding,
         fallback_score,
     ) in work:
+        if preferred_key is not None and (template.id, variant.id, transform) == preferred_key[:3]:
+            values = dict(preferred_key[3])
+            if (len(values) != len(preferred_key[3])
+                    or set(values) != {s for group in variant.classes for s in group}
+                    or any(type(c) is not int or not 1 <= c <= 5 for c in values.values())
+                    or any(values[a] != values[b] for a, b in variant.same)
+                    or any(values[a] == values[b] for a, b in variant.different)):
+                raise ValueError("invalid preferred template binding")
+            fallback_binding = tuple(sorted(values.items()))
+            satisfied, conflicts = evaluate(b, conditions, dict(fallback_binding))
+            fallback_score = (len(satisfied) - conflicts) / variant.required_count * variant.weight / total_weight
         required = variant.required_count
         variant_candidates = []
         evaluated = 0
@@ -874,8 +944,16 @@ def match_templates(
                 (),
                 0,
             )
-            complete = len(before) == required
+            fixed_conflict = conflicts and preferred_key == (template.id, variant.id, transform, binding_tuple)
+            if fixed_conflict:
+                status, reason = "no_fit", "fixed_binding_conflict"
+            guards_known = all(b[y][x] is not None for x, y, _ in conditions[3])
+            complete = len(before) == required and guards_known
             neutral = None
+            root_progress = []
+            root_boards = []
+            root_prefix_progress = {}
+            prefix_cutoff = False
             exhaustive = all_known and bool(known_pieces)
             conservative_visible = (
                 not all_known
@@ -884,9 +962,10 @@ def match_templates(
                 and bool(known_pieces)
                 and reachable_mask is not None
             )
-            if exhaustive or conservative_visible:
+            if (exhaustive or conservative_visible) and conflicts == 0:
                 frontier = [(_game(b, known_pieces[0]), (), b)]
                 found = False
+                witness_rank = None
                 search_interrupted = False
                 for depth in range(len(known_pieces) if exhaustive else 1):
                     next_frontier = []
@@ -936,8 +1015,14 @@ def match_templates(
                             previous_satisfied, _ = evaluate(
                                 previous, conditions, binding
                             )
-                            if not previous_satisfied <= after:
+                            if after_conflicts or not previous_satisfied <= after:
                                 continue
+                            if depth == 0:
+                                root_progress.append((action_id, len(after) - len(before)))
+                                if evaluate_prefix_progress and not complete and not step["chain_count"] and not any(
+                                    after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)
+                                ):
+                                    root_boards.append((CompactSearchState.from_game(branch), after_board, (action_id,)))
                             next_actions = actions + (action_id,)
                             new_score = (
                                 (len(after) - after_conflicts)
@@ -964,6 +1049,9 @@ def match_templates(
                                 after_symbols > before_symbols
                                 or (complete and len(after) == required)
                             ):
+                                if found and (new_score, tuple(-a for a in next_actions)) <= witness_rank:
+                                    continue
+                                witness_rank = (new_score, tuple(-a for a in next_actions))
                                 status, reason, prefix = (
                                     "fit",
                                     "known_prefix_witness",
@@ -983,7 +1071,7 @@ def match_templates(
                                 ).hexdigest()
                                 witness_actions = next_actions
                                 found = True
-                                break
+                                continue
                             if depth + 1 < len(known_pieces):
                                 next_pair = known_pieces[depth + 1]
                                 branch.current_puyo_1 = Puyo(
@@ -996,7 +1084,7 @@ def match_templates(
                                 next_frontier.append(
                                     (branch, next_actions, after_board)
                                 )
-                        if found or search_interrupted:
+                        if search_interrupted:
                             break
                     if found or search_interrupted:
                         break
@@ -1025,7 +1113,55 @@ def match_templates(
                                 if conservative_visible else "node_budget_exhausted",
                             )
                         )
-            if binding_search.cutoff and status != "fit":
+            # Production boards have unobserved ghost rows, so the matcher
+            # above conservatively stops at the current placement. Continue
+            # the committed shape through public NEXT/NEXT2 only when every
+            # transition is confined to visible rows and causes no clearing.
+            # Use the same node budget and interleave roots by action, avoiding
+            # spending the remaining budget on the first root alone.
+            if evaluate_prefix_progress and root_boards and preferred_key == (template.id, variant.id, transform, binding_tuple):
+                current_gains = dict(root_progress)
+                root_prefix_progress = {path[0]: (current_gains[path[0]], path) for _, _, path in root_boards}
+                frontier = root_boards
+                inverse = {color: index for index, color in enumerate(PUBLIC_CELL_TO_COLOR)}
+                for next_pair in known_pieces[1:]:
+                    if not frontier:
+                        break
+                    if nodes >= node_budget:
+                        prefix_cutoff = True
+                        break
+                    pair = tuple(PUBLIC_CELL_TO_COLOR[color] for color in next_pair)
+                    next_frontier = []
+                    for action_id, action in enumerate(PLACEMENT_ACTIONS):
+                        for current_state, previous, path in frontier:
+                            if nodes >= node_budget:
+                                prefix_cutoff = True
+                                break
+                            if compact_landing_y(current_state, action) is None:
+                                continue
+                            nodes += 1
+                            step = compact_transition(current_state, pair, action_id)
+                            if not step.valid or step.game_over or step.chain_count:
+                                continue
+                            after_board = tuple(tuple(inverse[color] for color in row) for row in step.state.to_color_grid())
+                            if any(after_board[y][x] for y in range(12, GRID_HEIGHT) for x in range(GRID_WIDTH)):
+                                continue
+                            after, after_conflicts = evaluate(after_board, conditions, binding)
+                            previous_satisfied, _ = evaluate(previous, conditions, binding)
+                            if after_conflicts or not previous_satisfied <= after:
+                                continue
+                            actions = path + (action_id,)
+                            gain = len(after) - len(before)
+                            old_gain, old_path = root_prefix_progress[path[0]]
+                            if gain > old_gain or (gain == old_gain and (len(actions), actions) < (len(old_path), old_path)):
+                                root_prefix_progress[path[0]] = (gain, actions)
+                            next_frontier.append((step.state, after_board, actions))
+                        if prefix_cutoff:
+                            break
+                    if prefix_cutoff:
+                        break
+                    frontier = next_frontier
+            if binding_search.cutoff and status != "fit" and not fixed_conflict:
                 status, reason = "unknown", "binding_budget_exhausted"
             source = (
                 "searched"
@@ -1046,6 +1182,7 @@ def match_templates(
                 witness_actions,
                 prefix,
                 binding_search.cutoff
+                or prefix_cutoff
                 or (not exhaustive and status != "fit" and nodes >= node_budget),
                 source,
                 nodes - nodes_before,
@@ -1053,6 +1190,8 @@ def match_templates(
                 "progress" if status == "fit" else
                 "tail" if neutral is not None and witness_actions else "none",
                 neutral[0] if status != "fit" and neutral is not None else None,
+                tuple(root_progress),
+                tuple((root, gain, path) for root, (gain, path) in sorted(root_prefix_progress.items())),
             )
             variant_candidates.append(candidate)
         if not variant_candidates or all(
@@ -1066,10 +1205,11 @@ def match_templates(
                     transform,
                     fallback_binding,
                     len(satisfied) / required,
-                    len(satisfied) == required and conflicts == 0,
+                    len(satisfied) == required and conflicts == 0
+                    and all(b[y][x] is not None for x, y, _ in conditions[3]),
                     fallback_score,
-                    "unknown",
-                    "static_fallback",
+                    "no_fit" if conflicts and preferred_key == (template.id, variant.id, transform, fallback_binding) else "unknown",
+                    "fixed_binding_conflict" if conflicts and preferred_key == (template.id, variant.id, transform, fallback_binding) else "static_fallback",
                     None,
                     (),
                     0,

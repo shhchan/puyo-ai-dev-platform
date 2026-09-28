@@ -1,0 +1,94 @@
+{
+  "schema": "puyo.270.survival_manifest.v1",
+  "adopted_source": "beead67b50d061065acb1f3125d392501f61ddbb",
+  "base": "c511598fccc76cbfda6663f08d40d0144d3ead85",
+  "command": "python -m eval.nextgen_safe_build_diagnostic --output <new-dir> --profile nextgen_safe_build --repeats 1",
+  "python": "/tmp/puyo271-corpus-venv/bin/python",
+  "native": {
+    "path": "/tmp/puyo271-corpus-venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "sha256": "3a4719290657d96569ebb6a6bb28b08ede28c25986fe669975eda5bb5ca5147a",
+    "capabilities": {
+      "abi_version": 1,
+      "schema": {
+        "major": 1,
+        "minor_min": 0,
+        "minor_max": 0,
+        "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+        "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+      },
+      "limits": {
+        "max_request_bytes": 16777216,
+        "max_response_bytes": 16777216,
+        "max_sections": 64
+      },
+      "source_revision": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a",
+      "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "build_profile": "release",
+      "target": "x86_64-unknown-linux-gnu",
+      "python_abi": "cp312",
+      "cpu_features": [
+        "scalar",
+        "sse2",
+        "ssse3",
+        "sse4.1",
+        "avx2"
+      ],
+      "scalar_fallback": true,
+      "simd_path": "scalar",
+      "gil_detach": true,
+      "parallel": true,
+      "wheel_hash_hook": true,
+      "thread_modes": [
+        "oracle-1",
+        "scenario-6"
+      ],
+      "max_threads": 6,
+      "crate_version": "0.4.0",
+      "wire_name": "puyo.deep_chain_native.envelope.v1",
+      "compact_hot_result": {
+        "abi_version": 1,
+        "schema": "puyo.native_compact_hot_result.v1",
+        "child_state_bytes": 80,
+        "result_bytes": 24,
+        "flags_mask": 15
+      }
+    }
+  },
+  "artifacts_sha256": {
+    "docs/benchmarks/puyo-270-survival/analyze.py": "5c54fb09e2a44d7045683c7d8d1563780cfe6450e9f7b3e9343166dd7a795380",
+    "docs/benchmarks/puyo-270-survival/comparison.json": "cd90583750d79a4b4a0fd4992f791b6c658bebd4f646e9be750993c07ecaa4a4",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/declaration.json": "addae72079554f2a5768b4839b5ed6f575e4fe7471a5e342c6df80b09b1727ef",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-123-1.json.gz": "1e279f2511d609de02c5a4434337b6d60dc12f84313019a26de4a0999f7c1f06",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-124-1.json.gz": "739ae93dcead1a5b40461501e812baefaffbebe5afbe0d171000de7dcf2a6e93",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-55-1.json.gz": "b543a06a279fcd4824e1e13afeb604ca4c1941c11ed70b5eb7bd7bf109b9dbab",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-123-1.json.gz": "f4a9810418b9cdfdefd36e4d3f49678557c06ee9a09fe2aaab0405746577b7ff",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-124-1.json.gz": "208a56d4b9c50352aa39085de9dfba37c7986ff230d7b97625126a3252b630cc",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-55-1.json.gz": "aed1dfa86010560980259924375e3cf884082644d808ab1e414f597b16a71e7a",
+    "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/summary.json": "c85ecff03c7f627b7ca4fd2d22bc972f7ffe1fb84bb8d23e9c4dbac1cdb57878",
+    "docs/benchmarks/puyo-270-survival/paired/declaration.json": "b0283d190f4a55cec72add0cacb9c7328b4e7986ea2e365bc159357a153a8043",
+    "docs/benchmarks/puyo-270-survival/paired/deep_chain-123-1.json.gz": "e9ffafe186efa68c8dbcfc8928bd9ce14d640aa8f2c3ca74cf2aaca10a7b2a52",
+    "docs/benchmarks/puyo-270-survival/paired/deep_chain-124-1.json.gz": "b952d0a4180530ae1adade3fd724103780eff0191aff1077b2256db608364e1d",
+    "docs/benchmarks/puyo-270-survival/paired/deep_chain-55-1.json.gz": "29aa94392920663b55ad97234cbbe172c2498825da96e18ff2dd29693666b0d1",
+    "docs/benchmarks/puyo-270-survival/paired/nextgen-123-1.json.gz": "03790be291c31f266cf609278677725bb75733b2eb165bd2b2c585e625f319fb",
+    "docs/benchmarks/puyo-270-survival/paired/nextgen-124-1.json.gz": "8a93d17c14a1951e556a7e35281675fa5fcd2cb105392e7edd94a6863d9ebf3e",
+    "docs/benchmarks/puyo-270-survival/paired/nextgen-55-1.json.gz": "0c05a7c919ec43ad0df346c45dd64a78b4c7a0d678a01f33a7ee0cfba25db18b",
+    "docs/benchmarks/puyo-270-survival/paired/summary.json": "d471906e9554b44691c929c389a3f54eccfe704f902d02f44489f4fa59675e07",
+    "docs/benchmarks/puyo-270-survival/rejected-9284bf6/declaration.json": "c2c28b9573b788f475de5a5ba4e1f80d5eabac85bd8b72baf7cb8d942819fb2a",
+    "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-123-1.json.gz": "6a0b6559250655171c713f12d4e9411401f58449bc256535394592982ca1fddc",
+    "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-124-1.json.gz": "2aa8df8ea035e8f2dd13234c06b70b312dbb9553b34dfa79e674da87709cc14a",
+    "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-55-1.json.gz": "f4c46dd49eab7b80cf37c7d19f28695077f97a3b11199cdabc89ce1be9f83ecf",
+    "docs/benchmarks/puyo-270-survival/rejected-9284bf6/run.log": "4077bdb91a976974bdee551001e1521e70d166381b343339db1add0689356799",
+    "docs/benchmarks/puyo-271-regression/before/deep_chain-123-1.json.gz": "677256afcff7eb9bfad43573cdfadc9a5a9b69947f9a7caaba680cf491fea418",
+    "docs/benchmarks/puyo-271-regression/before/deep_chain-124-1.json.gz": "385d84f6adc011dabe2ba2a510950811809c4948b7cc85aa2491bc17c2d8be5f",
+    "docs/benchmarks/puyo-271-regression/before/deep_chain-55-1.json.gz": "c281e2a8d75909e50a3dd8da9f99915f72b4469604f35789ab48c1f7d3525a80",
+    "docs/benchmarks/puyo-271-regression/before/nextgen-123-1.json.gz": "fc8cefe0ab28d69511fde741a92f39ce3371452e2ff91a25273f56753f67e36b",
+    "docs/benchmarks/puyo-271-regression/before/nextgen-124-1.json.gz": "15bc8d47f7a777dcb4ab94722a3530a6ce0ce55e80082261d0b3bf5abe78cbae",
+    "docs/benchmarks/puyo-271-regression/before/nextgen-55-1.json.gz": "a42fc4196dc417dd0b251148d19c4e2d2ece38c33270d84c6e58224c4d45a05a",
+    "tests/test_nextgen_survival.py": "6d35c52609e0a934075eb7c04b6e3fb3dfbb1dacac4e8d29a381412586b306de"
+  },
+  "limits": [
+    "diagnostic3x1, not formal G2",
+    "public hidden rows and future movement are estimates",
+    "new requests revalidate authoritative root reachability"
+  ]
+}

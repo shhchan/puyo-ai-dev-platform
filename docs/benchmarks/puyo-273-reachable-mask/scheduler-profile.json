@@ -1,0 +1,265 @@
+{
+  "note": "Separate targeted cProfile run, not a gate run; nested cumulative times overlap. Use self times for attribution only.",
+  "frames": 360,
+  "source_sha": "049a02da4568a79baedc9af92281fabb332b8538",
+  "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+  "raw_trace_local_path": "/tmp/puyo273/profile-scheduler.json",
+  "raw_trace_sha256": "03af5fcb64e5e4a873b2feaaa46f4675fd2a45c427608c8f54f60b4aea312e1d",
+  "total_profile_self_seconds": 1.0134271700000004,
+  "top_self_time": [
+    {
+      "file": "agents/nextgen_contracts.py",
+      "line": 72,
+      "function": "_json_value",
+      "calls": 199865,
+      "self_seconds": 0.17031601300000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "calls": 796012,
+      "self_seconds": 0.113750796
+    },
+    {
+      "file": "/usr/lib/python3.12/dataclasses.py",
+      "line": 1271,
+      "function": "fields",
+      "calls": 71840,
+      "self_seconds": 0.083783069
+    },
+    {
+      "file": "/usr/lib/python3.12/copy.py",
+      "line": 118,
+      "function": "deepcopy",
+      "calls": 106933,
+      "self_seconds": 0.07550588600000001
+    },
+    {
+      "file": "agents/nextgen_contracts.py",
+      "line": 109,
+      "function": "_typed",
+      "calls": 46281,
+      "self_seconds": 0.075373388
+    },
+    {
+      "file": "/usr/lib/python3.12/dataclasses.py",
+      "line": 1294,
+      "function": "is_dataclass",
+      "calls": 199865,
+      "self_seconds": 0.07103754400000001
+    },
+    {
+      "file": "<frozen abc>",
+      "line": 117,
+      "function": "__instancecheck__",
+      "calls": 156997,
+      "self_seconds": 0.03091754
+    },
+    {
+      "file": "/usr/lib/python3.12/dataclasses.py",
+      "line": 1286,
+      "function": "<genexpr>",
+      "calls": 277166,
+      "self_seconds": 0.030772814000000002
+    },
+    {
+      "file": "agents/nextgen_contracts.py",
+      "line": 155,
+      "function": "__post_init__",
+      "calls": 9003,
+      "self_seconds": 0.029877958000000003
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.getattr>",
+      "calls": 252251,
+      "self_seconds": 0.029142525000000002
+    },
+    {
+      "file": "agents/nextgen_contracts.py",
+      "line": 173,
+      "function": "from_dict",
+      "calls": 8933,
+      "self_seconds": 0.029015091000000003
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _abc._abc_instancecheck>",
+      "calls": 156997,
+      "self_seconds": 0.026708046000000003
+    },
+    {
+      "file": "/usr/lib/python3.12/json/encoder.py",
+      "line": 205,
+      "function": "iterencode",
+      "calls": 228,
+      "self_seconds": 0.024208809
+    },
+    {
+      "file": "/usr/lib/python3.12/copy.py",
+      "line": 217,
+      "function": "_deepcopy_dict",
+      "calls": 10104,
+      "self_seconds": 0.024006057
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'get' of 'dict' objects>",
+      "calls": 214635,
+      "self_seconds": 0.023494293000000003
+    },
+    {
+      "file": "/usr/lib/python3.12/typing.py",
+      "line": 2340,
+      "function": "get_args",
+      "calls": 46281,
+      "self_seconds": 0.022134741000000003
+    },
+    {
+      "file": "/usr/lib/python3.12/typing.py",
+      "line": 2310,
+      "function": "get_origin",
+      "calls": 46296,
+      "self_seconds": 0.020787363
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.hasattr>",
+      "calls": 200434,
+      "self_seconds": 0.019307586
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.id>",
+      "calls": 135143,
+      "self_seconds": 0.011185498
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'values' of 'dict' objects>",
+      "calls": 71859,
+      "self_seconds": 0.008812469
+    }
+  ],
+  "functions_ms": {
+    "tactical_diagnostics": {
+      "n": 1918,
+      "p50": 0.0018410000000000002,
+      "p95": 0.008120149999999975,
+      "p99": 0.01829037999999999,
+      "max": 0.179296
+    },
+    "authoritative_mask": {
+      "n": 11,
+      "p50": 4.904973,
+      "p95": 6.268069,
+      "p99": 6.388885,
+      "max": 6.419089
+    },
+    "scheduler_prepare": {
+      "n": 7,
+      "p50": 6.330896,
+      "p95": 8.841942099999999,
+      "p99": 9.339503619999999,
+      "max": 9.463894
+    },
+    "ipc_submit_enqueue": {
+      "n": 7,
+      "p50": 0.03299,
+      "p95": 0.4066303999999996,
+      "p99": 0.5317332799999998,
+      "max": 0.563009
+    },
+    "_submit_decision": {
+      "n": 7,
+      "p50": 0.059942,
+      "p95": 0.43725379999999964,
+      "p99": 0.5606843599999998,
+      "max": 0.591542
+    },
+    "next_input_player_0": {
+      "n": 478,
+      "p50": 0.015296,
+      "p95": 1.376577099999994,
+      "p99": 156.38792947000007,
+      "max": 172.019662
+    },
+    "next_input_player_1": {
+      "n": 478,
+      "p50": 0.007548,
+      "p95": 1.8618838999999947,
+      "p99": 5.107247940000019,
+      "max": 14.118352
+    },
+    "simulation": {
+      "n": 478,
+      "p50": 4.669290999999999,
+      "p95": 8.194461949999999,
+      "p99": 13.118965430000047,
+      "max": 54.200217
+    },
+    "_build_replay_tick": {
+      "n": 478,
+      "p50": 0.2763865,
+      "p95": 0.5697077499999998,
+      "p99": 0.9061801600000019,
+      "max": 2.998848
+    },
+    "_sync_display_boards": {
+      "n": 496,
+      "p50": 0.0247825,
+      "p95": 0.0667715,
+      "p99": 0.17626275000000002,
+      "max": 0.300679
+    },
+    "scheduler_accept": {
+      "n": 7,
+      "p50": 90.695752,
+      "p95": 100.2921033,
+      "p99": 101.61474066000001,
+      "max": 101.9454
+    },
+    "_plan_action": {
+      "n": 11,
+      "p50": 4.439946,
+      "p95": 5.3483525,
+      "p99": 5.850194500000001,
+      "max": 5.975655
+    },
+    "_complete_decision": {
+      "n": 7,
+      "p50": 95.278331,
+      "p95": 106.0219122,
+      "p99": 107.66268804,
+      "max": 108.072882
+    },
+    "scheduler_stale": {
+      "n": 7,
+      "p50": 1.048535,
+      "p95": 1.4078516999999997,
+      "p99": 1.4920631399999997,
+      "max": 1.513116
+    },
+    "scheduler_finish": {
+      "n": 7,
+      "p50": 53.828921,
+      "p95": 58.0409323,
+      "p99": 58.66827046,
+      "max": 58.825105
+    },
+    "_activate_nextgen": {
+      "n": 7,
+      "p50": 63.757891,
+      "p95": 67.9596445,
+      "p99": 67.9857625,
+      "max": 67.992292
+    }
+  }
+}

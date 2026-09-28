@@ -74,11 +74,11 @@ def next_diagnostic(previous):
 
 
 class NextgenTrajectoryTest(unittest.TestCase):
-    def test_legacy_and_v2_manifest_schema_match_actual_batches(self):
+    def test_v1_v2_v3_manifest_schema_match_actual_batches(self):
         from agents import nextgen_contracts as c
         from tests.test_nextgen_contracts import make_diagnostics
 
-        for diagnostic in (fixture(), make_diagnostics()):
+        for diagnostic in (fixture(), make_diagnostics(batch_schema=c.PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION), make_diagnostics()):
             with self.subTest(schema=diagnostic.batch.schema_version), tempfile.TemporaryDirectory() as tmp:
                 manifest = self.produce(tmp, episode(diagnostic))
                 self.assertEqual(manifest["extra"]["nextgen"]["batch_schema"], diagnostic.batch.schema_version)

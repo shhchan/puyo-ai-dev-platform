@@ -208,7 +208,10 @@ class SharedBatchTests(unittest.TestCase):
         self.assertNotEqual(build.candidate_ids, global_ids)
         self.assertEqual(result.batch.schema_version, c.CANDIDATE_BATCH_SCHEMA_VERSION)
         with self.assertRaisesRegex(ValueError, "legacy.*rank"):
-            replace(result.batch, schema_version=c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION)
+            # Strip the v3 extension before testing v1 fixed global ordering.
+            legacy_candidates = tuple(replace(v, evidence=tuple(e for e in v.evidence if not e.name.startswith("survival_"))) for v in result.batch.candidates)
+            legacy = replace(result.batch, candidates=legacy_candidates)
+            replace(legacy, schema_version=c.LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION)
         with self.assertRaises(ValueError):
             incomplete = replace(build, candidate_ids=build.candidate_ids[:-1])
             replace(result.batch, tactics=(incomplete, *result.batch.tactics[1:]))
@@ -367,11 +370,10 @@ class SharedBatchTests(unittest.TestCase):
             template_catalog=cat,
             template_binding_budget=10,
         ).build(req)
-        self.assertTrue(result.batch.action_mask[1])
+        self.assertFalse(result.batch.action_mask[1])
         self.assertEqual(result.batch.counters.shared_nodes, 0)
         self.assertLessEqual(result.batch.counters.template_nodes, 8)
-        self.assertTrue(result.select("build_template").plan)
-        self.assertTrue(result.batch.tactics[1].known_witness)
+        self.assertFalse(result.batch.tactics[1].known_witness)
         self.assertIsNotNone(result.template_result)
         inactive = replace(
             req,

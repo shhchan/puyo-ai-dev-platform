@@ -1,0 +1,212 @@
+/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 0
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 123 1 chain 0
+nextgen 123 2 chain 0
+nextgen 123 3 chain 0
+nextgen 123 4 chain 0
+nextgen 123 5 chain 0
+nextgen 123 6 chain 0
+nextgen 123 7 chain 0
+nextgen 123 8 chain 0
+nextgen 123 9 chain 0
+nextgen 123 10 chain 0
+nextgen 123 11 chain 0
+nextgen 123 12 chain 0
+nextgen 123 13 chain 0
+nextgen 123 14 chain 0
+nextgen 123 15 chain 0
+nextgen 123 16 chain 0
+nextgen 123 17 chain 0
+nextgen 123 18 chain 0
+nextgen 123 19 chain 0
+nextgen 123 20 chain 0
+nextgen 123 21 chain 0
+nextgen 123 22 chain 0
+nextgen 123 23 chain 0
+nextgen 123 24 chain 10
+nextgen 123 25 chain 0
+nextgen 123 26 chain 0
+nextgen 123 27 chain 0
+nextgen 123 28 chain 0
+nextgen 123 29 chain 0
+nextgen 123 30 chain 0
+nextgen 123 31 chain 0
+nextgen 123 32 chain 0
+nextgen 123 33 chain 0
+nextgen 123 34 chain 0
+nextgen 123 35 chain 0
+nextgen 123 36 chain 0
+nextgen 123 37 chain 0
+nextgen 123 38 chain 0
+nextgen 123 39 chain 0
+nextgen 123 40 chain 0
+nextgen 124 1 chain 0
+nextgen 124 2 chain 0
+nextgen 124 3 chain 0
+nextgen 124 4 chain 0
+nextgen 124 5 chain 0
+nextgen 124 6 chain 0
+nextgen 124 7 chain 0
+nextgen 124 8 chain 0
+nextgen 124 9 chain 0
+nextgen 124 10 chain 0
+nextgen 124 11 chain 0
+nextgen 124 12 chain 0
+nextgen 124 13 chain 0
+nextgen 124 14 chain 0
+nextgen 124 15 chain 0
+nextgen 124 16 chain 0
+nextgen 124 17 chain 0
+nextgen 124 18 chain 0
+nextgen 124 19 chain 0
+nextgen 124 20 chain 0
+nextgen 124 21 chain 0
+nextgen 124 22 chain 0
+nextgen 124 23 chain 0
+nextgen 124 24 chain 0
+nextgen 124 25 chain 0
+nextgen 124 26 chain 0
+nextgen 124 27 chain 0
+nextgen 124 28 chain 0
+nextgen 124 29 chain 0
+nextgen 124 30 chain 0
+nextgen 124 31 chain 0
+nextgen 124 32 chain 0
+nextgen 124 33 chain 0
+deep_chain 55 1 chain 0
+deep_chain 55 2 chain 0
+deep_chain 55 3 chain 0
+deep_chain 55 4 chain 0
+deep_chain 55 5 chain 0
+deep_chain 55 6 chain 0
+deep_chain 55 7 chain 0
+deep_chain 55 8 chain 0
+deep_chain 55 9 chain 0
+deep_chain 55 10 chain 0
+deep_chain 55 11 chain 0
+deep_chain 55 12 chain 0
+deep_chain 55 13 chain 0
+deep_chain 55 14 chain 0
+deep_chain 55 15 chain 0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/eval/nextgen_safe_build_diagnostic.py", line 168, in <module>
+    main()
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/eval/nextgen_safe_build_diagnostic.py", line 164, in main
+    run(args.output, profile=args.profile, repeats=args.repeats)
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/eval/nextgen_safe_build_diagnostic.py", line 136, in run
+    result = measure(kind, seed, profile)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/eval/nextgen_safe_build_diagnostic.py", line 58, in measure
+    "player_0": controller.next_input(match, "player_0"),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/puyo_env/realtime_ai.py", line 572, in next_input
+    self._pending_decision = self._start_decision(match, agent, observation, info)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/puyo_env/realtime_ai.py", line 678, in _start_decision
+    return self._complete_decision(match, agent, selected_action, info, elapsed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/puyo_env/realtime_ai.py", line 807, in _complete_decision
+    else _policy_diagnostics_snapshot(self.policy)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/puyo_env/realtime_ai.py", line 241, in _policy_diagnostics_snapshot
+    diagnostics = getattr(policy, "tactical_diagnostics", None)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2/workspaces/puyo-nextgen-20260925/270/agents/deep_chain_builder.py", line 1093, in tactical_diagnostics
+    **copy.deepcopy(_policy_diagnostics(context, self.profile)),
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 196, in _deepcopy_list
+    append(deepcopy(a, memo))
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 196, in _deepcopy_list
+    append(deepcopy(a, memo))
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 221, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 136, in deepcopy
+    y = copier(x, memo)
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/copy.py", line 220, in _deepcopy_dict
+    for key, value in x.items():
+                      ^^^^^^^^^
+KeyboardInterrupt

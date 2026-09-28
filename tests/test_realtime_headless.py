@@ -8,6 +8,27 @@ from src.core.realtime import RealtimeHeadlessSimulator, TickInput
 
 
 class TestRealtimeHeadlessSimulator(unittest.TestCase):
+    def test_ordered_same_tick_edges_follow_event_order(self):
+        sim = RealtimeHeadlessSimulator(seed=55)
+        tap = TickInput(
+            press=(Action.RIGHT,), release=(Action.RIGHT,),
+            edges=(("press", Action.RIGHT), ("release", Action.RIGHT)),
+        )
+        self.assertEqual(sim._collect_fired_actions(0, tap), [Action.RIGHT])
+        self.assertNotIn(Action.RIGHT, sim.held_actions)
+        self.assertIsNone(sim._next_repeat_tick[Action.RIGHT])
+        held = TickInput(
+            press=(Action.RIGHT,), release=(Action.RIGHT,),
+            edges=(("release", Action.RIGHT), ("press", Action.RIGHT)),
+        )
+        self.assertEqual(sim._collect_fired_actions(1, held), [Action.RIGHT])
+        self.assertIn(Action.RIGHT, sim.held_actions)
+        self.assertEqual(TickInput.from_names(**tap.to_json()), tap)
+        legacy = TickInput.from_names(press=("RIGHT",), release=("RIGHT",))
+        self.assertEqual(legacy.to_json(), {"press": ["RIGHT"], "release": ["RIGHT"]})
+        self.assertEqual(sim._collect_fired_actions(2, legacy), [Action.RIGHT])
+        self.assertIn(Action.RIGHT, sim.held_actions)
+
     def test_fixed_seed_and_input_sequence_reproduce_hashes(self):
         inputs = {
             0: TickInput(press=(Action.LEFT,)),

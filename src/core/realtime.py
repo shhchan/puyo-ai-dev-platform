@@ -65,6 +65,9 @@ class TickInput:
 
     press: tuple[Action, ...] = ()
     release: tuple[Action, ...] = ()
+    # Optional event order for inputs collected between two simulation ticks.
+    # Legacy callers retain the historical release-then-press semantics.
+    edges: tuple[tuple[str, Action], ...] = ()
 
     @classmethod
     def from_names(
@@ -72,17 +75,22 @@ class TickInput:
         *,
         press: Sequence[str] = (),
         release: Sequence[str] = (),
+        edges: Sequence[Sequence[str]] = (),
     ) -> "TickInput":
         return cls(
             press=tuple(Action[name] for name in press),
             release=tuple(Action[name] for name in release),
+            edges=tuple((kind, Action[name]) for kind, name in edges),
         )
 
-    def to_json(self) -> dict[str, list[str]]:
-        return {
+    def to_json(self) -> dict:
+        result = {
             "press": [action.name for action in self.press],
             "release": [action.name for action in self.release],
         }
+        if self.edges:
+            result["edges"] = [[kind, action.name] for kind, action in self.edges]
+        return result
 
 
 @dataclass(frozen=True)
@@ -319,22 +327,27 @@ class RealtimeHeadlessSimulator:
         return results
 
     def _collect_fired_actions(self, current_tick: int, tick_input: TickInput) -> list[Action]:
-        for action in tick_input.release:
-            if action in HOLD_ACTIONS:
-                self.held_actions.discard(action)
-                self._next_repeat_tick[action] = None
-
         fired: list[Action] = []
         just_pressed_hold: set[Action] = set()
         one_shot_presses: list[Action] = []
-        for action in tick_input.press:
-            if action in HOLD_ACTIONS:
+        edges = tick_input.edges or (
+            tuple(("release", action) for action in tick_input.release)
+            + tuple(("press", action) for action in tick_input.press)
+        )
+        for kind, action in edges:
+            if kind == "release":
+                if action in HOLD_ACTIONS:
+                    self.held_actions.discard(action)
+                    self._next_repeat_tick[action] = None
+            elif kind == "press" and action in HOLD_ACTIONS:
                 if action not in self.held_actions:
                     self.held_actions.add(action)
                     self._next_repeat_tick[action] = current_tick + self.timing.repeat_delay(action)
                     just_pressed_hold.add(action)
-            else:
+            elif kind == "press":
                 one_shot_presses.append(action)
+            else:
+                raise ValueError(f"invalid input edge: {kind}")
 
         for action in HOLD_ACTIONS:
             should_fire = action in just_pressed_hold

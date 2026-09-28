@@ -1,0 +1,62 @@
+/home/sion2/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+{
+  "safe_build": {
+    "expected_runs": 60,
+    "observed_runs": 60,
+    "completed_runs": 60,
+    "missing": [],
+    "unfinished": [],
+    "unique_seed_denominator": 30,
+    "mean_max_chain": 8.866666666666667,
+    "premature": 6,
+    "game_over": 10,
+    "repeat_pairs": 30,
+    "repeat_mismatch_seeds": [],
+    "decision_latency_seconds": {
+      "n": 2366,
+      "mean": 0.6407634881610323,
+      "p50": 0.6634676995163318,
+      "p95": 0.8349348239717074
+    },
+    "placement_denominator": 2366
+  },
+  "G2": {
+    "status": "BLOCKED",
+    "checks": {
+      "all_60_complete": true,
+      "mean_chain_at_least_10": false,
+      "premature_zero": false,
+      "game_over_zero": false,
+      "repeat_digest_match": true,
+      "public_runtime": true,
+      "reference_profile_calibrated": true,
+      "required_threat_fixtures": false,
+      "known_solution_gap_zero": false,
+      "G0_passed": false,
+      "G1_passed": false
+    },
+    "failed_conditions": [
+      "mean_chain_at_least_10",
+      "premature_zero",
+      "game_over_zero",
+      "required_threat_fixtures",
+      "known_solution_gap_zero",
+      "G0_passed",
+      "G1_passed"
+    ]
+  },
+  "observed_quality": {
+    "status": "FAIL",
+    "failed_conditions": [
+      "mean_chain_below_10",
+      "premature",
+      "game_over"
+    ],
+    "scope": "observed profile only; not reference G2 qualification",
+    "observed_runs": 60,
+    "expected_runs": 60
+  }
+}

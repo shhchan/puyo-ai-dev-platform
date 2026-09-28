@@ -1,0 +1,2642 @@
+{
+  "recorded_date": "2026-09-28",
+  "integration_branch": "integration/puyo-228-v1-8-0",
+  "integration_sha": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a",
+  "stack_number": 167,
+  "pull_requests": [
+    {
+      "baseRefName": "integration/puyo-228-v1-8-0",
+      "body": "## What\n\n- ペルシャ式の横 3／L 字，窒息時の必要な単発消し，GTR／だぁ積み／ペルシャ式の 2 手構築，known／unknown／cutoff の合成 corpus を固定しました．片側／両側 GUI 条件は未測定として記録しています．\n- source `c0c77d944ff3ed276a4b44a40a779cd72bc0977a` の `deep_chain_builder reference/native/target10` と `nextgen_safe_build` を seed 55/123/124，各 1 回・最大 40 配置で測定し，raw 6 件と source／config／native wheel／host／cache 条件を保存しました．\n- raw の整合性，seed 別の品質・未完了理由，選択順位，receipt，decision p50／p95 を分けて確認する解析器と再実行手順を追加しました．\n\n## Why\n\nPUYO-270／272／268／269 の改善後と同じ入力・予算で比較するため，変更前の反例と測定条件を先に固定する必要があります．ユーザーの元 GUI seed は未提供のため，合成盤面と seed 付き対局を区別します．\n\n## QA\n\n- `python -m unittest tests.test_puyo_271_regression tests.test_nextgen_template_catalog`：3 件成功．\n- `python -m eval.puyo_271_regression verify --run-dir docs/benchmarks/puyo-271-regression/before`：raw checksum と派生集計の照合に成功．\n- nextgen の最大実連鎖は 12／10／10，premature 0，game over 0，decision p50／p95 は 0.706／0.885 s．deep_chain_builder は 1／10／10，seed 55 は 33 配置で game over，premature 1，p50／p95 は 0.544／0.642 s．\n- 正式 G2 30 seed×2 repeat，改善後比較，GUI cadence，人間 GUI QA は未実施です．本 PR は PUYO-271 前半のみで，Jira は In Progress を維持します．\n\n## References\n\n- Stack #167：レビュー順 1/6．最下段の base は `integration/puyo-228-v1-8-0`．\n\n- https://shhchan.atlassian.net/browse/PUYO-271\n- https://shhchan.atlassian.net/browse/PUYO-267\n- https://shhchan.atlassian.net/browse/PUYO-266\n- `docs/benchmarks/puyo-271-regression/README.md`\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T11:54:30Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T11:54:30Z",
+          "messageBody": "",
+          "messageHeadline": "Freeze PUYO-271 regression corpus and before baseline",
+          "oid": "c511598fccc76cbfda6663f08d40d0144d3ead85"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-271-regression/README.md",
+          "additions": 76,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/declaration.json",
+          "additions": 180,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/deep_chain-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/deep_chain-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/deep_chain-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/nextgen-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/nextgen-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/nextgen-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/regression_analysis.json",
+          "additions": 253,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/regression_manifest.json",
+          "additions": 261,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/before/summary.json",
+          "additions": 269,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/synthetic_results.json",
+          "additions": 231,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_271_regression.py",
+          "additions": 518,
+          "deletions": 0
+        },
+        {
+          "path": "tests/fixtures/puyo_271_regression_cases.json",
+          "additions": 87,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_puyo_271_regression.py",
+          "additions": 35,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-271/regression-corpus",
+      "headRefOid": "c511598fccc76cbfda6663f08d40d0144d3ead85",
+      "isDraft": true,
+      "mergeStateStatus": "CLEAN",
+      "number": 162,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "[PUYO-271] 定型・生存反例と変更前 baseline を固定する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/162",
+      "baseSha": "c0c77d944ff3ed276a4b44a40a779cd72bc0977a",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-271/regression-corpus",
+      "body": "## What\n\n通常 GUI で replay／収集を保存しないとき，毎 tick の履歴表示に必要な receipt・公開 event・攻撃値だけを組み立てる．replay または収集を有効にした経路では従来の完全な tick payload を保持する．変更ファイルは `eval/realtime_versus_ui.py` のみ．\n\n同一 host・seed 55・DISPLAY=:0・1120×780・60 FPS 上限・速度 1.0・overlay off で before/after を直列計測した．片側は 600 frame，両側 nextgen は 360 frame．変更前は commit `c0c77d944ff3ed276a4b44a40a779cd72bc0977a` の `_build_replay_tick` を同じ計測器で呼んだ．入力は 50 ms 間隔の no-op key を別 thread から投入し，予定時刻から event 処理までを測った．\n\n| policy | frame p50/p95/p99/max（前→後，ms） | 入力 p95/p99（前→後，ms） | update p95（前→後，ms） |\n| --- | --- | --- | --- |\n| first 対 random | 16.1/19.4/23.2/62.7 → 16.1/19.0/22.9/59.2 | 15.7/16.9 → 15.4/16.5 | 6.1 → 5.9 |\n| deep_chain_builder reference/native 対 random | 16.1/20.1/62.7/161.7 → 16.2/20.6/60.7/110.8 | 26.1/75.5 → 31.0/61.5 | 7.3 → 7.8 |\n| nextgen_safe_build/native 対 random | 17.0/184.5/301.1/431.8 → 16.4/58.8/121.2/208.3 | 243.6/337.2 → 76.6/113.5 | 169.9 → 42.0 |\n| nextgen_safe_build/native 両側 | 123.3/609.5/808.6/1043.4 → 20.5/190.4/370.3/558.8 | 548.1/728.0 → 270.4/410.4 | 579.8 → 165.6 |\n\n両側の変更前は 360 frame より先に 2400 tick 上限へ到達し，変更後は 1220 tick だった．frame 比較は固定 frame 数だが，盤面分布は同一でない．軽量 policy の無計測 CLI 600 frame は 11.21 s，計測器ありは 11.03 s で，この条件では計測上乗せを確認できなかった．\n\n## Why\n\nnextgen 片側の変更前 trace では，`_build_replay_tick` が 1328 tick で合計 7.24 s を消費した．`RealtimeControllerDiagnostics.to_dict()` が大きな last receipt／search batch を毎 tick 再帰コピーしていた．変更後は同区間 864 tick で合計 0.26 s．event 処理 p95 は 0.1 ms 以下，描画 p95 は 11.5→10.3 ms で，主因は UI thread 上の update だった．\n\n残る同期負荷は `nextgen_authoritative_action_mask` 20 呼出の p50/p95 75.5/81.0 ms．共有 `NextgenScheduler.prepare` と activation で UI thread 上から呼ぶ．共有 scheduler／到達性探索の修正は [PUYO-273](https://shhchan.atlassian.net/browse/PUYO-273) に分割し，273 Blocks 269 を設定した．cache hit/miss の worker 判断時間は 360 frame 片側の変更前で hit 5 件が 0.16–0.19 s，miss 5 件が 0.85–0.90 s，変更後で hit 4 件が 0.17–0.19 s，miss 4 件が 0.83–0.89 s．探索待ちと上記 UI stall を区別した．片側 nextgen の stale は 13→9，timeout/deadline/fallback は 0→0．同期処理の影響で進行 tick が異なるため，stale 件数は同一決定 corpus の比較ではない．\n\n## QA\n\n- 変更前に frame・入力 p95 ≤ 25 ms，p99 ≤ 50 ms を固定した．nextgen は変更後も未達．deep_chain_builder も p99 gate が未達．この PR を draft とし，PUYO-269 は In Progress のままにする．\n- `python -m unittest tests.test_realtime_versus_ui tests.test_nextgen_gui -q`：42 件成功．pause/step，両者独立進行，replay hash，stale decision，replay 保存を含む．実計測の worker PID は終了後に残存しなかった．\n- 片側 nextgen 600 frame の親 process／worker 最大 RSS は変更前 275/351 MiB，変更後 272/351 MiB．thread 最大は 12/15，process は親＋worker の 2 件．両側は親＋worker 2 件の 3 process．CPU 使用は片側変更前が親約 10.8 s・worker 15.2 s／22.9 s wall，変更後が親約 9.2 s・worker 13.9 s／13.2 s wall（/proc のサンプリング区間，起動・終了時間を含まない）．\n- 人間による入力・視認 QA は未実施．再現には `python -m eval.realtime_versus_ui --policy-a nextgen_tactic_manager --policy-b random --nextgen-profile nextgen_safe_build --nextgen-backend native --seed 55 --speed 1.0 --no-plan-overlay` で，通常速度の入力／描画，pause/step，両側 AI，終了時 cleanup を確認する．replay 保存を有効にした場合の cadence 改善は本変更の対象外．\n\n- 保存済み証跡の整合確認：`python docs/benchmarks/puyo-269-gui-cadence/aggregate.py` → 11 本の gzip 元出力の圧縮前後 checksum／byte 数と `summary.json` の一致を確認．重量測定の再実行はしていない．計測器は per-frame 個票を保存していないため，percentile の独立再計算はできず，IPC send／deserialize の個別区間も未採取である．詳細は証跡 README．mask の細分 trace も `raw/mask-after.json.gz` に保存した．\n\n## References\n\n- Stack #167：レビュー順 2/6．直前 PR [#162](https://github.com/shhchan/puyo-ai-dev-platform/pull/162)．\n\n- [PUYO-269](https://shhchan.atlassian.net/browse/PUYO-269)，[PUYO-273](https://shhchan.atlassian.net/browse/PUYO-273)\n- `docs/development/puyo-265-nextgen-latency.md`\n- 計測条件・前後の集計・圧縮した元出力・checksum・検証方法：[`docs/benchmarks/puyo-269-gui-cadence/`](https://github.com/shhchan/puyo-ai-dev-platform/tree/PUYO-269/gui-cadence/docs/benchmarks/puyo-269-gui-cadence)．後続 PUYO-273 で参照する．\n\n\n[PUYO-273]: https://shhchan.atlassian.net/browse/PUYO-273?atlOrigin=eyJpIjoiNWRkNTljNzYxNjVmNDY3MDlhMDU5Y2ZhYzA5YTRkZjUiLCJwIjoiZ2l0aHViLWNvbS1KU1cifQ\n\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T11:53:16Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T11:53:16Z",
+          "messageBody": "",
+          "messageHeadline": "Avoid full replay diagnostics on live GUI ticks",
+          "oid": "0be88b9c6d9afe1ddda8bb4df8aa350bb2433f4b"
+        },
+        {
+          "authoredDate": "2026-09-25T12:00:01Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:00:01Z",
+          "messageBody": "",
+          "messageHeadline": "Archive GUI cadence profiling evidence",
+          "oid": "7a99f283fbac1a5646994b31871d6b94188ae44b"
+        },
+        {
+          "authoredDate": "2026-09-25T12:01:59Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:01:59Z",
+          "messageBody": "",
+          "messageHeadline": "Include authoritative mask profiling trace",
+          "oid": "3e054a84962327d69034cc89972ffa209064715f"
+        },
+        {
+          "authoredDate": "2026-09-25T12:29:10Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:29:10Z",
+          "messageBody": "",
+          "messageHeadline": "Merge branch 'PUYO-271/regression-corpus' into PUYO-269/gui-cadence",
+          "oid": "53c522b59684ca6cb878084f37feb35359b0ef22"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/README.md",
+          "additions": 42,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/aggregate.py",
+          "additions": 144,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/conditions.json",
+          "additions": 13,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/manifest.json",
+          "additions": 94,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/probe.py.txt",
+          "additions": 164,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/cache-after.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/cache-before.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-after-deep.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-after-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-after-nextgen-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-after-nextgen.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-before-deep.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-before-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-before-nextgen-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/final-before-nextgen.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/raw/mask-after.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-gui-cadence/summary.json",
+          "additions": 2424,
+          "deletions": 0
+        },
+        {
+          "path": "eval/realtime_versus_ui.py",
+          "additions": 42,
+          "deletions": 16
+        }
+      ],
+      "headRefName": "PUYO-269/gui-cadence",
+      "headRefOid": "53c522b59684ca6cb878084f37feb35359b0ef22",
+      "isDraft": true,
+      "mergeStateStatus": "CLEAN",
+      "number": 161,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-25T12:44:37Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36135200779/job/108071506699",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-25T12:29:24Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        }
+      ],
+      "title": "[PUYO-269] GUI の描画・入力 cadence を計測して改善する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/161",
+      "baseSha": "c511598fccc76cbfda6663f08d40d0144d3ead85",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-269/gui-cadence",
+      "body": "## What\n\n- 公開 current/NEXT/NEXT2，root の legal/reachable mask，消去・落下・次 spawn，公開予告おじゃまを使う bounded survival probe を追加しました．既存 response quota 内で最大 128 nodes を使い，witness/unknown/cutoff/有限範囲の unavoidable を区別します．\n- 危機局面では構築候補の安全な非発火を優先し，必要な単発消しを `legitimate_survival_exception` と記録します．安全な通常の発火・相殺・counter は保持し，共通 `SelectTacticStep` で rule/将来 RL に同じ envelope を 1 回適用します．\n- batch v3 の生存 evidence と receipt の採用/不採用理由を追加しました．v1/v2 と既存 trajectory の読み込み，6 戦術，feature registry，native ABI は維持しています．\n\n## Why\n\n窒息する root を定型や長期目標のために選ばず，安全な小発火を候補から実採用まで追えるようにするためです．`fatal_rate` を生存確率や死の証明へ読み替えず，検証した有限範囲と未証明部分を明示します．PUYO-272 の template 制約はこの独立した safety path へ持ち込みません．\n\n## QA\n\n- 関連 95 tests 成功．11 件の生存 tests は必要単発，安全非発火，消去後死亡，既知 NEXT による予告到来後の回復，到達不能，回避不能，quota/timeout/unknown，安全な通常発火維持，実 scheduler receipt/fallback，危機後の復帰を含みます．\n- 採用測定 source は `beead67b50d061065acb1f3125d392501f61ddbb`（最終 commit は文書/証跡追加のみ）．seed 55/123/124×1，各最大 40 配置，configured0，inactive opponent，固定 quota，同じ c0c77d9 native binary で nextgen/deep_chain の 6 run を保存しました．\n- nextgen の最大実連鎖は変更前後とも 12/10/10，premature 0，自滅 0．全 seed で変更前と全着手が一致しました．decision p50/p95 は 0.706/0.885 s → 0.702/0.855 s．単一 repeat の観測値であり，有意な高速化の主張はしません．\n- 同じ有限 probe を適用した候補 witness gap，witness があるのに死亡 root を選択/実行した件数，receipt 不採用は通常 3 seed の before/after とも 0 件．必要単発そのものは合成反例と実 scheduler テストで検証しています．\n- `docs/benchmarks/puyo-270-survival/paired/` が採用 6 raw，`manifest.json` が hash/source/config/native provenance，`comparison.json` が seed/decision 別比較です．安全な 12 連鎖を誤って抑止した棄却 run と，二重適用整理前の中間 run も別 source で保存しています．\n- 隠し行は `public_estimate`/`partial`，visible unknown は `unknown`．未来の配置は幾何学上の witness であり，次 request と実採用で authoritative root reachability を再確認します．未知未来の生存保証，正式 G2（PUYO-266），GUI QA（PUYO-269/273）は本 PR の結果に含めません．\n- 再確認：`python -m unittest tests.test_nextgen_survival tests.test_nextgen_contracts tests.test_nextgen_shared_search tests.test_nextgen_tactic_manager tests.test_nextgen_trajectory tests.test_nextgen_response_search`．保存物：`PYTHONPATH=. python docs/benchmarks/puyo-270-survival/analyze.py --verify`．\n\n## References\n\n- Stack #167：レビュー順 3/6．直前 PR [#161](https://github.com/shhchan/puyo-ai-dev-platform/pull/161)．\n\n- https://shhchan.atlassian.net/browse/PUYO-270\n- https://github.com/shhchan/puyo-ai-dev-platform/pull/162（PUYO-271 corpus，PR base）\n- https://shhchan.atlassian.net/browse/PUYO-272\n- https://shhchan.atlassian.net/browse/PUYO-268\n- `docs/development/puyo-270-survival-envelope.md`\n- `docs/benchmarks/puyo-270-survival/README.md`\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T12:11:05Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:11:05Z",
+          "messageBody": "",
+          "messageHeadline": "Add bounded public survival envelope before tactic execution",
+          "oid": "9284bf604ef292f21d745385ed96e3ce57a9ace7"
+        },
+        {
+          "authoredDate": "2026-09-25T12:14:17Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:14:17Z",
+          "messageBody": "",
+          "messageHeadline": "Preserve safe deliberate firing inside the survival envelope",
+          "oid": "1b7acdfd43143af5c3746091344dd1bc3f1f63f7"
+        },
+        {
+          "authoredDate": "2026-09-25T12:20:15Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:20:15Z",
+          "messageBody": "",
+          "messageHeadline": "Apply survival decisions once at the common selector boundary",
+          "oid": "beead67b50d061065acb1f3125d392501f61ddbb"
+        },
+        {
+          "authoredDate": "2026-09-25T12:26:31Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:26:31Z",
+          "messageBody": "",
+          "messageHeadline": "Record survival contract and paired regression evidence",
+          "oid": "c62dd5ec14ad612123137f3fa9f5d909cda47be7"
+        },
+        {
+          "authoredDate": "2026-09-25T12:29:33Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:29:33Z",
+          "messageBody": "",
+          "messageHeadline": "Merge branch 'PUYO-269/gui-cadence' into PUYO-270/survival-override",
+          "oid": "fe0da9892a41c54a6ab3528d4a58b3fca079f428"
+        }
+      ],
+      "files": [
+        {
+          "path": "agents/nextgen_contracts.py",
+          "additions": 11,
+          "deletions": 2
+        },
+        {
+          "path": "agents/nextgen_shared_search.py",
+          "additions": 21,
+          "deletions": 0
+        },
+        {
+          "path": "agents/nextgen_survival.py",
+          "additions": 209,
+          "deletions": 0
+        },
+        {
+          "path": "agents/nextgen_tactic_manager.py",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/README.md",
+          "additions": 40,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/analyze.py",
+          "additions": 170,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/comparison.json",
+          "additions": 5712,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/declaration.json",
+          "additions": 182,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/deep_chain-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/nextgen-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/intermediate-1b7acdf/summary.json",
+          "additions": 271,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/manifest.json",
+          "additions": 94,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/declaration.json",
+          "additions": 182,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/deep_chain-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/deep_chain-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/deep_chain-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/nextgen-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/nextgen-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/nextgen-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/paired/summary.json",
+          "additions": 271,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/rejected-9284bf6/declaration.json",
+          "additions": 182,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/rejected-9284bf6/nextgen-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/rejected-9284bf6/run.log",
+          "additions": 212,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-270-survival/unit-tests.txt",
+          "additions": 5,
+          "deletions": 0
+        },
+        {
+          "path": "docs/development/puyo-270-survival-envelope.md",
+          "additions": 44,
+          "deletions": 0
+        },
+        {
+          "path": "puyo_env/nextgen_scheduler.py",
+          "additions": 5,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_nextgen_response_search.py",
+          "additions": 3,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_nextgen_shared_search.py",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_nextgen_survival.py",
+          "additions": 256,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_nextgen_trajectory.py",
+          "additions": 2,
+          "deletions": 2
+        },
+        {
+          "path": "train/nextgen_trajectory.py",
+          "additions": 2,
+          "deletions": 1
+        }
+      ],
+      "headRefName": "PUYO-270/survival-override",
+      "headRefOid": "fe0da9892a41c54a6ab3528d4a58b3fca079f428",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 163,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-25T12:45:04Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36135234000/job/108071614797",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-25T12:29:46Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        }
+      ],
+      "title": "[PUYO-270] 窒息を避ける生存行動を優先する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/163",
+      "baseSha": "53c522b59684ca6cb878084f37feb35359b0ef22",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-270/survival-override",
+      "body": "## What\n\n選択済みの variant/transform/固定色 binding と必須・禁止セルを，Python/native の長期探索へ optional request として渡せるようにした．設置・消去・落下後，評価・TT・beam 枝刈りより前に検査し，土台を保持する複数 root と代表継続を返す．\n\n公開 prefix の完成，sampled future 上だけの完成，違反，未証明，quota cutoff を区別し，sampled witness には scenario ID を保持する．明示的な禁止セルだけを制約にし，catalog の `.` は展開しない．無制約 wire/順位/plan/counters と batch v3 を維持する．\n\n## Why\n\n後段 filter では beam から失われた整合候補を回復できない．幅 1 の反例で，無制約では root 0 だけ残る局面から，制約付き探索は root 3 と公開完成 witness `(3, 0)` を保持する．固定 binding を探索中に再割当せず，cache と request 内 TT の同値性を保つ．\n\n完成後も土台は保持し，解除・縮小は次の request で明示する．PUYO-270 の生存経路は無制約のまま優先し，phase/catalog/実採用への接続は PUYO-268 が所有する．\n\n## QA\n\n- Python/backend/nextgen 回帰 120 tests 成功．Rust 48 passed，2 既存 manual profile ignored．\n- Python/native 両 mode で，横 3/L 字，色置換・鏡映，公開／sampled 完成と scenario 再生，土台保持，幅 1，TT/cache，schema/ABI/private future 拒否を検証した．\n- 同じ target10/d16/w250/6 scenario/seed123 で，共通 quota512・1 thread の Python/native 比較と，native quota600000・6 worker の別系列を保存した．全 24 組・72 measured decisions，全 root status，失敗・未証明，p50/p95，expanded/evaluated nodes，判定 ns，RSS，code/native provenance を保存した．共通 quota の全 8 組で semantic digest と counters が一致する．\n- 拘束によって合成 flat の最大探索連鎖は 8→6，L 字は 7→4 に下がった．土台保持の達成を品質改善や正式 G2 PASS と扱わない．production 接続後の品質評価は PUYO-268/271/266 に残る．\n- 計測 source/native provenance は実装 commit `9b64186087ea8b6e1219861ddbb534b39233966c`．対象ファイル SHA-256 と native binary SHA-256 を manifest に固定した．\n\n## References\n\n- Stack #167：レビュー順 4/6．直前 PR [#163](https://github.com/shhchan/puyo-ai-dev-platform/pull/163)．\n\n- https://shhchan.atlassian.net/browse/PUYO-272\n- PUYO-268，PUYO-270，PUYO-271，PUYO-266\n- `docs/development/puyo-272-selected-template-backend.md`\n- `docs/benchmarks/puyo-272-template-search/README.md`\n- base: `PUYO-270/survival-override`，起点: `fe0da9892a41c54a6ab3528d4a58b3fca079f428`．先行 PR の後にレビューする．\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T12:55:58Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T12:55:58Z",
+          "messageBody": "",
+          "messageHeadline": "Add fixed template constraints to Python and native search",
+          "oid": "9b64186087ea8b6e1219861ddbb534b39233966c"
+        },
+        {
+          "authoredDate": "2026-09-25T13:01:30Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:01:30Z",
+          "messageBody": "",
+          "messageHeadline": "Document template search contract and comparison evidence",
+          "oid": "2c06a749449bca421bfb18d34d8e3df6ba0125ae"
+        }
+      ],
+      "files": [
+        {
+          "path": "agents/deep_chain_native.py",
+          "additions": 29,
+          "deletions": 2
+        },
+        {
+          "path": "agents/deep_chain_native_search.py",
+          "additions": 21,
+          "deletions": 1
+        },
+        {
+          "path": "agents/deep_chain_search_backend.py",
+          "additions": 15,
+          "deletions": 3
+        },
+        {
+          "path": "agents/long_horizon_search.py",
+          "additions": 70,
+          "deletions": 1
+        },
+        {
+          "path": "agents/selected_template.py",
+          "additions": 322,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/README.md",
+          "additions": 54,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/common-quota.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/intermediate-without-scenario-id/README.md",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/intermediate-without-scenario-id/common-quota.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/intermediate-without-scenario-id/native-production-quota.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/measure.py",
+          "additions": 272,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/native-production-quota.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-272-template-search/verification.txt",
+          "additions": 35,
+          "deletions": 0
+        },
+        {
+          "path": "docs/development/puyo-272-selected-template-backend.md",
+          "additions": 70,
+          "deletions": 0
+        },
+        {
+          "path": "native/deep_chain_native/src/lib.rs",
+          "additions": 18,
+          "deletions": 12
+        },
+        {
+          "path": "native/deep_chain_native/src/long_horizon.rs",
+          "additions": 89,
+          "deletions": 1
+        },
+        {
+          "path": "native/deep_chain_native/src/selected_template.rs",
+          "additions": 190,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_selected_template_search.py",
+          "additions": 427,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-272/template-search-backend",
+      "headRefOid": "2c06a749449bca421bfb18d34d8e3df6ba0125ae",
+      "isDraft": false,
+      "mergeStateStatus": "UNSTABLE",
+      "number": 164,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-25T13:04:45Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36138432532/job/108082054682",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-25T13:02:06Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-25T13:04:17Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36138384653/job/108081896021",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-25T13:01:37Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        }
+      ],
+      "title": "[PUYO-272] 選択定型を保持する Python/native 長期探索基盤を追加",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/164",
+      "baseSha": "fe0da9892a41c54a6ab3528d4a58b3fca079f428",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-272/template-search-backend",
+      "body": "## What\n\n選択済み定型の variant/transform/固定色 binding を PUYO-272 の Python/native 探索へ渡し，土台を保持する複数 root から build_template を選びます．公開完成，公開 prefix の中間進捗，現在進捗，長期価値を比較し，sampled 完成を公開完成の証明へ昇格させません．\n\ncatalog の色別 guard でペルシャ横 2 と報告 L 字を区別し，他色支持・合法な尾を許します．GTR の A=C alias，完成後の公開盤面確認と制約解除，14/15 手境界，PUYO-270 の生存優先，実採用 receipt を維持します．公開 prefix の追加遷移は既存 compact_search を使い，同じ template128 nodes の残予算内で処理します．\n\n## Why\n\n静的 fit だけでは後続補充による土台消去を区別できず，現在進捗だけでは公開 NEXT による中間進捗を見落としていました．保存済み機械 seed 123 の 6 手目では root 0/1/5 が現在進捗 +2 に並び，root 1 の長期順位が優先されて 7/8 手目の進捗が止まり，14 手上限で未完成となりました．root 0→root 0 の公開 witness は +3 へ進めるため，これを未探索候補の不可能判定とは区別して順位に反映します．\n\n人間 GUI の seed 123 raw は未保存です．今回の比較は新規機械再現であり，元 run の復元や seed 不明のセカンド逆発火の解消を主張しません．観測 seed の特例や重み調整はありません．\n\n## QA\n\n- 関連 105 tests と，3 定型の追加 prefix 遷移を GameState oracle と突合する 1 test，計 106 件が成功．固定 binding，色置換/mirror，3 定型の成立・中間・完成解除，14/15，Python/native 候補順位，実 receipt/timeout，生存例外を回帰しました．\n- 同じ公開 request6 の 3 repeat で，旧順位 ablation は root1，新順位は root0，無制約 reference backend は root15．制約あり 2 条件の backend digest と shared458206/template128 nodes は一致しました．\n- 同じ host/native/configured inference0 で旧 source を新規再測定し，保存済み PUYO-271 after の全 seed の semantic digest と一致しました．最終 40 手×3 seed は以下のとおりです．\n\n| seed | 旧→最終 初回 GTR | 最大実連鎖 | 窒息 | decision p50/p95（秒） |\n| --- | --- | --- | --- | --- |\n| 55 | 12→10 手 | 0→10 | 35 手で窒息→40 手生存 | .632/.798→.648/.800 |\n| 123 | 14 手 limit→9 手 | 10→10 | なし→なし | .748/.973→.608/.755 |\n| 124 | 9→9 手 | 11→11 | なし→なし | .684/.813→.633/.825 |\n\n最終 120 receipts は activated，premature/窒息/errors は 0．初回 GTR は 2/3→3/3．seed 123 の同じ 9 設置後の最大列高は 6→5，必須セルは 7/8→8/8．seed 55/124 の p95 はわずかに増えており，速度全般の改善とは主張しません．GameState deepcopy の中間版も保存し，compact 化前後で全 action/chain が一致しました．\n\n旧 seed 55 窒息，初回 2/3，過去の失敗 run は保持しています．元 GUI との同一性，修正後の人間 GUI 確認，一般品質，正式 G2 は未確認です．本 PR は draft，PUYO-268 は In Progress のままです．セカンド逆発火と正式 G2 は PUYO-266 の範囲です．\n\n再確認：`.venv/bin/python -m unittest tests.test_template_preserving_integration`．再測定のコマンド，source/native/host/quota/raw SHA は `docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/README.md`．最終測定 code SHA は `9ce014552d5b103f87290095b2156e29e83608a4`，以降は証跡文書のみです．\n\n## References\n\n- https://shhchan.atlassian.net/browse/PUYO-268\n- 先行 PR/base：[#164](https://github.com/shhchan/puyo-ai-dev-platform/pull/164)，`PUYO-272/template-search-backend`．\n- 既存比較：[#166](https://github.com/shhchan/puyo-ai-dev-platform/pull/166)．凍結 fixture/before と旧 after は変更していません．\n- `docs/development/puyo-268-template-integration.md`\n- `docs/benchmarks/puyo-268-template-integration/README.md`\n- native SHA-256：`79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2`．ABI/native build は変更していません．\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T13:24:13Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:24:13Z",
+          "messageBody": "",
+          "messageHeadline": "Preserve selected template constraints through candidates and adoption",
+          "oid": "2746aeee5158a7ec1a4ffafc393f4c8eab5b1e7f"
+        },
+        {
+          "authoredDate": "2026-09-25T13:24:35Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:24:35Z",
+          "messageBody": "",
+          "messageHeadline": "Read the backend semantic digest property in integration measurements",
+          "oid": "efc242149487443098fa8941a1193754b15a4196"
+        },
+        {
+          "authoredDate": "2026-09-25T13:29:00Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:29:00Z",
+          "messageBody": "",
+          "messageHeadline": "Rank all preserved root progress before long-horizon ties",
+          "oid": "b991c920fcb94e4407fcfeb706fe1a66a150187c"
+        },
+        {
+          "authoredDate": "2026-09-25T13:31:46Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:31:46Z",
+          "messageBody": "",
+          "messageHeadline": "Record template integration regressions and fixed-budget measurements",
+          "oid": "41e11840c83983d7834fe0392f794d8d3a78a95c"
+        },
+        {
+          "authoredDate": "2026-09-25T13:33:45Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:33:45Z",
+          "messageBody": "",
+          "messageHeadline": "Normalize Japanese spacing in integration notes",
+          "oid": "258397624245407e402ebf81c5ca20bdc007a475"
+        },
+        {
+          "authoredDate": "2026-09-27T01:21:12Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:21:12Z",
+          "messageBody": "",
+          "messageHeadline": "Compare public prefix progress for committed templates",
+          "oid": "b502627fbe277982c93f9f3ec7ee83cd5a560b90"
+        },
+        {
+          "authoredDate": "2026-09-27T01:30:50Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:30:50Z",
+          "messageBody": "",
+          "messageHeadline": "Reduce public prefix search overhead with compact transitions",
+          "oid": "9ce014552d5b103f87290095b2156e29e83608a4"
+        },
+        {
+          "authoredDate": "2026-09-27T01:36:15Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:36:15Z",
+          "messageBody": "",
+          "messageHeadline": "Record public prefix reproduction and paired regression evidence",
+          "oid": "6c796bfa8a7da878a6e7ce0522d52a5a2395b55d"
+        }
+      ],
+      "files": [
+        {
+          "path": "agents/nextgen_shared_search.py",
+          "additions": 79,
+          "deletions": 65
+        },
+        {
+          "path": "agents/nextgen_tactic_manager.py",
+          "additions": 2,
+          "deletions": 0
+        },
+        {
+          "path": "agents/template_catalog.py",
+          "additions": 152,
+          "deletions": 12
+        },
+        {
+          "path": "agents/template_phase.py",
+          "additions": 3,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/README.md",
+          "additions": 62,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/intermediate-chain-only/fixtures.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/intermediate-chain-only/nextgen-55-20.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/intermediate-chain-only/summary.json",
+          "additions": 1118,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/measure.py",
+          "additions": 107,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/prefix_baseline.py",
+          "additions": 55,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/prefix_measure.py",
+          "additions": 110,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/exact-request-6.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/fresh-before/manifest.json",
+          "additions": 317,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/fresh-before/nextgen-123-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/fresh-before/nextgen-124-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/fresh-before/nextgen-55-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/nextgen-123-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/nextgen-124-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/nextgen-55-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-20260927/summary.json",
+          "additions": 1698,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/README.md",
+          "additions": 59,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/comparison.json",
+          "additions": 786,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/exact-request-6.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/nextgen-123-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/nextgen-124-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/nextgen-55-40.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/summary.json",
+          "additions": 1698,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/public-prefix-compact-20260927/verification.txt",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/results/fixtures.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/results/nextgen-55-20.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/results/summary.json",
+          "additions": 1118,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-268-template-integration/verification.txt",
+          "additions": 35,
+          "deletions": 0
+        },
+        {
+          "path": "docs/development/puyo-268-template-integration.md",
+          "additions": 53,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_271_regression.py",
+          "additions": 6,
+          "deletions": 1
+        },
+        {
+          "path": "puyo_env/nextgen_scheduler.py",
+          "additions": 8,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_nextgen_shared_search.py",
+          "additions": 2,
+          "deletions": 3
+        },
+        {
+          "path": "tests/test_nextgen_tactic_manager.py",
+          "additions": 9,
+          "deletions": 8
+        },
+        {
+          "path": "tests/test_puyo_271_regression.py",
+          "additions": 4,
+          "deletions": 1
+        },
+        {
+          "path": "tests/test_template_preserving_integration.py",
+          "additions": 456,
+          "deletions": 0
+        },
+        {
+          "path": "train/config/nextgen_templates.yaml",
+          "additions": 5,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-268/template-preserving-integration",
+      "headRefOid": "6c796bfa8a7da878a6e7ce0522d52a5a2395b55d",
+      "isDraft": true,
+      "mergeStateStatus": "CLEAN",
+      "number": 165,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "[PUYO-268] 選択定型を保持する探索と実採用を接続する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/165",
+      "baseSha": "2c06a749449bca421bfb18d34d8e3df6ba0125ae",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-268/template-preserving-integration",
+      "body": "## What\n\n- 変更前 corpus を保持し，統合 source `2583976` の seed 55/123/124 ×各 1 回・最大 40 実設置を `nextgen_safe_build` と `deep_chain_builder reference/native/target10` で直列実測した．全 6 raw，公開入力，source/config/native SHA，host/affinity/thread/cache 条件を保存した．\n- 合成ペルシャ横 3／L 字の旧 static fit と新 guard，必要な生存単発，3 定型の witness を別列にし，全 decision の候補・選択・receipt・公開生存 probe，実入力再生による score，p50/p95 を比較した．\n- `DISPLAY=:0` の片側 600／両側 360 frame を測り，frame 個票と input event 個票，p50/p95/p99，raw checksum と再集計器を保存した．\n\n## Why\n\nPUYO-268 の合成 guard 成功と，実対局の品質・GUI 応答を分けて判断するため．変更後の nextgen seed 55 は GTR を 12 設置で完成したが，その後最大実連鎖 0 のまま 35 設置で窒息した．変更前は最大 12・40 設置生存だった．初回 14 手内の GTR 成立は 2/3．PUYO-268 の一般品質は未達として draft／In Progress を維持し，PUYO-266 の完成後構築品質へ結果を渡す．\n\n## QA\n\n- `python -m eval.puyo_271_regression verify --run-dir docs/benchmarks/puyo-271-regression/after` 成功．before の verify も成功．\n- `python -m unittest tests.test_puyo_271_regression tests.test_puyo_271_integrated`：3 件成功．\n- GUI 片側 frame/input p95 は 62.5/67.4 ms，両側は 151.2/208.9 ms．PUYO-269 の p95 25 ms／p99 50 ms gate は両条件で未達．人間 GUI QA は未実施．\n- 正式 G2 30 seed×2 repeat は未実施で，PUYO-266 の責務．この 3×1 を PASS と扱わない．\n\n## References\n\n- Stack #167：レビュー順 6/6．直前 PR [#165](https://github.com/shhchan/puyo-ai-dev-platform/pull/165)．\n\n- [PUYO-271](https://shhchan.atlassian.net/browse/PUYO-271)，前半 PR #162\n- `docs/benchmarks/puyo-271-regression/after/README.md`，`after/evidence_manifest.json`\n- PUYO-268 PR #165，PUYO-270 PR #163，PUYO-272 PR #164，PUYO-269 PR #161\n\n\n[PUYO-271]: https://shhchan.atlassian.net/browse/PUYO-271?atlOrigin=eyJpIjoiNWRkNTljNzYxNjVmNDY3MDlhMDU5Y2ZhYzA5YTRkZjUiLCJwIjoiZ2l0aHViLWNvbS1KU1cifQ",
+      "commits": [
+        {
+          "authoredDate": "2026-09-25T13:57:16Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:57:16Z",
+          "messageBody": "",
+          "messageHeadline": "Add integrated regression and GUI evidence analyzers",
+          "oid": "63a96b2e82c55b61a95fd684b999231a454ff7a4"
+        },
+        {
+          "authoredDate": "2026-09-25T13:57:16Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-25T13:57:16Z",
+          "messageBody": "",
+          "messageHeadline": "Record integrated PUYO-271 quality and cadence evidence",
+          "oid": "595dbed7851c4a995f1426103c1660fa8f0f0550"
+        },
+        {
+          "authoredDate": "2026-09-27T01:38:34Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:38:34Z",
+          "messageBody": "…/integrated-comparison",
+          "messageHeadline": "Merge commit '6c796bfa8a7da878a6e7ce0522d52a5a2395b55d' into PUYO-271…",
+          "oid": "10e56e1896b4391bfa125f0800d1f35655a55508"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/README.md",
+          "additions": 81,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/declaration.json",
+          "additions": 183,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/deep_chain-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/deep_chain-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/deep_chain-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/evidence_manifest.json",
+          "additions": 26,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/gui/manifest.json",
+          "additions": 11,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/gui/nextgen-both-360.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/gui/nextgen-one-600.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/gui/summary.json",
+          "additions": 168,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/nextgen-123-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/nextgen-124-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/nextgen-55-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/paired_comparison.json",
+          "additions": 50742,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/regression_analysis.json",
+          "additions": 252,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/regression_manifest.json",
+          "additions": 259,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/summary.json",
+          "additions": 272,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-271-regression/after/synthetic_results.json",
+          "additions": 233,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_271_gui_probe.py",
+          "additions": 166,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_271_regression.py",
+          "additions": 328,
+          "deletions": 7
+        },
+        {
+          "path": "tests/test_puyo_271_integrated.py",
+          "additions": 36,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-271/integrated-comparison",
+      "headRefOid": "10e56e1896b4391bfa125f0800d1f35655a55508",
+      "isDraft": false,
+      "mergeStateStatus": "CLEAN",
+      "number": 166,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "[PUYO-271] 統合後の反例・品質・GUI 比較証跡を固定する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/166",
+      "baseSha": "6c796bfa8a7da878a6e7ce0522d52a5a2395b55d",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-271/integrated-comparison",
+      "body": "## What\n\n到達可能 action mask の 22 action 別 BFS を共有し，live clock・自然落下・held/repeat・接地状態を保持して，最初の実 lock と候補 root が一致する入力だけを返す．最大 2 回/root の修復と全 action 合計 2000 展開の修復上限を設け，失敗時は `reachable=False, inputs=()` として mask から除く．active plan は次 tick の release を含む残入力を検証する．\n\n変更範囲は planner，realtime AI の mask/active-plan 検証，対応 tests，GUI 計測器，証跡．core，scheduler，native ABI，human 入力 API は変更していない．固定 gate と人間 QA が未達のため **draft** を維持する．\n\n## Why\n\n初回の共有 BFS により mask p95 は片側 130.3→7.4 ms，両側 124.8→9.1 ms に改善した．その後 PUYO-266 raw で，requested/executed action が一致しても自然落下の tick により実 lock がずれることが判明した．seed 137 の予測 12→実 1 連鎖，seed 148 の予測 0→実 8 連鎖を同じ public board/timing で再現した．実行 helper の時計再初期化も誤検証の原因だった．\n\n修正後は seed 137/148 の実 root・12/0 連鎖・解決後 field が候補と一致する．保守的な mask 除外によって選択結果が変わり得るため，PUYO-266 の品質 gate は別途再評価が必要である．\n\n## QA\n\n- **56 tests 成功（23.780 s）**．seed 137/148 の旧/新入力，許可した全 root の最初の実 lock，clock/gravity/DOWN 同 tick，held/release parity，全 cursor の残入力，fail-closed，source 非変更，pause/step・独立進行・stale reject・worker・replay を回帰した．\n- 最終測定 source `c987ee9`，証跡を含む head `d77e3c1`．seed 55，DISPLAY=:0，1120×780，60 FPS，速度 1.0，片側/human600 frame，両側360 frame．native SHA-256 `79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2`．before は `f53252b` の幾何 planner/abort 判定を復元し，同じ計測器・host/config で直列比較した．\n- 最終 frame p95/p99：片側31.8/62.6→35.1/77.0 ms，両側66.4/109.2→89.6/145.1 ms，human35.0/77.4→33.1/82.2 ms．片側 input schedule は37.8/70.3→45.1/67.9 ms．時間検証後の mask p95 は片側25.9/両側23.9/human32.6 ms．**25/50 ms gate 未達**を明記する．\n- 幾何 before 両側で予定 (x0,y1,DOWN)→実 (x1,y1,UP) の不一致を1件観測した．最終 after は比較可能 AI lock 16/10/6件すべて一致し，fallback/unreachable/replan/timeout/deadline miss は0，worker cleanup成功．human の配置に予定 root を仮定していない．\n- human event は before226件投入/225件処理，after227/226件で，各末尾1件は停止時 queue 残，それ以外の ID 欠落/重複なし．UI 解放後の余分な横 repeat は左6/右7→0/0，回転 emitted/fired は両 run 左22/22・右23/23．単発 after での非再現は修正・人間 QA 合格を意味しない．\n- 入力の最小再現：同 tick 前に `human.key_down(Action.RIGHT)`，`human.key_up(Action.RIGHT)`，`simulator.step(human.next_input(match))` を実行すると UI held は空でも simulator held に RIGHT が残る．中間 trace でも残存し，PUYO-269 に引継ぐ．\n- 軽量 first/random の frame19.7/25.3 ms，関数 profiler と /proc sampling を外す片側53.2/91.5 ms．async進行が異なるため差分を overhead 自体とは断定しない．完全無計測との差と実際の人間 QA は未実施．\n- 既存9＋中間8＋最終8 traceの checksum/個票集計を検証済み．`aggregate.py --directory docs/benchmarks/puyo-273-timed-placement/suffix` で最終結果を再計算できる．初回資料も保持した．scheduler accept/finish と GUI 同期残余は PUYO-269 と組合せ QA が必要である．\n\n## References\n\n- [PUYO-273](https://shhchan.atlassian.net/browse/PUYO-273)，親 [PUYO-228](https://shhchan.atlassian.net/browse/PUYO-228)\n- 残余 GUI/入力：[PUYO-269](https://shhchan.atlassian.net/browse/PUYO-269)，品質再評価：[PUYO-266](https://shhchan.atlassian.net/browse/PUYO-266)\n- 起点 #166 / `595dbed7851c4a995f1426103c1660fa8f0f0550`，base `PUYO-271/integrated-comparison`．既存 #167 は変更していない．\n- [live-clock 修正・再現・最終比較](docs/benchmarks/puyo-273-timed-placement/README.md)\n- [初回共有 BFS・GUI/入力 handoff](docs/benchmarks/puyo-273-reachable-mask/README.md)\n\n\n[PUYO-273]: https://shhchan.atlassian.net/browse/PUYO-273?atlOrigin=eyJpIjoiNWRkNTljNzYxNjVmNDY3MDlhMDU5Y2ZhYzA5YTRkZjUiLCJwIjoiZ2l0aHViLWNvbS1KU1cifQ",
+      "commits": [
+        {
+          "authoredDate": "2026-09-27T01:13:58Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:13:58Z",
+          "messageBody": "",
+          "messageHeadline": "Share one reachability traversal across placement targets",
+          "oid": "de0e8718e85d398dd78ca77a896cdca031a56282"
+        },
+        {
+          "authoredDate": "2026-09-27T01:13:58Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:13:58Z",
+          "messageBody": "",
+          "messageHeadline": "Add fixed GUI cadence and input boundary probe",
+          "oid": "a01edabc70d2e43f2bb2d7354354b3372b7370c7"
+        },
+        {
+          "authoredDate": "2026-09-27T01:16:29Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:16:29Z",
+          "messageBody": "",
+          "messageHeadline": "Record native build and scheduler errors in cadence traces",
+          "oid": "049a02da4568a79baedc9af92281fabb332b8538"
+        },
+        {
+          "authoredDate": "2026-09-27T01:22:55Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:22:55Z",
+          "messageBody": "",
+          "messageHeadline": "Skip nonadvancing terminal calls in human tick traces",
+          "oid": "98d24f06c2fe5e3bdd10da9d31c0bf912c6ce31e"
+        },
+        {
+          "authoredDate": "2026-09-27T01:22:55Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:22:55Z",
+          "messageBody": "",
+          "messageHeadline": "Document mask cadence results and remaining input stalls",
+          "oid": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02"
+        },
+        {
+          "authoredDate": "2026-09-27T01:40:47Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:40:47Z",
+          "messageBody": "…/reachable-mask-cadence",
+          "messageHeadline": "Merge commit '10e56e1896b4391bfa125f0800d1f35655a55508' into PUYO-273…",
+          "oid": "4220f3a6069ef8dfef08ebb5de66eac80be6013b"
+        },
+        {
+          "authoredDate": "2026-09-27T02:48:59Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:48:59Z",
+          "messageBody": "",
+          "messageHeadline": "Verify placement witnesses against live gravity and lock timing",
+          "oid": "e94bf76e9af4d463f0366cf9723bc2e0173ed2ff"
+        },
+        {
+          "authoredDate": "2026-09-27T02:48:59Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:48:59Z",
+          "messageBody": "",
+          "messageHeadline": "Trace planned and actual lock roots in GUI comparisons",
+          "oid": "f723f81ef2e6022a1c89bf05f45b7773bd4da8a3"
+        },
+        {
+          "authoredDate": "2026-09-27T02:54:13Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:54:13Z",
+          "messageBody": "",
+          "messageHeadline": "Share repair transitions within each timed mask calculation",
+          "oid": "79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d"
+        },
+        {
+          "authoredDate": "2026-09-27T03:02:43Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:02:43Z",
+          "messageBody": "",
+          "messageHeadline": "Validate active placement input suffix before replanning",
+          "oid": "c987ee9e1e1b7e3bf77d09105c681c87e5134516"
+        },
+        {
+          "authoredDate": "2026-09-27T03:06:17Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:06:17Z",
+          "messageBody": "",
+          "messageHeadline": "Record timed placement regression and GUI cadence evidence",
+          "oid": "d77e3c140e0f00a8c408c09204683be6b710b717"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/README.md",
+          "additions": 86,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/aggregate.py",
+          "additions": 97,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/conditions.json",
+          "additions": 32,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/manifest.json",
+          "additions": 149,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/profile_scheduler.py.txt",
+          "additions": 18,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/after-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/after-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/after-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/after-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/before-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/before-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/before-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/minimal-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/raw/minimal-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/scheduler-profile.json",
+          "additions": 265,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-reachable-mask/summary.json",
+          "additions": 3901,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/README.md",
+          "additions": 83,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/conditions.json",
+          "additions": 44,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/initial_timed_summary.json",
+          "additions": 5601,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/manifest.json",
+          "additions": 94,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/after-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/after-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/after-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/after-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/before-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/before-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/before-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/raw/minimal-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/conditions.json",
+          "additions": 44,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/manifest.json",
+          "additions": 60,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/after-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/after-first.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/after-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/after-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/before-both.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/before-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/before-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/raw/minimal-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/suffix/summary.json",
+          "additions": 5442,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-273-timed-placement/summary.json",
+          "additions": 5442,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_273_gui_probe.py",
+          "additions": 258,
+          "deletions": 0
+        },
+        {
+          "path": "puyo_env/action_planner.py",
+          "additions": 193,
+          "deletions": 82
+        },
+        {
+          "path": "puyo_env/realtime_ai.py",
+          "additions": 8,
+          "deletions": 16
+        },
+        {
+          "path": "tests/fixtures/puyo_273_timed_placement.json",
+          "additions": 652,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_reachable_mask_batch.py",
+          "additions": 65,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_realtime_ai.py",
+          "additions": 4,
+          "deletions": 2
+        },
+        {
+          "path": "tests/test_timed_placement_planner.py",
+          "additions": 188,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-273/reachable-mask-cadence",
+      "headRefOid": "d77e3c140e0f00a8c408c09204683be6b710b717",
+      "isDraft": true,
+      "mergeStateStatus": "UNSTABLE",
+      "number": 168,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-27T03:08:50Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36290446133/job/108539365741",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-27T03:06:25Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-27T03:08:57Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36290444732/job/108539361746",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-27T03:06:24Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        }
+      ],
+      "title": "[PUYO-273] 到達可能 mask の共有探索と live clock に一致する配置検証",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/168",
+      "baseSha": "10e56e1896b4391bfa125f0800d1f35655a55508",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-273/reachable-mask-cadence",
+      "body": "## What\n\n- 同 tick の human key edge を event 順で simulator と replay に渡し，解放後の held 残留を修正する．\n- nextgen scheduler の重複した payload deepcopy，候補再検証，diagnostics JSON 化を削減する．\n- 固定 wheel・seed・host・source/config で軽量／片側／両側／human の GUI A/B trace と集計手順を保存する．\n\n## Why\n\nPUYO-273 後も同 tick の押下→解放で横キーが simulator に残り，frame/input gate が未達だったため．\n\n## QA\n\n- 対象 unit 12 件に加え，12 tick catch-up の human tap 回帰 1 件が成功．旧／新 replay payload，pause/step，stale/cancel，request/phase validation，receipt を確認．\n- 合成 human trace の UI/simulator held 不一致は 63→0 tick，解放後かつ新規 press なしの余分な横発火は LEFT 7→0／RIGHT 6→0．回転 emitted/fired は両側で一致し，処理済み event ID の重複は 0．\n- frame p95/p99 は片側 26.4/65.6→29.5/64.8 ms，両側 66.6/126.4→76.3/136.1 ms．固定 gate 25/50 ms は未達で，frame 性能改善は確認できない．実人間の意図した配置 QA は未実施．このため draft を維持する．\n- raw 10 run，checksum，worker CPU/RSS/cleanup，profiling overhead と再集計は `docs/benchmarks/puyo-269-followup/README.md` を参照．\n\n### PUYO-273 合成 head の再測定（5bcdd12）\n\n- 軽量／片側／両側／1P nextgen 対 2P human を固定 wheel・host・seed 55・config・予算で直列実行．[追加証跡](https://github.com/shhchan/puyo-ai-dev-platform/blob/PUYO-269/gui-input-cadence-followup/docs/benchmarks/puyo-269-followup/integrated/README.md) に raw 4 件，checksum，p50/p95/p99/max，event／lock／worker 資源を保存．初回 A/B の source `7587d0b` とは planner 等が異なり，同条件ペアの性能差として帰属しない．\n- frame p95/p99 は軽量 19.3/22.3，片側 30.9/70.9，両側 71.6/97.3，human 31.1/64.3 ms．input schedule p95/p99 は順に 15.7/16.6，32.6/71.3，63.2/92.7，36.0/54.7 ms．固定 gate は未達．\n- human held 不一致 0 tick，過剰横発火 LEFT/RIGHT 0/0，回転 emitted/fired 左右各 22/22．比較可能な AI lock は片側 6/6，両側 8/8，human 条件 5/5 が予定 root と一致．human 自身の 11 lock は予定 root を仮定せず比較外．\n- 片側で `activation_unreachable_fallback` 1 件（fallback_actions=1，unreachable_plans=1）を確認．原因は未確定．scheduler error 0，worker cleanup 成功．実人間の配置 QA は未実施で draft を維持．\n\n## References\n\n- [PUYO-269](https://shhchan.atlassian.net/browse/PUYO-269)\n- [先行 PUYO-273 PR #168](https://github.com/shhchan/puyo-ai-dev-platform/pull/168)\n- [既存 GUI 履歴軽量化 PR #161](https://github.com/shhchan/puyo-ai-dev-platform/pull/161) は変更していない．\n\n\n[PUYO-269]: https://shhchan.atlassian.net/browse/PUYO-269?atlOrigin=eyJpIjoiNWRkNTljNzYxNjVmNDY3MDlhMDU5Y2ZhYzA5YTRkZjUiLCJwIjoiZ2l0aHViLWNvbS1KU1cifQ\n",
+      "commits": [
+        {
+          "authoredDate": "2026-09-27T01:31:05Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:31:05Z",
+          "messageBody": "",
+          "messageHeadline": "Preserve human input edge order across realtime ticks",
+          "oid": "273beb27c9e0e12fb8c733d7c200fdd7654eb2f9"
+        },
+        {
+          "authoredDate": "2026-09-27T01:31:08Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:31:08Z",
+          "messageBody": "",
+          "messageHeadline": "Reduce duplicate nextgen scheduler work",
+          "oid": "2b99f5d8ba6b63c6f35e4adcf7be39bd5ab6d94d"
+        },
+        {
+          "authoredDate": "2026-09-27T01:32:42Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:32:42Z",
+          "messageBody": "",
+          "messageHeadline": "Cover human tap behavior during catch-up",
+          "oid": "7587d0bdfa166ec48135b1a6001951d54d7a0029"
+        },
+        {
+          "authoredDate": "2026-09-27T01:39:22Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:39:22Z",
+          "messageBody": "",
+          "messageHeadline": "Record paired GUI cadence and input traces",
+          "oid": "247a62d940b3a6583e57c639750f347f3c586b2e"
+        },
+        {
+          "authoredDate": "2026-09-27T01:39:43Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:39:43Z",
+          "messageBody": "",
+          "messageHeadline": "Keep cadence summary focused on review metrics",
+          "oid": "af233dc1cf616f99a6bd0af293a5c16da09c9bf1"
+        },
+        {
+          "authoredDate": "2026-09-27T01:41:40Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:41:40Z",
+          "messageBody": "…/gui-input-cadence-followup",
+          "messageHeadline": "Merge commit '4220f3a6069ef8dfef08ebb5de66eac80be6013b' into PUYO-269…",
+          "oid": "156a7618027151134783197a969ba7ed50b3015f"
+        },
+        {
+          "authoredDate": "2026-09-27T03:06:51Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:06:51Z",
+          "messageBody": "…/gui-input-cadence-followup",
+          "messageHeadline": "Merge commit 'd77e3c140e0f00a8c408c09204683be6b710b717' into PUYO-269…",
+          "oid": "5bcdd1278cc70cee3f1edb396706d8d1552c68b3"
+        },
+        {
+          "authoredDate": "2026-09-27T03:10:23Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:10:23Z",
+          "messageBody": "",
+          "messageHeadline": "Record integrated GUI input and cadence regression",
+          "oid": "0b42445ec703cff5c696a70428c872c26a36ab4f"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-269-followup/README.md",
+          "additions": 47,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/aggregate.py",
+          "additions": 134,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/README.md",
+          "additions": 33,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/raw/human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/raw/light.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/raw/one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/raw/two.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/integrated/summary.json",
+          "additions": 818,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-light-minimal.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-light.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-one-minimal.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/after-two.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/before-human.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/before-light.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/before-one.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/raw/before-two.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-269-followup/summary.json",
+          "additions": 1830,
+          "deletions": 0
+        },
+        {
+          "path": "eval/puyo_269_gui_probe.py",
+          "additions": 56,
+          "deletions": 0
+        },
+        {
+          "path": "eval/realtime_arena.py",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "eval/realtime_versus_ui.py",
+          "additions": 8,
+          "deletions": 1
+        },
+        {
+          "path": "puyo_env/nextgen_scheduler.py",
+          "additions": 11,
+          "deletions": 4
+        },
+        {
+          "path": "src/core/realtime.py",
+          "additions": 23,
+          "deletions": 10
+        },
+        {
+          "path": "src/core/replay.py",
+          "additions": 1,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_realtime_headless.py",
+          "additions": 21,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_realtime_replay.py",
+          "additions": 15,
+          "deletions": 0
+        },
+        {
+          "path": "tests/test_realtime_versus_ui.py",
+          "additions": 52,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-269/gui-input-cadence-followup",
+      "headRefOid": "0b42445ec703cff5c696a70428c872c26a36ab4f",
+      "isDraft": true,
+      "mergeStateStatus": "UNSTABLE",
+      "number": 169,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-09-27T03:13:00Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/shhchan/puyo-ai-dev-platform/actions/runs/36290643836/job/108539924718",
+          "name": "linux-cp312-release",
+          "startedAt": "2026-09-27T03:10:35Z",
+          "status": "COMPLETED",
+          "workflowName": "deep-chain native extension"
+        }
+      ],
+      "title": "[PUYO-269] GUI 入力順序と残余同期経路を改善する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/169",
+      "baseSha": "d77e3c140e0f00a8c408c09204683be6b710b717",
+      "baseIsAncestor": true
+    },
+    {
+      "baseRefName": "PUYO-269/gui-input-cadence-followup",
+      "body": "## What\n\n- 完成した定型セルの由来を追う offline asset audit を追加した．候補順位，selection，receipt，公開 current／NEXT／NEXT2 の代替を保存し，有効な逆発火へ一律 penalty を付けない．\n- `nextgen_safe_build`／native 用の固定 G2 runner を追加し，seed 123〜152 × repeat 1／2 × 40 placements を測定した．source／binary／host／quota／全 raw／latency／失敗を保存した．\n- 保存入力の tick replay で activation と実 lock の差を再現した．seed 137／148 の最小診断回帰を追加し，planner の改善は PUYO-273 へ引き渡した．\n- source `1a25af1` の実測を保持した．測定後の変更は診断と集計整合性検査のみで，policy 重み／core／planner／native ABI／構築中 prefix 順位は変更していない．\n\n## Why\n\n元 GUI のセカンド 10 連鎖の seed／raw は不明で，新規 3 seed × 80 手でも同じ完成 GTR を残す逆発火は未再現だった．公開モデルのセル消去予測と実配置を区別し，根拠のない重み調整を避ける必要がある．seed 137 は選択した 12 連鎖 root と異なる場所に lock して実 1 連鎖になり，receipt の activation だけでは実配置を保証できないことが分かった．\n\n## QA\n\n- 最終 83 tests 成功（資産診断／safe build／contracts／shared search／tactic／survival／native gate／adoption replay）．Ruff と `git diff --check` 成功．\n- 138 artifact の SHA と全 60 identity の再集計を検証済み．30 seed の repeat digest は全一致，worker 欠損／未完了 0．\n- 最大実連鎖の平均 **8.4667**，10 連鎖以上 **23／30 seed**，premature **10**，窒息 **12**（後二者は全 repeat）．判断 p50／p95 **0.6449／0.8150 s**．**observed quality FAIL，G2 BLOCKED**．\n- 30 seed の入力 replay は全て最終 state hash 一致．配置差は seed 134／137／148．seed 142 の hidden 行差，151 の未 lock 再計画は別原因として保持した．seed 135 の quiet roots は固定定型に違反し，定型候補は全て単発で，採用 root は rank 0／compatible=true だった．PUYO-268 の順位バグとは確認できず，固定定型継続／明示解除の phase・発火方針を PUYO-266 の残課題として保持する．\n- 新規 80 手の 55／123／124 は実発火 10→10／10→10→10／11→10→10，premature／窒息 0．保存済み PUYO-268 の先頭 40 手と公開入力／選択／receipt／連鎖／設定が一致した．元 GUI 逆発火の再現とは扱わない．\n- reference 3 seed は 1／10／10，seed 55 窒息．予算と環境を合わせた診断だが，ghost 行の観測と scenario 導出に差があり，同一公開入力の selector 優劣や公開既知解 gap 0 は主張しない．\n- 残課題：元 GUI run 再現，望ましくない未使用 GTR の確定反例，人間 GUI 再 QA，G0／G1／必須脅威 fixture／公開既知解 gap．PUYO-273 修正後の別 G2 測定は下記追補で実施済みだが品質未達．A/C 未達のため draft／In Progress を維持し，学習は開始していない．\n\n再確認：\n\n```bash\npython docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/verify.py\n```\n\n### 合成 source の再測定追補（2026-09-27）\n\n- 合成 source `2d78cad9b26fb129d4b33dd75add90ff49456491`，証跡 commit `d3acb77d9542e66209618deb36eaae6d2bcaca9d`．旧 `1a25af1` の raw は保持し，新 output で全 60 run を再測定した．この追加差分は docs の証跡のみ．\n- preflight／全 worker で source 固定，旧 cohort との native／config／host 完全一致を確認した．config SHA `af704ba11b0876f32952ede2d9c2086318a26655b04f82e93a90269441bbd1bf`．\n- 平均最大実連鎖 **8.8667**（旧 8.4667），10 連鎖以上 **25／30**（旧 23／30），premature **6**（旧 10），窒息 **10**（旧 12）．repeat **30／30 一致**，worker／scheduler error 0，配置／判断 **2366／2366**．decision p50／p95 **0.6635／0.8349 s**．**quality FAIL／G2 BLOCKED を維持**する．\n- 全 60 run の保存入力 replay は最終 hash 一致，選択 root と実 lock の不一致 0，完全盤面予測と実連鎖の不一致 0．旧新の初期公開状態と，共通に観測した lock 順の公開ツモ窓は全 identity 一致した．\n- 最大連鎖の変化は seed 134 **11→10**，137 **1→12**，148 **8→10**．126／128／132／135／144 の品質失敗は残る．142 の公開予測と実連鎖の差は hidden 行由来で別記した．135 の固定定型継続／明示解除方針も残課題である．\n- 別診断の seed 55／123／124 は最大 **10／10／11**，premature／窒息 0，初回 GTR 完成 **10／9／9 手**．55 は追加測定，123／124 は正式 repeat 1 を明示参照し，独立追加 repeat には数えない．保存済み PUYO-268 と全 40 手の可視盤面／公開ツモ／action／phase／連鎖列が一致し，元 GUI の逆発火は未再現のまま．\n- 親確認済みの合成境界回帰 **99 tests**，今回の **201 artifact SHA／全 60 identity 再集計／全入力 replay** を確認した．CPU 枠は返却済み．G0／G1／threat／gap／人間再 QA 未確認，学習未開始，draft／In Progress を維持する．\n- 証跡：`docs/benchmarks/puyo-266-safe-build/integrated-g2-20260927/README.md`．再確認：`python docs/benchmarks/puyo-266-safe-build/integrated-g2-20260927/verify.py`．\n\n## References\n\n- [PUYO-266](https://shhchan.atlassian.net/browse/PUYO-266)／[親 PUYO-228](https://shhchan.atlassian.net/browse/PUYO-228)\n- [PUYO-273：実配置の整合](https://shhchan.atlassian.net/browse/PUYO-273)／[PUYO-268：構築中順位](https://shhchan.atlassian.net/browse/PUYO-268)\n- `docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/README.md`\n- `docs/development/puyo-255-evaluation-gates.md`\n- base `PUYO-269/gui-input-cadence-followup`，起点 `156a7618027151134783197a969ba7ed50b3015f`．既存 #160 の続きであり，旧失敗／新 3 seed／今回 60 run は別条件の証拠として保持する．\n\n\n[PUYO-266]: https://shhchan.atlassian.net/browse/PUYO-266?atlOrigin=eyJpIjoiNWRkNTljNzYxNjVmNDY3MDlhMDU5Y2ZhYzA5YTRkZjUiLCJwIjoiZ2l0aHViLWNvbS1KU1cifQ",
+      "commits": [
+        {
+          "authoredDate": "2026-09-27T01:55:33Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:55:33Z",
+          "messageBody": "",
+          "messageHeadline": "Audit completed template cell usage from public receipts",
+          "oid": "f67dfd963f80e4728afe422f305b3758574870fb"
+        },
+        {
+          "authoredDate": "2026-09-27T01:55:33Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T01:55:33Z",
+          "messageBody": "",
+          "messageHeadline": "Freeze native safe-build cohorts without bypassing G2 prerequisites",
+          "oid": "1a25af1d3f3618d4ad7d44b6ae25080bbdf204fc"
+        },
+        {
+          "authoredDate": "2026-09-27T02:46:27Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:46:27Z",
+          "messageBody": "",
+          "messageHeadline": "Validate cohort summaries against recorded chain trajectories",
+          "oid": "6359f9696a0ca24d1cd609fe5336ce114672c1a0"
+        },
+        {
+          "authoredDate": "2026-09-27T02:46:27Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:46:27Z",
+          "messageBody": "",
+          "messageHeadline": "Replay receipt and lock mismatches from saved native inputs",
+          "oid": "f955d5ada60b4d8055d6d9739859af8bbb7256e7"
+        },
+        {
+          "authoredDate": "2026-09-27T02:46:29Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:46:29Z",
+          "messageBody": "",
+          "messageHeadline": "Archive native G2 failures and completed asset diagnostics",
+          "oid": "1649aa0a4c2e4b42cb883382be352df7e262dbe0"
+        },
+        {
+          "authoredDate": "2026-09-27T02:48:57Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T02:48:57Z",
+          "messageBody": "",
+          "messageHeadline": "Clarify template release policy ownership for seed 135",
+          "oid": "3e193f7c75249f13bb877c7ed0669d9074d52fba"
+        },
+        {
+          "authoredDate": "2026-09-27T03:12:17Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:12:17Z",
+          "messageBody": "…/gtr-asset-quality",
+          "messageHeadline": "Merge commit '0b42445ec703cff5c696a70428c872c26a36ab4f' into PUYO-266…",
+          "oid": "2d78cad9b26fb129d4b33dd75add90ff49456491"
+        },
+        {
+          "authoredDate": "2026-09-27T03:57:27Z",
+          "authors": [
+            {
+              "email": "sion2000114@gmail.com",
+              "id": "U_kgDOCkIOTg",
+              "login": "shhchan",
+              "name": "shhchan"
+            }
+          ],
+          "committedDate": "2026-09-27T03:57:27Z",
+          "messageBody": "",
+          "messageHeadline": "Archive integrated native G2 and fixed-seed paired measurements",
+          "oid": "d3acb77d9542e66209618deb36eaae6d2bcaca9d"
+        }
+      ],
+      "files": [
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/README.md",
+          "additions": 114,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/123-80.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/123.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/123.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/124-80.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/124.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/124.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/125.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/125.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/126.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/126.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/127.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/127.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/128.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/128.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/129.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/129.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/130.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/130.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/131.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/131.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/132.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/132.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/133.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/133.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/134.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/134.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/135.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/135.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/136.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/136.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/137.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/138.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/138.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/139.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/139.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/140.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/140.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/141.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/141.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/142.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/143.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/143.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/144.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/144.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/145.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/145.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/146.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/146.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/147.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/147.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/148.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/149.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/149.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/150.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/150.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/151.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/152.adoption.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/152.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/55-80.asset.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/analysis/index.json",
+          "additions": 699,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/checksums.sha256",
+          "additions": 138,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/comparison.json",
+          "additions": 79,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/declaration.json",
+          "additions": 186,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/final-tests.log",
+          "additions": 7,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/gate-tests.log",
+          "additions": 9,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/finalize.log",
+          "additions": 62,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/manifest.json",
+          "additions": 294,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/report.json",
+          "additions": 181,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/run.log",
+          "additions": 2538,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-123-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-123-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-124-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-124-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-125-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-125-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-126-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-126-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-127-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-127-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-128-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-128-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-129-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-129-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-130-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-130-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-131-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-131-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-132-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-132-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-133-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-133-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-134-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-134-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-135-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-135-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-136-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-136-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-137-repeat-1.json.gz",
+          "additions": 0,
+          "deletions": 0
+        },
+        {
+          "path": "docs/benchmarks/puyo-266-safe-build/asset-quality-20260927/native-g2/seed-137-repeat-2.json.gz",
+          "additions": 0,
+          "deletions": 0
+        }
+      ],
+      "headRefName": "PUYO-266/gtr-asset-quality",
+      "headRefOid": "d3acb77d9542e66209618deb36eaae6d2bcaca9d",
+      "isDraft": true,
+      "mergeStateStatus": "CLEAN",
+      "number": 170,
+      "reviewRequests": [],
+      "state": "OPEN",
+      "statusCheckRollup": [],
+      "title": "[PUYO-266] 定型資産の利用診断と native G2 の未達証跡を整備する",
+      "url": "https://github.com/shhchan/puyo-ai-dev-platform/pull/170",
+      "baseSha": "0b42445ec703cff5c696a70428c872c26a36ab4f",
+      "baseIsAncestor": true
+    }
+  ],
+  "human_qa": {
+    "PUYO-264": "OK",
+    "PUYO-268": "OK",
+    "PUYO-266": "daa/random seed59 seed-a55 seed-b59 late-game avoidable suffocation observed; original raw/source/speed unknown",
+    "PUYO-273": "placement visually okay; N=3 future placement preview missing, cause unknown",
+    "PUYO-269": "notebook slightly improved but stutter remains; hardware cause hypothetical"
+  },
+  "formal_g2": "quality FAIL / G2 BLOCKED; owned by PUYO-266",
+  "snapshot_note": "Captured before review-ready changes and handoff PR; consult GitHub/Jira current state on restart."
+}

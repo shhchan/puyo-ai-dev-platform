@@ -1,0 +1,1830 @@
+{
+  "after-human": {
+    "raw_sha256": "08b558ba1b542dea77519363ca6a2a3926061c8d9d99c8ad2dfb3e580eb7a499",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "human",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.38546138,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.562223,
+        "p95": 31.815483849999925,
+        "p99": 69.09121292999998,
+        "max": 180.29763
+      },
+      "input_schedule_ms": {
+        "p50": 10.146209,
+        "p95": 37.525973999999984,
+        "p99": 77.84401346,
+        "max": 167.619718
+      },
+      "input_queue_ms": {
+        "p50": 5.482548,
+        "p95": 18.73784519999999,
+        "p99": 69.24695176000012,
+        "max": 157.075956
+      },
+      "input_to_state_ms": {
+        "p50": 10.787281,
+        "p95": 36.97843569999999,
+        "p99": 77.75469754000017,
+        "max": 161.49729
+      },
+      "input_to_render_ms": {
+        "p50": 18.170181,
+        "p95": 65.70926739999997,
+        "p99": 105.19175880000029,
+        "max": 226.036217
+      },
+      "event_ms": {
+        "p50": 0.0423225,
+        "p95": 0.15144379999999988,
+        "p99": 0.24248869999999995,
+        "max": 0.479024
+      },
+      "update_ms": {
+        "p50": 5.041352,
+        "p95": 18.12807324999995,
+        "p99": 55.6231867,
+        "max": 122.618379
+      },
+      "render_ms": {
+        "p50": 6.387791,
+        "p95": 12.060442549999996,
+        "p99": 51.15023351999999,
+        "max": 73.620983
+      },
+      "tick_ms": {
+        "p50": 4.873044500000001,
+        "p95": 9.694856449999985,
+        "p99": 50.1453854399998,
+        "max": 109.29791
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 11
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 11,
+        "p50": 23.457173,
+        "p95": 60.78988150000001,
+        "p99": 74.10031550000002,
+        "max": 77.427924
+      },
+      "scheduler_finish": {
+        "n": 11,
+        "p50": 7.035933,
+        "p95": 14.491287,
+        "p99": 15.434868600000001,
+        "max": 15.670764
+      },
+      "simulation": {
+        "n": 682,
+        "p50": 4.2024255,
+        "p95": 7.117199299999999,
+        "p99": 10.648481499999953,
+        "max": 61.910535
+      },
+      "authoritative_mask": {
+        "n": 17,
+        "p50": 4.780374,
+        "p95": 7.203994999999999,
+        "p99": 7.9122509999999995,
+        "max": 8.089315
+      },
+      "_complete_decision": {
+        "n": 11,
+        "p50": 28.314419,
+        "p95": 65.106158,
+        "p99": 78.6229716,
+        "max": 82.002175
+      },
+      "_activate_nextgen": {
+        "n": 11,
+        "p50": 19.978608,
+        "p95": 24.83455,
+        "p99": 26.2357772,
+        "max": 26.586084
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 11,
+        "decisions_activated": 6,
+        "timeouts": 0,
+        "stale_decisions": 5,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 0,
+        "decisions_activated": 0,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "941623": true
+    },
+    "processes": [
+      {
+        "pid": 941592,
+        "sampled_cpu_cores": 0.637,
+        "max_rss_mib": 266.3,
+        "max_threads": 12
+      },
+      {
+        "pid": 941623,
+        "sampled_cpu_cores": 1.021,
+        "max_rss_mib": 340.9,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 228,
+      "processed": 227,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        227
+      ]
+    },
+    "human": {
+      "held_mismatch_ticks": 0,
+      "excess_horizontal_fired": {
+        "LEFT": 0,
+        "RIGHT": 0
+      },
+      "rotation_emitted_fired": {
+        "ROTATE_LEFT": [
+          22,
+          22
+        ],
+        "ROTATE_RIGHT": [
+          23,
+          23
+        ]
+      }
+    },
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "after-light-minimal": {
+    "raw_sha256": "0efebf4715fb6f65a15f35eef170d481c9a9f3ba0bd8f49118991903b3c19790",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "first",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 9.801065342,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.0449235,
+        "p95": 19.3494311,
+        "p99": 21.851624599999994,
+        "max": 79.422187
+      },
+      "input_schedule_ms": {
+        "p50": 7.856677,
+        "p95": 15.121246699999999,
+        "p99": 16.150287260000002,
+        "max": 56.97438
+      },
+      "input_queue_ms": {
+        "p50": 7.457487,
+        "p95": 11.5778198,
+        "p99": 12.67909346,
+        "max": 14.413284
+      },
+      "input_to_state_ms": {
+        "p50": 11.687887,
+        "p95": 28.317058799999984,
+        "p99": 30.593909460000003,
+        "max": 31.484967
+      },
+      "input_to_render_ms": {
+        "p50": 13.937055,
+        "p95": 31.141177399999997,
+        "p99": 34.01254530000001,
+        "max": 39.12059
+      },
+      "event_ms": {
+        "p50": 0.039632,
+        "p95": 0.0851822,
+        "p99": 0.1425511599999999,
+        "max": 0.489506
+      },
+      "update_ms": {
+        "p50": 3.5689375,
+        "p95": 5.79870195,
+        "p99": 8.11179084999999,
+        "max": 75.821201
+      },
+      "render_ms": {
+        "p50": 2.103478,
+        "p95": 2.60033895,
+        "p99": 3.4770412299999998,
+        "max": 15.248069
+      },
+      "tick_ms": {
+        "p50": 3.5499895,
+        "p95": 5.7717247,
+        "p99": 7.537832899999997,
+        "max": 75.802769
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "max": 5
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": null,
+      "scheduler_finish": null,
+      "simulation": null,
+      "authoritative_mask": null,
+      "_complete_decision": null,
+      "_activate_nextgen": null
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 12,
+        "decisions_activated": 12,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 10,
+        "decisions_activated": 10,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {},
+    "worker_cleanup": {},
+    "processes": [],
+    "input_events": {
+      "posted": 196,
+      "processed": 195,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        195
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "after-light": {
+    "raw_sha256": "d412b5f12e0a3d18329eb9ab2b4d8cb246a39616a7f5359eca16542c70edfc4f",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "first",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 9.800384521,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.057236000000003,
+        "p95": 19.6371119,
+        "p99": 25.000608989999993,
+        "max": 70.766226
+      },
+      "input_schedule_ms": {
+        "p50": 8.134182,
+        "p95": 15.5241313,
+        "p99": 16.781911680000007,
+        "max": 52.983654
+      },
+      "input_queue_ms": {
+        "p50": 7.612207,
+        "p95": 11.5444032,
+        "p99": 12.609208680000004,
+        "max": 14.741341
+      },
+      "input_to_state_ms": {
+        "p50": 12.359004,
+        "p95": 17.67265009999999,
+        "p99": 27.738415920000005,
+        "max": 31.943393
+      },
+      "input_to_render_ms": {
+        "p50": 14.669041,
+        "p95": 22.49064269999999,
+        "p99": 33.99967654,
+        "max": 38.120924
+      },
+      "event_ms": {
+        "p50": 0.0405125,
+        "p95": 0.08756099999999999,
+        "p99": 0.15337954999999998,
+        "max": 0.819211
+      },
+      "update_ms": {
+        "p50": 3.7108499999999998,
+        "p95": 6.9980290499999995,
+        "p99": 14.336032149999998,
+        "max": 68.590813
+      },
+      "render_ms": {
+        "p50": 2.1304024999999998,
+        "p95": 2.8957430499999997,
+        "p99": 3.944554789999997,
+        "max": 14.234378
+      },
+      "tick_ms": {
+        "p50": 3.710156,
+        "p95": 6.867181149999999,
+        "p99": 12.735169399999995,
+        "max": 68.576491
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 1.009999999999991,
+        "max": 5
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": null,
+      "scheduler_finish": null,
+      "simulation": {
+        "n": 588,
+        "p50": 3.3205045,
+        "p95": 4.85060055,
+        "p99": 6.977605379999992,
+        "max": 68.349495
+      },
+      "authoritative_mask": null,
+      "_complete_decision": null,
+      "_activate_nextgen": null
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 12,
+        "decisions_activated": 12,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 10,
+        "decisions_activated": 10,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {},
+    "worker_cleanup": {},
+    "processes": [
+      {
+        "pid": 941741,
+        "sampled_cpu_cores": 0.347,
+        "max_rss_mib": 262.0,
+        "max_threads": 10
+      }
+    ],
+    "input_events": {
+      "posted": 196,
+      "processed": 195,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        195
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "after-one-minimal": {
+    "raw_sha256": "0b99e0a40757890f828564583cc7918ae37bd8845288c427445bc4bb9676dc95",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.136177329,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.300463,
+        "p95": 32.863934249999765,
+        "p99": 60.957512349999995,
+        "max": 128.701702
+      },
+      "input_schedule_ms": {
+        "p50": 8.314487,
+        "p95": 30.783361099999986,
+        "p99": 66.04985942999984,
+        "max": 127.63932
+      },
+      "input_queue_ms": {
+        "p50": 4.7118565,
+        "p95": 18.002605599999992,
+        "p99": 42.59752889999999,
+        "max": 120.753234
+      },
+      "input_to_state_ms": {
+        "p50": 10.2586575,
+        "p95": 42.44743544999999,
+        "p99": 55.98050887999997,
+        "max": 132.241775
+      },
+      "input_to_render_ms": {
+        "p50": 16.8987815,
+        "p95": 60.49863749999999,
+        "p99": 78.81129582999995,
+        "max": 173.851555
+      },
+      "event_ms": {
+        "p50": 0.040959499999999996,
+        "p95": 0.1002366999999999,
+        "p99": 0.22976084999999968,
+        "max": 0.755386
+      },
+      "update_ms": {
+        "p50": 4.983862,
+        "p95": 19.687692599999988,
+        "p99": 46.50178482999996,
+        "max": 114.685618
+      },
+      "render_ms": {
+        "p50": 5.9833485,
+        "p95": 10.23230135,
+        "p99": 43.26398351999996,
+        "max": 52.94295
+      },
+      "tick_ms": {
+        "p50": 4.889489,
+        "p95": 10.718064599999998,
+        "p99": 45.45138484,
+        "max": 114.661007
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": null,
+      "scheduler_finish": null,
+      "simulation": null,
+      "authoritative_mask": null,
+      "_complete_decision": null,
+      "_activate_nextgen": null
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 13,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 7,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 11,
+        "decisions_activated": 11,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "942085": true
+    },
+    "processes": [],
+    "input_events": {
+      "posted": 223,
+      "processed": 222,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        222
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "after-one": {
+    "raw_sha256": "51e0b1d1cc8584eca14d5a920d2c41014112b5256291cfbd0b5de30efee1cd48",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.126265645,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.352184,
+        "p95": 29.450617349999945,
+        "p99": 64.84593223,
+        "max": 125.123218
+      },
+      "input_schedule_ms": {
+        "p50": 8.1123265,
+        "p95": 34.37672434999999,
+        "p99": 55.67955539999994,
+        "max": 110.750568
+      },
+      "input_queue_ms": {
+        "p50": 4.9494609999999994,
+        "p95": 15.715851899999995,
+        "p99": 45.33560537999997,
+        "max": 105.422386
+      },
+      "input_to_state_ms": {
+        "p50": 10.7348675,
+        "p95": 26.95754019999999,
+        "p99": 56.03477095999994,
+        "max": 116.112549
+      },
+      "input_to_render_ms": {
+        "p50": 17.080576999999998,
+        "p95": 52.38578489999997,
+        "p99": 87.5662835699999,
+        "max": 155.577751
+      },
+      "event_ms": {
+        "p50": 0.040312,
+        "p95": 0.1526239499999999,
+        "p99": 0.2689432499999997,
+        "max": 7.892155
+      },
+      "update_ms": {
+        "p50": 4.7595645,
+        "p95": 16.226376299999966,
+        "p99": 50.61014684999997,
+        "max": 114.340764
+      },
+      "render_ms": {
+        "p50": 5.989507,
+        "p95": 11.572834649999999,
+        "p99": 33.72307543999988,
+        "max": 67.520328
+      },
+      "tick_ms": {
+        "p50": 4.706393,
+        "p95": 11.001258599999987,
+        "p99": 48.04418908,
+        "max": 114.325325
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 17.5063205,
+        "p95": 62.15298014999995,
+        "p99": 78.47974083,
+        "max": 82.561431
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 6.878458,
+        "p95": 11.156725649999998,
+        "p99": 11.52949953,
+        "max": 11.622693
+      },
+      "simulation": {
+        "n": 665,
+        "p50": 3.925862,
+        "p95": 7.0316431999999995,
+        "p99": 11.239201600000008,
+        "max": 56.818264
+      },
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 4.636875,
+        "p95": 7.2383605,
+        "p99": 7.2868585,
+        "max": 7.298983
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 21.872416,
+        "p95": 65.54352634999995,
+        "p99": 81.72142847,
+        "max": 85.765904
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 18.539906000000002,
+        "p95": 23.061819099999997,
+        "p99": 23.781078219999998,
+        "max": 23.960893
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 10,
+        "decisions_activated": 6,
+        "timeouts": 0,
+        "stale_decisions": 4,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 11,
+        "decisions_activated": 11,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "940766": true
+    },
+    "processes": [
+      {
+        "pid": 940741,
+        "sampled_cpu_cores": 0.629,
+        "max_rss_mib": 265.5,
+        "max_threads": 12
+      },
+      {
+        "pid": 940766,
+        "sampled_cpu_cores": 1.081,
+        "max_rss_mib": 340.2,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 222,
+      "processed": 222,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": []
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "after-two": {
+    "raw_sha256": "3d9770949f0a562d030d3bf570e24ad8b0ea533fa8cbe15724dbf821230674bd",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": false,
+      "source_revision": null,
+      "scheduler_source_sha256": null,
+      "human_edges": "ordered"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 360,
+    "elapsed_seconds": 9.688484208,
+    "active_frames": 360,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 17.805683,
+        "p95": 76.27318675000006,
+        "p99": 136.08605765000038,
+        "max": 230.695392
+      },
+      "input_schedule_ms": {
+        "p50": 14.201118,
+        "p95": 95.29849739999997,
+        "p99": 167.97764567999954,
+        "max": 215.647139
+      },
+      "input_queue_ms": {
+        "p50": 5.812773,
+        "p95": 87.63494519999995,
+        "p99": 161.65519715999957,
+        "max": 207.002426
+      },
+      "input_to_state_ms": {
+        "p50": 11.814911,
+        "p95": 107.74290559999987,
+        "p99": 172.01662495999946,
+        "max": 216.817258
+      },
+      "input_to_render_ms": {
+        "p50": 30.528486,
+        "p95": 215.62741999999986,
+        "p99": 333.4633657599995,
+        "max": 407.323321
+      },
+      "event_ms": {
+        "p50": 0.0408095,
+        "p95": 0.1310915,
+        "p99": 0.2158732800000001,
+        "max": 0.750265
+      },
+      "update_ms": {
+        "p50": 5.7186975,
+        "p95": 59.77773170000002,
+        "p99": 125.4263837900004,
+        "max": 196.418489
+      },
+      "render_ms": {
+        "p50": 9.7354815,
+        "p95": 24.535152399999998,
+        "p99": 56.849197720000014,
+        "max": 78.708958
+      },
+      "tick_ms": {
+        "p50": 5.579926,
+        "p95": 19.809417249999996,
+        "p99": 65.19455045000093,
+        "max": 134.98881
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 5.0,
+        "p99": 9.410000000000025,
+        "max": 12
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 19.8967945,
+        "p95": 48.25126264999997,
+        "p99": 59.14319333,
+        "max": 61.866176
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 6.213934500000001,
+        "p95": 7.4873426,
+        "p99": 7.50600932,
+        "max": 7.510676
+      },
+      "simulation": {
+        "n": 580,
+        "p50": 4.8106445,
+        "p95": 15.015218849999973,
+        "p99": 30.262313640000183,
+        "max": 127.163563
+      },
+      "authoritative_mask": {
+        "n": 20,
+        "p50": 5.159940499999999,
+        "p95": 6.048513350000001,
+        "p99": 6.833233869999999,
+        "max": 7.029414
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 24.934452,
+        "p95": 52.04982719999997,
+        "p99": 63.08590944000001,
+        "max": 65.84493
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 20.209997,
+        "p95": 23.429611999999995,
+        "p99": 24.8605832,
+        "max": 25.218326
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 5,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 5,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": [],
+      "player_1": []
+    },
+    "worker_cleanup": {
+      "941441": true,
+      "941474": true
+    },
+    "processes": [
+      {
+        "pid": 941403,
+        "sampled_cpu_cores": 0.662,
+        "max_rss_mib": 266.3,
+        "max_threads": 14
+      },
+      {
+        "pid": 941441,
+        "sampled_cpu_cores": 0.921,
+        "max_rss_mib": 339.8,
+        "max_threads": 15
+      },
+      {
+        "pid": 941474,
+        "sampled_cpu_cores": 0.869,
+        "max_rss_mib": 339.8,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 194,
+      "processed": 193,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        193
+      ]
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "before-human": {
+    "raw_sha256": "399f8f1646bcfc54746ec948c209b775d6e893d7c4de555c3382c61790698e08",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": true,
+      "source_revision": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02",
+      "scheduler_source_sha256": "b4b1868e7184deb5f5480c97317174ec5dba4586195cc76f18bc0a0166050da2",
+      "human_edges": "legacy_release_then_press"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "human",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 11.182089187,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.356423999999997,
+        "p95": 30.668994199999954,
+        "p99": 66.12527277999999,
+        "max": 144.202819
+      },
+      "input_schedule_ms": {
+        "p50": 10.596184,
+        "p95": 39.665471299999986,
+        "p99": 59.70638942,
+        "max": 139.677848
+      },
+      "input_queue_ms": {
+        "p50": 5.389176,
+        "p95": 19.236176999999987,
+        "p99": 46.57592048,
+        "max": 134.266988
+      },
+      "input_to_state_ms": {
+        "p50": 10.666277,
+        "p95": 39.043971499999934,
+        "p99": 97.36249180000002,
+        "max": 138.462648
+      },
+      "input_to_render_ms": {
+        "p50": 17.398272,
+        "p95": 67.8872556,
+        "p99": 122.77624462000003,
+        "max": 179.136381
+      },
+      "event_ms": {
+        "p50": 0.041277,
+        "p95": 0.13871479999999975,
+        "p99": 0.22149045999999997,
+        "max": 0.603173
+      },
+      "update_ms": {
+        "p50": 4.8258315,
+        "p95": 18.73562954999998,
+        "p99": 52.25914551999999,
+        "max": 134.153946
+      },
+      "render_ms": {
+        "p50": 6.0914815,
+        "p95": 10.388357849999998,
+        "p99": 17.967444949999884,
+        "max": 76.660534
+      },
+      "tick_ms": {
+        "p50": 4.7085655,
+        "p95": 10.521848799999997,
+        "p99": 51.05529104999997,
+        "max": 109.69527
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 21.2257945,
+        "p95": 69.3067088,
+        "p99": 72.50756816,
+        "max": 73.307783
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 10.337005999999999,
+        "p95": 17.01465799999999,
+        "p99": 19.849514,
+        "max": 20.558228
+      },
+      "simulation": {
+        "n": 670,
+        "p50": 4.077544,
+        "p95": 7.556858249999997,
+        "p99": 14.737351389999976,
+        "max": 51.953067
+      },
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 4.677891000000001,
+        "p95": 6.13800125,
+        "p99": 6.88892825,
+        "max": 7.07666
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 25.042495,
+        "p95": 72.74586999999998,
+        "p99": 75.6020164,
+        "max": 76.316053
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 22.0370385,
+        "p95": 27.256021249999996,
+        "p99": 27.83439545,
+        "max": 27.978989
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 11,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 5,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 0,
+        "decisions_activated": 0,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "941164": true
+    },
+    "processes": [
+      {
+        "pid": 941125,
+        "sampled_cpu_cores": 0.65,
+        "max_rss_mib": 267.0,
+        "max_threads": 12
+      },
+      {
+        "pid": 941164,
+        "sampled_cpu_cores": 1.002,
+        "max_rss_mib": 340.1,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 224,
+      "processed": 223,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": [
+        223
+      ]
+    },
+    "human": {
+      "held_mismatch_ticks": 63,
+      "excess_horizontal_fired": {
+        "LEFT": 7,
+        "RIGHT": 6
+      },
+      "rotation_emitted_fired": {
+        "ROTATE_LEFT": [
+          22,
+          22
+        ],
+        "ROTATE_RIGHT": [
+          22,
+          22
+        ]
+      }
+    },
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "before-light": {
+    "raw_sha256": "3a3da3897ba9608c4d5aa4fe8bbe2c48521ae9a0248a11933f4dbe7d086f8e4f",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": true,
+      "source_revision": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02",
+      "scheduler_source_sha256": "b4b1868e7184deb5f5480c97317174ec5dba4586195cc76f18bc0a0166050da2",
+      "human_edges": "legacy_release_then_press"
+    },
+    "settings": {
+      "policy_a": "first",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 9.830005254,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.1302115,
+        "p95": 19.4901862,
+        "p99": 22.649721459999984,
+        "max": 69.960253
+      },
+      "input_schedule_ms": {
+        "p50": 9.0761055,
+        "p95": 15.947385,
+        "p99": 19.41372015000023,
+        "max": 40.785556
+      },
+      "input_queue_ms": {
+        "p50": 8.406647,
+        "p95": 11.5130885,
+        "p99": 11.6934458,
+        "max": 15.240683
+      },
+      "input_to_state_ms": {
+        "p50": 12.5502375,
+        "p95": 16.8586685,
+        "p99": 30.254946600000004,
+        "max": 30.526161
+      },
+      "input_to_render_ms": {
+        "p50": 15.038618,
+        "p95": 19.8437775,
+        "p99": 32.388227400000005,
+        "max": 32.581052
+      },
+      "event_ms": {
+        "p50": 0.040549,
+        "p95": 0.09279184999999995,
+        "p99": 0.14778124999999998,
+        "max": 5.38516
+      },
+      "update_ms": {
+        "p50": 3.7040569999999997,
+        "p95": 6.272489399999996,
+        "p99": 17.167890819999993,
+        "max": 57.000403
+      },
+      "render_ms": {
+        "p50": 2.1318669999999997,
+        "p95": 2.918107599999999,
+        "p99": 3.8062432599999996,
+        "max": 15.535037
+      },
+      "tick_ms": {
+        "p50": 3.698518,
+        "p95": 6.231138849999999,
+        "p99": 11.670247599999998,
+        "max": 56.979157
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 1.0,
+        "p99": 1.0,
+        "max": 4
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": null,
+      "scheduler_finish": null,
+      "simulation": {
+        "n": 588,
+        "p50": 3.3200890000000003,
+        "p95": 4.790372499999999,
+        "p99": 6.06311918,
+        "max": 56.652484
+      },
+      "authoritative_mask": null,
+      "_complete_decision": null,
+      "_activate_nextgen": null
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 12,
+        "decisions_activated": 12,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 10,
+        "decisions_activated": 10,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {},
+    "worker_cleanup": {},
+    "processes": [
+      {
+        "pid": 941284,
+        "sampled_cpu_cores": 0.338,
+        "max_rss_mib": 261.8,
+        "max_threads": 10
+      }
+    ],
+    "input_events": {
+      "posted": 196,
+      "processed": 196,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": []
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "before-one": {
+    "raw_sha256": "1a5f1977d2e079ca7eaeb5e42e04cb5464ade8146de9560634a5d3216d56a378",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": true,
+      "source_revision": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02",
+      "scheduler_source_sha256": "b4b1868e7184deb5f5480c97317174ec5dba4586195cc76f18bc0a0166050da2",
+      "human_edges": "legacy_release_then_press"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "random",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 600,
+    "elapsed_seconds": 10.965526567,
+    "active_frames": 600,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 16.2881455,
+        "p95": 26.404174649999998,
+        "p99": 65.58022283999999,
+        "max": 133.809734
+      },
+      "input_schedule_ms": {
+        "p50": 11.492461,
+        "p95": 40.23442509999999,
+        "p99": 61.67508489999994,
+        "max": 113.295476
+      },
+      "input_queue_ms": {
+        "p50": 6.536557,
+        "p95": 18.3592354,
+        "p99": 56.73542681999994,
+        "max": 107.977648
+      },
+      "input_to_state_ms": {
+        "p50": 11.186189,
+        "p95": 41.10974159999998,
+        "p99": 85.60576363999998,
+        "max": 113.777821
+      },
+      "input_to_render_ms": {
+        "p50": 17.330444,
+        "p95": 62.6868766,
+        "p99": 133.53336189999987,
+        "max": 154.32286
+      },
+      "event_ms": {
+        "p50": 0.0398595,
+        "p95": 0.11518499999999982,
+        "p99": 0.20580296999999997,
+        "max": 0.685192
+      },
+      "update_ms": {
+        "p50": 4.4519285,
+        "p95": 14.489277399999995,
+        "p99": 48.74096105999999,
+        "max": 106.271166
+      },
+      "render_ms": {
+        "p50": 5.65665,
+        "p95": 10.3454438,
+        "p99": 48.580771739999996,
+        "max": 65.113083
+      },
+      "tick_ms": {
+        "p50": 4.425362,
+        "p95": 9.520503999999999,
+        "p99": 46.35922815000005,
+        "max": 84.827498
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 2.0,
+        "p99": 4.0,
+        "max": 8
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 10,
+        "p50": 20.283407,
+        "p95": 41.62043755,
+        "p99": 42.79917871000001,
+        "max": 43.093864
+      },
+      "scheduler_finish": {
+        "n": 10,
+        "p50": 9.806347500000001,
+        "p95": 21.10723495,
+        "p99": 22.20911899,
+        "max": 22.48459
+      },
+      "simulation": {
+        "n": 656,
+        "p50": 3.6968315,
+        "p95": 6.68058875,
+        "p99": 9.16210930000002,
+        "max": 45.390253
+      },
+      "authoritative_mask": {
+        "n": 16,
+        "p50": 4.4130695,
+        "p95": 6.45996725,
+        "p99": 6.64777505,
+        "max": 6.694727
+      },
+      "_complete_decision": {
+        "n": 10,
+        "p50": 23.8971535,
+        "p95": 45.2756389,
+        "p99": 46.518516580000004,
+        "max": 46.829236
+      },
+      "_activate_nextgen": {
+        "n": 10,
+        "p50": 21.417189,
+        "p95": 32.15353495,
+        "p99": 32.67928219,
+        "max": 32.810719
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 10,
+        "decisions_activated": 6,
+        "timeouts": 0,
+        "stale_decisions": 4,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 11,
+        "decisions_activated": 11,
+        "timeouts": 0,
+        "stale_decisions": 0,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": []
+    },
+    "worker_cleanup": {
+      "940590": true
+    },
+    "processes": [
+      {
+        "pid": 940561,
+        "sampled_cpu_cores": 0.602,
+        "max_rss_mib": 265.8,
+        "max_threads": 12
+      },
+      {
+        "pid": 940590,
+        "sampled_cpu_cores": 1.047,
+        "max_rss_mib": 340.2,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 219,
+      "processed": 219,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": []
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  },
+  "before-two": {
+    "raw_sha256": "c8f79cf757dca38a2afa51701f4cd0b6aa6de8cc38f8178be47f812f0d5ddaf3",
+    "source_sha": "7587d0bdfa166ec48135b1a6001951d54d7a0029",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reference": {
+      "enabled": true,
+      "source_revision": "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02",
+      "scheduler_source_sha256": "b4b1868e7184deb5f5480c97317174ec5dba4586195cc76f18bc0a0166050da2",
+      "human_edges": "legacy_release_then_press"
+    },
+    "settings": {
+      "policy_a": "nextgen_tactic_manager",
+      "policy_b": "nextgen_tactic_manager",
+      "seed": 55,
+      "speed": 1.0,
+      "max_ticks": 2400,
+      "plan_overlay": false,
+      "nextgen_profile": "nextgen_safe_build",
+      "nextgen_backend": "native",
+      "keybindings_path": "/tmp/puyo273-no-keybindings.json"
+    },
+    "host": {
+      "system": "Linux",
+      "node": "DESKTOP-G4HAPVQ",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "native_sha256": "79b7d6f43305a27d169722ca014cfba09cd0e97932d49284896de63231bdb0d2",
+    "frames": 360,
+    "elapsed_seconds": 9.173398491,
+    "active_frames": 360,
+    "timing_ms": {
+      "frame_interval_ms": {
+        "p50": 17.635871,
+        "p95": 66.56300780000002,
+        "p99": 126.40419189000025,
+        "max": 181.519471
+      },
+      "input_schedule_ms": {
+        "p50": 13.371229,
+        "p95": 79.52015860000002,
+        "p99": 130.57017534000005,
+        "max": 167.96624
+      },
+      "input_queue_ms": {
+        "p50": 5.793273,
+        "p95": 74.32032360000001,
+        "p99": 125.19859976000004,
+        "max": 134.267526
+      },
+      "input_to_state_ms": {
+        "p50": 11.768956,
+        "p95": 86.8014451,
+        "p99": 129.26431846000006,
+        "max": 139.16561
+      },
+      "input_to_render_ms": {
+        "p50": 28.352647,
+        "p95": 154.93634110000005,
+        "p99": 207.93653606,
+        "max": 257.810005
+      },
+      "event_ms": {
+        "p50": 0.0389935,
+        "p95": 0.11895865000000014,
+        "p99": 0.19757875000000008,
+        "max": 0.478753
+      },
+      "update_ms": {
+        "p50": 5.3919440000000005,
+        "p95": 45.20963540000003,
+        "p99": 93.43713522000041,
+        "max": 156.038253
+      },
+      "render_ms": {
+        "p50": 9.088095,
+        "p95": 25.37271245,
+        "p99": 57.394957350000034,
+        "max": 100.839586
+      },
+      "tick_ms": {
+        "p50": 5.2758875,
+        "p95": 16.333106399999984,
+        "p99": 57.913279319999994,
+        "max": 107.904611
+      },
+      "tick_catchup": {
+        "p50": 1.0,
+        "p95": 4.0,
+        "p99": 7.410000000000025,
+        "max": 10
+      }
+    },
+    "scheduler_ms": {
+      "scheduler_accept": {
+        "n": 12,
+        "p50": 21.7865095,
+        "p95": 24.4256299,
+        "p99": 25.022596380000003,
+        "max": 25.171838
+      },
+      "scheduler_finish": {
+        "n": 12,
+        "p50": 11.474586,
+        "p95": 13.0442351,
+        "p99": 13.102604620000001,
+        "max": 13.117197
+      },
+      "simulation": {
+        "n": 550,
+        "p50": 4.3824974999999995,
+        "p95": 12.83066924999999,
+        "p99": 20.47599088,
+        "max": 51.572123
+      },
+      "authoritative_mask": {
+        "n": 22,
+        "p50": 4.6912075,
+        "p95": 7.826338699999999,
+        "p99": 8.33169064,
+        "max": 8.452213
+      },
+      "_complete_decision": {
+        "n": 12,
+        "p50": 25.8833835,
+        "p95": 29.236218349999998,
+        "p99": 29.57145567,
+        "max": 29.655265
+      },
+      "_activate_nextgen": {
+        "n": 12,
+        "p50": 23.611164000000002,
+        "p95": 26.9459749,
+        "p99": 27.29417418,
+        "max": 27.381224
+      }
+    },
+    "diagnostics": {
+      "player_0": {
+        "decisions_started": 6,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 1,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      },
+      "player_1": {
+        "decisions_started": 6,
+        "decisions_activated": 5,
+        "timeouts": 0,
+        "stale_decisions": 1,
+        "deadline_misses": 0,
+        "fallback_actions": 0,
+        "masked_actions": 0,
+        "unreachable_plans": 0
+      }
+    },
+    "scheduler_errors": {
+      "player_0": [],
+      "player_1": []
+    },
+    "worker_cleanup": {
+      "941000": true,
+      "941015": true
+    },
+    "processes": [
+      {
+        "pid": 940985,
+        "sampled_cpu_cores": 0.66,
+        "max_rss_mib": 267.5,
+        "max_threads": 14
+      },
+      {
+        "pid": 941000,
+        "sampled_cpu_cores": 0.908,
+        "max_rss_mib": 339.6,
+        "max_threads": 15
+      },
+      {
+        "pid": 941015,
+        "sampled_cpu_cores": 0.885,
+        "max_rss_mib": 340.1,
+        "max_threads": 15
+      }
+    ],
+    "input_events": {
+      "posted": 183,
+      "processed": 183,
+      "duplicate_processed_ids": 0,
+      "unprocessed_ids": []
+    },
+    "human": null,
+    "locks": {
+      "total": 0,
+      "compared": 0,
+      "mismatch": 0,
+      "by_agent": {}
+    }
+  }
+}
