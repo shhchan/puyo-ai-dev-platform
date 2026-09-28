@@ -6,6 +6,7 @@ import ast
 from collections import defaultdict
 import hashlib
 import json
+import multiprocessing.queues
 import os
 from pathlib import Path
 import platform
@@ -25,8 +26,14 @@ from src.ui.versus_renderer import SCREEN_HEIGHT, SCREEN_WIDTH, VersusRenderer
 
 
 def run(args):
+    native_binary = Path(getattr(native, "_puyo_deep_chain_native", native).__file__)
     source_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     source_diff = hashlib.sha256(subprocess.check_output(["git", "diff", "--", "puyo_env"])).hexdigest()
+    source_files = {
+        str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+        for root in ("agents", "puyo_env", "eval", "src")
+        for path in sorted(Path(root).rglob("*.py"))
+    }
     if args.geometric_reference:
         module = types.ModuleType("puyo273_geometric_reference")
         sys.modules[module.__name__] = module
@@ -93,12 +100,17 @@ def run(args):
         setattr(obj, name, measured)
 
     if not args.minimal:
+        # Queue.get includes worker wait; measure the actual parent-side decode
+        # separately. These wrappers are local to this evaluator process.
+        wrap(multiprocessing.queues._ForkingPickler, "loads", "ipc_deserialize")
+        wrap(multiprocessing.queues._ForkingPickler, "dumps", "ipc_serialize")
         for name in ("_build_replay_tick", "_sync_display_boards", "tactical_diagnostics"):
             wrap(controller, name, name)
         wrap(controller.env, "step", "simulation")
         wrap(ai, "nextgen_authoritative_action_mask", "authoritative_mask")
         for agent, item in controller.controllers.items():
             wrap(item, "next_input", "next_input_" + agent)
+            wrap(item.diagnostics, "to_dict", "controller_diagnostics_" + agent)
             if getattr(item, "nextgen_scheduler", None):
                 for name in ("prepare", "stale", "accept", "finish"):
                     wrap(item.nextgen_scheduler, name, "scheduler_" + name)
@@ -114,6 +126,7 @@ def run(args):
                 item._complete_decision = completed
         for executor in controller._decision_executors.values():
             wrap(executor, "submit_policy", "ipc_submit_enqueue")
+            wrap(executor._request_queue, "_send_bytes", "ipc_send_bytes")
 
     def human_state():
         game = controller.env.match.player_states["player_1"].simulator.game
@@ -217,11 +230,16 @@ def run(args):
                   "scheduler_errors": {a:i.nextgen_scheduler.errors for a,i in controller.controllers.items()
                                        if getattr(i,"nextgen_scheduler",None)},
                   "native": {"capabilities":NativeDeepChainBackend().capabilities.to_dict(),
-                             "module":native.__file__, "sha256":hashlib.sha256(Path(native.__file__).read_bytes()).hexdigest()},
+                             "module":str(native_binary), "sha256":hashlib.sha256(native_binary.read_bytes()).hexdigest()},
                   "lock_receipts":locks,
                   "source_sha":source_sha, "reference_mask":args.reference_mask,
                   "geometric_reference":args.geometric_reference,
                   "source_diff_sha256":source_diff,
+                  "source_files_sha256":source_files,
+                  "python":sys.version,"pygame":pygame.version.ver,
+                  "cpu_count":os.cpu_count(),
+                  "cpu_info":Path("/proc/cpuinfo").read_text(),
+                  "memory_info":Path("/proc/meminfo").read_text(),
                   "host":platform.uname()._asdict(),"display":os.environ.get("DISPLAY"),
                   "resolution":[SCREEN_WIDTH,SCREEN_HEIGHT],"clock_ticks":os.sysconf("SC_CLK_TCK")}
     finally:
