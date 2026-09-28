@@ -1,5 +1,7 @@
 # PUYO-274 デスクトップ再開とレビュー引継ぎ
 
+デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は実行表を優先する．窒息・両側 frame gate・人間 QA・正式品質の未達を維持する．
+
 記録日：2026-09-28．窓口は [PUYO-274](https://shhchan.atlassian.net/browse/PUYO-274)，親は PUYO-228．今回はノート PC 上の資料保存・レビュー整備まで．残る生存品質・先読み表示・性能・正式品質はデスクトップで再開する．本資料の完成だけで PUYO-274/266/269/273 を COMPLETE にしない．
 
 ## 1. 保存した成果と最新値

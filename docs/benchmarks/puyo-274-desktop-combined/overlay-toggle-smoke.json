@@ -1,0 +1,473 @@
+{
+  "unchanged_tick_action_receipt": true,
+  "tick": 25,
+  "active_action": 7,
+  "plan": {
+    "schema_version": "n-turn-plan-v1",
+    "plan_id": "nextgen-preview:8ead5be5505166c439768afc",
+    "candidate_id": "candidate:045844d6252b3668ae3ce285baa462f47464fe210df62e077d737ee955299798",
+    "request_identity": {
+      "episode_id": "nextgen-episode-1",
+      "player_id": 0,
+      "decision_id": 1,
+      "request_id": "request-1",
+      "snapshot_digest": "6c43b07135f8f501b0481cf94aa4351144488fb6250af8848bc89f3d78e3f9cf"
+    },
+    "public_snapshot_digest": "6c43b07135f8f501b0481cf94aa4351144488fb6250af8848bc89f3d78e3f9cf",
+    "root_action": 7,
+    "strategy": "nextgen_tactic_manager",
+    "selected_tactic_id": "build_template",
+    "max_steps": 3,
+    "visible_steps": 3,
+    "steps": [
+      {
+        "step_index": 0,
+        "action": 7,
+        "axis_x": 2,
+        "axis_y": 0,
+        "rotation": "UP",
+        "known_tsumo": true,
+        "scenario": "visible",
+        "scenario_id": 1,
+        "tsumo": [
+          "RED",
+          "BLUE"
+        ],
+        "placement_cells": [
+          {
+            "x": 2,
+            "y": 0,
+            "color": "RED"
+          },
+          {
+            "x": 2,
+            "y": 1,
+            "color": "BLUE"
+          }
+        ],
+        "predicted_board": [
+          [
+            "EMPTY",
+            "EMPTY",
+            "RED",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "BLUE",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ]
+        ],
+        "predicted_chain_count": 0,
+        "predicted_score": 0,
+        "state_fingerprint": "01ea93a853f29fbe4b5b00fa8f5f88ce966a8c3e79287e36ba073b3442eb71b7",
+        "reference_only": true,
+        "continuation_guaranteed": false,
+        "board_complete": false
+      },
+      {
+        "step_index": 1,
+        "action": 16,
+        "axis_x": 4,
+        "axis_y": 0,
+        "rotation": "RIGHT",
+        "known_tsumo": true,
+        "scenario": "visible",
+        "scenario_id": 1,
+        "tsumo": [
+          "BLUE",
+          "GREEN"
+        ],
+        "placement_cells": [
+          {
+            "x": 4,
+            "y": 0,
+            "color": "BLUE"
+          },
+          {
+            "x": 5,
+            "y": 0,
+            "color": "GREEN"
+          }
+        ],
+        "predicted_board": [
+          [
+            "EMPTY",
+            "EMPTY",
+            "RED",
+            "EMPTY",
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "BLUE",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ]
+        ],
+        "predicted_chain_count": 0,
+        "predicted_score": 0,
+        "state_fingerprint": "05512c6219e164f6f7fa477d025802dd71f41597cc6b8db2940d93242905dd86",
+        "reference_only": true,
+        "continuation_guaranteed": false,
+        "board_complete": false
+      },
+      {
+        "step_index": 2,
+        "action": 12,
+        "axis_x": 3,
+        "axis_y": 1,
+        "rotation": "RIGHT",
+        "known_tsumo": true,
+        "scenario": "visible",
+        "scenario_id": 1,
+        "tsumo": [
+          "RED",
+          "BLUE"
+        ],
+        "placement_cells": [
+          {
+            "x": 3,
+            "y": 0,
+            "color": "RED"
+          },
+          {
+            "x": 4,
+            "y": 1,
+            "color": "BLUE"
+          }
+        ],
+        "predicted_board": [
+          [
+            "EMPTY",
+            "EMPTY",
+            "RED",
+            "RED",
+            "BLUE",
+            "GREEN"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "BLUE",
+            "EMPTY",
+            "BLUE",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ],
+          [
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY",
+            "EMPTY"
+          ]
+        ],
+        "predicted_chain_count": 0,
+        "predicted_score": 0,
+        "state_fingerprint": "d827edcda67ff896f4f9087ca10a4c93a9dd7171729d99864a4039395b26c399",
+        "reference_only": true,
+        "continuation_guaranteed": false,
+        "board_complete": false
+      }
+    ],
+    "execution_queue": false,
+    "replan_reason": "public_decision_projection",
+    "status": "available",
+    "reason": "public_prefix_reference",
+    "requested_steps": 3,
+    "available_steps": 3,
+    "source": "selected_root_representative",
+    "reference_only": true,
+    "continuation_guaranteed": false,
+    "board_complete": false
+  }
+}

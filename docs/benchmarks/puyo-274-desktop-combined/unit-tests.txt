@@ -1,0 +1,21 @@
+....................................................... [ 46%]
+...............................................................                                                     [100%]
+=============================== warnings summary ===============================
+../puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25
+  /home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    from pkg_resources import resource_stream, resource_exists
+
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_adopted_reference_is_visible_and_o_toggles_only_overlay
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_changed_decision_piece_or_public_state_hides_old_projection
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_live_summary_matches_full_read_without_returning_mutable_diagnostics
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_nonadopted_and_mismatched_receipts_never_show_future_steps
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_opponent_progress_alone_keeps_adopted_own_preview
+  /home/sion2000114/workspaces/dev/puyo-desktop-274/src/ui/keybindings.py:69: Warning: pygame.init() has not been called. This function may return incorrect results
+    pygame.key.key_code(name)
+
+tests/test_nextgen_preview_gui.py::NextgenPreviewGuiTests::test_adopted_reference_is_visible_and_o_toggles_only_overlay
+  /home/sion2000114/workspaces/dev/puyo-desktop-274/src/ui/keybindings.py:88: Warning: pygame.init() has not been called. This function may return incorrect results
+    return any(pygame.key.key_code(name) == key for name in self.bindings[action])
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+118 passed, 1 deselected, 7 warnings, 46 subtests passed in 57.22s
