@@ -1,0 +1,163 @@
+{
+  "default_commit_turns": 14,
+  "enabled": true,
+  "schema_version": "puyo.template_catalog.v1",
+  "selection": {
+    "mode": "argmax",
+    "seed_stream": "template",
+    "temperature": 0.2
+  },
+  "templates": [
+    {
+      "commit_turns": null,
+      "enabled": false,
+      "id": "gtr",
+      "variants": [
+        {
+          "different": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "empty_cells": [],
+          "forbidden_cells": [
+            [
+              0,
+              3,
+              "A"
+            ]
+          ],
+          "id": "left_supported_core",
+          "occupied_cells": [],
+          "origin": {
+            "x": 0,
+            "y_from_bottom": 0
+          },
+          "pattern_rows_bottom_up": [
+            "BBC",
+            "AAB",
+            "AB."
+          ],
+          "same": [],
+          "transforms": [
+            "identity"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "version": "1"
+    },
+    {
+      "commit_turns": null,
+      "enabled": true,
+      "id": "daa",
+      "variants": [
+        {
+          "different": [
+            [
+              "A",
+              "B"
+            ]
+          ],
+          "empty_cells": [],
+          "forbidden_cells": [
+            [
+              0,
+              2,
+              "A"
+            ],
+            [
+              1,
+              2,
+              "A"
+            ],
+            [
+              2,
+              2,
+              "B"
+            ]
+          ],
+          "id": "two_interlocking_l",
+          "occupied_cells": [],
+          "origin": {
+            "x": 0,
+            "y_from_bottom": 0
+          },
+          "pattern_rows_bottom_up": [
+            "ABB",
+            "AAB"
+          ],
+          "same": [],
+          "transforms": [
+            "identity"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "version": "1"
+    },
+    {
+      "commit_turns": null,
+      "enabled": false,
+      "id": "persian",
+      "variants": [
+        {
+          "different": [
+            [
+              "A",
+              "B"
+            ],
+            [
+              "A",
+              "C"
+            ],
+            [
+              "B",
+              "C"
+            ]
+          ],
+          "empty_cells": [],
+          "forbidden_cells": [
+            [
+              0,
+              1,
+              "A"
+            ],
+            [
+              4,
+              1,
+              "C"
+            ],
+            [
+              5,
+              1,
+              "C"
+            ]
+          ],
+          "id": "central_step_flat_tail",
+          "occupied_cells": [],
+          "origin": {
+            "x": 0,
+            "y_from_bottom": 0
+          },
+          "pattern_rows_bottom_up": [
+            "AAACCC",
+            ".BCB..",
+            "..BB.."
+          ],
+          "same": [],
+          "transforms": [
+            "identity"
+          ],
+          "weight": 1.0
+        }
+      ],
+      "version": "1"
+    }
+  ]
+}
