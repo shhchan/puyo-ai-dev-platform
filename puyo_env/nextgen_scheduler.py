@@ -11,6 +11,22 @@ from agents.template_phase import TemplatePhaseController
 from puyo_env.nextgen_public_snapshot import TickInterval, TimingProfile
 
 
+def _same_wire_value(left, right):
+    # Ordinary Python equality conflates bool/int/float. Reusing schema proof
+    # must preserve the strict wire types, including every nested list element.
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(
+            _same_wire_value(value, right[key]) for key, value in left.items()
+        )
+    if isinstance(left, (list, tuple)):
+        return len(left) == len(right) and all(
+            _same_wire_value(a, b) for a, b in zip(left, right)
+        )
+    return left == right
+
+
 class _DecodedNextgenPayload(dict):
     """Parent-local proof of pure schema validation, never a wire contract.
 
@@ -25,7 +41,7 @@ class _DecodedNextgenPayload(dict):
         self._validated_wire = diagnostics.to_dict()
 
     def decoded(self):
-        if self.get("nextgen") == self._validated_wire:
+        if _same_wire_value(self.get("nextgen"), self._validated_wire):
             return self._diagnostics
         return None
 

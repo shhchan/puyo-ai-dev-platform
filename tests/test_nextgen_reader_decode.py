@@ -54,6 +54,23 @@ class ReaderDecodeTests(unittest.TestCase):
         )
         self.assertIn("worker request mismatch", scheduler.accept(decoded, action))
 
+    def test_equal_numeric_values_with_changed_wire_types_invalidate_proof(self):
+        scheduler, action, payload = self.prepare()
+        for mutation in ("bool_to_int", "int_to_float"):
+            with self.subTest(mutation=mutation):
+                decoded = decode_nextgen_payload(copy.deepcopy(payload))
+                request = decoded["nextgen"]["request"]
+                if mutation == "bool_to_int":
+                    mask = request["execution"]["reachable_mask"]
+                    mask[0] = int(mask[0])
+                else:
+                    request["identity"]["player_id"] = float(request["identity"]["player_id"])
+                self.assertEqual(decoded["nextgen"], payload["nextgen"])
+                self.assertIsNone(decoded.decoded())
+                error = scheduler.accept(decoded, action)
+                self.assertIsNotNone(error)
+                self.assertEqual(error, scheduler.accept(dict(decoded), action))
+
     def test_plain_and_invalid_payloads_keep_existing_path(self):
         scheduler, action, payload = self.prepare()
         with patch.object(c.Diagnostics, "from_dict", wraps=c.Diagnostics.from_dict) as parse:
@@ -112,6 +129,30 @@ class ReaderDecodeTests(unittest.TestCase):
             executor.shutdown(wait=True)
         self.assertFalse(executor._process.is_alive())
         self.assertFalse(executor._reader.is_alive())
+
+    def test_actual_controller_handoff_does_not_parse_again_on_ui_thread(self):
+        p = policy()
+        match = RealtimeVersusMatch(seed=55)
+        executor = PolicyProcessExecutor(p)
+        controller = RealtimePolicyController(p, decision_executor=executor)
+        calls = []
+        original = c.Diagnostics.from_dict
+
+        def parse(value):
+            calls.append(threading.current_thread().name)
+            return original(value)
+
+        try:
+            with patch.object(c.Diagnostics, "from_dict", side_effect=parse):
+                controller.next_input(match, "player_0")
+                controller._async_decision.future.result(timeout=15)
+                match.step({})
+                controller.next_input(match, "player_0")
+            self.assertEqual(calls, [executor._reader_name])
+            self.assertEqual(controller.diagnostics.last_decision.outcome, "activated")
+            self.assertIs(type(controller.latest_policy_diagnostics), dict)
+        finally:
+            executor.shutdown(wait=True)
 
 
 if __name__ == "__main__":

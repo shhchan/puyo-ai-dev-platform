@@ -619,7 +619,15 @@ class RealtimePolicyController:
                     result = pending_async.future.result()
                     selected_action, elapsed = result[:2]
                     if len(result) > 2 and isinstance(result[2], Mapping):
-                        policy_diagnostics = dict(result[2])
+                        from puyo_env.nextgen_scheduler import _DecodedNextgenPayload
+
+                        # Preserve only the parent's private immutable proof.
+                        # A plain worker mapping still takes the ordinary copy.
+                        policy_diagnostics = (
+                            copy.copy(result[2])
+                            if isinstance(result[2], _DecodedNextgenPayload)
+                            else dict(result[2])
+                        )
                 except Exception:
                     selected_action, elapsed = None, 0.0
                 self.latest_policy_diagnostics = policy_diagnostics
