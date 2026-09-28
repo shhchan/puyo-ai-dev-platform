@@ -62,7 +62,7 @@ def summarize(attempts):
     }
 
 
-def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", backend="native", profile="nextgen_smoke", write_replay=True, output):
+def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=15, max_ticks=6000, opponent="random", backend="native", profile="nextgen_smoke", write_replay=True, output):
     if mode not in ("normal", "step"):
         raise ValueError("mode must be normal or step")
     output = Path(output)
@@ -70,8 +70,9 @@ def run(*, mode, seed=55, placements=15, max_ticks=6000, opponent="random", back
     source = source_identity()
     config = RealtimeVersusUiConfig(
         policy_a="nextgen_tactic_manager", policy_b=opponent,
-        seed=seed, seed_a=seed, seed_b=seed + 10_000,
-        nextgen_seed=seed, nextgen_templates="gtr",
+        seed=seed, seed_a=seed if seed_a is None else seed_a,
+        seed_b=seed + 10_000 if seed_b is None else seed_b,
+        nextgen_seed=seed, nextgen_templates=templates,
         nextgen_selection_mode="argmax", nextgen_commit_turns=14,
         nextgen_profile=profile, latency_mode="measured",
         nextgen_backend=backend,
@@ -171,6 +172,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("normal", "step"), required=True)
     parser.add_argument("--seed", type=int, default=55)
+    parser.add_argument("--seed-a", type=int)
+    parser.add_argument("--seed-b", type=int)
+    parser.add_argument("--templates", default="gtr")
     parser.add_argument("--placements", type=int, default=15)
     parser.add_argument("--max-ticks", type=int, default=6000)
     parser.add_argument("--opponent", choices=("random", "human"), default="random")

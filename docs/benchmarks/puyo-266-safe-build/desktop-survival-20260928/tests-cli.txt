@@ -1,0 +1,4 @@
+Actual run() config capture checks: PASS
+Default: seed_a=55 seed_b=10055 templates=gtr
+Explicit seed=59 seed_a=55 seed_b=59 templates=daa: PASS
+Baseline source 732ed3d and final runtime identical; existing legacy starvation expectation fails on both.
