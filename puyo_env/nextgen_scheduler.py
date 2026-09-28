@@ -11,6 +11,56 @@ from agents.template_phase import TemplatePhaseController
 from puyo_env.nextgen_public_snapshot import TickInterval, TimingProfile
 
 
+def _same_wire_value(left, right):
+    # Ordinary Python equality conflates bool/int/float. Reusing schema proof
+    # must preserve the strict wire types, including every nested list element.
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(
+            _same_wire_value(value, right[key]) for key, value in left.items()
+        )
+    if isinstance(left, (list, tuple)):
+        return len(left) == len(right) and all(
+            _same_wire_value(a, b) for a, b in zip(left, right)
+        )
+    return left == right
+
+
+class _DecodedNextgenPayload(dict):
+    """Parent-local proof of pure schema validation, never a wire contract.
+
+    Contracts are frozen and recursively tuple-valued. Keep a detached canonical
+    wire value as well: a consumer changing even a nested wire field must not
+    retain the proof for the previous value.
+    """
+
+    def __init__(self, payload, diagnostics):
+        super().__init__(payload)
+        self._diagnostics = diagnostics
+        self._validated_wire = diagnostics.to_dict()
+
+    def decoded(self):
+        if _same_wire_value(self.get("nextgen"), self._validated_wire):
+            return self._diagnostics
+        return None
+
+
+def decode_nextgen_payload(payload):
+    """Validate only immutable worker data on the existing result reader.
+
+    Malformed values retain the old UI-side error/outcome path. Request identity,
+    current public state, phase and authoritative reachability are NOT accepted
+    here; those remain owned by the simulation thread.
+    """
+    if not isinstance(payload, dict) or "nextgen" not in payload:
+        return payload
+    try:
+        return _DecodedNextgenPayload(payload, c.Diagnostics.from_dict(payload["nextgen"]))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return payload
+
+
 class NextgenScheduler:
     def __init__(self, policy):
         self.policy = policy
@@ -87,7 +137,9 @@ class NextgenScheduler:
 
     def accept(self, payload, selected_action):
         try:
-            diagnostics = c.Diagnostics.from_dict(payload["nextgen"])
+            diagnostics = payload.decoded() if isinstance(payload, _DecodedNextgenPayload) else None
+            if diagnostics is None:
+                diagnostics = c.Diagnostics.from_dict(payload["nextgen"])
             request = diagnostics.request
             if (
                 request.identity != self.data["identity"]

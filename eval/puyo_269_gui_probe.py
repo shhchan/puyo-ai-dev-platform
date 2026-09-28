@@ -39,6 +39,25 @@ def use_reference_behavior() -> str:
 
 
 if __name__ == "__main__":
+    ui_decode = "--ui-decode" in sys.argv
+    if ui_decode:
+        sys.argv.remove("--ui-decode")
+        import puyo_env.nextgen_scheduler as scheduler
+        scheduler.decode_nextgen_payload = lambda payload: payload
+    legacy_render = "--legacy-render" in sys.argv
+    if legacy_render:
+        sys.argv.remove("--legacy-render")
+        import src.ui.versus_renderer as renderer
+        from src.ui.nextgen_display import nextgen_receipt_summary
+        from puyo_env.realtime_ai import RealtimeControllerDiagnostics
+
+        def legacy_summary(payload, last_decision):
+            # Reproduce the old per-frame full copy with the same decision.
+            # Other controller counters are not read by the receipt summary.
+            diagnostics = RealtimeControllerDiagnostics(last_decision=last_decision)
+            return nextgen_receipt_summary(payload, diagnostics.to_dict())
+
+        renderer.live_nextgen_receipt_summary = legacy_summary
     reference = "--reference-269" in sys.argv
     reference_source_sha256 = None
     if reference:
@@ -47,6 +66,8 @@ if __name__ == "__main__":
     main()
     output = Path(sys.argv[sys.argv.index("--output") + 1])
     result = json.loads(output.read_text())
+    result["legacy_render"] = legacy_render
+    result["ui_decode"] = ui_decode
     result["puyo_269_reference"] = {
         "enabled": reference,
         "source_revision": REFERENCE_SHA if reference else None,

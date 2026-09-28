@@ -10,7 +10,7 @@ import pygame
 from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_WIDTH, PUYO_SIZE, VISIBLE_HEIGHT, PuyoColor
 from src.ui.keybindings import ACTION_LABELS, ACTION_ORDER
-from src.ui.nextgen_display import TACTIC_LABELS, nextgen_receipt_summary
+from src.ui.nextgen_display import TACTIC_LABELS, live_nextgen_receipt_summary
 
 
 SCREEN_WIDTH = 1120
@@ -647,9 +647,9 @@ class VersusRenderer:
         if controller.policy_names.get(agent) == "nextgen_tactic_manager":
             common_stats = (common_stats[0], common_stats[2])
             runtime = controller.controllers[agent]
-            receipt = nextgen_receipt_summary(
+            receipt = live_nextgen_receipt_summary(
                 getattr(runtime, "latest_policy_diagnostics", {}),
-                runtime.diagnostics.to_dict(),
+                runtime.diagnostics.last_decision,
             )
             status = runtime.status()
             if receipt is None:
@@ -676,6 +676,28 @@ class VersusRenderer:
                     (f"要求 {receipt['requested_action']} / 実行 {receipt['executed_action']}", (190, 198, 215)),
                 )
             stats += (("計算中" if status.pending_ready_tick is not None else "実行中" if status.active_action_index is not None else "待機中", (255, 220, 145)),)
+            preview_status = getattr(controller, "plan_preview_status", None)
+            if callable(preview_status):
+                preview = preview_status(agent)
+                if preview.get("status") in {"available", "partial"}:
+                    label = f"先読み {preview.get('available_steps', 0)}/3 参考（次手保証なし）"
+                elif preview.get("reason") == "overlay_off":
+                    label = "先読み OFF (o)"
+                else:
+                    reason = preview.get("reason", "")
+                    message = {
+                        "adoption_pending": "判断待ち",
+                        "piece_finished": "配置更新待ち",
+                        "decision_changed": "配置更新待ち",
+                        "public_state_changed": "盤面更新待ち",
+                        "incoming_event_requires_replan": "着弾で再判断",
+                        "public_prefix_exhausted": "公開された先読み不足",
+                        "candidate_prefix_short": "公開された先読み不足",
+                        "representative_prefix_short": "公開された先読み不足",
+                        "preview_unavailable": "先読み情報待ち",
+                    }.get(reason, "再判断待ち")
+                    label = "先読み: " + message
+                stats += ((label, (190, 198, 215)),)
         elif summary.get("deep_chain"):
             flow_steps = tuple(
                 item
