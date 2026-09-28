@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import ast
 from collections import defaultdict
+import gc
 import hashlib
 import json
 import multiprocessing.queues
@@ -20,6 +21,7 @@ import pygame
 import _puyo_deep_chain_native as native
 from agents.deep_chain_native import NativeDeepChainBackend
 import puyo_env.realtime_ai as ai
+import src.ui.versus_renderer as renderer_module
 from eval.puyo_271_gui_probe import proc, stats
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
 from src.ui.versus_renderer import SCREEN_HEIGHT, SCREEN_WIDTH, VersusRenderer
@@ -96,10 +98,14 @@ def run(args):
             try:
                 return original(*a, **kw)
             finally:
-                functions[label].append({"frame": frame, "ms": (time.perf_counter_ns()-started)/1e6})
+                functions[label].append({"frame": frame, "started_ns": started,
+                                         "thread": threading.current_thread().name,
+                                         "ms": (time.perf_counter_ns()-started)/1e6})
         setattr(obj, name, measured)
 
     if not args.minimal:
+        if hasattr(renderer_module, "live_nextgen_receipt_summary"):
+            wrap(renderer_module, "live_nextgen_receipt_summary", "render_receipt_summary")
         # Queue.get includes worker wait; measure the actual parent-side decode
         # separately. These wrappers are local to this evaluator process.
         wrap(multiprocessing.queues._ForkingPickler, "loads", "ipc_deserialize")
@@ -127,6 +133,20 @@ def run(args):
         for executor in controller._decision_executors.values():
             wrap(executor, "submit_policy", "ipc_submit_enqueue")
             wrap(executor._request_queue, "_send_bytes", "ipc_send_bytes")
+
+    gc_started = {}
+    def record_gc(phase, info):
+        generation = info["generation"]
+        if phase == "start":
+            gc_started[generation] = time.perf_counter_ns()
+        else:
+            started = gc_started.pop(generation, None)
+            if started is not None:
+                functions["gc_collect"].append({"frame": frame, "started_ns": started,
+                    "thread": threading.current_thread().name, "generation": generation,
+                    "ms": (time.perf_counter_ns()-started)/1e6})
+    if not args.minimal:
+        gc.callbacks.append(record_gc)
 
     def human_state():
         game = controller.env.match.player_states["player_1"].simulator.game
@@ -243,6 +263,8 @@ def run(args):
                   "host":platform.uname()._asdict(),"display":os.environ.get("DISPLAY"),
                   "resolution":[SCREEN_WIDTH,SCREEN_HEIGHT],"clock_ticks":os.sysconf("SC_CLK_TCK")}
     finally:
+        if not args.minimal:
+            gc.callbacks.remove(record_gc)
         stop.set()
         feeder.join(timeout=1)
         controller.shutdown()

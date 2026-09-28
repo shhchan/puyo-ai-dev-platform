@@ -10,7 +10,7 @@ import pygame
 from puyo_env.actions import action_to_placement
 from src.core.constants import GRID_WIDTH, PUYO_SIZE, VISIBLE_HEIGHT, PuyoColor
 from src.ui.keybindings import ACTION_LABELS, ACTION_ORDER
-from src.ui.nextgen_display import TACTIC_LABELS, nextgen_receipt_summary
+from src.ui.nextgen_display import TACTIC_LABELS, live_nextgen_receipt_summary
 
 
 SCREEN_WIDTH = 1120
@@ -647,9 +647,9 @@ class VersusRenderer:
         if controller.policy_names.get(agent) == "nextgen_tactic_manager":
             common_stats = (common_stats[0], common_stats[2])
             runtime = controller.controllers[agent]
-            receipt = nextgen_receipt_summary(
+            receipt = live_nextgen_receipt_summary(
                 getattr(runtime, "latest_policy_diagnostics", {}),
-                runtime.diagnostics.to_dict(),
+                runtime.diagnostics.last_decision,
             )
             status = runtime.status()
             if receipt is None:
