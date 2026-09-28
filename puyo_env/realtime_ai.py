@@ -8,7 +8,7 @@ import multiprocessing
 import queue
 import threading
 import time
-from concurrent.futures import Executor, Future
+from concurrent.futures import Executor, Future, InvalidStateError
 from dataclasses import asdict, dataclass, replace
 from typing import Any, Mapping, Sequence
 
@@ -384,6 +384,8 @@ class PolicyProcessExecutor:
             self._request_queue.put((-1, "reset", None))
 
     def _read_results(self) -> None:
+        from puyo_env.nextgen_scheduler import decode_nextgen_payload
+
         while True:
             try:
                 response = self._result_queue.get()
@@ -392,13 +394,26 @@ class PolicyProcessExecutor:
             if response is None:
                 return
             request_id, succeeded, selected, elapsed, detail = response
-            future = self._futures.pop(int(request_id), None)
+            request_id = int(request_id)
+            # Keep an in-flight decode registered so shutdown can cancel it.
+            future = self._futures.get(request_id)
             if future is None or future.cancelled():
+                self._futures.pop(request_id, None)
                 continue
             if succeeded:
-                future.set_result((selected, elapsed, detail))
-            else:
-                future.set_exception(RuntimeError(str(detail)))
+                detail = decode_nextgen_payload(detail)
+            # Timeout/reset/shutdown can cancel while pure schema decoding runs.
+            # Never revive that request or kill the reader before the next one.
+            try:
+                if succeeded:
+                    future.set_result((selected, elapsed, detail))
+                else:
+                    future.set_exception(RuntimeError(str(detail)))
+            except InvalidStateError:
+                if not future.cancelled():
+                    raise
+            finally:
+                self._futures.pop(request_id, None)
 
     def shutdown(self, wait: bool = False, cancel_futures: bool = True) -> None:
         if self._closed:

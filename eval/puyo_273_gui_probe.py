@@ -21,6 +21,7 @@ import pygame
 import _puyo_deep_chain_native as native
 from agents.deep_chain_native import NativeDeepChainBackend
 import puyo_env.realtime_ai as ai
+import puyo_env.nextgen_scheduler as scheduler_module
 import src.ui.versus_renderer as renderer_module
 from eval.puyo_271_gui_probe import proc, stats
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
@@ -116,6 +117,7 @@ def run(args):
         setattr(obj, name, measured)
 
     if not args.minimal:
+        wrap(scheduler_module, "decode_nextgen_payload", "reader_decode")
         if hasattr(renderer_module, "live_nextgen_receipt_summary"):
             wrap(renderer_module, "live_nextgen_receipt_summary", "render_receipt_summary")
         # Queue.get includes worker wait; measure the actual parent-side decode
