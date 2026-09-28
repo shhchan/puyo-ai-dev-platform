@@ -1,0 +1,609 @@
+{
+  "quality_status": "observed quality FAIL / formal G2 BLOCKED retained",
+  "proposal_status": "rejected: GTR123 maximum chain 10 to 3, premature 0 to 2; runtime reverted",
+  "unmeasured_proposal_identities": [
+    "gtr-144",
+    "daa-55",
+    "persian-55",
+    "daa-random-59-step"
+  ],
+  "pairs": [
+    {
+      "identity": "gtr-123",
+      "before": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.3659512064999717,
+          "p95": 0.43819787730019466,
+          "max": 0.4673117780000666
+        }
+      },
+      "after": {
+        "max_chain": 3,
+        "premature": 2,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.33477571150012864,
+          "p95": 0.42993922750007413,
+          "max": 0.4393254449998949
+        }
+      },
+      "common_public_piece_windows": 40,
+      "first_action_difference": {
+        "decision": 28,
+        "same_public_input": true,
+        "same_reachable_mask": true,
+        "before_action": 1,
+        "after_action": 15,
+        "before_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:3391b710f36562c94616e5af4cd651aafd13b6652f8a88680b2806709dad7009",
+          "batch_digest": "f69c0bac33a4853aa40ae792021447f9839932f475a76387a31f3972785b9ace",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:841a6dd3457efbc83c467896d52be68f320c4222bc07acfee426226299b93d1a",
+          "batch_digest": "b1e89ec4965ba63fa84e9cc6ff3ed7166bae225144383874d8feb9eae0b47433",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_receipt": {
+          "requested_candidate_id": "candidate:841a6dd3457efbc83c467896d52be68f320c4222bc07acfee426226299b93d1a",
+          "requested_action": 15,
+          "executed_action": 15,
+          "outcome": "activated",
+          "request_tick": 1535,
+          "completion_tick": 1535,
+          "activation_tick": 1535,
+          "timeout_tick": 2147485182,
+          "pre_execution_snapshot_digest": "d59f6ab21e6707a8e622658bc5addacc0ee27c9d02b4ecec3aa285092a9e4487",
+          "reason": "survival_adopted:survival_safe_nonfire:policy"
+        },
+        "after_actual_resolution": {
+          "tick": 1577,
+          "score_delta": 1,
+          "attack_score_delta": 0,
+          "chain_end_score": 0,
+          "chain_count": 0,
+          "game_over": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "same_inputs_and_final_hash": false,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": [
+        {
+          "decision": 29,
+          "action": 16,
+          "outcome": "activated",
+          "reason": "survival_adopted:legitimate_survival_exception:policy",
+          "resolution": {
+            "tick": 1765,
+            "score_delta": 2591,
+            "attack_score_delta": 2806,
+            "chain_end_score": 2806,
+            "chain_count": 3,
+            "game_over": false,
+            "all_clear_achieved": false,
+            "all_clear_bonus_pending": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0
+          }
+        },
+        {
+          "decision": 37,
+          "action": 1,
+          "outcome": "activated",
+          "reason": "survival_adopted:legitimate_survival_exception:policy",
+          "resolution": {
+            "tick": 2223,
+            "score_delta": 40,
+            "attack_score_delta": 86,
+            "chain_end_score": 2892,
+            "chain_count": 1,
+            "game_over": false,
+            "all_clear_achieved": false,
+            "all_clear_bonus_pending": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-124",
+      "before": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.3731336094999733,
+          "p95": 0.46688475965013365,
+          "max": 0.48031183599982796
+        }
+      },
+      "after": {
+        "max_chain": 13,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.3864662794999276,
+          "p95": 0.47458614645003083,
+          "max": 0.49959149599999364
+        }
+      },
+      "common_public_piece_windows": 40,
+      "first_action_difference": {
+        "decision": 30,
+        "same_public_input": true,
+        "same_reachable_mask": true,
+        "before_action": 19,
+        "after_action": 16,
+        "before_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:8d41d7111741321e6848eca7ff3552e82710e203f0e5d6dc34f934c6278ffc65",
+          "batch_digest": "97051d6fcd8045f921f5ba4e90a5f3c223ad86daca321495a8504b2a2a37e528",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:733c9b9592215abc15227816d2e464471be0ab5d7b3a178aa8bacb0937cfe24e",
+          "batch_digest": "6fa8df4b3c4a4d50d3c2c4a423b51fdf60103e313d5ffc30b0c94a256f58d12f",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_receipt": {
+          "requested_candidate_id": "candidate:733c9b9592215abc15227816d2e464471be0ab5d7b3a178aa8bacb0937cfe24e",
+          "requested_action": 16,
+          "executed_action": 16,
+          "outcome": "activated",
+          "request_tick": 1617,
+          "completion_tick": 1617,
+          "activation_tick": 1617,
+          "timeout_tick": 2147485264,
+          "pre_execution_snapshot_digest": "d81358c4cdb613255597f94f48d6ff49311fc03a398d9ac9857b39a03a44da09",
+          "reason": "survival_adopted:survival_safe_nonfire:policy"
+        },
+        "after_actual_resolution": {
+          "tick": 1655,
+          "score_delta": 1,
+          "attack_score_delta": 0,
+          "chain_end_score": 0,
+          "chain_count": 0,
+          "game_over": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "same_inputs_and_final_hash": false,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": []
+    },
+    {
+      "identity": "gtr-126",
+      "before": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 36,
+        "decision_seconds": {
+          "n": 36,
+          "p50": 0.35492894749984316,
+          "p95": 0.4436665307499652,
+          "max": 0.4516804540000976
+        }
+      },
+      "after": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.38657073749982374,
+          "p95": 0.4523239302001684,
+          "max": 0.45930291300032877
+        }
+      },
+      "common_public_piece_windows": 36,
+      "first_action_difference": {
+        "decision": 33,
+        "same_public_input": true,
+        "same_reachable_mask": true,
+        "before_action": 6,
+        "after_action": 12,
+        "before_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:fb8df42b6109f0f71fd54a8e79674cbc21780a33e8f7e5fe397254d5781e258b",
+          "batch_digest": "afd97287150e20b792df4f665f82f6f3d9a6d856ce66a71da782a7291035a297",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_selection": {
+          "selected_tactic_id": "fire_main",
+          "candidate_id": "candidate:bc089fdaeda84486f29e97ec98e262dda52a6ec2a0576c57124bd02421e75a2b",
+          "batch_digest": "fb4aaea48e01d39ae3b121e208c9e3932164ebca6ed051d998c4688da43673c8",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "rule_priority_fire_main",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_receipt": {
+          "requested_candidate_id": "candidate:bc089fdaeda84486f29e97ec98e262dda52a6ec2a0576c57124bd02421e75a2b",
+          "requested_action": 12,
+          "executed_action": 12,
+          "outcome": "activated",
+          "request_tick": 1716,
+          "completion_tick": 1716,
+          "activation_tick": 1716,
+          "timeout_tick": 2147485363,
+          "pre_execution_snapshot_digest": "429c65db0c0b3a99661654a2b811f7ad34e72b31feda849cf3453f4ffb99d9b0",
+          "reason": "policy"
+        },
+        "after_actual_resolution": {
+          "tick": 2206,
+          "score_delta": 47120,
+          "attack_score_delta": 47355,
+          "chain_end_score": 47355,
+          "chain_count": 10,
+          "game_over": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "same_inputs_and_final_hash": false,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": []
+    },
+    {
+      "identity": "gtr-128",
+      "before": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 39,
+        "decision_seconds": {
+          "n": 39,
+          "p50": 0.3037862970002152,
+          "p95": 0.40701475920020586,
+          "max": 0.4467612180001197
+        }
+      },
+      "after": {
+        "max_chain": 1,
+        "premature": 3,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.3240541470001972,
+          "p95": 0.40809265614982443,
+          "max": 0.4271340909999708
+        }
+      },
+      "common_public_piece_windows": 39,
+      "first_action_difference": {
+        "decision": 37,
+        "same_public_input": true,
+        "same_reachable_mask": true,
+        "before_action": 3,
+        "after_action": 11,
+        "before_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:dcb34b98c05d3e7f711728f948232ed45c7a63c85d238462a559087a794ea59a",
+          "batch_digest": "1790595561a09260dfde16cf43a6fd551b60b69b0d9240f1ef4b3ce113a7d96d",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:3756ad4badf3e5ac9c4235c1d73427922824c34ddf2a97e61dbe31a60a27b9e3",
+          "batch_digest": "7e693abce18df1d8045173b9805cd85619802c148eb4098e82062bd46ff16cca",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "legitimate_survival_exception",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_receipt": {
+          "requested_candidate_id": "candidate:3756ad4badf3e5ac9c4235c1d73427922824c34ddf2a97e61dbe31a60a27b9e3",
+          "requested_action": 11,
+          "executed_action": 11,
+          "outcome": "activated",
+          "request_tick": 1814,
+          "completion_tick": 1814,
+          "activation_tick": 1814,
+          "timeout_tick": 2147485461,
+          "pre_execution_snapshot_digest": "31f497321348f3980968fde60b05be110e92defa8d08bf6b6d5b5d2cf1fab996",
+          "reason": "survival_adopted:legitimate_survival_exception:policy"
+        },
+        "after_actual_resolution": {
+          "tick": 1892,
+          "score_delta": 41,
+          "attack_score_delta": 303,
+          "chain_end_score": 303,
+          "chain_count": 1,
+          "game_over": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "same_inputs_and_final_hash": false,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": [
+        {
+          "decision": 37,
+          "action": 11,
+          "outcome": "activated",
+          "reason": "survival_adopted:legitimate_survival_exception:policy",
+          "resolution": {
+            "tick": 1892,
+            "score_delta": 41,
+            "attack_score_delta": 303,
+            "chain_end_score": 303,
+            "chain_count": 1,
+            "game_over": false,
+            "all_clear_achieved": false,
+            "all_clear_bonus_pending": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0
+          }
+        },
+        {
+          "decision": 38,
+          "action": 8,
+          "outcome": "activated",
+          "reason": "survival_adopted:legitimate_survival_exception:policy",
+          "resolution": {
+            "tick": 1971,
+            "score_delta": 41,
+            "attack_score_delta": 42,
+            "chain_end_score": 345,
+            "chain_count": 1,
+            "game_over": false,
+            "all_clear_achieved": false,
+            "all_clear_bonus_pending": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0
+          }
+        },
+        {
+          "decision": 40,
+          "action": 6,
+          "outcome": "activated",
+          "reason": "survival_adopted:legitimate_survival_exception:policy",
+          "resolution": {
+            "tick": 2103,
+            "score_delta": 40,
+            "attack_score_delta": 43,
+            "chain_end_score": 388,
+            "chain_count": 1,
+            "game_over": false,
+            "all_clear_achieved": false,
+            "all_clear_bonus_pending": false,
+            "all_clear_bonus_consumed": false,
+            "all_clear_bonus_score": 0
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-132",
+      "before": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 33,
+        "decision_seconds": {
+          "n": 33,
+          "p50": 0.3802585540001928,
+          "p95": 0.43407652520004375,
+          "max": 0.4564929040000152
+        }
+      },
+      "after": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.39752951249988655,
+          "p95": 0.4505593455999132,
+          "max": 0.5381815610001013
+        }
+      },
+      "common_public_piece_windows": 33,
+      "first_action_difference": {
+        "decision": 30,
+        "same_public_input": true,
+        "same_reachable_mask": true,
+        "before_action": 11,
+        "after_action": 5,
+        "before_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:4dc1974af2ac3b6c6674a1ad9261390b63c214c85b30aa9cac169f704699a931",
+          "batch_digest": "97b0dd72ca77140b959548ed4741ab29825343701b235fdd53437874e7080ef9",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_selection": {
+          "selected_tactic_id": "build_main",
+          "candidate_id": "candidate:e5816a580eee8b08ca5c1b2371d55db6ae1cc49ed8bbe3c52a2a430fcca28bdf",
+          "batch_digest": "156294074b9f24fb63f94a78a1f46695f5faa4f71fc5e5d2810560498be08650",
+          "selector_kind": "rule",
+          "selector_checkpoint": null,
+          "behavior_log_prob": null,
+          "value": null,
+          "reason": "survival_safe_nonfire",
+          "schema_version": "puyo.nextgen.selection.v1"
+        },
+        "after_receipt": {
+          "requested_candidate_id": "candidate:e5816a580eee8b08ca5c1b2371d55db6ae1cc49ed8bbe3c52a2a430fcca28bdf",
+          "requested_action": 5,
+          "executed_action": 5,
+          "outcome": "activated",
+          "request_tick": 1599,
+          "completion_tick": 1599,
+          "activation_tick": 1599,
+          "timeout_tick": 2147485246,
+          "pre_execution_snapshot_digest": "86beabf6cf6e1acf974cdd47b4ee3c2510230c9864cad41e6aef7813e7c48bb0",
+          "reason": "survival_adopted:survival_safe_nonfire:policy"
+        },
+        "after_actual_resolution": {
+          "tick": 1637,
+          "score_delta": 1,
+          "attack_score_delta": 0,
+          "chain_end_score": 0,
+          "chain_count": 0,
+          "game_over": false,
+          "all_clear_achieved": false,
+          "all_clear_bonus_pending": false,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "same_inputs_and_final_hash": false,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": []
+    },
+    {
+      "identity": "gtr-135",
+      "before": {
+        "max_chain": 1,
+        "premature": 2,
+        "game_over": true,
+        "placements": 37,
+        "decision_seconds": {
+          "n": 37,
+          "p50": 0.3372080620001725,
+          "p95": 0.45441757959997614,
+          "max": 0.48915157500027817
+        }
+      },
+      "after": {
+        "max_chain": 1,
+        "premature": 2,
+        "game_over": true,
+        "placements": 37,
+        "decision_seconds": {
+          "n": 37,
+          "p50": 0.3422885469999528,
+          "p95": 0.46040787239999187,
+          "max": 0.49931803200001923
+        }
+      },
+      "common_public_piece_windows": 37,
+      "first_action_difference": null,
+      "same_inputs_and_final_hash": true,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": []
+    },
+    {
+      "identity": "gtr-55",
+      "before": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.4093673595000382,
+          "p95": 0.45195726640015427,
+          "max": 0.48384694500009573
+        }
+      },
+      "after": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40,
+        "decision_seconds": {
+          "n": 40,
+          "p50": 0.3934567660000994,
+          "p95": 0.4633290449499327,
+          "max": 0.47110989300040274
+        }
+      },
+      "common_public_piece_windows": 40,
+      "first_action_difference": null,
+      "same_inputs_and_final_hash": true,
+      "lock_mismatches": [
+        [],
+        []
+      ],
+      "survival_fire_receipts": []
+    }
+  ]
+}

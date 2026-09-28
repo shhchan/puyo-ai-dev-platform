@@ -1,0 +1,607 @@
+{
+  "scope": "fresh-spawn geometry only; no live clock or execution guarantee",
+  "cases": [
+    {
+      "seed": 123,
+      "decision": 28,
+      "witness": [
+        1,
+        3,
+        8
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 3,
+          "public_estimate": {
+            "reachable_actions": [
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 71,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              3,
+              4,
+              5,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 71,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": true,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 8,
+          "public_estimate": {
+            "reachable_actions": [
+              7,
+              8,
+              9,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 64,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              8,
+              9,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 64,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": true,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        }
+      ]
+    },
+    {
+      "seed": 126,
+      "decision": 34,
+      "witness": [
+        11,
+        0,
+        3
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [
+        [
+          0,
+          12,
+          "RED"
+        ]
+      ],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              0,
+              1,
+              3,
+              4,
+              6,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 18,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              3,
+              4,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 14,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 3,
+          "public_estimate": {
+            "reachable_actions": [
+              3,
+              4,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 12,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              3,
+              4,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 14,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": true,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": false
+        }
+      ]
+    },
+    {
+      "seed": 126,
+      "decision": 35,
+      "witness": [
+        3,
+        0,
+        11
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          3,
+          12,
+          "RED"
+        ],
+        [
+          3,
+          13,
+          "YELLOW"
+        ]
+      ],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              7,
+              8,
+              9,
+              11,
+              12,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              21
+            ],
+            "expanded_control_states": 48,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": false,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 11,
+          "public_estimate": {
+            "reachable_actions": [
+              7,
+              8,
+              9,
+              11,
+              12,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              21
+            ],
+            "expanded_control_states": 46,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": false,
+          "preceding_prefix_reachable_in_offline_full": false
+        }
+      ]
+    },
+    {
+      "seed": 128,
+      "decision": 38,
+      "witness": [
+        11,
+        0,
+        3
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [
+        [
+          0,
+          12,
+          "GREEN"
+        ],
+        [
+          1,
+          12,
+          "GREEN"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ],
+        [
+          1,
+          13,
+          "BLUE"
+        ]
+      ],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              0,
+              1,
+              3,
+              4,
+              6,
+              7,
+              9,
+              10,
+              15,
+              16,
+              19,
+              21
+            ],
+            "expanded_control_states": 30,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 3,
+          "public_estimate": {
+            "reachable_actions": [
+              3,
+              4,
+              7,
+              9,
+              10,
+              15,
+              16,
+              19,
+              21
+            ],
+            "expanded_control_states": 24,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": false
+        }
+      ]
+    },
+    {
+      "seed": 132,
+      "decision": 32,
+      "witness": [
+        5,
+        0,
+        0
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [
+        [
+          3,
+          12,
+          "RED"
+        ]
+      ],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              0,
+              2,
+              7,
+              8,
+              9,
+              11,
+              12,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 65,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 230,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "expanded_control_states": 226,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": true,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": false
+        }
+      ]
+    },
+    {
+      "seed": 144,
+      "decision": 37,
+      "witness": [
+        11,
+        0,
+        3
+      ],
+      "actual_root_matches": true,
+      "source": "public request compared with offline authoritative replay; never runtime input",
+      "hidden_cells_absent_from_public_model": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "YELLOW"
+        ]
+      ],
+      "continuations": [
+        {
+          "depth": 1,
+          "action": 0,
+          "public_estimate": {
+            "reachable_actions": [
+              0,
+              1,
+              3,
+              4,
+              6,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 18,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": true
+        },
+        {
+          "depth": 2,
+          "action": 3,
+          "public_estimate": {
+            "reachable_actions": [
+              3,
+              4,
+              7,
+              9,
+              10
+            ],
+            "expanded_control_states": 12,
+            "control_state_budget": 2000
+          },
+          "offline_full_board": {
+            "reachable_actions": [
+              7,
+              9
+            ],
+            "expanded_control_states": 8,
+            "control_state_budget": 2000
+          },
+          "found_in_public": true,
+          "found_in_offline_full": false,
+          "preceding_prefix_reachable_in_public": true,
+          "preceding_prefix_reachable_in_offline_full": false
+        }
+      ]
+    }
+  ]
+}
