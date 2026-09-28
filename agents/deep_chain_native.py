@@ -18,8 +18,8 @@ from enum import IntEnum
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from src.core.constants import PuyoColor
 from agents.selected_template import SelectedTemplate, validate_public_template_input
+from src.core.constants import PuyoColor
 
 if TYPE_CHECKING:
     from agents.chain_structure import ChainStructureConfig

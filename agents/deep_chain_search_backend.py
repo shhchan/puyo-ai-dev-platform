@@ -32,8 +32,8 @@ from agents.long_horizon_search import (
     LongHorizonSearchResult,
     run_compact_long_horizon_search,
 )
-from src.core.constants import PuyoColor
 from agents.selected_template import SelectedTemplate, validate_public_template_input
+from src.core.constants import PuyoColor
 
 LONG_HORIZON_BACKEND_CONFIG_SCHEMA_VERSION = "puyo.deep_chain_builder.backend_config.v1"
 LONG_HORIZON_BACKEND_DIAGNOSTICS_SCHEMA_VERSION = (

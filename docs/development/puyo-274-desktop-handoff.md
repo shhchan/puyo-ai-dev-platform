@@ -6,7 +6,7 @@
 
 [レビュー manifest](puyo-274-handoff/review-manifest.json) と [今回の実行表](puyo-274-handoff/execution-20260928.md) は親が確認した PR/base/head・状態を記録する．起動時は GitHub/Jira の現在値を優先する．[09-25 実行表](puyo-274-handoff/execution-20260925.md) と [09-27 実行表](puyo-274-handoff/execution-20260927.md) は原本をそのまま保存した履歴で，過去の進行中記述・絶対パス・commit 除外指示を現在の実行命令として使わない．
 
-既存 stack [#167](https://github.com/shhchan/puyo-ai-dev-platform/pull/167) のレビュー順は #162→#161→#163→#164→#165→#166→#168→#169→#170．資料 PR は #170 の後に追加する予定で，親の read-back を manifest に記録する．統合先は `integration/puyo-228-v1-8-0`．開始時の統合 SHA は `c0c77d944ff3ed276a4b44a40a779cd72bc0977a`，本資料の起点は #170 の `d3acb77d9542e66209618deb36eaae6d2bcaca9d`．merge/release の許可は含まない．
+既存 stack [#167](https://github.com/shhchan/puyo-ai-dev-platform/pull/167) のレビュー順は #162→#161→#163→#164→#165→#166→#168→#169→#170→[#171](https://github.com/shhchan/puyo-ai-dev-platform/pull/171)．資料 PR #171 を最上段へ接続した．manifest は開始時 snapshot，最新値は GitHub/Jira で read-back する．統合先は `integration/puyo-228-v1-8-0`．開始時の統合 SHA は `c0c77d944ff3ed276a4b44a40a779cd72bc0977a`，本資料の起点は #170 の `d3acb77d9542e66209618deb36eaae6d2bcaca9d`．merge/release の許可は含まない．
 
 | 所有先 | 保存結果と残条件 |
 | --- | --- |
@@ -19,7 +19,7 @@ frame/input の p95 ≤ 25 ms/p99 ≤ 50 ms，実人間の意図した配置，�
 
 ### CI の再確認
 
-既存 #164/#168/#169 の CI 失敗は，継承された `native/deep_chain_native/src/long_horizon.rs` の `collapsible_if` と `selected_template.rs` の `too_many_arguments` による Clippy failure．その run の後続 Rust/Python tests は未実施で，成功とは扱わない．引継ぎ最上段には親がこの 2 件だけの lint 修正を別 commit で追加する．runtime，探索重み，quota は変更しない．古い下段 head の red check は過去 run として残り，最上段 head の remote CI を再検証する必要がある．本資料の作成時点では CI PASS を宣言しない．
+既存 #164/#168/#169 の CI 失敗は，継承された `native/deep_chain_native/src/long_horizon.rs` の `collapsible_if` と `selected_template.rs` の `too_many_arguments` による Clippy failure．その run の後続 Rust/Python tests は未実施で，成功とは扱わない．引継ぎ最上段で親がこの 2 件を別 commit で修正した．remote CI の Rust fmt/Clippy/units と frozen corpus は成功したが，続く Python 境界 step が継承された Ruff I001 4 件で停止した．agents/deep_chain_native.py，deep_chain_native_search.py，deep_chain_search_backend.py，long_horizon_search.py の import block だけを整形し，Ruff 0.16.0 で確認した．runtime の挙動，探索重み，quota は変更しない．古い下段 head の red check は過去 run として残り，最上段 head の remote CI を再検証する必要がある．本資料の作成時点では CI PASS を宣言しない．
 
 ## 2. 2026-09-28 の人間観察
 
@@ -37,7 +37,7 @@ Linux x86_64，CPython 3.12 を起点にする．native build script がこの�
 git clone https://github.com/shhchan/puyo-ai-dev-platform.git
 cd puyo-ai-dev-platform
 git fetch origin
-gh pr view 170 --json state,headRefName,headRefOid,baseRefName
+gh pr view 171 --json state,headRefName,headRefOid,baseRefName
 gh pr list --state open --json number,title,headRefName,baseRefName,isDraft
 ```
 

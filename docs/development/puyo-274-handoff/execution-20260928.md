@@ -38,3 +38,7 @@ root の `runs/` と `human_datasets/` は独立した歴史的実行／ユー�
 - [自律開発手順](../codex_autonomous_workflow.md)
 - `execution-20260925.md`，`execution-20260927.md` は旧 host の原記録．旧絶対パスを desktop 上の存在保証として使わない．
 - `../puyo-274-desktop-handoff.md` の再開手順を最新の入口にする．
+
+## レビュー準備の追加 lint 修正
+
+親は `fbfd4bc` で Rust の Clippy 2 件だけを修正．最上段 #171 の remote CI run `36367954188` で wheel，Rust fmt/Clippy/units，frozen corpus が成功した．Python 境界 step は継承された Ruff I001 4 件で停止し，test assertion へは未到達．その 4 import block のみを整形し，Ruff 0.16.0 の限定 4 ファイル check と diff check を確認した．挙動・探索重み・quota は変更せず，再 push 後の CI は GitHub で確認する．旧 head の品質／GUI 測定はその source SHA の証拠として保持する．

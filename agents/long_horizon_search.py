@@ -31,10 +31,10 @@ from agents.compact_search import (
 )
 from agents.selected_template import (
     SelectedTemplate,
-    validate_public_template_input,
-    new_template_record,
     check_template,
+    new_template_record,
     template_result,
+    validate_public_template_input,
 )
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator
