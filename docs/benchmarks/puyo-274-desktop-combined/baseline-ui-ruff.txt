@@ -1,0 +1,19 @@
+/tmp/puyo274-baseline-ui.py:24:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:29:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:30:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:31:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:32:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:33:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:39:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:40:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:41:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:42:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:43:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:53:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:54:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:55:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:56:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:57:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:58:1: E402 Module level import not at top of file
+/tmp/puyo274-baseline-ui.py:59:1: E402 Module level import not at top of file
+Found 18 errors.
