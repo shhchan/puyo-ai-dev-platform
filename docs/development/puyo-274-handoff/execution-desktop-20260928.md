@@ -58,8 +58,10 @@ input schedule は予定イベント→handler の時間で，event→state→dr
 
 ## 親の組合せ確認と新 stack
 
-全子停止後に #172 の head を #173 へ通常 merge `25bdae7c291fa1445d8150cbedfc473d01126d34`，その head を #174 へ通常 merge `d6ca1b94baa9cd226f7ff79b7b6600e7c11db511`．親 #175 の起点は後者．共有履歴を保持し，層ごとの net diff は各担当範囲のみ．GitHub の PR merge／release はしない．新 stack は #172→#173→#174→#175，最下段のみ integration/puyo-228-v1-8-0，後続は直前 branch．#174 は未達条件により draft，reviewer 全件未指定．
+全子停止後に #172 の head を #173 へ通常 merge `25bdae7c291fa1445d8150cbedfc473d01126d34`，その head を #174 へ通常 merge `d6ca1b94baa9cd226f7ff79b7b6600e7c11db511`．親 #175 の起点は後者．共有履歴を保持し，層ごとの net diff は各担当範囲のみ．GitHub の PR merge／release はしない．新 stack #176 は #172→#173→#174→#175，最下段のみ integration/puyo-228-v1-8-0，後続は直前 branch．#174 は未達条件により draft，reviewer 全件未指定．
 
 回帰 118 tests／46 subtests PASS，既存起点 FAIL 1 件は別途記録．Ruff（既存 E402 除外）／diff check／main.py 起動成功．実 overlay ON の 4 条件，receipt/lock，o OFF/ON の tick/action/receipt 不変と画面を [組合せ QA](../../benchmarks/puyo-274-desktop-combined/README.md) に保存．two の input schedule p99 68.75 ms／event→draw 37.07/79.82 ms，human event→draw p95 29.19 ms が未達．単独 overlay OFF の two frame p99 未達も保持．
 
 窒息は未修正，正式 G2 は再実行せず，人間 QA も未完了．274/266/269/273 は In Progress，品質 FAIL／G2 BLOCKED，本学習 256〜258 は開始しない．資料・先読み・同期負荷削減・回帰はレビュー可能で，残条件を COMPLETE に読み替えない．
+
+GitHub stack #176 の API read-back で，順序・base・head と reviewer 空を確認．Jira の本セッションコメントは 274=10776，273=10777，266=10774 編集，269=10775 編集．全件 In Progress．親の組合せ実測 source は `d6ca1b9`，最初の証跡 commit は `fcf3627`．#174 の remote native CI run 36380462019 は確認時点で実行中（PASS を先取りしない）．#172/#173/#175 は workflow の path 条件に該当する check が未起動．
