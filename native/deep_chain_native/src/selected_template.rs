@@ -132,6 +132,8 @@ pub(crate) struct Record {
     pub(crate) sampled_scenario: Option<u8>,
 }
 impl Record {
+    // Keep the explicit search context together at each template check call site.
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn check(
         &mut self,
         template: &SelectedTemplate,

@@ -1305,8 +1305,8 @@ fn run_scenario(
         }
         counters.generated_nodes += 1;
         counters.reached_depth = counters.reached_depth.max(1);
-        if let Some(template) = &request.selected_template {
-            if !template_records[action].check(
+        if let Some(template) = &request.selected_template
+            && !template_records[action].check(
                 template,
                 &state,
                 &request.root_state,
@@ -1315,9 +1315,9 @@ fn run_scenario(
                 initial_valid,
                 transition.game_over(),
                 sequence.scenario_id,
-            ) {
-                continue;
-            }
+            )
+        {
+            continue;
         }
         let terminal = config.record_and_stop
             && u16::from(transition.chain_count) >= config.terminal_fire_chain_count;
