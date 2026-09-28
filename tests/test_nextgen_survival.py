@@ -58,6 +58,72 @@ class SurvivalTests(unittest.TestCase):
             # The same output has deterministic semantics despite wall timing.
             self.assertEqual(ex.deterministic_digest, build(req).deterministic_digest)
 
+    def test_unobserved_hidden_capacity_cannot_prove_survival(self):
+        cases = json.loads((FIXTURE.parent / 'nextgen_hidden_capacity.json').read_text())['cases']
+        for case in cases:
+            with self.subTest(case=case['id']):
+                req = make_request(board=tuple(tuple(r) for r in case['board']),
+                                   pieces=tuple(tuple(p) for p in case['pieces']),
+                                   mask=tuple(case['reachable_mask']), incoming=0, quota=256)
+                ex = build(req)
+                roots = {r['action']: r for r in ex.diagnostics['survival']['roots']}
+                # The old nonfire witness relied on the unknown hidden rows
+                # being empty. It is not a proof of either survival or death.
+                self.assertEqual(roots[case['previous_action']]['status'], 'unknown')
+                actual = select(req, ex).validate_batch(ex.batch)
+                self.assertEqual(value(actual, 'survival_safe'), 1)
+                self.assertNotEqual(actual.root_action, case['previous_action'])
+                if case['id'].startswith(('gtr-126-', 'gtr-128-', 'gtr-144-')):
+                    self.assertGreater(value(actual, 'survival_root_chain'), 0)
+                if case['id'].startswith(('gtr-128-', 'gtr-144-')):
+                    self.assertEqual(select(req, ex).reason, 'legitimate_survival_exception')
+                self.assertLessEqual(ex.diagnostics['survival']['nodes'], 128)
+
+    def test_hidden_landing_that_clears_back_to_visible_remains_a_witness(self):
+        # Three reds at y=8..10, a red at y=11 and blue at y=12: the
+        # placement starts hidden, but the four reds clear before the check.
+        rows = [(0, 0, 0, 2 + y % 2, 0, 0) for y in range(8)]
+        rows += [(0, 0, 0, 1, 0, 0)] * 3
+        board = ((None,) * 6,) * 2 + tuple(reversed(rows + [(0,) * 6]))
+        req = make_request(board=board, pieces=((1, 2),), incoming=0, mask=mask(11), quota=256)
+        state, _ = _public_state(req)
+        result = transition(state, _pairs(req.public.own.known_pieces)[0], 11)
+        self.assertEqual(result.axis_y, 11)
+        self.assertEqual(result.chain_count, 1)
+        # Force the otherwise unnecessary probe to inspect this side-column
+        # fixture, without modifying its public input or transition.
+        with patch('agents.nextgen_survival.needs_probe', return_value=True):
+            roots, _ = probe(req, state, (11,), ResponseBudget(256))
+        self.assertEqual(roots[11].status, 'witness')
+
+    def test_hidden_uncertainty_does_not_activate_envelope_without_fatal_root(self):
+        case = json.loads((FIXTURE.parent / 'nextgen_hidden_capacity.json').read_text())['cases'][1]
+        req = make_request(board=tuple(tuple(r) for r in case['board']),
+                           pieces=tuple(tuple(p) for p in case['pieces']),
+                           mask=mask(8, 11), incoming=0, quota=256)
+        ex = build(req)
+        self.assertFalse(ex.diagnostics['survival']['active'])
+        unknown = next(v for v in ex.batch.candidates if v.root_action == 11)
+        rows = tuple(replace(row, best_id=unknown.candidate_id,
+                             candidate_ids=(unknown.candidate_id,) + tuple(
+                                 cid for cid in row.candidate_ids if cid != unknown.candidate_id))
+                     if row.tactic_id == 'build_main' else row for row in ex.batch.tactics)
+        batch = replace(ex.batch, tactics=rows)
+        chosen = c.Selection('build_main', unknown.candidate_id, batch.digest,
+                             'rule', None, None, None, 'normal_build')
+        self.assertEqual(apply_envelope(batch, chosen), chosen)
+
+    def test_known_hidden_capacity_remains_available(self):
+        case = json.loads((FIXTURE.parent / 'nextgen_hidden_capacity.json').read_text())['cases'][1]
+        for hidden, expected in ((None, 'unknown'), (0, 'witness')):
+            board = ((hidden,) * 6,) * 2 + tuple(tuple(r) for r in case['board'][2:])
+            req = make_request(board=board, pieces=tuple(tuple(p) for p in case['pieces']), incoming=0,
+                               mask=mask(11), quota=256)
+            state, complete = _public_state(req)
+            roots, _ = probe(req, state, (11,), ResponseBudget(256),
+                             timing=TIMING, board_complete=complete)
+            self.assertEqual(roots[11].status, expected)
+
     def test_unreachable_safe_root_is_not_a_witness(self):
         req = self.request(mask=mask(9))
         ex = build(req)
