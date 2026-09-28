@@ -58,14 +58,14 @@ def run(args):
                 max_expanded_states=max_expanded_states).reachable for action in ai.PLACEMENT_ACTIONS], dtype=ai.np.bool_)
         ai.realtime_reachable_action_mask = reference
     settings = dict(policy_a=args.policy, policy_b=args.opponent, seed=55, speed=1.0,
-                    max_ticks=2400, plan_overlay=False, nextgen_profile="nextgen_safe_build",
+                    max_ticks=2400, plan_overlay=args.overlay, nextgen_profile="nextgen_safe_build",
                     nextgen_backend="native", keybindings_path="/tmp/puyo273-no-keybindings.json")
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     controller = RealtimeVersusMatchController(RealtimeVersusUiConfig(**settings))
     renderer, clock = VersusRenderer(screen), pygame.time.Clock()
     samples, functions = defaultdict(list), defaultdict(list)
-    events, ticks, processes, cache = [], [], [], []
+    events, ticks, processes, cache, previews = [], [], [], [], []
     pending, rendered = [], []
     workers = [e.process_pid for e in controller._decision_executors.values() if e.process_pid]
     frame = 0
@@ -90,6 +90,18 @@ def run(args):
                                       "matches":expected.get(agent)==actual if agent in expected else None})
         return result
     controller.env.step = step_with_lock_receipts
+    if args.overlay:
+        preview = controller._nextgen_preview
+        previous_preview = {}
+        def preview_recorded(agent):
+            plan, metadata = preview(agent)
+            row = {"agent": agent, "plan_id": plan.get("plan_id"),
+                   "steps": len(plan.get("steps", [])), **metadata}
+            if previous_preview.get(agent) != row:
+                previews.append({"frame": frame, "tick": controller.env.match.tick, **row})
+                previous_preview[agent] = row
+            return plan, metadata
+        controller._nextgen_preview = preview_recorded
 
     def wrap(obj, name, label):
         original = getattr(obj, name)
@@ -245,6 +257,7 @@ def run(args):
                   "samples":{k:stats(v) for k,v in samples.items()},"raw_samples":dict(samples),
                   "functions_ms":{k:stats([r["ms"] for r in v]) for k,v in functions.items()},
                   "functions_raw":dict(functions),"cache_samples":cache,"input_events":events,
+                  "preview_samples":previews,
                   "human_ticks":ticks,"process_samples":processes,
                   "diagnostics":{a:i.diagnostics.to_dict() for a,i in controller.controllers.items()},
                   "scheduler_errors": {a:i.nextgen_scheduler.errors for a,i in controller.controllers.items()
@@ -289,6 +302,7 @@ def main():
     parser.add_argument("--opponent",default="random")
     parser.add_argument("--frames",type=int,default=600)
     parser.add_argument("--minimal",action="store_true")
+    parser.add_argument("--overlay",action="store_true")
     parser.add_argument("--reference-mask",action="store_true")
     parser.add_argument("--geometric-reference",action="store_true")
     parser.add_argument("--output",required=True)
