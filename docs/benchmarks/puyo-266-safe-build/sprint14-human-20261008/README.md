@@ -177,3 +177,31 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 関連 135 tests（既存 43 を含む），Ruff，diff check が成功した．legacy 383 判断の probe/evidence は既存 `probe-comparison.json` と完全一致した．新規対局/実 lock と正常品質の回帰は次の計測段階で確認する．G2 と人間 QA は未達のままである．
+
+## 推定接続後の固定 5 seed と normal127（source ce44f6e）
+
+製品 source を `ce44f6ef4d47dafcb21613c907d285971f84000a` に固定して逐次測定した．各 run の source SHA と native build は raw に保存し，測定中の source 変更はない．[固定結果](inference-v1-fixed/summary.json)と [human 結果](inference-v1-human/inference-summary.json)を別に扱う．正常構築は維持したが，窒息全般の修正完了ではない．
+
+| 固定 GTR seed | 最大実連鎖 | 小発火 | 窒息 | 配置 | decision p50/p95（秒） |
+|---|---:|---:|---|---:|---|
+| 55 | 10 | 0 | なし | 40 | 0.377/0.430 |
+| 123 | 10 | 0 | なし | 40 | 0.371/0.449 |
+| 124 | 11 | 0 | なし | 40 | 0.370/0.431 |
+| 126 | 1 | 2 | なし | 40 | 0.335/0.444 |
+| 128 | 0 | 0 | あり | 39 | raw の集計を参照 |
+
+55/123/124 は旧保存物と入力列・最終 hash が完全一致した．126 は旧 36 配置窒息から 40 配置生存へ変化したが，1 連鎖 2 件を含み，構築品質 PASS とはしない．最初の差は判断 33 で同じ公開入力に対する root 6→1．root 6 の terminal 十分条件が証明できず root 1 を採用した．128 は判断 38 で probe 110 + control 18 = 128 に達し，root 11 の witness は control 不成立，次 root 12 の検査で cutoff．unknown として従来の有限 horizon へ fallback し，窒息が残った．全 199 判断で推定 hidden と offline 実盤面の不一致 0，survival/response 上限違反 0，全実 lock 不一致 0，全最終 hash の replay 一致を確認した．
+
+新規 human127 は同じ seed127/policy58/daa/softmax1.0/x1.0 と固定 2P 入力で 2038 tick/40.364 秒，30 採用/4 stale/fallback0，1P 窒息だった．tick143 の全消し時に送信0，tick690 に bonus 消費で32個送信，1P は tick806 に2個相殺し30個を受けた．実消去は判断13/31の各1連鎖．decision p50/p95 は0.201/0.393秒．全tick/最終hash，30実lockの一致と全34 requestの推定hidden不一致0を確認した．元手動対局とは非同一であり，normal の途中公開入力も以前の保存runと異なるため，30対25/23という配置数を改善量とは扱わない．
+
+新規runの判断31では到達可能な即時非fatal消去はroot9だけで，実際に採用した．判断32の非発火候補3/15は既知prefixの有限witnessを持つが terminal が unknown，33/34には証明済みwitnessがない．判断31以降は予算不足ではなく terminal/継続能力の残差であり，保存済み旧127/26のroot8選択結果とは区別する．
+
+```bash
+# 5 件は fresh process で逐次実行する．未使用の出力先を指定する．
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/desktop-survival-20260928/measure.py --seed 128 --output /tmp/puyo266-inference-repeat
+# normal の実行条件は冒頭と同じ．--output だけ未使用の場所へ変更する．
+.venv/bin/python -m eval.nextgen_realtime_audit --report /tmp/puyo266-inference-human127/report.json --replay /tmp/puyo266-inference-human127/replay.json --output /tmp/puyo266-inference-human127/audit.json
+```
+
+`inference-v1-fixed/*.locks.json.gz` と `inference-v1-human/audit.json.gz` に含む完全盤面は offline 診断専用・runtime 入力ではない．次は 128/38 の同一 transition 再評価と順位順予算を調べる．132/135/144 の新規全対局，正式 60 run と残る G2 条件，人間 GUI QA は未達のまま保持する．
