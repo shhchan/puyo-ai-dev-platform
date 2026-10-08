@@ -3,13 +3,14 @@ import copy
 import json
 import numpy as np
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 
 from agents import deep_chain_builder as reference
 from agents.nextgen_shared_search import _public_state
 from eval.puyo_268_public_reference import (
     PublicReferencePolicy, compare_request, estimated_state,
-    observation_from_request, public_observation,
+    observation_from_request, public_observation, measure_reference,
 )
 from tests.test_template_preserving_integration import make_request, selected_catalog
 
@@ -80,6 +81,19 @@ class PublicReferenceTests(unittest.TestCase):
         normalized = public_observation(observation, info)
         self.assertEqual(json.loads(json.dumps(normalized))[1]['action_mask'],
                          list(self.request.execution.reachable_mask))
+
+    def test_live_rejection_stays_an_incomplete_run(self):
+        self.policy.rejected_decision = {'selected_action': 3, 'seconds': 0.2, 'error': 'illegal placement'}
+        with patch('eval.puyo_268_public_reference.diagnostic.RealtimePolicyController') as controller:
+            controller.return_value.next_input.side_effect = ValueError('illegal placement')
+            controller.return_value.diagnostics.to_dict.return_value = {}
+            result = measure_reference(self.policy, 123, 40)
+        self.assertEqual(result['placements'], 0)
+        self.assertFalse(result['completed_requested_placements'])
+        self.assertEqual(result['completion_status'], 'rejected_unreachable_action')
+        self.assertEqual(len(result['errors']), 1)
+        self.assertEqual(result['decision_seconds']['n'], 1)
+        self.assertEqual(result['semantic']['inputs'], [])
 
     def test_budget_mismatch_is_rejected(self):
         self.policy.profile = replace(self.policy.profile, max_expanded_nodes=45)

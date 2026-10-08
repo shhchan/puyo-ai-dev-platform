@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import platform
+import time
 from contextlib import contextmanager
 from dataclasses import asdict, replace
 from pathlib import Path
@@ -76,6 +77,7 @@ class PublicReferencePolicy(reference.DeepChainBuilderPolicy):
         self.public_config = nextgen_search_settings('nextgen_safe_build', seed=seed)[1]
         self.shadow = shadow
         self.selection_error = None
+        self.rejected_decision = None
         self.public_inputs = []
         self.search_evidence = []
 
@@ -83,7 +85,15 @@ class PublicReferencePolicy(reference.DeepChainBuilderPolicy):
         try:
             ORIGINAL_VALIDATE(context, visible)
         except ValueError as exc:
-            if not self.shadow or str(exc) != 'deep-chain flow selected an illegal placement action':
+            if str(exc) != 'deep-chain flow selected an illegal placement action':
+                raise
+            self.rejected_decision = {
+                'selected_action': context.require(reference.SELECTED_ACTION_ARTIFACT),
+                'observation': {'own_board': visible.board, 'next_pairs': visible.next_pairs, 'ghost_row': None},
+                'action_mask': list(visible.action_mask),
+                'seconds': context.trace.elapsed_seconds, 'error': str(exc),
+            }
+            if not self.shadow:
                 raise
             # Preserve the rejected shadow root. Never execute it or choose a fallback.
             self.selection_error = str(exc)
@@ -102,6 +112,7 @@ class PublicReferencePolicy(reference.DeepChainBuilderPolicy):
 
     def decide(self, observation, info):
         self.selection_error = None
+        self.rejected_decision = None
         observation, info = public_observation(observation, info)
         with self.boundary():
             context = super().decide(observation, info)
@@ -177,6 +188,54 @@ def compare_request(request, policy):
     }
 
 
+def measure_reference(policy, seed, placements):
+    """Keep an unreachable live selection as a failed run, without a fallback."""
+    match = diagnostic.SafeNoThreatMatch(seed)
+    controller = diagnostic.RealtimePolicyController(
+        policy, config=diagnostic.RealtimeDecisionConfig(latency_mode='configured'))
+    rows, chains, inputs, errors = [], [], [], []
+    seen = None
+    started = time.perf_counter()
+    for _ in range(30000):
+        try:
+            value = {} if match.ending else {'player_0': controller.next_input(match, 'player_0')}
+        except ValueError as exc:
+            if policy.rejected_decision is None:
+                raise
+            errors.append(policy.rejected_decision | {'tick': match.tick})
+            break
+        context = policy.last_context
+        if context is not None and context is not seen:
+            seen = context
+            rows.append({'tick': match.tick, 'seconds': context.trace.elapsed_seconds,
+                         'action': context.require(reference.SELECTED_ACTION_ARTIFACT)})
+        result = match.step(value)
+        inputs.append({'tick': result.tick, 'inputs': {k: v.to_json() for k, v in value.items()}})
+        for event in result.player_results['player_0'].events:
+            if event.type == 'resolution_complete':
+                chains.append(event.data['chain_count'])
+                print('public_reference', seed, len(chains), 'chain', chains[-1], flush=True)
+        if len(chains) >= placements or match.finished:
+            break
+    semantic = {'inputs': inputs, 'chains': chains, 'final_hash': match.state_hash(),
+                'decisions': [{'action': v['action']} for v in rows],
+                'rejected_actions': [v['selected_action'] for v in errors]}
+    return {
+        'policy': 'public_reference', 'seed': seed, 'profile': policy.profile.to_dict(),
+        'search_config': asdict(policy.public_config), 'chains': chains,
+        'max_chain': max(chains, default=0), 'premature': sum(0 < v < 10 for v in chains),
+        'game_over': match.player_states['player_0'].simulator.game.game_over,
+        'placements': len(chains), 'ticks': match.tick, 'rows': rows,
+        'completed_requested_placements': len(chains) == placements,
+        'completion_status': 'rejected_unreachable_action' if errors else
+                             ('complete' if len(chains) == placements else 'incomplete'),
+        'elapsed_seconds': time.perf_counter() - started,
+        'decision_seconds': diagnostic.distribution([v['seconds'] for v in rows + errors]),
+        'controller': controller.diagnostics.to_dict(), 'errors': errors,
+        'semantic': semantic, 'semantic_digest': c.semantic_digest(semantic),
+    }
+
+
 def run(output, seeds, placements):
     output.mkdir(parents=True, exist_ok=False)
     import _puyo_deep_chain_native as native
@@ -214,12 +273,7 @@ def run(output, seeds, placements):
             pairs.append(pair)
         write_json(output / f'exact-input-{seed}.json.gz', pairs)
         live = PublicReferencePolicy(seed)
-        def factory(kind, current_seed, profile):
-            if kind != 'deep_chain' or current_seed != seed:
-                raise ValueError('unexpected policy request')
-            return live
-        with patch.object(diagnostic, 'make_policy', side_effect=factory):
-            actual_reference = diagnostic.measure('deep_chain', seed, 'nextgen_safe_build', placements=placements)
+        actual_reference = measure_reference(live, seed, placements)
         actual_reference.update(public_inputs=live.public_inputs, public_search=live.search_evidence)
         write_json(output / f'reference-{seed}.json.gz', actual_reference)
         cat = ORIGINAL_POLICY('nextgen', seed, 'nextgen_safe_build').catalog
@@ -230,6 +284,7 @@ def run(output, seeds, placements):
         metrics = {}
         for name, raw, states in [('nextgen', nextgen, nextgen_states), ('public_reference', actual_reference, reference_states)]:
             metrics[name] = {k: raw[k] for k in ('max_chain', 'premature', 'game_over', 'placements', 'decision_seconds', 'errors', 'semantic_digest')}
+            metrics[name]['completed_requested_placements'] = raw['placements'] == placements
             metrics[name]['initial_binding_completed_within_14_at'] = completion_at_public_input(states, constraint)
         summaries.append({'seed': seed, 'metrics': metrics, 'paired_decisions': len(pairs), 'selected_key': fixed_key(nextgen)})
         print(json.dumps(summaries[-1]), flush=True)
