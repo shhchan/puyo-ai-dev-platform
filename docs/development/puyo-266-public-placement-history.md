@@ -1,6 +1,6 @@
 # PUYO-266 公開自配置履歴と生存推定
 
-実装済みなのは実 lock の公開履歴と，後続配置が完全満杯列を横断する誤った witness の除外である．hidden 推定の worker 接続，時間を含む後続操作の保証，窒息修正完了を意味しない．
+実装済みなのは実 lock の公開履歴，独立した公開推定 observer，後続配置が完全満杯列を横断する誤った witness の除外である．hidden 推定の worker 接続，時間を含む後続操作の保証，窒息修正完了を意味しない．
 
 ## 公開履歴の境界
 
@@ -30,3 +30,33 @@ adapter の設置前に起きた lock は復元しない．`started_tick` は途
 4. seed 127/26 の root 3 を排除するだけでは不十分である．公開モデルには root 11 の `[11,0,3]` も残り，実 hidden が列 0 を塞いでいる．履歴推定と後続操作証明を同時に満たして，合法 4 連鎖 `[7,8,10]` の実 lock/clear まで検証する．55/123/124，126/128/132/135/144，3 定型，reset/stale/fallback/timeout/unknown/quota を再確認する．
 
 正式 G2 の 30 seed × 2 repeat と残る品質条件，人間 GUI QA は未達であり，PUYO-266 は In Progress のまま扱う．
+
+## 公開推定 observer（第一段階）
+
+`public_board_inference()` は独立 opt-in observer である．空の Field を作る `reset()` の明示起点を，最初の step より前に受け取った場合だけ hidden 2 行を空と確定する．tick 0 や可視盤面が空というだけでは確定しない．遅い設置，episode/tick 欠測，実 lock/pair 不一致，複数の lock 高さ，clear/visible 不整合は unknown とし，unknown の wire に推測セルを含めない．reset は observer を破棄して起点を更新する．
+
+推定器は public state，実 lock action/pair，公開 lifecycle だけを受け取る．settled な既知盤面から grounded lock の可能な高さを列挙し，lock 直後の visible と一致する結果を公開の重力/消去ルールで解決する．次の control snapshot と整合する一意の結果のみ確定する．clear 中やおじゃま animation 中は unknown．おじゃまは公開ルールで visible 行の空セルだけに配置されるため，表示が確定した結果と照合して hidden の保存を判断する．乱数や着弾予定位置を読まない．scratch Field は公開セルだけから構成し，元 match/simulator/private field は推定器へ渡さない．
+
+sidecar は episode/player/tick，visible digest，last lock ID，known/unknown と hidden 2 行を持つ．既存 PublicSnapshot は hidden=None のままで，actor と native の入力は変えない．この段階では worker/request へは接続していない．`tests/test_nextgen_public_inference.py` が起点，欠測，clear/drop 整合と private 非干渉を検証する．保存済み GTR 123/132/135 と新規 human fixture の 133 判断を比較する offline script は `docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py`．完全盤面は script の期待結果監査だけに使い，推定器の入力ではない．
+
+## request への明示 bind（第二段階）
+
+新規 request は `puyo.nextgen.request.v2` とし，独立した `inference` field を持つ．scheduler の prepare が identity/execution の digest に sidecar を結び付け，accept は返却された sidecar の厳密一致を確認する．既存 decode cache 本体は変更しない．phase worker はこの値を request に明示して渡す．
+
+`known_inference()` は known，player，request tick，visible digest，identity/execution digest がすべて一致し，control 中の場合だけ値を返す．missing/unknown/mismatch は利用不能であり，従来の公開盤面経路へ戻す．履歴 producer の信頼境界を置き換える API ではない．sidecar の raw hidden セルは native 検索入力や actor feature に追加しない．
+
+旧 `request.v1` は inference field を含めず，旧 wire と semantic digest の完全一致を保って読む．v1 に新 field を混入させる入力は拒否する．新 v2 は field の明示を必須とするが，値 None を許容する．専用 wire tests で v1/v2 の往復，nested digest，bind 不整合，native 入力一致，actor feature 非露出を検証する．
+
+## 順位順 control/terminal 証明（第三段階）
+
+request に bind された known 推定のみを survival 用 compact state に重ねる．native/shared backend と response provider は従来の visible state を受け取る．未着弾の公開攻撃がある場合は，単一代表 witness で着弾分岐の control を証明できないため従来経路を使う．unknown/mismatch の推定を順位根拠にしない．
+
+従来 probe の root coverage を先に完了し，その placement 結果を request 内だけで cache する．key は immutable state 全体・公開既知 pair・action で，色，bonus，score，hidden 推定を区別する．shared の build_main 順位に沿い，既存の非発火優先を保ちながら witness を調べる．fresh spawn/補間 0 の control state を対象 pose まで best-first で探索し，展開前に response 予算へ課金する．geometry cache は占有 bitmask と対象 action を key とし，毎 request 破棄する．別の色でも同じ占有なら幾何ルールが等しく，最短時間や実時間採用を保証する cache ではない．
+
+terminal は追加 1 配置の色に依存しない十分条件である．中央 spawn/choke 3 セルが空で，制御可能な追加配置後も中央の重力対象セル数が 11 以下なら，消去に依存せず次の choke を避けられる．未知の将来ツモ・相手攻撃・無限の生存を証明したとは扱わない．上位 witness の control 不成立または terminal 不十分は unknown であり，fatal に変更しない．最初の証明成功時だけ，それまで検証できなかった上位候補を unknown にして順位へ反映する．未調査の明示 fire/cancel 候補を一律に禁止しない．
+
+probe + control + cache miss placement + terminal の合計を既存 survival 128 内で事前課金し，残った response 256 の枠だけを response provider に渡す．証明が cutoff/unknown で終わった場合は `control_proof.status` を明示し，元の有限 horizon envelope に戻す．この fallback の bounded witness を terminal 証明や長期安全へ昇格させない．`safety_guarantee=False` を維持する．
+
+固定 6 判断の結果は [監査 JSON](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.json)．関連 135 tests（既存 43 を含む）と legacy 383 判断の完全一致を確認した．保存 batch 上の実 `apply_envelope` では 127/26 が root 8 の 4 連鎖になり，正常 123/28，132/30，135/34 を維持した．新規対局，実 lock，正式 G2 と人間 QA は別の検証であり，この固定結果で達成扱いにしない．
+
+observer の `origin_episode_id` と scheduler の `episode_id` は独立の ID 空間である．prepare は元 observer episode/origin が match の現在 origin と一致することを先に照合し，不一致なら hidden を消して unknown にする．その後 scheduler episode と request digest を bind する．`known_inference()` は scheduler episode の厳密一致と origin の存在も必須とする．古い observer を新しい request digest で再 bind しても known に復活しない回帰 test を追加した．

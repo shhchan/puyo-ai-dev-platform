@@ -1,0 +1,722 @@
+[
+  {
+    "seed": 55,
+    "before": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.41701122049971673,
+        "p95": 0.48882436115054584,
+        "max": 0.504484866999519
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.3771634325003106,
+        "p95": 0.4301300114015248,
+        "max": 0.4638621120011521
+      }
+    },
+    "source_changed": false,
+    "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+    "same_inputs": true,
+    "same_final_hash": true,
+    "final_hash_replayed": true,
+    "lock_mismatches": [],
+    "known": 40,
+    "inferred_full_state_mismatches_offline": [],
+    "quota_violations": [],
+    "proof_status_counts": {
+      "unused": 9,
+      "certified": 31
+    },
+    "changes": []
+  },
+  {
+    "seed": 123,
+    "before": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.40636705849919963,
+        "p95": 0.48706487075041877,
+        "max": 0.548651338000127
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.37114104500233225,
+        "p95": 0.44880835074909553,
+        "max": 0.4922500000011496
+      }
+    },
+    "source_changed": false,
+    "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+    "same_inputs": true,
+    "same_final_hash": true,
+    "final_hash_replayed": true,
+    "lock_mismatches": [],
+    "known": 40,
+    "inferred_full_state_mismatches_offline": [],
+    "quota_violations": [],
+    "proof_status_counts": {
+      "unused": 8,
+      "certified": 30,
+      "unknown_cutoff": 2
+    },
+    "changes": []
+  },
+  {
+    "seed": 124,
+    "before": {
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.4213073940004506,
+        "p95": 0.4923440350000874,
+        "max": 0.4965448399998422
+      }
+    },
+    "after": {
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.36997910999980377,
+        "p95": 0.4310998609011221,
+        "max": 0.43921998100086057
+      }
+    },
+    "source_changed": false,
+    "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+    "same_inputs": true,
+    "same_final_hash": true,
+    "final_hash_replayed": true,
+    "lock_mismatches": [],
+    "known": 40,
+    "inferred_full_state_mismatches_offline": [],
+    "quota_violations": [],
+    "proof_status_counts": {
+      "unused": 5,
+      "certified": 35
+    },
+    "changes": []
+  },
+  {
+    "seed": 126,
+    "before": {
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "placements": 36,
+      "decision_seconds": {
+        "n": 36,
+        "p50": 0.39496375399994577,
+        "p95": 0.5091860510001425,
+        "max": 0.5276357110005847
+      }
+    },
+    "after": {
+      "max_chain": 1,
+      "premature": 2,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.33468769599949155,
+        "p95": 0.4444692903015493,
+        "max": 0.47023481799806177
+      }
+    },
+    "source_changed": false,
+    "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+    "same_inputs": false,
+    "same_final_hash": false,
+    "final_hash_replayed": true,
+    "lock_mismatches": [],
+    "known": 40,
+    "inferred_full_state_mismatches_offline": [],
+    "quota_violations": [],
+    "proof_status_counts": {
+      "unused": 13,
+      "certified": 26,
+      "unknown_cutoff": 1
+    },
+    "changes": [
+      {
+        "decision": 33,
+        "before": 6,
+        "after": 1,
+        "same_public": true,
+        "survival": {
+          "status": "bounded_witness",
+          "active": true,
+          "nodes": 73,
+          "horizon": 3,
+          "board_complete": false,
+          "source": "public_history_inference",
+          "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+          "safety_guarantee": false,
+          "roots": [
+            {
+              "action": 0,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                0,
+                3,
+                9
+              ]
+            },
+            {
+              "action": 1,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                1,
+                3,
+                9
+              ]
+            },
+            {
+              "action": 3,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                3,
+                0,
+                11
+              ]
+            },
+            {
+              "action": 4,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 5,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                5,
+                0,
+                9
+              ]
+            },
+            {
+              "action": 6,
+              "status": "unknown",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 7,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 8,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 9,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 10,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 11,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                11,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 12,
+              "status": "witness",
+              "root_chain": 10,
+              "witness": [
+                12,
+                0,
+                0
+              ]
+            },
+            {
+              "action": 14,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 15,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                15,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 16,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                16,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 17,
+              "status": "witness",
+              "root_chain": 10,
+              "witness": [
+                17,
+                0,
+                0
+              ]
+            },
+            {
+              "action": 18,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                18,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 19,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                19,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 21,
+              "status": "witness",
+              "root_chain": 10,
+              "witness": [
+                21,
+                0,
+                0
+              ]
+            }
+          ],
+          "unreachable_roots": [],
+          "control_proof": {
+            "status": "certified",
+            "certified_root": 1,
+            "trials": [
+              {
+                "root": 6,
+                "status": "unknown_terminal",
+                "terminal_action": null
+              },
+              {
+                "root": 1,
+                "status": "certified",
+                "terminal_action": 0
+              }
+            ],
+            "charged": {
+              "control": 15,
+              "placement": 0,
+              "terminal": 1
+            },
+            "placement_cache_hits": 6,
+            "placement_cache_entries": 57,
+            "control_cache_hits": 1,
+            "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+            "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+            "safety_guarantee": false,
+            "fallback": false
+          }
+        }
+      },
+      {
+        "decision": 35,
+        "before": 3,
+        "after": 9,
+        "same_public": false,
+        "survival": {
+          "status": "bounded_witness",
+          "active": true,
+          "nodes": 128,
+          "horizon": 3,
+          "board_complete": false,
+          "source": "public_history_inference",
+          "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+          "safety_guarantee": false,
+          "roots": [
+            {
+              "action": 3,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 4,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                4,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 7,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 9,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                9,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 10,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            }
+          ],
+          "unreachable_roots": [
+            0,
+            1,
+            6,
+            8,
+            11,
+            12,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            21
+          ],
+          "control_proof": {
+            "status": "unknown_cutoff",
+            "certified_root": null,
+            "trials": [
+              {
+                "root": 9,
+                "status": "unknown_terminal",
+                "terminal_action": null
+              },
+              {
+                "root": 4,
+                "status": "unknown_cutoff"
+              }
+            ],
+            "charged": {
+              "control": 117,
+              "placement": 0,
+              "terminal": 0
+            },
+            "placement_cache_hits": 6,
+            "placement_cache_entries": 11,
+            "control_cache_hits": 0,
+            "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+            "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+            "safety_guarantee": false,
+            "fallback": true
+          }
+        }
+      },
+      {
+        "decision": 36,
+        "before": 7,
+        "after": 19,
+        "same_public": false,
+        "survival": {
+          "status": "bounded_witness",
+          "active": true,
+          "nodes": 92,
+          "horizon": 3,
+          "board_complete": false,
+          "source": "public_history_inference",
+          "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+          "safety_guarantee": false,
+          "roots": [
+            {
+              "action": 0,
+              "status": "unknown",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 1,
+              "status": "witness",
+              "root_chain": 2,
+              "witness": [
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "action": 3,
+              "status": "unknown",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 4,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 5,
+              "status": "witness",
+              "root_chain": 2,
+              "witness": [
+                5,
+                0,
+                0
+              ]
+            },
+            {
+              "action": 6,
+              "status": "unknown",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 7,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 8,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 9,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 10,
+              "status": "fatal",
+              "root_chain": 1,
+              "witness": []
+            },
+            {
+              "action": 12,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                12,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 14,
+              "status": "fatal",
+              "root_chain": 0,
+              "witness": []
+            },
+            {
+              "action": 15,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                15,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 16,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                16,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 17,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                17,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 18,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                18,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 19,
+              "status": "witness",
+              "root_chain": 0,
+              "witness": [
+                19,
+                0,
+                3
+              ]
+            },
+            {
+              "action": 21,
+              "status": "witness",
+              "root_chain": 1,
+              "witness": [
+                21,
+                0,
+                3
+              ]
+            }
+          ],
+          "unreachable_roots": [
+            11
+          ],
+          "control_proof": {
+            "status": "certified",
+            "certified_root": 19,
+            "trials": [
+              {
+                "root": 0,
+                "status": "unknown_control",
+                "terminal_action": null
+              },
+              {
+                "root": 3,
+                "status": "unknown_control",
+                "terminal_action": null
+              },
+              {
+                "root": 6,
+                "status": "unknown_control",
+                "terminal_action": null
+              },
+              {
+                "root": 19,
+                "status": "certified",
+                "terminal_action": 1
+              }
+            ],
+            "charged": {
+              "control": 40,
+              "placement": 0,
+              "terminal": 1
+            },
+            "placement_cache_hits": 8,
+            "placement_cache_entries": 47,
+            "control_cache_hits": 0,
+            "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+            "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+            "safety_guarantee": false,
+            "fallback": false
+          }
+        }
+      }
+    ]
+  },
+  {
+    "seed": 128,
+    "before": {
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "placements": 39,
+      "decision_seconds": {
+        "n": 39,
+        "p50": 0.32454165299986926,
+        "p95": 0.4543716544003473,
+        "max": 0.4863234709991957
+      }
+    },
+    "after": {
+      "max_chain": 0,
+      "premature": 0,
+      "game_over": true,
+      "placements": 39,
+      "decision_seconds": {
+        "n": 39,
+        "p50": 0.30219408799894154,
+        "p95": 0.3948629891016026,
+        "max": 0.4348535740009538
+      }
+    },
+    "source_changed": false,
+    "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+    "same_inputs": true,
+    "same_final_hash": true,
+    "final_hash_replayed": true,
+    "lock_mismatches": [],
+    "known": 39,
+    "inferred_full_state_mismatches_offline": [],
+    "quota_violations": [],
+    "proof_status_counts": {
+      "unused": 16,
+      "certified": 21,
+      "unknown_cutoff": 1,
+      "unknown": 1
+    },
+    "changes": []
+  }
+]

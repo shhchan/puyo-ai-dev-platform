@@ -140,3 +140,102 @@ cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibil
 gzip -dc docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-control-prototype.patch.gz > /tmp/puyo266-rejected-control-restored.patch
 sha256sum /tmp/puyo266-rejected-control-restored.patch
 ```
+
+## 公開推定 observer の固定入力監査
+
+`public-inference-audit.py/json` は新しい公開推定 observer を保存済み GTR 123/132/135 と新規 human fixture で監査する．推定器は公開 snapshot/実 lock/lifecycle だけを受け，完全盤面は driver の offline 期待結果比較専用である．133 判断すべてで known，hidden 2 行の不一致 0．127/26 の (0,12)/(0,13)，135/35–36 の (1,12)/(3,12) を復元し，123/28 の空きも保持した．新規 policy/native/全対局測定ではなく，worker 接続や窒息修正の成功を示すものではない．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=. \
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py \
+  --output /tmp/puyo266-public-inference-audit.json
+cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.json /tmp/puyo266-public-inference-audit.json
+```
+
+関連既存 43 件と起点/欠測/clear/drop/private 非干渉の追加 7 件，計 50 テストが成功した．G2 と人間 QA は未達のままである．
+
+## 公開推定と control/terminal の runtime 接続
+
+known sidecar を request.v2 に bind し，survival に限って利用する．旧 request.v1 は旧 digest を保持して読める．native 入力・actor feature へ hidden セルを追加しない．欠測/不整合/unknown は従来経路へ戻す．未着弾攻撃がある場合も分岐を証明できないため従来経路を使う．
+
+保存済み公開履歴から得た推定と候補順位に対し，実装済み `refine_inferred` と `apply_envelope` を実行した結果を [inferred-survival-audit.json](inferred-survival-audit.json) に保存した．offline 完全盤面は診断専用・runtime 入力ではない．この監査は新規 native policy/対局を実行していない．
+
+| 判断 | 選択 root | 合計 nodes | control/terminal |
+|---|---:|---:|---|
+| 123/28 | 1 | 62 | certified，正常維持 |
+| 132/30 | 11 | 100 | certified，正常維持 |
+| 135/34 | 3 | 91 | certified，有効構築を維持 |
+| 135/35 | 15 | 87 | 上位 14 の witness は unknown |
+| 135/36 | 従来有限 horizon へ fallback | 18 | unknown，回避達成ではない |
+| 新規 human 127/26 | 8 | 117 | 合法 4 連鎖 root，元手動対局とは非同一 |
+
+全件で survival 128/response 256 を維持する．127 の 100 node 強制打切りは unknown 診断と元 root 3 の有限 horizon fallback になり，fatal とみなさない．terminal は未知色に依存しない追加 1 配置の十分条件であり，長期安全ではない．cache は request 内のみで，transition の再利用は全 immutable state・pair・action を照合する．cache miss と control 展開も処理前に同じ予算へ課金する．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.py --output /tmp/puyo266-inferred-survival-audit.json
+.venv/bin/python -m unittest tests.test_nextgen_inferred_survival tests.test_nextgen_inference_wire tests.test_nextgen_public_inference -q
+```
+
+関連 135 tests（既存 43 を含む），Ruff，diff check が成功した．legacy 383 判断の probe/evidence は既存 `probe-comparison.json` と完全一致した．新規対局/実 lock と正常品質の回帰は次の計測段階で確認する．G2 と人間 QA は未達のままである．
+
+## 推定接続後の固定 5 seed と normal127（source ce44f6e）
+
+製品 source を `ce44f6ef4d47dafcb21613c907d285971f84000a` に固定して逐次測定した．各 run の source SHA と native build は raw に保存し，測定中の source 変更はない．[固定結果](inference-v1-fixed/summary.json)と [human 結果](inference-v1-human/inference-summary.json)を別に扱う．正常構築は維持したが，窒息全般の修正完了ではない．
+
+| 固定 GTR seed | 最大実連鎖 | 小発火 | 窒息 | 配置 | decision p50/p95（秒） |
+|---|---:|---:|---|---:|---|
+| 55 | 10 | 0 | なし | 40 | 0.377/0.430 |
+| 123 | 10 | 0 | なし | 40 | 0.371/0.449 |
+| 124 | 11 | 0 | なし | 40 | 0.370/0.431 |
+| 126 | 1 | 2 | なし | 40 | 0.335/0.444 |
+| 128 | 0 | 0 | あり | 39 | raw の集計を参照 |
+
+55/123/124 は旧保存物と入力列・最終 hash が完全一致した．126 は旧 36 配置窒息から 40 配置生存へ変化したが，1 連鎖 2 件を含み，構築品質 PASS とはしない．最初の差は判断 33 で同じ公開入力に対する root 6→1．root 6 の terminal 十分条件が証明できず root 1 を採用した．128 は判断 38 で probe 110 + control 18 = 128 に達し，root 11 の witness は control 不成立，次 root 12 の検査で cutoff．unknown として従来の有限 horizon へ fallback し，窒息が残った．全 199 判断で推定 hidden と offline 実盤面の不一致 0，survival/response 上限違反 0，全実 lock 不一致 0，全最終 hash の replay 一致を確認した．
+
+新規 human127 は同じ seed127/policy58/daa/softmax1.0/x1.0 と固定 2P 入力で 2038 tick/40.364 秒，30 採用/4 stale/fallback0，1P 窒息だった．tick143 の全消し時に送信0，tick690 に bonus 消費で32個送信，1P は tick806 に2個相殺し30個を受けた．実消去は判断13/31の各1連鎖．decision p50/p95 は0.201/0.393秒．全tick/最終hash，30実lockの一致と全34 requestの推定hidden不一致0を確認した．元手動対局とは非同一であり，normal の途中公開入力も以前の保存runと異なるため，30対25/23という配置数を改善量とは扱わない．
+
+新規runの判断31では到達可能な即時非fatal消去はroot9だけで，実際に採用した．判断32の非発火候補3/15は既知prefixの有限witnessを持つが terminal が unknown，33/34には証明済みwitnessがない．判断31以降は予算不足ではなく terminal/継続能力の残差であり，保存済み旧127/26のroot8選択結果とは区別する．
+
+```bash
+# 5 件は fresh process で逐次実行する．未使用の出力先を指定する．
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/desktop-survival-20260928/measure.py --seed 128 --output /tmp/puyo266-inference-repeat
+# normal の実行条件は冒頭と同じ．--output だけ未使用の場所へ変更する．
+.venv/bin/python -m eval.nextgen_realtime_audit --report /tmp/puyo266-inference-human127/report.json --replay /tmp/puyo266-inference-human127/replay.json --output /tmp/puyo266-inference-human127/audit.json
+```
+
+`inference-v1-fixed/*.locks.json.gz` と `inference-v1-human/audit.json.gz` に含む完全盤面は offline 診断専用・runtime 入力ではない．次は 128/38 の同一 transition 再評価と順位順予算を調べる．132/135/144 の新規全対局，正式 60 run と残る G2 条件，人間 GUI QA は未達のまま保持する．
+
+## 追加の予算配分案は不採用
+
+[3 案の数値比較](rejected-stage-summary.json)と小規模な実行 script/JSON gzip を保存した．runtime は ce44f6e のままである．97/106 保存判断を，公開推定と保存 batch の候補順位だけで再評価した読取試作であり，新規 native/対局測定ではない．各案とも 128/256 を増やさず cutoff を unknown とした．offline 完全盤面は診断専用・runtime 入力ではない．
+
+| 判断 | 現 runtime | cache 共有のみ | known 解先行＋terminal 前置き | quiet 優先の段階化＋即時 clear 予約 |
+|---|---|---|---|---|
+| 正常 123/28 | root1，62 | root1，47 | root1，47 | root1，60 |
+| 正常 123/30 | root12，128 fallback | **root8 の1連鎖**，92 | root12，77 | root12，118 |
+| 旧 127/26 | root8，117 | root8，117 | root8，90 | root8，90 |
+| 128/38 | root11，128 cutoff | root11，128 cutoff | root11，128 cutoff | root11，128 cutoff |
+| 132/30 | root11，100 | root11，96 | root11，96 | **root4へ変更**，128 cutoff |
+| 135/35 | root15，87 | root15，87 | **root14へfallback**，128 cutoff | root15，87 |
+| 新127/31–34 | 9/3/11/7 | 未比較 | 9/3/11/7 | 9/3/11/7 |
+
+単純な transition cache lookup では，generator の予約済み重複計算に既に課金してしまう．課金を行う round robin 側で同じ immutable state/pair/action を共有すると，128/38 の probe は110→70になる．それでも control/terminal の残り58で打ち切られ，窒息候補は変わらなかった．正常123/30のquiet root12を1連鎖root8へ変更する危険もあるため採用しない．
+
+正常123/30には，既存 native が公開既知 prefix の10連鎖plan `[12,16]` を持つ．先頭の幾何witness `[12,12,15]` が不成立でも，root自体が不適切とは限らない．既存fire_main相当の公開known plan 1本を再検証すればroot12を保持できるが，常に先行させると135/35の `[14,20]`/`[15,20]` のcontrol検査が予算を使い切る．任意の小発火planまで探索する案も採用しない．
+
+最後の段階化は，選択上のquiet優先を維持しつつ，即時clearの1候補の証明を先に確保し，quietが得られない時だけ既存known大連鎖解を試す．123/30と135/35は保持できたが，128/38の予約対象root8自身のwitness `[8,1,11]` がterminal unknownで予約できない．さらに132/30ではclear証明への先行課金で正当なquiet root11がcutoffとなり，root4へ変わった．有効な構築を維持する条件を満たさず，全3案を不採用とする．
+
+旧132/32は現推定ロジックでroot5→0，旧144/34はroot15→7という固定候補の変化を得たが，正式な全対局の改善証明ではない．旧144/37と新127/31–34は十分なterminal証明が得られず，予算再配分だけでは解決しない．次に必要なのは，最初の幾何witnessに依存しない公開known-prefixの代替経路を，正常quiet候補への証明予算を奪わず提示する契約である．新127の長い継続能力は別の課題であり，有限horizonを長期安全へ昇格して代用しない．
+
+```bash
+# repository root，保存時の runtime source ce44f6e と同じ実装で実行する．
+# 元 /tmp ファイルは保持し，別名の /tmp/puyo266-rejected-*-result.json に出力する．
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-probe-cache.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-alternate-prefix.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-staged-prefix.py
+```
+
+保存scriptの再実行結果は各JSON gzipと完全一致する．source置換は診断 interpreter の関数コピー内だけで行い，製品ファイルを編集しない．`rejected-stage-manifest.json` に保存物のhashを記録した．追加runtimeなし，正式G2/人間QA未達，In Progress/draftを維持する．
+
+最終 source の関連 136 tests はすべて成功した（`runtime-final-tests.txt`）．3 案の保存 script の再実行 JSON は gzip 原本と bytes 一致，Ruff と diff check も成功した．

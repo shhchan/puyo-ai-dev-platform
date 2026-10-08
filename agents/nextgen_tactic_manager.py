@@ -257,6 +257,7 @@ class PreparePhaseStep(DecisionStep):
                 policy.catalog.semantic_digest,
                 scenario_provenance(public.own.known_pieces, policy.search_config),
             ),
+            inference=data.get("inference"),
         )
         key = phase.candidate.key if phase.candidate is not None else None
         prepared = PreparedTemplateSearch(
