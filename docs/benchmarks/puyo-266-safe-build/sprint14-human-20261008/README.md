@@ -239,3 +239,66 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 保存scriptの再実行結果は各JSON gzipと完全一致する．source置換は診断 interpreter の関数コピー内だけで行い，製品ファイルを編集しない．`rejected-stage-manifest.json` に保存物のhashを記録した．追加runtimeなし，正式G2/人間QA未達，In Progress/draftを維持する．
 
 最終 source の関連 136 tests はすべて成功した（`runtime-final-tests.txt`）．3 案の保存 script の再実行 JSON は gzip 原本と bytes 一致，Ruff と diff check も成功した．
+
+## 着弾済みおじゃまの回復順位
+
+`ce44f6e` の新規 human127 では，受け取った 30 個が残っているのに，incoming packet が消えた後の有限 witness が静かな構築を優先していた．公開推定が known，未着弾 packet なし，到達可能な fatal root が存在し，すでに課金済みの即時・非 fatal 消去が実際におじゃまを減らす場合だけ，回復候補の control/terminal 証明を先に行う．減少数，連鎖数，元順位の順に比較し，認証できた 1 root を `build_main` の先頭へ置く．他 tactic と untested な静的 witness は維持する．128/response256 は増やさず，cutoff/unknown は従来経路へ戻す．有限 prefix と追加 1 配置の証明であり，長期生存の保証ではない．
+
+| 保存判断 | 旧選択 → 回復選択 | 即時連鎖 | おじゃま減少 | 合計 nodes |
+| --- | --- | --- | --- | --- |
+| 新規 127/17 | 18 → 12 | 1 | 6 | 82 |
+| 新規 127/21 | 19 → 5 | 2 | 9 | 87 |
+| 新規 127/23 | 19 → 21 | 3 | 14 | 78 |
+| 新規 127/27 | 3 → 17 | 4 | 14 | 73 |
+| 新規 127/28 | 19 → 17 | 4 | 14 | 68 |
+| 新規 127/29 | 15 → 17 | 3 | 14 | 38 |
+
+保存済み 228 判断の実 `apply_envelope` 比較で変化は上記 6 件だけだった．おじゃま 0 の 207 判断は証明・選択・node 数まで一致し，現固定 55/123/124/126/128 の全 199 判断を含む．pending 1 判断は推定不適用の旧経路である．旧 127/26 は root8 の 4 連鎖を維持し，117 → 77 nodes．正常 123/28，132/30，135/34–36 は既存の証明結果を維持した．元 G2 corpus 383 判断はすべておじゃま 0，legacy probe/evidence 比較も既存原本と完全一致した．128/38 などのおじゃま 0 の残差をこの変更で修正したとは扱わない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_landed_recovery tests.test_nextgen_inferred_survival -q
+```
+
+`landed-recovery-audit.py` と `landed-recovery-audit.json.gz` は公開 request と保存 candidate を使用する比較である．baseline の survival 関数だけを `ce44f6e` から独立 namespace へ読み，native/対局は実行しない．offline 完全盤面は診断専用・runtime 入力ではない．この比較では完全盤面も使用しない．関連 140 tests，Ruff，diff check が成功した．新規対局の窒息回避はこの固定判断比較だけでは未検証である．G2 と人間 QA は未達のまま維持する．
+
+### 回復順位を含む新規 normal 3500 tick 測定
+
+source `0633af0` を clean に固定し，同じ seed127/policy58/daa/softmax1.0/x1.0，固定 human 入力，目標 60 配置/max_ticks3500 で単独測定した．3500 tick/68.992 秒，44 採用/5 stale/fallback0，43 実 lock，両者 game_over=false だった．終了直前の判断49は tick 上限による未 lock であり，60 配置の完走とは扱わない．decision p50/p95 は 0.244/0.403 秒．全 tick/最終 hash と 43 実 lock が一致し，49 request の推定 hidden と offline 実盤面の不一致0，quota 超過0だった．
+
+| 判断 | 回復 root | 合計 nodes | 実連鎖 | 予測/実おじゃま減少 |
+| --- | --- | --- | --- | --- |
+| 19 | 12 | 75 | 1 | 5/5 |
+| 28 | 10 | 73 | 1 | 2/2 |
+| 30 | 12 | 71 | 3 | 4/4 |
+| 39 | 20 | 94 | 5 | 13/13 |
+
+2P は tick143 の全消し時送信0，tick690 に bonus を使い32個送信．今回は1Pが相殺せず，tick722に30個，803に2個を受けた．4回の回復で計24個を消し，終了時8個が残った．前回 ce44f6e との差は途中の公開入力・着弾・判断時刻にも及ぶため，43対30を改善量とは扱わない．raw の input prefix は tick100 で初めて相違し，採用順9件目で候補順位・10件目で選択 action が異なる．各run自身のreplayは全hash一致だが，run間の同一prefixではない．元手動対局とも同定しない．
+
+保存先は `landed-recovery-human/`．report/ledger/replay/audit gzip と原本 SHA，`recovery-summary.json` を含む．完全盤面は offline 監査だけに使う．再監査は次のとおり．
+
+```bash
+.venv/bin/python -m eval.nextgen_realtime_audit --report docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human/report.json.gz --replay docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human/replay.json.gz --output /tmp/puyo266-recovery-audit.json
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inference-v1-human /tmp/puyo266-recovery-summary.json
+```
+
+60配置までの新規延長条件は別runで確認する．本結果を一般的な窒息解消，正式G2 PASS，人間GUI QA成功とは表現しない．
+
+### 60 配置までの fresh 延長 run
+
+上記 3500 tick run を保存後，max_ticks だけを 7000 へ増やした fresh normal run を単独で測定した．Git head は証拠保存後の `72efe8a`，製品コードは `0633af0` と同じで，3500 run と全 170 source/config ファイルの SHA が一致した．実行中変更なし．config の差は max_ticks と保存先だけである．入力・snapshot hash は tick101 で分岐するため，3500 run そのものの継続や同一 prefix と表現しない．共通する採用順の先頭44 actionは一致した．元手動対局との非同一性も維持する．
+
+5090 tick/100.883 秒で目標 60 実 lock に到達した．60 採用/6 stale/fallback0，両者 game_over=false，未 lock/実 root 不一致/無帰属 lock はすべて0．全 tick/最終 hash 一致，66 request の公開推定 hidden と offline 盤面の不一致0，survival128/response256 を含む quota 超過0だった．decision p50/p95 は0.256/0.406秒．実連鎖は判断19/28/30/39/50/63の1/1/3/5/2/9．6回とも回復 root と実 lock が一致し，おじゃま減少の予測/実測は5/2/4/13/1/4で全一致（計29個，32→3個）．追加2件の証明費用は90/54 nodesだった．今回の固定 human 条件では60配置まで窒息を観測しなかった．この事実を G2 の無脅威失敗や人間 GUI 全般の解消へ広げない．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 .venv/bin/python -m eval.nextgen_realtime_diagnostic --mode normal --seed 127 --seed-a 58 --templates daa --selection-mode softmax --temperature 1.0 --speed 1.0 --opponent human --human-inputs docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/human-inputs.json --placements 60 --max-ticks 7000 --profile nextgen_safe_build --output /tmp/puyo266-landed-recovery-human127-extended
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-extended docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human /tmp/puyo266-recovery-extended-summary.json
+```
+
+`landed-recovery-extended/` に report/ledger/replay/audit gzip と集計を保存した．元 `/tmp/puyo266-landed-recovery-human127-extended/replay.json` は2690118374 bytesで保持し，SHA-256は`34e0ac511064b2e1c6608ef9ae607f31941d90bf58772b69b6f44658315339b7`．`archive-stream.py` は元JSON全体をメモリへ読み込まず，既存 archive と同じ3種類の重複UI診断キーだけをtickごとに除き，input/hash/攻撃/最終状態を保持する．複数chunkにまたがる小fixtureの展開JSON一致と，保存版5090tickの全hash replayを確認した．原本bytes/SHAを`originals.json`，圧縮保存物のSHAを`landed-recovery-manifest.json`へ記録した．
+
+```bash
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/archive-stream.py /tmp/puyo266-landed-recovery-human127-extended/replay.json /tmp/puyo266-replay-light-copy.json.gz /tmp/puyo266-replay-original-copy.json
+```
+
+未達は，おじゃま0の128/38でprobe110+control18=128となるcutoff，126の小発火，132/135/144を含む正式G2の品質条件，人間GUI QAである．単純cache/既存known解先行/clear予約は保存済み正常123/30または132/30・135/35を退行させるため，追加しない．次の独立設計は最初の幾何witness以外の公開known経路を提示する契約と，正常quietの証明予算を奪わない共有課金であり，今回の着弾後回復とは適用条件を分けて検証する必要がある．個別FAILが明確なため正式60runは再測定せず，品質FAIL/G2 BLOCKED，Jira In Progress，draftを維持する．
