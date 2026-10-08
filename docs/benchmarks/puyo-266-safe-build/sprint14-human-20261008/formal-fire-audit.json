@@ -1,0 +1,834 @@
+{
+  "scope": "old 30x2 frozen public inputs; no new games, full planes offline only",
+  "rows": [
+    {
+      "seed": 123,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 29,
+          "before": 5,
+          "after": 16,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 124,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 25,
+          "before": 21,
+          "after": 0,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 26,
+          "before": 8,
+          "after": 1,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 27,
+          "before": 13,
+          "after": 0,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 28,
+          "before": 4,
+          "after": 0,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 30,
+          "before": 19,
+          "after": 0,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 125,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 28,
+          "before": 11,
+          "after": 7,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 30,
+          "before": 20,
+          "after": 14,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 32,
+          "before": 15,
+          "after": 8,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 126,
+      "old_quality": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 36
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 31,
+          "before": 8,
+          "after": 12,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 33,
+          "before": 6,
+          "after": 12,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 34,
+          "before": 11,
+          "after": 16,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 127,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 24,
+          "before": 13,
+          "after": 2,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 128,
+      "old_quality": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 39
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 129,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 24,
+          "before": 0,
+          "after": 4,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 25,
+          "before": 13,
+          "after": 14,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 26,
+          "before": 17,
+          "after": 7,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 130,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 24,
+          "before": 19,
+          "after": 6,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 25,
+          "before": 17,
+          "after": 0,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 26,
+          "before": 18,
+          "after": 1,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 131,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 132,
+      "old_quality": {
+        "max_chain": 0,
+        "premature": 0,
+        "game_over": true,
+        "placements": 33
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 31,
+          "before": 1,
+          "after": 0,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 133,
+      "old_quality": {
+        "max_chain": 12,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 33,
+          "before": 0,
+          "after": 4,
+          "public_chain": 12.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 12,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 134,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 135,
+      "old_quality": {
+        "max_chain": 1,
+        "premature": 2,
+        "game_over": true,
+        "placements": 37
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 34,
+          "before": 3,
+          "after": 21,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 136,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 25,
+          "before": 0,
+          "after": 14,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 27,
+          "before": 7,
+          "after": 14,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 29,
+          "before": 1,
+          "after": 3,
+          "public_chain": 12.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 12,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 32,
+          "before": 15,
+          "after": 3,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 33,
+          "before": 1,
+          "after": 5,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 34,
+          "before": 19,
+          "after": 3,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 35,
+          "before": 3,
+          "after": 10,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 38,
+          "before": 12,
+          "after": 8,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 137,
+      "old_quality": {
+        "max_chain": 12,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 32,
+          "before": 5,
+          "after": 18,
+          "public_chain": 12.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 12,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 138,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 28,
+          "before": 15,
+          "after": 0,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 139,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 140,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 141,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 142,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 143,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 144,
+      "old_quality": {
+        "max_chain": 1,
+        "premature": 1,
+        "game_over": true,
+        "placements": 38
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 28,
+          "before": 0,
+          "after": 19,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 29,
+          "before": 13,
+          "after": 20,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 31,
+          "before": 10,
+          "after": 20,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 32,
+          "before": 6,
+          "after": 19,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 145,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 146,
+      "old_quality": {
+        "max_chain": 11,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 32,
+          "before": 11,
+          "after": 8,
+          "public_chain": 11.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 11,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 147,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 26,
+          "before": 2,
+          "after": 5,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 28,
+          "before": 19,
+          "after": 1,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 29,
+          "before": 16,
+          "after": 3,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 148,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 149,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 27,
+          "before": 16,
+          "after": 0,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 150,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": []
+    },
+    {
+      "seed": 151,
+      "old_quality": {
+        "max_chain": 10,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 25,
+          "before": 4,
+          "after": 19,
+          "public_chain": 10.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 10,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    },
+    {
+      "seed": 152,
+      "old_quality": {
+        "max_chain": 13,
+        "premature": 0,
+        "game_over": false,
+        "placements": 40
+      },
+      "repeat_semantic_equal": true,
+      "baseline_mismatches": [],
+      "changed_candidates": [
+        {
+          "decision": 33,
+          "before": 13,
+          "after": 3,
+          "public_chain": 12.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 12,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 34,
+          "before": 19,
+          "after": 3,
+          "public_chain": 13.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 13,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        },
+        {
+          "decision": 35,
+          "before": 15,
+          "after": 6,
+          "public_chain": 12.0,
+          "fire_depth": 1.0,
+          "offline_actual_chain": 12,
+          "offline_nonfatal": true,
+          "survival_status": 1.0
+        }
+      ]
+    }
+  ]
+}

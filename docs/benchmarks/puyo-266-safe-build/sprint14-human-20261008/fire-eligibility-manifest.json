@@ -1,0 +1,97 @@
+{
+  "runtime_source": "1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81",
+  "scope": "fixed four-seed native40, prior G2 read-only ranking audit, and public prefix diagnostic; not formal G2 PASS",
+  "tests": 141,
+  "files": [
+    {
+      "path": "fire-cohort-audit.py",
+      "bytes": 5916,
+      "sha256": "c2ce86843aedb5cc7b94aafc81e7e9489e4b2ac2ded5f57959221a00f8b199f6"
+    },
+    {
+      "path": "fire-eligibility-audit.json",
+      "bytes": 40231,
+      "sha256": "de3fbe53d050b9012e814a9e897f33ef5fa8086dffb41d77960869dca09b5594"
+    },
+    {
+      "path": "fire-eligibility-audit.py",
+      "bytes": 2474,
+      "sha256": "1228b951743e72d900c611bd6636ed94fa0f68928bb17f90b9872a2602e28f3f"
+    },
+    {
+      "path": "fire-eligibility-tests.txt",
+      "bytes": 213,
+      "sha256": "d75c8916cc9ddb0c3812555c93a07205b5f375cb3296d91b4d908ba224faa135"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-123.json.gz",
+      "bytes": 999720,
+      "sha256": "ab0c7d5713f3af22fd69d31adcd4ad0e832a6ae02181978f5968d9dbaa4c3e05"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-123.locks.json.gz",
+      "bytes": 29177,
+      "sha256": "0d7a7f1779c1d269d8f0a1fa3ee45846855615eb9babda6623ce16bb06019862"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-124.json.gz",
+      "bytes": 1154472,
+      "sha256": "64ec1ce7ade0513bc3b287aefaa5fbc0862353903f712d5f53702a31111dfe70"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-124.locks.json.gz",
+      "bytes": 29767,
+      "sha256": "a2e5610ba2d4641dd4e0c897e2f37da77fbdfefd8d8146598af17f72f23e7dbf"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-126.json.gz",
+      "bytes": 1232602,
+      "sha256": "26433b3f1203f3ccc69f60b0380229a2b7286148fc483efaa8a49b12b36e452f"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-126.locks.json.gz",
+      "bytes": 28675,
+      "sha256": "0671768fc03fe4f61d10eb40ee63478f0dc20df08b3c02797296882df3f51e45"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-55.json.gz",
+      "bytes": 1165621,
+      "sha256": "d19c63ef7f7e668d546adff30ef532f308c5711626d0957479c31bcee44928a3"
+    },
+    {
+      "path": "fire-eligible-fixed/gtr-55.locks.json.gz",
+      "bytes": 29723,
+      "sha256": "23115f0d7774324fd5ef71a82a3cef162c338a9b0b26538a0cee83842d985117"
+    },
+    {
+      "path": "fire-eligible-fixed/summary.json",
+      "bytes": 24721,
+      "sha256": "0817637643accdf7c98cfcb0cec5cf15823775787520c5586ced1e4571ebfccf"
+    },
+    {
+      "path": "formal-fire-audit.json",
+      "bytes": 19959,
+      "sha256": "53cc93605c1d0057028351db24903843f790756a261fe890eca02305d55487a5"
+    },
+    {
+      "path": "formal-fire-audit.py",
+      "bytes": 4260,
+      "sha256": "8df4c7642aab2622d6573c7635cd37b24d1eae8094a35a3367782fc0f3fa94af"
+    },
+    {
+      "path": "residual-inspect.py",
+      "bytes": 2580,
+      "sha256": "356dfe1c76041cb04cbfd385ba26462d292415fac9c787930cb2701339bf33fc"
+    },
+    {
+      "path": "residual-prefix-audit.json",
+      "bytes": 14351,
+      "sha256": "8cc8ad6bd810d18b3c98974e7330e46da29fe87c95f32837cd1743cd056807f7"
+    },
+    {
+      "path": "residual-prefix-audit.py",
+      "bytes": 3516,
+      "sha256": "0c9152d4c45668edcff6952315d660a5cdceb686b81e44141a6f998c2eacce10"
+    }
+  ]
+}
