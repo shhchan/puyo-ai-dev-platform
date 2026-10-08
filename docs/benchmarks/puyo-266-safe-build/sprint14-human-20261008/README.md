@@ -351,3 +351,18 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 再確認用の`formal-fire-audit.json`とscriptを保存した．保存199判断の順位比較と固定4runの集計は，再実行JSONのbytes一致を確認した．141tests，Ruff，diff check成功．heavy枠は返却済み．
+
+### 128/38 の重複計算を使った代替 prefix 証明
+
+公開状態・公開色組・action が完全一致する transition だけを request 内で再利用する．旧 probe の round robin・論理課金・cutoff を維持し，旧 control 証明が成功した場合はその選択を維持する．旧証明が得られなかった場合だけ，実行を省略した重複 transition の予約済み予算で別の公開既知 prefix を調べる．応答探索に渡す残予算は変えず，既に実行した計算を返金しない．新たな private field・未来ツモ・worker/schema 入力はない．
+
+128/38 は旧 probe 論理 110 nodes に対して実 transition 70 件，旧 control 18 件である．40 件分の省略から 27 nodes（placement 4/control 22/terminal 1）を使用し，root12 `[12,19,14]` と terminal action1 を証明する．合計実計算 115，論理予約 128，response 残 128．最初の lock は公開 reachable mask の root12 が true，後続は公開履歴で一意に復元した盤面上の control と，さらに 1 組を色非依存で配置できる十分条件を確認する．これは長期安全や実対局成功の保証ではない．root11 の未認証を unknown として，実 `apply_envelope` は 11→12 に変わる．cutoff は fatal にしない．
+
+`alternate-bounded-audit.py` は保存された公開 request/batch を読み取り，旧・新 probe/refine の実 envelope 選択と予算を比較する．offline 完全盤面は診断専用・runtime 入力ではない．この script はその完全盤面も読まない．元 `/tmp/puyo266-bounded-*` の読取試作は保持している．新規 native 対局と正式 G2 の成功をこの比較から主張しない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/alternate-bounded-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_alternate_survival -q
+```
+
+保存 499 件のうち known/no-pending の 496 件を比較し，変更は 128/38 の 1 件だけだった．3 件は unknown/pending の従来経路に留めた．旧・新固定正常 55/123/124/126，human127 の旧・3500tick・60 配置 run を含む．全件で論理 node/response 残予算は不変，上限超過 0．関連 144 tests と，credit を省略分だけに限定した後の専用 3 tests が成功し，legacy 383 判断は原本と完全一致，Ruff/diff check も成功した．
