@@ -69,3 +69,11 @@ GitHub stack #176 は `integration/puyo-228-v1-8-0`（起点 `732ed3da17a1a6144a
 cd /home/sion2000114/workspaces/dev/puyo-s14-274
 /home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python main.py
 ```
+
+## 最新の GUI 機械 QA（2026-10-08，PUYO-269 追加修正後）
+
+上記「子セッション停止時点」の両側 frame gate 未達は，PUYO-269 の追加修正前の値である．追加修正の head は `19da026dc6bd8ee358df2155552ab9b07a96908f`．`TickInput` の固定 pulse／idle を再利用し，held が空の idle tick で不要な入力 edge 集計を省いた．実際の simulator subclass や入力 edge がある tick の処理は従来通りとする．81 条件×22 root の一致，125 tests，Ruff に成功した．
+
+固定 source／設定の最終 16 GUI run では，frame／input の p95 ≤ 25 ms，p99 ≤ 50 ms を全条件で通過した．両側 frame p95／p99 は 23.13／29.98 ms，再計測 24.35／35.22 ms，minimal 22.25／41.63 ms．最小 p95 余裕は 0.65 ms であり，別環境の安定保証ではない．証跡は `docs/benchmarks/puyo-269-mask-allocation/` に保存した．追加 head を PUYO-274 最上段へ履歴保持 merge した head は `ecad2500e74aeb4ad33c60a8be2371c67cf97706`．ここで主要 80 tests，GUI 53 tests，Ruff，差分検査，保存 raw verifier が通過した．
+
+PUYO-269／273 は修正後の実人間 GUI QA が未確認のため draft／In Progress を維持する．PUYO-266 の公開盤面に基づく生存修正は継続中であり，正式 G2 PASS も未確認．この段落の機械 QA は PUYO-266 の次の runtime 変更を含まないため，最終 head で再検証する．

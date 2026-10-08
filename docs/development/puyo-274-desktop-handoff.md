@@ -1,6 +1,6 @@
 # PUYO-274 デスクトップ再開とレビュー引継ぎ
 
-デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は新しい実行表を優先する．窒息・両側 frame gate・正式品質の未達を維持する．先読み表示は 2026-10-08 に人間 GUI QA を実施した．
+デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は新しい実行表を優先する．先読み表示は 2026-10-08 に人間 GUI QA を実施した．最新の両側 frame 機械 gate は通過し，窒息・正式品質・修正後の人間 QA は未解決である．
 
 2026-10-08 の Sprint 14 再開状況は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) に追記した．以下の旧 PR 番号・旧観測値より，新しい実行表と Jira/GitHub の現在値を優先する．
 
