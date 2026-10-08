@@ -7,7 +7,7 @@ from unittest.mock import patch
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices
 from agents.nextgen_shared_search import ResponseBudget, _public_state
-from agents.nextgen_survival import probe
+from agents.nextgen_survival import evidence_for, probe
 
 ROOT = Path(__file__).resolve().parent
 
@@ -18,7 +18,7 @@ def compare():
         if '.locks.' in path.name:
             continue
         raw = json.loads(gzip.decompress(path.read_bytes()))
-        changes, selected_changes, tested = [], [], 0
+        changes, selected_changes, ranking_changes, tested = [], [], [], 0
         for i, (wire, row) in enumerate(zip(raw['ledger'], raw['rows']), 1):
             request = c.NextgenRequest.from_dict(wire['request'])
             state, complete = _public_state(request)
@@ -29,6 +29,11 @@ def compare():
             assert bd['nodes'] <= 128 and ad['nodes'] <= 128
             tested += 1
             changed = [a for a in before if before[a] != after[a]]
+            ranking_changed = [a for a in before if
+                evidence_for(before[a], board_complete=complete) !=
+                evidence_for(after[a], board_complete=complete)]
+            if ranking_changed:
+                ranking_changes.append({'decision': i, 'roots': ranking_changed})
             if changed:
                 changes.append({'decision': i, 'roots': changed,
                                 'before': bd, 'after': ad})
@@ -38,6 +43,7 @@ def compare():
                     'before_status': before[action].status, 'after_status': after[action].status,
                     'before_witness': list(before[action].witness), 'after_witness': list(after[action].witness)})
         cohorts.append({'identity': path.name, 'decisions_tested': tested,
+                        'ranking_evidence_changed': ranking_changes,
                         'changed_selected_root': selected_changes, 'changes': changes})
     return {'scope': 'frozen public request/probe regression only; not rerun policies, receipts or games',
             'quotas': {'response': 256, 'survival': 128}, 'cohorts': cohorts}

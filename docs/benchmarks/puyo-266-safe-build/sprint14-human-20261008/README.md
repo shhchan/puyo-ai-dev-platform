@@ -77,3 +77,25 @@ python -m eval.nextgen_realtime_audit \
 正式 G2，修正済みの品質宣言，元 human run の同定，人間 GUI QA は未完了である．
 
 現在の関連単体・receipt・safe-build 回帰は 43 件成功，Ruff と diff check も成功した．既存 response fixture 8 件は candidate gap 0 だった．その専用 quota は 2000/4000 であり，通常 profile の response 256 や正式 G2 の全条件の代用にしない．
+
+## 最終 runtime の追加測定
+
+runtime head `b287a3c`（コード変更の最終 commit は `0e7a707`）で，同じ設定の normal127 を再測定した．1800 tick，37.389 s，25 採用，4 stale，fallback 0，1P 窒息だった．source の測定中変更なし．全 tick/最終 hash が一致し，25 実 lock の不一致・未対応 lock は 0．公開 placement sidecar の 25 record も実 lock と一致した．
+
+2P は同じ tick 143 に全消し，690 に bonus を消費して 32 個を送った．1P は tick 810 の 1 連鎖で 2 個を相殺し，残る 30 個を同 tick に受けた．採用 9 件目の時点で before/after の相手公開状態と判断時刻が異なり（request 746 → 704），戦術も build_main → cancel となった．normal の wall-clock 依存を含むため，25 対 23 配置を修正の改善量とは扱わない．
+
+変更後の判断 27/28 でも，即時非 fatal の到達可能な消去候補を持ちながら非発火を選び，それぞれ hidden 2/3 セルの欠落により後続 root 0 を公開投影だけが到達可能と判定した．最後の判断 29 には即時消去がない．`after/audit.json.gz` と `after/witnesses.json.gz` が，この残る反例を候補→順位→selection→receipt→実 lock/clear に分けて保持する．
+
+同一公開入力の probe 比較では，383 判断の全 root で順位に使う status/root_chain/witness depth の evidence が変わらず，変更は到達不能 witness の経路差し替えだった．保存済み 127/26 も root 3 は witness のままである．この部分成果を窒息行動の改善とは呼ばない．
+
+固定 40 配置の最小セットを fresh process で逐次測定し，各 run の入力を再生した．5 run とも source 変更なし，実 lock 不一致 0，全最終 hash の再生一致を確認した．旧保存物と**入力列・最終 hash が完全一致**した．latency の同一条件 A/B 比較や正式 G2 の代わりではない．
+
+| GTR seed | 最大実連鎖 | 小発火 | 窒息 | 配置 |
+| --- | ---: | ---: | --- | ---: |
+| 55 | 10 | 0 | なし | 40 |
+| 123 | 10 | 0 | なし | 40 |
+| 124 | 11 | 0 | なし | 40 |
+| 126 | 0 | 0 | あり | 36 |
+| 128 | 0 | 0 | あり | 39 |
+
+`fixed-after/` と `fixed-summary.json` に保存した．132/135/144 と daa/persian の新しい全対局は未実施であり，前述の固定公開 probe 回帰だけを実施した．正常 3 seed を保つ最小回帰は成功したが，127/126/128 の窒息残差，正式 G2，人間 GUI QA は未解決である．

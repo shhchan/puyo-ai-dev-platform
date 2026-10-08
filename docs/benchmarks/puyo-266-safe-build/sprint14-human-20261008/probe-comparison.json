@@ -8,6 +8,7 @@
     {
       "identity": "daa-55.json.gz",
       "decisions_tested": 40,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": [
         {
@@ -1783,18 +1784,21 @@
     {
       "identity": "gtr-123.json.gz",
       "decisions_tested": 40,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     },
     {
       "identity": "gtr-124.json.gz",
       "decisions_tested": 40,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     },
     {
       "identity": "gtr-126.json.gz",
       "decisions_tested": 36,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [
         {
           "decision": 35,
@@ -2239,6 +2243,7 @@
     {
       "identity": "gtr-128.json.gz",
       "decisions_tested": 39,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [
         {
           "decision": 37,
@@ -3219,18 +3224,21 @@
     {
       "identity": "gtr-132.json.gz",
       "decisions_tested": 33,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     },
     {
       "identity": "gtr-135.json.gz",
       "decisions_tested": 37,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     },
     {
       "identity": "gtr-144.json.gz",
       "decisions_tested": 38,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": [
         {
@@ -3562,12 +3570,14 @@
     {
       "identity": "gtr-55.json.gz",
       "decisions_tested": 40,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     },
     {
       "identity": "persian-55.json.gz",
       "decisions_tested": 40,
+      "ranking_evidence_changed": [],
       "changed_selected_root": [],
       "changes": []
     }
