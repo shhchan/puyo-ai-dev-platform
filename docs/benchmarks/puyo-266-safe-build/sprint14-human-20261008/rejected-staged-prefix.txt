@@ -1,0 +1,39 @@
+gtr-123/28 [('current', 1, 53, 62, 'certified'), ('cached', 1, 38, 47, 'certified')]
+human-127/26 [('current', 8, 66, 117, 'certified'), ('cached', 8, 66, 117, 'certified')]
+current-123/30 [('current', 12, 102, 128, 'unknown_cutoff'), ('cached', 8, 51, 92, 'certified')]
+current-128/38 [('current', 11, 110, 128, 'unknown_cutoff'), ('cached', 11, 70, 128, 'unknown_cutoff')]
+cases 97 changed roots 1
+STAGED gtr-123/28 1 60 1 False
+STAGED human-127/26 8 90 8 False
+STAGED current-123/30 12 118 12 False
+STAGED current-128/38 11 128 None True
+STAGED old-132/30 4 128 4 True
+STAGED old-132/31 1 75 1 False
+STAGED old-132/32 0 85 0 False
+STAGED old-132/33 7 2 None False
+STAGED old-135/30 1 85 1 False
+STAGED old-135/31 4 90 4 False
+STAGED old-135/32 6 78 6 False
+STAGED old-135/33 12 55 12 False
+STAGED old-135/34 3 113 3 False
+STAGED old-135/35 15 87 15 False
+STAGED old-135/36 7 18 None False
+STAGED old-135/37 7 2 None False
+STAGED old-144/30 0 32 0 False
+STAGED old-144/31 10 74 10 False
+STAGED old-144/32 6 78 6 False
+STAGED old-144/33 7 16 7 False
+STAGED old-144/34 7 70 7 False
+STAGED old-144/35 20 97 20 False
+STAGED old-144/36 8 62 8 False
+STAGED old-144/37 12 110 None False
+STAGED old-144/38 7 2 None False
+STAGED current-human/26 0 57 0 False
+STAGED current-human/27 3 66 3 False
+STAGED current-human/28 19 59 19 False
+STAGED current-human/29 15 47 15 False
+STAGED current-human/30 13 50 13 False
+STAGED current-human/31 9 7 None False
+STAGED current-human/32 3 45 None False
+STAGED current-human/33 11 21 None False
+STAGED current-human/34 7 2 None False

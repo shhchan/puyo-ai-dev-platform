@@ -1,0 +1,1936 @@
+{
+  "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+  "source_changed": false,
+  "ticks": 2038,
+  "elapsed_seconds": 40.363679870999476,
+  "summary": {
+    "outcomes": {
+      "activated": 30,
+      "stale": 4
+    },
+    "fallbacks": 0,
+    "adopted_actions": [
+      0,
+      16,
+      14,
+      14,
+      19,
+      12,
+      7,
+      2,
+      15,
+      15,
+      8,
+      21,
+      18,
+      3,
+      5,
+      0,
+      19,
+      12,
+      19,
+      10,
+      1,
+      0,
+      3,
+      19,
+      15,
+      13,
+      9,
+      3,
+      11,
+      7
+    ],
+    "adopted_piece_ids": [
+      "piece-0",
+      "piece-1",
+      "piece-2",
+      "piece-3",
+      "piece-4",
+      "piece-5",
+      "piece-6",
+      "piece-7",
+      "piece-8",
+      "piece-9",
+      "piece-10",
+      "piece-11",
+      "piece-12",
+      "piece-13",
+      "piece-14",
+      "piece-15",
+      "piece-16",
+      "piece-17",
+      "piece-18",
+      "piece-19",
+      "piece-20",
+      "piece-21",
+      "piece-22",
+      "piece-23",
+      "piece-24",
+      "piece-25",
+      "piece-26",
+      "piece-27",
+      "piece-28",
+      "piece-29"
+    ],
+    "adopted_tactics": [
+      "build_template",
+      "build_template",
+      "build_template",
+      "build_template",
+      "build_template",
+      "build_template",
+      "build_template",
+      "build_template",
+      "cancel",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main",
+      "build_main"
+    ],
+    "shared_cache_hits": 4
+  },
+  "game_over": {
+    "player_0": true,
+    "player_1": false
+  },
+  "final_hash_verified": "0a9d24c47b3c431b6c7be5849b509b0cec8a628e0ad077636fef5776d0297e50",
+  "lock_mismatches": [],
+  "unlocked": [],
+  "unattributed": [],
+  "decision_seconds": {
+    "n": 34,
+    "p50": 0.2011577329994907,
+    "p95": 0.3934630735497194,
+    "max": 0.4316169470002933
+  },
+  "inference_comparisons": [
+    {
+      "decision": 1,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 2,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 3,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 4,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 5,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 6,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 7,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 8,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 9,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 10,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 11,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 12,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 13,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 14,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 15,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 16,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 17,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 18,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 19,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 20,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 21,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 22,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 23,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 24,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 25,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 26,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 27,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 28,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 29,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 30,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 31,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 32,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 33,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 34,
+      "known": true,
+      "offline_hidden_match": true
+    }
+  ],
+  "actual_clears": [
+    [
+      13,
+      1
+    ],
+    [
+      31,
+      1
+    ]
+  ],
+  "late_decisions": [
+    {
+      "decision": 27,
+      "selected": 3,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [
+            1,
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_clears": [
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_nonfatal_clears": [
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ]
+        },
+        "offline_actual": {
+          "immediate_clears": [
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_clears": [
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_nonfatal_clears": [
+            4,
+            5,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ]
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 67,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 3,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              3,
+              8,
+              3
+            ]
+          },
+          {
+            "action": 4,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              4,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 5,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              5,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 8,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              8,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 9,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              9,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 10,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              10,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 11,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              11,
+              3,
+              15
+            ]
+          },
+          {
+            "action": 12,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              12,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 13,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              13,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 14,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              14,
+              3,
+              3
+            ]
+          },
+          {
+            "action": 15,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              15,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 16,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              16,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 17,
+            "status": "witness",
+            "root_chain": 4,
+            "witness": [
+              17,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 18,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              18,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 19,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              19,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 21,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              21,
+              3,
+              3
+            ]
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          6
+        ],
+        "control_proof": {
+          "status": "certified",
+          "certified_root": 3,
+          "trials": [
+            {
+              "root": 3,
+              "status": "certified",
+              "terminal_action": 11
+            }
+          ],
+          "charged": {
+            "control": 9,
+            "placement": 0,
+            "terminal": 1
+          },
+          "placement_cache_hits": 3,
+          "placement_cache_entries": 45,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": false
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1698,
+        "axis_x": 1,
+        "axis_y": 11,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1699,
+        "score_delta": 1,
+        "attack_score_delta": 0,
+        "chain_end_score": 205,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 28,
+      "selected": 19,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [
+            4,
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_clears": [
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_nonfatal_clears": [
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ]
+        },
+        "offline_actual": {
+          "immediate_clears": [
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_clears": [
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ],
+          "reachable_nonfatal_clears": [
+            8,
+            9,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            21
+          ]
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 69,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 8,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              8,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 9,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              9,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 11,
+            "status": "unknown",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 12,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              12,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 13,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              13,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 14,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              14,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 15,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              15,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 16,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              16,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 17,
+            "status": "witness",
+            "root_chain": 4,
+            "witness": [
+              17,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 18,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              18,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 19,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              19,
+              11,
+              7
+            ]
+          },
+          {
+            "action": 21,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              21,
+              3,
+              8
+            ]
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          10
+        ],
+        "control_proof": {
+          "status": "certified",
+          "certified_root": 19,
+          "trials": [
+            {
+              "root": 11,
+              "status": "unknown_control",
+              "terminal_action": null
+            },
+            {
+              "root": 19,
+              "status": "certified",
+              "terminal_action": 3
+            }
+          ],
+          "charged": {
+            "control": 16,
+            "placement": 0,
+            "terminal": 1
+          },
+          "placement_cache_hits": 4,
+          "placement_cache_entries": 41,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": false
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1747,
+        "axis_x": 5,
+        "axis_y": 12,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1748,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_end_score": 205,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 29,
+      "selected": 15,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [
+            12,
+            17,
+            21
+          ],
+          "reachable_clears": [
+            12,
+            17
+          ],
+          "reachable_nonfatal_clears": [
+            12,
+            17
+          ]
+        },
+        "offline_actual": {
+          "immediate_clears": [
+            12,
+            17
+          ],
+          "reachable_clears": [
+            12,
+            17
+          ],
+          "reachable_nonfatal_clears": [
+            12,
+            17
+          ]
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 31,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 8,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 9,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 11,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              11,
+              7,
+              3
+            ]
+          },
+          {
+            "action": 12,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              12,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 13,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              13,
+              7,
+              3
+            ]
+          },
+          {
+            "action": 14,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 15,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              15,
+              7,
+              3
+            ]
+          },
+          {
+            "action": 17,
+            "status": "witness",
+            "root_chain": 3,
+            "witness": [
+              17,
+              1,
+              1
+            ]
+          },
+          {
+            "action": 18,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              18,
+              7,
+              3
+            ]
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          10,
+          16,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "certified",
+          "certified_root": 15,
+          "trials": [
+            {
+              "root": 15,
+              "status": "certified",
+              "terminal_action": 11
+            }
+          ],
+          "charged": {
+            "control": 8,
+            "placement": 0,
+            "terminal": 1
+          },
+          "placement_cache_hits": 3,
+          "placement_cache_entries": 22,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": false
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1798,
+        "axis_x": 4,
+        "axis_y": 10,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1799,
+        "score_delta": 1,
+        "attack_score_delta": 0,
+        "chain_end_score": 205,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 30,
+      "selected": 13,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [
+            7,
+            8,
+            10,
+            11,
+            12,
+            14
+          ],
+          "reachable_clears": [
+            7,
+            8,
+            11,
+            12,
+            14
+          ],
+          "reachable_nonfatal_clears": [
+            7,
+            8,
+            11,
+            12,
+            14
+          ]
+        },
+        "offline_actual": {
+          "immediate_clears": [
+            7,
+            8,
+            11,
+            12,
+            14
+          ],
+          "reachable_clears": [
+            7,
+            8,
+            11,
+            12,
+            14
+          ],
+          "reachable_nonfatal_clears": [
+            7,
+            8,
+            11,
+            12,
+            14
+          ]
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 47,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              7,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 8,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              8,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 9,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 11,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              11,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 12,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              12,
+              3,
+              8
+            ]
+          },
+          {
+            "action": 13,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              13,
+              9,
+              3
+            ]
+          },
+          {
+            "action": 14,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              14,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 15,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              15,
+              8,
+              3
+            ]
+          },
+          {
+            "action": 18,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              18,
+              9,
+              3
+            ]
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          10,
+          16,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "certified",
+          "certified_root": 13,
+          "trials": [
+            {
+              "root": 13,
+              "status": "certified",
+              "terminal_action": 11
+            }
+          ],
+          "charged": {
+            "control": 8,
+            "placement": 0,
+            "terminal": 1
+          },
+          "placement_cache_hits": 3,
+          "placement_cache_entries": 30,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": false
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1831,
+        "axis_x": 3,
+        "axis_y": 12,
+        "rotation": "DOWN",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1832,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_end_score": 205,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 31,
+      "selected": 9,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [
+            4,
+            9,
+            14
+          ],
+          "reachable_clears": [
+            9
+          ],
+          "reachable_nonfatal_clears": [
+            9
+          ]
+        },
+        "offline_actual": {
+          "immediate_clears": [
+            9
+          ],
+          "reachable_clears": [
+            9
+          ],
+          "reachable_nonfatal_clears": [
+            9
+          ]
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 11,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 9,
+            "status": "witness",
+            "root_chain": 1,
+            "witness": [
+              9,
+              3,
+              11
+            ]
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          8,
+          10,
+          11,
+          12,
+          14,
+          15,
+          16,
+          18,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "unknown",
+          "certified_root": null,
+          "trials": [
+            {
+              "root": 9,
+              "status": "unknown_terminal",
+              "terminal_action": null
+            }
+          ],
+          "charged": {
+            "control": 4,
+            "placement": 0,
+            "terminal": 0
+          },
+          "placement_cache_hits": 3,
+          "placement_cache_entries": 7,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": true
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1876,
+        "axis_x": 2,
+        "axis_y": 12,
+        "rotation": "DOWN",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1921,
+        "score_delta": 41,
+        "attack_score_delta": 101,
+        "chain_end_score": 306,
+        "chain_count": 1,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 2,
+          "canceled": 0,
+          "outgoing": 2,
+          "attack_score_delta": 101,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 32,
+      "selected": 3,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        },
+        "offline_actual": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        }
+      },
+      "survival": {
+        "status": "bounded_witness",
+        "active": true,
+        "nodes": 59,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 3,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              3,
+              15,
+              11
+            ]
+          },
+          {
+            "action": 4,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 8,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 9,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 10,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 11,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 12,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 14,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 15,
+            "status": "witness",
+            "root_chain": 0,
+            "witness": [
+              15,
+              3,
+              11
+            ]
+          },
+          {
+            "action": 18,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          6,
+          16,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "unknown",
+          "certified_root": null,
+          "trials": [
+            {
+              "root": 3,
+              "status": "unknown_terminal",
+              "terminal_action": null
+            },
+            {
+              "root": 15,
+              "status": "unknown_terminal",
+              "terminal_action": null
+            }
+          ],
+          "charged": {
+            "control": 7,
+            "placement": 0,
+            "terminal": 0
+          },
+          "placement_cache_hits": 6,
+          "placement_cache_entries": 45,
+          "control_cache_hits": 1,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": true
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1959,
+        "axis_x": 1,
+        "axis_y": 12,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1960,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_end_score": 306,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 33,
+      "selected": 11,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        },
+        "offline_actual": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        }
+      },
+      "survival": {
+        "status": "unknown",
+        "active": false,
+        "nodes": 21,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 8,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 9,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 11,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 12,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 14,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 15,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 18,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          10,
+          16,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "unknown",
+          "certified_root": null,
+          "trials": [],
+          "charged": {
+            "control": 0,
+            "placement": 0,
+            "terminal": 0
+          },
+          "placement_cache_hits": 0,
+          "placement_cache_entries": 21,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": true
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 1998,
+        "axis_x": 3,
+        "axis_y": 12,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 1999,
+        "score_delta": 0,
+        "attack_score_delta": 0,
+        "chain_end_score": 306,
+        "chain_count": 0,
+        "game_over": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    },
+    {
+      "decision": 34,
+      "selected": 7,
+      "root_predictions": {
+        "public": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        },
+        "offline_actual": {
+          "immediate_clears": [],
+          "reachable_clears": [],
+          "reachable_nonfatal_clears": []
+        }
+      },
+      "survival": {
+        "status": "unknown",
+        "active": false,
+        "nodes": 2,
+        "horizon": 3,
+        "board_complete": false,
+        "source": "public_history_inference",
+        "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+        "safety_guarantee": false,
+        "roots": [
+          {
+            "action": 7,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          },
+          {
+            "action": 9,
+            "status": "fatal",
+            "root_chain": 0,
+            "witness": []
+          }
+        ],
+        "unreachable_roots": [
+          0,
+          1,
+          3,
+          4,
+          6,
+          8,
+          10,
+          11,
+          12,
+          14,
+          15,
+          16,
+          18,
+          19,
+          21
+        ],
+        "control_proof": {
+          "status": "unknown",
+          "certified_root": null,
+          "trials": [],
+          "charged": {
+            "control": 0,
+            "placement": 0,
+            "terminal": 0
+          },
+          "placement_cache_hits": 0,
+          "placement_cache_entries": 2,
+          "control_cache_hits": 0,
+          "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+          "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+          "safety_guarantee": false,
+          "fallback": true
+        }
+      },
+      "lock": {
+        "player": "player_0",
+        "type": "lock",
+        "tick": 2036,
+        "axis_x": 2,
+        "axis_y": 11,
+        "rotation": "UP",
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      },
+      "resolution": {
+        "player": "player_0",
+        "type": "resolution_complete",
+        "tick": 2037,
+        "score_delta": 1,
+        "attack_score_delta": 0,
+        "chain_end_score": 306,
+        "chain_count": 0,
+        "game_over": true,
+        "all_clear_achieved": false,
+        "all_clear_bonus_pending": false,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0,
+        "attack": {
+          "generated": 0,
+          "canceled": 0,
+          "outgoing": 0,
+          "attack_score_delta": 0,
+          "all_clear_bonus_consumed": false,
+          "all_clear_bonus_score": 0
+        }
+      }
+    }
+  ]
+}
