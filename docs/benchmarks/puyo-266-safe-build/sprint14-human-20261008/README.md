@@ -140,3 +140,16 @@ cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibil
 gzip -dc docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-control-prototype.patch.gz > /tmp/puyo266-rejected-control-restored.patch
 sha256sum /tmp/puyo266-rejected-control-restored.patch
 ```
+
+## 公開推定 observer の固定入力監査
+
+`public-inference-audit.py/json` は新しい公開推定 observer を保存済み GTR 123/132/135 と新規 human fixture で監査する．推定器は公開 snapshot/実 lock/lifecycle だけを受け，完全盤面は driver の offline 期待結果比較専用である．133 判断すべてで known，hidden 2 行の不一致 0．127/26 の (0,12)/(0,13)，135/35–36 の (1,12)/(3,12) を復元し，123/28 の空きも保持した．新規 policy/native/全対局測定ではなく，worker 接続や窒息修正の成功を示すものではない．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=. \
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py \
+  --output /tmp/puyo266-public-inference-audit.json
+cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.json /tmp/puyo266-public-inference-audit.json
+```
+
+関連既存 43 件と起点/欠測/clear/drop/private 非干渉の追加 7 件，計 50 テストが成功した．G2 と人間 QA は未達のままである．

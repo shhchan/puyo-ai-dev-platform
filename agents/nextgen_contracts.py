@@ -411,6 +411,40 @@ class ControlContext(Contract):
 
 
 @dataclass(frozen=True)
+class PublicBoardInference(Contract):
+    """Public actual-lock deduction; never a visible observation or actor input.
+
+    Hidden rows are bottom-up y=12,13. Unknown transports no guessed cells.
+    request_digest is assigned by the scheduler, not by the history observer.
+    """
+    episode_id: str
+    player_id: int
+    observed_tick: int
+    visible_digest: str
+    last_lock_id: str | None
+    status: Literal["known", "unknown"]
+    hidden_rows: tuple[tuple[int | None, ...], ...]
+    reason: str
+    request_digest: str | None = None
+    schema_version: Literal["puyo.nextgen.public_inference.v1"] = "puyo.nextgen.public_inference.v1"
+
+    def _validate(self):
+        _identifier(self.episode_id)
+        _identifier(self.reason)
+        _digest(self.visible_digest)
+        _require(self.player_id in (0, 1) and self.observed_tick >= 0, "invalid inference scope")
+        _require(len(self.hidden_rows) == 2 and all(len(row) == 6 for row in self.hidden_rows),
+                 "invalid hidden shape")
+        if self.last_lock_id is not None:
+            _identifier(self.last_lock_id)
+        if self.request_digest is not None:
+            _digest(self.request_digest)
+        cells = tuple(v for row in self.hidden_rows for v in row)
+        _require(all(v in range(len(PUBLIC_CELL_TO_COLOR)) for v in cells) if self.status == "known"
+                 else all(v is None for v in cells), "inference certainty/cell mismatch")
+
+
+@dataclass(frozen=True)
 class NextgenRequest(Contract):
     SCHEMA: ClassVar[str] = REQUEST_SCHEMA_VERSION
     identity: DecisionIdentity

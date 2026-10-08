@@ -1,0 +1,3200 @@
+{
+  "scope": "Public observer receives public snapshot/lock/lifecycle only; full hidden field is compared offline in this driver, never used by observer or policy.",
+  "rows": [
+    {
+      "case": "gtr-123/1",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "empty_reset"
+    },
+    {
+      "case": "gtr-123/2",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/3",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/4",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/5",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/6",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/7",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/8",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/9",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/10",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/11",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/12",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/13",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/14",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/15",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/16",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/17",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/18",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/19",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/20",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/21",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/22",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/23",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/24",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/25",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/26",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/27",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/28",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/29",
+      "status": "known",
+      "hidden_rows": [
+        [
+          3,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/30",
+      "status": "known",
+      "hidden_rows": [
+        [
+          3,
+          4,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/31",
+      "status": "known",
+      "hidden_rows": [
+        [
+          3,
+          4,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/32",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/33",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/34",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/35",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/36",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/37",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/38",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/39",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-123/40",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/1",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "empty_reset"
+    },
+    {
+      "case": "gtr-132/2",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/3",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/4",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/5",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/6",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/7",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/8",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/9",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/10",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/11",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/12",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/13",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/14",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/15",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/16",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/17",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/18",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/19",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/20",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/21",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/22",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/23",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/24",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/25",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/26",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/27",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/28",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/29",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/30",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/31",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/32",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-132/33",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          2,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/1",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "empty_reset"
+    },
+    {
+      "case": "gtr-135/2",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/3",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/4",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/5",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/6",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/7",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/8",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/9",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/10",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/11",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/12",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/13",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/14",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/15",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/16",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/17",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/18",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/19",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/20",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/21",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/22",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/23",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/24",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/25",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/26",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/27",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/28",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/29",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/30",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/31",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/32",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/33",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/34",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/35",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/36",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          2,
+          0,
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "gtr-135/37",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          2,
+          0,
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/1",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "empty_reset"
+    },
+    {
+      "case": "human-127/2",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/3",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/5",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/7",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/9",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/10",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/13",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/14",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/15",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/16",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/17",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/18",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/19",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/20",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/21",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/22",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/23",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/24",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/25",
+      "status": "known",
+      "hidden_rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/26",
+      "status": "known",
+      "hidden_rows": [
+        [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/27",
+      "status": "known",
+      "hidden_rows": [
+        [
+          2,
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    },
+    {
+      "case": "human-127/28",
+      "status": "known",
+      "hidden_rows": [
+        [
+          2,
+          3,
+          0,
+          2,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "offline_matches": true,
+      "reason": "public_actual_lock"
+    }
+  ],
+  "count": 133,
+  "unknown": 0,
+  "mismatches": 0
+}

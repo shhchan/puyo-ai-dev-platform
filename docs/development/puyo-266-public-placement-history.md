@@ -1,6 +1,6 @@
 # PUYO-266 公開自配置履歴と生存推定
 
-実装済みなのは実 lock の公開履歴と，後続配置が完全満杯列を横断する誤った witness の除外である．hidden 推定の worker 接続，時間を含む後続操作の保証，窒息修正完了を意味しない．
+実装済みなのは実 lock の公開履歴，独立した公開推定 observer，後続配置が完全満杯列を横断する誤った witness の除外である．hidden 推定の worker 接続，時間を含む後続操作の保証，窒息修正完了を意味しない．
 
 ## 公開履歴の境界
 
@@ -30,3 +30,11 @@ adapter の設置前に起きた lock は復元しない．`started_tick` は途
 4. seed 127/26 の root 3 を排除するだけでは不十分である．公開モデルには root 11 の `[11,0,3]` も残り，実 hidden が列 0 を塞いでいる．履歴推定と後続操作証明を同時に満たして，合法 4 連鎖 `[7,8,10]` の実 lock/clear まで検証する．55/123/124，126/128/132/135/144，3 定型，reset/stale/fallback/timeout/unknown/quota を再確認する．
 
 正式 G2 の 30 seed × 2 repeat と残る品質条件，人間 GUI QA は未達であり，PUYO-266 は In Progress のまま扱う．
+
+## 公開推定 observer（第一段階）
+
+`public_board_inference()` は独立 opt-in observer である．空の Field を作る `reset()` の明示起点を，最初の step より前に受け取った場合だけ hidden 2 行を空と確定する．tick 0 や可視盤面が空というだけでは確定しない．遅い設置，episode/tick 欠測，実 lock/pair 不一致，複数の lock 高さ，clear/visible 不整合は unknown とし，unknown の wire に推測セルを含めない．reset は observer を破棄して起点を更新する．
+
+推定器は public state，実 lock action/pair，公開 lifecycle だけを受け取る．settled な既知盤面から grounded lock の可能な高さを列挙し，lock 直後の visible と一致する結果を公開の重力/消去ルールで解決する．次の control snapshot と整合する一意の結果のみ確定する．clear 中やおじゃま animation 中は unknown．おじゃまは公開ルールで visible 行の空セルだけに配置されるため，表示が確定した結果と照合して hidden の保存を判断する．乱数や着弾予定位置を読まない．scratch Field は公開セルだけから構成し，元 match/simulator/private field は推定器へ渡さない．
+
+sidecar は episode/player/tick，visible digest，last lock ID，known/unknown と hidden 2 行を持つ．既存 PublicSnapshot は hidden=None のままで，actor と native の入力は変えない．この段階では worker/request へは接続していない．`tests/test_nextgen_public_inference.py` が起点，欠測，clear/drop 整合と private 非干渉を検証する．保存済み GTR 123/132/135 と新規 human fixture の 133 判断を比較する offline script は `docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py`．完全盤面は script の期待結果監査だけに使い，推定器の入力ではない．
