@@ -1,6 +1,8 @@
 # PUYO-274 デスクトップ再開とレビュー引継ぎ
 
-デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は実行表を優先する．窒息・両側 frame gate・人間 QA・正式品質の未達を維持する．
+デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は新しい実行表を優先する．窒息・両側 frame gate・正式品質の未達を維持する．先読み表示は 2026-10-08 に人間 GUI QA を実施した．
+
+2026-10-08 の Sprint 14 再開状況は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) に追記した．以下の旧 PR 番号・旧観測値より，新しい実行表と Jira/GitHub の現在値を優先する．
 
 記録日：2026-09-28．窓口は [PUYO-274](https://shhchan.atlassian.net/browse/PUYO-274)，親は PUYO-228．今回はノート PC 上の資料保存・レビュー整備まで．残る生存品質・先読み表示・性能・正式品質はデスクトップで再開する．本資料の完成だけで PUYO-274/266/269/273 を COMPLETE にしない．
 
@@ -30,6 +32,12 @@ frame/input の p95 ≤ 25 ms/p99 ≤ 50 ms，実人間の意図した配置，�
 - PUYO-269 はノート PC で若干改善したがまだカクつく．ノート PC のスペックが原因という見立ては仮説．デスクトップでの改善・gate 合格を先取りしない．
 
 daa/random 元 run の replay，速度，source/config/native SHA は未提供・未確認．新規再現との同一性は保証できない．gtr seed 123 元 GUI raw も未保存，セカンド逆発火の seed は不明．先読み消失の正確な run 条件も不明．human/random と通常/0.25x/低速 `n` の結果を混合しない．daa 初回下 2 段 L 字の細部は対象外．
+
+### 2026-10-08 の依頼者 GUI QA
+
+デスクトップ `puyo-desktop-274` で 1P nextgen／2P human を起動し，`o` による 3 手先読み配置の表示・非表示，現在組の落下位置 ghost との区別を確認した．移動・回転は意図する位置へ置けそうな操作感との報告．これは人間の目視確認であり，frame/input 25/50 ms gate の代用ではない．
+
+別の対局では対戦 seed 127，1P policy seed 58，土台 daa，softmax 温度 1.0，速度 x1.0 を使用．人間側が最初の 2 手で全消しを取り，おじゃま送付後に 1P が窒息した．元 replay／結果 JSON は未保存で，正確な human 入力列は不明．新規の固定入力再現は元対局と区別する．`softmax`／`1.0` は現在の launcher 既定値ではなく，明示選択した条件である．
 
 ## 3. デスクトップで取得・起動する
 
