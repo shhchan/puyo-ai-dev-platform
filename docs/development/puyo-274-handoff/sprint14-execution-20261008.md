@@ -46,3 +46,26 @@ PR ごとにレビュー可能な差分と検証，Jira コメントを記録．
 - PUYO-269 は確定 head `251b62d1c2cda145a5d912580af98305efdba4a0`，base `PUYO-273/desktop-mask-cadence` の draft [PR #181](https://github.com/shhchan/puyo-ai-dev-platform/pull/181)，Jira In Progress／コメント10813．同一 source の診断 proof 中央値 0.915→0.102 ms，ただし最終両側 frame p95 `25.37 ms`，repeat `27.42 ms`，minimal `26.69 ms` で事前 gate `≤25 ms` 未達．全入力，片側，human，軽量 frame は通過．実人間再 QA は未実施．prefix共有案は固定 micro で悪化し不採用．
 - PUYO-273 は #180 の `25.1802222 ms` 未達を保持し，PUYO-269 と組合せた最終 source でも両側 frame gate が未達なので Jira In Progress のまま．
 - PUYO-274 の先読み表示と操作感に関する 2026-10-08 人間 QA は確認済み．窒息，両側 frame，変更後の人間再 QA，正式 G2 の条件が残るため Jira In Progress のまま．
+
+## 親の組合せ QA とレビュー順
+
+GitHub stack #176 は `integration/puyo-228-v1-8-0`（起点 `732ed3da17a1a6144a98c7995fbe9dfe2e45ea91`）へ #172→#173→#174→#175→#177→#179→#178→#180→#181→#182 の順で接続した．下段 4 PR の head/base は維持．新規後段は各先行 head を祖先に含める履歴保持 merge を通常 push し，PR base/head/draft/reviewer 未指定を再取得した．PR merge/release はしていない．
+
+組合せ QA 実行時，一時 worktree `/home/sion2000114/workspaces/dev/puyo-s14-integration-qa` の同順 merge と最上段 `/home/sion2000114/workspaces/dev/puyo-s14-274` の tree hash はともに `42606f91d2e5fb55b19928d1f29b3f65a57f4cf5`．この記録の追記は docs のみ．結合状態で主要10 moduleの79 tests，GUI 4 moduleの53 tests，変更 Python の Ruff，統合差分 check が通過．PUYO-268 の raw 9 件／120 判断 verifier と PUYO-269 の 12 GUI trace aggregate も通過し，それぞれ reference 未完了と両側 frame 未達を保持した．これは保存 raw の整合確認であり，最終 stack 上の新しい人間 GUI run や正式 G2 PASS ではない．
+
+| レビュー順 | Jira／PR | 判定と担当範囲 |
+| --- | --- | --- |
+| 1–4 | 既存 #172→#173→#174→#175 | 既存 preview・生存・cadence・引継ぎ．#174 は draft． |
+| 5 | PUYO-264／[#177](https://github.com/shhchan/puyo-ai-dev-platform/pull/177) | Complete．通常速度の定型/rule 能力を証拠で確認． |
+| 6 | PUYO-268／[#179](https://github.com/shhchan/puyo-ai-dev-platform/pull/179) | Complete．同一公開入力・固定予算の reference 比較，失敗 run も保存． |
+| 7 | PUYO-266／[#178](https://github.com/shhchan/puyo-ai-dev-platform/pull/178) | draft／In Progress．seed127 の窒息と G2 FAIL が残る． |
+| 8 | PUYO-273／[#180](https://github.com/shhchan/puyo-ai-dev-platform/pull/180) | draft／In Progress．両側 frame p95 が25.1802222 ms． |
+| 9 | PUYO-269／[#181](https://github.com/shhchan/puyo-ai-dev-platform/pull/181) | draft／In Progress．最終両側 frame p95 が25.37 ms，変更後の実人間 QA 未実施． |
+| 10 | PUYO-274／[#182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) | draft／In Progress．引継ぎ・組合せ証跡，依存 gate 未達． |
+
+変更後の実人間 GUI QA は最上段 worktree で実施する．既存 desktop venv の native wheel を読み取り専用で使用する．launcher で 1P=`nextgen_tactic_manager`，2P=`human`，速度 x1.0 を選び，`o` の 3 手先読み，現在組 ghost との区別，押しっぱなし下＋横／回転での意図した配置を確認する．速度と対戦/policy seed を結果に併記し，元 seed127 run と同一視しない．
+
+```bash
+cd /home/sion2000114/workspaces/dev/puyo-s14-274
+/home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python main.py
+```
