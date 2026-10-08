@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import pickle
 from dataclasses import replace
 
 from agents import nextgen_contracts as c
@@ -11,37 +12,29 @@ from agents.template_phase import TemplatePhaseController
 from puyo_env.nextgen_public_snapshot import TickInterval, TimingProfile
 
 
-def _same_wire_value(left, right):
-    # Ordinary Python equality conflates bool/int/float. Reusing schema proof
-    # must preserve the strict wire types, including every nested list element.
-    if type(left) is not type(right):
-        return False
-    if isinstance(left, dict):
-        return left.keys() == right.keys() and all(
-            _same_wire_value(value, right[key]) for key, value in left.items()
-        )
-    if isinstance(left, (list, tuple)):
-        return len(left) == len(right) and all(
-            _same_wire_value(a, b) for a, b in zip(left, right)
-        )
-    return left == right
-
-
 class _DecodedNextgenPayload(dict):
     """Parent-local proof of pure schema validation, never a wire contract.
 
-    Contracts are frozen and recursively tuple-valued. Keep a detached canonical
-    wire value as well: a consumer changing even a nested wire field must not
-    retain the proof for the previous value.
+    Contracts are frozen and recursively tuple-valued. Keep an exact wire
+    serialization: a consumer changing even a nested wire field or its type
+    must not retain the proof for the previous value. This avoids constructing
+    a second full dictionary tree and walking it in Python on the UI thread.
+    Pickle is used only to compare local bytes; no bytes are loaded here.
     """
 
     def __init__(self, payload, diagnostics):
         super().__init__(payload)
         self._diagnostics = diagnostics
-        self._validated_wire = diagnostics.to_dict()
+        self._validated_wire = pickle.dumps(payload["nextgen"], protocol=5)
 
     def decoded(self):
-        if _same_wire_value(self.get("nextgen"), self._validated_wire):
+        try:
+            current = pickle.dumps(self.get("nextgen"), protocol=5)
+        except Exception:
+            # A mutated value can define a failing __reduce__. Treat any local
+            # serialization failure as lost proof; the schema path rejects it.
+            return None
+        if current == self._validated_wire:
             return self._diagnostics
         return None
 

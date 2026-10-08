@@ -13,6 +13,9 @@ import types
 from eval.puyo_273_gui_probe import main
 
 
+CADENCE_REFERENCE_SHA = "0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222"
+
+
 REFERENCE_SHA = "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02"
 
 
@@ -39,6 +42,14 @@ def use_reference_behavior() -> str:
 
 
 if __name__ == "__main__":
+    reference_wire = "--reference-wire" in sys.argv
+    if reference_wire:
+        sys.argv.remove("--reference-wire")
+        import puyo_env.nextgen_scheduler as scheduler
+        source = subprocess.check_output(
+            ["git", "show", f"{CADENCE_REFERENCE_SHA}:puyo_env/nextgen_scheduler.py"], text=True
+        )
+        exec(compile(source, "puyo_269_wire_reference", "exec"), vars(scheduler))
     ui_decode = "--ui-decode" in sys.argv
     if ui_decode:
         sys.argv.remove("--ui-decode")
@@ -66,6 +77,7 @@ if __name__ == "__main__":
     main()
     output = Path(sys.argv[sys.argv.index("--output") + 1])
     result = json.loads(output.read_text())
+    result["wire_reference"] = CADENCE_REFERENCE_SHA if reference_wire else None
     result["legacy_render"] = legacy_render
     result["ui_decode"] = ui_decode
     result["puyo_269_reference"] = {
