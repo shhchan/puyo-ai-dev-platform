@@ -200,6 +200,7 @@ def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=
             "execution": "GUI RealtimeVersusMatchController / PolicyProcessExecutor spawn; no display",
             "clock": f"{60 * speed:g} Hz maximum; no catch-up" if mode == "normal" else "wait worker between single ticks; speed does not pace step mode",
             "human_input_source": input_source,
+            "public_placement_history": game.env.match.public_placement_history().to_dict(),
             "elapsed_seconds": elapsed, "ticks": game.env.match.tick,
             "target_placements": placements, "observed_placements": placement_count,
             "replay_saved": write_replay,
