@@ -29,6 +29,7 @@ from eval.nextgen_realtime_diagnostic import source_identity
 
 ROOT = Path(__file__).resolve().parents[1]
 ORIGINAL_STATE = reference._compact_state_from_observation
+ORIGINAL_VALIDATE = reference._require_legal_selected_action
 ORIGINAL_POLICY = diagnostic.make_policy
 
 
@@ -70,16 +71,28 @@ def observation_from_request(request):
 class PublicReferencePolicy(reference.DeepChainBuilderPolicy):
     """Evaluation adapter; no production policy or ABI changes."""
 
-    def __init__(self, seed, *, backend='native'):
+    def __init__(self, seed, *, backend='native', shadow=False):
         super().__init__(profile='reference', backend=backend)
         self.public_config = nextgen_search_settings('nextgen_safe_build', seed=seed)[1]
+        self.shadow = shadow
+        self.selection_error = None
         self.public_inputs = []
         self.search_evidence = []
+
+    def validate_selection(self, context, visible):
+        try:
+            ORIGINAL_VALIDATE(context, visible)
+        except ValueError as exc:
+            if not self.shadow or str(exc) != 'deep-chain flow selected an illegal placement action':
+                raise
+            # Preserve the rejected shadow root. Never execute it or choose a fallback.
+            self.selection_error = str(exc)
 
     @contextmanager
     def boundary(self):
         with patch.object(reference, '_compact_state_from_observation', estimated_state), \
-             patch.object(reference, '_visible_decision_seed', return_value=self.public_config.resolved_decision_seed):
+             patch.object(reference, '_visible_decision_seed', return_value=self.public_config.resolved_decision_seed), \
+             patch.object(reference, '_require_legal_selected_action', side_effect=self.validate_selection):
             yield
 
     def decision_input_identity(self, observation, info):
@@ -88,6 +101,7 @@ class PublicReferencePolicy(reference.DeepChainBuilderPolicy):
             return super().decision_input_identity(observation, info)
 
     def decide(self, observation, info):
+        self.selection_error = None
         observation, info = public_observation(observation, info)
         with self.boundary():
             context = super().decide(observation, info)
@@ -157,6 +171,8 @@ def compare_request(request, policy):
         'reference_search': evidence, 'input_equal': True, 'scenario_equal': True,
         'shared_budget_equal': True, 'public_board_complete': complete,
         'reference_action': context.require(reference.SELECTED_ACTION_ARTIFACT),
+        'reference_selection_error': policy.selection_error,
+        'reference_action_executable': policy.selection_error is None,
         'reference_seconds': context.trace.elapsed_seconds,
     }
 
@@ -177,6 +193,7 @@ def run(output, seeds, placements):
         'limits': ['Unknown top two rows are estimated empty in both searches, never proven empty.',
                    'Live rollouts diverge after different actions; exact paired decisions are reference shadows on each nextgen input.',
                    'Shadow reference actions are not executed and do not supply actual chain outcomes.',
+                   'Unreachable shadow reference selections retain their validator error; live reference validation is unchanged.',
                    'Template/response budgets 128/256 are nextgen-only and reported separately; shared search is 600000 nodes for both.',
                    'Reference has no template phase; its template metric is a passive observer of the initial nextgen binding.',
                    'Existing G2 observed quality FAIL and G2 BLOCKED remain unchanged.'],
@@ -186,7 +203,7 @@ def run(output, seeds, placements):
     for seed in seeds:
         nextgen = diagnostic.measure('nextgen', seed, 'nextgen_safe_build', placements=placements)
         write_json(output / f'nextgen-{seed}.json.gz', nextgen)
-        shadow = PublicReferencePolicy(seed)
+        shadow = PublicReferencePolicy(seed, shadow=True)
         pairs = []
         for row, ledger in zip(nextgen['rows'], nextgen['ledger'], strict=True):
             request = c.NextgenRequest.from_dict(ledger['request'])

@@ -61,6 +61,18 @@ class PublicReferenceTests(unittest.TestCase):
         self.assertIs(reference._visible_decision_seed, before_seed)
         self.assertEqual(self.policy.flow.step_ids, reference.DeepChainBuildFlow().step_ids)
 
+    def test_unreachable_shadow_root_is_recorded_and_never_replaced(self):
+        self.policy.shadow = True
+        request = replace(self.request, execution=replace(self.request.execution, reachable_mask=(False,) * 22))
+        result = compare_request(request, self.policy)
+        self.assertFalse(result['reference_action_executable'])
+        self.assertIn('illegal placement', result['reference_selection_error'])
+        self.assertFalse(request.execution.reachable_mask[result['reference_action']])
+        self.policy.shadow = False
+        self.policy.backend_mode = 'native'  # preserve explicit-native fail-closed contract
+        with self.assertRaisesRegex(ValueError, 'illegal placement'):
+            compare_request(request, self.policy)
+
     def test_realtime_numpy_input_is_serializable(self):
         observation, info = observation_from_request(self.request)
         observation['next_pairs'] = np.array(observation['next_pairs'])
