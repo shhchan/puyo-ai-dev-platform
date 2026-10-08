@@ -1,0 +1,63 @@
+--- a/puyo_env/action_planner.py
++++ b/puyo_env/action_planner.py
+@@ -127,11 +127,26 @@
+     probe.tick += 1
+ 
+ 
+-def _verify_path(source, action, target, path, *, timing, max_expanded_states, repair_budget, repair_cache, all_actions, transition_cache):
++def _advance_shared_control_probe(probe, tick_input, prefixes):
++    """Share exact input prefixes only inside one immutable-root mask call.
++
++    Cached probes are read-only. Fork before executing a new edge so held/repeat
++    state and game counters belong to that branch; _ControlProbeGame also copies
++    the field before the first lock. Never resume control after that lock.
++    """
++    if tick_input not in prefixes:
++        branch = _control_probe(probe, probe.timing)
++        _step_control_probe(branch, tick_input)
++        prefixes[tick_input] = (branch, {})
++    return prefixes[tick_input]
++
++
++def _verify_path(source, action, target, path, *, timing, max_expanded_states, repair_budget, repair_cache, all_actions, transition_cache, control_prefixes):
+     probe = _control_probe(source, timing)
+     inputs, actions = [], []
+     remaining = deque(path)
+     repairs = 0
++    prefixes = control_prefixes
+     # At most two geometry repairs; rejection is conservative, never an
+     # unverified success. All actual motion uses the live clock and counters.
+     while remaining and probe.game.state == "control":
+@@ -144,7 +159,7 @@
+             if probe.game.state != "control":
+                 break
+             inputs.append(tick_input)
+-            _step_control_probe(probe, tick_input)
++            probe, prefixes = _advance_shared_control_probe(probe, tick_input, prefixes)
+         actual = (probe.game.puyo_x, probe.game.puyo_y, probe.game.puyo_rot,
+                   probe.game.blocked_rotate_input_count)
+         if probe.game.state == "control" and actual != predicted:
+@@ -162,6 +177,9 @@
+                 return None
+             remaining = deque(repaired)
+             repairs += 1
++    # Idle lock tails have no useful branching; do not cache every idle tick.
++    if probe.game.state == "control":
++        probe = _control_probe(probe, probe.timing)
+     for _ in range(probe.timing.lock_frame_limit + 2):
+         if probe.game.state != "control":
+             break
+@@ -189,10 +207,12 @@
+     # Exhaustion may omit a valid root but can never admit an unverified root.
+     repair_budget = [max(0, max_expanded_states)]
+     repair_cache = {}
++    control_prefixes = {}
+     return {
+         action: _verify_path(probe, action, target, path, timing=timing,
+                              max_expanded_states=max_expanded_states, repair_budget=repair_budget,
+-                             repair_cache=repair_cache, all_actions=actions, transition_cache=transition_cache)
++                             repair_cache=repair_cache, all_actions=actions, transition_cache=transition_cache,
++                             control_prefixes=control_prefixes)
+         for action, (target, path) in paths.items() if path is not None
+     }
+ 
