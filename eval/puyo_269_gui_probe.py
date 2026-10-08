@@ -13,6 +13,9 @@ import types
 from eval.puyo_273_gui_probe import main
 
 
+ALLOCATION_REFERENCE_SHA = "4056baa70de9b1d0ae897e2fcb1d07ae69db3441"
+
+
 CADENCE_REFERENCE_SHA = "0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222"
 
 
@@ -42,6 +45,18 @@ def use_reference_behavior() -> str:
 
 
 if __name__ == "__main__":
+    reference_allocation = "--reference-allocation" in sys.argv
+    if reference_allocation:
+        sys.argv.remove("--reference-allocation")
+        import puyo_env.realtime_ai as ai
+        source = subprocess.check_output(
+            ["git", "show", f"{ALLOCATION_REFERENCE_SHA}:puyo_env/action_planner.py"], text=True
+        )
+        reference_planner = types.ModuleType("puyo_269_allocation_reference")
+        sys.modules[reference_planner.__name__] = reference_planner
+        exec(compile(source, reference_planner.__name__, "exec"), vars(reference_planner))
+        for name in ("plan_placement_action", "reachable_placement_actions", "planned_inputs_reach_target"):
+            setattr(ai, name, getattr(reference_planner, name))
     reference_wire = "--reference-wire" in sys.argv
     if reference_wire:
         sys.argv.remove("--reference-wire")
@@ -77,6 +92,7 @@ if __name__ == "__main__":
     main()
     output = Path(sys.argv[sys.argv.index("--output") + 1])
     result = json.loads(output.read_text())
+    result["allocation_reference"] = ALLOCATION_REFERENCE_SHA if reference_allocation else None
     result["wire_reference"] = CADENCE_REFERENCE_SHA if reference_wire else None
     result["legacy_render"] = legacy_render
     result["ui_decode"] = ui_decode
