@@ -58,11 +58,11 @@ after-two の post→handled p95/p99 は 13.44/17.02 ms，post→state は 22.85
 | 全 tick prefix | 7.80→12.39 | 3.15→4.34 | 8.67→11.42 |
 | idle lock tail を除外 | 7.61→9.50 | 3.13→3.16 | 8.61→9.16 |
 
-各 30 回交互測定は `rejected-*-microbenchmark.json`，再現 patch は `rejected-*.patch`．**action_planner.py は起点へ戻し，製品には採用していない．** 別 checkout に対象 patch を適用し，`PYTHONPATH=. <python> docs/benchmarks/puyo-269-cadence-finish/planner_microbenchmark.py` で再現できる．失敗した最適化を正式 GUI 値へ混ぜない．現時点で追加の狭い変更の安全性と性能効果を裏付ける証拠はない．
+各 30 回交互測定は `rejected-*-microbenchmark.json`，再現 patch は `rejected-*.patch.gz`．**action_planner.py は起点へ戻し，製品には採用していない．** gzip は元 patch の bytes を変更せず保存する．別 checkout で `gzip -dc rejected-motion-prefix.patch.gz | git apply -` のように対象 patch を展開・適用し，`PYTHONPATH=. <python> docs/benchmarks/puyo-269-cadence-finish/planner_microbenchmark.py` で再現できる．失敗した最適化を正式 GUI 値へ混ぜない．現時点で追加の狭い変更の安全性と性能効果を裏付ける証拠はない．
 
 ## 回帰と再実行
 
-[unit-tests.txt](unit-tests.txt) は 123 tests 成功（schema mutation／reader cancellation・cleanup／timed mask／gravity・held・repeat／receipt／stale／pause・step／独立進行／replay hash／GUI）．その後の例外処理追加を含む最終 [final-wire-tests.txt](final-wire-tests.txt) は 3 tests 成功．Ruff と `git diff --check` も成功．
+[unit-tests.txt](unit-tests.txt) は 123 tests 成功（schema mutation／reader cancellation・cleanup／timed mask／gravity・held・repeat／receipt／stale／pause・step／独立進行／replay hash／GUI）．その後の例外処理追加を含む最終 [final-wire-tests.txt](final-wire-tests.txt) は 3 tests 成功．Ruff と PR 起点からの `git diff --check 0a364aa HEAD` も成功．再現用 gzip patch は元 bytes との一致と，それぞれの `git apply --check` を確認した．
 
 ```bash
 PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python \
