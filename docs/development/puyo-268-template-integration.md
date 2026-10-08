@@ -51,3 +51,7 @@ PUYO-270 の probe/response quota と `apply_envelope` を維持する．到達 
 `search.selected_template` に元 key，compiled required/forbidden，digest，全 root の known/sample witness・status・reason を保存する．scheduler replay payload と ledger metadata が同じ trace を保持する．receipt は requested/executed/outcome に加えて `template_adopted`/`template_not_adopted_<outcome>` を記録し，270 の survival reason を保持する．trajectory の既存 DecisionRecord schema は変更せず，拡張探索 trace は replay/ledger metadata に保存する．
 
 [検証と測定](../benchmarks/puyo-268-template-integration/README.md) を参照．PUYO-271 後半の旧 3 seed と 2026-09-27 の新規 3 seed を比較した．人間 GUI の元 raw は未保存で同一性は未確定，修正後の人間確認と正式 G2 は未実施である．正式 G2 は PUYO-266 の範囲に残る．
+
+## Sprint 14 の受け入れ確認
+
+[2026-10-08 の比較](../benchmarks/puyo-268-template-integration/public-reference-20261008/README.md) は，評価専用 adapter で reference と nextgen の公開盤面推定・future seed・共有予算を揃え，全 nextgen 判断の同一入力比較と，別々の実対局指標を保存する．production の保持・順位契約は変更していない．人間 GUI は 2026-09-28 の依頼者 OK を Jira コメント 10768 で確認した．元 GUI raw の同一性は未確定のままであり，正式 G2 は PUYO-266 の observed quality FAIL／G2 BLOCKED を保持する．

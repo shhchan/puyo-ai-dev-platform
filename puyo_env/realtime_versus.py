@@ -213,7 +213,7 @@ class RealtimeVersusMatch:
         if self._public_snapshot_adapter is None:
             from puyo_env.nextgen_public_snapshot import PublicVersusSnapshotAdapter
 
-            self._public_snapshot_adapter = PublicVersusSnapshotAdapter()
+            self._public_snapshot_adapter = PublicVersusSnapshotAdapter(started_tick=self.tick)
         return self._public_snapshot_adapter.snapshot(self, player_id)
 
     def public_timing_history(self):
@@ -221,6 +221,12 @@ class RealtimeVersusMatch:
         if self._public_snapshot_adapter is None:
             self.public_snapshot()
         return self._public_snapshot_adapter.timing_history()
+
+    def public_placement_history(self, player_id: int = 0):
+        """Actual public lock history, separate from intent and timing schemas."""
+        if self._public_snapshot_adapter is None:
+            self.public_snapshot(player_id)
+        return self._public_snapshot_adapter.placement_history(player_id)
 
     def advance_ticks(
         self,

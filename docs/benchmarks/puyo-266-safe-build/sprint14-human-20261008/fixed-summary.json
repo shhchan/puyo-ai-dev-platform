@@ -1,0 +1,62 @@
+[
+  {
+    "seed": 55,
+    "max_chain": 10,
+    "premature": 0,
+    "game_over": false,
+    "placements": 40,
+    "source_changed": false,
+    "locks_mismatched": [],
+    "final_hash_replayed": true,
+    "same_recorded_inputs_as_archived_baseline": true,
+    "same_final_hash_as_archived_baseline": true
+  },
+  {
+    "seed": 123,
+    "max_chain": 10,
+    "premature": 0,
+    "game_over": false,
+    "placements": 40,
+    "source_changed": false,
+    "locks_mismatched": [],
+    "final_hash_replayed": true,
+    "same_recorded_inputs_as_archived_baseline": true,
+    "same_final_hash_as_archived_baseline": true
+  },
+  {
+    "seed": 124,
+    "max_chain": 11,
+    "premature": 0,
+    "game_over": false,
+    "placements": 40,
+    "source_changed": false,
+    "locks_mismatched": [],
+    "final_hash_replayed": true,
+    "same_recorded_inputs_as_archived_baseline": true,
+    "same_final_hash_as_archived_baseline": true
+  },
+  {
+    "seed": 126,
+    "max_chain": 0,
+    "premature": 0,
+    "game_over": true,
+    "placements": 36,
+    "source_changed": false,
+    "locks_mismatched": [],
+    "final_hash_replayed": true,
+    "same_recorded_inputs_as_archived_baseline": true,
+    "same_final_hash_as_archived_baseline": true
+  },
+  {
+    "seed": 128,
+    "max_chain": 0,
+    "premature": 0,
+    "game_over": true,
+    "placements": 39,
+    "source_changed": false,
+    "locks_mismatched": [],
+    "final_hash_replayed": true,
+    "same_recorded_inputs_as_archived_baseline": true,
+    "same_final_hash_as_archived_baseline": true
+  }
+]

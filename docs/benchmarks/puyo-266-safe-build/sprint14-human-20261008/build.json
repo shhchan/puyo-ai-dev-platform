@@ -1,0 +1,27 @@
+{
+  "host": {
+    "system": "Linux",
+    "node": "ShionWindows",
+    "release": "6.6.87.2-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "python_binary_sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+  "native_binary": "/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/__init__.py",
+  "native_binary_sha256": "52921f4d20a7b08aec43d73b7f3460c33780125938220df11877580b05794d63",
+  "capabilities_sha256": "5697e1c4b8a9158e518b683e90dc6bc2659ceaafee2c5a48684bdbf508f1bca1",
+  "packages": {
+    "numpy": "2.5.3",
+    "PyYAML": "6.0.3",
+    "pygame": "2.6.1",
+    "gymnasium": "1.4.0"
+  },
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "RAYON_NUM_THREADS": "1"
+  }
+}

@@ -1,0 +1,2172 @@
+{
+  "human127_decision26": {
+    "identity": {
+      "episode_id": "nextgen-episode-1",
+      "player_id": 0,
+      "decision_id": 26,
+      "request_id": "request-26",
+      "snapshot_digest": "4b2c3523c92709f1233395efe66a263597eea0e5c9d7b9526e56eb4a4e99c499"
+    },
+    "public": {
+      "own": {
+        "visible_board": [
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            1,
+            3,
+            0,
+            0,
+            3,
+            1
+          ],
+          [
+            1,
+            3,
+            4,
+            2,
+            4,
+            3
+          ],
+          [
+            5,
+            3,
+            5,
+            4,
+            4,
+            3
+          ],
+          [
+            5,
+            1,
+            5,
+            1,
+            1,
+            3
+          ],
+          [
+            5,
+            3,
+            5,
+            5,
+            1,
+            5
+          ],
+          [
+            5,
+            2,
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            3,
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            5,
+            5,
+            5,
+            5,
+            5,
+            5
+          ],
+          [
+            1,
+            5,
+            3,
+            5,
+            5,
+            5
+          ],
+          [
+            4,
+            5,
+            3,
+            4,
+            5,
+            3
+          ],
+          [
+            1,
+            5,
+            2,
+            4,
+            1,
+            3
+          ],
+          [
+            1,
+            5,
+            2,
+            3,
+            1,
+            1
+          ]
+        ],
+        "known_pieces": [
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            4,
+            2
+          ]
+        ],
+        "phase": "control",
+        "attack_packets": [],
+        "score_carry": 0,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": false
+      },
+      "opponent": {
+        "visible_board": [
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            2,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            4,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            2,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "known_pieces": [
+          [
+            4,
+            3
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "phase": "control",
+        "attack_packets": [],
+        "score_carry": 44,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": true
+      },
+      "events": [
+        {
+          "event_id": "57:1:placement:0",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 57,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "57:1:phase:1",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 57,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "58:1:phase:2",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 58,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "93:0:placement:3",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 93,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "93:0:phase:4",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 93,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "94:0:phase:5",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 94,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "112:1:placement:6",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 112,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "112:1:phase:7",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 112,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "143:1:clear:8",
+          "player_id": 1,
+          "kind": "clear",
+          "tick": 143,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "143:1:phase:9",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 143,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "165:0:placement:10",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 165,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "165:0:phase:11",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 165,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "166:0:phase:12",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 166,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "201:1:placement:13",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 201,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "201:1:phase:14",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 201,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "202:1:phase:15",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 202,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "248:0:placement:16",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 248,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "248:0:phase:17",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 248,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "249:0:phase:18",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 249,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "256:1:placement:19",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 256,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "256:1:phase:20",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 256,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "257:1:phase:21",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 257,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "307:1:placement:22",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 307,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "307:1:phase:23",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 307,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "308:1:phase:24",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 308,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "334:0:placement:25",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 334,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "334:0:phase:26",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 334,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "335:0:phase:27",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 335,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "354:1:placement:28",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 354,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "354:1:phase:29",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 354,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "355:1:phase:30",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 355,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "397:1:placement:31",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 397,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "397:1:phase:32",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 397,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "398:1:phase:33",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 398,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "424:0:placement:34",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 424,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "424:0:phase:35",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 424,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "425:0:phase:36",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 425,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "436:1:placement:37",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 436,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "436:1:phase:38",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 436,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "437:1:phase:39",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 437,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "471:1:placement:40",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 471,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "471:1:phase:41",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 471,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "472:1:phase:42",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 472,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "524:0:placement:43",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 524,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "524:0:phase:44",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 524,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "528:1:placement:45",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 528,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "528:1:phase:46",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 528,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "529:1:phase:47",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 529,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "539:0:phase:48",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 539,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "581:1:placement:49",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 581,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "581:1:phase:50",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 581,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "582:1:phase:51",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 582,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "608:0:placement:52",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 608,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "608:0:phase:53",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 608,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "609:0:phase:54",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 609,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "631:1:placement:55",
+          "player_id": 1,
+          "kind": "placement",
+          "tick": 631,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "631:1:phase:56",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 631,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "690:0:arrival:57",
+          "player_id": 0,
+          "kind": "arrival",
+          "tick": 690,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "690:1:clear:58",
+          "player_id": 1,
+          "kind": "clear",
+          "tick": 690,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "690:1:phase:59",
+          "player_id": 1,
+          "kind": "phase",
+          "tick": 690,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "690:1:attack:60",
+          "player_id": 1,
+          "kind": "attack",
+          "tick": 690,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "723:0:placement:61",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 723,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "723:0:phase:62",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 723,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "724:0:phase:63",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 724,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "724:0:drop:64",
+          "player_id": 0,
+          "kind": "drop",
+          "tick": 724,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "745:0:phase:65",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 745,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "805:0:placement:66",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 805,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "805:0:phase:67",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 805,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "806:0:phase:68",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 806,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "806:0:drop:69",
+          "player_id": 0,
+          "kind": "drop",
+          "tick": 806,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "827:0:phase:70",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 827,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "887:0:placement:71",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 887,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "887:0:phase:72",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 887,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "888:0:phase:73",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 888,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "941:0:placement:74",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 941,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "941:0:phase:75",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 941,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "956:0:phase:76",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 956,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1019:0:placement:77",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1019,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1019:0:phase:78",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1019,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1020:0:phase:79",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1020,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1075:0:placement:80",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1075,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1075:0:phase:81",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1075,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1076:0:phase:82",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1076,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1129:0:placement:83",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1129,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1129:0:phase:84",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1129,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1130:0:phase:85",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1130,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1187:0:placement:86",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1187,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1187:0:phase:87",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1187,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1188:0:phase:88",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1188,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1237:0:placement:89",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1237,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1237:0:phase:90",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1237,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1238:0:phase:91",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1238,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1286:0:placement:92",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1286,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1286:0:phase:93",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1286,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1287:0:phase:94",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1287,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1338:0:placement:95",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1338,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1338:0:phase:96",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1338,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1339:0:phase:97",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1339,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1383:0:placement:98",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1383,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1383:0:phase:99",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1383,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1398:0:phase:100",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1398,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1440:0:placement:101",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1440,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1440:0:phase:102",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1440,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1441:0:phase:103",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1441,
+          "action": null,
+          "cells": []
+        }
+      ],
+      "information_mode": "public_only"
+    },
+    "execution": {
+      "reachable_mask": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true
+      ],
+      "request_tick": 1442,
+      "timeout_tick": 2147485089,
+      "timing_schema": "puyo.nextgen.public_timing.v1",
+      "timing_digest": "8512d18f95dc396f6eccc2f527c8e2985a489628b4acaf0e1462bb631935d05d",
+      "latency_mode": "measured"
+    },
+    "control": {
+      "phase": {
+        "phase_id": "template-phase-1",
+        "template_id": "daa",
+        "active": false,
+        "remaining_decisions": 0,
+        "decision_limit": 14,
+        "progress": 0.6666666666666666,
+        "fit_status": "no_fit",
+        "previous_tactic": "build_main",
+        "tactic_continuation": 12
+      },
+      "search_profile": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "template_config_hash": "88f4484dbeb46b0a32e62e2be856cf226185390d1e41f956e6a2f8ee73b04f15",
+      "scenario_provenance": {
+        "generator_version": "nextgen.long_horizon_scenarios.v1",
+        "public_prefix_digest": "18cd207b1b27a98fc8ac12b15ea9de76bd1e7a483213cfc1bd589e3b6a763d49",
+        "stream_id": "shared",
+        "scenario_digest": "b64d8e4540c1a588f45d594debf34ab87b7d9e61c876907d7d280fceb2f67eda"
+      },
+      "tactic_registry_hash": "500b7d7b2d1ddf1a4b38e42a5a69ba290ed1b1350a9d279039bd6ae952304982"
+    },
+    "schema_version": "puyo.nextgen.request.v1"
+  },
+  "gtr123_decision28": {
+    "identity": {
+      "episode_id": "nextgen-episode-1",
+      "player_id": 0,
+      "decision_id": 28,
+      "request_id": "request-28",
+      "snapshot_digest": "d59f6ab21e6707a8e622658bc5addacc0ee27c9d02b4ecec3aa285092a9e4487"
+    },
+    "public": {
+      "own": {
+        "visible_board": [
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            1,
+            4,
+            0,
+            0
+          ],
+          [
+            4,
+            2,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            4,
+            2,
+            4,
+            1,
+            0,
+            0
+          ],
+          [
+            3,
+            1,
+            4,
+            3,
+            1,
+            0
+          ],
+          [
+            1,
+            3,
+            1,
+            4,
+            2,
+            0
+          ],
+          [
+            2,
+            3,
+            1,
+            1,
+            4,
+            0
+          ],
+          [
+            2,
+            2,
+            3,
+            3,
+            4,
+            0
+          ],
+          [
+            3,
+            4,
+            1,
+            3,
+            4,
+            0
+          ],
+          [
+            2,
+            1,
+            4,
+            4,
+            1,
+            0
+          ],
+          [
+            2,
+            2,
+            1,
+            1,
+            4,
+            1
+          ],
+          [
+            1,
+            1,
+            3,
+            3,
+            3,
+            1
+          ]
+        ],
+        "known_pieces": [
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            4
+          ]
+        ],
+        "phase": "control",
+        "attack_packets": [],
+        "score_carry": 0,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": false
+      },
+      "opponent": {
+        "visible_board": [
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "known_pieces": [
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "phase": "countdown",
+        "attack_packets": [],
+        "score_carry": 0,
+        "all_clear_bonus_pending": false,
+        "all_clear_achieved": false,
+        "all_clear_bonus_consumed": false
+      },
+      "events": [
+        {
+          "event_id": "55:0:placement:0",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 55,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "55:0:phase:1",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 55,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "56:0:phase:2",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 56,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "110:0:placement:3",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 110,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "110:0:phase:4",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 110,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "125:0:phase:5",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 125,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "181:0:placement:6",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 181,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "181:0:phase:7",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 181,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "182:0:phase:8",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 182,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "232:0:placement:9",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 232,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "232:0:phase:10",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 232,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "247:0:phase:11",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 247,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "299:0:placement:12",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 299,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "299:0:phase:13",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 299,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "314:0:phase:14",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 314,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "370:0:placement:15",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 370,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "370:0:phase:16",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 370,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "371:0:phase:17",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 371,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "421:0:placement:18",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 421,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "421:0:phase:19",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 421,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "436:0:phase:20",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 436,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "490:0:placement:21",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 490,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "490:0:phase:22",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 490,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "491:0:phase:23",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 491,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "541:0:placement:24",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 541,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "541:0:phase:25",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 541,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "556:0:phase:26",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 556,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "604:0:placement:27",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 604,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "604:0:phase:28",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 604,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "619:0:phase:29",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 619,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "677:0:placement:30",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 677,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "677:0:phase:31",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 677,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "692:0:phase:32",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 692,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "742:0:placement:33",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 742,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "742:0:phase:34",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 742,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "757:0:phase:35",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 757,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "811:0:placement:36",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 811,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "811:0:phase:37",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 811,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "826:0:phase:38",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 826,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "870:0:placement:39",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 870,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "870:0:phase:40",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 870,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "885:0:phase:41",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 885,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "931:0:placement:42",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 931,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "931:0:phase:43",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 931,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "946:0:phase:44",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 946,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "992:0:placement:45",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 992,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "992:0:phase:46",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 992,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1007:0:phase:47",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1007,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1047:0:placement:48",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1047,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1047:0:phase:49",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1047,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1048:0:phase:50",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1048,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1094:0:placement:51",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1094,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1094:0:phase:52",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1094,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1095:0:phase:53",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1095,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1141:0:placement:54",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1141,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1141:0:phase:55",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1141,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1142:0:phase:56",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1142,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1186:0:placement:57",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1186,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1186:0:phase:58",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1186,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1187:0:phase:59",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1187,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1227:0:placement:60",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1227,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1227:0:phase:61",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1227,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1242:0:phase:62",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1242,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1284:0:placement:63",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1284,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1284:0:phase:64",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1284,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1299:0:phase:65",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1299,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1339:0:placement:66",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1339,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1339:0:phase:67",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1339,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1354:0:phase:68",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1354,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1394:0:placement:69",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1394,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1394:0:phase:70",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1394,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1395:0:phase:71",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1395,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1443:0:placement:72",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1443,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1443:0:phase:73",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1443,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1444:0:phase:74",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1444,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1480:0:placement:75",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1480,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1480:0:phase:76",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1480,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1481:0:phase:77",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1481,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1519:0:placement:78",
+          "player_id": 0,
+          "kind": "placement",
+          "tick": 1519,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1519:0:phase:79",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1519,
+          "action": null,
+          "cells": []
+        },
+        {
+          "event_id": "1534:0:phase:80",
+          "player_id": 0,
+          "kind": "phase",
+          "tick": 1534,
+          "action": null,
+          "cells": []
+        }
+      ],
+      "information_mode": "public_only"
+    },
+    "execution": {
+      "reachable_mask": [
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "request_tick": 1535,
+      "timeout_tick": 2147485182,
+      "timing_schema": "puyo.nextgen.public_timing.v1",
+      "timing_digest": "c1359e107ec2cad8f462a7040440c1b1b4f767635fa5f61f3880756d370734ef",
+      "latency_mode": "configured"
+    },
+    "control": {
+      "phase": {
+        "phase_id": "template-phase-1",
+        "template_id": "gtr",
+        "active": false,
+        "remaining_decisions": 0,
+        "decision_limit": 14,
+        "progress": 1.0,
+        "fit_status": "fit",
+        "previous_tactic": "build_main",
+        "tactic_continuation": 18
+      },
+      "search_profile": {
+        "profile_id": "nextgen_safe_build",
+        "shared_quota": 600000,
+        "template_quota": 128,
+        "response_quota": 256
+      },
+      "template_config_hash": "63180842066f22b0c4c32b955d5456e7f387e0ca9f7c4e164d63dfe56e5d0e0f",
+      "scenario_provenance": {
+        "generator_version": "nextgen.long_horizon_scenarios.v1",
+        "public_prefix_digest": "e5dd989ddbf155882ca3613d7a181a464cd41c094c8309dddd8d92ca81821bd5",
+        "stream_id": "shared",
+        "scenario_digest": "9f51b47bfd4172a1736d9b9e3c0b069ab7d05799207d138b796e7d28495b9bb3"
+      },
+      "tactic_registry_hash": "500b7d7b2d1ddf1a4b38e42a5a69ba290ed1b1350a9d279039bd6ae952304982"
+    },
+    "schema_version": "puyo.nextgen.request.v1"
+  }
+}

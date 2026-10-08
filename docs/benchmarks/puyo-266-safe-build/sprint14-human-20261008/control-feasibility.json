@@ -1,0 +1,2153 @@
+{
+  "scope": "offline feasibility at c735ea7 only; control counters measure unconstrained target-proof cost and are NOT executed as policy; cache uses public occupancy, fresh spawn and zero interpolation; actual planes used only to classify saved failures; no runtime change",
+  "cases": [
+    {
+      "case": "gtr-123/28",
+      "selected_root": 1,
+      "selected_status": "witness",
+      "selected_witness": [
+        1,
+        3,
+        8
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 53,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 3,
+          "chain": 1
+        },
+        {
+          "action": 5,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 21,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 3,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 8,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 21,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 3,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 8,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 1,
+          "witness": [
+            1,
+            3,
+            8
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 21,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 3,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 8,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 21,
+          "placement_revalidation": 3,
+          "probe_plus_control": 74,
+          "probe_plus_control_plus_revalidation": 77,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 21,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 3,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 8,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-126/33",
+      "selected_root": 6,
+      "selected_status": "witness",
+      "selected_witness": [
+        6,
+        3,
+        11
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 57,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 12,
+          "chain": 10
+        },
+        {
+          "action": 17,
+          "chain": 10
+        },
+        {
+          "action": 21,
+          "chain": 10
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 4,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 3,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 4,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 3,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 6,
+          "witness": [
+            6,
+            3,
+            11
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 4,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 3,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 11,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 4,
+          "placement_revalidation": 3,
+          "probe_plus_control": 61,
+          "probe_plus_control_plus_revalidation": 64,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 4,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 3,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 11,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-126/34",
+      "selected_root": 11,
+      "selected_status": "witness",
+      "selected_witness": [
+        11,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 39,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 12,
+          "chain": 1
+        },
+        {
+          "action": 15,
+          "chain": 5
+        },
+        {
+          "action": 16,
+          "chain": 10
+        },
+        {
+          "action": 17,
+          "chain": 6
+        },
+        {
+          "action": 18,
+          "chain": 10
+        },
+        {
+          "action": 21,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 8,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 11,
+          "witness": [
+            11,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 8,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 8,
+          "placement_revalidation": 3,
+          "probe_plus_control": 47,
+          "probe_plus_control_plus_revalidation": 50,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-126/35",
+      "selected_root": 3,
+      "selected_status": "witness",
+      "selected_witness": [
+        3,
+        12,
+        11
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          3,
+          12,
+          "RED"
+        ],
+        [
+          3,
+          13,
+          "YELLOW"
+        ]
+      ],
+      "probe_nodes": 16,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 25,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 12,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 12,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 3,
+          "witness": [
+            3,
+            12,
+            11
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 25,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 12,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 11,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 25,
+          "placement_revalidation": 3,
+          "probe_plus_control": 41,
+          "probe_plus_control_plus_revalidation": 44,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 12,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-126/36",
+      "selected_root": 7,
+      "selected_status": "fatal",
+      "selected_witness": [],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "BLUE"
+        ],
+        [
+          3,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          13,
+          "RED"
+        ],
+        [
+          3,
+          13,
+          "YELLOW"
+        ]
+      ],
+      "probe_nodes": 2,
+      "offline_immediate_nonfatal_clears": [],
+      "ranked_proof_to_first_public_witness": []
+    },
+    {
+      "case": "gtr-128/36",
+      "selected_root": 14,
+      "selected_status": "witness",
+      "selected_witness": [
+        14,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "GREEN"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 49,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 9,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 14,
+          "witness": [
+            14,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 9,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 9,
+          "placement_revalidation": 3,
+          "probe_plus_control": 58,
+          "probe_plus_control_plus_revalidation": 61,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-128/37",
+      "selected_root": 3,
+      "selected_status": "witness",
+      "selected_witness": [
+        3,
+        8,
+        0
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "GREEN"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 34,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 11,
+          "chain": 1
+        },
+        {
+          "action": 12,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 42,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 13,
+        "placement_nodes": 2,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 3,
+          "witness": [
+            3,
+            8,
+            0
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 42,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 8,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 0,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 42,
+          "placement_revalidation": 3,
+          "probe_plus_control": 76,
+          "probe_plus_control_plus_revalidation": 79,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 13,
+            "placement_nodes": 2,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 8,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-128/38",
+      "selected_root": 11,
+      "selected_status": "witness",
+      "selected_witness": [
+        11,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "GREEN"
+        ],
+        [
+          1,
+          12,
+          "GREEN"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ],
+        [
+          1,
+          13,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 32,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 8,
+          "chain": 1
+        },
+        {
+          "action": 14,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 8,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 11,
+          "witness": [
+            11,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 8,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 8,
+          "placement_revalidation": 3,
+          "probe_plus_control": 40,
+          "probe_plus_control_plus_revalidation": 43,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-128/39",
+      "selected_root": 7,
+      "selected_status": "fatal",
+      "selected_witness": [],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "GREEN"
+        ],
+        [
+          1,
+          12,
+          "GREEN"
+        ],
+        [
+          3,
+          12,
+          "RED"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ],
+        [
+          1,
+          13,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 2,
+      "offline_immediate_nonfatal_clears": [],
+      "ranked_proof_to_first_public_witness": []
+    },
+    {
+      "case": "gtr-132/30",
+      "selected_root": 11,
+      "selected_status": "witness",
+      "selected_witness": [
+        11,
+        0,
+        0
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 62,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 3,
+          "chain": 1
+        },
+        {
+          "action": 4,
+          "chain": 2
+        },
+        {
+          "action": 6,
+          "chain": 1
+        },
+        {
+          "action": 7,
+          "chain": 2
+        },
+        {
+          "action": 8,
+          "chain": 1
+        },
+        {
+          "action": 10,
+          "chain": 1
+        },
+        {
+          "action": 19,
+          "chain": 1
+        },
+        {
+          "action": 21,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 264,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 264,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 11,
+          "witness": [
+            11,
+            0,
+            0
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 264,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 0,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 264,
+          "placement_revalidation": 3,
+          "probe_plus_control": 326,
+          "probe_plus_control_plus_revalidation": 329,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 264,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 0,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-132/31",
+      "selected_root": 1,
+      "selected_status": "witness",
+      "selected_witness": [
+        1,
+        0,
+        0
+      ],
+      "missing_hidden": [
+        [
+          3,
+          12,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 22,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 0,
+          "chain": 10
+        },
+        {
+          "action": 2,
+          "chain": 10
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 102,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 50,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 1,
+          "witness": [
+            1,
+            0,
+            0
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 102,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 0,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 102,
+          "placement_revalidation": 3,
+          "probe_plus_control": 124,
+          "probe_plus_control_plus_revalidation": 127,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 50,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 0,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-132/32",
+      "selected_root": 5,
+      "selected_status": "witness",
+      "selected_witness": [
+        5,
+        0,
+        0
+      ],
+      "missing_hidden": [
+        [
+          3,
+          12,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 26,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 7,
+          "chain": 1
+        },
+        {
+          "action": 10,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 292,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 0,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 8,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 5,
+          "witness": [
+            5,
+            0,
+            0
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 292,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 0,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 292,
+          "placement_revalidation": 3,
+          "probe_plus_control": 318,
+          "probe_plus_control_plus_revalidation": 321,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 8,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-132/33",
+      "selected_root": 7,
+      "selected_status": "fatal",
+      "selected_witness": [],
+      "missing_hidden": [
+        [
+          1,
+          12,
+          "BLUE"
+        ],
+        [
+          3,
+          12,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 2,
+      "offline_immediate_nonfatal_clears": [],
+      "ranked_proof_to_first_public_witness": []
+    },
+    {
+      "case": "gtr-135/32",
+      "selected_root": 6,
+      "selected_status": "witness",
+      "selected_witness": [
+        6,
+        0,
+        3
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 66,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 15,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 15,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 6,
+          "witness": [
+            6,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 15,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 15,
+          "placement_revalidation": 3,
+          "probe_plus_control": 81,
+          "probe_plus_control_plus_revalidation": 84,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 15,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 3,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-135/33",
+      "selected_root": 12,
+      "selected_status": "witness",
+      "selected_witness": [
+        12,
+        0,
+        3
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 63,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 15,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 15,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 12,
+          "witness": [
+            12,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 15,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 15,
+          "placement_revalidation": 3,
+          "probe_plus_control": 78,
+          "probe_plus_control_plus_revalidation": 81,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 15,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 3,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-135/34",
+      "selected_root": 3,
+      "selected_status": "witness",
+      "selected_witness": [
+        3,
+        0,
+        7
+      ],
+      "missing_hidden": [],
+      "probe_nodes": 60,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 19,
+          "chain": 10
+        },
+        {
+          "action": 21,
+          "chain": 10
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 105,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 7,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": true,
+        "control_nodes": 105,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 7,
+            "reachable": true
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 3,
+          "witness": [
+            3,
+            0,
+            7
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 105,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 7,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 105,
+          "placement_revalidation": 3,
+          "probe_plus_control": 165,
+          "probe_plus_control_plus_revalidation": 168,
+          "offline_actual": {
+            "proven": true,
+            "control_nodes": 105,
+            "placement_nodes": 3,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": true
+              },
+              {
+                "depth": 2,
+                "action": 7,
+                "reachable": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-135/35",
+      "selected_root": 14,
+      "selected_status": "witness",
+      "selected_witness": [
+        14,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          1,
+          12,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 42,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 8,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 16,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 14,
+          "witness": [
+            14,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 8,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 8,
+          "placement_revalidation": 3,
+          "probe_plus_control": 50,
+          "probe_plus_control_plus_revalidation": 53,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 16,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-135/36",
+      "selected_root": 7,
+      "selected_status": "witness",
+      "selected_witness": [
+        7,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          1,
+          12,
+          "BLUE"
+        ],
+        [
+          3,
+          12,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 6,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 9,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 8,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 7,
+          "witness": [
+            7,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 9,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 9,
+          "placement_revalidation": 3,
+          "probe_plus_control": 15,
+          "probe_plus_control_plus_revalidation": 18,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 8,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-135/37",
+      "selected_root": 7,
+      "selected_status": "fatal",
+      "selected_witness": [],
+      "missing_hidden": [
+        [
+          1,
+          12,
+          "BLUE"
+        ],
+        [
+          3,
+          12,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 2,
+      "offline_immediate_nonfatal_clears": [],
+      "ranked_proof_to_first_public_witness": []
+    },
+    {
+      "case": "gtr-144/35",
+      "selected_root": 20,
+      "selected_status": "witness",
+      "selected_witness": [
+        20,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "YELLOW"
+        ]
+      ],
+      "probe_nodes": 35,
+      "offline_immediate_nonfatal_clears": [],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 9,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 20,
+          "witness": [
+            20,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 9,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 9,
+          "placement_revalidation": 3,
+          "probe_plus_control": 44,
+          "probe_plus_control_plus_revalidation": 47,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-144/36",
+      "selected_root": 8,
+      "selected_status": "witness",
+      "selected_witness": [
+        8,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "YELLOW"
+        ]
+      ],
+      "probe_nodes": 35,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 19,
+          "chain": 1
+        },
+        {
+          "action": 20,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 9,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 8,
+          "witness": [
+            8,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 9,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 9,
+          "placement_revalidation": 3,
+          "probe_plus_control": 44,
+          "probe_plus_control_plus_revalidation": 47,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-144/37",
+      "selected_root": 11,
+      "selected_status": "witness",
+      "selected_witness": [
+        11,
+        0,
+        3
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "YELLOW"
+        ]
+      ],
+      "probe_nodes": 32,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 9,
+          "chain": 1
+        },
+        {
+          "action": 14,
+          "chain": 1
+        }
+      ],
+      "selected_public": {
+        "proven": true,
+        "control_nodes": 8,
+        "placement_nodes": 3,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 3,
+            "reachable": true
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 0,
+        "placement_nodes": 1,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 11,
+          "witness": [
+            11,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 8,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 8,
+          "placement_revalidation": 3,
+          "probe_plus_control": 40,
+          "probe_plus_control_plus_revalidation": 43,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "gtr-144/38",
+      "selected_root": 7,
+      "selected_status": "fatal",
+      "selected_witness": [],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "RED"
+        ],
+        [
+          1,
+          12,
+          "YELLOW"
+        ],
+        [
+          3,
+          12,
+          "GREEN"
+        ],
+        [
+          3,
+          13,
+          "BLUE"
+        ]
+      ],
+      "probe_nodes": 2,
+      "offline_immediate_nonfatal_clears": [],
+      "ranked_proof_to_first_public_witness": []
+    },
+    {
+      "case": "human-127/26",
+      "selected_root": 3,
+      "selected_status": "witness",
+      "selected_witness": [
+        3,
+        11,
+        15
+      ],
+      "missing_hidden": [
+        [
+          0,
+          12,
+          "BLUE"
+        ],
+        [
+          0,
+          13,
+          "RED"
+        ]
+      ],
+      "probe_nodes": 44,
+      "offline_immediate_nonfatal_clears": [
+        {
+          "action": 7,
+          "chain": 4
+        },
+        {
+          "action": 8,
+          "chain": 4
+        },
+        {
+          "action": 10,
+          "chain": 4
+        }
+      ],
+      "selected_public": {
+        "proven": false,
+        "control_nodes": 16,
+        "placement_nodes": 2,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 11,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": false
+          }
+        ]
+      },
+      "selected_offline_actual": {
+        "proven": false,
+        "control_nodes": 16,
+        "placement_nodes": 2,
+        "steps": [
+          {
+            "depth": 1,
+            "action": 11,
+            "reachable": true
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": false
+          }
+        ]
+      },
+      "ranked_proof_to_first_public_witness": [
+        {
+          "root": 3,
+          "witness": [
+            3,
+            11,
+            15
+          ],
+          "chain": 0,
+          "proven": false,
+          "control_nodes": 16,
+          "placement_nodes": 2,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 11,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 15,
+              "reachable": false
+            }
+          ],
+          "cumulative_control": 16,
+          "placement_revalidation": 2,
+          "probe_plus_control": 60,
+          "probe_plus_control_plus_revalidation": 62
+        },
+        {
+          "root": 11,
+          "witness": [
+            11,
+            0,
+            3
+          ],
+          "chain": 0,
+          "proven": true,
+          "control_nodes": 8,
+          "placement_nodes": 3,
+          "steps": [
+            {
+              "depth": 1,
+              "action": 0,
+              "reachable": true
+            },
+            {
+              "depth": 2,
+              "action": 3,
+              "reachable": true
+            }
+          ],
+          "cumulative_control": 24,
+          "placement_revalidation": 5,
+          "probe_plus_control": 68,
+          "probe_plus_control_plus_revalidation": 73,
+          "offline_actual": {
+            "proven": false,
+            "control_nodes": 0,
+            "placement_nodes": 1,
+            "steps": [
+              {
+                "depth": 1,
+                "action": 0,
+                "reachable": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

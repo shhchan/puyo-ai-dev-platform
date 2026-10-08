@@ -11,12 +11,15 @@ from itertools import islice
 from typing import Literal
 
 from agents.nextgen_contracts import (
-    Contract, ExecutionContext, NumericEvidence, PUBLIC_CELL_TO_COLOR,
+    Contract, ExecutionContext, NumericEvidence, NUM_ACTIONS, PUBLIC_CELL_TO_COLOR, PUBLIC_COLOR_IDS,
     PublicAttackPacket, PublicEvent, PublicPlayerState, PublicSnapshot,
     semantic_digest,
 )
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, VISIBLE_HEIGHT
 from src.core.realtime import RealtimeTimingConfig
+from puyo_env.actions import placement_to_action_index
+from src.core.constants import Direction
+from src.core.headless import PlacementAction
 
 PUBLIC_ADAPTER_SCHEMA = "puyo.nextgen.public_adapter.v1"
 TIMING_SCHEMA = "puyo.nextgen.public_timing.v1"
@@ -128,6 +131,43 @@ class PublicTimingHistory(Contract):
     schema_version: Literal["puyo.nextgen.public_history.v1"] = "puyo.nextgen.public_history.v1"
 
 
+@dataclass(frozen=True)
+class PublicPlacementRecord(Contract):
+    """Observed lock columns/orientation and the previously public current pair.
+
+    Lock height and field destinations are deliberately absent: neither is
+    evidence of settled hidden occupancy. A receipt alone never creates this.
+    """
+    event_id: str
+    player_id: int
+    tick: int
+    action: int
+    pair: tuple[int, int]
+
+    def _validate(self):
+        if not self.event_id or self.player_id not in (0, 1) or self.tick < 0:
+            raise ValueError("invalid placement identity")
+        if not 0 <= self.action < NUM_ACTIONS or any(v not in PUBLIC_COLOR_IDS for v in self.pair):
+            raise ValueError("invalid public placement")
+
+
+@dataclass(frozen=True)
+class PublicPlacementHistory(Contract):
+    """Per-adapter, per-player public sidecar; not actor features or hidden truth."""
+    player_id: int
+    started_tick: int
+    records: tuple[PublicPlacementRecord, ...]
+    schema_version: Literal["puyo.nextgen.public_placements.v1"] = "puyo.nextgen.public_placements.v1"
+
+    def _validate(self):
+        if self.player_id not in (0, 1) or self.started_tick < 0:
+            raise ValueError("invalid placement history origin")
+        if any(r.player_id != self.player_id or r.tick < self.started_tick for r in self.records):
+            raise ValueError("placement outside history scope")
+        if any(a.tick >= b.tick for a, b in zip(self.records, self.records[1:])):
+            raise ValueError("placement history must be strictly ordered")
+
+
 class PublicVersusSnapshotAdapter:
     """Opt-in per-match public history, observed after authoritative tick resolution.
 
@@ -135,19 +175,34 @@ class PublicVersusSnapshotAdapter:
     no pre-install events are fabricated. Reset creates a fresh adapter. IDs are
     unique within this installation/episode, ordered by tick, player, event kind.
     """
-    def __init__(self):
+    def __init__(self, *, started_tick=0):
         self._events: list[PublicEvent] = []
         self._arrivals: set[str] = set()
         self._packet_events: list[PublicPacketEvent] = []
         self._resolutions: list[PublicResolutionEvent] = []
         self._before_attacks = {}
         self._before_drop = {}
+        self._started_tick = started_tick
+        self._before_pairs = {}
+        self._placements: list[PublicPlacementRecord] = []
 
     def timing_history(self) -> PublicTimingHistory:
         return PublicTimingHistory(tuple(self._packet_events), tuple(self._resolutions))
 
+    def placement_history(self, player_id=0) -> PublicPlacementHistory:
+        return PublicPlacementHistory(player_id, self._started_tick,
+                                      tuple(r for r in self._placements if r.player_id == player_id))
+
     def before_tick(self, match) -> None:
         self._before_attacks = {agent: self._packets(match, agent) for agent in match.possible_agents}
+        # Only current colors, already exposed by snapshot(); never field,
+        # future queue, garbage RNG or intended/adopted controller actions.
+        self._before_pairs = {}
+        for agent in match.possible_agents:
+            game = match.player_states[agent].simulator.game
+            if game.state == "control" and game.current_puyo_1 and game.current_puyo_2:
+                self._before_pairs[agent] = tuple(_COLOR_TO_CELL[p.color]
+                    for p in (game.current_puyo_1, game.current_puyo_2))
 
     def _packet_event(self, player_id, tick, kind, packet, amount):
         self._packet_events.append(PublicPacketEvent(
@@ -223,6 +278,12 @@ class PublicVersusSnapshotAdapter:
             for event in step.events:
                 if event.type == "lock":
                     emit(player_id, "placement")
+                    pair = self._before_pairs.get(agent)
+                    if pair is not None:
+                        action = placement_to_action_index(PlacementAction(
+                            event.data["axis_x"], Direction[event.data["rotation"]]))
+                        self._placements.append(PublicPlacementRecord(
+                            f"{result.tick}:{player_id}:lock", player_id, result.tick, action, pair))
                 elif event.type == "resolution_complete":
                     diagnostic = result.attack_diagnostics[agent]
                     self._resolutions.append(PublicResolutionEvent(
