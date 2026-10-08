@@ -199,7 +199,7 @@ def measure_reference(policy, seed, placements):
     for _ in range(30000):
         try:
             value = {} if match.ending else {'player_0': controller.next_input(match, 'player_0')}
-        except ValueError as exc:
+        except ValueError:
             if policy.rejected_decision is None:
                 raise
             errors.append(policy.rejected_decision | {'tick': match.tick})
