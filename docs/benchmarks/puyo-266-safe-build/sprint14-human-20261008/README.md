@@ -53,7 +53,7 @@ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
 
 ## 採用しなかった control 探索
 
-全後続 root に公開 geometry BFS を追加し，control-state 展開を placement/drop と同じ 128 枠へ課金した試作は，正常 GTR 123/28 で cutoff を起こした．14 テスト中 5 件が失敗したため，runtime へは採用していない．patch/JSON/失敗ログを保存し，正常ケースの期待値は変更していない．
+全後続 root に公開 geometry BFS を追加し，control-state 展開を placement/drop と同じ 128 枠へ課金した試作は，正常 GTR 123/28 で cutoff を起こした．14 テスト中 5 件が失敗したため，runtime へは採用していない．[棄却 patch（gzip）](rejected-control-prototype.patch.gz)/JSON/失敗ログを保存し，正常ケースの期待値は変更していない．
 
 | 入力 | placement / control | 結果 |
 | --- | --- | --- |
@@ -129,3 +129,14 @@ cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibil
 ```
 
 次の独立検証は，公開 placement 履歴と連続する可視 snapshot から自配置の hidden 占有を推定する契約である．確定可能／推定／unknown，visible 整合，episode/reset，midgame，stale/未 lock，clear/おじゃま着弾による失効を区別する．123/28，127/26，135/34→35→36 と上記 4 seed を最小 fixture にする．その後に順位順証明の共有課金，cache の provenance/失効，cutoff を fatal にしない選択規則を検証する．132/30 と 135/34 は一般 BFS の単純追加では収まらない費用反例として保持する．共有 worker/scheduler 契約変更，43 回帰/383 判断全体の非回帰，正式 G2，人間 GUI QA は別途必要である．
+
+## 棄却 patch の可逆保存
+
+`rejected-control-prototype.patch.gz` は元 patch bytes を変更せず gzip 化したもの．patch の context 行末空白を資料側で整形せず，repository の差分 whitespace 検査と適用再現性を両立する．`rejected-control-prototype-manifest.json` に圧縮前後の bytes/SHA-256 と適用元 commit，元/適用後ソースの SHA-256 を記録した．別の一時ディレクトリで `git apply --check`，適用，逆適用による元ソース復元を確認した．製品コードと測定 raw は変更していない．
+
+元 patch は以下で復元できる．これは棄却した実験の証拠であり，作業中の製品コードへ適用しない．適用再現は manifest の base revision から取り出した `agents/nextgen_survival.py` を一時ディレクトリに置いて行う．
+
+```bash
+gzip -dc docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-control-prototype.patch.gz > /tmp/puyo266-rejected-control-restored.patch
+sha256sum /tmp/puyo266-rejected-control-restored.patch
+```
