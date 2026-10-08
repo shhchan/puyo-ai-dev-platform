@@ -1,0 +1,94 @@
+{
+  "runtime_source": "0633af0bf3c4d1bda41c8be6b1053049aa0bc93b",
+  "extended_git_head": "72efe8a",
+  "scope": "fixed public fixtures and independent normal human runs; G2 remains blocked",
+  "tests": 140,
+  "legacy_decisions": 383,
+  "files": [
+    {
+      "path": "landed-recovery-audit.py",
+      "bytes": 3816,
+      "sha256": "18cb7d93ac7dd826a33a7e55ffb6da22bd9e724a0d3ef7cc9557618fff992915"
+    },
+    {
+      "path": "landed-recovery-audit.json.gz",
+      "bytes": 4855,
+      "sha256": "b92dc365dfe55c987c6269d633575a2db119103f97caa6dd8ce33e266cab142d"
+    },
+    {
+      "path": "landed-recovery-tests.txt",
+      "bytes": 213,
+      "sha256": "0f563c01e77d9425f9a632b484609f9a9d6b8e798c7e6ff3fe178b9df1ad92ef"
+    },
+    {
+      "path": "recovery-run-audit.py",
+      "bytes": 7597,
+      "sha256": "2f5a872d152e531b0f266422317df136e4671cb76316e150876e66cca773a63c"
+    },
+    {
+      "path": "archive-stream.py",
+      "bytes": 3317,
+      "sha256": "766b89e0f200266bf10a0a499c7724ea047b0412e4a2844722d72b9a64241e5a"
+    },
+    {
+      "path": "landed-recovery-human/audit.json.gz",
+      "bytes": 293500,
+      "sha256": "3e326c78cb2e81a7b3747ab8fcc980e4c10c3b535aa7159025ce517b3f81fd7f"
+    },
+    {
+      "path": "landed-recovery-human/ledger.json.gz",
+      "bytes": 425248,
+      "sha256": "bc1f4c3c67e878e0d50babc13671e6b24d232ce0f0bb6447f59a7f86f1081c4d"
+    },
+    {
+      "path": "landed-recovery-human/originals.json",
+      "bytes": 616,
+      "sha256": "d425afbca5f77b845b43990b8e81b3543e77b96c1955dd29440bebdd1e7d67a0"
+    },
+    {
+      "path": "landed-recovery-human/recovery-summary.json",
+      "bytes": 17713,
+      "sha256": "1247b984a879ae8d0573fea07334b2ef9806123975273ae0c355a4e9a3903a97"
+    },
+    {
+      "path": "landed-recovery-human/replay.json.gz",
+      "bytes": 179641,
+      "sha256": "5075e57fb7bdcbd3ce56090d2286bcaf909c608ba875c8fdb5fc5fa310b720ab"
+    },
+    {
+      "path": "landed-recovery-human/report.json.gz",
+      "bytes": 1098090,
+      "sha256": "e001ba60ffa425f7ea8f6b1835541a8533c1aa52c4bdaebc2849b2c212432eeb"
+    },
+    {
+      "path": "landed-recovery-extended/audit.json.gz",
+      "bytes": 393997,
+      "sha256": "8925a1c80e5082c75647c88c96a5ac07f0875989b3fd6999fb136097aa1dae32"
+    },
+    {
+      "path": "landed-recovery-extended/ledger.json.gz",
+      "bytes": 579983,
+      "sha256": "fc13c4c17e28294ef3e0bfc09602078753ada15058d3da4e77f8e4abfdd4eee6"
+    },
+    {
+      "path": "landed-recovery-extended/originals.json",
+      "bytes": 635,
+      "sha256": "d2501447365d16ff870c7b3834dbe3135cf453f4f31a53bbdc542ef8490f14ad"
+    },
+    {
+      "path": "landed-recovery-extended/recovery-summary.json",
+      "bytes": 24104,
+      "sha256": "9e0c7284b3528286c93f87eeae0f0c171381a8fb34588ff7f6f03cefe1f5eea4"
+    },
+    {
+      "path": "landed-recovery-extended/replay.json.gz",
+      "bytes": 259121,
+      "sha256": "2a2caee0f5a33ee95db7fe03931c67f3551e72d64d3aa6cb04c89395d003f70b"
+    },
+    {
+      "path": "landed-recovery-extended/report.json.gz",
+      "bytes": 1493243,
+      "sha256": "5dd0b303a7cecab80b619562138526b0b892bf365cd8e8916937e7c742e2df71"
+    }
+  ]
+}

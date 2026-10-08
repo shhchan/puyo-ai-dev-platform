@@ -55,7 +55,7 @@ def execute(req, order, quota=256):
     return result, diagnostics, budget, roots
 
 
-def selection(batch, selected, roots, active):
+def selection(batch, selected, roots, active, recovery_root=None):
     candidates = []
     for candidate in batch.candidates:
         root = roots.get(candidate.root_action)
@@ -69,9 +69,11 @@ def selection(batch, selected, roots, active):
         def rank(cid):
             candidate = by_id[cid]
             safe = value(candidate, 'survival_safe')
-            return (0 if safe == 1 and (not value(candidate, 'survival_root_chain')
+            safety = (0 if safe == 1 and (not value(candidate, 'survival_root_chain')
                     or tactic.tactic_id not in ('build_main', 'build_template')) else 1 if safe == 1
                     else 3 if safe == 0 else 2)
+            return (candidate.root_action != recovery_root, safety) if (
+                recovery_root is not None and tactic.tactic_id == 'build_main') else (safety,)
         ids = tuple(sorted(tactic.candidate_ids, key=rank)) if active else tactic.candidate_ids
         tactics.append(replace(tactic, candidate_ids=ids, best_id=ids[0] if ids else None))
     repaired = replace(batch, candidates=tuple(candidates), tactics=tuple(tactics))
@@ -86,7 +88,7 @@ class InferredSurvivalTests(unittest.TestCase):
         cls.fixtures = fixtures()
 
     def test_fixed_decisions_and_actual_envelope(self):
-        expected = ((1, 62), (11, 100), (3, 91), (15, 87), (None, 18), (8, 117))
+        expected = ((1, 62), (11, 100), (3, 91), (15, 87), (None, 18), (8, 77))
         for name, (root, nodes) in zip(CASES, expected):
             with self.subTest(case=name):
                 req, batch, selected, order = self.fixtures[name]
@@ -97,17 +99,19 @@ class InferredSurvivalTests(unittest.TestCase):
                 self.assertFalse(proof['safety_guarantee'])
                 self.assertEqual(proof['charged']['placement'], 0)
                 self.assertGreater(proof['placement_cache_hits'], 0)
-                actual, reason = selection(batch, selected, roots, diag['active'])
+                recovery = proof.get('landed_garbage_recovery', {}).get('preferred_root')
+                actual, reason = selection(batch, selected, roots, diag['active'], recovery)
                 if root is not None:
                     self.assertEqual(actual, root)
                 if name == 'human-127/26':
                     self.assertEqual(reason, 'legitimate_survival_exception')
                     self.assertEqual(roots[root].root_chain, 4)
-                    self.assertEqual(roots[12].status, 'unknown')
+                    # Recovery priority does not declare an untested quiet root unsafe.
+                    self.assertEqual(roots[12].status, 'witness')
 
     def test_cutoff_is_unknown_and_preserves_finite_horizon_fallback(self):
         req, batch, selected, order = self.fixtures['human-127/26']
-        for quota in (66, 100):
+        for quota in (66, 70):
             result, diag, budget, original = execute(req, order, quota)
             self.assertEqual(budget.nodes, quota)
             self.assertEqual(result, original)
