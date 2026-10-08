@@ -10,7 +10,7 @@ from puyo_env.action_planner import (
     execute_planned_placement, plan_placement_action, planned_inputs_reach_target,
 )
 from puyo_env.actions import PLACEMENT_ACTIONS, action_to_placement
-from puyo_env.realtime_ai import nextgen_authoritative_action_mask
+from puyo_env.realtime_ai import nextgen_authoritative_action_mask, nextgen_plan_is_current
 from src.core.constants import Action, Direction, PuyoColor
 from src.core.headless import HeadlessPuyoSimulator, PlacementAction
 from src.core.puyo import Puyo
@@ -119,6 +119,25 @@ class TimedPlacementTests(unittest.TestCase):
         self.assertFalse(any(nextgen_authoritative_action_mask(source, plan_results=plans)))
         self.assertEqual(plans, {})
 
+    def test_selected_root_proof_rejects_changed_clock_board_and_wrong_action(self):
+        for case in CASES:
+            source = simulator(case)
+            action = action_to_placement(case['action'])
+            plan = plan_placement_action(source, action)
+            before = pickle.dumps(source)
+            self.assertTrue(nextgen_plan_is_current(source, plan, case['action']))
+            self.assertEqual(before, pickle.dumps(source))
+            self.assertFalse(nextgen_plan_is_current(source, plan, (case['action'] + 1) % 22))
+            changed = source.clone()
+            changed._next_gravity_tick += changed.timing.gravity_interval_ticks
+            self.assertFalse(nextgen_plan_is_current(changed, plan, case['action']))
+            changed = source.clone()
+            changed.game.field.place_puyo(action.axis_x, plan.expected_axis_y, Puyo(PuyoColor.RED))
+            self.assertFalse(nextgen_plan_is_current(changed, plan, case['action']))
+            legacy = PlannedPlacement(action, True,
+                tuple(TickInput.from_names(**i) for i in case['old_inputs']), (), plan.expected_axis_y)
+            self.assertFalse(nextgen_plan_is_current(source, legacy, case['action']))
+
     def test_first_lock_before_target_is_fail_closed(self):
         sim = RealtimeHeadlessSimulator(seed=55)
         sim.game.puyo_y = 0
@@ -191,6 +210,10 @@ class TimedPlacementTests(unittest.TestCase):
             (TickInput(release=(Action.RIGHT,)),) + (TickInput(),)*33, (), 0)
         self.assertTrue(planned_inputs_reach_target(source, suffix))
         self.assertFalse(planned_inputs_reach_target(source, suffix, start_index=1))
+        from dataclasses import replace
+        index = PLACEMENT_ACTIONS.index(action)
+        self.assertTrue(nextgen_plan_is_current(source, suffix, index))
+        self.assertFalse(nextgen_plan_is_current(source, replace(suffix, inputs=suffix.inputs[1:]), index))
         before = pickle.dumps(source)
         from puyo_env.realtime_ai import RealtimePolicyController
         from selfplay.policies import FirstLegalPolicy

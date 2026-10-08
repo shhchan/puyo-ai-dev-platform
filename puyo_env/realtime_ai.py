@@ -667,7 +667,9 @@ class RealtimePolicyController:
             outcome="fallback" if pending.record.fallback else "activated",
         )
         if self.nextgen_scheduler is not None:
-            activated_record, pending.plan = self._activate_nextgen(match, agent, activated_record)
+            activated_record, pending.plan = self._activate_nextgen(
+                match, agent, activated_record, pending.plan
+            )
         self._active_plan = pending.plan
         self._active_action_index = activated_record.action_index
         self._input_cursor = 0
@@ -864,11 +866,12 @@ class RealtimePolicyController:
             plan = None
         return _PendingDecision(ready_tick=ready_tick, record=record, plan=plan)
 
-    def _activate_nextgen(self, match, agent, record):
+    def _activate_nextgen(self, match, agent, record, prepared_plan=None):
         """Revalidate the authoritative board and current reachable root now.
 
         Inference latency can move the falling pair or change the public board.
-        Never reuse the plan calculated at worker completion for activation.
+        A completion witness can be reused only after running its inputs against
+        the current live clock and checking the current authoritative legality.
         """
         runtime = self.nextgen_scheduler
         stale = runtime.stale(match)
@@ -889,36 +892,44 @@ class RealtimePolicyController:
             record = runtime.finish(match, record, outcome="stale")
             self.latest_policy_diagnostics = copy.deepcopy(runtime.last_payload)
             return record, None
-        # Keep witnesses only inside this synchronous activation. The mask
-        # proves them against the current clock after the stale check above.
-        plans = {}
-        mask = nextgen_authoritative_action_mask(
-            match.player_states[agent].simulator,
-            timing=self.timing,
-            max_expanded_states=self.config.max_plan_expanded_states,
-            plan_results=plans,
-        )
         action = record.action_index
-        invalid = action is None or not mask[action]
         reason = record.reason
         fallback = record.fallback
-        if stale or invalid:
-            fallback = True
-            reason = (
-                "stale_snapshot_fallback"
-                if stale
-                else "activation_unreachable_fallback"
-            )
-            action = self._fallback_action(mask, match=match, agent=agent, plans=plans)
-            if stale:
-                self.diagnostics.stale_decisions += 1
-            else:
-                self.diagnostics.unreachable_plans += 1
-            if not record.fallback:
-                self.diagnostics.fallback_actions += 1
-        plan = plans.get(action_to_placement(action)) if action is not None else None
+        simulator = match.player_states[agent].simulator
+        # This is an execution proof, not a cached mask or a geometry-only
+        # reachability claim. It replays every pulse/release on a detached live
+        # simulator, including gravity, held/repeat and ground-lock counters.
+        plan = prepared_plan if (
+            not stale and not fallback
+            and nextgen_plan_is_current(simulator, prepared_plan, action)
+        ) else None
         if plan is None:
-            plan = self._plan_action(match, agent, action)
+            # Keep batch witnesses only inside this synchronous activation.
+            plans = {}
+            mask = nextgen_authoritative_action_mask(
+                simulator,
+                timing=self.timing,
+                max_expanded_states=self.config.max_plan_expanded_states,
+                plan_results=plans,
+            )
+            invalid = action is None or not mask[action]
+            if stale or invalid:
+                fallback = True
+                reason = (
+                    "stale_snapshot_fallback"
+                    if stale
+                    else "activation_unreachable_fallback"
+                )
+                action = self._fallback_action(mask, match=match, agent=agent, plans=plans)
+                if stale:
+                    self.diagnostics.stale_decisions += 1
+                else:
+                    self.diagnostics.unreachable_plans += 1
+                if not record.fallback:
+                    self.diagnostics.fallback_actions += 1
+            plan = plans.get(action_to_placement(action)) if action is not None else None
+            if plan is None:
+                plan = self._plan_action(match, agent, action)
         if plan is None or not plan.reachable:
             action, plan, fallback, reason = None, None, True, "no_reachable_fallback"
         placement = action_to_placement(action) if action is not None else None
@@ -1298,6 +1309,16 @@ def nextgen_authoritative_action_mask(
     )
     legal = _turn_based_action_mask(simulator)
     return tuple(bool(a and b) for a, b in zip(legal, reachable, strict=True))
+
+
+def nextgen_plan_is_current(simulator, plan, action_index):
+    """Prove one selected root on the live board without exploring other roots."""
+    if (plan is None or not plan.reachable or action_index is None
+            or not 0 <= action_index < NUM_ACTIONS
+            or plan.action != action_to_placement(action_index)
+            or simulator.game.state != "control" or simulator.game.game_over):
+        return False
+    return bool(_turn_based_action_mask(simulator)[action_index]) and planned_inputs_reach_target(simulator, plan)
 
 
 def build_realtime_observation(

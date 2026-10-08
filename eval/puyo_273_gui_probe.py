@@ -128,6 +128,7 @@ def run(args):
             wrap(controller, name, name)
         wrap(controller.env, "step", "simulation")
         wrap(ai, "nextgen_authoritative_action_mask", "authoritative_mask")
+        wrap(ai, "nextgen_plan_is_current", "authoritative_plan_proof")
         for agent, item in controller.controllers.items():
             wrap(item, "next_input", "next_input_" + agent)
             wrap(item.diagnostics, "to_dict", "controller_diagnostics_" + agent)
