@@ -313,6 +313,27 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
     ordered = list(dict.fromkeys((*ranked_roots, *results)))
     ordered.sort(key=lambda a: 0 if a in results and results[a].status == "witness"
                  and not results[a].root_chain else 1)
+    # Landed garbage remains pressure after the incoming packet disappears.
+    # Only inspect already charged root transitions. Pending/unknown input
+    # cannot establish this recovery preference, and a quiet witness is not
+    # thereby declared fatal. The usual control/terminal proof is still needed.
+    recovery = {}
+    if (request.known_inference() is not None and state.planes[5]
+            and not any(p.amount and p.landed_tick is None for p in request.public.own.attack_packets)
+            and any(v.status == "fatal" and request.execution.reachable_mask[a]
+                    for a, v in results.items())):
+        for action, root in results.items():
+            result = transition_cache.get((state, pairs[0], action))
+            if (root.status == "witness" and root.root_chain
+                    and request.execution.reachable_mask[action] and result is not None
+                    and result.valid and not result.game_over and result.chain_count > 0
+                    and result.garbage_cleared_count > 0
+                    and result.state.planes[5].bit_count() < state.planes[5].bit_count()):
+                recovery[action] = result
+        rank = {action: index for index, action in enumerate(ordered)}
+        preferred = sorted(recovery, key=lambda a: (
+            -recovery[a].garbage_cleared_count, -recovery[a].chain_count, rank[a]))
+        ordered = preferred + [a for a in ordered if a not in recovery]
     trials, failed, certified, cache_hits, cutoff = [], [], None, 0, False
     for action in ordered:
         root = results.get(action)
@@ -360,6 +381,15 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
         "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
         "safety_guarantee": False, "fallback": certified is None,
     }
+    if recovery:
+        recovered = recovery.get(certified)
+        details["landed_garbage_recovery"] = {
+            "eligible_roots": preferred,
+            "preferred_root": certified if recovered is not None else None,
+            "garbage_before": state.planes[5].bit_count(),
+            "garbage_removed": recovered.garbage_cleared_count if recovered is not None else None,
+            "scope": "build_main_only; bounded_control_and_terminal; not_long_term_safety",
+        }
     return refined, {**diagnostics, "source": "public_history_inference",
                      "nodes": budget.nodes - start_nodes, "control_proof": details,
                      "active": diagnostics.get("active", False) or (certified is not None and bool(failed)),

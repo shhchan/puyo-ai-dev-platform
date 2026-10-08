@@ -239,3 +239,25 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 保存scriptの再実行結果は各JSON gzipと完全一致する．source置換は診断 interpreter の関数コピー内だけで行い，製品ファイルを編集しない．`rejected-stage-manifest.json` に保存物のhashを記録した．追加runtimeなし，正式G2/人間QA未達，In Progress/draftを維持する．
 
 最終 source の関連 136 tests はすべて成功した（`runtime-final-tests.txt`）．3 案の保存 script の再実行 JSON は gzip 原本と bytes 一致，Ruff と diff check も成功した．
+
+## 着弾済みおじゃまの回復順位
+
+`ce44f6e` の新規 human127 では，受け取った 30 個が残っているのに，incoming packet が消えた後の有限 witness が静かな構築を優先していた．公開推定が known，未着弾 packet なし，到達可能な fatal root が存在し，すでに課金済みの即時・非 fatal 消去が実際におじゃまを減らす場合だけ，回復候補の control/terminal 証明を先に行う．減少数，連鎖数，元順位の順に比較し，認証できた 1 root を `build_main` の先頭へ置く．他 tactic と untested な静的 witness は維持する．128/response256 は増やさず，cutoff/unknown は従来経路へ戻す．有限 prefix と追加 1 配置の証明であり，長期生存の保証ではない．
+
+| 保存判断 | 旧選択 → 回復選択 | 即時連鎖 | おじゃま減少 | 合計 nodes |
+| --- | --- | --- | --- | --- |
+| 新規 127/17 | 18 → 12 | 1 | 6 | 82 |
+| 新規 127/21 | 19 → 5 | 2 | 9 | 87 |
+| 新規 127/23 | 19 → 21 | 3 | 14 | 78 |
+| 新規 127/27 | 3 → 17 | 4 | 14 | 73 |
+| 新規 127/28 | 19 → 17 | 4 | 14 | 68 |
+| 新規 127/29 | 15 → 17 | 3 | 14 | 38 |
+
+保存済み 228 判断の実 `apply_envelope` 比較で変化は上記 6 件だけだった．おじゃま 0 の 207 判断は証明・選択・node 数まで一致し，現固定 55/123/124/126/128 の全 199 判断を含む．pending 1 判断は推定不適用の旧経路である．旧 127/26 は root8 の 4 連鎖を維持し，117 → 77 nodes．正常 123/28，132/30，135/34–36 は既存の証明結果を維持した．元 G2 corpus 383 判断はすべておじゃま 0，legacy probe/evidence 比較も既存原本と完全一致した．128/38 などのおじゃま 0 の残差をこの変更で修正したとは扱わない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_landed_recovery tests.test_nextgen_inferred_survival -q
+```
+
+`landed-recovery-audit.py` と `landed-recovery-audit.json.gz` は公開 request と保存 candidate を使用する比較である．baseline の survival 関数だけを `ce44f6e` から独立 namespace へ読み，native/対局は実行しない．offline 完全盤面は診断専用・runtime 入力ではない．この比較では完全盤面も使用しない．関連 140 tests，Ruff，diff check が成功した．新規対局の窒息回避はこの固定判断比較だけでは未検証である．G2 と人間 QA は未達のまま維持する．
