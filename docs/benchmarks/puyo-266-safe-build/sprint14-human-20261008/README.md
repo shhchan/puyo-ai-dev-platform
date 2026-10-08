@@ -261,3 +261,25 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 `landed-recovery-audit.py` と `landed-recovery-audit.json.gz` は公開 request と保存 candidate を使用する比較である．baseline の survival 関数だけを `ce44f6e` から独立 namespace へ読み，native/対局は実行しない．offline 完全盤面は診断専用・runtime 入力ではない．この比較では完全盤面も使用しない．関連 140 tests，Ruff，diff check が成功した．新規対局の窒息回避はこの固定判断比較だけでは未検証である．G2 と人間 QA は未達のまま維持する．
+
+### 回復順位を含む新規 normal 3500 tick 測定
+
+source `0633af0` を clean に固定し，同じ seed127/policy58/daa/softmax1.0/x1.0，固定 human 入力，目標 60 配置/max_ticks3500 で単独測定した．3500 tick/68.992 秒，44 採用/5 stale/fallback0，43 実 lock，両者 game_over=false だった．終了直前の判断49は tick 上限による未 lock であり，60 配置の完走とは扱わない．decision p50/p95 は 0.244/0.403 秒．全 tick/最終 hash と 43 実 lock が一致し，49 request の推定 hidden と offline 実盤面の不一致0，quota 超過0だった．
+
+| 判断 | 回復 root | 合計 nodes | 実連鎖 | 予測/実おじゃま減少 |
+| --- | --- | --- | --- | --- |
+| 19 | 12 | 75 | 1 | 5/5 |
+| 28 | 10 | 73 | 1 | 2/2 |
+| 30 | 12 | 71 | 3 | 4/4 |
+| 39 | 20 | 94 | 5 | 13/13 |
+
+2P は tick143 の全消し時送信0，tick690 に bonus を使い32個送信．今回は1Pが相殺せず，tick722に30個，803に2個を受けた．4回の回復で計24個を消し，終了時8個が残った．前回 ce44f6e との差は途中の公開入力・着弾・判断時刻にも及ぶため，43対30を改善量とは扱わない．raw の input prefix は tick100 で初めて相違し，採用順9件目で候補順位・10件目で選択 action が異なる．各run自身のreplayは全hash一致だが，run間の同一prefixではない．元手動対局とも同定しない．
+
+保存先は `landed-recovery-human/`．report/ledger/replay/audit gzip と原本 SHA，`recovery-summary.json` を含む．完全盤面は offline 監査だけに使う．再監査は次のとおり．
+
+```bash
+.venv/bin/python -m eval.nextgen_realtime_audit --report docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human/report.json.gz --replay docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human/replay.json.gz --output /tmp/puyo266-recovery-audit.json
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inference-v1-human /tmp/puyo266-recovery-summary.json
+```
+
+60配置までの新規延長条件は別runで確認する．本結果を一般的な窒息解消，正式G2 PASS，人間GUI QA成功とは表現しない．

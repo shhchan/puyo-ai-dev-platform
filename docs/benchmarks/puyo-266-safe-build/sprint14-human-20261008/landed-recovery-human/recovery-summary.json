@@ -1,0 +1,836 @@
+{
+  "source": "0633af0bf3c4d1bda41c8be6b1053049aa0bc93b",
+  "source_changed": false,
+  "baseline_source": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+  "scope": "new normal run, wall-clock dependent; not paired policy A/B",
+  "ticks": 3500,
+  "elapsed_seconds": 68.99210316300014,
+  "target_placements": 60,
+  "actual_locks": 43,
+  "outcomes": {
+    "activated": 44,
+    "stale": 5
+  },
+  "fallbacks": 0,
+  "game_over": {
+    "player_0": false,
+    "player_1": false
+  },
+  "final_hash_verified": "cbae0648e8ee2183e130235ada36a52693543312bf897566ea8cfe8a551d5e8f",
+  "lock_mismatches": [],
+  "unlocked": [
+    49
+  ],
+  "unattributed": [],
+  "quota_violations": [],
+  "decision_seconds": {
+    "p50": 0.24384644800011301,
+    "p95": 0.4030752679995203,
+    "max": 0.43498744099997566
+  },
+  "inference_comparisons": [
+    {
+      "decision": 1,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 2,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 3,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 4,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 5,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 6,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 7,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 8,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 9,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 10,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 11,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 12,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 13,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 14,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 15,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 16,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 17,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 18,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 19,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 20,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 21,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 22,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 23,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 24,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 25,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 26,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 27,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 28,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 29,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 30,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 31,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 32,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 33,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 34,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 35,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 36,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 37,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 38,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 39,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 40,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 41,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 42,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 43,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 44,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 45,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 46,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 47,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 48,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 49,
+      "known": true,
+      "offline_hidden_match": true
+    }
+  ],
+  "recoveries": [
+    {
+      "decision": 19,
+      "selected": 12,
+      "preferred": 12,
+      "nodes": 75,
+      "predicted_removed": 5,
+      "actual_removed": 5,
+      "actual_chain": 1,
+      "lock_tick": 1121,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 1166,
+          "before": 32,
+          "after": 27,
+          "dropped": 0
+        }
+      ]
+    },
+    {
+      "decision": 28,
+      "selected": 10,
+      "preferred": 10,
+      "nodes": 73,
+      "predicted_removed": 2,
+      "actual_removed": 2,
+      "actual_chain": 1,
+      "lock_tick": 1693,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 1738,
+          "before": 27,
+          "after": 25,
+          "dropped": 0
+        }
+      ]
+    },
+    {
+      "decision": 30,
+      "selected": 12,
+      "preferred": 12,
+      "nodes": 71,
+      "predicted_removed": 4,
+      "actual_removed": 4,
+      "actual_chain": 3,
+      "lock_tick": 1856,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 1945,
+          "before": 25,
+          "after": 24,
+          "dropped": 0
+        },
+        {
+          "tick": 1990,
+          "before": 24,
+          "after": 21,
+          "dropped": 0
+        }
+      ]
+    },
+    {
+      "decision": 39,
+      "selected": 20,
+      "preferred": 20,
+      "nodes": 94,
+      "predicted_removed": 13,
+      "actual_removed": 13,
+      "actual_chain": 5,
+      "lock_tick": 2566,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 2597,
+          "before": 21,
+          "after": 18,
+          "dropped": 0
+        },
+        {
+          "tick": 2641,
+          "before": 18,
+          "after": 15,
+          "dropped": 0
+        },
+        {
+          "tick": 2685,
+          "before": 15,
+          "after": 11,
+          "dropped": 0
+        },
+        {
+          "tick": 2730,
+          "before": 11,
+          "after": 9,
+          "dropped": 0
+        },
+        {
+          "tick": 2774,
+          "before": 9,
+          "after": 8,
+          "dropped": 0
+        }
+      ]
+    }
+  ],
+  "garbage_events": [
+    {
+      "tick": 722,
+      "before": 0,
+      "after": 30,
+      "dropped": 30
+    },
+    {
+      "tick": 803,
+      "before": 30,
+      "after": 32,
+      "dropped": 2
+    },
+    {
+      "tick": 1166,
+      "before": 32,
+      "after": 27,
+      "dropped": 0
+    },
+    {
+      "tick": 1738,
+      "before": 27,
+      "after": 25,
+      "dropped": 0
+    },
+    {
+      "tick": 1945,
+      "before": 25,
+      "after": 24,
+      "dropped": 0
+    },
+    {
+      "tick": 1990,
+      "before": 24,
+      "after": 21,
+      "dropped": 0
+    },
+    {
+      "tick": 2597,
+      "before": 21,
+      "after": 18,
+      "dropped": 0
+    },
+    {
+      "tick": 2641,
+      "before": 18,
+      "after": 15,
+      "dropped": 0
+    },
+    {
+      "tick": 2685,
+      "before": 15,
+      "after": 11,
+      "dropped": 0
+    },
+    {
+      "tick": 2730,
+      "before": 11,
+      "after": 9,
+      "dropped": 0
+    },
+    {
+      "tick": 2774,
+      "before": 9,
+      "after": 8,
+      "dropped": 0
+    }
+  ],
+  "actual_clears": [
+    [
+      19,
+      1
+    ],
+    [
+      28,
+      1
+    ],
+    [
+      30,
+      3
+    ],
+    [
+      39,
+      5
+    ]
+  ],
+  "attack_events": [
+    {
+      "player": "player_1",
+      "type": "resolution_complete",
+      "tick": 143,
+      "score_delta": 41,
+      "attack_score_delta": 64,
+      "chain_end_score": 64,
+      "chain_count": 1,
+      "game_over": false,
+      "all_clear_achieved": true,
+      "all_clear_bonus_pending": true,
+      "all_clear_bonus_consumed": false,
+      "all_clear_bonus_score": 0,
+      "attack": {
+        "generated": 0,
+        "canceled": 0,
+        "outgoing": 0,
+        "attack_score_delta": 64,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0
+      }
+    },
+    {
+      "player": "player_1",
+      "type": "resolution_complete",
+      "tick": 690,
+      "score_delta": 2141,
+      "attack_score_delta": 2220,
+      "chain_end_score": 2284,
+      "chain_count": 1,
+      "game_over": false,
+      "all_clear_achieved": false,
+      "all_clear_bonus_pending": false,
+      "all_clear_bonus_consumed": true,
+      "all_clear_bonus_score": 2100,
+      "attack": {
+        "generated": 32,
+        "canceled": 0,
+        "outgoing": 32,
+        "attack_score_delta": 2220,
+        "all_clear_bonus_consumed": true,
+        "all_clear_bonus_score": 2100
+      }
+    },
+    {
+      "type": "drop",
+      "player": "player_0",
+      "tick": 722,
+      "amount": 30
+    },
+    {
+      "type": "drop",
+      "player": "player_0",
+      "tick": 803,
+      "amount": 2
+    }
+  ],
+  "prefix_comparison": {
+    "inputs_first_different_tick": 100,
+    "snapshot_hash_first_different_tick": 100
+  },
+  "activation_order_comparisons": [
+    {
+      "lock_index": 1,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 0,
+      "action": 0
+    },
+    {
+      "lock_index": 2,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 16,
+      "action": 16
+    },
+    {
+      "lock_index": 3,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 14,
+      "action": 14
+    },
+    {
+      "lock_index": 4,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 14,
+      "action": 14
+    },
+    {
+      "lock_index": 5,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 19,
+      "action": 19
+    },
+    {
+      "lock_index": 6,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 12,
+      "action": 12
+    },
+    {
+      "lock_index": 7,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 7,
+      "action": 7
+    },
+    {
+      "lock_index": 8,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 2,
+      "action": 2
+    },
+    {
+      "lock_index": 9,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 15,
+      "action": 15
+    },
+    {
+      "lock_index": 10,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 19
+    },
+    {
+      "lock_index": 11,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 8,
+      "action": 12
+    },
+    {
+      "lock_index": 12,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 21,
+      "action": 5
+    },
+    {
+      "lock_index": 13,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 18,
+      "action": 15
+    },
+    {
+      "lock_index": 14,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 3,
+      "action": 12
+    },
+    {
+      "lock_index": 15,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 5,
+      "action": 18
+    },
+    {
+      "lock_index": 16,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 0,
+      "action": 3
+    },
+    {
+      "lock_index": 17,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 19,
+      "action": 19
+    },
+    {
+      "lock_index": 18,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 8
+    },
+    {
+      "lock_index": 19,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 21
+    },
+    {
+      "lock_index": 20,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 10,
+      "action": 8
+    },
+    {
+      "lock_index": 21,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 1,
+      "action": 4
+    },
+    {
+      "lock_index": 22,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 0,
+      "action": 0
+    },
+    {
+      "lock_index": 23,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 3,
+      "action": 10
+    },
+    {
+      "lock_index": 24,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 7
+    },
+    {
+      "lock_index": 25,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 12
+    },
+    {
+      "lock_index": 26,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 13,
+      "action": 12
+    },
+    {
+      "lock_index": 27,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 9,
+      "action": 13
+    },
+    {
+      "lock_index": 28,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 3,
+      "action": 7
+    },
+    {
+      "lock_index": 29,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 11,
+      "action": 6
+    },
+    {
+      "lock_index": 30,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 7,
+      "action": 15
+    }
+  ]
+}
