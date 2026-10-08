@@ -4,6 +4,8 @@
 
 2026-10-08 の Sprint 14 再開状況は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) に追記した．以下の旧 PR 番号・旧観測値より，新しい実行表と Jira/GitHub の現在値を優先する．
 
+最上段の結合 GUI 機械 QA は [8 run の raw／集計](../benchmarks/puyo-274-sprint14-combined-20261008/README.md)で確認できる．PUYO-266 の新しい公開推定を含むが，seed 127／128 の窒息と正式 G2 FAIL は残り，修正後の人間 GUI QA は結果待ちである．
+
 記録日：2026-09-28．窓口は [PUYO-274](https://shhchan.atlassian.net/browse/PUYO-274)，親は PUYO-228．今回はノート PC 上の資料保存・レビュー整備まで．残る生存品質・先読み表示・性能・正式品質はデスクトップで再開する．本資料の完成だけで PUYO-274/266/269/273 を COMPLETE にしない．
 
 ## 1. 保存した成果と最新値

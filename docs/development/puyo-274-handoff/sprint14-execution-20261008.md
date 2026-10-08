@@ -77,3 +77,13 @@ cd /home/sion2000114/workspaces/dev/puyo-s14-274
 固定 source／設定の最終 16 GUI run では，frame／input の p95 ≤ 25 ms，p99 ≤ 50 ms を全条件で通過した．両側 frame p95／p99 は 23.13／29.98 ms，再計測 24.35／35.22 ms，minimal 22.25／41.63 ms．最小 p95 余裕は 0.65 ms であり，別環境の安定保証ではない．証跡は `docs/benchmarks/puyo-269-mask-allocation/` に保存した．追加 head を PUYO-274 最上段へ履歴保持 merge した head は `ecad2500e74aeb4ad33c60a8be2371c67cf97706`．ここで主要 80 tests，GUI 53 tests，Ruff，差分検査，保存 raw verifier が通過した．
 
 PUYO-269／273 は修正後の実人間 GUI QA が未確認のため draft／In Progress を維持する．PUYO-266 の公開盤面に基づく生存修正は継続中であり，正式 G2 PASS も未確認．この段落の機械 QA は PUYO-266 の次の runtime 変更を含まないため，最終 head で再検証する．
+
+## 最終結合更新（PUYO-266 の公開推定後）
+
+PUYO-266 の [draft PR #178](https://github.com/shhchan/puyo-ai-dev-platform/pull/178) は head `15aed37b005d9c8410a395511cdfbc178ff2caf6`．公開の実 lock 履歴と visible snapshot から自分の hidden 2 行だけを確定できるときに推定し，request.v2 へ episode を照合して bind した．旧 request.v1 の wire/digest を保ち，native／actor 入力へ推定 hidden セルを渡さない．後続 control と追加 1 配置の有限証明を survival 128／response 256 の中で課金し，証明不能・打切りは unknown として従来経路へ戻す．
+
+保存 133 判断の公開推定と offline 実盤面の不一致 0，関連 136 tests，legacy 383 判断の evidence 比較は成功．新規固定 native 5 対局では正常 GTR 55／123／124 が最大実連鎖 10／10／11，小発火 0，非窒息，旧入力列・最終 hash と一致した．126 は旧 36 配置の窒息から 40 配置生存へ変わったが，小発火 2／最大 1 連鎖．128 は 39 配置で窒息が残る．元の人間対局とは異なる固定 2P 入力による normal127／policy58／daa／softmax1.0／x1.0 でも，1P は 30 lock 後に窒息した．全 34 request の推定と offline 実盤面，30 実 lock，全 tick／最終 hash は一致した．追加の cache／公開 known plan／段階化の案は 128／127 を直せず正常 seed を退行させるため棄却した．正式 G2 は既存の FAIL／BLOCKED を維持し，再計測 60 run で PASS とは宣言しない．Jira 266 は In Progress，コメント 10812 を同一セッション内で編集済み．
+
+親が #178 の確定 head を #180→#181→#182 へ履歴保持 merge した．GitHub PR merge／release／reviewer 指定／force-push はしていない．最上段で PUYO-266 を含む 23 module／229 tests，変更 Python の Ruff，統合差分検査，PUYO-268 の raw 9 件／120 判断 verifier が成功．結合 GUI 測定 source `cd299d7c2e25cf10c1130fb94ba0bc3f134c31ce` で，#269 の変更後 8 条件を新たに逐次測定し，frame／input p95 ≤ 25 ms／p99 ≤ 50 ms を全件通過した．両側 frame p95／p99 は 22.65／44.86 ms，再計測 24.04／34.18 ms，minimal 23.87／31.77 ms．全 8 run の source file fingerprint／native／host は一致し，実 lock 不一致，scheduler error，timeout，fallback は各 0，cleanup は全件成功．[raw／集計](../../benchmarks/puyo-274-sprint14-combined-20261008/README.md)を保存して再集計 verifier が通過した．最大 p95 余裕は約 0.96 ms．この機械結果は人間 GUI QA の代替ではない．
+
+PUYO-264／268 は Complete．PUYO-266 は窒息と G2 品質が未達．PUYO-269／273 は最終 head の機械 gate は通過したが，修正後の人間 GUI QA が未確認．PUYO-274 は依存する生存・正式品質・人間 QA が未達．後 4 件は draft PR／Jira In Progress を維持する．依頼者は最上段での人間 GUI QA を実施して結果を報告すると回答済みで，完了前にこの最上段の起動先を案内する．
