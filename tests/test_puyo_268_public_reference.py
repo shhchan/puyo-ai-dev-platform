@@ -1,5 +1,7 @@
 """Fair comparison boundary tests; no reference-budget search needed."""
 import copy
+import json
+import numpy as np
 import unittest
 from dataclasses import replace
 
@@ -58,6 +60,14 @@ class PublicReferenceTests(unittest.TestCase):
         self.assertIs(reference._compact_state_from_observation, before_state)
         self.assertIs(reference._visible_decision_seed, before_seed)
         self.assertEqual(self.policy.flow.step_ids, reference.DeepChainBuildFlow().step_ids)
+
+    def test_realtime_numpy_input_is_serializable(self):
+        observation, info = observation_from_request(self.request)
+        observation['next_pairs'] = np.array(observation['next_pairs'])
+        info['action_mask'] = np.array(info['action_mask'])
+        normalized = public_observation(observation, info)
+        self.assertEqual(json.loads(json.dumps(normalized))[1]['action_mask'],
+                         list(self.request.execution.reachable_mask))
 
     def test_budget_mismatch_is_rejected(self):
         self.policy.profile = replace(self.policy.profile, max_expanded_nodes=45)

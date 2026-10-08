@@ -42,9 +42,9 @@ def public_observation(observation, info):
         channel[0] = [0] * 6  # row 13 is also outside nextgen's 12 visible rows
     return {
         'own_board': board, 'ghost_row': None,
-        'next_pairs': copy.deepcopy(observation['next_pairs']),
+        'next_pairs': reference._plain_nested(observation['next_pairs']),
     }, {
-        'action_mask': list(info['action_mask']),
+        'action_mask': [bool(value) for value in info['action_mask']],
         'all_clear_bonus_pending': bool(info.get('all_clear_bonus_pending', False)),
     }
 
