@@ -429,6 +429,7 @@ class PublicBoardInference(Contract):
     hidden_rows: tuple[tuple[int | None, ...], ...]
     reason: str
     request_digest: str | None = None
+    origin_episode_id: str | None = None
     schema_version: Literal["puyo.nextgen.public_inference.v1"] = "puyo.nextgen.public_inference.v1"
 
     def _validate(self):
@@ -442,6 +443,8 @@ class PublicBoardInference(Contract):
             _identifier(self.last_lock_id)
         if self.request_digest is not None:
             _digest(self.request_digest)
+        if self.origin_episode_id is not None:
+            _identifier(self.origin_episode_id)
         cells = tuple(v for row in self.hidden_rows for v in row)
         _require(all(v in range(len(PUBLIC_CELL_TO_COLOR)) for v in cells) if self.status == "known"
                  else all(v is None for v in cells), "inference certainty/cell mismatch")
@@ -477,6 +480,7 @@ class NextgenRequest(Contract):
     def known_inference(self):
         value = self.inference
         if (value is None or value.status != "known" or self.public.own.phase != "control" or
+                value.episode_id != self.identity.episode_id or value.origin_episode_id is None or
                 value.player_id != self.identity.player_id or
                 value.observed_tick != self.execution.request_tick or
                 value.visible_digest != semantic_digest(self.public.own.visible_board) or

@@ -160,4 +160,5 @@ class PublicInferenceTracker:
             "known" if known else "unknown",
             self.board[12:] if known else ((None,) * 6,) * 2,
             self.reason if self.pending is None else "unsettled",
+            origin_episode_id=self.episode_id,
         )

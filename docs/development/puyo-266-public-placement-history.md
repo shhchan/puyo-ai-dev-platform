@@ -58,3 +58,5 @@ terminal は追加 1 配置の色に依存しない十分条件である．中�
 probe + control + cache miss placement + terminal の合計を既存 survival 128 内で事前課金し，残った response 256 の枠だけを response provider に渡す．証明が cutoff/unknown で終わった場合は `control_proof.status` を明示し，元の有限 horizon envelope に戻す．この fallback の bounded witness を terminal 証明や長期安全へ昇格させない．`safety_guarantee=False` を維持する．
 
 固定 6 判断の結果は [監査 JSON](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.json)．関連 135 tests（既存 43 を含む）と legacy 383 判断の完全一致を確認した．保存 batch 上の実 `apply_envelope` では 127/26 が root 8 の 4 連鎖になり，正常 123/28，132/30，135/34 を維持した．新規対局，実 lock，正式 G2 と人間 QA は別の検証であり，この固定結果で達成扱いにしない．
+
+observer の `origin_episode_id` と scheduler の `episode_id` は独立の ID 空間である．prepare は元 observer episode/origin が match の現在 origin と一致することを先に照合し，不一致なら hidden を消して unknown にする．その後 scheduler episode と request digest を bind する．`known_inference()` は scheduler episode の厳密一致と origin の存在も必須とする．古い observer を新しい request digest で再 bind しても known に復活しない回帰 test を追加した．

@@ -14,9 +14,10 @@ from agents.nextgen_tactic_manager import feature_summaries
 
 def bind(req, *, hidden=((0,) * 6,) * 2):
     return c.PublicBoardInference(
-        "public-episode", req.identity.player_id, req.execution.request_tick,
+        req.identity.episode_id, req.identity.player_id, req.execution.request_tick,
         c.semantic_digest(req.public.own.visible_board), "0:0:lock", "known", hidden,
         "public_actual_lock", c.inference_request_digest(req.identity, req.execution),
+        origin_episode_id="public-episode",
     )
 
 
@@ -48,11 +49,36 @@ class InferenceWireTests(unittest.TestCase):
         req = request()
         good = bind(req)
         values = [None, replace(good, observed_tick=1), replace(good, player_id=1),
+                  replace(good, episode_id="different"), replace(good, origin_episode_id=None),
                   replace(good, visible_digest=c.semantic_digest("different")),
                   replace(good, request_digest=None),
                   replace(good, status="unknown", hidden_rows=((None,) * 6,) * 2)]
         for value in values:
             self.assertIsNone(replace(req, inference=value).known_inference())
+
+    def test_scheduler_rejects_old_observer_origin_before_rebinding(self):
+        from unittest.mock import patch
+        from puyo_env.nextgen_scheduler import NextgenScheduler
+        from puyo_env.realtime_ai import RealtimeDecisionConfig
+        from puyo_env.realtime_versus import RealtimeVersusMatch
+        from tests.test_nextgen_tactic_manager import policy
+        match = RealtimeVersusMatch(seed=127)
+        stale = match.public_board_inference()
+        match.reset()
+        scheduler = NextgenScheduler(policy())
+        config = RealtimeDecisionConfig()
+        with patch.object(match, "public_board_inference", return_value=stale):
+            scheduler.prepare(match, "player_0", config)
+        data = scheduler.data
+        inferred = data["inference"]
+        self.assertEqual(inferred.episode_id, data["identity"].episode_id)
+        self.assertEqual(inferred.origin_episode_id, stale.origin_episode_id)
+        self.assertEqual((inferred.status, inferred.reason), ("unknown", "origin_episode_mismatch"))
+        self.assertEqual(inferred.request_digest, c.inference_request_digest(data["identity"], data["execution"]))
+        self.assertEqual(inferred.hidden_rows, ((None,) * 6,) * 2)
+        scheduler.prepare(match, "player_0", config)
+        self.assertEqual(scheduler.data["inference"].status, "known")
+        self.assertEqual(scheduler.data["inference"].origin_episode_id, match.public_inference_episode_id)
 
     def test_hidden_deduction_is_not_native_search_input(self):
         cfg = config()

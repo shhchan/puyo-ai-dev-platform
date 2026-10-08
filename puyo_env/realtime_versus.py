@@ -234,6 +234,11 @@ class RealtimeVersusMatch:
             self.public_snapshot(player_id)
         return self._public_snapshot_adapter.placement_history(player_id)
 
+    @property
+    def public_inference_episode_id(self):
+        """Reset-owned observer origin, independent of scheduler lifetimes."""
+        return f"public-episode-{self._public_episode_index}"
+
     def public_board_inference(self, player_id: int = 0):
         """Opt-in deduction from public lifecycle, separate from visible state.
 
@@ -247,7 +252,7 @@ class RealtimeVersusMatch:
 
             public = self.public_snapshot()
             self._public_inference_trackers = tuple(PublicInferenceTracker(
-                own, episode_id=f"public-episode-{self._public_episode_index}",
+                own, episode_id=self.public_inference_episode_id,
                 player_id=p, started_tick=self.tick,
                 empty_reset=self._public_inference_reset_available,
             ) for p, own in enumerate((public.own, public.opponent)))
@@ -265,7 +270,7 @@ class RealtimeVersusMatch:
             self._public_inference_trackers, (public.own, public.opponent)
         )):
             tracker.observe(
-                own, tick=tick, episode_id=f"public-episode-{self._public_episode_index}",
+                own, tick=tick, episode_id=self.public_inference_episode_id,
                 locks=placements[p][lock_counts[p]:],
                 resolutions=history.resolutions[resolution_count:],
                 events=public.events[event_count:],

@@ -123,8 +123,13 @@ class NextgenScheduler:
             "phase": copy.deepcopy(self.phase),
             "piece_id": f"piece-{sum(e.kind == 'placement' and e.player_id == player for e in public.events)}",
         }
+        inference = match.public_board_inference(player)
+        if (inference.episode_id != match.public_inference_episode_id or
+                inference.origin_episode_id != match.public_inference_episode_id):
+            inference = replace(inference, status="unknown", hidden_rows=((None,) * 6,) * 2,
+                                reason="origin_episode_mismatch")
         self.data["inference"] = replace(
-            match.public_board_inference(player),
+            inference, episode_id=identity.episode_id,
             request_digest=c.inference_request_digest(identity, self.data["execution"]),
         )
         self.result = None
