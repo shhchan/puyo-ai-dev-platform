@@ -4,9 +4,10 @@ import gzip
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent
 REPORT = json.loads((ROOT / "summary.json").read_text())
 
 
