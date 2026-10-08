@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "archive": {
+    "path": "rejected-control-prototype.patch.gz",
+    "bytes": 1831,
+    "sha256": "fd413578ab654762136d62438df33eecfe5ce2928788e88c77eca4fc4d02f244",
+    "compression": "gzip",
+    "mtime": 0
+  },
+  "original": {
+    "path": "rejected-control-prototype.patch",
+    "bytes": 5059,
+    "sha256": "b3a4f0c2a6a246115e0cc170412754f1b6fbb1d4ff34be207b857bf8280ba6ab"
+  },
+  "application": {
+    "base_revision": "0e7a707a27632777319437b85e91e4e2866dacc6",
+    "path": "agents/nextgen_survival.py",
+    "source_sha256": "a9f958e60c96fca8c48cc4bbfcb8be1eb70a398a99a6ef6ebc03590100751726",
+    "patched_sha256": "e8356e664cc39c95e06fbcab1db97fba9244435f0111f662770c99ad8778b3cd",
+    "git_apply_check": true,
+    "apply_reverse_restores_source": true
+  },
+  "scope": "Rejected prototype evidence only; decompressed patch bytes are unchanged. No runtime or measured raw change."
+}

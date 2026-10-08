@@ -1,0 +1,262 @@
+{
+  "human127_decision26": {
+    "status": "bounded_witness",
+    "active": true,
+    "nodes": 128,
+    "horizon": 3,
+    "board_complete": false,
+    "charged_nodes": {
+      "placement": 25,
+      "drop": 0,
+      "control": 103
+    },
+    "source": "public_estimate",
+    "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+    "safety_guarantee": false,
+    "roots": [
+      {
+        "action": 3,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 4,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 7,
+        "status": "cutoff",
+        "root_chain": 4,
+        "witness": []
+      },
+      {
+        "action": 8,
+        "status": "cutoff",
+        "root_chain": 4,
+        "witness": []
+      },
+      {
+        "action": 9,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 10,
+        "status": "cutoff",
+        "root_chain": 4,
+        "witness": []
+      },
+      {
+        "action": 11,
+        "status": "witness",
+        "root_chain": 0,
+        "witness": [
+          11,
+          0,
+          3
+        ]
+      },
+      {
+        "action": 12,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 13,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 14,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 15,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 16,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 18,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 19,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 21,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      }
+    ],
+    "unreachable_roots": [
+      0,
+      1,
+      6
+    ]
+  },
+  "gtr123_decision28": {
+    "status": "cutoff",
+    "active": false,
+    "nodes": 128,
+    "horizon": 3,
+    "board_complete": false,
+    "charged_nodes": {
+      "placement": 23,
+      "drop": 0,
+      "control": 105
+    },
+    "source": "public_estimate",
+    "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+    "safety_guarantee": false,
+    "roots": [
+      {
+        "action": 0,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 1,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 3,
+        "status": "cutoff",
+        "root_chain": 1,
+        "witness": []
+      },
+      {
+        "action": 4,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 5,
+        "status": "cutoff",
+        "root_chain": 1,
+        "witness": []
+      },
+      {
+        "action": 6,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 7,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 8,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 9,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 10,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 11,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 12,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 13,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 14,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 15,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 16,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 17,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 18,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 19,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 20,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 21,
+        "status": "cutoff",
+        "root_chain": 0,
+        "witness": []
+      }
+    ],
+    "unreachable_roots": []
+  }
+}
