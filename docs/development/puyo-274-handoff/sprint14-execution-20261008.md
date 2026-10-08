@@ -32,3 +32,17 @@ PR ごとにレビュー可能な差分と検証，Jira コメントを記録．
 - PUYO-273 は mask/activation の timed witness 再利用を `puyo_env/action_planner.py` と `puyo_env/realtime_ai.py` に限定して実装し，暫定 commit `b7365ba`．114 件の GUI／planner 回帰が成功．事前固定した seed55/x1.0/1120×780/60FPS/overlay ON の同条件 GUI before/after と profiler overhead を，266 の初回 heavy 枠解放後に測る．受け入れ gate は frame/input p95≤25 ms／p99≤50 ms のまま．
 - PUYO-266 は seed127/58，softmax1.0，速度 x1.0 の公開入力による新規再現を先行実行中．元 human 入力と replay は未保存なので，同一対局の再現とは扱わない．初回 heavy 終了後，WSLg 枠を 273 に渡す．
 - PUYO-269 は PUYO-273 の確定 head／gate 結果を待ち，専用 worktree を親が作成して子へ委任する．PUYO-274 は全依存と組合せ QA を確認してから判定する．
+
+## 実行更新（PUYO-268／273 確定後）
+
+- PUYO-268 は head `d5656843b7511e3f93b2e6dc950c9b705c136ab5`，base `PUYO-264/desktop-capability-qa` の [PR #179](https://github.com/shhchan/puyo-ai-dev-platform/pull/179) を作成し，43 tests・120 判断の同一公開入力/予算照合に成功．Jira `Complete`，コメント 10810．reference seed123 は 30 手後に mask 外 root を選び未完了として保存し，PUYO-266 G2 FAIL と区別．
+- PUYO-273 は head `0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222`，base `PUYO-274/desktop-resume` の draft [PR #180](https://github.com/shhchan/puyo-ai-dev-platform/pull/180) を作成．115 回帰，固定 8+8 GUI run を保存．最終両側 frame p95 `25.1802222 ms` で事前 gate `≤25 ms` 未達，input p95/p99 `20.74/34.75 ms` は通過．Jira In Progress，コメント 10811．残る prepare 同期 mask・decode/GIL・GC を PUYO-269 へ引継ぐ．
+- PUYO-269 は `/home/sion2000114/workspaces/dev/puyo-s14-269`，branch `PUYO-269/desktop-cadence-finish`，起点 PUYO-273 確定 head `0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222`，PR base `PUYO-273/desktop-mask-cadence` で子 `/root/s14_269` を起動．`gpt-6-astra/high`：UI／scheduler／GIL/GC の支配原因と公開 mask 保証の設計判断が複雑なため．所有は `puyo_env/nextgen_scheduler.py`，`eval/puyo_269_gui_probe.py`，専用 tests/docs；`realtime_ai.py` は親と事前調整．WSLg/重計測の排他枠を割当．
+- PUYO-266 は head `0e7a707` 以降の draft [PR #178](https://github.com/shhchan/puyo-ai-dev-platform/pull/178) を作成．新規 seed127 全消し対局で変更後も窒息し，正常 GTR55/123/124 は 10/10/11 連鎖・非窒息，失敗126/128は窒息が残る．128 node 枠内の全候補 control BFS は正常123/28の候補を cutoff へ退行させたため不採用とし，証明可能な満杯14段壁の候補排除だけを runtime に残す．Jira は In Progress／G2 FAIL のまま判定する．
+
+## 子セッション停止時点の判定
+
+- PUYO-266 は確定 head `f3f40f62438bc7c3fa37fb7a33f65e9cb14bd7f1`，draft #178，Jira In Progress／コメント10812．変更後 normal127 でも窒息，GTR126/128 の窒息も残る．後続 control 証明だけでは正常123の128 node枠と hidden row12/13 の両問題を解けず，未採用案の数値と offline 完全盤面を診断専用として保存した．正式 G2 を PASS としない．
+- PUYO-269 は確定 head `251b62d1c2cda145a5d912580af98305efdba4a0`，base `PUYO-273/desktop-mask-cadence` の draft [PR #181](https://github.com/shhchan/puyo-ai-dev-platform/pull/181)，Jira In Progress／コメント10813．同一 source の診断 proof 中央値 0.915→0.102 ms，ただし最終両側 frame p95 `25.37 ms`，repeat `27.42 ms`，minimal `26.69 ms` で事前 gate `≤25 ms` 未達．全入力，片側，human，軽量 frame は通過．実人間再 QA は未実施．prefix共有案は固定 micro で悪化し不採用．
+- PUYO-273 は #180 の `25.1802222 ms` 未達を保持し，PUYO-269 と組合せた最終 source でも両側 frame gate が未達なので Jira In Progress のまま．
+- PUYO-274 の先読み表示と操作感に関する 2026-10-08 人間 QA は確認済み．窒息，両側 frame，変更後の人間再 QA，正式 G2 の条件が残るため Jira In Progress のまま．
