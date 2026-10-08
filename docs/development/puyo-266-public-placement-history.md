@@ -66,3 +66,9 @@ observer の `origin_episode_id` と scheduler の `episode_id` は独立の ID 
 `0633af0` は公開推定が known，未着弾 packet なし，到達可能 fatal root ありという境界で，着弾済みおじゃまを実際に減らす即時非fatal消去の証明を先に行う．既存128枠内でcontrol/terminalが認証されたrootだけをbuild_main順位へ反映し，cutoff/unknownと他tacticは従来経路を保つ．静かな未検証witnessをfatalにはしない．wire/native/actor入力とresponse256を維持した．
 
 保存228判断ではhuman127の6判断だけが変わり，おじゃま0の207判断（固定55/123/124/126/128の全199含む）とlegacy383は非退行．140tests成功．同じ製品sourceの新規human127/58/daa/softmax1.0/x1.0は3500tick時点で43lock生存，max_ticks7000のfresh別runで5090tick/60lock生存だった．6回の回復の実1/1/3/5/2/9連鎖と予測・実おじゃま除去数が一致し，66推定hidden誤確定0，実lock不一致0，quota超過0，全hash一致．normalのwall-clock分岐を含むため同一prefix A/Bとはしない．詳しいraw・再監査・残課題は[保存README](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照．無脅威G2と人間GUI QAは未達のままである．
+
+### 既存適格 fire_main 候補を先頭へ置く修正
+
+`1969271` はfire_mainの固定順位だけを修正する．未評価の後続候補が先頭にあるためtactic全体が拒否され，即時10連鎖の既存適格候補を選べなかった126の原因に対し，fatal_rate=0という既存必要条件を満たす群を先に置く．群内順位と外側のsurvival順位を維持し，候補・evidence・selector条件・quotaは変更しない．
+
+固定native55/123/124/126は全40配置，最大10連鎖，premature0，非窒息．126は旧最大1/小発火2から改善し，31手目の10連鎖後9配置を生存した．124の最大11→10と，正常123/124で早まった発火は明示して保持する．全160の実lock/hash/public推定一致，quota超過0，関連141tests成功．旧G2の読取では132/135/144にも同じ候補隠蔽があるが，新規対局は未検証．128は適格fire順位では変化せず，代替known-prefix経路と固定予算の独立課題が残る．[保存README](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照．
