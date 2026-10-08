@@ -1,0 +1,2788 @@
+[
+  {
+    "seed": 55,
+    "decision": 1,
+    "before": [
+      "build_template",
+      7
+    ],
+    "after": [
+      "build_template",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 2,
+    "before": [
+      "build_template",
+      4
+    ],
+    "after": [
+      "build_template",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 3,
+    "before": [
+      "build_template",
+      2
+    ],
+    "after": [
+      "build_template",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 4,
+    "before": [
+      "build_template",
+      10
+    ],
+    "after": [
+      "build_template",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 5,
+    "before": [
+      "build_template",
+      13
+    ],
+    "after": [
+      "build_template",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 6,
+    "before": [
+      "build_template",
+      16
+    ],
+    "after": [
+      "build_template",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 7,
+    "before": [
+      "build_template",
+      12
+    ],
+    "after": [
+      "build_template",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 8,
+    "before": [
+      "build_template",
+      2
+    ],
+    "after": [
+      "build_template",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 9,
+    "before": [
+      "build_template",
+      2
+    ],
+    "after": [
+      "build_template",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 10,
+    "before": [
+      "build_template",
+      6
+    ],
+    "after": [
+      "build_template",
+      6
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 11,
+    "before": [
+      "build_main",
+      14
+    ],
+    "after": [
+      "build_main",
+      14
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 12,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 13,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 14,
+    "before": [
+      "build_main",
+      3
+    ],
+    "after": [
+      "build_main",
+      3
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 15,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 16,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "build_main",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 17,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 18,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 19,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 20,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 21,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 22,
+    "before": [
+      "build_main",
+      20
+    ],
+    "after": [
+      "build_main",
+      20
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 23,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 24,
+    "before": [
+      "build_main",
+      17
+    ],
+    "after": [
+      "build_main",
+      17
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 25,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 26,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 27,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 28,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": 3,
+    "new_fire_best": 3
+  },
+  {
+    "seed": 55,
+    "decision": 29,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": 16,
+    "new_fire_best": 16
+  },
+  {
+    "seed": 55,
+    "decision": 30,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": 1,
+    "new_fire_best": 1
+  },
+  {
+    "seed": 55,
+    "decision": 31,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": 3,
+    "new_fire_best": 3
+  },
+  {
+    "seed": 55,
+    "decision": 32,
+    "before": [
+      "fire_main",
+      8
+    ],
+    "after": [
+      "fire_main",
+      8
+    ],
+    "old_fire_best": 8,
+    "new_fire_best": 8
+  },
+  {
+    "seed": 55,
+    "decision": 33,
+    "before": [
+      "build_main",
+      14
+    ],
+    "after": [
+      "build_main",
+      14
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 34,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 35,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 36,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "build_main",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 37,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 38,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 39,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 55,
+    "decision": 40,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 1,
+    "before": [
+      "build_template",
+      9
+    ],
+    "after": [
+      "build_template",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 2,
+    "before": [
+      "build_template",
+      4
+    ],
+    "after": [
+      "build_template",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 3,
+    "before": [
+      "build_template",
+      11
+    ],
+    "after": [
+      "build_template",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 4,
+    "before": [
+      "build_template",
+      8
+    ],
+    "after": [
+      "build_template",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 5,
+    "before": [
+      "build_template",
+      12
+    ],
+    "after": [
+      "build_template",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 6,
+    "before": [
+      "build_template",
+      0
+    ],
+    "after": [
+      "build_template",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 7,
+    "before": [
+      "build_template",
+      4
+    ],
+    "after": [
+      "build_template",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 8,
+    "before": [
+      "build_template",
+      2
+    ],
+    "after": [
+      "build_template",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 9,
+    "before": [
+      "build_template",
+      1
+    ],
+    "after": [
+      "build_template",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 10,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 11,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 12,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 13,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 14,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 15,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 16,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 17,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 18,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 19,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "build_main",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 20,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 21,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 22,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 23,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 24,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 25,
+    "before": [
+      "build_main",
+      17
+    ],
+    "after": [
+      "build_main",
+      17
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 26,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 27,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": 5,
+    "new_fire_best": 5
+  },
+  {
+    "seed": 123,
+    "decision": 28,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": 11,
+    "new_fire_best": 11
+  },
+  {
+    "seed": 123,
+    "decision": 29,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "fire_main",
+      16
+    ],
+    "old_fire_best": 18,
+    "new_fire_best": 16
+  },
+  {
+    "seed": 123,
+    "decision": 30,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": 12,
+    "new_fire_best": 12
+  },
+  {
+    "seed": 123,
+    "decision": 31,
+    "before": [
+      "fire_main",
+      16
+    ],
+    "after": [
+      "fire_main",
+      16
+    ],
+    "old_fire_best": 16,
+    "new_fire_best": 16
+  },
+  {
+    "seed": 123,
+    "decision": 32,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 33,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 34,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 35,
+    "before": [
+      "build_main",
+      10
+    ],
+    "after": [
+      "build_main",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 36,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 37,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 38,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 39,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 123,
+    "decision": 40,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 1,
+    "before": [
+      "build_template",
+      7
+    ],
+    "after": [
+      "build_template",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 2,
+    "before": [
+      "build_template",
+      2
+    ],
+    "after": [
+      "build_template",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 3,
+    "before": [
+      "build_template",
+      21
+    ],
+    "after": [
+      "build_template",
+      21
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 4,
+    "before": [
+      "build_template",
+      10
+    ],
+    "after": [
+      "build_template",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 5,
+    "before": [
+      "build_template",
+      10
+    ],
+    "after": [
+      "build_template",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 6,
+    "before": [
+      "build_template",
+      12
+    ],
+    "after": [
+      "build_template",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 7,
+    "before": [
+      "build_template",
+      10
+    ],
+    "after": [
+      "build_template",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 8,
+    "before": [
+      "build_template",
+      8
+    ],
+    "after": [
+      "build_template",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 9,
+    "before": [
+      "build_template",
+      6
+    ],
+    "after": [
+      "build_template",
+      6
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 10,
+    "before": [
+      "build_main",
+      3
+    ],
+    "after": [
+      "build_main",
+      3
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 11,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 12,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 13,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 14,
+    "before": [
+      "build_main",
+      11
+    ],
+    "after": [
+      "build_main",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 15,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 16,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 17,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 18,
+    "before": [
+      "build_main",
+      6
+    ],
+    "after": [
+      "build_main",
+      6
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 19,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 20,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 21,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 22,
+    "before": [
+      "build_main",
+      20
+    ],
+    "after": [
+      "build_main",
+      20
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 23,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": 19,
+    "new_fire_best": 19
+  },
+  {
+    "seed": 124,
+    "decision": 24,
+    "before": [
+      "build_main",
+      14
+    ],
+    "after": [
+      "build_main",
+      14
+    ],
+    "old_fire_best": 15,
+    "new_fire_best": 15
+  },
+  {
+    "seed": 124,
+    "decision": 25,
+    "before": [
+      "build_main",
+      21
+    ],
+    "after": [
+      "fire_main",
+      0
+    ],
+    "old_fire_best": 11,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 124,
+    "decision": 26,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "fire_main",
+      1
+    ],
+    "old_fire_best": 4,
+    "new_fire_best": 1
+  },
+  {
+    "seed": 124,
+    "decision": 27,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "fire_main",
+      0
+    ],
+    "old_fire_best": 15,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 124,
+    "decision": 28,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "fire_main",
+      0
+    ],
+    "old_fire_best": 17,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 124,
+    "decision": 29,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": 12,
+    "new_fire_best": 12
+  },
+  {
+    "seed": 124,
+    "decision": 30,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "fire_main",
+      0
+    ],
+    "old_fire_best": 15,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 124,
+    "decision": 31,
+    "before": [
+      "fire_main",
+      0
+    ],
+    "after": [
+      "fire_main",
+      0
+    ],
+    "old_fire_best": 0,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 124,
+    "decision": 32,
+    "before": [
+      "build_main",
+      21
+    ],
+    "after": [
+      "build_main",
+      21
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 33,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 34,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 35,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 36,
+    "before": [
+      "build_main",
+      17
+    ],
+    "after": [
+      "build_main",
+      17
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 37,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 38,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 39,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 124,
+    "decision": 40,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 1,
+    "before": [
+      "build_template",
+      4
+    ],
+    "after": [
+      "build_template",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 2,
+    "before": [
+      "build_template",
+      16
+    ],
+    "after": [
+      "build_template",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 3,
+    "before": [
+      "build_template",
+      16
+    ],
+    "after": [
+      "build_template",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 4,
+    "before": [
+      "build_template",
+      19
+    ],
+    "after": [
+      "build_template",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 5,
+    "before": [
+      "build_template",
+      11
+    ],
+    "after": [
+      "build_template",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 6,
+    "before": [
+      "build_template",
+      8
+    ],
+    "after": [
+      "build_template",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 7,
+    "before": [
+      "build_template",
+      4
+    ],
+    "after": [
+      "build_template",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 8,
+    "before": [
+      "build_template",
+      13
+    ],
+    "after": [
+      "build_template",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 9,
+    "before": [
+      "build_template",
+      5
+    ],
+    "after": [
+      "build_template",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 10,
+    "before": [
+      "build_template",
+      11
+    ],
+    "after": [
+      "build_template",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 11,
+    "before": [
+      "build_template",
+      18
+    ],
+    "after": [
+      "build_template",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 12,
+    "before": [
+      "build_template",
+      6
+    ],
+    "after": [
+      "build_template",
+      6
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 13,
+    "before": [
+      "build_template",
+      8
+    ],
+    "after": [
+      "build_template",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 14,
+    "before": [
+      "build_template",
+      0
+    ],
+    "after": [
+      "build_template",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 15,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 16,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 17,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 18,
+    "before": [
+      "build_main",
+      2
+    ],
+    "after": [
+      "build_main",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 19,
+    "before": [
+      "build_main",
+      20
+    ],
+    "after": [
+      "build_main",
+      20
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 20,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 21,
+    "before": [
+      "build_main",
+      21
+    ],
+    "after": [
+      "build_main",
+      21
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 22,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 23,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 24,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 25,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 26,
+    "before": [
+      "build_main",
+      10
+    ],
+    "after": [
+      "build_main",
+      10
+    ],
+    "old_fire_best": 0,
+    "new_fire_best": 0
+  },
+  {
+    "seed": 126,
+    "decision": 27,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 28,
+    "before": [
+      "build_main",
+      18
+    ],
+    "after": [
+      "build_main",
+      18
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 29,
+    "before": [
+      "build_main",
+      10
+    ],
+    "after": [
+      "build_main",
+      10
+    ],
+    "old_fire_best": 20,
+    "new_fire_best": 20
+  },
+  {
+    "seed": 126,
+    "decision": 30,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": 8,
+    "new_fire_best": 8
+  },
+  {
+    "seed": 126,
+    "decision": 31,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "fire_main",
+      12
+    ],
+    "old_fire_best": 1,
+    "new_fire_best": 12
+  },
+  {
+    "seed": 126,
+    "decision": 32,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": 11,
+    "new_fire_best": 11
+  },
+  {
+    "seed": 126,
+    "decision": 33,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "fire_main",
+      12
+    ],
+    "old_fire_best": 0,
+    "new_fire_best": 12
+  },
+  {
+    "seed": 126,
+    "decision": 34,
+    "before": [
+      "build_main",
+      11
+    ],
+    "after": [
+      "fire_main",
+      16
+    ],
+    "old_fire_best": 11,
+    "new_fire_best": 16
+  },
+  {
+    "seed": 126,
+    "decision": 35,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 36,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 37,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 38,
+    "before": [
+      "build_main",
+      12
+    ],
+    "after": [
+      "build_main",
+      12
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 39,
+    "before": [
+      "build_main",
+      17
+    ],
+    "after": [
+      "build_main",
+      17
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 126,
+    "decision": 40,
+    "before": [
+      "build_main",
+      15
+    ],
+    "after": [
+      "build_main",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 1,
+    "before": [
+      "build_template",
+      8
+    ],
+    "after": [
+      "build_template",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 2,
+    "before": [
+      "build_template",
+      21
+    ],
+    "after": [
+      "build_template",
+      21
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 3,
+    "before": [
+      "build_template",
+      14
+    ],
+    "after": [
+      "build_template",
+      14
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 4,
+    "before": [
+      "build_template",
+      19
+    ],
+    "after": [
+      "build_template",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 5,
+    "before": [
+      "build_template",
+      15
+    ],
+    "after": [
+      "build_template",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 6,
+    "before": [
+      "build_template",
+      1
+    ],
+    "after": [
+      "build_template",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 7,
+    "before": [
+      "build_template",
+      19
+    ],
+    "after": [
+      "build_template",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 8,
+    "before": [
+      "build_template",
+      21
+    ],
+    "after": [
+      "build_template",
+      21
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 9,
+    "before": [
+      "build_template",
+      10
+    ],
+    "after": [
+      "build_template",
+      10
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 10,
+    "before": [
+      "build_template",
+      19
+    ],
+    "after": [
+      "build_template",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 11,
+    "before": [
+      "build_template",
+      15
+    ],
+    "after": [
+      "build_template",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 12,
+    "before": [
+      "build_template",
+      16
+    ],
+    "after": [
+      "build_template",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 13,
+    "before": [
+      "build_template",
+      15
+    ],
+    "after": [
+      "build_template",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 14,
+    "before": [
+      "build_template",
+      15
+    ],
+    "after": [
+      "build_template",
+      15
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 15,
+    "before": [
+      "build_main",
+      11
+    ],
+    "after": [
+      "build_main",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 16,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 17,
+    "before": [
+      "build_main",
+      19
+    ],
+    "after": [
+      "build_main",
+      19
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 18,
+    "before": [
+      "build_main",
+      16
+    ],
+    "after": [
+      "build_main",
+      16
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 19,
+    "before": [
+      "build_main",
+      8
+    ],
+    "after": [
+      "build_main",
+      8
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 20,
+    "before": [
+      "build_main",
+      11
+    ],
+    "after": [
+      "build_main",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 21,
+    "before": [
+      "build_main",
+      2
+    ],
+    "after": [
+      "build_main",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 22,
+    "before": [
+      "build_main",
+      2
+    ],
+    "after": [
+      "build_main",
+      2
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 23,
+    "before": [
+      "build_main",
+      13
+    ],
+    "after": [
+      "build_main",
+      13
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 24,
+    "before": [
+      "build_main",
+      1
+    ],
+    "after": [
+      "build_main",
+      1
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 25,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 26,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 27,
+    "before": [
+      "build_main",
+      3
+    ],
+    "after": [
+      "build_main",
+      3
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 28,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "build_main",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 29,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 30,
+    "before": [
+      "build_main",
+      5
+    ],
+    "after": [
+      "build_main",
+      5
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 31,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 32,
+    "before": [
+      "build_main",
+      0
+    ],
+    "after": [
+      "build_main",
+      0
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 33,
+    "before": [
+      "build_main",
+      3
+    ],
+    "after": [
+      "build_main",
+      3
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 34,
+    "before": [
+      "build_main",
+      4
+    ],
+    "after": [
+      "build_main",
+      4
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 35,
+    "before": [
+      "build_main",
+      9
+    ],
+    "after": [
+      "build_main",
+      9
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 36,
+    "before": [
+      "build_main",
+      14
+    ],
+    "after": [
+      "build_main",
+      14
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 37,
+    "before": [
+      "build_main",
+      3
+    ],
+    "after": [
+      "build_main",
+      3
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 38,
+    "before": [
+      "build_main",
+      11
+    ],
+    "after": [
+      "build_main",
+      11
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  },
+  {
+    "seed": 128,
+    "decision": 39,
+    "before": [
+      "build_main",
+      7
+    ],
+    "after": [
+      "build_main",
+      7
+    ],
+    "old_fire_best": null,
+    "new_fire_best": null
+  }
+]

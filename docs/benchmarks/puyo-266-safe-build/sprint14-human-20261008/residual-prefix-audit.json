@@ -1,0 +1,922 @@
+[
+  {
+    "mode": "cache_only",
+    "root": 11,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 0,
+    "complete_paths": 1,
+    "static_terminal_paths": 0,
+    "certificates": []
+  },
+  {
+    "mode": "cache_only",
+    "root": 12,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 0,
+    "complete_paths": 1,
+    "static_terminal_paths": 0,
+    "certificates": []
+  },
+  {
+    "mode": "cache_only",
+    "root": 8,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 0,
+    "complete_paths": 1,
+    "static_terminal_paths": 1,
+    "certificates": []
+  },
+  {
+    "mode": "cache_only",
+    "root": 14,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 0,
+    "complete_paths": 1,
+    "static_terminal_paths": 1,
+    "certificates": []
+  },
+  {
+    "mode": "oracle_public_enumeration",
+    "root": 11,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 16,
+    "complete_paths": 1,
+    "static_terminal_paths": 0,
+    "certificates": []
+  },
+  {
+    "mode": "oracle_public_enumeration",
+    "root": 12,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 14,
+    "complete_paths": 2,
+    "static_terminal_paths": 1,
+    "certificates": [
+      {
+        "path": [
+          12,
+          19,
+          14
+        ],
+        "proof_nodes": 23,
+        "terminal": 1
+      }
+    ]
+  },
+  {
+    "mode": "oracle_public_enumeration",
+    "root": 8,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 138,
+    "complete_paths": 67,
+    "static_terminal_paths": 67,
+    "certificates": [
+      {
+        "path": [
+          8,
+          6,
+          12
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          6,
+          18
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          12,
+          6
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          12
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          18
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          6,
+          15
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          12,
+          1
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          15,
+          6
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          15
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          6,
+          16
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          6,
+          19
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          6,
+          21
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          13,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          15,
+          1
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          16,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          19,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          16
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          19
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          1,
+          21
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          13,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          16,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          18,
+          6
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          19,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          19,
+          12
+        ],
+        "proof_nodes": 12,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          19,
+          15
+        ],
+        "proof_nodes": 12,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          21,
+          6
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          13,
+          12
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          13,
+          16
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          13,
+          19
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          1
+        ],
+        "proof_nodes": 13,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          18,
+          11
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          12
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          15
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          16
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          19
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          19,
+          18
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          21,
+          1
+        ],
+        "proof_nodes": 13,
+        "terminal": 11
+      },
+      {
+        "path": [
+          8,
+          13,
+          15
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          13,
+          18
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          13,
+          21
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          13
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          17
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          18
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          18,
+          21
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          13,
+          17
+        ],
+        "proof_nodes": 15,
+        "terminal": 1
+      },
+      {
+        "path": [
+          8,
+          12,
+          19
+        ],
+        "proof_nodes": 25,
+        "terminal": 1
+      }
+    ]
+  },
+  {
+    "mode": "oracle_public_enumeration",
+    "root": 14,
+    "probe_nodes": 110,
+    "cache_entries": 70,
+    "offline_expansions": 138,
+    "complete_paths": 67,
+    "static_terminal_paths": 67,
+    "certificates": [
+      {
+        "path": [
+          14,
+          6,
+          12
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          6,
+          18
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          12,
+          6
+        ],
+        "proof_nodes": 9,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          12
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          18
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          6,
+          15
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          12,
+          1
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          15,
+          6
+        ],
+        "proof_nodes": 10,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          15
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          6,
+          16
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          6,
+          19
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          6,
+          21
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          13,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          15,
+          1
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          16,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          19,
+          6
+        ],
+        "proof_nodes": 11,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          16
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          19
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          1,
+          21
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          13,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          16,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          18,
+          6
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          19,
+          1
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          19,
+          12
+        ],
+        "proof_nodes": 12,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          19,
+          15
+        ],
+        "proof_nodes": 12,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          21,
+          6
+        ],
+        "proof_nodes": 12,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          13,
+          12
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          13,
+          16
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          13,
+          19
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          1
+        ],
+        "proof_nodes": 13,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          18,
+          11
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          12
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          15
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          16
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          19
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          19,
+          18
+        ],
+        "proof_nodes": 13,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          21,
+          1
+        ],
+        "proof_nodes": 13,
+        "terminal": 11
+      },
+      {
+        "path": [
+          14,
+          13,
+          15
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          13,
+          18
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          13,
+          21
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          13
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          17
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          18
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          18,
+          21
+        ],
+        "proof_nodes": 14,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          13,
+          17
+        ],
+        "proof_nodes": 15,
+        "terminal": 1
+      },
+      {
+        "path": [
+          14,
+          12,
+          19
+        ],
+        "proof_nodes": 25,
+        "terminal": 1
+      }
+    ]
+  }
+]

@@ -302,3 +302,19 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 未達は，おじゃま0の128/38でprobe110+control18=128となるcutoff，126の小発火，132/135/144を含む正式G2の品質条件，人間GUI QAである．単純cache/既存known解先行/clear予約は保存済み正常123/30または132/30・135/35を退行させるため，追加しない．次の独立設計は最初の幾何witness以外の公開known経路を提示する契約と，正常quietの証明予算を奪わない共有課金であり，今回の着弾後回復とは適用条件を分けて検証する必要がある．個別FAILが明確なため正式60runは再測定せず，品質FAIL/G2 BLOCKED，Jira In Progress，draftを維持する．
+
+## 126 の発火適格性と 128 の代替 prefix の分離
+
+固定 126/33 には到達可能で即時非fatalの10連鎖root12/17/21があり，既存fatal_rate=0を満たしていた．しかしfire_main先頭は3手の10連鎖候補でfatal_rate未評価だったため，ruleがfire_main全体を不適格としていた．34でも同様，35では右側への到達が閉じて小発火しか選べなくなる．小発火の禁止では解決しない．
+
+候補・evidence・selector条件を変えず，fire_main内で既存必要条件fatal_rate=0を満たす候補を未評価候補より先へ置く．各群内の既存順位を保ち，survival順位は引き続き外側で優先する．保存199判断の読取比較では126/31・33・34が即時10連鎖へ変わる一方，正常123/29と124/25–30の一部も10/11連鎖へ早まる．同一入力維持とは扱わず，正常3seedの実品質測定を採用条件にする．実Python共有探索2000nodesを使う126/33の統合fixtureで，未評価future候補を残したまま実selector/envelopeがfire_main/root12を選ぶことを確認した．関連141tests成功．
+
+128/38は別原因である．既課金cache70辺に含まれるroot11/12/8/14の各3手経路には，現在のcontrol/terminal条件を満たすものがなかった．公開known3手を診断専用に全列挙すると，root12の[12,19,14]はcontrol/terminal23nodes，root8/14の[8,6,12]/[14,6,12]は9nodesで確認できる．ただし探索発見コストは別であり，それぞれ14/138/138配置展開を要した．既存probe110に証明23だけでも133となるため，経路の存在だけをproduction128内の修正とは扱わない．cacheだけの追加や無制限列挙をruntimeへ入れず，代替prefix提示・探索と証明の共有課金を次の契約課題として残す．private field/未公開futureは一切使用していない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-eligibility-audit.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/residual-prefix-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_fire_eligibility -q
+```
+
+JSONは保存公開request/batchの読取解析であり，native再対局や正式G2の代用ではない．残る128の個別FAILを理由に，正式60runは実施しない．
