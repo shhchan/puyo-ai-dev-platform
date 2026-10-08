@@ -283,3 +283,22 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 60配置までの新規延長条件は別runで確認する．本結果を一般的な窒息解消，正式G2 PASS，人間GUI QA成功とは表現しない．
+
+### 60 配置までの fresh 延長 run
+
+上記 3500 tick run を保存後，max_ticks だけを 7000 へ増やした fresh normal run を単独で測定した．Git head は証拠保存後の `72efe8a`，製品コードは `0633af0` と同じで，3500 run と全 170 source/config ファイルの SHA が一致した．実行中変更なし．config の差は max_ticks と保存先だけである．入力・snapshot hash は tick101 で分岐するため，3500 run そのものの継続や同一 prefix と表現しない．共通する採用順の先頭44 actionは一致した．元手動対局との非同一性も維持する．
+
+5090 tick/100.883 秒で目標 60 実 lock に到達した．60 採用/6 stale/fallback0，両者 game_over=false，未 lock/実 root 不一致/無帰属 lock はすべて0．全 tick/最終 hash 一致，66 request の公開推定 hidden と offline 盤面の不一致0，survival128/response256 を含む quota 超過0だった．decision p50/p95 は0.256/0.406秒．実連鎖は判断19/28/30/39/50/63の1/1/3/5/2/9．6回とも回復 root と実 lock が一致し，おじゃま減少の予測/実測は5/2/4/13/1/4で全一致（計29個，32→3個）．追加2件の証明費用は90/54 nodesだった．今回の固定 human 条件では60配置まで窒息を観測しなかった．この事実を G2 の無脅威失敗や人間 GUI 全般の解消へ広げない．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 .venv/bin/python -m eval.nextgen_realtime_diagnostic --mode normal --seed 127 --seed-a 58 --templates daa --selection-mode softmax --temperature 1.0 --speed 1.0 --opponent human --human-inputs docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/human-inputs.json --placements 60 --max-ticks 7000 --profile nextgen_safe_build --output /tmp/puyo266-landed-recovery-human127-extended
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-extended docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-human /tmp/puyo266-recovery-extended-summary.json
+```
+
+`landed-recovery-extended/` に report/ledger/replay/audit gzip と集計を保存した．元 `/tmp/puyo266-landed-recovery-human127-extended/replay.json` は2690118374 bytesで保持し，SHA-256は`34e0ac511064b2e1c6608ef9ae607f31941d90bf58772b69b6f44658315339b7`．`archive-stream.py` は元JSON全体をメモリへ読み込まず，既存 archive と同じ3種類の重複UI診断キーだけをtickごとに除き，input/hash/攻撃/最終状態を保持する．複数chunkにまたがる小fixtureの展開JSON一致と，保存版5090tickの全hash replayを確認した．原本bytes/SHAを`originals.json`，圧縮保存物のSHAを`landed-recovery-manifest.json`へ記録した．
+
+```bash
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/archive-stream.py /tmp/puyo266-landed-recovery-human127-extended/replay.json /tmp/puyo266-replay-light-copy.json.gz /tmp/puyo266-replay-original-copy.json
+```
+
+未達は，おじゃま0の128/38でprobe110+control18=128となるcutoff，126の小発火，132/135/144を含む正式G2の品質条件，人間GUI QAである．単純cache/既存known解先行/clear予約は保存済み正常123/30または132/30・135/35を退行させるため，追加しない．次の独立設計は最初の幾何witness以外の公開known経路を提示する契約と，正常quietの証明予算を奪わない共有課金であり，今回の着弾後回復とは適用条件を分けて検証する必要がある．個別FAILが明確なため正式60runは再測定せず，品質FAIL/G2 BLOCKED，Jira In Progress，draftを維持する．

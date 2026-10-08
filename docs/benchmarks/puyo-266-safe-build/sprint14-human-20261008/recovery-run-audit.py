@@ -85,6 +85,10 @@ def summarize(root, baseline):
     durations = [a['record']['policy_elapsed_seconds'] for a in report['attempts']]
     return {'source': report['source']['commit'], 'source_changed': report['source_changed_during_run'],
             'baseline_source': old_report['source']['commit'], 'scope': 'new normal run, wall-clock dependent; not paired policy A/B',
+            'source_file_fingerprints_equal': report['source']['files_sha256'] == old_report['source']['files_sha256'],
+            'source_file_count': len(report['source']['files_sha256']),
+            'config_differences': {key: [old_report['config'].get(key), value] for key, value in report['config'].items()
+                                   if old_report['config'].get(key) != value},
             'ticks': report['ticks'], 'elapsed_seconds': report['elapsed_seconds'],
             'target_placements': report['target_placements'], 'actual_locks': report['observed_placements'],
             'outcomes': report['summary']['outcomes'], 'fallbacks': report['summary']['fallbacks'],
