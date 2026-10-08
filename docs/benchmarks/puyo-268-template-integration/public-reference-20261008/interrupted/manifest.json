@@ -1,0 +1,37 @@
+[
+  {
+    "source": "b0558c2fd9f6906add29dd3633c2600bd1f9d4e7",
+    "output": "/tmp/puyo268-public-reference-20261008",
+    "interruption": "reference input ndarray could not be serialized",
+    "used_in_final_comparison": false,
+    "retained_local_raw_sha256": {
+      "exact-input-55.json.gz": "d26bfdc10767227a7e25743dd5011c8f4d0c5d3a7a6b4566ff31bedbd789c43c",
+      "nextgen-55.json.gz": "6a5ad58426aa0e09e4cc2ba527207b147b9130124492f8fc3d3bf5881e7a31a8"
+    }
+  },
+  {
+    "source": "58a40862e0646eb2cd2295144bffc95576d4bc6d",
+    "output": "/tmp/puyo268-public-reference-final-20261008",
+    "interruption": "unreachable shadow reference root raised before saving the seed",
+    "used_in_final_comparison": false,
+    "retained_local_raw_sha256": {
+      "exact-input-55.json.gz": "e6ab75e04015c1da6f74c116c838672a9809b65459d5ac08220162549f0f2499",
+      "nextgen-123.json.gz": "aa74c52368b73b35611425f4695df58a272db9d8832eae4462e2cc7b4fbe276f",
+      "nextgen-55.json.gz": "ff56be10043bf8fd6c367da2277a543423613af7f77cc429c73250009b493a2c",
+      "reference-55.json.gz": "d62aa68f1cce53fe1514b2baebfef36862099374b3f66ca70e6986d0818af844"
+    }
+  },
+  {
+    "source": "601d71ca0de807d872981d98b07e93b5c7b4edca",
+    "output": "/tmp/puyo268-public-reference-complete-20261008",
+    "interruption": "unreachable live reference root raised before incomplete-run recording existed",
+    "used_in_final_comparison": false,
+    "retained_local_raw_sha256": {
+      "exact-input-123.json.gz": "38e5d5e1d5afdddd6cd88a5ce8f3e0a4c615296cb3b8d4bae33f840d63733fbe",
+      "exact-input-55.json.gz": "3311b78cad882ddac3511cad9dfd55494cf191bbe77a701a59b8cf7d8e6039ce",
+      "nextgen-123.json.gz": "d7dbe5d5fcd149e2027ce4519c87f69fd6d01cbdcddaee02ef7c42c88b2c132c",
+      "nextgen-55.json.gz": "9605077d8301bb2636b8553cdb23a5c838422de8aa6ebb8491eb78ae7ead8b4c",
+      "reference-55.json.gz": "4332496b14187e87f663174f4cb0f86bff824a007bd235c1bfafe7dae050a262"
+    }
+  }
+]
