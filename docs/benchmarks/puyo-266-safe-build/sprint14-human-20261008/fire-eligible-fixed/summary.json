@@ -1,0 +1,1214 @@
+[
+  {
+    "seed": 55,
+    "source": "1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81",
+    "source_changed": false,
+    "before": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.3771634325003106,
+        "p95": 0.4301300114015248,
+        "max": 0.4638621120011521
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.3804899179995118,
+        "p95": 0.4373126126508395,
+        "max": 0.47064599499935866
+      }
+    },
+    "same_native_build": true,
+    "same_search_config": true,
+    "same_profile": true,
+    "same_initial_public_input": true,
+    "public_equal_through_first_changed_action": true,
+    "compared_prefix_decisions": 40,
+    "first_action_change": null,
+    "changes": [],
+    "clears": [
+      {
+        "decision": 32,
+        "action": 8,
+        "chain": 10,
+        "tactic": "fire_main",
+        "reason": "rule_priority_fire_main",
+        "remaining_locks": 8,
+        "actual_root_matches": true,
+        "offline_predicted_chain": 10
+      }
+    ],
+    "inference": [
+      {
+        "decision": 1,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 2,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 3,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 4,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 5,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 6,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 7,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 8,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 9,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 10,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 11,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 12,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 13,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 14,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 15,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 16,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 17,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 18,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 19,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 20,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 21,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 22,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 23,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 24,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 25,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 26,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 27,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 28,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 29,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 30,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 31,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 32,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 33,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 34,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 35,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 36,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 37,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 38,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 39,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 40,
+        "known": true,
+        "offline_planes_match": true
+      }
+    ],
+    "quota_violations": [],
+    "lock_mismatches": [],
+    "lock_count": 40,
+    "final_hash_replayed": true,
+    "same_final_hash": true
+  },
+  {
+    "seed": 123,
+    "source": "1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81",
+    "source_changed": false,
+    "before": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.37114104500233225,
+        "p95": 0.44880835074909553,
+        "max": 0.4922500000011496
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.37457817499853263,
+        "p95": 0.46749890425116974,
+        "max": 0.4706973760003166
+      }
+    },
+    "same_native_build": true,
+    "same_search_config": true,
+    "same_profile": true,
+    "same_initial_public_input": true,
+    "public_equal_through_first_changed_action": true,
+    "compared_prefix_decisions": 29,
+    "first_action_change": 29,
+    "changes": [
+      {
+        "decision": 29,
+        "before": 5,
+        "after": 16
+      },
+      {
+        "decision": 30,
+        "before": 12,
+        "after": 4
+      },
+      {
+        "decision": 31,
+        "before": 16,
+        "after": 8
+      },
+      {
+        "decision": 32,
+        "before": 9,
+        "after": 18
+      },
+      {
+        "decision": 33,
+        "before": 8,
+        "after": 3
+      },
+      {
+        "decision": 34,
+        "before": 13,
+        "after": 8
+      },
+      {
+        "decision": 35,
+        "before": 10,
+        "after": 7
+      },
+      {
+        "decision": 36,
+        "before": 7,
+        "after": 13
+      },
+      {
+        "decision": 37,
+        "before": 12,
+        "after": 9
+      },
+      {
+        "decision": 38,
+        "before": 15,
+        "after": 11
+      },
+      {
+        "decision": 40,
+        "before": 18,
+        "after": 1
+      }
+    ],
+    "clears": [
+      {
+        "decision": 29,
+        "action": 16,
+        "chain": 10,
+        "tactic": "fire_main",
+        "reason": "rule_priority_fire_main",
+        "remaining_locks": 11,
+        "actual_root_matches": true,
+        "offline_predicted_chain": 10
+      }
+    ],
+    "inference": [
+      {
+        "decision": 1,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 2,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 3,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 4,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 5,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 6,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 7,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 8,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 9,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 10,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 11,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 12,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 13,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 14,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 15,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 16,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 17,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 18,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 19,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 20,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 21,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 22,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 23,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 24,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 25,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 26,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 27,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 28,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 29,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 30,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 31,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 32,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 33,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 34,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 35,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 36,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 37,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 38,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 39,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 40,
+        "known": true,
+        "offline_planes_match": true
+      }
+    ],
+    "quota_violations": [],
+    "lock_mismatches": [],
+    "lock_count": 40,
+    "final_hash_replayed": true,
+    "same_final_hash": false
+  },
+  {
+    "seed": 124,
+    "source": "1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81",
+    "source_changed": false,
+    "before": {
+      "max_chain": 11,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.36997910999980377,
+        "p95": 0.4310998609011221,
+        "max": 0.43921998100086057
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.38438931700147805,
+        "p95": 0.4440246056956311,
+        "max": 0.46548398500090116
+      }
+    },
+    "same_native_build": true,
+    "same_search_config": true,
+    "same_profile": true,
+    "same_initial_public_input": true,
+    "public_equal_through_first_changed_action": true,
+    "compared_prefix_decisions": 25,
+    "first_action_change": 25,
+    "changes": [
+      {
+        "decision": 25,
+        "before": 21,
+        "after": 0
+      },
+      {
+        "decision": 26,
+        "before": 8,
+        "after": 15
+      },
+      {
+        "decision": 27,
+        "before": 13,
+        "after": 9
+      },
+      {
+        "decision": 28,
+        "before": 4,
+        "after": 3
+      },
+      {
+        "decision": 29,
+        "before": 12,
+        "after": 15
+      },
+      {
+        "decision": 30,
+        "before": 19,
+        "after": 12
+      },
+      {
+        "decision": 31,
+        "before": 0,
+        "after": 2
+      },
+      {
+        "decision": 32,
+        "before": 21,
+        "after": 16
+      },
+      {
+        "decision": 33,
+        "before": 16,
+        "after": 11
+      },
+      {
+        "decision": 34,
+        "before": 12,
+        "after": 18
+      },
+      {
+        "decision": 35,
+        "before": 15,
+        "after": 12
+      },
+      {
+        "decision": 36,
+        "before": 17,
+        "after": 15
+      },
+      {
+        "decision": 37,
+        "before": 13,
+        "after": 14
+      },
+      {
+        "decision": 38,
+        "before": 9,
+        "after": 6
+      },
+      {
+        "decision": 39,
+        "before": 18,
+        "after": 7
+      },
+      {
+        "decision": 40,
+        "before": 4,
+        "after": 1
+      }
+    ],
+    "clears": [
+      {
+        "decision": 25,
+        "action": 0,
+        "chain": 10,
+        "tactic": "fire_main",
+        "reason": "rule_priority_fire_main",
+        "remaining_locks": 15,
+        "actual_root_matches": true,
+        "offline_predicted_chain": 10
+      }
+    ],
+    "inference": [
+      {
+        "decision": 1,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 2,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 3,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 4,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 5,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 6,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 7,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 8,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 9,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 10,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 11,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 12,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 13,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 14,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 15,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 16,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 17,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 18,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 19,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 20,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 21,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 22,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 23,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 24,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 25,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 26,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 27,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 28,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 29,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 30,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 31,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 32,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 33,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 34,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 35,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 36,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 37,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 38,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 39,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 40,
+        "known": true,
+        "offline_planes_match": true
+      }
+    ],
+    "quota_violations": [],
+    "lock_mismatches": [],
+    "lock_count": 40,
+    "final_hash_replayed": true,
+    "same_final_hash": false
+  },
+  {
+    "seed": 126,
+    "source": "1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81",
+    "source_changed": false,
+    "before": {
+      "max_chain": 1,
+      "premature": 2,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.33468769599949155,
+        "p95": 0.4444692903015493,
+        "max": 0.47023481799806177
+      }
+    },
+    "after": {
+      "max_chain": 10,
+      "premature": 0,
+      "game_over": false,
+      "placements": 40,
+      "decision_seconds": {
+        "n": 40,
+        "p50": 0.3761244440011069,
+        "p95": 0.445659403405989,
+        "max": 0.4650105949949648
+      }
+    },
+    "same_native_build": true,
+    "same_search_config": true,
+    "same_profile": true,
+    "same_initial_public_input": true,
+    "public_equal_through_first_changed_action": true,
+    "compared_prefix_decisions": 31,
+    "first_action_change": 31,
+    "changes": [
+      {
+        "decision": 31,
+        "before": 8,
+        "after": 12
+      },
+      {
+        "decision": 32,
+        "before": 19,
+        "after": 3
+      },
+      {
+        "decision": 33,
+        "before": 1,
+        "after": 18
+      },
+      {
+        "decision": 34,
+        "before": 11,
+        "after": 1
+      },
+      {
+        "decision": 35,
+        "before": 9,
+        "after": 10
+      },
+      {
+        "decision": 36,
+        "before": 19,
+        "after": 15
+      },
+      {
+        "decision": 37,
+        "before": 0,
+        "after": 15
+      },
+      {
+        "decision": 38,
+        "before": 12,
+        "after": 4
+      },
+      {
+        "decision": 39,
+        "before": 17,
+        "after": 11
+      },
+      {
+        "decision": 40,
+        "before": 15,
+        "after": 16
+      }
+    ],
+    "clears": [
+      {
+        "decision": 31,
+        "action": 12,
+        "chain": 10,
+        "tactic": "fire_main",
+        "reason": "rule_priority_fire_main",
+        "remaining_locks": 9,
+        "actual_root_matches": true,
+        "offline_predicted_chain": 10
+      }
+    ],
+    "inference": [
+      {
+        "decision": 1,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 2,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 3,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 4,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 5,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 6,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 7,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 8,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 9,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 10,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 11,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 12,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 13,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 14,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 15,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 16,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 17,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 18,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 19,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 20,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 21,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 22,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 23,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 24,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 25,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 26,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 27,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 28,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 29,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 30,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 31,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 32,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 33,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 34,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 35,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 36,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 37,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 38,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 39,
+        "known": true,
+        "offline_planes_match": true
+      },
+      {
+        "decision": 40,
+        "known": true,
+        "offline_planes_match": true
+      }
+    ],
+    "quota_violations": [],
+    "lock_mismatches": [],
+    "lock_count": 40,
+    "final_hash_replayed": true,
+    "same_final_hash": false
+  }
+]

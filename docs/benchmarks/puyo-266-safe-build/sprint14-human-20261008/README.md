@@ -302,3 +302,52 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 未達は，おじゃま0の128/38でprobe110+control18=128となるcutoff，126の小発火，132/135/144を含む正式G2の品質条件，人間GUI QAである．単純cache/既存known解先行/clear予約は保存済み正常123/30または132/30・135/35を退行させるため，追加しない．次の独立設計は最初の幾何witness以外の公開known経路を提示する契約と，正常quietの証明予算を奪わない共有課金であり，今回の着弾後回復とは適用条件を分けて検証する必要がある．個別FAILが明確なため正式60runは再測定せず，品質FAIL/G2 BLOCKED，Jira In Progress，draftを維持する．
+
+## 126 の発火適格性と 128 の代替 prefix の分離
+
+固定 126/33 には到達可能で即時非fatalの10連鎖root12/17/21があり，既存fatal_rate=0を満たしていた．しかしfire_main先頭は3手の10連鎖候補でfatal_rate未評価だったため，ruleがfire_main全体を不適格としていた．34でも同様，35では右側への到達が閉じて小発火しか選べなくなる．小発火の禁止では解決しない．
+
+候補・evidence・selector条件を変えず，fire_main内で既存必要条件fatal_rate=0を満たす候補を未評価候補より先へ置く．各群内の既存順位を保ち，survival順位は引き続き外側で優先する．保存199判断の読取比較では126/31・33・34が即時10連鎖へ変わる一方，正常123/29と124/25–30の一部も10/11連鎖へ早まる．同一入力維持とは扱わず，正常3seedの実品質測定を採用条件にする．実Python共有探索2000nodesを使う126/33の統合fixtureで，未評価future候補を残したまま実selector/envelopeがfire_main/root12を選ぶことを確認した．関連141tests成功．
+
+128/38は別原因である．既課金cache70辺に含まれるroot11/12/8/14の各3手経路には，現在のcontrol/terminal条件を満たすものがなかった．公開known3手を診断専用に全列挙すると，root12の[12,19,14]はcontrol/terminal23nodes，root8/14の[8,6,12]/[14,6,12]は9nodesで確認できる．ただし探索発見コストは別であり，それぞれ14/138/138配置展開を要した．既存probe110に証明23だけでも133となるため，経路の存在だけをproduction128内の修正とは扱わない．cacheだけの追加や無制限列挙をruntimeへ入れず，代替prefix提示・探索と証明の共有課金を次の契約課題として残す．private field/未公開futureは一切使用していない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-eligibility-audit.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/residual-prefix-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_fire_eligibility -q
+```
+
+JSONは保存公開request/batchの読取解析であり，native再対局や正式G2の代用ではない．残る128の個別FAILを理由に，正式60runは実施しない．
+
+### 発火順位変更後の固定40配置
+
+source `1969271` を clean に固定して，55/123/124/126 の native 4run を fresh processで直列測定した．前段の `inference-v1-fixed` と同一native build/search config/profile，公開ツモ・盤面を使用した．sourceの実行中変更なし．
+
+| seed | 最大実連鎖 旧→新 | premature 旧→新 | 実発火の判断 | 発火後に進めた配置 | 40配置時の窒息 |
+| --- | --- | --- | --- | --- | --- |
+| 55 | 10→10 | 0→0 | 32 | 8 | なし |
+| 123 | 10→10 | 0→0 | 29 | 11 | なし |
+| 124 | 11→10 | 0→0 | 25 | 15 | なし |
+| 126 | 1→10 | 2→0 | 31 | 9 | なし |
+
+4件とも実fire_mainを選び，実lockとoffline完全盤面予測・実10連鎖が一致した．126は小発火を禁止せず，31手目の既存適格10連鎖を採用することで40配置まで小発火0・非窒息となった．55の入力/最終hashは旧と一致．123/124/126の初回action変更は29/25/31であり，その判断まで公開入力は完全一致した．以降のprefixは変化するため同一判断列の結果としない．124は最大11→10という低下を明記し，10連鎖級・premature0・40配置非窒息という採用条件を満たした結果として扱う．
+
+全160判断のpublic推定とoffline全盤面一致，quota超過0，実lock不一致0，全最終hash replay一致．各seedのdecision p50/p95と根拠，変化したaction列は`fire-eligible-fixed/summary.json`に保存した．新規raw/実lock gzipと再集計script，SHAは`fire-eligibility-manifest.json`を参照する．元/tmpの測定原本は保持した．
+
+```bash
+# 各 seed を別processで順に実行する．既存outputへの上書きは拒否される．
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 .venv/bin/python docs/benchmarks/puyo-266-safe-build/desktop-survival-20260928/measure.py --seed 126 --output /tmp/puyo266-fire-eligible-fixed
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-cohort-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-eligible-fixed docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inference-v1-fixed /tmp/puyo266-fire-summary-check.json
+```
+
+### 既存正式G2の失敗との関係（再対局ではない）
+
+`integrated-g2-20260927` の既存30seed×2repeatを読取比較した．30seedすべてrepeat semantic digestが同一だったため，候補比較はrepeat1の保存入力を使用した．現rule/envelopeによる旧選択の再計算不一致0．順位変更で19seed/45判断のactionが変わり，昇格候補は45件すべてoffline実盤面でも即時10連鎖級・非fatalだった．完全盤面は診断専用であり，順位変更・policyへ渡していない．
+
+旧失敗126は判断31，132は31，135は34，144は28に同じfire_main適格性の欠落があった．126だけは今回の新規対局で10連鎖・小発火0・40配置非窒息を確認した．132/135/144は保存入力の候補変化に留まり，途中経路が変わる新規対局の成功とは扱わない．特に135の早期小発火はこの後半発火順位だけで消えるとは言えない．128は変更action0件で，control/terminalを満たす代替prefixの発見・課金という独立原因が残る．正式G2の品質FAIL/G2 BLOCKED，人間GUI QA未達を維持し，新しい全60runは実施しない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/formal-fire-audit.py
+```
+
+再確認用の`formal-fire-audit.json`とscriptを保存した．保存199判断の順位比較と固定4runの集計は，再実行JSONのbytes一致を確認した．141tests，Ruff，diff check成功．heavy枠は返却済み．

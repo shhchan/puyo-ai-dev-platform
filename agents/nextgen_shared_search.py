@@ -677,6 +677,13 @@ class SharedSearchBatchBuilder:
                 for name in c.EVIDENCE_NAMES
             )
             entries[cid] = (plan, tactics, evidence, key, fallback)
+        # The rule selector requires fatal_rate == 0 for fire_main. An
+        # unevaluated multi-step plan must not hide an already eligible fire
+        # merely because its score is higher. Preserve the original order
+        # within each group, and let the survival ordering below remain first.
+        for cid, key in tuple(tactic_keys["fire_main"].items()):
+            fatal = next(e.evidence.value for e in entries[cid][2] if e.name == "fatal_rate")
+            tactic_keys["fire_main"][cid] = (fatal != 0, key)
         if survival_diagnostics.get("active"):
             recovery_root = survival_diagnostics.get("control_proof", {}).get(
                 "landed_garbage_recovery", {}).get("preferred_root")
