@@ -60,3 +60,9 @@ probe + control + cache miss placement + terminal の合計を既存 survival 12
 固定 6 判断の結果は [監査 JSON](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.json)．関連 135 tests（既存 43 を含む）と legacy 383 判断の完全一致を確認した．保存 batch 上の実 `apply_envelope` では 127/26 が root 8 の 4 連鎖になり，正常 123/28，132/30，135/34 を維持した．新規対局，実 lock，正式 G2 と人間 QA は別の検証であり，この固定結果で達成扱いにしない．
 
 observer の `origin_episode_id` と scheduler の `episode_id` は独立の ID 空間である．prepare は元 observer episode/origin が match の現在 origin と一致することを先に照合し，不一致なら hidden を消して unknown にする．その後 scheduler episode と request digest を bind する．`known_inference()` は scheduler episode の厳密一致と origin の存在も必須とする．古い observer を新しい request digest で再 bind しても known に復活しない回帰 test を追加した．
+
+### 着弾後の回復候補（2026-10-08 追補）
+
+`0633af0` は公開推定が known，未着弾 packet なし，到達可能 fatal root ありという境界で，着弾済みおじゃまを実際に減らす即時非fatal消去の証明を先に行う．既存128枠内でcontrol/terminalが認証されたrootだけをbuild_main順位へ反映し，cutoff/unknownと他tacticは従来経路を保つ．静かな未検証witnessをfatalにはしない．wire/native/actor入力とresponse256を維持した．
+
+保存228判断ではhuman127の6判断だけが変わり，おじゃま0の207判断（固定55/123/124/126/128の全199含む）とlegacy383は非退行．140tests成功．同じ製品sourceの新規human127/58/daa/softmax1.0/x1.0は3500tick時点で43lock生存，max_ticks7000のfresh別runで5090tick/60lock生存だった．6回の回復の実1/1/3/5/2/9連鎖と予測・実おじゃま除去数が一致し，66推定hidden誤確定0，実lock不一致0，quota超過0，全hash一致．normalのwall-clock分岐を含むため同一prefix A/Bとはしない．詳しいraw・再監査・残課題は[保存README](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照．無脅威G2と人間GUI QAは未達のままである．

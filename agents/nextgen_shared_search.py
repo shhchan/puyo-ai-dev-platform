@@ -678,6 +678,8 @@ class SharedSearchBatchBuilder:
             )
             entries[cid] = (plan, tactics, evidence, key, fallback)
         if survival_diagnostics.get("active"):
+            recovery_root = survival_diagnostics.get("control_proof", {}).get(
+                "landed_garbage_recovery", {}).get("preferred_root")
             for tactic in c.TACTIC_IDS:
                 for cid, key in tuple(tactic_keys[tactic].items()):
                     result = survival.get(entries[cid][0][0].action)
@@ -686,6 +688,9 @@ class SharedSearchBatchBuilder:
                                    else 1 if result and result.status == "witness"
                                    else 3 if result and result.status == "fatal" else 2)
                     tactic_keys[tactic][cid] = (safety_rank, key)
+                    if tactic == "build_main" and recovery_root is not None:
+                        tactic_keys[tactic][cid] = (
+                            entries[cid][0][0].action != recovery_root, safety_rank, key)
         candidates = tuple(
             c.Candidate(
                 request.identity,
