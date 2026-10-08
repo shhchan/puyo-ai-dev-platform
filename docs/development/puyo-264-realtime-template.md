@@ -50,7 +50,7 @@ python -m eval.nextgen_realtime_diagnostic \
 
 人間による通常 GUI QA は 2026-09-28 に依頼者が OK と報告した．2026-10-08 の nextgen／human 対戦では `o` の先読みと ghost の区別ができ，移動・回転で意図した位置へ置けそうとの報告もあった．人間の観測を同一公開入力の機械比較とは区別する．
 
-PUYO-266 は規定 cohort の 30 seed × 2 repeat を再測定済みであり，「未実測」のままではない．[統合 G2 証跡](../benchmarks/puyo-266-safe-build/integrated-g2-20260927/README.md) の結果は quality FAIL／G2 BLOCKED で，G0／G1／必須脅威 fixture／公開既知解 gap は未確認である．本件の A/C は G2 PASS を明記していないが，正式 gate の未確認条件を測定完了だけで満たした扱いにはしない．正式 G2 の完了判断は PUYO-266 に残し，PUYO-264 は In Progress を維持する．複数 catalog の初期 quota 配分は本件の対象外である．
+PUYO-266 は規定 cohort の 30 seed × 2 repeat を再測定済みであり，「未実測」のままではない．[統合 G2 証跡](../benchmarks/puyo-266-safe-build/integrated-g2-20260927/README.md) の結果は quality FAIL／G2 BLOCKED で，G0／G1／必須脅威 fixture／公開既知解 gap は未確認である．本件の A/C が要求する再実測は満たされたが，モデル品質 PASS ではない．親セッションの完了境界判断に従い，264 固有の証拠と人間 QA を確認して PUYO-264 を COMPLETE にする．正式 G2 の品質条件と未確認 gate の完了判断は PUYO-266 に残す．複数 catalog の初期 quota 配分は本件の対象外である．
 
 ## 2026-10-08 デスクトップ監査
 
