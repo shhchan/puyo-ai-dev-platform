@@ -318,3 +318,36 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 JSONは保存公開request/batchの読取解析であり，native再対局や正式G2の代用ではない．残る128の個別FAILを理由に，正式60runは実施しない．
+
+### 発火順位変更後の固定40配置
+
+source `1969271` を clean に固定して，55/123/124/126 の native 4run を fresh processで直列測定した．前段の `inference-v1-fixed` と同一native build/search config/profile，公開ツモ・盤面を使用した．sourceの実行中変更なし．
+
+| seed | 最大実連鎖 旧→新 | premature 旧→新 | 実発火の判断 | 発火後に進めた配置 | 40配置時の窒息 |
+| --- | --- | --- | --- | --- | --- |
+| 55 | 10→10 | 0→0 | 32 | 8 | なし |
+| 123 | 10→10 | 0→0 | 29 | 11 | なし |
+| 124 | 11→10 | 0→0 | 25 | 15 | なし |
+| 126 | 1→10 | 2→0 | 31 | 9 | なし |
+
+4件とも実fire_mainを選び，実lockとoffline完全盤面予測・実10連鎖が一致した．126は小発火を禁止せず，31手目の既存適格10連鎖を採用することで40配置まで小発火0・非窒息となった．55の入力/最終hashは旧と一致．123/124/126の初回action変更は29/25/31であり，その判断まで公開入力は完全一致した．以降のprefixは変化するため同一判断列の結果としない．124は最大11→10という低下を明記し，10連鎖級・premature0・40配置非窒息という採用条件を満たした結果として扱う．
+
+全160判断のpublic推定とoffline全盤面一致，quota超過0，実lock不一致0，全最終hash replay一致．各seedのdecision p50/p95と根拠，変化したaction列は`fire-eligible-fixed/summary.json`に保存した．新規raw/実lock gzipと再集計script，SHAは`fire-eligibility-manifest.json`を参照する．元/tmpの測定原本は保持した．
+
+```bash
+# 各 seed を別processで順に実行する．既存outputへの上書きは拒否される．
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 .venv/bin/python docs/benchmarks/puyo-266-safe-build/desktop-survival-20260928/measure.py --seed 126 --output /tmp/puyo266-fire-eligible-fixed
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-cohort-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/fire-eligible-fixed docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inference-v1-fixed /tmp/puyo266-fire-summary-check.json
+```
+
+### 既存正式G2の失敗との関係（再対局ではない）
+
+`integrated-g2-20260927` の既存30seed×2repeatを読取比較した．30seedすべてrepeat semantic digestが同一だったため，候補比較はrepeat1の保存入力を使用した．現rule/envelopeによる旧選択の再計算不一致0．順位変更で19seed/45判断のactionが変わり，昇格候補は45件すべてoffline実盤面でも即時10連鎖級・非fatalだった．完全盤面は診断専用であり，順位変更・policyへ渡していない．
+
+旧失敗126は判断31，132は31，135は34，144は28に同じfire_main適格性の欠落があった．126だけは今回の新規対局で10連鎖・小発火0・40配置非窒息を確認した．132/135/144は保存入力の候補変化に留まり，途中経路が変わる新規対局の成功とは扱わない．特に135の早期小発火はこの後半発火順位だけで消えるとは言えない．128は変更action0件で，control/terminalを満たす代替prefixの発見・課金という独立原因が残る．正式G2の品質FAIL/G2 BLOCKED，人間GUI QA未達を維持し，新しい全60runは実施しない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/formal-fire-audit.py
+```
+
+再確認用の`formal-fire-audit.json`とscriptを保存した．保存199判断の順位比較と固定4runの集計は，再実行JSONのbytes一致を確認した．141tests，Ruff，diff check成功．heavy枠は返却済み．

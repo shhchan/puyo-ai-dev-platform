@@ -19,11 +19,14 @@ for seed in (55, 123, 124, 126, 128):
         cs = {v.candidate_id: v for v in batch.candidates}
         row = next(t for t in batch.tactics if t.tactic_id == "fire_main")
 
-        def eligible(cid):
+        def rank(cid):
             v = cs[cid]
-            return value(v, "fatal_rate") == 0 and (value(v, "chain_count") or 0) >= 10
+            safe = value(v, "survival_safe")
+            active = raw["rows"][i - 1]["search"]["survival"].get("active", False)
+            safety = (0 if safe == 1 else 3 if safe == 0 else 2) if active else 0
+            return safety, value(v, "fatal_rate") != 0
 
-        ids = tuple(sorted(row.candidate_ids, key=lambda cid: not eligible(cid)))
+        ids = tuple(sorted(row.candidate_ids, key=rank))
         changed = replace(
             batch,
             tactics=tuple(
