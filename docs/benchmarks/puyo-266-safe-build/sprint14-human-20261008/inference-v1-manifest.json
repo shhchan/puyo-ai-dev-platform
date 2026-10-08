@@ -1,0 +1,74 @@
+{
+  "source_commit": "ce44f6ef4d47dafcb21613c907d285971f84000a",
+  "scope": "Frozen native diagnostic cohort; not formal G2. Full boards in locks/audit are offline-only.",
+  "artifacts": {
+    "inference-v1-fixed/gtr-123.json.gz": {
+      "bytes": 990204,
+      "sha256": "64223f5b3f4ed4b018589a3210c7fc0e30c225cb16188097ea832f7d73a64f3e"
+    },
+    "inference-v1-fixed/gtr-123.locks.json.gz": {
+      "bytes": 29311,
+      "sha256": "612e44acf5683b6eb3b5b4231602b1320627cd98cb6f27282c99585586acf1f5"
+    },
+    "inference-v1-fixed/gtr-124.json.gz": {
+      "bytes": 1119600,
+      "sha256": "9bed5c4d2d52f419c136328482bbc5f68e32d059c5071347f827b1b801cdec36"
+    },
+    "inference-v1-fixed/gtr-124.locks.json.gz": {
+      "bytes": 28904,
+      "sha256": "7607d641805fb0fd4765fa0411003d2ac1190c3c3689afed8cdcba2df65b8cfc"
+    },
+    "inference-v1-fixed/gtr-126.json.gz": {
+      "bytes": 1148702,
+      "sha256": "70b0430a1dbae705e74d4c51ef36ad2a41000ee94b8ee136f62e39a008aa8402"
+    },
+    "inference-v1-fixed/gtr-126.locks.json.gz": {
+      "bytes": 28429,
+      "sha256": "9855d7672a428a12421baf7d5aac981fc2615aee762f6ac739e49a65f07e15cc"
+    },
+    "inference-v1-fixed/gtr-128.json.gz": {
+      "bytes": 964143,
+      "sha256": "f75b814f892b121445ce271545ac8138eda37cdc3b815888f4c9739a483493bf"
+    },
+    "inference-v1-fixed/gtr-128.locks.json.gz": {
+      "bytes": 26701,
+      "sha256": "b978d9556a1ce7f3cf68f1855fb6683e4bfca45363242730d0a77cc5d37ddcb6"
+    },
+    "inference-v1-fixed/gtr-55.json.gz": {
+      "bytes": 1165583,
+      "sha256": "0a04ed7067fe67f3c6b22abb707bf51eea6cb5e3ea6b628fd077598dd77cf5da"
+    },
+    "inference-v1-fixed/gtr-55.locks.json.gz": {
+      "bytes": 29723,
+      "sha256": "23115f0d7774324fd5ef71a82a3cef162c338a9b0b26538a0cee83842d985117"
+    },
+    "inference-v1-fixed/summary.json": {
+      "bytes": 17827,
+      "sha256": "1f66a2a64b9f9935281b15635fdd9f0a4dc55602669db04019d574d129088508"
+    },
+    "inference-v1-human/audit.json.gz": {
+      "bytes": 195173,
+      "sha256": "b573869f1085909d9f894e215c5931f804a2f019cf2dae31df75b464ba31ff9d"
+    },
+    "inference-v1-human/inference-summary.json": {
+      "bytes": 42994,
+      "sha256": "0dab2ab22112aac8e70ca378df3d617920dbf9126c7574cc63d4d26492208ab0"
+    },
+    "inference-v1-human/ledger.json.gz": {
+      "bytes": 278969,
+      "sha256": "18a80a751982d654fb7dbf7a27b223249406972721e5d582a1abe8e68105e2c3"
+    },
+    "inference-v1-human/originals.json": {
+      "bytes": 616,
+      "sha256": "e149dd2738f4bf1d37c59f4b56923d83a1c9e8be134443a656d64cbecd6fadc3"
+    },
+    "inference-v1-human/replay.json.gz": {
+      "bytes": 106487,
+      "sha256": "9fe9fd04819de95928720a32abefd43cd4238ec2a131193d2730bad4bd29df8e"
+    },
+    "inference-v1-human/report.json.gz": {
+      "bytes": 719774,
+      "sha256": "d9ef6d3144fd6b2c7ff1fa0873b99a3279eb82b3b9818a0c470b6d87235af86c"
+    }
+  }
+}

@@ -8,10 +8,11 @@ charged to the existing response quota before evaluation.
 from __future__ import annotations
 
 from collections import deque
+import heapq
 from dataclasses import dataclass, replace
 
 from agents import nextgen_contracts as c
-from agents.compact_search import legal_action_indices, transition
+from agents.compact_search import find_landing_y, legal_action_indices, transition
 from puyo_env.actions import PLACEMENT_ACTIONS
 from src.core.constants import GRID_HEIGHT, GRID_WIDTH, VISIBLE_HEIGHT
 
@@ -68,7 +69,7 @@ def needs_probe(request):
     return height + hidden + 2 * len(own.known_pieces) + incoming >= VISIBLE_HEIGHT
 
 
-def probe(request, state, roots, budget, *, timing=None, board_complete=False):
+def probe(request, state, roots, budget, *, timing=None, board_complete=False, transition_cache=None):
     # Local import keeps the shared-search/provider injection boundary acyclic.
     from agents.nextgen_response_search import (
         PublicResponseProvider, _Node, _consume, _due_options, _plus,
@@ -103,6 +104,8 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
             yield  # One placement including failed/fatal resolution.
             pair = tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in known[depth])
             result = transition(node.state, pair, action)
+            if transition_cache is not None:
+                transition_cache[node.state, pair, action] = result
             if depth == 0:
                 root_chains[action] = result.chain_count
             if not result.valid or result.game_over:
@@ -187,6 +190,181 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
         "unreachable_roots": [a for a in roots if a not in reachable],
     }
 
+
+
+def inferred_state(request, state):
+    """Overlay only a request-bound, certain public deduction for this probe.
+
+    The native/shared state and actor features retain the original visible
+    input. Pending attack branches need a branching control proof; a single
+    representative witness cannot certify those, so use the old path there.
+    """
+    inference = request.known_inference()
+    if inference is None or any(p.amount and p.landed_tick is None
+                                for p in request.public.own.attack_packets):
+        return None
+    visible_mask = (1 << (VISIBLE_HEIGHT * GRID_WIDTH)) - 1
+    planes = [p & visible_mask for p in state.planes]
+    public_plane = {1: 0, 2: 1, 3: 2, 4: 3, 5: 5}
+    for y, row in enumerate(inference.hidden_rows, VISIBLE_HEIGHT):
+        for x, cell in enumerate(row):
+            if cell:
+                planes[public_plane[cell]] |= 1 << (y * GRID_WIDTH + x)
+    return replace(state, planes=tuple(planes))
+
+
+class _ProofCutoff(Exception):
+    pass
+
+
+class _ControlProof:
+    """Request-local geometry cache and shared, precharged work accounting."""
+
+    def __init__(self, budget, start_nodes):
+        self.budget, self.start_nodes = budget, start_nodes
+        self.cache = {}
+        self.charged = {"control": 0, "placement": 0, "terminal": 0}
+        self.hits = 0
+
+    def charge(self, kind):
+        if self.budget.nodes - self.start_nodes >= SURVIVAL_NODE_LIMIT or not self.budget.consume():
+            raise _ProofCutoff
+        self.charged[kind] += 1
+
+    def reachable(self, state, pair, action):
+        from puyo_env.action_planner import PLANNER_ACTIONS, _transition_piece_state
+        from src.core.game import GameState
+        from src.core.puyo import Puyo
+
+        # Collision/control rules depend on occupied cells, not their colors.
+        # Fresh spawn and zero interpolation are fixed for every cache entry.
+        key = state.occupied_mask, action
+        if key in self.cache:
+            self.hits += 1
+            return self.cache[key]
+        game = GameState(seed=0)
+        game.next_puyo_queue.clear()
+        game.puyo_sequence = None
+        game.current_puyo_1, game.current_puyo_2 = map(Puyo, pair)
+        for y, row in enumerate(state.to_color_grid()):
+            for x, color in enumerate(row):
+                game.field.grid[y][x] = Puyo(color)
+        pose = PLACEMENT_ACTIONS[action]
+        landing = game.find_landing_y(pose.axis_x, pose.rotation)
+        if landing is None:
+            self.cache[key] = False
+            return False
+        target = pose.axis_x, landing, pose.rotation
+
+        def priority(value):
+            return abs(value[0] - target[0]) + abs(value[1] - target[1]) + int(value[2] != target[2])
+
+        start = game.puyo_x, game.puyo_y, game.puyo_rot, 0
+        queue, seen, sequence = [(priority(start), 0, start)], {start}, 0
+        while queue:
+            self.charge("control")
+            _, _, value = heapq.heappop(queue)
+            if value[:3] == target:
+                self.cache[key] = True
+                return True
+            for operation in PLANNER_ACTIONS:
+                nxt = _transition_piece_state(game, value, operation)
+                if nxt is not None and nxt not in seen:
+                    seen.add(nxt)
+                    sequence += 1
+                    heapq.heappush(queue, (priority(nxt), sequence, nxt))
+        self.cache[key] = False
+        return False
+
+    def terminal(self, state, pair):
+        # A sufficient condition for ONE more placement independent of colors,
+        # not a claim about indefinite survival or future opponent attacks.
+        # Row 13 is permanent; keep all three central spawn/choke cells empty.
+        if any(state.occupied_mask & (1 << (y * GRID_WIDTH + 2)) for y in (11, 12, 13)):
+            return None
+        central = sum(bool(state.occupied_mask & (1 << (y * GRID_WIDTH + 2))) for y in range(13))
+        from src.core.game import GameState
+        for action in continuation_actions(state):
+            pose = PLACEMENT_ACTIONS[action]
+            y = find_landing_y(state, pose)
+            dx, dy = GameState.get_sub_puyo_offset(None, pose.rotation)
+            cells = ((pose.axis_x, y), (pose.axis_x + dx, y + dy))
+            if central + sum(x == 2 and cy < 13 for x, cy in cells) > 11:
+                continue
+            if self.reachable(state, pair, action):
+                self.charge("terminal")
+                return action
+        return None
+
+
+def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, transition_cache):
+    """Check high-ranked bounded witnesses within the SAME survival quota.
+
+    A failed witness is unknown, not a proof of death. If no terminal witness
+    is certified (including cutoff), retain the original finite-horizon
+    envelope; diagnostics distinguish that fallback from a control proof.
+    """
+    if not results:
+        return results, diagnostics
+    start_nodes = budget.nodes - diagnostics["nodes"]
+    proof = _ControlProof(budget, start_nodes)
+    pairs = tuple(tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in pair)
+                  for pair in request.public.own.known_pieces)
+    ordered = list(dict.fromkeys((*ranked_roots, *results)))
+    ordered.sort(key=lambda a: 0 if a in results and results[a].status == "witness"
+                 and not results[a].root_chain else 1)
+    trials, failed, certified, cache_hits, cutoff = [], [], None, 0, False
+    for action in ordered:
+        root = results.get(action)
+        if root is None or root.status != "witness":
+            continue
+        current, terminal, reachable = state, None, True
+        try:
+            for depth, step in enumerate(root.witness):
+                if depth and not proof.reachable(current, pairs[depth], step):
+                    reachable = False
+                    break
+                key = current, pairs[depth], step
+                if key in transition_cache:
+                    cache_hits += 1
+                else:
+                    proof.charge("placement")
+                    transition_cache[key] = transition(current, pairs[depth], step)
+                result = transition_cache[key]
+                if not result.valid or result.game_over:
+                    reachable = False
+                    break
+                current = result.state
+            if reachable:
+                terminal = proof.terminal(current, pairs[0])
+        except _ProofCutoff:
+            cutoff = True
+            trials.append({"root": action, "status": "unknown_cutoff"})
+            break
+        status = "certified" if terminal is not None else "unknown_terminal" if reachable else "unknown_control"
+        trials.append({"root": action, "status": status, "terminal_action": terminal})
+        if terminal is not None:
+            certified = action
+            break
+        failed.append(action)
+    refined = dict(results)
+    if certified is not None:
+        for action in failed:
+            refined[action] = replace(results[action], status="unknown", witness=())
+    details = {
+        "status": "certified" if certified is not None else "unknown_cutoff" if cutoff else "unknown",
+        "certified_root": certified, "trials": trials, "charged": proof.charged,
+        "placement_cache_hits": cache_hits, "placement_cache_entries": len(transition_cache),
+        "control_cache_hits": proof.hits,
+        "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+        "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+        "safety_guarantee": False, "fallback": certified is None,
+    }
+    return refined, {**diagnostics, "source": "public_history_inference",
+                     "nodes": budget.nodes - start_nodes, "control_proof": details,
+                     "active": diagnostics.get("active", False) or (certified is not None and bool(failed)),
+                     "roots": [{"action": a, "status": v.status, "root_chain": v.root_chain,
+                                "witness": list(v.witness)} for a, v in sorted(refined.items())]}
 
 def evidence_for(result, *, board_complete):
     source = "visible_exact" if board_complete else "public_estimate"

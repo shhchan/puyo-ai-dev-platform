@@ -28,7 +28,10 @@ from agents.long_horizon_search import (
     ScenarioPairSequence,
     build_scenario_sequences_from_known_pairs,
 )
-from agents.nextgen_survival import probe as survival_probe, evidence_for as survival_evidence
+from agents.nextgen_survival import (
+    probe as survival_probe, evidence_for as survival_evidence,
+    inferred_state, refine_inferred,
+)
 from agents.template_catalog import compile_selected_template, MatchResult, TemplateCatalog, match_templates
 from src.core.constants import GRID_HEIGHT, PuyoColor
 
@@ -459,11 +462,19 @@ class SharedSearchBatchBuilder:
         stage_ms = {"shared": (time.perf_counter() - stage_started) * 1000, "template": template_elapsed_ms}
         stage_started = time.perf_counter()
         response_budget = ResponseBudget(profile.response_quota)
+        survival_state = inferred_state(request, state)
+        survival_cache = {} if survival_state is not None else None
         survival, survival_diagnostics = survival_probe(
-            request, state, roots, response_budget,
+            request, survival_state if survival_state is not None else state, roots, response_budget,
             timing=getattr(self.response_provider, "timing", None),
-            board_complete=board_complete,
+            board_complete=board_complete, transition_cache=survival_cache,
         )
+        if survival_state is not None:
+            survival, survival_diagnostics = refine_inferred(
+                request, survival_state, survival, survival_diagnostics, response_budget,
+                tuple(v.root_action for v in shared.ranked_roots) if shared else roots,
+                survival_cache,
+            )
         if any(v.status == "cutoff" for v in survival.values()):
             cutoffs.append("survival_quota")
         response = ResponseSearchResult()
