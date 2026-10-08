@@ -229,11 +229,19 @@ def reachable_placement_actions(
     *,
     timing: RealtimeTimingConfig | None = None,
     max_expanded_states: int = 2_000,
+    plan_results: dict[PlacementAction, PlannedPlacement] | None = None,
 ) -> tuple[bool, ...]:
-    """Share geometry BFS and return only roots with verified timed witnesses."""
+    """Return verified roots, optionally retaining this call's timed witnesses.
+
+    The output mapping is cleared on every call. Witnesses belong to this exact
+    live state; callers must not carry them across simulation ticks or mutations.
+    """
     actions = tuple(actions)
     plans = _plans_for_actions(game_or_simulator, actions, timing=timing,
                                max_expanded_states=max_expanded_states)
+    if plan_results is not None:
+        plan_results.clear()
+        plan_results.update((action, plan) for action, plan in plans.items() if plan is not None)
     return tuple(plans.get(action) is not None for action in actions)
 
 
@@ -289,7 +297,8 @@ def _transition_piece_state(
 ) -> tuple[int, int, Direction, int] | None:
     # Movement probes only mutate piece/control counters and read the board.
     # Sharing the field avoids thousands of deep board copies per BFS.
-    probe = copy.copy(base_game)
+    probe = object.__new__(type(base_game))
+    probe.__dict__ = base_game.__dict__.copy()
     probe.puyo_x, probe.puyo_y, probe.puyo_rot, probe.blocked_rotate_input_count = state
     probe.vertical_interpolation_progress = 0.0
     probe.floor_kick_horizontal_grace = False

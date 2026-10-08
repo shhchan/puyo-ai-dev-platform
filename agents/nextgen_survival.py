@@ -12,10 +12,32 @@ from dataclasses import dataclass, replace
 
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices, transition
-from src.core.constants import VISIBLE_HEIGHT
+from puyo_env.actions import PLACEMENT_ACTIONS
+from src.core.constants import GRID_HEIGHT, GRID_WIDTH, VISIBLE_HEIGHT
 
 SURVIVAL_NODE_LIMIT = 128
 SURVIVAL_STATUS = {"witness": 1, "fatal": 2, "unknown": 3, "cutoff": 4, "deadline_unreachable": 5}
+_COLUMN_MASKS = tuple(sum(1 << (y * GRID_WIDTH + x) for y in range(GRID_HEIGHT))
+                      for x in range(GRID_WIDTH))
+
+
+def continuation_actions(state):
+    """Exclude a provably impossible crossing, without adding control search.
+
+    A fresh axis spawns in column 2; horizontal moves/side kicks change its
+    column by at most one. It cannot occupy any height in a completely full
+    column. This is a necessary condition only, not a reachability certificate.
+    Row-14 cells can remain suspended after clears, so a top cell alone is NOT
+    treated as a solid wall. Root reachability remains the scheduler's mask.
+    """
+    occupied = 0
+    for plane in state.planes:
+        occupied |= plane
+    walls = {x for x, mask in enumerate(_COLUMN_MASKS) if occupied & mask == mask}
+    return tuple(a for a in legal_action_indices(state)
+                 if not any(x in walls for x in range(
+                     min(2, PLACEMENT_ACTIONS[a].axis_x),
+                     max(2, PLACEMENT_ACTIONS[a].axis_x) + 1)))
 
 
 @dataclass(frozen=True)
@@ -123,7 +145,7 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False):
 
         def continuation(node):
             outcomes = []
-            for action in legal_action_indices(node.state):
+            for action in continuation_actions(node.state):
                 status, path = yield from move(node, action)
                 if status == "witness":
                     return status, path

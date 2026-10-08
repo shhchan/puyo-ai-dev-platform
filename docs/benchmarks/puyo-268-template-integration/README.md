@@ -1,5 +1,7 @@
 # PUYO-268 定型保持・採用の検証
 
+2026-10-08 の公開入力・future scenario を揃えた reference 比較と A/C 対照は [最新証跡](public-reference-20261008/README.md) を参照．以下の In Progress／人間 QA 未実施は初回測定時点の記録であり，過去の失敗もその source のまま保持する．
+
 2026-09-27 の追加調査と最終結果は [GTR 公開 prefix の中間進捗](public-prefix-compact-20260927/README.md) を参照．以下は初回実装時の記録である．追加比較でも元の失敗 run と初回 GTR 2/3 を保持している．
 
 実装は [接続仕様](../../development/puyo-268-template-integration.md) を参照．この測定は targeted fixture と nextgen 1 seed の短い実対局であり，reference 実対局との一般品質比較や G2 PASS を示さない．PUYO-268 は draft PR / In Progress のまま，残る一般比較を PUYO-271 後半へ引き継ぐ．人間の GUI QA は未実施．

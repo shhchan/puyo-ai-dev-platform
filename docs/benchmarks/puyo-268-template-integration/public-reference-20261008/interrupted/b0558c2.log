@@ -1,0 +1,118 @@
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 10
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+deep_chain 55 1 chain 0
+deep_chain 55 2 chain 0
+deep_chain 55 3 chain 0
+deep_chain 55 4 chain 0
+deep_chain 55 5 chain 0
+deep_chain 55 6 chain 0
+deep_chain 55 7 chain 0
+deep_chain 55 8 chain 0
+deep_chain 55 9 chain 0
+deep_chain 55 10 chain 0
+deep_chain 55 11 chain 0
+deep_chain 55 12 chain 0
+deep_chain 55 13 chain 0
+deep_chain 55 14 chain 0
+deep_chain 55 15 chain 0
+deep_chain 55 16 chain 0
+deep_chain 55 17 chain 0
+deep_chain 55 18 chain 0
+deep_chain 55 19 chain 0
+deep_chain 55 20 chain 0
+deep_chain 55 21 chain 0
+deep_chain 55 22 chain 0
+deep_chain 55 23 chain 0
+deep_chain 55 24 chain 0
+deep_chain 55 25 chain 0
+deep_chain 55 26 chain 0
+deep_chain 55 27 chain 0
+deep_chain 55 28 chain 0
+deep_chain 55 29 chain 0
+deep_chain 55 30 chain 10
+deep_chain 55 31 chain 0
+deep_chain 55 32 chain 0
+deep_chain 55 33 chain 0
+deep_chain 55 34 chain 0
+deep_chain 55 35 chain 0
+deep_chain 55 36 chain 0
+deep_chain 55 37 chain 0
+deep_chain 55 38 chain 0
+deep_chain 55 39 chain 0
+deep_chain 55 40 chain 0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 238, in <module>
+    main()
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 234, in main
+    run(args.output, args.seeds, args.placements)
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 207, in run
+    write_json(output / f'reference-{seed}.json.gz', actual_reference)
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 111, in write_json
+    data = (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type ndarray is not JSON serializable

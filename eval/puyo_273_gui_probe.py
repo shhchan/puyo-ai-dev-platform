@@ -43,7 +43,7 @@ def run(args):
         source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/action_planner.py"], text=True)
         exec(compile(source, "geometric_reference_planner", "exec"), module.__dict__)
         ai.plan_placement_action = module.plan_placement_action
-        ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
+        ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000, plan_results=None: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
         controller_source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/realtime_ai.py"], text=True)
         cls = next(node for node in ast.parse(controller_source).body if isinstance(node, ast.ClassDef) and node.name == "RealtimePolicyController")
         method = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "_should_abort_active_plan")
@@ -52,7 +52,7 @@ def run(args):
         ai.RealtimePolicyController._should_abort_active_plan = namespace["_should_abort_active_plan"]
     if args.reference_mask:
         # Baseline implementation at 595dbed, retained only in this evaluator.
-        def reference(simulator, *, timing=None, max_expanded_states=2000):
+        def reference(simulator, *, timing=None, max_expanded_states=2000, plan_results=None):
             if simulator.game.state != "control" or simulator.game.game_over:
                 return ai.np.zeros(ai.NUM_ACTIONS, dtype=ai.np.bool_)
             return ai.np.asarray([ai.plan_placement_action(simulator, action, timing=timing,
@@ -128,6 +128,7 @@ def run(args):
             wrap(controller, name, name)
         wrap(controller.env, "step", "simulation")
         wrap(ai, "nextgen_authoritative_action_mask", "authoritative_mask")
+        wrap(ai, "nextgen_plan_is_current", "authoritative_plan_proof")
         for agent, item in controller.controllers.items():
             wrap(item, "next_input", "next_input_" + agent)
             wrap(item.diagnostics, "to_dict", "controller_diagnostics_" + agent)
