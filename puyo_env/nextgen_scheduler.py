@@ -123,6 +123,10 @@ class NextgenScheduler:
             "phase": copy.deepcopy(self.phase),
             "piece_id": f"piece-{sum(e.kind == 'placement' and e.player_id == player for e in public.events)}",
         }
+        self.data["inference"] = replace(
+            match.public_board_inference(player),
+            request_digest=c.inference_request_digest(identity, self.data["execution"]),
+        )
         self.result = None
         self.result_candidate = None
         self.result_phase = None
@@ -145,6 +149,7 @@ class NextgenScheduler:
                 request.identity != self.data["identity"]
                 or request.public != self.data["public"]
                 or request.execution != self.data["execution"]
+                or request.inference != self.data["inference"]
                 or request.control.search_profile != self.policy.profile
                 or request.control.template_config_hash
                 != self.policy.catalog.semantic_digest

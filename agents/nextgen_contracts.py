@@ -20,7 +20,8 @@ from typing import ClassVar, Literal, Union, get_args, get_origin, get_type_hint
 from puyo_env.actions import NUM_ACTIONS
 from src.core.constants import NORMAL_PUYO_COLORS, PuyoColor
 
-REQUEST_SCHEMA_VERSION = "puyo.nextgen.request.v1"
+LEGACY_REQUEST_SCHEMA_VERSION = "puyo.nextgen.request.v1"
+REQUEST_SCHEMA_VERSION = "puyo.nextgen.request.v2"
 LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v1"
 PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v2"
 CANDIDATE_BATCH_SCHEMA_VERSION = "puyo.nextgen.candidate_batch.v3"
@@ -71,7 +72,9 @@ def _require(condition: bool, message: str) -> None:
 
 def _json_value(value):
     if is_dataclass(value):
-        return {f.name: _json_value(getattr(value, f.name)) for f in fields(value)}
+        omitted = getattr(type(value), "OMITTED_WIRE_FIELDS", {}).get(
+            getattr(value, "schema_version", None), ())
+        return {f.name: _json_value(getattr(value, f.name)) for f in fields(value) if f.name not in omitted}
     if isinstance(value, tuple):
         return [_json_value(v) for v in value]
     if isinstance(value, Mapping):
@@ -447,17 +450,44 @@ class PublicBoardInference(Contract):
 @dataclass(frozen=True)
 class NextgenRequest(Contract):
     SCHEMA: ClassVar[str] = REQUEST_SCHEMA_VERSION
+    READABLE_SCHEMAS: ClassVar[tuple[str, ...]] = (LEGACY_REQUEST_SCHEMA_VERSION,)
+    OMITTED_WIRE_FIELDS: ClassVar[dict] = {LEGACY_REQUEST_SCHEMA_VERSION: ("inference",)}
     identity: DecisionIdentity
     public: PublicSnapshot
     execution: ExecutionContext
     control: ControlContext
     schema_version: str = REQUEST_SCHEMA_VERSION
+    inference: PublicBoardInference | None = None
 
     def _validate(self):
         _require(
             self.identity.snapshot_digest == self.public.digest,
             "snapshot digest mismatch",
         )
+        _require(self.schema_version != LEGACY_REQUEST_SCHEMA_VERSION or self.inference is None,
+                 "legacy request cannot carry inference")
+
+    @classmethod
+    def from_dict(cls, value):
+        if isinstance(value, Mapping) and value.get("schema_version") == LEGACY_REQUEST_SCHEMA_VERSION:
+            _require("inference" not in value, "legacy request has inference field")
+            value = {**value, "inference": None}
+        return super().from_dict(value)
+
+    def known_inference(self):
+        value = self.inference
+        if (value is None or value.status != "known" or self.public.own.phase != "control" or
+                value.player_id != self.identity.player_id or
+                value.observed_tick != self.execution.request_tick or
+                value.visible_digest != semantic_digest(self.public.own.visible_board) or
+                value.request_digest != inference_request_digest(self.identity, self.execution)):
+            return None
+        return value
+
+
+def inference_request_digest(identity, execution):
+    """Bind the immutable public deduction to this exact scheduled request."""
+    return semantic_digest({"identity": identity, "execution": execution})
 
 
 @dataclass(frozen=True)
@@ -1060,6 +1090,7 @@ _SCHEMA_TYPES = {
     for c in (NextgenRequest, CandidateBatch, PolicyFeatures, Selection, Diagnostics)
 }
 _SCHEMA_TYPES[LEGACY_CANDIDATE_BATCH_SCHEMA_VERSION] = CandidateBatch
+_SCHEMA_TYPES[LEGACY_REQUEST_SCHEMA_VERSION] = NextgenRequest
 _SCHEMA_TYPES[PRE_SURVIVAL_CANDIDATE_BATCH_SCHEMA_VERSION] = CandidateBatch
 
 

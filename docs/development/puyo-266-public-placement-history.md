@@ -38,3 +38,11 @@ adapter の設置前に起きた lock は復元しない．`started_tick` は途
 推定器は public state，実 lock action/pair，公開 lifecycle だけを受け取る．settled な既知盤面から grounded lock の可能な高さを列挙し，lock 直後の visible と一致する結果を公開の重力/消去ルールで解決する．次の control snapshot と整合する一意の結果のみ確定する．clear 中やおじゃま animation 中は unknown．おじゃまは公開ルールで visible 行の空セルだけに配置されるため，表示が確定した結果と照合して hidden の保存を判断する．乱数や着弾予定位置を読まない．scratch Field は公開セルだけから構成し，元 match/simulator/private field は推定器へ渡さない．
 
 sidecar は episode/player/tick，visible digest，last lock ID，known/unknown と hidden 2 行を持つ．既存 PublicSnapshot は hidden=None のままで，actor と native の入力は変えない．この段階では worker/request へは接続していない．`tests/test_nextgen_public_inference.py` が起点，欠測，clear/drop 整合と private 非干渉を検証する．保存済み GTR 123/132/135 と新規 human fixture の 133 判断を比較する offline script は `docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py`．完全盤面は script の期待結果監査だけに使い，推定器の入力ではない．
+
+## request への明示 bind（第二段階）
+
+新規 request は `puyo.nextgen.request.v2` とし，独立した `inference` field を持つ．scheduler の prepare が identity/execution の digest に sidecar を結び付け，accept は返却された sidecar の厳密一致を確認する．既存 decode cache 本体は変更しない．phase worker はこの値を request に明示して渡す．
+
+`known_inference()` は known，player，request tick，visible digest，identity/execution digest がすべて一致し，control 中の場合だけ値を返す．missing/unknown/mismatch は利用不能であり，従来の公開盤面経路へ戻す．履歴 producer の信頼境界を置き換える API ではない．sidecar の raw hidden セルは native 検索入力や actor feature に追加しない．
+
+旧 `request.v1` は inference field を含めず，旧 wire と semantic digest の完全一致を保って読む．v1 に新 field を混入させる入力は拒否する．新 v2 は field の明示を必須とするが，値 None を許容する．専用 wire tests で v1/v2 の往復，nested digest，bind 不整合，native 入力一致，actor feature 非露出を検証する．
