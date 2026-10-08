@@ -117,9 +117,9 @@ N=3 preview とactive pair drop ghostを分け，o切替とadopted plan/diagnost
 
 ## 7. 2026-10-08 Sprint 14 実行更新
 
-最新の担当・検証・PR 順序は [Sprint 14 実行表](puyo-274-handoff/sprint14-execution-20261008.md) を参照する．最上段は `PUYO-274/sprint14-closeout`／`5180bc7e3225915c6e254b798a0330bb2b892381`，draft [PR #182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) である．PUYO-266 の公開情報に基づく着弾おじゃま回復後，新規固定 human 入力 seed 127 は 60 実 lock まで窒息しなかった．元の人間対局とは同一視しない．GUI 機械 QA はこの最上段の [8 run](../benchmarks/puyo-274-sprint14-final-20261008/README.md) ですべて事前 gate を通過したが，正式 G2 FAIL と変更後の実人間 GUI QA は残る．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．
+最新の担当・検証・PR 順序は [Sprint 14 実行表](puyo-274-handoff/sprint14-execution-20261008.md) を参照する．最上段は `PUYO-274/sprint14-closeout`／runtime 測定 source `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`，draft [PR #182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) である．PUYO-266 の公開情報に基づく着弾おじゃま回復後，新規固定 human 入力 seed 127 は 60 実 lock まで窒息しなかった．元の人間対局とは同一視しない．追加の適格発火順位修正で固定 GTR126 は実 10 連鎖・小発火 0／40 配置非窒息となった．GUI 機械 QA はこの最上段の [8 run](../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md) ですべて事前 gate を通過したが，正式 G2 FAIL と変更後の実人間 GUI QA は残る．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．
 
-実人間 GUI QA は次で launcher を開き，1P=`nextgen_tactic_manager`，2P=`human`，速度 x1.0 を選ぶ．`o` の 3 手先読み表示／非表示，現在組の落下位置との区別，下押し＋横移動／回転で意図した位置へ置けるか，カクつき，対戦 seed／1P policy seed を記録する．この確認は最上段 head `5180bc7` 以降に実施したかを区別する．
+実人間 GUI QA は次で launcher を開き，1P=`nextgen_tactic_manager`，2P=`human`，速度 x1.0 を選ぶ．`o` の 3 手先読み表示／非表示，現在組の落下位置との区別，下押し＋横移動／回転で意図した位置へ置けるか，カクつき，対戦 seed／1P policy seed を記録する．この確認は最上段 head `3724eb9` 以降に実施したかを区別する．
 
 ```bash
 cd /home/sion2000114/workspaces/dev/puyo-s14-274

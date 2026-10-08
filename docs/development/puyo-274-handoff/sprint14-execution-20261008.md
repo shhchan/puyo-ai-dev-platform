@@ -95,3 +95,11 @@ PUYO-266 の確定 head `a5b8be92b579a581c9ff4a5fc238af7b5ec1be3d` は，公開�
 親は #178 の確定 head を #180→#181→#182 に通常 merge／push し，最上段 source `5180bc7e3225915c6e254b798a0330bb2b892381` で生存・GUI 関連 182 tests，変更 Python の Ruff，差分検査を通した．実テスト以外に誤った 3 モジュール名を指定した初回 loader error は，実在するモジュール名で再実行して解消した．この source の GUI 8 run は frame／input p95 ≤ 25 ms／p99 ≤ 50 ms を全件通過し，両側 frame p95／p99 は 23.63／35.38 ms，再計測 24.41／35.48 ms，minimal 23.40／31.15 ms．全 run の source file fingerprint／native／host が一致し，実 lock 不一致・scheduler error・timeout・fallback は 0，cleanup は全件成功．[raw／集計／verifier](../../benchmarks/puyo-274-sprint14-final-20261008/README.md)を保存した．最大 p95 余裕は約 0.59 ms であり，別 run での安定保証ではない．
 
 PUYO-264／268 は Complete．PUYO-266 は正式 G2 と残る 128/126，PUYO-269／273 は変更後の実人間 GUI QA，PUYO-274 はその両方が未確認である．後 4 件は draft PR／Jira In Progress を維持する．依頼者は実人間 GUI QA を実施して結果を報告すると回答済みで，最上段の新 head を案内する．PR merge／release／reviewer 指定／force-push はしていない．
+
+## 適格な発火候補の順位修正後の最終結合更新
+
+PUYO-266 の確定 head `cdac8b41cf5b9bf1a8a57a832d2a15031854f8e9` は，`fire_main` の既存適格条件を満たす即時発火候補を，危険率未評価の将来候補より先に評価する．候補生成，selector，wire，探索 quota は変更しない．旧 126 は 40 配置で最大 1 連鎖・小発火 2 件だったが，新しい 126 は 31 手目の実 10 連鎖・小発火 0，40 配置非窒息，premature 0 となった．55／123／124 も各 40 配置，最大 10 連鎖，premature／窒息 0．ただし 124 の最大は 11→10 に下がり，123／124 の発火時期は早まった．全 160 判断の公開推定・実 lock・replay hash 一致，quota 超過 0．保存証拠は [PUYO-266 追加資料](../../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md) にある．既存正式 G2 raw の読取監査では 126／132／135／144 に同種の候補順位問題があり，128 は別の代替 prefix／証明・課金問題である．正式 60 run の再測定と G2 PASS は未実施．
+
+親は #178 の head を #180→#181→#182 へ通常 merge／push した．最上段の runtime 測定 source は `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`．生存・GUI 関連 180 tests，変更 Python の Ruff，PR 差分 check は成功．この source の GUI 8 run は frame／input p95 ≤ 25 ms／p99 ≤ 50 ms を全件通過し，両側 frame p95／p99 は 23.51／33.10 ms，再計測 22.95／44.08 ms，minimal 23.12／33.14 ms．全 run の source file fingerprint／native／host が一致し，実 lock 不一致・scheduler error・timeout・fallback は 0，cleanup は全件成功．[raw／集計／verifier](../../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md)を保存した．最大 frame p95 余裕は約 1.49 ms．
+
+PUYO-264／268 は Complete．PUYO-266 の 128 と正式 G2，PUYO-269／273 の変更後実人間 GUI QA，PUYO-274 の依存条件は残る．後 4 件は draft PR／Jira In Progress を維持する．依頼者の GUI QA 回答はまだ到着しておらず，この source の最上段 head を明示して案内する．PR merge／release／reviewer 指定／force-push はしていない．
