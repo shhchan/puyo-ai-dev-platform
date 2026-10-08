@@ -15,11 +15,57 @@ import time
 from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
+import math
 
 from agents import nextgen_contracts as c
 from agents.template_catalog import match_templates
 from agents.nextgen_profiles import NEXTGEN_PROFILE_CHOICES
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
+from eval.versus_ui import SPEED_CHOICES
+from src.core.realtime import TickInput
+
+
+def load_human_inputs(path, *, seed):
+    """Read explicit 2P input edges; never guess the missing human run."""
+    raw = Path(path).read_bytes()
+    value = json.loads(raw)
+    if value.get("schema") != "puyo.diagnostic.human_inputs.v1" or value.get("seed") != seed:
+        raise ValueError("human-input fixture schema/seed mismatch")
+    inputs = {}
+    for row in value["inputs"]:
+        tick = row["tick"]
+        if type(tick) is not int or tick < 0 or tick in inputs:
+            raise ValueError("human-input ticks must be unique non-negative integers")
+        item = row["input"]
+        if set(item) - {"press", "release", "edges"}:
+            raise ValueError("unknown human-input field")
+        parsed = TickInput.from_names(**item)
+        if any(kind not in ("press", "release") for kind, _ in parsed.edges):
+            raise ValueError("unknown human-input edge kind")
+        inputs[tick] = parsed
+    return inputs, {"sha256": hashlib.sha256(raw).hexdigest(), "fixture": value,
+                    "provenance": "synthetic fixed 2P inputs; original human input unavailable"}
+
+
+def diagnostic_config(*, seed, seed_a, seed_b, templates, selection_mode, temperature,
+                      speed, opponent, profile, backend, max_ticks, write_replay, output):
+    if selection_mode not in ("argmax", "softmax"):
+        raise ValueError("selection_mode must be argmax or softmax")
+    if not math.isfinite(temperature) or temperature <= 0:
+        raise ValueError("temperature must be finite and positive")
+    if speed not in SPEED_CHOICES:
+        raise ValueError(f"speed must be one of {SPEED_CHOICES}")
+    return RealtimeVersusUiConfig(
+        policy_a="nextgen_tactic_manager", policy_b=opponent,
+        seed=seed, seed_a=seed if seed_a is None else seed_a,
+        seed_b=seed + 10_000 if seed_b is None else seed_b,
+        nextgen_seed=seed, nextgen_templates=templates,
+        nextgen_selection_mode=selection_mode, nextgen_temperature=temperature,
+        nextgen_commit_turns=14, speed=speed,
+        nextgen_profile=profile, latency_mode="measured", nextgen_backend=backend,
+        max_ticks=max_ticks, replay_path=str(output / "replay.json") if write_replay else None,
+        dataset_root=str(output / "dataset"),
+    )
 
 
 def source_identity():
@@ -62,24 +108,30 @@ def summarize(attempts):
     }
 
 
-def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=15, max_ticks=6000, opponent="random", backend="native", profile="nextgen_smoke", write_replay=True, output):
+def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=15,
+        max_ticks=6000, opponent="random", backend="native", profile="nextgen_smoke",
+        selection_mode="argmax", temperature=0.2, speed=1.0, human_inputs=None,
+        write_replay=True, output):
     if mode not in ("normal", "step"):
         raise ValueError("mode must be normal or step")
     output = Path(output)
+    config = diagnostic_config(
+        seed=seed, seed_a=seed_a, seed_b=seed_b, templates=templates,
+        selection_mode=selection_mode, temperature=temperature, speed=speed,
+        opponent=opponent, profile=profile, backend=backend, max_ticks=max_ticks,
+        write_replay=write_replay, output=output,
+    )
+    fixed_inputs, input_source = {}, None
+    if human_inputs is not None:
+        if opponent != "human":
+            raise ValueError("human-input fixture requires --opponent human")
+        fixed_inputs, input_source = load_human_inputs(human_inputs, seed=seed)
     output.mkdir(parents=True, exist_ok=False)
     source = source_identity()
-    config = RealtimeVersusUiConfig(
-        policy_a="nextgen_tactic_manager", policy_b=opponent,
-        seed=seed, seed_a=seed if seed_a is None else seed_a,
-        seed_b=seed + 10_000 if seed_b is None else seed_b,
-        nextgen_seed=seed, nextgen_templates=templates,
-        nextgen_selection_mode="argmax", nextgen_commit_turns=14,
-        nextgen_profile=profile, latency_mode="measured",
-        nextgen_backend=backend,
-        max_ticks=max_ticks, replay_path=str(output / "replay.json") if write_replay else None,
-        dataset_root=str(output / "dataset"),
-    )
     game = RealtimeVersusMatchController(config)
+    if input_source is not None:
+        game.controllers["player_1"].next_input = (
+            lambda match, *_: fixed_inputs.get(match.tick, TickInput()))
     controller = game.controllers["player_0"]
     runtime = controller.nextgen_scheduler
     attempts, requests, boards = [], [], []
@@ -137,7 +189,7 @@ def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=
             if mode == "normal":
                 # Bound the simulation to 60 Hz; slow host work is not caught up
                 # in a burst. Actual wall duration is included in the report.
-                time.sleep(max(0, 1 / 60 - (time.monotonic() - tick_started)))
+                time.sleep(max(0, 1 / (60 * speed) - (time.monotonic() - tick_started)))
         elapsed = time.monotonic() - started
         ledger = game.nextgen_ledger_payload()
         report = {
@@ -146,7 +198,8 @@ def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=
             "source": source,
             "source_changed_during_run": source != source_identity(),
             "execution": "GUI RealtimeVersusMatchController / PolicyProcessExecutor spawn; no display",
-            "clock": "60 Hz maximum; no catch-up" if mode == "normal" else "wait worker between single ticks",
+            "clock": f"{60 * speed:g} Hz maximum; no catch-up" if mode == "normal" else "wait worker between single ticks; speed does not pace step mode",
+            "human_input_source": input_source,
             "elapsed_seconds": elapsed, "ticks": game.env.match.tick,
             "target_placements": placements, "observed_placements": placement_count,
             "replay_saved": write_replay,
@@ -175,6 +228,11 @@ def main():
     parser.add_argument("--seed-a", type=int)
     parser.add_argument("--seed-b", type=int)
     parser.add_argument("--templates", default="gtr")
+    parser.add_argument("--selection-mode", choices=("argmax", "softmax"), default="argmax")
+    parser.add_argument("--temperature", type=float, default=0.2)
+    parser.add_argument("--speed", type=float, choices=SPEED_CHOICES, default=1.0)
+    parser.add_argument("--human-inputs", type=Path,
+                        help="Synthetic fixed 2P input fixture; requires --opponent human")
     parser.add_argument("--placements", type=int, default=15)
     parser.add_argument("--max-ticks", type=int, default=6000)
     parser.add_argument("--opponent", choices=("random", "human"), default="random")
