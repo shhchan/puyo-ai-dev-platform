@@ -46,3 +46,15 @@ sidecar は episode/player/tick，visible digest，last lock ID，known/unknown 
 `known_inference()` は known，player，request tick，visible digest，identity/execution digest がすべて一致し，control 中の場合だけ値を返す．missing/unknown/mismatch は利用不能であり，従来の公開盤面経路へ戻す．履歴 producer の信頼境界を置き換える API ではない．sidecar の raw hidden セルは native 検索入力や actor feature に追加しない．
 
 旧 `request.v1` は inference field を含めず，旧 wire と semantic digest の完全一致を保って読む．v1 に新 field を混入させる入力は拒否する．新 v2 は field の明示を必須とするが，値 None を許容する．専用 wire tests で v1/v2 の往復，nested digest，bind 不整合，native 入力一致，actor feature 非露出を検証する．
+
+## 順位順 control/terminal 証明（第三段階）
+
+request に bind された known 推定のみを survival 用 compact state に重ねる．native/shared backend と response provider は従来の visible state を受け取る．未着弾の公開攻撃がある場合は，単一代表 witness で着弾分岐の control を証明できないため従来経路を使う．unknown/mismatch の推定を順位根拠にしない．
+
+従来 probe の root coverage を先に完了し，その placement 結果を request 内だけで cache する．key は immutable state 全体・公開既知 pair・action で，色，bonus，score，hidden 推定を区別する．shared の build_main 順位に沿い，既存の非発火優先を保ちながら witness を調べる．fresh spawn/補間 0 の control state を対象 pose まで best-first で探索し，展開前に response 予算へ課金する．geometry cache は占有 bitmask と対象 action を key とし，毎 request 破棄する．別の色でも同じ占有なら幾何ルールが等しく，最短時間や実時間採用を保証する cache ではない．
+
+terminal は追加 1 配置の色に依存しない十分条件である．中央 spawn/choke 3 セルが空で，制御可能な追加配置後も中央の重力対象セル数が 11 以下なら，消去に依存せず次の choke を避けられる．未知の将来ツモ・相手攻撃・無限の生存を証明したとは扱わない．上位 witness の control 不成立または terminal 不十分は unknown であり，fatal に変更しない．最初の証明成功時だけ，それまで検証できなかった上位候補を unknown にして順位へ反映する．未調査の明示 fire/cancel 候補を一律に禁止しない．
+
+probe + control + cache miss placement + terminal の合計を既存 survival 128 内で事前課金し，残った response 256 の枠だけを response provider に渡す．証明が cutoff/unknown で終わった場合は `control_proof.status` を明示し，元の有限 horizon envelope に戻す．この fallback の bounded witness を terminal 証明や長期安全へ昇格させない．`safety_guarantee=False` を維持する．
+
+固定 6 判断の結果は [監査 JSON](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.json)．関連 135 tests（既存 43 を含む）と legacy 383 判断の完全一致を確認した．保存 batch 上の実 `apply_envelope` では 127/26 が root 8 の 4 連鎖になり，正常 123/28，132/30，135/34 を維持した．新規対局，実 lock，正式 G2 と人間 QA は別の検証であり，この固定結果で達成扱いにしない．

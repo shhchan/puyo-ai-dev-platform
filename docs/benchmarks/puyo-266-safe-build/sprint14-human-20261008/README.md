@@ -153,3 +153,27 @@ cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference
 ```
 
 関連既存 43 件と起点/欠測/clear/drop/private 非干渉の追加 7 件，計 50 テストが成功した．G2 と人間 QA は未達のままである．
+
+## 公開推定と control/terminal の runtime 接続
+
+known sidecar を request.v2 に bind し，survival に限って利用する．旧 request.v1 は旧 digest を保持して読める．native 入力・actor feature へ hidden セルを追加しない．欠測/不整合/unknown は従来経路へ戻す．未着弾攻撃がある場合も分岐を証明できないため従来経路を使う．
+
+保存済み公開履歴から得た推定と候補順位に対し，実装済み `refine_inferred` と `apply_envelope` を実行した結果を [inferred-survival-audit.json](inferred-survival-audit.json) に保存した．offline 完全盤面は診断専用・runtime 入力ではない．この監査は新規 native policy/対局を実行していない．
+
+| 判断 | 選択 root | 合計 nodes | control/terminal |
+|---|---:|---:|---|
+| 123/28 | 1 | 62 | certified，正常維持 |
+| 132/30 | 11 | 100 | certified，正常維持 |
+| 135/34 | 3 | 91 | certified，有効構築を維持 |
+| 135/35 | 15 | 87 | 上位 14 の witness は unknown |
+| 135/36 | 従来有限 horizon へ fallback | 18 | unknown，回避達成ではない |
+| 新規 human 127/26 | 8 | 117 | 合法 4 連鎖 root，元手動対局とは非同一 |
+
+全件で survival 128/response 256 を維持する．127 の 100 node 強制打切りは unknown 診断と元 root 3 の有限 horizon fallback になり，fatal とみなさない．terminal は未知色に依存しない追加 1 配置の十分条件であり，長期安全ではない．cache は request 内のみで，transition の再利用は全 immutable state・pair・action を照合する．cache miss と control 展開も処理前に同じ予算へ課金する．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.py --output /tmp/puyo266-inferred-survival-audit.json
+.venv/bin/python -m unittest tests.test_nextgen_inferred_survival tests.test_nextgen_inference_wire tests.test_nextgen_public_inference -q
+```
+
+関連 135 tests（既存 43 を含む），Ruff，diff check が成功した．legacy 383 判断の probe/evidence は既存 `probe-comparison.json` と完全一致した．新規対局/実 lock と正常品質の回帰は次の計測段階で確認する．G2 と人間 QA は未達のままである．
