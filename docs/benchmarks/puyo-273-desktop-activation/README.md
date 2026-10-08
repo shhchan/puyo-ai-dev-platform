@@ -1,6 +1,6 @@
 # PUYO-273 desktop activation の局所 witness 再利用
 
-2026-10-08 の Sprint 14 証跡．source `b7365ba` の初回 A/B は，両側の input schedule p99 が 55.71 ms のため未達．Jira は In Progress のままとする．旧失敗を再試行で置き換えない．
+2026-10-08 の Sprint 14 証跡．最終 source `ec2d3c0` は両側 input schedule の gate を通過したが，frame p95 が **25.1802222 ms** で固定 25 ms gate に未達．Jira は In Progress，PR は draft のままとする．初回 source `b7365ba` の input p99 55.71 ms という失敗も保存し，追加実装前後の測定を区別する．
 
 ## 変更と検証境界
 
@@ -34,6 +34,39 @@ two は frame gate に到達したが input p99 は未達．minimal も片側 ga
 after-two の input event 72 は frame 203 で処理され，予定→投入 19.99 ms＋queue 43.27 ms＝schedule 63.26 ms．この待ち区間の MainThread では frame 202 の mask 2 件が計 17.29 ms，finish が計 10.90 ms，これらを含む activation が計 34.54 ms だった．reader decode も 28.33 ms 重なる．event 104 は frame 290 で処理され，予定→投入 5.32 ms＋queue 82.20 ms＝87.52 ms．同区間内の mask は 24.34 ms，finish は 44.27 ms，うち GC は 34.96 ms．GUI event pump はこの update の後の frame まで実行されない．nested span と別 thread の壁時計は重複するため加算して因果寄与としない．
 
 全 run で timeout/deadline miss/fallback と scheduler error は 0，worker cleanup は全件成功．after-two の予定 root と実 lock は 8/8 一致．全条件の比較可能な lock に不一致なし．human held mismatch／余分な横 fired は 0，左右回転 emitted/fired は 21/21 と 22/22．処理 ID 重複と内部欠落なし，一部 run には終了時 queue 末尾 1 件が残った．
+
+## 選択 root の再証明
+
+追加 source `ec2d3c0` は，completion で作った選択 root の witness を activation の現在状態で再証明する．request／public／phase の accept と stale 判定を従来の位置に残し，stale または fallback では短縮経路に入らない．選択 action の同一性と現在の authoritative board の配置合法性を確認した上で，元の全 pulse/release を現在の gravity deadline／held/repeat／接地状態を保持した detached simulator で実行し，最初の lock の x/y/rotation が予定 root と一致した場合だけ採用する．時計を初期化せず，幾何到達性だけでは許可しない．失敗時は全 root mask を再計算し，上記の呼出内 witness を使用する．prepare の公開 mask と探索 budget は変更しない．
+
+新規 proof の回帰は，137/148 の旧誤入力，同じ board で gravity deadline が変わった場合，board 占有変更，異なる選択 action，held RIGHT の予定 release 欠落を拒否する．source の非変更も確認する．既存の masked-root 注入テストは proof の拒否も注入して full-mask fallback を通す．実時計／board の拒否は別の固定 fixture で検証する．66＋GUI 49＝115 tests 成功（[final-unit-tests.txt](final-unit-tests.txt)，[final-gui-unit-tests.txt](final-gui-unit-tests.txt)）．
+
+追加 A/B の `--reference-activation` は `b7365ba` の `_activate_nextgen` を復元する．両者とも改善済み planner を使い，選択 root proof の効果を分離する．条件は測定前の [final-conditions.json](final-conditions.json) に保存する．初回の 8 run を置き換えず `final-*` として全 run を追記する．集計の `input_tails` は schedule 50 ms 超の全 event と重複 wall span を保持する．
+
+## 最終 A/B と PUYO-269 への引継ぎ
+
+各条件 1 run，前記と同じ host／DISPLAY／seed／frame 数／overlay ON／native SHA．one と two の before/after で全 runtime source file hash，設定，native SHA が一致した．下表の before は `b7365ba` の activation，after は `ec2d3c0` の選択 root proof である．
+
+| 条件 | frame p95/p99 ms | input schedule p95/p99 ms | event→draw p95/p99 ms |
+| --- | --- | --- | --- |
+| one before | 24.07/39.70 | 20.66/55.95 | 30.04/39.87 |
+| one after | 21.11/33.22 | 20.47/25.81 | 27.27/45.70 |
+| two before | 26.74/50.82 | 20.64/46.49 | 35.43/57.08 |
+| two after | **25.18/38.52** | 20.74/34.75 | 36.47/50.41 |
+| human after | 21.84/38.22 | 21.25/38.98 | 32.28/40.95 |
+| light after | 19.72/21.07 | 17.98/20.31 | 21.74/34.19 |
+| one minimal | 22.95/35.07 | 20.26/24.51 | 27.64/35.83 |
+| light minimal | 19.71/21.07 | 19.95/21.28 | 21.61/29.46 |
+
+two の frame p95 を丸めて 25 ms 通過としない．one/light の full/minimal は機械 gate を維持するが，両側の profiling overhead をこの片側結果から推定しない．event→draw は one/two/human の p95 と two の p99 が閾値を超え，PUYO-269 に残る応答遅延として引き継ぐ．
+
+after-two の root proof は 8 回，p50/p95/max は 0.717/1.073/1.082 ms．全 mask 10 回はすべて prepare 10 回に対応し，activation の全 root 再探索は 0 回だった．prepare mask の p50/p95/max は 8.283/14.051/15.272 ms，prepare 全体は 9.950/15.546/16.683 ms．同 frame の 2 人分 prepare で mask 計 21.56 ms／prepare 計 25.00 ms の frame 1 が残る．frame 291 も mask 15.27 ms／prepare 16.68 ms／frame 25.78 ms だった．
+
+GC は frame 138 の MainThread に約 38.45 ms，frame 298 の背景 reader に約 38.12 ms の gen2 回収が重なった（同 frame の全 GC 計 39.31 ms）．後者の reader decode は 58.57 ms，frame は 94.34 ms で，event 106 の input schedule は 53.81 ms（投入遅れ 6.86＋queue 46.95 ms）．全体の p99 通過を最大遅延の解消とは扱わない．Python reader の GIL 共有と GC，prepare の同期 mask が次の対策対象である．GC 無効化や tick 間引きは行っていない．
+
+最終全 run の timeout/deadline/fallback/scheduler error は 0，worker cleanup は全件成功．nextgen の予定 root と実 lock は one 6/6，two 8/8，human の AI 6/6 が一致．stale 棄却は one 2，two 各 1，human 2．human held mismatch／余分な横 fired は 0，左右回転 emitted/fired はともに 21/21．処理済み ID の内部欠落／重複はなく，一部 run の終了時に queue 末尾 1 件が残る．
+
+**残課題は PUYO-269 の prepare 同期 mask／decode・GIL・GC の改善と，その確定 head の組合せ QA での PUYO-273 gate 再判定である．本 PR では追加の未測定最適化を入れない．変更後の実人間 QA は未実施で，既存の人間操作報告を今回の再 QA に読み替えない．**
 
 ## 回帰と再実行
 

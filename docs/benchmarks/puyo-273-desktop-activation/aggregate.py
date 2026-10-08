@@ -40,6 +40,27 @@ def main():
                        if any(v["frame"] == i for v in values)}}
             for i, value in enumerate(data["raw_samples"]["frame_interval_ms"]) if value > 50
         ]
+        row["input_tails"] = []
+        for event in data["input_events"]:
+            start, end = event["expected_ns"], event["handled_ns"]
+            if (end - start) / 1e6 <= 50:
+                continue
+            overlaps = []
+            for key in ("authoritative_mask", "authoritative_plan_proof", "scheduler_accept",
+                        "scheduler_finish", "_activate_nextgen", "reader_decode", "gc_collect"):
+                for span in data["functions_raw"].get(key, []):
+                    first = span["started_ns"]
+                    last = first + span["ms"] * 1e6
+                    if last > start and first < end:
+                        overlaps.append({"function": key, "thread": span["thread"],
+                                         "frame": span["frame"], "ms": span["ms"],
+                                         "relative_start_ms": (first - start) / 1e6,
+                                         "overlap_ms": (min(last, end) - max(first, start)) / 1e6})
+            row["input_tails"].append({"id": event["id"], "frame": event["frame"],
+                                       "schedule_ms": (end - start) / 1e6,
+                                       "post_delay_ms": (event["posted_ns"] - start) / 1e6,
+                                       "queue_ms": (end - event["posted_ns"]) / 1e6,
+                                       "overlapping_wall_spans_not_additive": overlaps})
         summary[name] = row
     (ROOT / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps({name: {"gate": row["gate"], "timing": {
