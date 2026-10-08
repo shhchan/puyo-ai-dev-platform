@@ -42,13 +42,21 @@ python -m eval.nextgen_realtime_diagnostic \
 
 ## 検証と限界
 
-`tests.test_nextgen_realtime_diagnostic` の固定 GTR fixture は必須マス進捗 0.875 から始める．既定 `nextgen_smoke` の template quota 128 で `build_template` を実採用し，進捗 1.0 に達した後の要求が `build_main` を実採用することを確認する．同じ入力の従来列挙では最高静的評価の割当に witness がないことも再現する．これは固定盤面の能力確認であり，全 seed の GTR 完成率ではない．
+`tests.test_nextgen_realtime_diagnostic` の固定 GTR fixture は必須マス進捗 0.875 から始める．既定 `nextgen_smoke` の template quota 128 で `build_template` を実採用し，進捗 1.0 に達した後の要求が `build_main` を実採用することを確認する．旧 source では従来列挙に witness がなかったが，PUYO-268 の選択定型接続後の現在の fixture では opt-in なしでも witness `(0,)` がある．この歴史的な制限を現在の仕様として要求する assertion は外し，完成と実採用の確認を維持する．これは固定盤面の能力確認であり，全 seed の GTR 完成率ではない．
 
 `tests.test_nextgen_tactic_manager` は連続する相手更新を未配置の stale として記録し，安定後に 1 組を 1 回だけ消費すること，新しい自分への脅威で cache hit 後も counter を選び直すことを確認する．rule selector の cancel／counter／short attack／fire_main／build_main の条件は固定 batch の単体テストで検証する．単体の候補・選択の成立と，対局 ledger の実採用は区別する．
 
 `tests.test_nextgen_shared_search` は cached／fresh batch の意味的同値性，新 request／candidate ID，公開情報と reachable mask の再反映，backend 入力の変更による失効を確認する．`tests.test_template_phase` の 14／15 手境界，stale／timeout／retry と重複消費防止，公開情報境界，trajectory，replay，GUI 契約も回帰対象とする．
 
-人間による通常 GUI QA，G2 の規定条件による再計測，複数 catalog の初期 quota 配分は未完了である．接続 smoke，低速操作の成功，この診断の採用件数だけで品質 PASS／G2 PASS にはしない．PUYO-264 はこれらの未達条件を残して In Progress とする．
+人間による通常 GUI QA は 2026-09-28 に依頼者が OK と報告した．2026-10-08 の nextgen／human 対戦では `o` の先読みと ghost の区別ができ，移動・回転で意図した位置へ置けそうとの報告もあった．人間の観測を同一公開入力の機械比較とは区別する．
+
+PUYO-266 は規定 cohort の 30 seed × 2 repeat を再測定済みであり，「未実測」のままではない．[統合 G2 証跡](../benchmarks/puyo-266-safe-build/integrated-g2-20260927/README.md) の結果は quality FAIL／G2 BLOCKED で，G0／G1／必須脅威 fixture／公開既知解 gap は未確認である．本件の A/C が要求する再実測は満たされたが，モデル品質 PASS ではない．親セッションの完了境界判断に従い，264 固有の証拠と人間 QA を確認して PUYO-264 を COMPLETE にする．正式 G2 の品質条件と未確認 gate の完了判断は PUYO-266 に残す．複数 catalog の初期 quota 配分は本件の対象外である．
+
+## 2026-10-08 デスクトップ監査
+
+[監査記録](../benchmarks/puyo-264-desktop-audit/README.md) は A/C ごとに証拠と限界を対応させる．旧 3 条件の raw は Git に保存されておらず，PR #158 と Jira コメント 10715／10764 の検証済み記録を参照した．新しい通常速度対局や G2 は実行していない．
+
+保存済み統合 G2 の 60 ledger を読み取り，選択 candidate ID，activated receipt，要求／実行 root を照合した．seed 123／repeat 1 の ledger index 30 は `fire_main`，requested／executed action 16，実 10 連鎖であり，旧固定 batch の選択テストとは別の実採用証拠になる．この対局は無脅威 fixture で，脅威対応の能力全体を証明しない．品質 FAIL と個別戦術の実採用を区別する．
 
 ## References
 
