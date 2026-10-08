@@ -205,3 +205,37 @@ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 \
 ```
 
 `inference-v1-fixed/*.locks.json.gz` と `inference-v1-human/audit.json.gz` に含む完全盤面は offline 診断専用・runtime 入力ではない．次は 128/38 の同一 transition 再評価と順位順予算を調べる．132/135/144 の新規全対局，正式 60 run と残る G2 条件，人間 GUI QA は未達のまま保持する．
+
+## 追加の予算配分案は不採用
+
+[3 案の数値比較](rejected-stage-summary.json)と小規模な実行 script/JSON gzip を保存した．runtime は ce44f6e のままである．97/106 保存判断を，公開推定と保存 batch の候補順位だけで再評価した読取試作であり，新規 native/対局測定ではない．各案とも 128/256 を増やさず cutoff を unknown とした．offline 完全盤面は診断専用・runtime 入力ではない．
+
+| 判断 | 現 runtime | cache 共有のみ | known 解先行＋terminal 前置き | quiet 優先の段階化＋即時 clear 予約 |
+|---|---|---|---|---|
+| 正常 123/28 | root1，62 | root1，47 | root1，47 | root1，60 |
+| 正常 123/30 | root12，128 fallback | **root8 の1連鎖**，92 | root12，77 | root12，118 |
+| 旧 127/26 | root8，117 | root8，117 | root8，90 | root8，90 |
+| 128/38 | root11，128 cutoff | root11，128 cutoff | root11，128 cutoff | root11，128 cutoff |
+| 132/30 | root11，100 | root11，96 | root11，96 | **root4へ変更**，128 cutoff |
+| 135/35 | root15，87 | root15，87 | **root14へfallback**，128 cutoff | root15，87 |
+| 新127/31–34 | 9/3/11/7 | 未比較 | 9/3/11/7 | 9/3/11/7 |
+
+単純な transition cache lookup では，generator の予約済み重複計算に既に課金してしまう．課金を行う round robin 側で同じ immutable state/pair/action を共有すると，128/38 の probe は110→70になる．それでも control/terminal の残り58で打ち切られ，窒息候補は変わらなかった．正常123/30のquiet root12を1連鎖root8へ変更する危険もあるため採用しない．
+
+正常123/30には，既存 native が公開既知 prefix の10連鎖plan `[12,16]` を持つ．先頭の幾何witness `[12,12,15]` が不成立でも，root自体が不適切とは限らない．既存fire_main相当の公開known plan 1本を再検証すればroot12を保持できるが，常に先行させると135/35の `[14,20]`/`[15,20]` のcontrol検査が予算を使い切る．任意の小発火planまで探索する案も採用しない．
+
+最後の段階化は，選択上のquiet優先を維持しつつ，即時clearの1候補の証明を先に確保し，quietが得られない時だけ既存known大連鎖解を試す．123/30と135/35は保持できたが，128/38の予約対象root8自身のwitness `[8,1,11]` がterminal unknownで予約できない．さらに132/30ではclear証明への先行課金で正当なquiet root11がcutoffとなり，root4へ変わった．有効な構築を維持する条件を満たさず，全3案を不採用とする．
+
+旧132/32は現推定ロジックでroot5→0，旧144/34はroot15→7という固定候補の変化を得たが，正式な全対局の改善証明ではない．旧144/37と新127/31–34は十分なterminal証明が得られず，予算再配分だけでは解決しない．次に必要なのは，最初の幾何witnessに依存しない公開known-prefixの代替経路を，正常quiet候補への証明予算を奪わず提示する契約である．新127の長い継続能力は別の課題であり，有限horizonを長期安全へ昇格して代用しない．
+
+```bash
+# repository root，保存時の runtime source ce44f6e と同じ実装で実行する．
+# 元 /tmp ファイルは保持し，別名の /tmp/puyo266-rejected-*-result.json に出力する．
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-probe-cache.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-alternate-prefix.py
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-staged-prefix.py
+```
+
+保存scriptの再実行結果は各JSON gzipと完全一致する．source置換は診断 interpreter の関数コピー内だけで行い，製品ファイルを編集しない．`rejected-stage-manifest.json` に保存物のhashを記録した．追加runtimeなし，正式G2/人間QA未達，In Progress/draftを維持する．
+
+最終 source の関連 136 tests はすべて成功した（`runtime-final-tests.txt`）．3 案の保存 script の再実行 JSON は gzip 原本と bytes 一致，Ruff と diff check も成功した．

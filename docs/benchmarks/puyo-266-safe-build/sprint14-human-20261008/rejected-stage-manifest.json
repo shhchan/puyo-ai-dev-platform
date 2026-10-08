@@ -1,0 +1,42 @@
+{
+  "rejected-alternate-prefix.py": {
+    "bytes": 8314,
+    "sha256": "d8a67ee8e4ca7d640440289655f50da4b33906106630602be5bf1d7a09d115e1"
+  },
+  "rejected-probe-cache.py": {
+    "bytes": 5717,
+    "sha256": "b64fdd4b163cbf89fe93411ddecf8572fa77ebbe25a3c3e4ef7673dbd62c73a0"
+  },
+  "rejected-staged-prefix.py": {
+    "bytes": 8759,
+    "sha256": "341c1b53b8b5c5ea9902fc82d04accab206e1de77a21ca6faf9339a9c6e80578"
+  },
+  "rejected-alternate-prefix.json.gz": {
+    "bytes": 2581,
+    "sha256": "a00f8bdbb1b708f233a6d94792b944eacecb3ac1ecae1fc2e604e02fb334ef4a"
+  },
+  "rejected-probe-cache.json.gz": {
+    "bytes": 13132,
+    "sha256": "496d3f45f2a58df3385e2b5e38cb250274954b9928daa4a39cefc47ec705f0a3"
+  },
+  "rejected-staged-prefix.json.gz": {
+    "bytes": 3166,
+    "sha256": "a0f26f091b37893fa233d61d4b7346093800d016922a9ec394c9cbd41a719460"
+  },
+  "rejected-alternate-prefix.txt": {
+    "bytes": 1670,
+    "sha256": "5d0ca8ac5c5aa12d658f2b141d0e4f8605fccd035dcc85ba1b3f5f936b50ae68"
+  },
+  "rejected-probe-cache.txt": {
+    "bytes": 400,
+    "sha256": "874b2d283bbfae6a67ee445108f3d44966becbadd8b5ce8b6a043e89dda0bddc"
+  },
+  "rejected-staged-prefix.txt": {
+    "bytes": 1565,
+    "sha256": "ac32ddcc47ef9116d499d4fa5f6fdd62170ee6a7e8effeebaf61b6b0c736c234"
+  },
+  "rejected-stage-summary.json": {
+    "bytes": 28447,
+    "sha256": "67d7ecac461be167abd77e66230b27587482bccb9b6daf8410a4127e1a1dae9e"
+  }
+}
