@@ -99,3 +99,33 @@ runtime head `b287a3c`（コード変更の最終 commit は `0e7a707`）で，�
 | 128 | 0 | 0 | あり | 39 |
 
 `fixed-after/` と `fixed-summary.json` に保存した．132/135/144 と daa/persian の新しい全対局は未実施であり，前述の固定公開 probe 回帰だけを実施した．正常 3 seed を保つ最小回帰は成功したが，127/126/128 の窒息残差，正式 G2，人間 GUI QA は未解決である．
+
+## 順位順 control 証明の追加 feasibility
+
+`control-feasibility.py/json/txt` は runtime head `c735ea7` の保存済み 24 判断を使った読取解析である．元 `/tmp/puyo266-feasibility.{py,json,txt}` は保持し，script の保存版だけに出力先指定と整形を加えた．完全盤面は **offline 診断専用であり，runtime/policy 入力ではない**．公開 probe は公開 request だけを受け，完全盤面は保存 replay/lock の原因分類にのみ使う．新規 native/GUI/全対局測定は行わない．
+
+順位は保存された `build_main` の候補列を使い，現在の公開 probe の witness を root ごとに確認する．cache は同じ占有形状の探索を再利用する．control は fresh spawn/補間 0 の幾何到達候補で，live 実行保証ではない．JSON の `proven` はこの限定された幾何確認を表す．既存 `_geometric_paths` との判定一致も assert する．以下の費用は無制限の offline 診断で必要量を調べたものであり，production の survival 128/response 256 を増やした値ではない．
+
+| 判断 | 既存 probe | control | 配置再検証 | 合計 | 結果 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| GTR 123/28 | 53 | 21 | 3 | 77 | 正常 `[1,3,8]` を保持できる局所例 |
+| human fixture 127/26，root 11 まで | 44 | 24 | 5 | 73 | 予算内でも hidden 欠落による誤候補が残る |
+| GTR 135/34 | 60 | 105 | 3 | 168 | 正当な先頭 witness の確認だけで 128 超過 |
+| GTR 132/30 | 62 | 264 | 3 | 329 | 同上 |
+
+GTR 126/34–35，128/36–38，132/32，135/35–36，144/35–37 は，row 12/13 の自配置占有が公開モデルから欠落し，選択 witness が公開推定では到達可能，offline 実盤面では到達不能となる．135/34 は hidden 欠落なしで `[3,0,7]` が幾何到達可能だが，即時非 fatal の 10 連鎖 root 19/21 を選ばない．次判断 35/36 で上部の青 1/2 セルが欠落し，NEXT root 0 の予測が崩れる．35/36 と最終 37 には即時非 fatal 消去がない．
+
+127/26 の `[3,11,15]` を除いても次順位 root 11 の `[11,0,3]` が公開推定を通過し，offline 実盤面では NEXT 0 が不可能である．到達可能な即時 4 連鎖 7/8/10 の選択には至らない．control cache 単独による修正を採用する根拠はなく，runtime 変更は追加しない．元人間 run と同定しない条件も維持する．
+
+再実行は repository root で行う．JSON と標準出力を別の `/tmp` ファイルに保存し，保存証拠と全体一致を確認する．これは軽量な保存入力の診断である．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=. \
+.venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibility.py \
+  --output /tmp/puyo266-feasibility-recheck.json \
+  > /tmp/puyo266-feasibility-recheck.txt
+cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibility.json /tmp/puyo266-feasibility-recheck.json
+cmp docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/control-feasibility.txt /tmp/puyo266-feasibility-recheck.txt
+```
+
+次の独立検証は，公開 placement 履歴と連続する可視 snapshot から自配置の hidden 占有を推定する契約である．確定可能／推定／unknown，visible 整合，episode/reset，midgame，stale/未 lock，clear/おじゃま着弾による失効を区別する．123/28，127/26，135/34→35→36 と上記 4 seed を最小 fixture にする．その後に順位順証明の共有課金，cache の provenance/失効，cutoff を fatal にしない選択規則を検証する．132/30 と 135/34 は一般 BFS の単純追加では収まらない費用反例として保持する．共有 worker/scheduler 契約変更，43 回帰/383 判断全体の非回帰，正式 G2，人間 GUI QA は別途必要である．
