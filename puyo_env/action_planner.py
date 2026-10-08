@@ -28,6 +28,11 @@ PLANNER_ACTIONS = (
 )
 
 
+# TickInput is frozen and tuple-valued: these edges have no per-plan state.
+_PLANNER_PULSES = {action: inputs_from_action_pulses((action,)) for action in PLANNER_ACTIONS}
+_IDLE_INPUT = TickInput()
+
+
 @dataclass(frozen=True)
 class PlannedPlacement:
     action: PlacementAction
@@ -121,7 +126,11 @@ def _control_probe(source, timing):
 
 def _step_control_probe(probe, tick_input):
     """Mirror the control branch of step without snapshots or chain animation."""
-    fired = probe._collect_fired_actions(probe.tick, tick_input)
+    # With no edges and no held action, collection cannot fire or alter repeat
+    # deadlines. Ground-lock and gravity still run on every authoritative tick.
+    fired = (() if type(probe) is RealtimeHeadlessSimulator
+             and tick_input is _IDLE_INPUT and not probe.held_actions
+             else probe._collect_fired_actions(probe.tick, tick_input))
     probe.game.update(fired, held_actions={a: True for a in probe.held_actions})
     probe._apply_gravity_if_due(probe.tick)
     probe.tick += 1
@@ -140,7 +149,7 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
         step_action = remaining.popleft()
         predicted = _geometry_transition(probe.game, current, step_action, transition_cache)
         actions.append(step_action)
-        for tick_input in inputs_from_action_pulses((step_action,)):
+        for tick_input in _PLANNER_PULSES[step_action]:
             if probe.game.state != "control":
                 break
             inputs.append(tick_input)
@@ -165,7 +174,7 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
     for _ in range(probe.timing.lock_frame_limit + 2):
         if probe.game.state != "control":
             break
-        tick_input = TickInput()
+        tick_input = _IDLE_INPUT
         inputs.append(tick_input)
         _step_control_probe(probe, tick_input)
     if probe.game._planner_lock != target:
