@@ -1,0 +1,110 @@
+--- a/agents/nextgen_survival.py
++++ b/agents/nextgen_survival.py
+@@ -38,6 +38,44 @@
+                  if not any(x in walls for x in range(
+                      min(2, PLACEMENT_ACTIONS[a].axis_x),
+                      max(2, PLACEMENT_ACTIONS[a].axis_x) + 1)))
++
++
++def _control_reachability(state, pair):
++    """Lazy public fresh-spawn geometry; caller charges before each expansion."""
++    from puyo_env.action_planner import PLANNER_ACTIONS, _transition_piece_state
++    from src.core.game import GameState
++    from src.core.puyo import Puyo
++
++    game = GameState(seed=0)
++    game.state = "control"
++    game.current_puyo_1, game.current_puyo_2 = (Puyo(v) for v in pair)
++    # This geometry sidecar must never consume even a synthetic future queue.
++    game.next_puyo_queue.clear()
++    game.puyo_sequence = None
++    for y, row in enumerate(state.to_color_grid()):
++        for x, color in enumerate(row):
++            game.field.grid[y][x] = Puyo(color)
++    start = (game.puyo_x, game.puyo_y, game.puyo_rot, 0)
++    pending, seen, found = deque([start]), {start}, set()
++
++    def reachable(action):
++        placement = PLACEMENT_ACTIONS[action]
++        landing = game.find_landing_y(placement.axis_x, placement.rotation)
++        if landing is None:
++            return False
++        target = (placement.axis_x, landing, placement.rotation)
++        while target not in found and pending:
++            yield "control"  # Same 128-node survival budget, before expansion.
++            current = pending.popleft()
++            found.add(current[:3])
++            for operation in PLANNER_ACTIONS:
++                following = _transition_piece_state(game, current, operation)
++                if following is not None and following not in seen:
++                    seen.add(following)
++                    pending.append(following)
++        return target in found
++
++    return reachable
+ 
+ 
+ @dataclass(frozen=True)
+@@ -81,6 +119,7 @@
+     if not known or not reachable or not needs_probe(request):
+         return {}, {"status": "not_needed", "nodes": 0, "horizon": len(known)}
+     start_nodes = budget.nodes
++    charged = {"placement": 0, "drop": 0, "control": 0}
+     visible_complete = all(v is not None for row in request.public.own.visible_board[-VISIBLE_HEIGHT:] for v in row)
+     reason = None
+     if not visible_complete or (packets and timing is None):
+@@ -100,7 +139,7 @@
+ 
+         def move(node, action):
+             depth = len(node.plan)
+-            yield  # One placement including failed/fatal resolution.
++            yield "placement"  # One placement including failed/fatal resolution.
+             pair = tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in known[depth])
+             result = transition(node.state, pair, action)
+             if depth == 0:
+@@ -121,7 +160,7 @@
+                 for columns in drop_distributions(count):
+                     after, placed = result.state, 0
+                     if count:
+-                        yield  # Each possible public remainder distribution.
++                        yield "drop"  # Each possible public remainder distribution.
+                         after, placed = drop_public_garbage(after, columns)
+                     if after.game_over or not legal_action_indices(after):
+                         status, path = "fatal", ()
+@@ -145,7 +184,11 @@
+ 
+         def continuation(node):
+             outcomes = []
++            pair = tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in known[len(node.plan)])
++            reachable = _control_reachability(node.state, pair)
+             for action in continuation_actions(node.state):
++                if not (yield from reachable(action)):
++                    continue
+                 status, path = yield from move(node, action)
+                 if status == "witness":
+                     return status, path
+@@ -160,7 +203,7 @@
+         while pending:
+             action, iterator = pending.popleft()
+             try:
+-                next(iterator)
++                kind = next(iterator)
+             except StopIteration as done:
+                 status, path = done.value
+                 results[action] = RootSurvival(action, status, root_chains.get(action), path)
+@@ -169,6 +212,7 @@
+                 results[action] = RootSurvival(action, "cutoff", root_chains.get(action))
+                 iterator.close()
+             else:
++                charged[kind] += 1
+                 pending.append((action, iterator))
+     active = any(v.status == "fatal" for v in results.values()) and any(v.status == "witness" for v in results.values())
+     statuses = {v.status for v in results.values()}
+@@ -179,6 +223,7 @@
+     return results, {
+         "status": summary, "active": active, "nodes": budget.nodes - start_nodes,
+         "horizon": len(known), "board_complete": board_complete,
++        "charged_nodes": charged,
+         "source": "visible_exact" if board_complete else "public_estimate",
+         "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+         "safety_guarantee": False,

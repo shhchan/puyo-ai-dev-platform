@@ -1,0 +1,27 @@
+{
+  "report": {
+    "bytes": 29408456,
+    "sha256": "4559fc3be67f698383cfc5bf95d5dbc95390971e41f5825d1b2039c6269d64c4"
+  },
+  "ledger": {
+    "bytes": 13454640,
+    "sha256": "bb0d857f6e89ab956bcd24b5feddf6475cea968518c97520448fae26deecfd6e"
+  },
+  "replay": {
+    "bytes": 823086635,
+    "sha256": "11ce22a88b733979e48d97ea565421862081373f4aead4b9b376421de214fc26",
+    "omitted_tick_keys": [
+      "policy_diagnostics",
+      "controller_diagnostics",
+      "controller_status"
+    ]
+  },
+  "audit": {
+    "bytes": 7829328,
+    "sha256": "72c4e32968484b8f6c8b6d6a1d081f608c71195a2b42f549e111c6cac8dc4195"
+  },
+  "witnesses": {
+    "bytes": 30279,
+    "sha256": "7afdd1169107aea0f686b9c0bfe240ad6abcacc96996159df6e28a6fbf43f36c"
+  }
+}

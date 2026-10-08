@@ -1,0 +1,3575 @@
+{
+  "scope": "frozen public request/probe regression only; not rerun policies, receipts or games",
+  "quotas": {
+    "response": 256,
+    "survival": 128
+  },
+  "cohorts": [
+    {
+      "identity": "daa-55.json.gz",
+      "decisions_tested": 40,
+      "changed_selected_root": [],
+      "changes": [
+        {
+          "decision": 23,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 63,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 2,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  2,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  6,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  7,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 3,
+                "witness": [
+                  8,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  12,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 3,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 64,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 2,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  2,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  8
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  6,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  7,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 3,
+                "witness": [
+                  8,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  12,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 3,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          }
+        },
+        {
+          "decision": 24,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 63,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 2,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  2,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  6,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  8,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 63,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 2,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  2,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  6,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  8,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          }
+        },
+        {
+          "decision": 25,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 66,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  11
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  11
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 69,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  11
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  11
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  11
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  10,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          }
+        },
+        {
+          "decision": 26,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 61,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  3
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  8
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 61,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  0
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  4,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  3
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  9,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  8
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  14,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 2,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 9,
+                "witness": [
+                  20,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": []
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-123.json.gz",
+      "decisions_tested": 40,
+      "changed_selected_root": [],
+      "changes": []
+    },
+    {
+      "identity": "gtr-124.json.gz",
+      "decisions_tested": 40,
+      "changed_selected_root": [],
+      "changes": []
+    },
+    {
+      "identity": "gtr-126.json.gz",
+      "decisions_tested": 36,
+      "changed_selected_root": [
+        {
+          "decision": 35,
+          "action": 3,
+          "before_status": "witness",
+          "after_status": "witness",
+          "before_witness": [
+            3,
+            0,
+            11
+          ],
+          "after_witness": [
+            3,
+            12,
+            11
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "decision": 34,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 36,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 5,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 39,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  12,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 5,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  16,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 6,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  18,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          }
+        },
+        {
+          "decision": 35,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 10,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6,
+              8,
+              11,
+              12,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              21
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 16,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  12,
+                  11
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6,
+              8,
+              11,
+              12,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              21
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-128.json.gz",
+      "decisions_tested": 39,
+      "changed_selected_root": [
+        {
+          "decision": 37,
+          "action": 3,
+          "before_status": "witness",
+          "after_status": "witness",
+          "before_witness": [
+            3,
+            0,
+            11
+          ],
+          "after_witness": [
+            3,
+            8,
+            0
+          ]
+        }
+      ],
+      "changes": [
+        {
+          "decision": 35,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 45,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  9,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  10,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  14,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 46,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  8
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  9,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  10,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  14,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          }
+        },
+        {
+          "decision": 36,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 47,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  14,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 49,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  8,
+                  8
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  8,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  14,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          }
+        },
+        {
+          "decision": 37,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 36,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  11
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "fatal",
+                "root_chain": 1,
+                "witness": []
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": true,
+            "nodes": 34,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  8,
+                  0
+                ]
+              },
+              {
+                "action": 4,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 7,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 8,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 9,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 10,
+                "status": "fatal",
+                "root_chain": 0,
+                "witness": []
+              },
+              {
+                "action": 11,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  11,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 12,
+                "status": "witness",
+                "root_chain": 1,
+                "witness": [
+                  12,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 13,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  13,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 14,
+                "status": "fatal",
+                "root_chain": 1,
+                "witness": []
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 18,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  18,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  19,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  21,
+                  0,
+                  3
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              0,
+              1,
+              6
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-132.json.gz",
+      "decisions_tested": 33,
+      "changed_selected_root": [],
+      "changes": []
+    },
+    {
+      "identity": "gtr-135.json.gz",
+      "decisions_tested": 37,
+      "changed_selected_root": [],
+      "changes": []
+    },
+    {
+      "identity": "gtr-144.json.gz",
+      "decisions_tested": 38,
+      "changed_selected_root": [],
+      "changes": [
+        {
+          "decision": 32,
+          "roots": [
+            3
+          ],
+          "before": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 42,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  7
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  7
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  9,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              8,
+              11,
+              12,
+              14,
+              18
+            ]
+          },
+          "after": {
+            "status": "bounded_witness",
+            "active": false,
+            "nodes": 42,
+            "horizon": 3,
+            "board_complete": false,
+            "source": "public_estimate",
+            "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+            "safety_guarantee": false,
+            "roots": [
+              {
+                "action": 0,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  0,
+                  3,
+                  7
+                ]
+              },
+              {
+                "action": 1,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  1,
+                  7,
+                  7
+                ]
+              },
+              {
+                "action": 3,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  3,
+                  7,
+                  7
+                ]
+              },
+              {
+                "action": 4,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  4,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 6,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  6,
+                  7,
+                  7
+                ]
+              },
+              {
+                "action": 7,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  7,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 9,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  9,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 10,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  10,
+                  0,
+                  7
+                ]
+              },
+              {
+                "action": 15,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  15,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 16,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  16,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 17,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  17,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 19,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  19,
+                  0,
+                  0
+                ]
+              },
+              {
+                "action": 20,
+                "status": "witness",
+                "root_chain": 0,
+                "witness": [
+                  20,
+                  0,
+                  3
+                ]
+              },
+              {
+                "action": 21,
+                "status": "witness",
+                "root_chain": 10,
+                "witness": [
+                  21,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "unreachable_roots": [
+              8,
+              11,
+              12,
+              14,
+              18
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "identity": "gtr-55.json.gz",
+      "decisions_tested": 40,
+      "changed_selected_root": [],
+      "changes": []
+    },
+    {
+      "identity": "persian-55.json.gz",
+      "decisions_tested": 40,
+      "changed_selected_root": [],
+      "changes": []
+    }
+  ]
+}
