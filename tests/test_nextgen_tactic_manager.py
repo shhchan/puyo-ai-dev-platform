@@ -363,7 +363,9 @@ class SchedulerTests(unittest.TestCase):
         self.controller.next_input(self.match, "player_0")
         self.match.schedule_attack("player_1", 1, delay_ticks=10)
         self.match.step({})
-        self.controller.next_input(self.match, "player_0")
+        with patch("puyo_env.realtime_ai.nextgen_authoritative_action_mask",
+                   side_effect=AssertionError("stale result must not request activation witnesses")):
+            self.controller.next_input(self.match, "player_0")
         record = self.controller.diagnostics.last_decision
         self.assertEqual(record.outcome, "stale")
         self.assertFalse(record.fallback)
@@ -375,6 +377,23 @@ class SchedulerTests(unittest.TestCase):
             self.controller.nextgen_scheduler.phase.diagnostics()["consumed_decisions"],
             0,
         )
+
+    def test_activation_uses_current_mask_witness_without_replanning_root(self):
+        from tests.test_timed_placement_planner import first_lock
+
+        self.controller = RealtimePolicyController(
+            self.policy, config=RealtimeDecisionConfig(inference_latency_ticks=1)
+        )
+        self.controller.next_input(self.match, "player_0")
+        self.match.step({})
+        source = self.match.player_states["player_0"].simulator.clone()
+        with patch.object(self.controller, "_plan_action",
+                          side_effect=AssertionError("mask already proved the activation plan")):
+            self.controller.next_input(self.match, "player_0")
+        plan = self.controller._active_plan
+        self.assertIsNotNone(plan)
+        self.assertEqual(first_lock(source, plan.inputs),
+                         (plan.action.axis_x, plan.expected_axis_y, plan.action.rotation.name))
 
     def test_hidden_board_change_rechecks_authoritative_root(self):
         self.controller = RealtimePolicyController(

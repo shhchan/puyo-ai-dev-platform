@@ -889,10 +889,14 @@ class RealtimePolicyController:
             record = runtime.finish(match, record, outcome="stale")
             self.latest_policy_diagnostics = copy.deepcopy(runtime.last_payload)
             return record, None
+        # Keep witnesses only inside this synchronous activation. The mask
+        # proves them against the current clock after the stale check above.
+        plans = {}
         mask = nextgen_authoritative_action_mask(
             match.player_states[agent].simulator,
             timing=self.timing,
             max_expanded_states=self.config.max_plan_expanded_states,
+            plan_results=plans,
         )
         action = record.action_index
         invalid = action is None or not mask[action]
@@ -905,14 +909,16 @@ class RealtimePolicyController:
                 if stale
                 else "activation_unreachable_fallback"
             )
-            action = self._fallback_action(mask, match=match, agent=agent)
+            action = self._fallback_action(mask, match=match, agent=agent, plans=plans)
             if stale:
                 self.diagnostics.stale_decisions += 1
             else:
                 self.diagnostics.unreachable_plans += 1
             if not record.fallback:
                 self.diagnostics.fallback_actions += 1
-        plan = self._plan_action(match, agent, action)
+        plan = plans.get(action_to_placement(action)) if action is not None else None
+        if plan is None:
+            plan = self._plan_action(match, agent, action)
         if plan is None or not plan.reachable:
             action, plan, fallback, reason = None, None, True, "no_reachable_fallback"
         placement = action_to_placement(action) if action is not None else None
@@ -1024,11 +1030,12 @@ class RealtimePolicyController:
         exclude: int | None = None,
         match: RealtimeVersusMatch | None = None,
         agent: str | None = None,
+        plans: Mapping | None = None,
     ) -> int | None:
         configured = self.config.fallback_action_index
         if configured is not None and configured != exclude and mask[configured]:
             return configured
-        planned = self._fallback_action_by_plan(mask, exclude=exclude, match=match, agent=agent)
+        planned = self._fallback_action_by_plan(mask, exclude=exclude, match=match, agent=agent, plans=plans)
         if planned is not None:
             return planned
         for index, allowed in enumerate(mask):
@@ -1046,6 +1053,7 @@ class RealtimePolicyController:
         exclude: int | None,
         match: RealtimeVersusMatch | None,
         agent: str | None,
+        plans: Mapping | None = None,
     ) -> int | None:
         if match is None or agent is None:
             return None
@@ -1054,7 +1062,9 @@ class RealtimePolicyController:
         for index, allowed in enumerate(mask):
             if not allowed or index == exclude:
                 continue
-            plan = self._plan_action(match, agent, index)
+            plan = plans.get(action_to_placement(index)) if plans is not None else None
+            if plan is None:
+                plan = self._plan_action(match, agent, index)
             if plan is None or not plan.reachable:
                 continue
             placement = action_to_placement(index)
@@ -1261,26 +1271,30 @@ def realtime_reachable_action_mask(
     *,
     timing: RealtimeTimingConfig | None = None,
     max_expanded_states: int = 2_000,
+    plan_results: dict | None = None,
 ):
     """Return the placement actions reachable from the active realtime state."""
 
     numpy = _require_numpy()
+    if plan_results is not None:
+        plan_results.clear()
     if simulator.game.state != "control" or simulator.game.game_over:
         return numpy.zeros(NUM_ACTIONS, dtype=numpy.bool_)
     return numpy.asarray(
         reachable_placement_actions(
-            simulator, PLACEMENT_ACTIONS, timing=timing, max_expanded_states=max_expanded_states
+            simulator, PLACEMENT_ACTIONS, timing=timing, max_expanded_states=max_expanded_states,
+            plan_results=plan_results,
         ),
         dtype=numpy.bool_,
     )
 
 
 def nextgen_authoritative_action_mask(
-    simulator, *, timing=None, max_expanded_states=2_000
+    simulator, *, timing=None, max_expanded_states=2_000, plan_results=None
 ):
     """Intersect actual board legality and reachability at the trusted boundary."""
     reachable = realtime_reachable_action_mask(
-        simulator, timing=timing, max_expanded_states=max_expanded_states
+        simulator, timing=timing, max_expanded_states=max_expanded_states, plan_results=plan_results
     )
     legal = _turn_based_action_mask(simulator)
     return tuple(bool(a and b) for a, b in zip(legal, reachable, strict=True))

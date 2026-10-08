@@ -98,6 +98,27 @@ class TimedPlacementTests(unittest.TestCase):
             self.assertEqual(first_lock(sim, plan.inputs),
                              (action.axis_x, plan.expected_axis_y, action.rotation.name))
 
+    def test_retained_mask_witnesses_recompute_for_live_clock_and_clear_on_noncontrol(self):
+        source = simulator(CASES[0])
+        before = pickle.dumps(source)
+        plans = {}
+        mask = nextgen_authoritative_action_mask(source, plan_results=plans)
+        original = dict(plans)
+        self.assertEqual(before, pickle.dumps(source))
+        for index, allowed in enumerate(mask):
+            if allowed:
+                action = PLACEMENT_ACTIONS[index]
+                plan = plans[action]
+                self.assertEqual(first_lock(source.clone(), plan.inputs),
+                                 (action.axis_x, plan.expected_axis_y, action.rotation.name))
+        source._next_gravity_tick += source.timing.gravity_interval_ticks
+        nextgen_authoritative_action_mask(source, plan_results=plans)
+        target = action_to_placement(CASES[0]['action'])
+        self.assertNotEqual(original[target].inputs, plans[target].inputs)
+        source.game.state = 'animate'
+        self.assertFalse(any(nextgen_authoritative_action_mask(source, plan_results=plans)))
+        self.assertEqual(plans, {})
+
     def test_first_lock_before_target_is_fail_closed(self):
         sim = RealtimeHeadlessSimulator(seed=55)
         sim.game.puyo_y = 0
