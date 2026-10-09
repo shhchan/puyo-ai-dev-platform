@@ -69,7 +69,7 @@ def needs_probe(request):
     return height + hidden + 2 * len(own.known_pieces) + incoming >= VISIBLE_HEIGHT
 
 
-def probe(request, state, roots, budget, *, timing=None, board_complete=False, transition_cache=None):
+def probe(request, state, roots, budget, *, timing=None, board_complete=False, transition_cache=None, reuse_transitions=False):
     # Local import keeps the shared-search/provider injection boundary acyclic.
     from agents.nextgen_response_search import (
         PublicResponseProvider, _Node, _consume, _due_options, _plus,
@@ -82,6 +82,7 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False, t
     if not known or not reachable or not needs_probe(request):
         return {}, {"status": "not_needed", "nodes": 0, "horizon": len(known)}
     start_nodes = budget.nodes
+    reused_nodes = 0
     visible_complete = all(v is not None for row in request.public.own.visible_board[-VISIBLE_HEIGHT:] for v in row)
     reason = None
     if not visible_complete or (packets and timing is None):
@@ -100,12 +101,18 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False, t
                         not board_complete)
 
         def move(node, action):
+            nonlocal reused_nodes
             depth = len(node.plan)
             yield  # One placement including failed/fatal resolution.
             pair = tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in known[depth])
-            result = transition(node.state, pair, action)
-            if transition_cache is not None:
-                transition_cache[node.state, pair, action] = result
+            key = node.state, pair, action
+            if reuse_transitions and transition_cache is not None and key in transition_cache:
+                result = transition_cache[key]
+                reused_nodes += 1
+            else:
+                result = transition(node.state, pair, action)
+                if transition_cache is not None:
+                    transition_cache[key] = result
             if depth == 0:
                 root_chains[action] = result.chain_count
             if not result.valid or result.game_over:
@@ -182,6 +189,7 @@ def probe(request, state, roots, budget, *, timing=None, board_complete=False, t
     return results, {
         "status": summary, "active": active, "nodes": budget.nodes - start_nodes,
         "horizon": len(known), "board_complete": board_complete,
+        **({"reused_transition_nodes": reused_nodes} if reuse_transitions else {}),
         "source": "visible_exact" if board_complete else "public_estimate",
         "scope": "known_prefix_geometric_continuations; replan_each_spawn",
         "safety_guarantee": False,
@@ -277,24 +285,96 @@ class _ControlProof:
         return False
 
     def terminal(self, state, pair):
-        # A sufficient condition for ONE more placement independent of colors,
-        # not a claim about indefinite survival or future opponent attacks.
-        # Row 13 is permanent; keep all three central spawn/choke cells empty.
-        if any(state.occupied_mask & (1 << (y * GRID_WIDTH + 2)) for y in (11, 12, 13)):
-            return None
-        central = sum(bool(state.occupied_mask & (1 << (y * GRID_WIDTH + 2))) for y in range(13))
-        from src.core.game import GameState
-        for action in continuation_actions(state):
-            pose = PLACEMENT_ACTIONS[action]
-            y = find_landing_y(state, pose)
-            dx, dy = GameState.get_sub_puyo_offset(None, pose.rotation)
-            cells = ((pose.axis_x, y), (pose.axis_x + dx, y + dy))
-            if central + sum(x == 2 and cy < 13 for x, cy in cells) > 11:
-                continue
+        # Sufficient for ONE color-independent placement, not long-term safety.
+        for action in _terminal_actions(state):
             if self.reachable(state, pair, action):
                 self.charge("terminal")
                 return action
         return None
+
+
+def _terminal_actions(state):
+    # Necessary conditions can reject a path before spending control nodes.
+    if any(state.occupied_mask & (1 << (y * GRID_WIDTH + 2)) for y in (11, 12, 13)):
+        return
+    central = sum(bool(state.occupied_mask & (1 << (y * GRID_WIDTH + 2))) for y in range(13))
+    from src.core.game import GameState
+    for action in continuation_actions(state):
+        pose = PLACEMENT_ACTIONS[action]
+        y = find_landing_y(state, pose)
+        dx, dy = GameState.get_sub_puyo_offset(None, pose.rotation)
+        cells = ((pose.axis_x, y), (pose.axis_x + dx, y + dy))
+        if central + sum(x == 2 and cy < 13 for x, cy in cells) <= 11:
+            yield action
+
+
+class _SavedWorkBudget:
+    """Spend only omitted duplicate work; never reserve additional quota.
+
+    Original logical debits stay reserved, preserving the old round-robin,
+    cutoff and response-provider allowance. Cache hits did not execute work;
+    their prepaid credits can fund new work, never refund executed work.
+    """
+
+    def __init__(self, budget, saved):
+        self.saved = saved
+        self.nodes = budget.nodes - saved
+
+    def consume(self):
+        if not self.saved:
+            return False
+        self.saved -= 1
+        self.nodes += 1
+        return True
+
+
+def _alternate_witness(state, pairs, results, ordered, cache, proof):
+    trials, certified, witness = [], None, ()
+
+    def visit(current, path):
+        if len(path) == len(pairs):
+            if next(_terminal_actions(current), None) is None:
+                return None
+            current = state
+            for depth, action in enumerate(path):
+                if depth and not proof.reachable(current, pairs[depth], action):
+                    return None
+                current = cache[current, pairs[depth], action].state
+            terminal = proof.terminal(current, pairs[0])
+            return (path, terminal) if terminal is not None else None
+        for action in ((root,) if not path else continuation_actions(current)):
+            key = current, pairs[len(path)], action
+            if key not in cache:
+                proof.charge("placement")
+                cache[key] = transition(*key)
+            result = cache[key]
+            if result.valid and not result.game_over:
+                found = visit(result.state, path + (action,))
+                if found is not None:
+                    return found
+        return None
+
+    for root in ordered:
+        if root not in results or results[root].status != "witness":
+            continue
+        try:
+            found = visit(state, ())
+        except _ProofCutoff:
+            trials.append({"root": root, "status": "unknown_cutoff"})
+            break
+        trials.append({"root": root, "status": "certified" if found else "unknown",
+                       "witness": list(found[0]) if found else [],
+                       "terminal_action": found[1] if found else None})
+        if found:
+            certified, witness = root, found[0]
+            break
+    refined = dict(results)
+    if certified is not None:
+        for trial in trials:
+            root = trial["root"]
+            refined[root] = replace(results[root], witness=witness) if root == certified else replace(
+                results[root], status="unknown", witness=())
+    return refined, certified, trials
 
 
 def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, transition_cache):
@@ -381,6 +461,25 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
         "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
         "safety_guarantee": False, "fallback": certified is None,
     }
+    saved = diagnostics.get("reused_transition_nodes", 0)
+    if saved and certified is None and request.known_inference() is not None and not any(
+            p.amount and p.landed_tick is None for p in request.public.own.attack_packets):
+        credit = _SavedWorkBudget(budget, saved)
+        alternate = _ControlProof(credit, start_nodes)
+        refined, extra_root, extra_trials = _alternate_witness(
+            state, pairs, results,
+            [a for a in ordered if request.execution.reachable_mask[a]],
+            transition_cache, alternate)
+        details["alternate_prefix"] = {
+            "certified_root": extra_root, "trials": extra_trials,
+            "charged": alternate.charged, "actual_nodes": credit.nodes - start_nodes,
+            "logical_nodes": budget.nodes - start_nodes, "unused_saved_nodes": credit.saved,
+            "scope": "same_public_state_pair_action_cache; first_lock_reachable_mask",
+        }
+        if extra_root is not None:
+            certified = extra_root
+            failed = [v["root"] for v in extra_trials if v["root"] != certified]
+            details.update(status="certified", certified_root=certified, fallback=False)
     if recovery:
         recovered = recovery.get(certified)
         details["landed_garbage_recovery"] = {
