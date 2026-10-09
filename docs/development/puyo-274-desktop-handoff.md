@@ -131,3 +131,9 @@ cd /home/sion2000114/workspaces/dev/puyo-s14-274
 最新の runtime 測定 source は `32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee`，最上段 branch は `PUYO-274/sprint14-closeout` である．PUYO-266 の有限代替証明で固定 seed128 は 40 配置まで窒息を回避したが，最大 1 連鎖／premature 1 のため正式 G2 は FAIL のまま．正常 55／123／124／126 は各 40 配置・最大 10 連鎖・premature／窒息 0．新規固定 human127 は 60 実 lock，両者非窒息，おじゃま 30→0 を保存 replay で確認した．元の手動対局とは同一視しない．詳細は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) と [PUYO-266 証跡](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照する．
 
 最上段の GUI 機械 QA は[初回 7／8 通過](../benchmarks/puyo-274-sprint14-bounded-20261009/README.md)，[同 source 再測 8／8 通過](../benchmarks/puyo-274-sprint14-bounded-repeat-20261009/README.md)．初回 minimal-two frame p95 は 25.59 ms で固定 25 ms gate を超えたため，安定達成とは扱わない．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．変更後の実人間 GUI QA は依頼者の結果待ち．上の起動コマンドは同じだが，結果には今回の最上段 head を添える．
+
+## 9. 2026-10-09 追加監査と再開位置
+
+[PUYO-266 の公開情報監査](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)では，seed128／38 の既知 3 手に 10 連鎖候補が無く，楽観上界でも最大 7 連鎖だった．旧 60 run の G2 FAIL も再確認した．[PUYO-269 の区間 CPU 診断](../benchmarks/puyo-269-frame-variance-20261009/README.md)では，同期 prepare／finish，deepcopy，gen2 GC の負荷を測定したが，単独の狭い変更で 25 ms gate を安定達成する根拠は無かった．両件とも製品コードを変更せず，raw と停止条件を PR #178／#181 に保存し，最上段 #182 へ反映した．最新の詳細な状態と PR 順序は[実行表](puyo-274-handoff/sprint14-execution-20261008.md)にある．
+
+実人間 GUI QA はまだ報告待ちである．上記の起動コマンドで最上段 `PUYO-274/sprint14-closeout` を使い，1P nextgen／2P human／速度 x1.0 で，`o` の先読み，現在組 ghost との区別，下押し＋横／回転の配置感，カクつき，対戦 seed／1P policy seed を報告してもらう．完了まで PUYO-266／273／269／274 は draft／In Progress を維持する．

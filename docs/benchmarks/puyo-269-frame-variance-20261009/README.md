@@ -72,4 +72,4 @@ DISPLAY=:0 SDL_AUDIODRIVER=dummy PYTHONPATH=. \
   --diagnostic-output /tmp/puyo269-new-diagnostic-intervals.json
 ```
 
-検証：時計分離・cross-frame・入れ子例外復旧・GC 記録の 3 tests，py_compile，保存 raw 再計算，`git diff --check`．製品コード無変更のため既存 125 tests は再実行していない．Ruff は既存 desktop venv と PATH に未導入で未実施，共有環境への install は行っていない．
+検証：時計分離・cross-frame・入れ子例外復旧・GC 記録の 3 tests，py_compile，保存 raw 再計算，`git diff --check`．製品コード無変更のため既存 125 tests は再実行していない．子の worktree では Ruff が既定 PATH に無かったが，親が既存の `/home/sion2000114/.local/share/nvim/mason/packages/ruff/venv/bin/ruff` で追加 3 Python ファイルの `check` を実行し，全件通過した．共有環境への install は行っていない．

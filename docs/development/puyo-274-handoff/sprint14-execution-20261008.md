@@ -113,3 +113,11 @@ human127／policy58／daa／softmax1.0／x1.0 の新規固定入力は 5520 tick
 親は #178→#180→#181→#182 へ確定 head を履歴保持 merge／push した．最上段の測定 source は `32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee`．関連 183 tests，変更 Python の Ruff，PR 差分 check，保存 raw verifier が通過．GUI の固定 8 条件は初回 7／8 で minimal-two frame p95 `25.59096305 ms` が 25 ms gate 未達，混合のない同 source 再測定は 8／8 通過で minimal-two `24.44522835 ms`．同日・同 host／native の前版 source の minimal-two も `25.9550431 ms` で未達だった．全 run で source fingerprint／native／host 一致，実 lock 不一致・scheduler error・timeout・fallback 0，worker cleanup 成功．[初回失敗 raw／比較](../../benchmarks/puyo-274-sprint14-bounded-20261009/README.md)と[再測 raw](../../benchmarks/puyo-274-sprint14-bounded-repeat-20261009/README.md)を保存した．新生存修正固有の性能回帰とは断定できず，gate の安定達成も宣言しない．
 
 PUYO-264／268 は Complete．PUYO-266 は seed128 の premature／10 連鎖級と正式 G2，PUYO-269／273 は frame gate の揺らぎと変更後の実人間 GUI QA，PUYO-274 は依存条件が残る．後 4 件は draft PR／Jira In Progress のまま．依頼者は実人間 GUI QA の結果をまだ報告していない．PR merge／release／reviewer 指定／force-push はしていない．
+
+## 2026-10-09 品質残差と GUI 分散の追加監査
+
+PUYO-266 は製品 source を変えず，保存した seed128／38 の全 40 判断を公開既知 3 手の初回消去で監査した．後続到達性を緩めた楽観上界でも最大 7 連鎖で，40 手目の 1 連鎖は正当な生存行動だった．quota cutoff が原因ではなく，10 連鎖を回復する狭い修正は立証できない．旧正式 G2 raw の再集計は平均最大 8.8667／premature 6／窒息 10，repeat 30／30 一致であり，現在 source の 60 run を測り直した値ではない．[証跡と再計算器](../../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を #178 head `6e2c1404bcaa42eb5ba01dcb9fc61730c8d61d7c` に保存した．
+
+PUYO-269 は最上段 runtime source `32280fd` と製品コードが同一である #181 source で，区間 wall／thread CPU と GC を分ける専用 GUI 診断を固定 minimal-two 360 frame に 1 回実施した．prepare 10 回は合計 wall／CPU 83.00／80.57 ms，finish は 49.89／43.49 ms，その内 `to_dict` は 15.00／14.67 ms，activation 内 deepcopy は 27.24／26.64 ms．gen2 GC 2 回は 32.46／32.55 ms の wall を使い，回収 0 でも CPU を消費した．一部の accept／finish には wall−CPU 約 5 ms の待ちがあり，reader との GIL 競合も候補である．診断自体に負荷があるため，この run の frame p95／p99 21.82／42.17 ms を gate PASS として扱わない．同期コピーを一部削るだけで安定して 25 ms 未満になる証拠はなく，所有権・正規化契約の確認前に製品コードを変えない．[診断器・raw・分析・停止条件](../../benchmarks/puyo-269-frame-variance-20261009/README.md)を #181 に保存した．
+
+親は両証跡を #180→#181→#182 へ履歴保持 merge した．新しい製品変更はなく，最上段で該当 6 module の 20 tests＋25 subtests，追加 Python 3 ファイルの Ruff，差分検査が成功した．直前の同 source GUI gate は初回 7／8，再測 8／8 であり，安定達成や実人間 QA の完了には読み替えない．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress を維持する．PR merge／release／reviewer 指定／force-push はしていない．
