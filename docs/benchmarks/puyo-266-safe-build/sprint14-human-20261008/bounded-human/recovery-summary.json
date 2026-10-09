@@ -1,0 +1,1229 @@
+{
+  "source": "1c4b2f0783d7ec73966e8f3990c46a1337a60866",
+  "source_changed": false,
+  "baseline_source": "72efe8a81df188db522ac3860bbb10bca27d0090",
+  "scope": "new normal run, wall-clock dependent; not paired policy A/B",
+  "source_file_fingerprints_equal": false,
+  "source_file_count": 170,
+  "config_differences": {
+    "replay_path": [
+      "/tmp/puyo266-landed-recovery-human127-extended/replay.json",
+      "/tmp/puyo266-stream-human127/replay.json"
+    ],
+    "dataset_root": [
+      "/tmp/puyo266-landed-recovery-human127-extended/dataset",
+      "/tmp/puyo266-stream-human127/dataset"
+    ]
+  },
+  "ticks": 5520,
+  "elapsed_seconds": 109.68206064199998,
+  "target_placements": 60,
+  "actual_locks": 60,
+  "outcomes": {
+    "activated": 60,
+    "stale": 5
+  },
+  "fallbacks": 0,
+  "game_over": {
+    "player_0": false,
+    "player_1": false
+  },
+  "final_hash_verified": "8a3603390f9ba98966a6a84671da4c217c106941ccf5921e5c6c89c59ef23f84",
+  "lock_mismatches": [],
+  "unlocked": [],
+  "unattributed": [],
+  "quota_violations": [],
+  "decision_seconds": {
+    "p50": 0.34118741099999284,
+    "p95": 0.4549724087999834,
+    "max": 0.47381891300000234
+  },
+  "inference_comparisons": [
+    {
+      "decision": 1,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 2,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 3,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 4,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 5,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 6,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 7,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 8,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 9,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 10,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 11,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 12,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 13,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 14,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 15,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 16,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 17,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 18,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 19,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 20,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 21,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 22,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 23,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 24,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 25,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 26,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 27,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 28,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 29,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 30,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 31,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 32,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 33,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 34,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 35,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 36,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 37,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 38,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 39,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 40,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 41,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 42,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 43,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 44,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 45,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 46,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 47,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 48,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 49,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 50,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 51,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 52,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 53,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 54,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 55,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 56,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 57,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 58,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 59,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 60,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 61,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 62,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 63,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 64,
+      "known": true,
+      "offline_hidden_match": true
+    },
+    {
+      "decision": 65,
+      "known": true,
+      "offline_hidden_match": true
+    }
+  ],
+  "recoveries": [
+    {
+      "decision": 16,
+      "selected": 12,
+      "preferred": 12,
+      "nodes": 82,
+      "predicted_removed": 6,
+      "actual_removed": 6,
+      "actual_chain": 1,
+      "lock_tick": 1075,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 1120,
+          "before": 30,
+          "after": 24,
+          "dropped": 0
+        }
+      ]
+    },
+    {
+      "decision": 22,
+      "selected": 21,
+      "preferred": 21,
+      "nodes": 79,
+      "predicted_removed": 10,
+      "actual_removed": 10,
+      "actual_chain": 3,
+      "lock_tick": 1519,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 1550,
+          "before": 24,
+          "after": 21,
+          "dropped": 0
+        },
+        {
+          "tick": 1594,
+          "before": 21,
+          "after": 19,
+          "dropped": 0
+        },
+        {
+          "tick": 1638,
+          "before": 19,
+          "after": 14,
+          "dropped": 0
+        }
+      ]
+    },
+    {
+      "decision": 37,
+      "selected": 0,
+      "preferred": 0,
+      "nodes": 85,
+      "predicted_removed": 11,
+      "actual_removed": 11,
+      "actual_chain": 7,
+      "lock_tick": 2673,
+      "root_matches": true,
+      "garbage_events": [
+        {
+          "tick": 2792,
+          "before": 14,
+          "after": 11,
+          "dropped": 0
+        },
+        {
+          "tick": 2837,
+          "before": 11,
+          "after": 10,
+          "dropped": 0
+        },
+        {
+          "tick": 2881,
+          "before": 10,
+          "after": 8,
+          "dropped": 0
+        },
+        {
+          "tick": 2926,
+          "before": 8,
+          "after": 5,
+          "dropped": 0
+        },
+        {
+          "tick": 2970,
+          "before": 5,
+          "after": 3,
+          "dropped": 0
+        }
+      ]
+    }
+  ],
+  "garbage_events": [
+    {
+      "tick": 803,
+      "before": 0,
+      "after": 30,
+      "dropped": 30
+    },
+    {
+      "tick": 1120,
+      "before": 30,
+      "after": 24,
+      "dropped": 0
+    },
+    {
+      "tick": 1550,
+      "before": 24,
+      "after": 21,
+      "dropped": 0
+    },
+    {
+      "tick": 1594,
+      "before": 21,
+      "after": 19,
+      "dropped": 0
+    },
+    {
+      "tick": 1638,
+      "before": 19,
+      "after": 14,
+      "dropped": 0
+    },
+    {
+      "tick": 2792,
+      "before": 14,
+      "after": 11,
+      "dropped": 0
+    },
+    {
+      "tick": 2837,
+      "before": 11,
+      "after": 10,
+      "dropped": 0
+    },
+    {
+      "tick": 2881,
+      "before": 10,
+      "after": 8,
+      "dropped": 0
+    },
+    {
+      "tick": 2926,
+      "before": 8,
+      "after": 5,
+      "dropped": 0
+    },
+    {
+      "tick": 2970,
+      "before": 5,
+      "after": 3,
+      "dropped": 0
+    },
+    {
+      "tick": 4489,
+      "before": 3,
+      "after": 2,
+      "dropped": 0
+    },
+    {
+      "tick": 4533,
+      "before": 2,
+      "after": 1,
+      "dropped": 0
+    },
+    {
+      "tick": 4578,
+      "before": 1,
+      "after": 0,
+      "dropped": 0
+    }
+  ],
+  "actual_clears": [
+    [
+      12,
+      1
+    ],
+    [
+      16,
+      1
+    ],
+    [
+      22,
+      3
+    ],
+    [
+      37,
+      7
+    ],
+    [
+      58,
+      10
+    ]
+  ],
+  "attack_events": [
+    {
+      "player": "player_1",
+      "type": "resolution_complete",
+      "tick": 143,
+      "score_delta": 41,
+      "attack_score_delta": 64,
+      "chain_end_score": 64,
+      "chain_count": 1,
+      "game_over": false,
+      "all_clear_achieved": true,
+      "all_clear_bonus_pending": true,
+      "all_clear_bonus_consumed": false,
+      "all_clear_bonus_score": 0,
+      "attack": {
+        "generated": 0,
+        "canceled": 0,
+        "outgoing": 0,
+        "attack_score_delta": 64,
+        "all_clear_bonus_consumed": false,
+        "all_clear_bonus_score": 0
+      }
+    },
+    {
+      "player": "player_1",
+      "type": "resolution_complete",
+      "tick": 690,
+      "score_delta": 2141,
+      "attack_score_delta": 2220,
+      "chain_end_score": 2284,
+      "chain_count": 1,
+      "game_over": false,
+      "all_clear_achieved": false,
+      "all_clear_bonus_pending": false,
+      "all_clear_bonus_consumed": true,
+      "all_clear_bonus_score": 2100,
+      "attack": {
+        "generated": 32,
+        "canceled": 0,
+        "outgoing": 32,
+        "attack_score_delta": 2220,
+        "all_clear_bonus_consumed": true,
+        "all_clear_bonus_score": 2100
+      }
+    },
+    {
+      "type": "drop",
+      "player": "player_0",
+      "tick": 803,
+      "amount": 30
+    },
+    {
+      "type": "drop",
+      "player": "player_1",
+      "tick": 4232,
+      "amount": 25
+    }
+  ],
+  "prefix_comparison": {
+    "inputs_first_different_tick": 269,
+    "snapshot_hash_first_different_tick": 269
+  },
+  "activation_order_comparisons": [
+    {
+      "lock_index": 1,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 0,
+      "action": 0
+    },
+    {
+      "lock_index": 2,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 16,
+      "action": 16
+    },
+    {
+      "lock_index": 3,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 14,
+      "action": 14
+    },
+    {
+      "lock_index": 4,
+      "public_equal": true,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 14,
+      "action": 14
+    },
+    {
+      "lock_index": 5,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 19,
+      "action": 19
+    },
+    {
+      "lock_index": 6,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 12,
+      "action": 12
+    },
+    {
+      "lock_index": 7,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 7,
+      "action": 7
+    },
+    {
+      "lock_index": 8,
+      "public_equal": false,
+      "visible_equal": true,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": true,
+      "action_equal": true,
+      "baseline_action": 2,
+      "action": 2
+    },
+    {
+      "lock_index": 9,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 15,
+      "action": 15
+    },
+    {
+      "lock_index": 10,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 15
+    },
+    {
+      "lock_index": 11,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 8
+    },
+    {
+      "lock_index": 12,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 5,
+      "action": 21
+    },
+    {
+      "lock_index": 13,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 12
+    },
+    {
+      "lock_index": 14,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 3
+    },
+    {
+      "lock_index": 15,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 18,
+      "action": 8
+    },
+    {
+      "lock_index": 16,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 3,
+      "action": 3
+    },
+    {
+      "lock_index": 17,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 5
+    },
+    {
+      "lock_index": 18,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 8,
+      "action": 15
+    },
+    {
+      "lock_index": 19,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 21,
+      "action": 21
+    },
+    {
+      "lock_index": 20,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 8,
+      "action": 18
+    },
+    {
+      "lock_index": 21,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 4,
+      "action": 11
+    },
+    {
+      "lock_index": 22,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 0,
+      "action": 3
+    },
+    {
+      "lock_index": 23,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 10,
+      "action": 9
+    },
+    {
+      "lock_index": 24,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 7,
+      "action": 3
+    },
+    {
+      "lock_index": 25,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 8
+    },
+    {
+      "lock_index": 26,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 4
+    },
+    {
+      "lock_index": 27,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 13,
+      "action": 18
+    },
+    {
+      "lock_index": 28,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 7,
+      "action": 4
+    },
+    {
+      "lock_index": 29,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 6,
+      "action": 21
+    },
+    {
+      "lock_index": 30,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 0
+    },
+    {
+      "lock_index": 31,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 0,
+      "action": 0
+    },
+    {
+      "lock_index": 32,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 10,
+      "action": 19
+    },
+    {
+      "lock_index": 33,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 8,
+      "action": 10
+    },
+    {
+      "lock_index": 34,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 20,
+      "action": 0
+    },
+    {
+      "lock_index": 35,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 16,
+      "action": 3
+    },
+    {
+      "lock_index": 36,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 18,
+      "action": 10
+    },
+    {
+      "lock_index": 37,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 5,
+      "action": 18
+    },
+    {
+      "lock_index": 38,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 19
+    },
+    {
+      "lock_index": 39,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 9,
+      "action": 17
+    },
+    {
+      "lock_index": 40,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 18
+    },
+    {
+      "lock_index": 41,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 14,
+      "action": 14
+    },
+    {
+      "lock_index": 42,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 3,
+      "action": 3
+    },
+    {
+      "lock_index": 43,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 10,
+      "action": 8
+    },
+    {
+      "lock_index": 44,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 9,
+      "action": 15
+    },
+    {
+      "lock_index": 45,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 12,
+      "action": 12
+    },
+    {
+      "lock_index": 46,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 11,
+      "action": 16
+    },
+    {
+      "lock_index": 47,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 19
+    },
+    {
+      "lock_index": 48,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 12,
+      "action": 5
+    },
+    {
+      "lock_index": 49,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 14,
+      "action": 13
+    },
+    {
+      "lock_index": 50,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 8
+    },
+    {
+      "lock_index": 51,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 19,
+      "action": 7
+    },
+    {
+      "lock_index": 52,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 2,
+      "action": 6
+    },
+    {
+      "lock_index": 53,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 2,
+      "action": 6
+    },
+    {
+      "lock_index": 54,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": true,
+      "baseline_action": 1,
+      "action": 1
+    },
+    {
+      "lock_index": 55,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 3
+    },
+    {
+      "lock_index": 56,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 15,
+      "action": 8
+    },
+    {
+      "lock_index": 57,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 4,
+      "action": 0
+    },
+    {
+      "lock_index": 58,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 7,
+      "action": 4
+    },
+    {
+      "lock_index": 59,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 2,
+      "action": 17
+    },
+    {
+      "lock_index": 60,
+      "public_equal": false,
+      "visible_equal": false,
+      "known_pieces_equal": true,
+      "ranked_roots_equal": false,
+      "action_equal": false,
+      "baseline_action": 4,
+      "action": 12
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "runtime_source": "1c4b2f0783d7ec73966e8f3990c46a1337a60866",
+  "scope": "five native40 diagnostics; quality FAIL and G2 BLOCKED retained",
+  "same_170_source_file_hashes_as_human": true,
+  "tests": "prior related144 and dedicated3 preserved; dedicated3 rechecked",
+  "files": [
+    {
+      "path": "bounded-fixed/gtr-123.json.gz",
+      "bytes": 1000004,
+      "sha256": "1288488369b77a4987804e2a629c63a485f0de0ed9e11b51f4e3ed07c5c4b9a9",
+      "uncompressed_bytes": 23542778,
+      "uncompressed_sha256": "01cdda0bc00a8176b0257fbbcc63bbea79eb9448b28444459c5b174580ba03c0"
+    },
+    {
+      "path": "bounded-fixed/gtr-123.locks.json.gz",
+      "bytes": 29284,
+      "sha256": "c5dcab431a9d249de95da10a215761cdbc9c757a40cb37a9e3241968095d933d",
+      "uncompressed_bytes": 695443,
+      "uncompressed_sha256": "aff92a7b4785943cd2b0f31bbbfe56a0a0a378da84ee5be26a4d5af22a1796d1"
+    },
+    {
+      "path": "bounded-fixed/gtr-123.log",
+      "bytes": 1224,
+      "sha256": "e3e67f1994ff1bd176e9af8077f584a2f9ad6a8444a9ece07448254055954230"
+    },
+    {
+      "path": "bounded-fixed/gtr-124.json.gz",
+      "bytes": 1154781,
+      "sha256": "9f843858098b347910c8691d5ad6e405bfa838ac8f9ea0fd78030b199950dfd2",
+      "uncompressed_bytes": 24515143,
+      "uncompressed_sha256": "a632951dc44ac8a3a6aeb233486a3179e1cdc483385a043122a1de415eeaf0a5"
+    },
+    {
+      "path": "bounded-fixed/gtr-124.locks.json.gz",
+      "bytes": 29885,
+      "sha256": "8312578f13e295f6c66a936640562f9b4bbfec11e3f85511317948e649cb2263",
+      "uncompressed_bytes": 710018,
+      "uncompressed_sha256": "3cb3ad9e6b78eee6835987e29da1fd0a5ec970fe3e9f6743218a4324098b6330"
+    },
+    {
+      "path": "bounded-fixed/gtr-124.log",
+      "bytes": 1223,
+      "sha256": "13414ff39e68c3c7b3bfffe09b0eaa3ac6867bb56a7af1fc779f8e25e3ca6d2c"
+    },
+    {
+      "path": "bounded-fixed/gtr-126.json.gz",
+      "bytes": 1232753,
+      "sha256": "39912106f535143c3056696aa329e7b8ee0e6b7da78f5e2f871d022554390cf9",
+      "uncompressed_bytes": 25943745,
+      "uncompressed_sha256": "04f4e54770777f907dbb393e2f38effb5b5410022deaf06abae0b4e7bd60de83"
+    },
+    {
+      "path": "bounded-fixed/gtr-126.locks.json.gz",
+      "bytes": 28760,
+      "sha256": "7149e362a57199a8cc9b0f2e2fed2b5e50819d6d9484172dbe806dab881b4aaa",
+      "uncompressed_bytes": 668959,
+      "uncompressed_sha256": "5d7123700223781e665641d3948fa5631dc6bf9bfefc17d97c9755ecefbf9c6f"
+    },
+    {
+      "path": "bounded-fixed/gtr-126.log",
+      "bytes": 1225,
+      "sha256": "a643dbbd7a60e0aaeeed17e6a0506d3384e778e577c8ff9c575e7d56074e9bcd"
+    },
+    {
+      "path": "bounded-fixed/gtr-128.json.gz",
+      "bytes": 982882,
+      "sha256": "8076113f932fafce5f89f84917c0a67a729e15721d5392fc84963693545ccbaa",
+      "uncompressed_bytes": 23044883,
+      "uncompressed_sha256": "497a90c62e8f449d8d19478cf8c8b072346cd86a12c49963faa2a8a4aac9d3e1"
+    },
+    {
+      "path": "bounded-fixed/gtr-128.locks.json.gz",
+      "bytes": 27669,
+      "sha256": "f905097938250ea83b2425699e2af437779e14aa0b9ca77fb0236295beb2d346",
+      "uncompressed_bytes": 658365,
+      "uncompressed_sha256": "479902b89e3d7101267101a9ed45e98130e9651e7d39b6e436f6614190640cbd"
+    },
+    {
+      "path": "bounded-fixed/gtr-128.log",
+      "bytes": 1220,
+      "sha256": "3341cbb923867c5da4b94d1236068c7c8d99a1555dc156c61af96ba696a5c5c0"
+    },
+    {
+      "path": "bounded-fixed/gtr-55.json.gz",
+      "bytes": 1166054,
+      "sha256": "3832921fe95a5cf22e0bc36bca78d7f406287e793052086189119ab466701e01",
+      "uncompressed_bytes": 25403208,
+      "uncompressed_sha256": "a9d8a4ff59f3c7bc20cb80bc0df672dd9980ce96d687cf18ef65ef580261500e"
+    },
+    {
+      "path": "bounded-fixed/gtr-55.locks.json.gz",
+      "bytes": 29819,
+      "sha256": "0bce5f08a7a926fa26bf163ed929024b629077e93669cbe9f0622ba1f3aa0293",
+      "uncompressed_bytes": 699712,
+      "uncompressed_sha256": "59c082d76520e1904a706524c7a3ece95c9401865740a3a93519ce9154027f93"
+    },
+    {
+      "path": "bounded-fixed/gtr-55.log",
+      "bytes": 1181,
+      "sha256": "99bb7d4cc130659e4ae666260d617249c16104912e8986512d63e36069f61019"
+    },
+    {
+      "path": "bounded-fixed/normal-comparison.json",
+      "bytes": 21672,
+      "sha256": "79b341029f9c197abe51ee2cd82283fdd809c63491fe65be41deb362dc99dddd"
+    },
+    {
+      "path": "bounded-fixed/summary.json",
+      "bytes": 28081,
+      "sha256": "f4547cdafb980b9a718ee2224e21c04daabe914447ef5d0c8b7be822a0eaee26"
+    },
+    {
+      "path": "bounded-fixed-run.py",
+      "bytes": 1598,
+      "sha256": "f5a1bc186e6d468135ce7dd93a59688ae6a1f5b59f6591cdc2653d79d825ac41"
+    },
+    {
+      "path": "bounded-live-audit.py",
+      "bytes": 5223,
+      "sha256": "e6d38e73b44a544dec06feb3c4318c9f703b568289f8acf8a5deb4689b93be4c"
+    },
+    {
+      "path": "bounded-recheck-tests.txt",
+      "bytes": 97,
+      "sha256": "c075b4cb83a059e501425e78da33facbbbb1b17358070bcff80810645fd00839"
+    }
+  ],
+  "native_extension_post_run": {
+    "path": ".venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+    "bytes": 5618560,
+    "sha256": "35735a1a6bce0a45a64a46453cd4302f34099fb626ef4fc226a61c32bb2c52ca",
+    "scope": "post-run supplemental identity; prior artifacts recorded wrapper and capabilities identity"
+  }
+}
