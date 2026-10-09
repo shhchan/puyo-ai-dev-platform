@@ -215,7 +215,9 @@ def run(*, mode, seed=55, seed_a=None, seed_b=None, templates="gtr", placements=
         if write_replay:
             outputs.append(("replay", game.replay_payload(interrupted=bool(game.env.agents))))
         for name, value in outputs:
-            (output / f"{name}.json").write_text(json.dumps(value, indent=2) + "\n")
+            with (output / f"{name}.json").open("w") as handle:
+                json.dump(value, handle, indent=2)
+                handle.write("\n")
         print(json.dumps(report["summary"], ensure_ascii=False), flush=True)
         return report
     finally:
