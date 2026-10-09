@@ -1,0 +1,23 @@
+	Command being timed: ".venv/bin/python -m eval.nextgen_realtime_diagnostic --mode normal --seed 127 --seed-a 58 --templates daa --selection-mode softmax --temperature 1.0 --speed 1.0 --opponent human --human-inputs docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/human-inputs.json --placements 60 --max-ticks 7000 --profile nextgen_safe_build --output /tmp/puyo266-stream-human127"
+	User time (seconds): 181.25
+	System time (seconds): 4.08
+	Percent of CPU this job got: 118%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:36.30
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3574484
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 21
+	Minor (reclaiming a frame) page faults: 935134
+	Voluntary context switches: 9355
+	Involuntary context switches: 528
+	Swaps: 0
+	File system inputs: 13144
+	File system outputs: 5949112
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

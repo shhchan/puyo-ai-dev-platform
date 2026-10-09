@@ -351,3 +351,66 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 再確認用の`formal-fire-audit.json`とscriptを保存した．保存199判断の順位比較と固定4runの集計は，再実行JSONのbytes一致を確認した．141tests，Ruff，diff check成功．heavy枠は返却済み．
+
+### 128/38 の重複計算を使った代替 prefix 証明
+
+公開状態・公開色組・action が完全一致する transition だけを request 内で再利用する．旧 probe の round robin・論理課金・cutoff を維持し，旧 control 証明が成功した場合はその選択を維持する．旧証明が得られなかった場合だけ，実行を省略した重複 transition の予約済み予算で別の公開既知 prefix を調べる．応答探索に渡す残予算は変えず，既に実行した計算を返金しない．新たな private field・未来ツモ・worker/schema 入力はない．
+
+128/38 は旧 probe 論理 110 nodes に対して実 transition 70 件，旧 control 18 件である．40 件分の省略から 27 nodes（placement 4/control 22/terminal 1）を使用し，root12 `[12,19,14]` と terminal action1 を証明する．合計実計算 115，論理予約 128，response 残 128．最初の lock は公開 reachable mask の root12 が true，後続は公開履歴で一意に復元した盤面上の control と，さらに 1 組を色非依存で配置できる十分条件を確認する．これは長期安全や実対局成功の保証ではない．root11 の未認証を unknown として，実 `apply_envelope` は 11→12 に変わる．cutoff は fatal にしない．
+
+`alternate-bounded-audit.py` は保存された公開 request/batch を読み取り，旧・新 probe/refine の実 envelope 選択と予算を比較する．offline 完全盤面は診断専用・runtime 入力ではない．この script はその完全盤面も読まない．元 `/tmp/puyo266-bounded-*` の読取試作は保持している．新規 native 対局と正式 G2 の成功をこの比較から主張しない．
+
+```bash
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/alternate-bounded-audit.py
+.venv/bin/python -m unittest tests.test_nextgen_alternate_survival -q
+```
+
+保存 499 件のうち known/no-pending の 496 件を比較し，変更は 128/38 の 1 件だけだった．3 件は unknown/pending の従来経路に留めた．旧・新固定正常 55/123/124/126，human127 の旧・3500tick・60 配置 run を含む．全件で論理 node/response 残予算は不変，上限超過 0．関連 144 tests と，credit を省略分だけに限定した後の専用 3 tests が成功し，legacy 383 判断は原本と完全一致，Ruff/diff check も成功した．
+
+## bounded alternate と stream 出力後の human127 再監査
+
+source `1c4b2f0783d7ec73966e8f3990c46a1337a60866` の fresh normal run を保存した．`e725e6d` の bounded alternate に加え，`1c4b2f0` は診断 JSON の巨大な中間文字列を作らず `json.dump` で逐次出力する保存処理だけである．小 fixture の旧・新出力 bytes は一致する．runtime の追加変更は行っていない．中断後は残存 raw を再利用し，human127 を再実行していない．
+
+seed127/policy58/daa/softmax1.0/x1.0，固定 2P 入力，目標 60 配置/max_ticks7000 で，5520 tick/109.682 s，60 採用・60 実 lock/5 stale/fallback0，両者非窒息だった．decision p50/p95/max は 0.341/0.455/0.474 s．プロセス全体は 156.30 s，最大 RSS 3,574,484 KiB，exit0 で replay 保存に成功した．前回の不完全 run で fallback1 が観測されたという引継ぎは raw 消失により未検証であり，今回の fallback0 を原因確定・修正済みの根拠にしない．
+
+保存 archive から全 5520 tick/最終 hash を再生し，元 audit JSON と全項目一致した．60 実 lock の root 不一致・未 lock・無帰属は 0，65 request の公開 hidden 推定は offline 完全盤面と一致し，quota 超過は 0．完全盤面は offline 監査専用・runtime 入力ではない．実消去は判断 12/16/22/37/58 の 1/1/3/7/10 連鎖．2P は tick143 の全消し時送信0，tick690 の bonus 消費で32送信，1P は tick803 に2相殺して30受取．回復判断16/22/37の予測/実除去6/10/11が一致し，最後の10連鎖で残る3個を消して，おじゃまは30→0となった．
+
+先行 `0633af0` の 60 配置 run とは入力/hash が tick269 で分岐する．normal は wall-clock 依存で，同一 prefix A/B や元人間対局の再現とは扱わず，一般的な窒息解消・G2 PASS を主張しない．元人間 replay/正確な入力は未提供である．
+
+`bounded-human/` に report/ledger/replay/audit の gzip，原本 bytes/SHA，プロセスログと再監査集計を保存した．元 replay は `/tmp/puyo266-stream-human127/replay.json` の 2,944,510,796 bytes，SHA-256 `6aa8c8221c07be2daf6201c22a0ad9fc3b954577aa996f511c02c92691678584`．既存 stream archive の原本 SHA と一致を確認し，重複 UI 診断 3 key だけを除いた保存版を再監査した．artifact SHA は `bounded-human-manifest.json` に記録する．
+
+```bash
+.venv/bin/python -m eval.nextgen_realtime_audit --report docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/report.json.gz --replay docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/replay.json.gz --output /tmp/puyo266-human127-reaudit.json
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-extended /tmp/puyo266-bounded-human-summary.json
+cmp /tmp/puyo266-bounded-human-summary.json docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/recovery-summary.json
+```
+
+## bounded alternate の native 固定 5 seed 再取得
+
+中断前の固定 5 run は `/tmp` raw が消失したため結果の伝聞だけを採用せず，source `1c4b2f0` を固定して128/55/123/124/126をfresh processで直列再取得した．各40配置，GTR，argmax，native，configured latency0，`nextgen_safe_build`，1 threadの条件は旧診断と同じである．全runでsourceの実行中変更なし，human127とも170ファイルのsource SHAが一致した．正式G2の60runは実行していない．
+
+| seed | 最大実連鎖 | premature | 実配置/窒息 | decision p50/p95 (s) | 実発火とその後 |
+| --- | ---: | ---: | --- | --- | --- |
+| 55 | 10 | 0 | 40/なし | 0.384/0.452 | 32手目10連鎖後8配置 |
+| 123 | 10 | 0 | 40/なし | 0.384/0.459 | 29手目10連鎖後11配置 |
+| 124 | 10 | 0 | 40/なし | 0.392/0.442 | 25手目10連鎖後15配置 |
+| 126 | 10 | 0 | 40/なし | 0.393/0.460 | 31手目10連鎖後9配置 |
+| 128 | 1 | 1 | 40/なし | 0.306/0.404 | 40手目1連鎖，発火後の追加配置は未検証 |
+
+正常4seedは先行`1969271`の全入力列・全action・最終hashと一致し，記録されたnative build identity/search config/profileも一致した．128は`ce44f6e`と38判断目まで公開入力が一致し，初回action差分は38手目11→12．実38/39/40手目は12/19/14で，保存batchで証明したprefixが実lockにも現れた．38手目の旧probe論理110/実70，旧control18，省略40からalternate配置4/control22/terminal1を使い，合計実115/論理128を維持した．39配置窒息から40配置非窒息になったが，最大1連鎖/premature1で10連鎖級品質は未達であり，40手以降の長期安全も保証しない．
+
+全200判断で公開推定とoffline完全盤面が一致し，実lock不一致/未lock/quota超過は0，入力再生の最終hashは全run一致した．alternateの実計算量も論理128以下・追加課金も省略分以下と確認した．再監査器は実行中の座標tupleをJSONのarrayへ正規化してから保存lockと全項目比較する．期待値やlock内容は変更しない．native runnerは新規出力を排他的に作成し，原本を上書きしない．
+
+`bounded-fixed/`のraw/lock gzip・全監査summary・正常比較・runログ，`bounded-fixed-run.py`，`bounded-live-audit.py`とSHA manifestを保存した．前回の144 tests＋専用3 tests/legacy383一致は`alternate-bounded-tests.txt`等の証拠を維持し，今回さらに専用3 tests，Ruff，diff check，JSON逐次出力の小fixture bytes一致を確認した．追加runtime変更はない．
+
+```bash
+# 出力先は未使用のディレクトリを指定し，各seedを直列実行する．
+for seed in 128 55 123 124 126; do
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1 PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-fixed-run.py "$seed" /tmp/puyo266-bounded-fixed-recheck || break
+done
+# 保存rawの再監査（native policyは再実行しない）．
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-live-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-fixed /tmp/puyo266-bounded-live-audit.json
+cmp /tmp/puyo266-bounded-live-audit.json docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-fixed/summary.json
+```
+
+128の品質残差，132/135/144を含む新規対局，正式G2全条件，人間GUI QAは未達のままである．品質FAIL/G2 BLOCKED，Jira In Progress，draft PR #178を維持する．前回不完全human runのfallback1はraw不足で未検証という制約も保持する．

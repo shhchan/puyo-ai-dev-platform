@@ -468,6 +468,7 @@ class SharedSearchBatchBuilder:
             request, survival_state if survival_state is not None else state, roots, response_budget,
             timing=getattr(self.response_provider, "timing", None),
             board_complete=board_complete, transition_cache=survival_cache,
+            reuse_transitions=survival_state is not None,
         )
         if survival_state is not None:
             survival, survival_diagnostics = refine_inferred(

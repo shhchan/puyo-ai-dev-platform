@@ -1,0 +1,43 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 128 1 chain 0
+nextgen 128 2 chain 0
+nextgen 128 3 chain 0
+nextgen 128 4 chain 0
+nextgen 128 5 chain 0
+nextgen 128 6 chain 0
+nextgen 128 7 chain 0
+nextgen 128 8 chain 0
+nextgen 128 9 chain 0
+nextgen 128 10 chain 0
+nextgen 128 11 chain 0
+nextgen 128 12 chain 0
+nextgen 128 13 chain 0
+nextgen 128 14 chain 0
+nextgen 128 15 chain 0
+nextgen 128 16 chain 0
+nextgen 128 17 chain 0
+nextgen 128 18 chain 0
+nextgen 128 19 chain 0
+nextgen 128 20 chain 0
+nextgen 128 21 chain 0
+nextgen 128 22 chain 0
+nextgen 128 23 chain 0
+nextgen 128 24 chain 0
+nextgen 128 25 chain 0
+nextgen 128 26 chain 0
+nextgen 128 27 chain 0
+nextgen 128 28 chain 0
+nextgen 128 29 chain 0
+nextgen 128 30 chain 0
+nextgen 128 31 chain 0
+nextgen 128 32 chain 0
+nextgen 128 33 chain 0
+nextgen 128 34 chain 0
+nextgen 128 35 chain 0
+nextgen 128 36 chain 0
+nextgen 128 37 chain 0
+nextgen 128 38 chain 0
+nextgen 128 39 chain 0
+nextgen 128 40 chain 1
+{'seed': 128, 'max_chain': 1, 'premature': 1, 'game_over': False, 'placements': 40, 'decision_seconds': {'n': 40, 'p50': 0.3062753499999076, 'p95': 0.4036425128500525, 'max': 0.4297544549999657}}
