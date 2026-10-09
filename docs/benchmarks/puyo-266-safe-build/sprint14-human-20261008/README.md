@@ -366,3 +366,21 @@ PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human
 ```
 
 保存 499 件のうち known/no-pending の 496 件を比較し，変更は 128/38 の 1 件だけだった．3 件は unknown/pending の従来経路に留めた．旧・新固定正常 55/123/124/126，human127 の旧・3500tick・60 配置 run を含む．全件で論理 node/response 残予算は不変，上限超過 0．関連 144 tests と，credit を省略分だけに限定した後の専用 3 tests が成功し，legacy 383 判断は原本と完全一致，Ruff/diff check も成功した．
+
+## bounded alternate と stream 出力後の human127 再監査
+
+source `1c4b2f0783d7ec73966e8f3990c46a1337a60866` の fresh normal run を保存した．`e725e6d` の bounded alternate に加え，`1c4b2f0` は診断 JSON の巨大な中間文字列を作らず `json.dump` で逐次出力する保存処理だけである．小 fixture の旧・新出力 bytes は一致する．runtime の追加変更は行っていない．中断後は残存 raw を再利用し，human127 を再実行していない．
+
+seed127/policy58/daa/softmax1.0/x1.0，固定 2P 入力，目標 60 配置/max_ticks7000 で，5520 tick/109.682 s，60 採用・60 実 lock/5 stale/fallback0，両者非窒息だった．decision p50/p95/max は 0.341/0.455/0.474 s．プロセス全体は 156.30 s，最大 RSS 3,574,484 KiB，exit0 で replay 保存に成功した．前回の不完全 run で fallback1 が観測されたという引継ぎは raw 消失により未検証であり，今回の fallback0 を原因確定・修正済みの根拠にしない．
+
+保存 archive から全 5520 tick/最終 hash を再生し，元 audit JSON と全項目一致した．60 実 lock の root 不一致・未 lock・無帰属は 0，65 request の公開 hidden 推定は offline 完全盤面と一致し，quota 超過は 0．完全盤面は offline 監査専用・runtime 入力ではない．実消去は判断 12/16/22/37/58 の 1/1/3/7/10 連鎖．2P は tick143 の全消し時送信0，tick690 の bonus 消費で32送信，1P は tick803 に2相殺して30受取．回復判断16/22/37の予測/実除去6/10/11が一致し，最後の10連鎖で残る3個を消して，おじゃまは30→0となった．
+
+先行 `0633af0` の 60 配置 run とは入力/hash が tick269 で分岐する．normal は wall-clock 依存で，同一 prefix A/B や元人間対局の再現とは扱わず，一般的な窒息解消・G2 PASS を主張しない．元人間 replay/正確な入力は未提供である．
+
+`bounded-human/` に report/ledger/replay/audit の gzip，原本 bytes/SHA，プロセスログと再監査集計を保存した．元 replay は `/tmp/puyo266-stream-human127/replay.json` の 2,944,510,796 bytes，SHA-256 `6aa8c8221c07be2daf6201c22a0ad9fc3b954577aa996f511c02c92691678584`．既存 stream archive の原本 SHA と一致を確認し，重複 UI 診断 3 key だけを除いた保存版を再監査した．artifact SHA は `bounded-human-manifest.json` に記録する．
+
+```bash
+.venv/bin/python -m eval.nextgen_realtime_audit --report docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/report.json.gz --replay docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/replay.json.gz --output /tmp/puyo266-human127-reaudit.json
+PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/recovery-run-audit.py docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/landed-recovery-extended /tmp/puyo266-bounded-human-summary.json
+cmp /tmp/puyo266-bounded-human-summary.json docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/bounded-human/recovery-summary.json
+```

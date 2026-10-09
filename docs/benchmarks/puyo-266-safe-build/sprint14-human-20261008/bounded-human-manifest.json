@@ -1,0 +1,52 @@
+{
+  "runtime_source": "1c4b2f0783d7ec73966e8f3990c46a1337a60866",
+  "scope": "saved fresh human127 replay audit; not original manual match or formal G2",
+  "stream_output_small_fixture_bytes_equal": true,
+  "files": [
+    {
+      "path": "bounded-human/audit.json.gz",
+      "bytes": 413789,
+      "sha256": "b4c8d80be2985f8257128af44250d0d4458e2bd54b43dd9ed284c7fc6c1bc81c"
+    },
+    {
+      "path": "bounded-human/ledger.json.gz",
+      "bytes": 585892,
+      "sha256": "4f46d727a821936a984f79117ee82f25372cd02ce921f1ecb437a739c2933f56"
+    },
+    {
+      "path": "bounded-human/originals.json",
+      "bytes": 635,
+      "sha256": "f272eef4a3fcd5c4780ea98cae4b15f1ccf56d62096cf343e046f9e4aed08628"
+    },
+    {
+      "path": "bounded-human/process-time.txt",
+      "bytes": 1108,
+      "sha256": "bd7c6cda6a6204706d40a6153968502c685f4cb6412adcd4002dd77a659c6fe2"
+    },
+    {
+      "path": "bounded-human/process.log",
+      "bytes": 6957,
+      "sha256": "84612b8546588e31c9c5f72ddd5f61e9d3ad1dbae787416353dff28f3afee088"
+    },
+    {
+      "path": "bounded-human/recovery-summary.json",
+      "bytes": 26335,
+      "sha256": "7a9baa315387837342d607b4fdac4f6924230379ca50785d7455df61201525d4"
+    },
+    {
+      "path": "bounded-human/replay-original.json",
+      "bytes": 233,
+      "sha256": "c94ddf095c51a2c489e685142c25d0e9dcbcfac1a3066939b678ab1db6bdc51c"
+    },
+    {
+      "path": "bounded-human/replay.json.gz",
+      "bytes": 279882,
+      "sha256": "810bf39a80f7ef121d8b64680897394b9c8fd1fa6b08210d6af4c60c736bde4f"
+    },
+    {
+      "path": "bounded-human/report.json.gz",
+      "bytes": 1501772,
+      "sha256": "56c876d1780d3f867e3f0b327c4c247558a229e6af9fe587fe278aa926637e6b"
+    }
+  ]
+}
