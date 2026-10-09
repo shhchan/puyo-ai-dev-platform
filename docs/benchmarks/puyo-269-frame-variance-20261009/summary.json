@@ -1,0 +1,2490 @@
+{
+  "diagnostic": {
+    "purpose": "cause_analysis_only_not_minimal_gate",
+    "source_sha": "a29e31f470a81d31bb2b7cc53b3bd0b056358a33",
+    "raw_sha256": "de4a2dc57c146037a8468520853e0cae23b90c60b9e1b795aa21a8d064cff50d",
+    "intervals_sha256": "b8edb709ad8e33c9aa0835e86eb6af17fda02c145ba9b2757fda11550f0e3feb",
+    "native_sha256": "d7e6fff7c808323fb367c632e1c87dd03bbfd122c0854dc4b09466ae90c9c654",
+    "host": {
+      "system": "Linux",
+      "node": "ShionWindows",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "frame": {
+      "n": 360,
+      "p50": 16.5070345,
+      "p95": 21.818101799999997,
+      "p99": 42.16717024000018,
+      "max": 49.255792
+    },
+    "input_schedule": {
+      "n": 122,
+      "p50": 9.698546499999999,
+      "p95": 16.5496274,
+      "p99": 30.329118799999968,
+      "max": 35.524303
+    },
+    "groups": [
+      {
+        "label": "accept",
+        "parent": "completion",
+        "count": 10,
+        "wall_total_ms": 33.409388,
+        "thread_cpu_total_ms": 26.926094,
+        "wall_median_ms": 2.7898389999999997,
+        "wall_max_ms": 8.094404
+      },
+      {
+        "label": "activation",
+        "parent": "tick",
+        "count": 10,
+        "wall_total_ms": 84.598382,
+        "thread_cpu_total_ms": 77.436016,
+        "wall_median_ms": 7.919739,
+        "wall_max_ms": 14.0735
+      },
+      {
+        "label": "clock_tick",
+        "parent": null,
+        "count": 360,
+        "wall_total_ms": 2931.171163,
+        "thread_cpu_total_ms": 10.728086,
+        "wall_median_ms": 8.30122,
+        "wall_max_ms": 16.142922
+      },
+      {
+        "label": "completion",
+        "parent": "tick",
+        "count": 10,
+        "wall_total_ms": 57.569375,
+        "thread_cpu_total_ms": 50.552082999999996,
+        "wall_median_ms": 5.270832,
+        "wall_max_ms": 10.566858
+      },
+      {
+        "label": "deepcopy",
+        "parent": "accept",
+        "count": 10,
+        "wall_total_ms": 2.971523,
+        "thread_cpu_total_ms": 2.903254,
+        "wall_median_ms": 0.291725,
+        "wall_max_ms": 0.375082
+      },
+      {
+        "label": "deepcopy",
+        "parent": "activation",
+        "count": 18,
+        "wall_total_ms": 27.239611,
+        "thread_cpu_total_ms": 26.641662,
+        "wall_median_ms": 2.2528794999999997,
+        "wall_max_ms": 2.95262
+      },
+      {
+        "label": "deepcopy",
+        "parent": "completion",
+        "count": 10,
+        "wall_total_ms": 0.086882,
+        "thread_cpu_total_ms": 0.0801,
+        "wall_median_ms": 0.009060499999999999,
+        "wall_max_ms": 0.012703
+      },
+      {
+        "label": "deepcopy",
+        "parent": "finish",
+        "count": 10,
+        "wall_total_ms": 1.62498,
+        "thread_cpu_total_ms": 1.581933,
+        "wall_median_ms": 0.163246,
+        "wall_max_ms": 0.184036
+      },
+      {
+        "label": "deepcopy",
+        "parent": "prepare",
+        "count": 20,
+        "wall_total_ms": 7.165412,
+        "thread_cpu_total_ms": 6.800745,
+        "wall_median_ms": 0.36257249999999996,
+        "wall_max_ms": 0.583803
+      },
+      {
+        "label": "deepcopy",
+        "parent": "tick",
+        "count": 2158,
+        "wall_total_ms": 887.762695,
+        "thread_cpu_total_ms": 863.454492,
+        "wall_median_ms": 0.3479405,
+        "wall_max_ms": 32.965612
+      },
+      {
+        "label": "diagnostics_to_dict",
+        "parent": "finish",
+        "count": 10,
+        "wall_total_ms": 14.997207,
+        "thread_cpu_total_ms": 14.666854,
+        "wall_median_ms": 1.4806214999999998,
+        "wall_max_ms": 1.680246
+      },
+      {
+        "label": "finish",
+        "parent": "activation",
+        "count": 10,
+        "wall_total_ms": 49.886700000000005,
+        "thread_cpu_total_ms": 43.48798,
+        "wall_median_ms": 4.427507,
+        "wall_max_ms": 9.976628
+      },
+      {
+        "label": "gc_collect",
+        "parent": null,
+        "count": 516,
+        "wall_total_ms": 95.699904,
+        "thread_cpu_total_ms": 93.489575,
+        "wall_median_ms": 0.0497765,
+        "wall_max_ms": 32.548782
+      },
+      {
+        "label": "prepare",
+        "parent": "tick",
+        "count": 10,
+        "wall_total_ms": 82.995865,
+        "thread_cpu_total_ms": 80.568488,
+        "wall_median_ms": 7.8009275,
+        "wall_max_ms": 12.202507
+      },
+      {
+        "label": "reader_decode",
+        "parent": null,
+        "count": 10,
+        "wall_total_ms": 151.486441,
+        "thread_cpu_total_ms": 107.094818,
+        "wall_median_ms": 13.4179235,
+        "wall_max_ms": 22.789759
+      },
+      {
+        "label": "render",
+        "parent": null,
+        "count": 360,
+        "wall_total_ms": 1306.632462,
+        "thread_cpu_total_ms": 1090.643825,
+        "wall_median_ms": 3.6325209999999997,
+        "wall_max_ms": 14.718652
+      },
+      {
+        "label": "tick",
+        "parent": "update",
+        "count": 358,
+        "wall_total_ms": 1842.469926,
+        "thread_cpu_total_ms": 1785.175701,
+        "wall_median_ms": 4.0139735000000005,
+        "wall_max_ms": 37.088472
+      },
+      {
+        "label": "update",
+        "parent": null,
+        "count": 360,
+        "wall_total_ms": 1852.391695,
+        "thread_cpu_total_ms": 1794.697577,
+        "wall_median_ms": 4.043398,
+        "wall_max_ms": 37.108157
+      }
+    ],
+    "gc_over_10_ms": [
+      {
+        "label": "gc_collect",
+        "frame_start": 126,
+        "frame_end": 126,
+        "thread": "MainThread",
+        "started_ns": 2238134517222,
+        "ended_ns": 2238166973434,
+        "wall_ms": 32.456212,
+        "thread_cpu_ms": 31.729609,
+        "generation": 2,
+        "collected": 0,
+        "uncollectable": 0
+      },
+      {
+        "label": "gc_collect",
+        "frame_start": 339,
+        "frame_end": 339,
+        "thread": "MainThread",
+        "started_ns": 2241736583805,
+        "ended_ns": 2241769132587,
+        "wall_ms": 32.548782,
+        "thread_cpu_ms": 31.833616,
+        "generation": 2,
+        "collected": 0,
+        "uncollectable": 0
+      }
+    ],
+    "slow_frames": [
+      {
+        "frame": 0,
+        "frame_ms": 31.412602,
+        "wait_residual_ms": 16.403472999999998,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 0,
+            "frame_end": 0,
+            "thread": "MainThread",
+            "started_ns": 2235970390669,
+            "ended_ns": 2235986533591,
+            "wall_ms": 16.142922,
+            "thread_cpu_ms": 0.022641,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 0,
+            "frame_end": 0,
+            "thread": "MainThread",
+            "started_ns": 2235986827348,
+            "ended_ns": 2236001546000,
+            "wall_ms": 14.718652,
+            "thread_cpu_ms": 12.168182,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 1,
+        "frame_ms": 28.901221,
+        "wait_residual_ms": 1.1293119999999992,
+        "intervals": [
+          {
+            "label": "prepare",
+            "frame_start": 1,
+            "frame_end": 1,
+            "thread": "MainThread",
+            "started_ns": 2236002742370,
+            "ended_ns": 2236014944877,
+            "wall_ms": 12.202507,
+            "thread_cpu_ms": 11.934464,
+            "parent": "tick"
+          },
+          {
+            "label": "prepare",
+            "frame_start": 1,
+            "frame_end": 1,
+            "thread": "MainThread",
+            "started_ns": 2236015336643,
+            "ended_ns": 2236023284583,
+            "wall_ms": 7.94794,
+            "thread_cpu_ms": 7.580898,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 1,
+            "frame_end": 1,
+            "thread": "MainThread",
+            "started_ns": 2236002710164,
+            "ended_ns": 2236028249376,
+            "wall_ms": 25.539212,
+            "thread_cpu_ms": 24.299131,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 1,
+            "frame_end": 1,
+            "thread": "MainThread",
+            "started_ns": 2236002698195,
+            "ended_ns": 2236028256988,
+            "wall_ms": 25.558793,
+            "thread_cpu_ms": 24.317844,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 1,
+            "frame_end": 1,
+            "thread": "MainThread",
+            "started_ns": 2236028259781,
+            "ended_ns": 2236030449941,
+            "wall_ms": 2.19016,
+            "thread_cpu_ms": 1.549579,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 28,
+        "frame_ms": 47.974388,
+        "wait_residual_ms": 7.6156489999999994,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236453247402,
+            "ended_ns": 2236460833622,
+            "wall_ms": 7.58622,
+            "thread_cpu_ms": 0.044221,
+            "parent": null
+          },
+          {
+            "label": "accept",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236460968457,
+            "ended_ns": 2236469062861,
+            "wall_ms": 8.094404,
+            "thread_cpu_ms": 2.855524,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236460960134,
+            "ended_ns": 2236471526992,
+            "wall_ms": 10.566858,
+            "thread_cpu_ms": 5.273216,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236472673921,
+            "ended_ns": 2236482650549,
+            "wall_ms": 9.976628,
+            "thread_cpu_ms": 4.471433,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236482653287,
+            "ended_ns": 2236485605907,
+            "wall_ms": 2.95262,
+            "thread_cpu_ms": 2.888399,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236471540540,
+            "ended_ns": 2236485614040,
+            "wall_ms": 14.0735,
+            "thread_cpu_ms": 8.478187,
+            "parent": "tick"
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "puyo-policy-player_0-results",
+            "started_ns": 2236463397013,
+            "ended_ns": 2236486186772,
+            "wall_ms": 22.789759,
+            "thread_cpu_ms": 10.22793,
+            "parent": null
+          },
+          {
+            "label": "tick",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236460871985,
+            "ended_ns": 2236489998388,
+            "wall_ms": 29.126403,
+            "thread_cpu_ms": 17.903906,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236460860916,
+            "ended_ns": 2236490003673,
+            "wall_ms": 29.142757,
+            "thread_cpu_ms": 17.919666,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 28,
+            "frame_end": 28,
+            "thread": "MainThread",
+            "started_ns": 2236490006182,
+            "ended_ns": 2236501193553,
+            "wall_ms": 11.187371,
+            "thread_cpu_ms": 3.14014,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 29,
+        "frame_ms": 28.772332,
+        "wait_residual_ms": 0.10559399999999952,
+        "intervals": [
+          {
+            "label": "accept",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236501417115,
+            "ended_ns": 2236504204437,
+            "wall_ms": 2.787322,
+            "thread_cpu_ms": 2.726142,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236501408760,
+            "ended_ns": 2236506593227,
+            "wall_ms": 5.184467,
+            "thread_cpu_ms": 5.070227,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236507638208,
+            "ended_ns": 2236511879296,
+            "wall_ms": 4.241088,
+            "thread_cpu_ms": 4.147437,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236511882486,
+            "ended_ns": 2236514410967,
+            "wall_ms": 2.528481,
+            "thread_cpu_ms": 2.472969,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236506605356,
+            "ended_ns": 2236514413809,
+            "wall_ms": 7.808453,
+            "thread_cpu_ms": 7.636396,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236501346354,
+            "ended_ns": 2236518585912,
+            "wall_ms": 17.239558,
+            "thread_cpu_ms": 16.860492,
+            "parent": "update"
+          },
+          {
+            "label": "tick",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236518596161,
+            "ended_ns": 2236522718255,
+            "wall_ms": 4.122094,
+            "thread_cpu_ms": 4.031823,
+            "parent": "update"
+          },
+          {
+            "label": "tick",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236522725655,
+            "ended_ns": 2236526366438,
+            "wall_ms": 3.640783,
+            "thread_cpu_ms": 3.560705,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236501336654,
+            "ended_ns": 2236526370531,
+            "wall_ms": 25.033877,
+            "thread_cpu_ms": 24.482246,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 29,
+            "frame_end": 29,
+            "thread": "MainThread",
+            "started_ns": 2236526373166,
+            "ended_ns": 2236529966926,
+            "wall_ms": 3.59376,
+            "thread_cpu_ms": 3.233918,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 83,
+        "frame_ms": 28.731546,
+        "wait_residual_ms": 14.434941000000002,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 83,
+            "frame_end": 83,
+            "thread": "MainThread",
+            "started_ns": 2237386707836,
+            "ended_ns": 2237401111538,
+            "wall_ms": 14.403702,
+            "thread_cpu_ms": 0.025973,
+            "parent": null
+          },
+          {
+            "label": "prepare",
+            "frame_start": 83,
+            "frame_end": 83,
+            "thread": "MainThread",
+            "started_ns": 2237401221436,
+            "ended_ns": 2237408869793,
+            "wall_ms": 7.648357,
+            "thread_cpu_ms": 7.479981,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 83,
+            "frame_end": 83,
+            "thread": "MainThread",
+            "started_ns": 2237401169591,
+            "ended_ns": 2237413052985,
+            "wall_ms": 11.883394,
+            "thread_cpu_ms": 11.427449,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 83,
+            "frame_end": 83,
+            "thread": "MainThread",
+            "started_ns": 2237401150990,
+            "ended_ns": 2237413059465,
+            "wall_ms": 11.908475,
+            "thread_cpu_ms": 11.451699,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 83,
+            "frame_end": 83,
+            "thread": "MainThread",
+            "started_ns": 2237413061428,
+            "ended_ns": 2237415419325,
+            "wall_ms": 2.357897,
+            "thread_cpu_ms": 2.010165,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 109,
+        "frame_ms": 30.712979,
+        "wait_residual_ms": 10.782506000000001,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237820507632,
+            "ended_ns": 2237831259752,
+            "wall_ms": 10.75212,
+            "thread_cpu_ms": 0.019929,
+            "parent": null
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "puyo-policy-player_0-results",
+            "started_ns": 2237821134796,
+            "ended_ns": 2237833889778,
+            "wall_ms": 12.754982,
+            "thread_cpu_ms": 10.147542,
+            "parent": null
+          },
+          {
+            "label": "accept",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237831491479,
+            "ended_ns": 2237834585208,
+            "wall_ms": 3.093729,
+            "thread_cpu_ms": 2.798411,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237831483913,
+            "ended_ns": 2237837066358,
+            "wall_ms": 5.582445,
+            "thread_cpu_ms": 5.232127,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237837647221,
+            "ended_ns": 2237841930021,
+            "wall_ms": 4.2828,
+            "thread_cpu_ms": 4.188056,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237841932723,
+            "ended_ns": 2237844359100,
+            "wall_ms": 2.426377,
+            "thread_cpu_ms": 2.373045,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237837080416,
+            "ended_ns": 2237844361877,
+            "wall_ms": 7.281461,
+            "thread_cpu_ms": 7.121003,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237831311863,
+            "ended_ns": 2237847946256,
+            "wall_ms": 16.634393,
+            "thread_cpu_ms": 16.040748,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237831301904,
+            "ended_ns": 2237847952566,
+            "wall_ms": 16.650662,
+            "thread_cpu_ms": 16.056388,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 109,
+            "frame_end": 109,
+            "thread": "MainThread",
+            "started_ns": 2237847954842,
+            "ended_ns": 2237851188413,
+            "wall_ms": 3.233571,
+            "thread_cpu_ms": 2.417725,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 110,
+        "frame_ms": 27.584068,
+        "wait_residual_ms": 0.10365999999999653,
+        "intervals": [
+          {
+            "label": "accept",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237851457734,
+            "ended_ns": 2237854250090,
+            "wall_ms": 2.792356,
+            "thread_cpu_ms": 2.731015,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237851451284,
+            "ended_ns": 2237856591015,
+            "wall_ms": 5.139731,
+            "thread_cpu_ms": 5.026529,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237857753486,
+            "ended_ns": 2237862022303,
+            "wall_ms": 4.268817,
+            "thread_cpu_ms": 4.174676,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237862024818,
+            "ended_ns": 2237864259581,
+            "wall_ms": 2.234763,
+            "thread_cpu_ms": 2.185575,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237856602544,
+            "ended_ns": 2237864262049,
+            "wall_ms": 7.659505,
+            "thread_cpu_ms": 7.490723,
+            "parent": "tick"
+          },
+          {
+            "label": "prepare",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237864276316,
+            "ended_ns": 2237871795431,
+            "wall_ms": 7.519115,
+            "thread_cpu_ms": 7.3536,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237851319675,
+            "ended_ns": 2237875896798,
+            "wall_ms": 24.577123,
+            "thread_cpu_ms": 23.790264,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237851309916,
+            "ended_ns": 2237875901768,
+            "wall_ms": 24.591852,
+            "thread_cpu_ms": 23.804332,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 110,
+            "frame_end": 110,
+            "thread": "MainThread",
+            "started_ns": 2237875904027,
+            "ended_ns": 2237878775368,
+            "wall_ms": 2.871341,
+            "thread_cpu_ms": 2.52897,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 118,
+        "frame_ms": 30.520122,
+        "wait_residual_ms": 9.320876,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2237985297840,
+            "ended_ns": 2237994586454,
+            "wall_ms": 9.288614,
+            "thread_cpu_ms": 0.025516,
+            "parent": null
+          },
+          {
+            "label": "accept",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2237994808581,
+            "ended_ns": 2237997578479,
+            "wall_ms": 2.769898,
+            "thread_cpu_ms": 2.708961,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2237994802137,
+            "ended_ns": 2238000243473,
+            "wall_ms": 5.441336,
+            "thread_cpu_ms": 5.321393,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2238001408136,
+            "ended_ns": 2238006016181,
+            "wall_ms": 4.608045,
+            "thread_cpu_ms": 4.506401,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2238006018751,
+            "ended_ns": 2238008330491,
+            "wall_ms": 2.31174,
+            "thread_cpu_ms": 2.261785,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2238000254955,
+            "ended_ns": 2238008336733,
+            "wall_ms": 8.081778,
+            "thread_cpu_ms": 7.903788,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2237994635178,
+            "ended_ns": 2238012063959,
+            "wall_ms": 17.428781,
+            "thread_cpu_ms": 17.045007,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2237994618396,
+            "ended_ns": 2238012069634,
+            "wall_ms": 17.451238,
+            "thread_cpu_ms": 17.066771,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 118,
+            "frame_end": 118,
+            "thread": "MainThread",
+            "started_ns": 2238012071959,
+            "ended_ns": 2238015790779,
+            "wall_ms": 3.71882,
+            "thread_cpu_ms": 3.315237,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 126,
+        "frame_ms": 48.376487,
+        "wait_residual_ms": 8.308406999999999,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238123030912,
+            "ended_ns": 2238131296653,
+            "wall_ms": 8.265741,
+            "thread_cpu_ms": 0.018632,
+            "parent": null
+          },
+          {
+            "label": "gc_collect",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238134517222,
+            "ended_ns": 2238166973434,
+            "wall_ms": 32.456212,
+            "thread_cpu_ms": 31.729609,
+            "generation": 2,
+            "collected": 0,
+            "uncollectable": 0
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238134487267,
+            "ended_ns": 2238167336527,
+            "wall_ms": 32.84926,
+            "thread_cpu_ms": 32.112035,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238131389598,
+            "ended_ns": 2238167675597,
+            "wall_ms": 36.285999,
+            "thread_cpu_ms": 35.473356,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238131337519,
+            "ended_ns": 2238167681992,
+            "wall_ms": 36.344473,
+            "thread_cpu_ms": 35.530019,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 126,
+            "frame_end": 126,
+            "thread": "MainThread",
+            "started_ns": 2238167684429,
+            "ended_ns": 2238171367804,
+            "wall_ms": 3.683375,
+            "thread_cpu_ms": 3.327353,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 187,
+        "frame_ms": 25.024786,
+        "wait_residual_ms": 8.385245,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 187,
+            "frame_end": 187,
+            "thread": "MainThread",
+            "started_ns": 2239154557355,
+            "ended_ns": 2239162874358,
+            "wall_ms": 8.317003,
+            "thread_cpu_ms": 0.055594,
+            "parent": null
+          },
+          {
+            "label": "prepare",
+            "frame_start": 187,
+            "frame_end": 187,
+            "thread": "MainThread",
+            "started_ns": 2239163167303,
+            "ended_ns": 2239171910628,
+            "wall_ms": 8.743325,
+            "thread_cpu_ms": 8.424219,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 187,
+            "frame_end": 187,
+            "thread": "MainThread",
+            "started_ns": 2239162990005,
+            "ended_ns": 2239175977658,
+            "wall_ms": 12.987653,
+            "thread_cpu_ms": 12.575895,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 187,
+            "frame_end": 187,
+            "thread": "MainThread",
+            "started_ns": 2239162954909,
+            "ended_ns": 2239175983971,
+            "wall_ms": 13.029062,
+            "thread_cpu_ms": 12.615659,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 187,
+            "frame_end": 187,
+            "thread": "MainThread",
+            "started_ns": 2239175986632,
+            "ended_ns": 2239179534526,
+            "wall_ms": 3.547894,
+            "thread_cpu_ms": 2.814196,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 204,
+        "frame_ms": 35.669035,
+        "wait_residual_ms": 12.030262999999998,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239435261189,
+            "ended_ns": 2239447262147,
+            "wall_ms": 12.000958,
+            "thread_cpu_ms": 0.033297,
+            "parent": null
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "puyo-policy-player_0-results",
+            "started_ns": 2239436816029,
+            "ended_ns": 2239449027398,
+            "wall_ms": 12.211369,
+            "thread_cpu_ms": 10.49014,
+            "parent": null
+          },
+          {
+            "label": "tick",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239447299857,
+            "ended_ns": 2239451537289,
+            "wall_ms": 4.237432,
+            "thread_cpu_ms": 3.873854,
+            "parent": "update"
+          },
+          {
+            "label": "accept",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239451667022,
+            "ended_ns": 2239454323757,
+            "wall_ms": 2.656735,
+            "thread_cpu_ms": 2.598337,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239451661008,
+            "ended_ns": 2239457018205,
+            "wall_ms": 5.357197,
+            "thread_cpu_ms": 5.239079,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239457541257,
+            "ended_ns": 2239461922620,
+            "wall_ms": 4.381363,
+            "thread_cpu_ms": 4.284747,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239461925784,
+            "ended_ns": 2239464457557,
+            "wall_ms": 2.531773,
+            "thread_cpu_ms": 2.476198,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239457029167,
+            "ended_ns": 2239464461349,
+            "wall_ms": 7.432182,
+            "thread_cpu_ms": 7.26839,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239451544479,
+            "ended_ns": 2239468070946,
+            "wall_ms": 16.526467,
+            "thread_cpu_ms": 16.162539,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239447288062,
+            "ended_ns": 2239468077943,
+            "wall_ms": 20.789881,
+            "thread_cpu_ms": 20.061076,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 204,
+            "frame_end": 204,
+            "thread": "MainThread",
+            "started_ns": 2239468080862,
+            "ended_ns": 2239470902490,
+            "wall_ms": 2.821628,
+            "thread_cpu_ms": 2.330459,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 212,
+        "frame_ms": 32.01004,
+        "wait_residual_ms": 15.571061999999998,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "MainThread",
+            "started_ns": 2239575920922,
+            "ended_ns": 2239591444097,
+            "wall_ms": 15.523175,
+            "thread_cpu_ms": 0.052974,
+            "parent": null
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "MainThread",
+            "started_ns": 2239593481236,
+            "ended_ns": 2239596862482,
+            "wall_ms": 3.381246,
+            "thread_cpu_ms": 0.388718,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "MainThread",
+            "started_ns": 2239591755743,
+            "ended_ns": 2239599228226,
+            "wall_ms": 7.472483,
+            "thread_cpu_ms": 4.389774,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "MainThread",
+            "started_ns": 2239591572872,
+            "ended_ns": 2239599233471,
+            "wall_ms": 7.660599,
+            "thread_cpu_ms": 4.572949,
+            "parent": null
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "puyo-policy-player_0-results",
+            "started_ns": 2239584111204,
+            "ended_ns": 2239601424832,
+            "wall_ms": 17.313628,
+            "thread_cpu_ms": 10.379023,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 212,
+            "frame_end": 212,
+            "thread": "MainThread",
+            "started_ns": 2239599235785,
+            "ended_ns": 2239607901870,
+            "wall_ms": 8.666085,
+            "thread_cpu_ms": 1.960369,
+            "parent": null
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 212,
+            "frame_end": 213,
+            "thread": "puyo-policy-player_1-results",
+            "started_ns": 2239601969376,
+            "ended_ns": 2239615322103,
+            "wall_ms": 13.352727,
+            "thread_cpu_ms": 10.826568,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 213,
+        "frame_ms": 39.258358,
+        "wait_residual_ms": 4.969707999999999,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239607938759,
+            "ended_ns": 2239612875415,
+            "wall_ms": 4.936656,
+            "thread_cpu_ms": 0.031293,
+            "parent": null
+          },
+          {
+            "label": "accept",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239613083361,
+            "ended_ns": 2239615982341,
+            "wall_ms": 2.89898,
+            "thread_cpu_ms": 2.628616,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239613072017,
+            "ended_ns": 2239618584441,
+            "wall_ms": 5.512424,
+            "thread_cpu_ms": 5.184263,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239619760759,
+            "ended_ns": 2239624581338,
+            "wall_ms": 4.820579,
+            "thread_cpu_ms": 4.711298,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239624584030,
+            "ended_ns": 2239626855026,
+            "wall_ms": 2.270996,
+            "thread_cpu_ms": 2.221004,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239618594840,
+            "ended_ns": 2239626857284,
+            "wall_ms": 8.262444,
+            "thread_cpu_ms": 8.07738,
+            "parent": "tick"
+          },
+          {
+            "label": "accept",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239626969568,
+            "ended_ns": 2239629536035,
+            "wall_ms": 2.566467,
+            "thread_cpu_ms": 2.510006,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239626963419,
+            "ended_ns": 2239632071834,
+            "wall_ms": 5.108415,
+            "thread_cpu_ms": 4.99586,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239633251734,
+            "ended_ns": 2239637601920,
+            "wall_ms": 4.350186,
+            "thread_cpu_ms": 4.254321,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239637604087,
+            "ended_ns": 2239639875794,
+            "wall_ms": 2.271707,
+            "thread_cpu_ms": 2.221837,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239632082181,
+            "ended_ns": 2239639879083,
+            "wall_ms": 7.796902,
+            "thread_cpu_ms": 7.625104,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239612911681,
+            "ended_ns": 2239643651974,
+            "wall_ms": 30.740293,
+            "thread_cpu_ms": 29.853666,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239612899400,
+            "ended_ns": 2239643657211,
+            "wall_ms": 30.757811,
+            "thread_cpu_ms": 29.870454,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 213,
+            "frame_end": 213,
+            "thread": "MainThread",
+            "started_ns": 2239643659938,
+            "ended_ns": 2239647162657,
+            "wall_ms": 3.502719,
+            "thread_cpu_ms": 3.137677,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 273,
+        "frame_ms": 31.549806,
+        "wait_residual_ms": 9.346483000000001,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240608438566,
+            "ended_ns": 2240617743748,
+            "wall_ms": 9.305182,
+            "thread_cpu_ms": 0.026852,
+            "parent": null
+          },
+          {
+            "label": "prepare",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240617946190,
+            "ended_ns": 2240625629770,
+            "wall_ms": 7.68358,
+            "thread_cpu_ms": 7.473686,
+            "parent": "tick"
+          },
+          {
+            "label": "prepare",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240625683630,
+            "ended_ns": 2240633784281,
+            "wall_ms": 8.100651,
+            "thread_cpu_ms": 7.680875,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240617798983,
+            "ended_ns": 2240637564413,
+            "wall_ms": 19.76543,
+            "thread_cpu_ms": 19.048368,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240617779996,
+            "ended_ns": 2240637569659,
+            "wall_ms": 19.789663,
+            "thread_cpu_ms": 19.071843,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 273,
+            "frame_end": 273,
+            "thread": "MainThread",
+            "started_ns": 2240637571771,
+            "ended_ns": 2240639955251,
+            "wall_ms": 2.38348,
+            "thread_cpu_ms": 1.983793,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 303,
+        "frame_ms": 46.353022,
+        "wait_residual_ms": 11.397750000000006,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241109208315,
+            "ended_ns": 2241120570105,
+            "wall_ms": 11.36179,
+            "thread_cpu_ms": 0.041827,
+            "parent": null
+          },
+          {
+            "label": "reader_decode",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "puyo-policy-player_1-results",
+            "started_ns": 2241109770253,
+            "ended_ns": 2241123253373,
+            "wall_ms": 13.48312,
+            "thread_cpu_ms": 10.816907,
+            "parent": null
+          },
+          {
+            "label": "accept",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241120832303,
+            "ended_ns": 2241123944301,
+            "wall_ms": 3.111998,
+            "thread_cpu_ms": 2.789617,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241120824326,
+            "ended_ns": 2241125936496,
+            "wall_ms": 5.11217,
+            "thread_cpu_ms": 4.745454,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241127207349,
+            "ended_ns": 2241131690892,
+            "wall_ms": 4.483543,
+            "thread_cpu_ms": 4.384666,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241131693211,
+            "ended_ns": 2241133978023,
+            "wall_ms": 2.284812,
+            "thread_cpu_ms": 2.234537,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241125949104,
+            "ended_ns": 2241133980129,
+            "wall_ms": 8.031025,
+            "thread_cpu_ms": 7.854077,
+            "parent": "tick"
+          },
+          {
+            "label": "accept",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241134093619,
+            "ended_ns": 2241136731118,
+            "wall_ms": 2.637499,
+            "thread_cpu_ms": 2.579465,
+            "parent": "completion"
+          },
+          {
+            "label": "completion",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241134086914,
+            "ended_ns": 2241138651246,
+            "wall_ms": 4.564332,
+            "thread_cpu_ms": 4.463935,
+            "parent": "tick"
+          },
+          {
+            "label": "finish",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241139861836,
+            "ended_ns": 2241144335487,
+            "wall_ms": 4.473651,
+            "thread_cpu_ms": 4.364945,
+            "parent": "activation"
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241144338710,
+            "ended_ns": 2241146834605,
+            "wall_ms": 2.495895,
+            "thread_cpu_ms": 2.441173,
+            "parent": "activation"
+          },
+          {
+            "label": "activation",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241138666918,
+            "ended_ns": 2241146838050,
+            "wall_ms": 8.171132,
+            "thread_cpu_ms": 7.980968,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241120623107,
+            "ended_ns": 2241150614124,
+            "wall_ms": 29.991017,
+            "thread_cpu_ms": 29.06641,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241120607027,
+            "ended_ns": 2241150619766,
+            "wall_ms": 30.012739,
+            "thread_cpu_ms": 29.087387,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 303,
+            "frame_end": 303,
+            "thread": "MainThread",
+            "started_ns": 2241150622139,
+            "ended_ns": 2241155527050,
+            "wall_ms": 4.904911,
+            "thread_cpu_ms": 4.457167,
+            "parent": null
+          }
+        ]
+      },
+      {
+        "frame": 339,
+        "frame_ms": 49.255792,
+        "wait_residual_ms": 8.138728,
+        "intervals": [
+          {
+            "label": "clock_tick",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241724610155,
+            "ended_ns": 2241732717835,
+            "wall_ms": 8.10768,
+            "thread_cpu_ms": 0.019363,
+            "parent": null
+          },
+          {
+            "label": "gc_collect",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241736583805,
+            "ended_ns": 2241769132587,
+            "wall_ms": 32.548782,
+            "thread_cpu_ms": 31.833616,
+            "generation": 2,
+            "collected": 0,
+            "uncollectable": 0
+          },
+          {
+            "label": "deepcopy",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241736558189,
+            "ended_ns": 2241769523801,
+            "wall_ms": 32.965612,
+            "thread_cpu_ms": 32.239505,
+            "parent": "tick"
+          },
+          {
+            "label": "tick",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241732787513,
+            "ended_ns": 2241769875985,
+            "wall_ms": 37.088472,
+            "thread_cpu_ms": 36.271709,
+            "parent": "update"
+          },
+          {
+            "label": "update",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241732773730,
+            "ended_ns": 2241769881887,
+            "wall_ms": 37.108157,
+            "thread_cpu_ms": 36.290546,
+            "parent": null
+          },
+          {
+            "label": "render",
+            "frame_start": 339,
+            "frame_end": 339,
+            "thread": "MainThread",
+            "started_ns": 2241769884250,
+            "ended_ns": 2241773840962,
+            "wall_ms": 3.956712,
+            "thread_cpu_ms": 3.58816,
+            "parent": null
+          }
+        ]
+      }
+    ],
+    "lock_receipts": 8,
+    "worker_cleanup": {
+      "30203": true,
+      "30232": true
+    },
+    "stale_decisions": {
+      "player_0": 1,
+      "player_1": 1
+    }
+  },
+  "references": {
+    "puyo-274-sprint14-bounded-20261009/comparison/new-repeat.json.gz": {
+      "file_sha256": "00a033f65e602ae4bd56115ac7c38452692d6f906c0a42159dc5c6f09b6d1cf2",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 357,
+      "frame_p95_ms": 23.297142550000007,
+      "frame_p99_ms": 38.975411480000005,
+      "update_p95_ms": 9.631001200000012,
+      "render_p95_ms": 5.110401250000001,
+      "frame_update_correlation": 0.8214059954585479,
+      "above_25_frames": [
+        0,
+        1,
+        27,
+        110,
+        111,
+        119,
+        125,
+        188,
+        204,
+        212,
+        213,
+        273,
+        304,
+        328
+      ],
+      "above_25_mean_update_ms": 22.18277157142857,
+      "above_25_mean_render_ms": 4.199469142857143,
+      "above_25_mean_wait_ms": 8.766336357142857,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-20261009/comparison/old-reference.json.gz": {
+      "file_sha256": "a855a03d7b91c6e1364f1b12d9763bbe62fab2613b92e98577f58ba18ce67cc7",
+      "source_sha": "3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f",
+      "frames": 360,
+      "ticks": 357,
+      "frame_p95_ms": 25.9550431,
+      "frame_p99_ms": 33.83628096000005,
+      "update_p95_ms": 14.6528509,
+      "render_p95_ms": 4.68964205,
+      "frame_update_correlation": 0.8173276187485637,
+      "above_25_frames": [
+        0,
+        1,
+        27,
+        29,
+        105,
+        109,
+        111,
+        113,
+        136,
+        181,
+        184,
+        190,
+        209,
+        212,
+        218,
+        272,
+        279,
+        300,
+        306,
+        309
+      ],
+      "above_25_mean_update_ms": 17.6270157,
+      "above_25_mean_render_ms": 4.5258566,
+      "above_25_mean_wait_ms": 10.1552148,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/human.json.gz": {
+      "file_sha256": "f1934e094ae817292726d4b5dbf90155423b13dfecac1fa156092d32e4b81087",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 586,
+      "frame_p95_ms": 20.8395228,
+      "frame_p99_ms": 30.47431176999999,
+      "update_p95_ms": 5.106800099999996,
+      "render_p95_ms": 3.5300494,
+      "frame_update_correlation": 0.7656884537640378,
+      "above_25_frames": [
+        0,
+        25,
+        82,
+        105,
+        201,
+        205,
+        207,
+        270,
+        298,
+        307,
+        395,
+        411,
+        478,
+        479,
+        488,
+        489,
+        573
+      ],
+      "above_25_mean_update_ms": 17.527501470588234,
+      "above_25_mean_render_ms": 3.708830588235294,
+      "above_25_mean_wait_ms": 10.785768823529411,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 205,
+          "started_ns": 1483709366938,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 32.855771
+        },
+        {
+          "frame": 411,
+          "started_ns": 1487156198429,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 33.14375
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/light.json.gz": {
+      "file_sha256": "128bbc3323f7d30cffc14ad83df4160e7fa2626a02043a6ad2ebd60e0f911330",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 579,
+      "frame_p95_ms": 18.61678945,
+      "frame_p99_ms": 19.468964940000003,
+      "update_p95_ms": 3.6025051999999986,
+      "render_p95_ms": 2.3432929999999996,
+      "frame_update_correlation": 0.781572818925213,
+      "above_25_frames": [
+        0,
+        351
+      ],
+      "above_25_mean_update_ms": 17.5351325,
+      "above_25_mean_render_ms": 6.1896255,
+      "above_25_mean_wait_ms": 13.833317999999998,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 351,
+          "started_ns": 1497635590648,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 31.921351
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/minimal-light.json.gz": {
+      "file_sha256": "d8ee2b7d0f52f8eb10fa8f9b4a65120879b5cfda399211d26c9b7be283a6987c",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 580,
+      "frame_p95_ms": 18.35340434999999,
+      "frame_p99_ms": 20.989550199999993,
+      "update_p95_ms": 3.708462049999997,
+      "render_p95_ms": 2.2828444,
+      "frame_update_correlation": 0.7781744041427189,
+      "above_25_frames": [
+        0,
+        351
+      ],
+      "above_25_mean_update_ms": 17.5606325,
+      "above_25_mean_render_ms": 6.664930999999999,
+      "above_25_mean_wait_ms": 14.392954500000002,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/minimal-one.json.gz": {
+      "file_sha256": "1f7d2400e811887e71a3f74fc2e470ddd3e3ab833b090c4ab4f9ae68a2286117",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 591,
+      "frame_p95_ms": 22.638226049999986,
+      "frame_p99_ms": 31.789706529999982,
+      "update_p95_ms": 7.633051249999998,
+      "render_p95_ms": 3.2771444,
+      "frame_update_correlation": 0.7234957504858146,
+      "above_25_frames": [
+        0,
+        25,
+        106,
+        200,
+        204,
+        209,
+        306,
+        397,
+        406,
+        407,
+        491,
+        580,
+        582,
+        594,
+        595,
+        596
+      ],
+      "above_25_mean_update_ms": 19.05318625,
+      "above_25_mean_render_ms": 3.7614711874999998,
+      "above_25_mean_wait_ms": 11.38323175,
+      "wait_above_20_frames": [
+        595
+      ],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/minimal-two.json.gz": {
+      "file_sha256": "108fd68de7f64e8bc3167a850daa5b2eacfdeecaa7f5b1ba66c45e7f393637e6",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 359,
+      "frame_p95_ms": 25.590963050000003,
+      "frame_p99_ms": 34.24845424000012,
+      "update_p95_ms": 11.547673300000001,
+      "render_p95_ms": 4.906392400000001,
+      "frame_update_correlation": 0.8154076752797157,
+      "above_25_frames": [
+        0,
+        1,
+        27,
+        28,
+        109,
+        110,
+        117,
+        125,
+        179,
+        186,
+        204,
+        210,
+        211,
+        213,
+        274,
+        303,
+        304,
+        312,
+        315
+      ],
+      "above_25_mean_update_ms": 19.334868789473685,
+      "above_25_mean_render_ms": 5.211521842105263,
+      "above_25_mean_wait_ms": 8.287163526315789,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/one.json.gz": {
+      "file_sha256": "8bd370368943009230bca6d76fca5dfcaa6cc90068512afef7ed20ba67d8e800",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 587,
+      "frame_p95_ms": 20.5477477,
+      "frame_p99_ms": 32.29651071999998,
+      "update_p95_ms": 6.501633799999993,
+      "render_p95_ms": 3.4036146,
+      "frame_update_correlation": 0.7604366738875117,
+      "above_25_frames": [
+        0,
+        26,
+        106,
+        201,
+        203,
+        211,
+        300,
+        387,
+        462,
+        471,
+        472,
+        561,
+        563
+      ],
+      "above_25_mean_update_ms": 19.032574846153846,
+      "above_25_mean_render_ms": 4.505617307692308,
+      "above_25_mean_wait_ms": 10.04768776923077,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 203,
+          "started_ns": 1461203990383,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 32.187102
+        },
+        {
+          "frame": 462,
+          "started_ns": 1465504121043,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 30.935752
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/repeat-two.json.gz": {
+      "file_sha256": "c9e3c4d7283bca9746adcc3258fedfe57c6b7f4b2a11dbc9b600aec60c9726fc",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 357,
+      "frame_p95_ms": 23.146809300000015,
+      "frame_p99_ms": 35.571563520000154,
+      "update_p95_ms": 8.886326750000034,
+      "render_p95_ms": 4.978424350000001,
+      "frame_update_correlation": 0.8013972518198337,
+      "above_25_frames": [
+        0,
+        1,
+        27,
+        75,
+        83,
+        86,
+        109,
+        176,
+        206,
+        207,
+        215,
+        276,
+        293,
+        303,
+        304,
+        351
+      ],
+      "above_25_mean_update_ms": 19.4063456875,
+      "above_25_mean_render_ms": 4.474777125,
+      "above_25_mean_wait_ms": 9.842968624999997,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 176,
+          "started_ns": 1508238498007,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 35.475972
+        },
+        {
+          "frame": 351,
+          "started_ns": 1511210657894,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 36.144796
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-20261009/raw/two.json.gz": {
+      "file_sha256": "82f8ed394d531119a95e3ec78447349a89041cd75b2508ebf93a53b60da8f6b7",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 356,
+      "frame_p95_ms": 20.803361650000003,
+      "frame_p99_ms": 38.89478975000006,
+      "update_p95_ms": 8.470529300000003,
+      "render_p95_ms": 5.328948500000003,
+      "frame_update_correlation": 0.8250423218815789,
+      "above_25_frames": [
+        0,
+        1,
+        28,
+        84,
+        109,
+        110,
+        175,
+        179,
+        207,
+        267,
+        296
+      ],
+      "above_25_mean_update_ms": 23.36744209090909,
+      "above_25_mean_render_ms": 4.281074363636364,
+      "above_25_mean_wait_ms": 9.986673090909091,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 175,
+          "started_ns": 1474413840172,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 35.007244
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/human.json.gz": {
+      "file_sha256": "2e58dbc928a64f7b22e894184442a119a54b56d36a9143690739c80403b2a586",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 590,
+      "frame_p95_ms": 21.290291199999995,
+      "frame_p99_ms": 35.677197879999994,
+      "update_p95_ms": 8.238518699999998,
+      "render_p95_ms": 3.3874215999999997,
+      "frame_update_correlation": 0.8222017563609461,
+      "above_25_frames": [
+        0,
+        26,
+        107,
+        178,
+        201,
+        202,
+        204,
+        208,
+        298,
+        307,
+        395,
+        412,
+        478,
+        487,
+        489,
+        498,
+        500,
+        592
+      ],
+      "above_25_mean_update_ms": 19.922307333333332,
+      "above_25_mean_render_ms": 3.762265722222222,
+      "above_25_mean_wait_ms": 11.753406444444446,
+      "wait_above_20_frames": [
+        208
+      ],
+      "gc_over_10_ms": [
+        {
+          "frame": 204,
+          "started_ns": 1694224659377,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 31.385248
+        },
+        {
+          "frame": 412,
+          "started_ns": 1697696265038,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 35.459979
+        },
+        {
+          "frame": 592,
+          "started_ns": 1700733078406,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 52.622361
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/light.json.gz": {
+      "file_sha256": "db25d7f05cbefaee82d78577dc75206f93e43c553b48fdfe7537fbfa05784dcd",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 580,
+      "frame_p95_ms": 18.453390249999995,
+      "frame_p99_ms": 20.29251588,
+      "update_p95_ms": 3.5586807999999994,
+      "render_p95_ms": 2.2669646,
+      "frame_update_correlation": 0.7885807937183418,
+      "above_25_frames": [
+        0,
+        350
+      ],
+      "above_25_mean_update_ms": 17.634213000000003,
+      "above_25_mean_render_ms": 6.0883305,
+      "above_25_mean_wait_ms": 13.833143500000002,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 350,
+          "started_ns": 1708216462900,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 31.997824
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/minimal-light.json.gz": {
+      "file_sha256": "2313b1217bba1586b763605a7cb9da04bedd09e20d59b7b141e63d5b1415cc70",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 578,
+      "frame_p95_ms": 18.593532949999993,
+      "frame_p99_ms": 19.78890042,
+      "update_p95_ms": 3.660091549999999,
+      "render_p95_ms": 2.23285205,
+      "frame_update_correlation": 0.7886205300630273,
+      "above_25_frames": [
+        0,
+        351
+      ],
+      "above_25_mean_update_ms": 17.990050999999998,
+      "above_25_mean_render_ms": 5.996897,
+      "above_25_mean_wait_ms": 13.815566,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/minimal-one.json.gz": {
+      "file_sha256": "b1093e1afc38795b0ad9cdb7f7bf4289b9fa33c06b4c47d0cb353b133c844e40",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 591,
+      "frame_p95_ms": 21.623923249999997,
+      "frame_p99_ms": 31.27817435999999,
+      "update_p95_ms": 7.730068299999996,
+      "render_p95_ms": 3.3192619,
+      "frame_update_correlation": 0.7752731418289702,
+      "above_25_frames": [
+        0,
+        25,
+        79,
+        105,
+        202,
+        205,
+        208,
+        270,
+        298,
+        307,
+        397,
+        405,
+        406,
+        490,
+        578,
+        580,
+        593,
+        594
+      ],
+      "above_25_mean_update_ms": 18.99711688888889,
+      "above_25_mean_render_ms": 3.736487611111111,
+      "above_25_mean_wait_ms": 12.230433277777777,
+      "wait_above_20_frames": [
+        593
+      ],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/minimal-two.json.gz": {
+      "file_sha256": "343bd8d1d6e172f0453713610e23ffb8502e9bb4948ea45f27f4a4fb440ca611",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 358,
+      "frame_p95_ms": 24.445228350000004,
+      "frame_p99_ms": 38.5857233300003,
+      "update_p95_ms": 11.600231000000003,
+      "render_p95_ms": 4.582237000000001,
+      "frame_update_correlation": 0.7476228304445566,
+      "above_25_frames": [
+        0,
+        1,
+        13,
+        27,
+        108,
+        109,
+        117,
+        124,
+        203,
+        210,
+        211,
+        272,
+        301,
+        304,
+        309,
+        310
+      ],
+      "above_25_mean_update_ms": 17.5595464375,
+      "above_25_mean_render_ms": 4.2174549375,
+      "above_25_mean_wait_ms": 11.451301375,
+      "wait_above_20_frames": [
+        309
+      ],
+      "gc_over_10_ms": []
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/one.json.gz": {
+      "file_sha256": "88640f0f34b898d44bbc22220bfed23d2c9c212f2a647089be08221979fa1e7b",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 600,
+      "ticks": 591,
+      "frame_p95_ms": 21.88663334999997,
+      "frame_p99_ms": 31.706811279999986,
+      "update_p95_ms": 7.058085649999997,
+      "render_p95_ms": 3.4101453999999998,
+      "frame_update_correlation": 0.775557774486031,
+      "above_25_frames": [
+        0,
+        5,
+        25,
+        105,
+        201,
+        204,
+        208,
+        297,
+        306,
+        395,
+        405,
+        489,
+        578,
+        591,
+        592
+      ],
+      "above_25_mean_update_ms": 21.288960466666666,
+      "above_25_mean_render_ms": 3.2221975333333335,
+      "above_25_mean_wait_ms": 11.7172072,
+      "wait_above_20_frames": [
+        591
+      ],
+      "gc_over_10_ms": [
+        {
+          "frame": 204,
+          "started_ns": 1671669116719,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 32.27967
+        },
+        {
+          "frame": 405,
+          "started_ns": 1675031429297,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 30.556058
+        },
+        {
+          "frame": 591,
+          "started_ns": 1678149851753,
+          "thread": "puyo-policy-player_0-results",
+          "generation": 2,
+          "ms": 33.937741
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/repeat-two.json.gz": {
+      "file_sha256": "355822c778be18f664a444abfa98bc97e65aa7ba9517b073075cb5aa49802e48",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 358,
+      "frame_p95_ms": 23.24669895,
+      "frame_p99_ms": 40.83690758000017,
+      "update_p95_ms": 11.853512900000002,
+      "render_p95_ms": 5.081111650000001,
+      "frame_update_correlation": 0.8041642789028196,
+      "above_25_frames": [
+        0,
+        1,
+        26,
+        27,
+        83,
+        109,
+        176,
+        207,
+        215,
+        216,
+        277,
+        292,
+        303,
+        352
+      ],
+      "above_25_mean_update_ms": 21.16147092857143,
+      "above_25_mean_render_ms": 3.586463785714286,
+      "above_25_mean_wait_ms": 10.557679071428572,
+      "wait_above_20_frames": [
+        26
+      ],
+      "gc_over_10_ms": [
+        {
+          "frame": 176,
+          "started_ns": 1718903823204,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 32.162148
+        },
+        {
+          "frame": 352,
+          "started_ns": 1721902127991,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 34.012545
+        }
+      ]
+    },
+    "puyo-274-sprint14-bounded-repeat-20261009/raw/two.json.gz": {
+      "file_sha256": "b35fd2b8e2acfcd986c1cc222d267a29640147e9e52f143541fb80d31172967d",
+      "source_sha": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+      "frames": 360,
+      "ticks": 360,
+      "frame_p95_ms": 22.661300100000002,
+      "frame_p99_ms": 36.637909490000354,
+      "update_p95_ms": 9.297413850000025,
+      "render_p95_ms": 4.5610777500000035,
+      "frame_update_correlation": 0.9000554232894669,
+      "above_25_frames": [
+        0,
+        1,
+        28,
+        83,
+        110,
+        187,
+        188,
+        204,
+        212,
+        273,
+        290,
+        300,
+        301
+      ],
+      "above_25_mean_update_ms": 24.955926846153847,
+      "above_25_mean_render_ms": 4.298213769230769,
+      "above_25_mean_wait_ms": 9.159706384615385,
+      "wait_above_20_frames": [],
+      "gc_over_10_ms": [
+        {
+          "frame": 187,
+          "started_ns": 1685114248287,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 77.566951
+        },
+        {
+          "frame": 359,
+          "started_ns": 1688122606909,
+          "thread": "MainThread",
+          "generation": 2,
+          "ms": 39.467274
+        }
+      ]
+    }
+  },
+  "reference_source_fingerprints_match": true
+}

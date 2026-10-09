@@ -414,3 +414,40 @@ cmp /tmp/puyo266-bounded-live-audit.json docs/benchmarks/puyo-266-safe-build/spr
 ```
 
 128の品質残差，132/135/144を含む新規対局，正式G2全条件，人間GUI QAは未達のままである．品質FAIL/G2 BLOCKED，Jira In Progress，draft PR #178を維持する．前回不完全human runのfallback1はraw不足で未検証という制約も保持する．
+
+## 128 の品質残差と旧正式 G2 の原因別読取監査
+
+製品 source `1c4b2f0` の保存済み `bounded-fixed/gtr-128.json.gz` 全 40 判断を，`quality-residual-audit.py/json` で調べた．新規 policy/native/GUI/対局は実行せず，製品コード・quota・重み・品質閾値は変更していない．使用した 61 raw の SHA-256 を JSON に保持する．この script は公開 request と保存 evidence だけを読み，offline 完全盤面も未公開 future も参照しない．
+
+| 層 | 観測 | 解釈・限界 |
+| --- | --- | --- |
+| 定型 phase | 128 は 14 手未完成で limit 解除．15 判断目の列高は `[1,2,3,2,11,9]` | 完成済み GTR を最後の小消しだけで壊した事例とは異なる．定型継続・解除方針と自由構築の接続を別途評価する必要がある |
+| 即時発火 | 全 40 判断の到達可能・非 fatal 即時消去は最大 6 連鎖 | 126 と同じ「存在する即時 10 連鎖の fire_main 適格順位」だけでは修正できない |
+| 公開 known prefix | 全 40 判断で current/NEXT/NEXT2 の初回消去を列挙し，最大は 7 連鎖．診断の transition 呼出総数は 215430 | root は保存 reachable mask，後続は移動を無視した合法配置である．到達可能集合より広い楽観上界にも初回 10 連鎖がない．初回小消し後の構築や未知 future，別の過去選択までは否定しない |
+| sampled future | 15〜34 判断の保存探索には最大 12〜15 連鎖がある一方，公開候補の chain evidence は最大 7 | sampled 最大値は公開既知の発火証拠ではない．未公開の実ツモを追加する根拠にもならない |
+| shared quota | 全 40 判断で `budget_exhausted=false`，上限 600000 以内 | shared quota 到達が直接の打切り原因ではない．有限 depth/width や sampled 評価の限界は残る |
+| response quota | 39/40 判断で 256 を消費．survival は全件 128 以内 | response 側の候補の網羅性は保証しない．ただし公開 3 手の楽観全列挙にも 10 連鎖がなく，その候補の取りこぼしだけでは説明できない |
+| 38 判断目 | 既存 bounded alternate が `[12,19,14]` を実 115/論理 128 で認証 | 旧 cutoff の局所改善は実装済み．これを 10 連鎖品質の回復と混同しない |
+| 40 判断目 | 到達可能・即時非 fatal 消去は root14 の 1 連鎖だけ．有限 witness も root14 `[14,1,11]` だけ | `legitimate_survival_exception` と実消去が一致する．他 root の即時または既知 horizon 内 fatal と区別する |
+| 40 判断目の証明 | survival 18 nodes（control 6），terminal は unknown，元の有限 horizon へ fallback | quota cutoff ではない．追加 1 配置の十分条件も認証しておらず，長期生存は未検証 |
+
+評価器は `0 < chain < 10` をすべて premature に数える．128 の premature 1 は正当な生存例外と併存しており，根拠なしの早打ちと同義ではない．閾値の緩和，小消しの一律禁止，quota 増加，seed 特例による解消は行わない．最大実連鎖 1 と正式品質未達はそのまま保持する．
+
+旧正式 G2 の `integrated-g2-20260927/native-g2` 全 60 raw も再集計した．平均最大実連鎖 8.8666667，premature 6，窒息 10，repeat semantic 一致 30/30 で元資料と一致する．**これは旧 source の再集計であり，現 source の正式 G2 ではない．** repeat 1 の小消し 3 件は以下の別原因を持つ（repeat 2 も同じ）．
+
+- 135/7 と 135/9：定型 active 中の root3/1 連鎖，`rule_priority_build_template`，survival 非 active．quiet witness root0/1/2/6 はあるが，旧資料で定型不適合と分類済み．固定定型を継続するか明示解除するかの方針が残る．
+- 144/33：定型完成解除後の root7/1 連鎖，`rule_priority_build_main`，survival 非 active．この保存入力では witness root7/9 がともに消去を伴う．既存 fire 適格順位変更は前段 144/28 を変えるが，新規対局全体の成功は未確認である．
+
+この監査から採用可能な狭い runtime 修正は立証できないため，追加実装と正式 60 run は保留する．次は，定型 limit 解除前後の公開状態・達成度・残存形と，同一公開入力での build_main 各 root の sampled 評価の支持数・分散・到達性・root 後の形状を分離して調べる．128 だけへ最適化せず，正常 55/123/124/126 と旧失敗 132/135/144 を固定比較に含める．135 の定型維持と小消しの競合には，独立した明示解除条件の設計が必要であり，quiet 優先だけの変更を自動採用しない．
+
+公開情報・固定 quota の範囲で一般化可能な改善根拠を得てから，親の排他枠で最小 seed 回帰を実行する．正常品質を保ち失敗 seed の改善を実対局で確認できた場合にのみ，正式 G2 全条件を同一 source/build/config で再宣言・再測定する．人間 GUI QA，元 human replay 未取得，40 手以降の生存という既存の未達も維持する．品質 FAIL/G2 BLOCKED，Jira In Progress，draft PR #178 のままである．
+
+再確認は repository root から実行する．出力先が存在する場合は上書きを拒否する．
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 PYTHONPATH=. .venv/bin/python docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/quality-residual-audit.py /tmp/puyo266-quality-residual-recheck.json
+cmp /tmp/puyo266-quality-residual-recheck.json docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/quality-residual-audit.json
+.venv/bin/python -m unittest tests.test_nextgen_alternate_survival tests.test_nextgen_fire_eligibility tests.test_nextgen_inferred_survival -q
+```
+
+対象の既存単体 10 tests，Ruff，diff check が成功した．製品コード・期待値を変更する新しいテストは追加していない．
