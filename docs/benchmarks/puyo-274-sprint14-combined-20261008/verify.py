@@ -7,7 +7,9 @@ from pathlib import Path
 import sys
 
 
-ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent
+ALLOW_FAILED_GATE = "--allow-failed-gate" in sys.argv[1:]
+PATH_ARGS = [arg for arg in sys.argv[1:] if arg != "--allow-failed-gate"]
+ROOT = Path(PATH_ARGS[0]).resolve() if PATH_ARGS else Path(__file__).resolve().parent
 REPORT = json.loads((ROOT / "summary.json").read_text())
 
 
@@ -61,8 +63,27 @@ def verify():
         row["lock_mismatches"] == row["scheduler_errors"] == row["timeouts"]
         == row["fallback_actions"] == 0 and row["worker_cleanup"] for row in REPORT["rows"]
     )
-    assert REPORT["all_gate_pass"] and REPORT["all_lock_and_worker_checks_pass"]
-    print("8 combined GUI runs and all gates verified")
+    assert REPORT["all_lock_and_worker_checks_pass"]
+    comparison_path = ROOT / "comparison.json"
+    if comparison_path.exists():
+        for row in json.loads(comparison_path.read_text()):
+            raw = (ROOT / "comparison" / f"{row['condition']}.json.gz").read_bytes()
+            assert hashlib.sha256(raw).hexdigest() == row["raw_sha256"]
+            data = json.loads(gzip.decompress(raw))
+            assert data["source_sha"] == row["source_head"]
+            assert data["source_diff_sha256"] == row["source_diff_sha256"]
+            assert data["native"]["sha256"] == row["native_sha256"] == REPORT["native_sha256"]
+            for key in ("host", "resolution", "display"):
+                assert data[key] == row[key] == REPORT[key]
+            for source, prefix in (("frame_interval_ms", "frame"), ("input_schedule_ms", "input")):
+                for quantile, suffix in ((0.95, "p95_ms"), (0.99, "p99_ms")):
+                    assert abs(percentile(data["raw_samples"][source], quantile)
+                               - row[f"{prefix}_{suffix}"]) < 1e-8
+    if ALLOW_FAILED_GATE:
+        assert not REPORT["all_gate_pass"]
+    else:
+        assert REPORT["all_gate_pass"]
+    print(f"8 combined GUI runs verified; gate {'PASS' if REPORT['all_gate_pass'] else 'FAIL'}")
 
 
 if __name__ == "__main__":
