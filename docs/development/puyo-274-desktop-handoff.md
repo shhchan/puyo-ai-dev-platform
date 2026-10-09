@@ -117,7 +117,7 @@ N=3 preview とactive pair drop ghostを分け，o切替とadopted plan/diagnost
 
 ## 7. 2026-10-08 Sprint 14 実行更新
 
-最新の担当・検証・PR 順序は [Sprint 14 実行表](puyo-274-handoff/sprint14-execution-20261008.md) を参照する．最上段は `PUYO-274/sprint14-closeout`／runtime 測定 source `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`，draft [PR #182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) である．PUYO-266 の公開情報に基づく着弾おじゃま回復後，新規固定 human 入力 seed 127 は 60 実 lock まで窒息しなかった．元の人間対局とは同一視しない．追加の適格発火順位修正で固定 GTR126 は実 10 連鎖・小発火 0／40 配置非窒息となった．GUI 機械 QA はこの最上段の [8 run](../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md) ですべて事前 gate を通過したが，正式 G2 FAIL と変更後の実人間 GUI QA は残る．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．
+2026-10-08 時点の担当・検証・PR 順序は [Sprint 14 実行表](puyo-274-handoff/sprint14-execution-20261008.md) を参照する．最上段は `PUYO-274/sprint14-closeout`／runtime 測定 source `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`，draft [PR #182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) である．PUYO-266 の公開情報に基づく着弾おじゃま回復後，新規固定 human 入力 seed 127 は 60 実 lock まで窒息しなかった．元の人間対局とは同一視しない．追加の適格発火順位修正で固定 GTR126 は実 10 連鎖・小発火 0／40 配置非窒息となった．GUI 機械 QA はこの最上段の [8 run](../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md) ですべて事前 gate を通過したが，正式 G2 FAIL と変更後の実人間 GUI QA は残る．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．
 
 実人間 GUI QA は次で launcher を開き，1P=`nextgen_tactic_manager`，2P=`human`，速度 x1.0 を選ぶ．`o` の 3 手先読み表示／非表示，現在組の落下位置との区別，下押し＋横移動／回転で意図した位置へ置けるか，カクつき，対戦 seed／1P policy seed を記録する．この確認は最上段 head `3724eb9` 以降に実施したかを区別する．
 
@@ -125,3 +125,9 @@ N=3 preview とactive pair drop ghostを分け，o切替とadopted plan/diagnost
 cd /home/sion2000114/workspaces/dev/puyo-s14-274
 /home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python main.py
 ```
+
+## 8. 2026-10-09 中断後の最新状態
+
+最新の runtime 測定 source は `32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee`，最上段 branch は `PUYO-274/sprint14-closeout` である．PUYO-266 の有限代替証明で固定 seed128 は 40 配置まで窒息を回避したが，最大 1 連鎖／premature 1 のため正式 G2 は FAIL のまま．正常 55／123／124／126 は各 40 配置・最大 10 連鎖・premature／窒息 0．新規固定 human127 は 60 実 lock，両者非窒息，おじゃま 30→0 を保存 replay で確認した．元の手動対局とは同一視しない．詳細は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) と [PUYO-266 証跡](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照する．
+
+最上段の GUI 機械 QA は[初回 7／8 通過](../benchmarks/puyo-274-sprint14-bounded-20261009/README.md)，[同 source 再測 8／8 通過](../benchmarks/puyo-274-sprint14-bounded-repeat-20261009/README.md)．初回 minimal-two frame p95 は 25.59 ms で固定 25 ms gate を超えたため，安定達成とは扱わない．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．変更後の実人間 GUI QA は依頼者の結果待ち．上の起動コマンドは同じだが，結果には今回の最上段 head を添える．

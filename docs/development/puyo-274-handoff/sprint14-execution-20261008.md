@@ -103,3 +103,13 @@ PUYO-266 の確定 head `cdac8b41cf5b9bf1a8a57a832d2a15031854f8e9` は，`fire_m
 親は #178 の head を #180→#181→#182 へ通常 merge／push した．最上段の runtime 測定 source は `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`．生存・GUI 関連 180 tests，変更 Python の Ruff，PR 差分 check は成功．この source の GUI 8 run は frame／input p95 ≤ 25 ms／p99 ≤ 50 ms を全件通過し，両側 frame p95／p99 は 23.51／33.10 ms，再計測 22.95／44.08 ms，minimal 23.12／33.14 ms．全 run の source file fingerprint／native／host が一致し，実 lock 不一致・scheduler error・timeout・fallback は 0，cleanup は全件成功．[raw／集計／verifier](../../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md)を保存した．最大 frame p95 余裕は約 1.49 ms．
 
 PUYO-264／268 は Complete．PUYO-266 の 128 と正式 G2，PUYO-269／273 の変更後実人間 GUI QA，PUYO-274 の依存条件は残る．後 4 件は draft PR／Jira In Progress を維持する．依頼者の GUI QA 回答はまだ到着しておらず，この source の最上段 head を明示して案内する．PR merge／release／reviewer 指定／force-push はしていない．
+
+## 2026-10-09 中断後の再開と有限代替証明
+
+PUYO-266 の確定 head `72d3f834a00fe9cd4e871ae538d1738585d60ef1` は，公開状態・色組・action が完全一致する重複 transition 計算を再利用し，元の論理 survival128／response256・探索順を保ったまま，未実行だった計算枠だけを代替 prefix の有限証明へ使う．seed128/38 は root12 の公開証明と実 lock が一致し，40 配置まで窒息を回避した．ただし最大実連鎖 1，premature 1 で G2 品質は未達．正常 55／123／124／126 は全て 40 配置・最大 10 連鎖・premature／窒息 0，直前 source と action 列・最終 hash も一致．全 200 判断の実 lock・公開推定・最終 hash・quota を監査した．
+
+human127／policy58／daa／softmax1.0／x1.0 の新規固定入力は 5520 tick／60 実 lock，fallback 0，両者非窒息，実 1／1／3／7／10 連鎖，おじゃま 30→0．全 tick／hash，65 hidden 推定，実 lock，quota を監査し，29 artifact の SHA と再検証手順を [PUYO-266 証跡](../../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md) に保存した．元の手動対局とは同定しない．一つ前の未完了 run は replay 書出し中に exit137 となり，そこで観測された fallback1 の raw も失われたため未検証観測として保持する．診断器の巨大 JSON は内容を変えず逐次書込へ修正し，新 run は exit0／最大 RSS 3,574,484 KiB で完了した．
+
+親は #178→#180→#181→#182 へ確定 head を履歴保持 merge／push した．最上段の測定 source は `32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee`．関連 183 tests，変更 Python の Ruff，PR 差分 check，保存 raw verifier が通過．GUI の固定 8 条件は初回 7／8 で minimal-two frame p95 `25.59096305 ms` が 25 ms gate 未達，混合のない同 source 再測定は 8／8 通過で minimal-two `24.44522835 ms`．同日・同 host／native の前版 source の minimal-two も `25.9550431 ms` で未達だった．全 run で source fingerprint／native／host 一致，実 lock 不一致・scheduler error・timeout・fallback 0，worker cleanup 成功．[初回失敗 raw／比較](../../benchmarks/puyo-274-sprint14-bounded-20261009/README.md)と[再測 raw](../../benchmarks/puyo-274-sprint14-bounded-repeat-20261009/README.md)を保存した．新生存修正固有の性能回帰とは断定できず，gate の安定達成も宣言しない．
+
+PUYO-264／268 は Complete．PUYO-266 は seed128 の premature／10 連鎖級と正式 G2，PUYO-269／273 は frame gate の揺らぎと変更後の実人間 GUI QA，PUYO-274 は依存条件が残る．後 4 件は draft PR／Jira In Progress のまま．依頼者は実人間 GUI QA の結果をまだ報告していない．PR merge／release／reviewer 指定／force-push はしていない．
