@@ -17,7 +17,7 @@
 
 ## 統合後の機械検証
 
-以下は先行実装をすべて取り込んだ **確定 head** の repository root で行う．4 module を明示して実行する．対象の test ファイルがない場合は止め，0 test の成功表示で代用しない．この単体テストは外部原本を伴う正式 gate の代用ではない．
+以下は先行実装をすべて取り込んだ **確定 head** の repository root で行う．基礎 4 module を明示して実行する．対象の test ファイルがない場合は止め，0 test の成功表示で代用しない．この単体テストは外部原本を伴う正式 gate の代用ではない．
 
 ```bash
 git status --short
@@ -79,3 +79,28 @@ frame と input schedule は p95 ≤ 25 ms／p99 ≤ 50 ms を維持して観測
 ## 完了判定
 
 CI の 4 suite と既存 boundary が成功し，先行 PR の確定 head で PUYO-266／277 の正式結果が受け入れられ，PUYO-276 の人間 QA が bundle と操作記録付きで確認でき，PUYO-275 の provenance と replay が整合した場合だけ統合結果を受け入れる．判定表には各 artifact path，SHA-256，実行 head，PASS／FAIL／BLOCKED と理由を残す．未達が残る間は PUYO-274 を In Progress に置き，PUYO-278 の release 判定を確定しない．
+
+## 2026-10-11 統合 head の暫定判定
+
+親が確定 PUYO-266 head `21d6b16779480832412c838219c74f26e708b10d` を通常 merge した直後の clean head は `075c1e392dfe789f138476fd620a027937999113`．最下段起点は `7757f2312f34a1d79593f43ebd4f41921c61f0a6`，積層順は 275 → 276 → 277 → 266 → 274 → 278．PUYO-274 の追加差分は CI trigger／検証対象と本記録であり，先行 4 PR の実装・正式 gate を本件の独自成果に数えない．
+
+| 対象 | 証拠と判定 |
+| --- | --- |
+| PUYO-275 | `51d53a8`，PR #183，Jira Complete．原本は上記外部 path で SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb` を再照合．provider／replay の boundary は下記の統合テストにも含めた． |
+| PUYO-276 | `30405d8`，PR #184，Jira In Progress．合成入力 OFF／ON 各 2 repeat の結果は上記のとおり．最終統合 head に対する人間の実画面操作，通常／途中終了の bundle，コピー先での検証，実 frame／input 分布は未取得．BLOCKED． |
+| PUYO-277 | `06c0e1a`，PR #185，Jira Complete．正式実行 head `27b9c6e` の 56 条件は PASS 52／回避不能除外 4／FAIL 0，追加 16 条件は全 PASS．72 replay の event／tick／最終 hash を再照合し，288 decisions の quota／実 lock／deadline 異常 0．[監査 JSON](../benchmarks/puyo-277-attack-response/v3-final-audit.json) SHA-256 `4da6540898fcb5d9f9cdc9b73bf2374c69e2bdc49893c8c57c5e57a6b5ee42ee`． |
+| PUYO-266 | `21d6b16`，draft PR #186，Jira In Progress．正式 v3 は 14／120 final で中断し，nextgen pattern6779 に理由のない小発火と窒息 unknown，reference4519 に窒息 unknown．[保存した v3 summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/formal-v3/summary.json) SHA-256 `2609389f7e8a876aa010c8d65d7b039a6d5ced5360a3680ebd2c03cf50adf3a7`．修正後 targeted 4 run で nextgen6779 は両 repeat とも 46 手・最大 10 連鎖・不当小発火 0 となったが，reference4519 の両 repeat は 42 手で死亡し，窒息分類 unknown のまま．[targeted summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/targeted/summary.json) SHA-256 `cd5d3fd43c088cef1df12f71518040e48d8a64e68d520e510240bd40f03952ae`．正式 v4 は未実施で，全 120 件を PASS としない．BLOCKED． |
+| PUYO-274 | 本統合の機械テストは PASS．上記 266／276 の受入未達により統合品質は BLOCKED，Jira In Progress． |
+
+外部原本を指定して，基礎 4 suite と追加の quiet survival／到達可能 mask／攻撃選択／戦術境界の計 8 suite，102 tests を実行し，skip 0 で成功した．対象 Python の Ruff check と shared search の `--select F`，`git diff --check` も成功．手元の Ruff は 0.15.21，CI は 0.16.0 を導入するので，remote CI の結果は別に確認する．`agents/nextgen_survival.py`，`tests/test_nextgen_quiet_survival.py`，固定公開 fixture を native-extension workflow の pull_request／push path と lint／test に追加した．この機械検証は重い正式評価と実人間 GUI QA の代用にはならない．
+
+```bash
+cd /home/sion2000114/workspaces/dev/puyo-s15-274
+PUYO_TSUMO_SOURCE=/home/sion2000114/.cache/puyo-s15/haipuyo.txt \
+PUYO277_SOURCE=/home/sion2000114/.cache/puyo-s15/haipuyo.txt \
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m unittest \
+  tests.test_tsumo_provider tests.test_qa_session \
+  tests.test_nextgen_single_quality_gate tests.test_nextgen_quiet_survival \
+  tests.test_deep_chain_execution_mask tests.test_nextgen_attack_response_gate \
+  tests.test_nextgen_response_search tests.test_nextgen_tactic_manager
+```
