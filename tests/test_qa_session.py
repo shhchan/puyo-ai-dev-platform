@@ -86,9 +86,11 @@ class TestQASession(unittest.TestCase):
                     raise OSError("disk full")
                 real_write(path, value)
 
-            with patch.object(qa_session, "_write_json_atomic", side_effect=fail_result):
-                with self.assertRaises(QASessionSaveError) as caught:
-                    save_qa_session(directory, replay=replay, result=result, config={})
+            with (
+                patch.object(qa_session, "_write_json_atomic", side_effect=fail_result),
+                self.assertRaises(QASessionSaveError) as caught,
+            ):
+                save_qa_session(directory, replay=replay, result=result, config={})
             self.assertTrue(caught.exception.pending_path.name.endswith(".pending"))
             self.assertTrue((caught.exception.pending_path / "replay.json").is_file())
             self.assertFalse((Path(directory) / caught.exception.session_id).exists())

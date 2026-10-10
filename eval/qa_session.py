@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import secrets
-import fcntl
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -103,7 +103,7 @@ def save_qa_session(
         raise ValueError("unsupported result format")
     ticks = replay.get("ticks")
     if not isinstance(ticks, list):
-        raise ValueError("replay ticks must be a list")
+        raise TypeError("replay ticks must be a list")
     if result.get("result", {}).get("ticks") != len(ticks):
         raise ValueError("result and replay tick counts differ")
     if result.get("match", {}).get("seed") != replay.get("seed"):
