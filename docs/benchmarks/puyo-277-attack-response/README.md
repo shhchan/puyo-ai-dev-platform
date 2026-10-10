@@ -56,3 +56,9 @@ preserve の 2 条件は初期の公開 request に，合法 action 0 による 
 post-arrival は初期の cancel `[2]` の fatal_rate 0 が sampled_future 由来なのに対し，公開 counter `[0,1]` は最初の 28 個着弾，NEXT の 1 連鎖，残り 1 個の全 6 列落下で非致死となる条件付き witness を持つ．selector は両者の 0 を同等として cancel を優先する．実際には先に 1 連鎖を使い，29 個着弾後は 8 resolution まで発火しなかった．公開 counter は未採用の条件付き候補であり，実際の採用成功や hidden rows 全般の保証とは扱わない．
 
 正式 v2 の後に selector の狭い改善範囲が承認された．v3 を実行する場合も同じ 56＋16 条件，fixture，閾値を用い，新 head／manifest／出力で記録する．
+
+## selector 修正後の targeted actual 検証
+
+製品 commit `8ff8131` の限定修正について，残る 3 ケースの attack 条件だけを既定の追加観測窓（8 resolutions）で実 controller により確認した．[targeted-v3](targeted-v3/targeted-summary.json) は 3 件とも PASS，48.74 秒．preserve 1／32768 は初手 action 0 で tick 96 に 1 連鎖・全量相殺を行い，8 resolutions まで登録本線を保持した．post-arrival 65535 は初手 counter action 0 で tick 44 の実着弾を受け，NEXT の tick 158 に発火し，残りの実着弾後も生存した．24 decisions の receipt，実 lock，deadline，quota の異常は 0，全 3 replay の event／tick hash／最終 hash は一致した．
+
+この 3 件は原因に対する targeted 検証であり，全 cohort の正式 PASS ではない．元 v1／v2 の全 raw と失敗は保持した．親による 276 の統合後，clean head で改めて同一 56＋16 条件を正式 v3 として freeze／実行する．
