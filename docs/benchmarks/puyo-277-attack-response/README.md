@@ -44,3 +44,15 @@
 各 `formal-v1/<case_id>-<condition>` に `report.json.gz` と `replay.json.gz` がある．`public-audit-v1/<case_id>-<condition>.json` は元 report／replay digest，元判定，新判定，最初に盤面が公開された tick を保持する．`legacy-rule-smoke` は，初期の quota cutoff を一律 FAIL としていた native paired 調査の元結果であり，正式結果と区別する．
 
 再現・監査コマンドは [開発文書](../../development/puyo-277-attack-response-gate.md) を参照する．
+
+## 限定相殺順位修正後の v2（旧結果を保持）
+
+commit `cb2ecde` で全 72 条件を実行し，443.23 秒で完走した．元 3 resolution の [formal-v2](formal-v2/summary.json) は PASS 49／FAIL 3／回避不能除外 4．事前登録 `b9e277b` の 8 resolution [extended-v2](extended-v2/summary.json) は PASS 13／FAIL 3 だった．無攻撃対照は元 28＋追加 8 条件すべて PASS．全 72 replay は既存 engine の event／全 tick hash／最終 hash を照合済みである．manifest，raw report／replay，実行 log，[件数と回帰集計](v2-statistics.json) を保存した．
+
+両観測窓に共通の未達は `preserve_mainline-1`，`preserve_mainline-32768` の本線消費と，`post_arrival_recovery-65535` の着弾後発火欠如である．元 v1 と公開再監査を新結果で置き換えない．PUYO-277 は依然未達である．
+
+preserve の 2 条件は初期の公開 request に，合法 action 0 による 1 連鎖・相殺 1（全予告量）・本線保持の候補がある．発火終了推定区間は `[32,183]`，攻撃 arrival は 240 で，公開時間推定上の余裕がある．現在の rule selector は threat が immediate でないため build を選ぶ．加えて，同じ解決境界から得た fire_end_upper と deadline_lower の比較が十分相殺の判定を妨げる．後続の準備後には本線を使う発火を選び，実相殺は成功したが登録形状を消費した．
+
+post-arrival は初期の cancel `[2]` の fatal_rate 0 が sampled_future 由来なのに対し，公開 counter `[0,1]` は最初の 28 個着弾，NEXT の 1 連鎖，残り 1 個の全 6 列落下で非致死となる条件付き witness を持つ．selector は両者の 0 を同等として cancel を優先する．実際には先に 1 連鎖を使い，29 個着弾後は 8 resolution まで発火しなかった．公開 counter は未採用の条件付き候補であり，実際の採用成功や hidden rows 全般の保証とは扱わない．
+
+正式 v2 の後に selector の狭い改善範囲が承認された．v3 を実行する場合も同じ 56＋16 条件，fixture，閾値を用い，新 head／manifest／出力で記録する．
