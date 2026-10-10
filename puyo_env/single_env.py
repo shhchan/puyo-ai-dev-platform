@@ -17,6 +17,7 @@ except ImportError:  # pragma: no cover - dependency guard
     np = None
 
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.tsumo import EsportsTsuSource, public_tsumo_game_copy
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import encode_observation, make_observation_space
@@ -37,6 +38,9 @@ class SinglePuyoEnv(_BaseEnv):
         max_steps: int = 500,
         reward_config: RewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
     ):
         if gym is None or spaces is None or np is None:
             raise ImportError(
@@ -45,6 +49,9 @@ class SinglePuyoEnv(_BaseEnv):
             )
         super().__init__()
         self.base_seed = seed
+        self.tsumo_mode = tsumo_mode
+        self.tsumo_source = EsportsTsuSource(tsumo_source) if tsumo_mode == "esports_tsu" and tsumo_source else None
+        self.tsumo_pattern_id = tsumo_pattern_id
         self.max_steps = max_steps
         self.reward_config = reward_config or RewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
@@ -83,8 +90,13 @@ class SinglePuyoEnv(_BaseEnv):
             include_action_mask=self.include_action_mask_in_observation,
         )
         game = self.simulator.game
+        policy_simulator = self.simulator
+        if self.tsumo_mode == "esports_tsu":
+            policy_simulator = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(self.simulator.game), auto_spawn=False,
+            )
         return observation, {
-            "action_mask": mask, "simulator": self.simulator,
+            "action_mask": mask, "simulator": policy_simulator,
             "score": int(game.score), "step_count": self.step_count,
             "max_steps": self.max_steps,
             "last_chain_end_score": int(game.last_chain_end_score),
@@ -97,7 +109,10 @@ class SinglePuyoEnv(_BaseEnv):
             super().reset(seed=seed)
         _ = options
         effective_seed = self._effective_seed(seed)
-        self.simulator = HeadlessPuyoSimulator(seed=effective_seed)
+        self.simulator = HeadlessPuyoSimulator(
+            seed=effective_seed, tsumo_mode=self.tsumo_mode,
+            tsumo_source=self.tsumo_source, tsumo_pattern_id=self.tsumo_pattern_id,
+        )
         self.step_count = 0
         self.episode_return = 0.0
         self._episode_index += 1

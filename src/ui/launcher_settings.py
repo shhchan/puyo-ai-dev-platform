@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Mapping
@@ -101,6 +102,10 @@ class LauncherSettings:
     nextgen_profile: str = DEFAULT_NEXTGEN_PROFILE
     nextgen_selector: str = "rule"
     nextgen_trajectory_path: str | None = None
+    tsumo_mode: str = "random"
+    tsumo_source: str | None = None
+    tsumo_pattern_id: int | None = None
+    tsumo_player_1_pattern_id: int | None = None
     max_steps: int = 100
     max_ticks: int | None = None
     games: int = 1
@@ -215,6 +220,10 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "games": LauncherFieldSpec("games", "試合数", "--games", "arena で実行する game 数です。"),
     "paired_sides": LauncherFieldSpec("paired_sides", "左右入替評価", "--paired-sides", "ON の場合、arena で 1P/2P を入れ替えた paired evaluation を行います。"),
     "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena または realtime UI の診断 replay 出力 path です。auto の場合は書き出しません。"),
+    "tsumo_mode": LauncherFieldSpec("tsumo_mode", "配ぷよ方式", "--tsumo-mode", "random は従来の完全ランダム，esports_tsu は検証済み外部データを使います．"),
+    "tsumo_source": LauncherFieldSpec("tsumo_source", "配ぷよ source", "--tsumo-source", "作者公開の haipuyo.txt への path です．SHA-256 を検証します．"),
+    "tsumo_pattern_id": LauncherFieldSpec("tsumo_pattern_id", "配ぷよ ID", "--tsumo-pattern-id", "0〜65535 の 1P pattern ID です．"),
+    "tsumo_player_1_pattern_id": LauncherFieldSpec("tsumo_player_1_pattern_id", "2P 配ぷよ ID", "--tsumo-player-1-pattern-id", "auto なら 1P と同一配ぷよ，明示 ID なら独立です．"),
     "qa_notes": LauncherFieldSpec("qa_notes", "QA メモ", "--qa-notes", "結果 JSON に残す確認者向けメモです。"),
     "qa_profile": LauncherFieldSpec("qa_profile", "QA profile", "--qa-profile", "完走、攻撃、負荷、決定性の条件を artifact 上で判定する profile です。"),
     "config_path": LauncherFieldSpec("config_path", "学習 config", "--config", "train.train_realtime に渡す YAML/JSON config path です。"),
@@ -468,6 +477,7 @@ class LauncherSettingsManager:
                 "replay_path",
                 "qa_notes",
                 "qa_profile",
+                "tsumo_mode", "tsumo_source", "tsumo_pattern_id", "tsumo_player_1_pattern_id",
             )
         if action_key == "spectate":
             return (
@@ -522,6 +532,7 @@ class LauncherSettingsManager:
                 "qa_notes",
                 "qa_profile",
                 "max_frames",
+                "tsumo_mode", "tsumo_source", "tsumo_pattern_id", "tsumo_player_1_pattern_id",
             )
         if action_key == "arena":
             return (
@@ -546,6 +557,7 @@ class LauncherSettingsManager:
                 "action_deadline_ticks",
                 "paired_sides",
                 "replay_path",
+                "tsumo_mode", "tsumo_source", "tsumo_pattern_id", "tsumo_player_1_pattern_id",
             )
         return ()
 
@@ -594,6 +606,10 @@ class LauncherSettingsManager:
             return self.update(action_key, field, _cycle_value(value, SPEED_CHOICES, delta))
         if field == "latency_mode":
             return self.update(action_key, field, _cycle_value(value, LATENCY_MODE_CHOICES, delta))
+        if field == "tsumo_mode":
+            return self.update(action_key, field, _cycle_value(value, ("random", "esports_tsu"), delta))
+        if field in {"tsumo_pattern_id", "tsumo_player_1_pattern_id"}:
+            return self.update(action_key, field, max(0, min(65535, (value or 0) + delta)))
         if field == "deep_chain_profile":
             return self.update(action_key, field, _cycle_value(value, DEEP_CHAIN_PROFILE_CHOICES, delta))
         if field == "deep_chain_backend":
@@ -657,11 +673,11 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback", "nextgen_catalog_path", "nextgen_trajectory_path"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback", "nextgen_catalog_path", "nextgen_trajectory_path", "tsumo_source"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
-        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames", "nextgen_seed"}:
+        if isinstance(value, (int, float)) or field in {"seed_a", "seed_b", "max_ticks", "timeout_ticks", "action_deadline_ticks", "max_frames", "nextgen_seed", "tsumo_pattern_id", "tsumo_player_1_pattern_id"}:
             return "number"
         return "choice"
 
@@ -700,6 +716,14 @@ class LauncherSettingsManager:
             return LATENCY_MODE_CHOICES
         if field == "deep_chain_profile":
             return DEEP_CHAIN_PROFILE_CHOICES
+        if field == "tsumo_mode":
+            return ("random", "esports_tsu")
+        if field == "tsumo_source":
+            return tuple(dict.fromkeys((None, settings.tsumo_source, os.environ.get("PUYO_TSUMO_SOURCE"))))
+        if field == "tsumo_pattern_id":
+            return (None, settings.tsumo_pattern_id, 0, 34066, 65535)
+        if field == "tsumo_player_1_pattern_id":
+            return (None, settings.tsumo_player_1_pattern_id, 0, 34066, 65535)
         if field == "deep_chain_backend":
             return DEEP_CHAIN_BACKEND_CHOICES
         if field == "deep_chain_target_chain":

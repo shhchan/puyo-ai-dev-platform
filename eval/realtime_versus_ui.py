@@ -162,6 +162,10 @@ class RealtimeVersusUiConfig:
     checkpoint_a: str | None = None
     checkpoint_b: str | None = None
     seed: int = 1
+    tsumo_mode: str = "random"
+    tsumo_source: str | None = None
+    tsumo_pattern_id: int | None = None
+    tsumo_player_1_pattern_id: int | None = None
     seed_a: int | None = None
     seed_b: int | None = None
     max_ticks: int | None = None
@@ -332,6 +336,10 @@ class RealtimeVersusMatchController:
             seed=config.seed,
             max_ticks=config.max_ticks,
             use_reachable_action_mask=config.use_reachable_action_mask,
+            tsumo_mode=config.tsumo_mode,
+            tsumo_source=config.tsumo_source,
+            tsumo_pattern_id=config.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=config.tsumo_player_1_pattern_id,
         )
         self.speed = config.speed
         self.paused = config.start_paused
@@ -1586,6 +1594,10 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--checkpoint-a")
     parser.add_argument("--checkpoint-b")
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--tsumo-mode", choices=("random", "esports_tsu"), default="random")
+    parser.add_argument("--tsumo-source")
+    parser.add_argument("--tsumo-pattern-id", type=int)
+    parser.add_argument("--tsumo-player-1-pattern-id", type=int)
     parser.add_argument("--seed-a", "--policy-seed-a", dest="seed_a", type=int)
     parser.add_argument("--seed-b", "--policy-seed-b", dest="seed_b", type=int)
     parser.add_argument("--max-ticks", type=int)
@@ -1708,6 +1720,10 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         checkpoint_a=args.checkpoint_a,
         checkpoint_b=args.checkpoint_b,
         seed=args.seed,
+        tsumo_mode=args.tsumo_mode,
+        tsumo_source=args.tsumo_source,
+        tsumo_pattern_id=args.tsumo_pattern_id,
+        tsumo_player_1_pattern_id=args.tsumo_player_1_pattern_id,
         seed_a=args.seed_a,
         seed_b=args.seed_b,
         max_ticks=args.max_ticks,
