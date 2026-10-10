@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -62,6 +63,17 @@ class TestQASession(unittest.TestCase):
             payload["ticks"][0]["inputs"]["player_0"]["press"] = ["left"]
             path.write_text(json.dumps(payload), encoding="utf-8")
             self.assertIn("replay checksum or size mismatch", validate_qa_session(session))
+
+    def test_copied_bundle_validates_without_original_location(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            replay, result = fixture()
+            original, _ = save_qa_session(root / "source", replay=replay, result=result, config={})
+            copied = root / "other-computer" / original.name
+            copied.parent.mkdir()
+            shutil.copytree(original, copied)
+            shutil.rmtree(original)
+            self.assertEqual(validate_qa_session(copied), [])
 
     def test_write_failure_keeps_hidden_recovery_directory(self):
         with tempfile.TemporaryDirectory() as directory:

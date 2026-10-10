@@ -191,7 +191,12 @@ def validate_qa_session(session_dir: str | Path) -> list[str]:
     if result.get("result", {}).get("ticks") != len(replay.get("ticks", ())):
         errors.append("result tick count mismatch")
     artifacts = result.get("artifacts") or {}
-    if artifacts.get("qa_session") != str(root) or artifacts.get("replay") != str(root / "replay.json"):
+    # These absolute paths describe the original save location. The bundle is
+    # portable, so validate their names while reading files from session_dir.
+    if (
+        Path(str(artifacts.get("qa_session") or "")).name != root.name
+        or any(Path(str(artifacts.get(name) or "")).name != f"{name}.json" for name in ("replay", "result", "manifest"))
+    ):
         errors.append("result artifact paths mismatch")
     if not errors:
         try:

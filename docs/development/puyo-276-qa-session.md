@@ -6,4 +6,4 @@
 
 保存前に `replay_realtime_match` で入力と tick ごとの hash，最終 hash を検証する．同一 root 内の隠し `.pending` directory に各ファイルを一時名で書き，`fsync` 後に session dir 全体を公開する．公開時は root directory を lock し，既存 session の上書きを防ぐ．保存中に失敗した場合は `QASessionSaveError` が session ID と回収用 path を持ち，公開済みの不完全な session は作らない．未公開の `.pending` directory は手動回収用に保持する．
 
-保存済みファイルは `eval.qa_session.validate_qa_session(session_dir)` で checksum，設定 digest，seed，tick，最終 hash と replay の決定性を再検証する．返り値が空リストなら検証成功である．通常終了と途中終了の両方を同じ validator で扱う．
+保存済みファイルは `eval.qa_session.validate_qa_session(session_dir)` で checksum，設定 digest，seed，tick，最終 hash と replay の決定性を再検証する．返り値が空リストなら検証成功である．通常終了と途中終了の両方を同じ validator で扱う．result の絶対パスは元の保存先を示す記録であり，session dir 全体を別の場所へコピーしても validator は同梱ファイルを検証する．
