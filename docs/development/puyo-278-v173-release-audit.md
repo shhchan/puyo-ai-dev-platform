@@ -19,14 +19,16 @@ Sprint 14 の stack は PR #172，#173，#174，#175，#177，#178，#179，#180
 
 | PR／Jira | base | head | 状態／CI |
 | --- | --- | --- | --- |
-| [#183／PUYO-275](https://github.com/shhchan/puyo-ai-dev-platform/pull/183) | `integration/puyo-228-v1-7-3` | `2e338b6216bb463e173b2be4cf3d814bb6fa0d37` | OPEN，lint 修正後 head の required CI は確認時実行中．Jira Complete． |
+| [#183／PUYO-275](https://github.com/shhchan/puyo-ai-dev-platform/pull/183) | `integration/puyo-228-v1-7-3` | `2e338b6216bb463e173b2be4cf3d814bb6fa0d37` | OPEN，lint 修正後 head の required CI 成功．Jira Complete． |
 | [#184／PUYO-276](https://github.com/shhchan/puyo-ai-dev-platform/pull/184) | `PUYO-275/esports-tsumo-provider` | `6d71dc41829bf51d15fd6411b45600fc5a4b3752` | OPEN，lint 修正後 head の required CI は確認時実行中．人間実画面 QA 待ち． |
 | [#185／PUYO-277](https://github.com/shhchan/puyo-ai-dev-platform/pull/185) | `PUYO-276/automatic-qa-replay` | `555880c69064177a9fcbf4d4b4ad780adb21e768` | OPEN／ready，lint 修正後 head の check は確認時未報告．Jira Complete． |
-| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `6baef386f37a7303b121d4275b05c48c9cf976d8` | OPEN／draft，lint 修正後 head の required CI は確認時実行中．正式単独 gate は BLOCKED． |
-| [#187／PUYO-274](https://github.com/shhchan/puyo-ai-dev-platform/pull/187) | `PUYO-266/sprint15-single-quality` | `1b5abbc3c1795129c1b760d7df912107277fe349` | OPEN／draft，lint 修正後 head の required CI は確認時実行中．統合 QA は BLOCKED． |
-| [#188／PUYO-278](https://github.com/shhchan/puyo-ai-dev-platform/pull/188) | `PUYO-274/sprint15-closeout` | 監査更新前 `2709d3c51d5ace7104f22c9ba389ecd683ab810b` | OPEN／draft，確認時 required CI 実行中．本監査更新後に head を再取得する． |
+| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `b5c988140462beed05a3b5d913c72a066a8b6290` | OPEN／draft，最終証拠 head の required CI は確認時実行中．正式単独 gate は BLOCKED． |
+| [#187／PUYO-274](https://github.com/shhchan/puyo-ai-dev-platform/pull/187) | `PUYO-266/sprint15-single-quality` | `361398981f3a9083dbf63b79a9993f8548ec0fb7` | OPEN／draft，最終統合 head の required CI は確認時実行中．統合 QA は BLOCKED． |
+| [#188／PUYO-278](https://github.com/shhchan/puyo-ai-dev-platform/pull/188) | `PUYO-274/sprint15-closeout` | 監査更新前 `bc8924b9454c4d348c3d37abf28c94ebe63cc9cd` | OPEN／draft，更新前 head の check は確認時未報告．本監査更新後に head を再取得する． |
 
-PUYO-266 の head は公開 action mask 修正 `b6046e8` と追加調査を含む．同じ事前登録 120 identity の v3 は 14 final で停止し，未実行と未知分類を含む．正式 v4 は init も実行もしていない．追加の公開 prefix 読取監査は，到達不能 trajectory を単純に除くと正常 2259 の選択も変えることを示し，製品 filter を採用しなかった．PUYO-274 の lint 修正後 head `1b5abbc3c1795129c1b760d7df912107277fe349` は親が本監査 branch へ履歴保持で取り込み，取り込み commit は `2709d3c51d5ace7104f22c9ba389ecd683ab810b`．これは remote 統合 branch への merge ではない．初回 #187 CI は Ruff 0.16.0 の I001／B023 で失敗した．担当別の lint 修正を積み上げた #187 の確定 source では，同じ Ruff 0.16.0 と原本付き 8 suite／102 tests（skip 0）がローカル成功した．新 head の remote CI 成功は未確認であり，統合受け入れは BLOCKED．これらの PR・SHA を release 候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
+PUYO-266 の head は公開 action mask 修正 `b6046e8` と証拠専用 commit `b5c9881` を含む．同じ事前登録 120 identity の v3 は 14 final で停止し，未実行と未知分類を含む．正式 v4 は init も実行もしていない．reference 4519 は targeted の両 repeat でも 42 手死亡・最大 2 連鎖・窒息 unknown のまま．公開 prefix の隔離診断で 29 手目だけを代替 root へ変更すると 34 手死亡・最大 1 連鎖，毎決定の診断 filter では 34 手死亡・最大 0 連鎖だった．公開到達不能な予測を除いても品質は改善せず，未知 future の仮定と代替解・quiet 継続の証明が残るため，製品 filter は採用しなかった．これらの別 policy 診断を正式 120 run の合格に数えない．
+
+PUYO-274 の最終 head `361398981f3a9083dbf63b79a9993f8548ec0fb7` は親が本監査 branch へ履歴保持で取り込み，取り込み commit は `a390c52f12ba4f0c960b75644a3fa9b1a2c54b6a`．これは remote 統合 branch への merge ではない．初回 #187 CI は Ruff 0.16.0 の I001／B023 で失敗した．担当別の lint 修正を積み上げた #187 の製品 source では，同じ Ruff 0.16.0 と原本付き 8 suite／102 tests（skip 0）がローカル成功した．以降の取り込みは証拠のみで製品コードを変更していない．最終 head の remote CI 成功は未確認であり，統合受け入れは BLOCKED．これらの PR・SHA を release 候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
 
 workflow ファイルを含む先行 push は OAuth token の `workflow` scope 不足で一度拒否された．ユーザーの再認証後，`gh auth status` は `workflow` scope を確認でき，親は #187／#188 を push・draft PR 作成済み．認証 blocker は解消した．lint 修正後の各 head について required CI の終了結果を別途 read-back する．旧 head の成功を新 head の成功としない．この CI の状態と PUYO-266／276／274 の品質 gate 未達は別に扱う．
 
@@ -37,7 +39,7 @@ workflow ファイルを含む先行 push は OAuth token の `workflow` scope �
 | Gate | 必要な証拠 | 現状 |
 | --- | --- | --- |
 | 配ぷよ source（PUYO-275） | 来歴・利用／再配布条件・別実装照合・checksum・128 手境界，provider と公開 current／NEXT／NEXT2 契約．30 pattern ID と条件を結果より前に固定する． | Complete，PR #183 は OPEN．原本 `haipuyo.txt` は 65,536 行・SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．別実装の照合済み．公式実対局による独立証明ではない． |
-| 単独本線（PUYO-266） | 固定 30 pattern ID × 2 repeat × 2 policy の正式 120 run，40 手構築＋最大 6 手発火，平均最大実連鎖 ≥ 10，理由のない小発火 0，回避可能窒息 0．旧 legacy random の失敗 raw は別に保持する． | In Progress，draft PR #186．正式 v3 は 14／120 final で中断．nextgen pattern 6779 は最大 1 連鎖・不当小発火 1，reference pattern 4519 は最大 2 連鎖・窒息 unknown．修正後 targeted 4 run で nextgen 6779 は両 repeat とも最大 10 連鎖へ改善したが，reference 4519 の unknown は残る．targeted を正式合格へ数えず，v4 は未実施．BLOCKED． |
+| 単独本線（PUYO-266） | 固定 30 pattern ID × 2 repeat × 2 policy の正式 120 run，40 手構築＋最大 6 手発火，平均最大実連鎖 ≥ 10，理由のない小発火 0，回避可能窒息 0．旧 legacy random の失敗 raw は別に保持する． | In Progress，draft PR #186．正式 v3 は 14／120 final で中断．nextgen pattern 6779 は最大 1 連鎖・不当小発火 1，reference pattern 4519 は最大 2 連鎖・窒息 unknown．targeted で nextgen 6779 は両 repeat とも最大 10 連鎖へ改善したが，reference 4519 は改善せず，追加の公開 prefix filter 診断も不採用．targeted と隔離診断を正式合格へ数えず，v4 は未実施．BLOCKED． |
 | 対戦（PUYO-277） | 予告おじゃま対応・独立小連鎖／副砲の発火を，単独 gate と分けて固定条件で評価する．hidden future を観測に渡さない． | Complete，PR #185 は ready．正式 v3 の元 56 条件は 52 PASS／4 回避不能除外／0 FAIL，追加 16 条件は全 PASS．全 72 replay の event／全 tick hash／最終 hash が一致した．これは bounded 公開 challenge の合格であり，全体 G2 や単独品質の合格ではない． |
 | 人間 QA replay（PUYO-276） | GUI 実対局から自動保存された既存形式 replay，結果・設定・実行 identity・pattern ID・保存先，replay 再生一致． | In Progress，PR #184 は OPEN．修正後 dummy 環境の 1000 tick，OFF／ON 各 2 repeat は frame／input schedule の p95 ≤ 25 ms／p99 ≤ 50 ms を全回通過．旧 ON の input p99 57.82 ms 失敗 raw は保存．人間実画面操作は未実施． |
 | 統合・人間 QA（PUYO-274） | 上記証拠の組合せ，非公開 future 漏れの否定，先読み表示・操作感，固定 GUI cadence と人間確認． | In Progress，draft PR #187．原本付き 8 suite／102 tests，skip 0，Ruff／差分確認は成功．PUYO-266 の正式品質と PUYO-276 の人間実画面 QA が未達で，統合判定は BLOCKED．remote CI は確認時実行中． |
