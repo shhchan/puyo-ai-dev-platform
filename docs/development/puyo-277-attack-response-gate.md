@@ -49,7 +49,7 @@ PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
 
 PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
   -m eval.nextgen_attack_response_gate --output /tmp/puyo277-formal-v1 \
-  init --source /tmp/puyo275-haipuyo.txt
+  init --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt
 
 PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
   -m eval.nextgen_attack_response_gate --output /tmp/puyo277-formal-v1 \
@@ -88,7 +88,7 @@ PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
 ```bash
 PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
   -m eval.nextgen_attack_response_gate --output /tmp/puyo277-extended-v2 \
-  init --source /tmp/puyo275-haipuyo.txt --extended-observations
+  init --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt --extended-observations
 ```
 
 元 56 条件の v1 と公開再監査は不変である．モデル変更後の 56 条件は別出力 `formal-v2`，追加 16 条件は `extended-v2` として保存し，元の 3 resolution 未観測 FAIL を追加結果で書き換えない．
@@ -100,3 +100,9 @@ v2 の全 72 条件と失敗を `122a144` に保存した後，`RuleTacticSelect
 相殺不足時の比較では，致死率・相殺量・送付量が同じ場合に限り，`sampled_future` の致死率 0 より明示的な公開応答の生存証拠を優先する．実際の致死危険や相殺量を犠牲にして counter を優先しない．これは条件付き公開 witness の優先であり，探索 cutoff や隠れ行を完全証明へ格上げする変更ではない．
 
 保存済み v2 公開 request／batch の selector-only 回帰では，preserve の 1／32768 は現在 action 0 の相殺，post-arrival の 65535 は公開 counter `[0,1]` を選ぶ．このテストは実配置の PASS ではない．v3 の同一 56＋16 条件の正式実行と replay 照合は，親の統合後の clean head で改めて行う．
+
+## 最終 v3 の受入
+
+統合 head `27b9c6e8da616c553c41402b63be9794707c071b` の正式 v3 は，元 56 条件が PASS 52／回避不能除外 4，追加 16 条件が全 PASS となった．288 decisions の quota／実 lock／deadline 異常は 0，全 72 replay の event と hash を保存後にも再検証した．[最終 benchmark と A/C 対応表](../benchmarks/puyo-277-attack-response/README.md) を参照する．元の未達 raw は保持し，対象や閾値を変えて旧 FAIL を成功へ書き換えていない．
+
+実行出力は Git ignored な `runs/puyo-277-formal-v3` と `runs/puyo-277-extended-v3`，detached PID／log／進捗記録は `runs/puyo-277-v3.pid`，`runs/puyo-277-v3-run.log`，`runs/puyo-277-v3-state.json` に置いた．再実行は既存結果を上書きせず，新しい出力名で `init` して全 case／condition を実行する．原本は外部 cache の checksum を再確認する．
