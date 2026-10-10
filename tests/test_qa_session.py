@@ -2,10 +2,17 @@ import json
 import shutil
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from eval.qa_session import QASessionSaveError, save_qa_session, validate_qa_session
+from eval.qa_session import (
+    QASessionSaveError,
+    main,
+    save_qa_session,
+    validate_qa_session,
+)
 from puyo_env.realtime_versus import RealtimeVersusMatch
 
 
@@ -21,7 +28,7 @@ def fixture(*, interrupted=False):
         })
     replay = {
         "format": "puyo-realtime-match-v1", "seed": 127,
-        "policies": {"player_0": {"seed": 57}, "player_1": {}},
+        "policies": {"player_0": {"policy_seed": 57}, "player_1": {}},
         "ticks": ticks, "expected_final_hash": match.state_hash(),
         "outcome": {"interrupted": interrupted},
     }
@@ -49,6 +56,7 @@ class TestQASession(unittest.TestCase):
                 self.assertTrue(manifest["save"]["replay_validated"])
                 self.assertIsNone(manifest["identity"]["native"])
                 self.assertEqual(manifest["identity"]["tsumo"]["mode"], "random")
+                self.assertEqual(manifest["match"]["policy_seeds"], {"player_0": 57, "player_1": None})
                 self.assertEqual({item.name for item in session.iterdir()}, {"replay.json", "result.json", "manifest.json"})
                 saved_result = json.loads((session / "result.json").read_text(encoding="utf-8"))
                 self.assertEqual(saved_result["artifacts"]["replay"], str(session / "replay.json"))
@@ -74,6 +82,18 @@ class TestQASession(unittest.TestCase):
             shutil.copytree(original, copied)
             shutil.rmtree(original)
             self.assertEqual(validate_qa_session(copied), [])
+            with redirect_stdout(StringIO()) as output:
+                self.assertEqual(main([str(copied)]), 0)
+            self.assertIn("QA session valid", output.getvalue())
+
+    def test_validator_passes_tsumo_source_override_to_replay_reader(self):
+        with tempfile.TemporaryDirectory() as directory:
+            replay, result = fixture()
+            session, _ = save_qa_session(directory, replay=replay, result=result, config={})
+            from eval import qa_session
+            with patch.object(qa_session, "replay_realtime_match", return_value="ok") as reader:
+                self.assertEqual(validate_qa_session(session, tsumo_source_override="/other/haipuyo.txt"), [])
+            reader.assert_called_once_with(replay, tsumo_source_override="/other/haipuyo.txt")
 
     def test_write_failure_keeps_hidden_recovery_directory(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -93,6 +113,7 @@ class TestQASession(unittest.TestCase):
                 save_qa_session(directory, replay=replay, result=result, config={})
             self.assertTrue(caught.exception.pending_path.name.endswith(".pending"))
             self.assertTrue((caught.exception.pending_path / "replay.json").is_file())
+            self.assertEqual(json.loads((caught.exception.pending_path / "save_failure.json").read_text(encoding="utf-8"))["status"], "failed")
             self.assertFalse((Path(directory) / caught.exception.session_id).exists())
 
     def test_bad_replay_never_creates_session(self):

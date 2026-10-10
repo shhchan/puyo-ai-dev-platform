@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import fcntl
 import json
 import os
@@ -29,7 +30,10 @@ def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
     temporary = path.with_name(f".{path.name}.{secrets.token_hex(8)}.tmp")
     try:
         with temporary.open("x", encoding="utf-8") as handle:
-            json.dump(value, handle, indent=2, sort_keys=True, allow_nan=False)
+            if path.name == "replay.json":
+                json.dump(value, handle, sort_keys=True, separators=(",", ":"), allow_nan=False)
+            else:
+                json.dump(value, handle, indent=2, sort_keys=True, allow_nan=False)
             handle.write("\n")
             handle.flush()
             os.fsync(handle.fileno())
@@ -50,10 +54,12 @@ def _sync_directory(path: Path) -> None:
         os.close(descriptor)
 
 
-def _reserve_session(root: Path) -> tuple[str, Path, Path]:
+def _reserve_session(root: Path, requested_id: str | None = None) -> tuple[str, Path, Path]:
     root.mkdir(parents=True, exist_ok=True)
-    for _ in range(10):
-        session_id = secrets.token_hex(16)
+    for _ in range(1 if requested_id else 10):
+        session_id = requested_id or secrets.token_hex(16)
+        if len(session_id) != 32 or any(letter not in "0123456789abcdef" for letter in session_id):
+            raise ValueError("session_id must be 32 lowercase hex characters")
         published = root / session_id
         pending = root / f".{session_id}.pending"
         if published.exists():
@@ -90,6 +96,7 @@ def save_qa_session(
     source: Mapping[str, Any] | None = None,
     native: Mapping[str, Any] | None = None,
     tsumo: Mapping[str, Any] | None = None,
+    session_id: str | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     """Save an immutable replay/result/manifest directory and return its path.
 
@@ -113,7 +120,7 @@ def save_qa_session(
     replay_realtime_match(replay)
 
     root = Path(root).expanduser().resolve()
-    session_id, pending, published = _reserve_session(root)
+    session_id, pending, published = _reserve_session(root, session_id)
     try:
         replay_path = pending / "replay.json"
         result_path = pending / "result.json"
@@ -135,8 +142,8 @@ def save_qa_session(
             "match": {
                 "seed": replay.get("seed"),
                 "policy_seeds": {
-                    "player_0": replay.get("policies", {}).get("player_0", {}).get("seed"),
-                    "player_1": replay.get("policies", {}).get("player_1", {}).get("seed"),
+                    "player_0": replay.get("policies", {}).get("player_0", {}).get("policy_seed"),
+                    "player_1": replay.get("policies", {}).get("player_1", {}).get("policy_seed"),
                 },
                 "speed": result.get("match", {}).get("speed"),
                 "ticks": len(ticks),
@@ -157,10 +164,20 @@ def save_qa_session(
         return published, manifest
     except Exception as exc:
         # Keep the pending directory: a write failure must not discard a replay.
+        if pending.exists():
+            try:
+                _write_json_atomic(pending / "save_failure.json", {
+                    "schema_version": QA_SESSION_SCHEMA_VERSION,
+                    "session_id": session_id,
+                    "status": "failed",
+                    "reason": str(exc),
+                })
+            except OSError:
+                pass
         raise QASessionSaveError(session_id, pending if pending.exists() else published, str(exc)) from exc
 
 
-def validate_qa_session(session_dir: str | Path) -> list[str]:
+def validate_qa_session(session_dir: str | Path, *, tsumo_source_override: str | None = None) -> list[str]:
     """Check checksums and replay the persisted inputs and hashes."""
     root = Path(session_dir).expanduser().resolve()
     try:
@@ -200,7 +217,25 @@ def validate_qa_session(session_dir: str | Path) -> list[str]:
         errors.append("result artifact paths mismatch")
     if not errors:
         try:
-            replay_realtime_match(replay)
-        except (AssertionError, KeyError, TypeError, ValueError) as exc:
+            replay_realtime_match(replay, tsumo_source_override=tsumo_source_override)
+        except (AssertionError, KeyError, OSError, TypeError, ValueError) as exc:
             errors.append(f"replay verification failed: {exc}")
     return errors
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Validate a saved realtime GUI QA session")
+    parser.add_argument("session_dir", help="Directory containing replay.json, result.json, and manifest.json")
+    parser.add_argument("--tsumo-source", help="Verified haipuyo.txt path when the recorded path is unavailable")
+    args = parser.parse_args(argv)
+    errors = validate_qa_session(args.session_dir, tsumo_source_override=args.tsumo_source)
+    for error in errors:
+        print(error)
+    if errors:
+        return 1
+    print(f"QA session valid: {Path(args.session_dir).expanduser().resolve()}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
