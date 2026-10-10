@@ -137,3 +137,9 @@ cd /home/sion2000114/workspaces/dev/puyo-s14-274
 [PUYO-266 の公開情報監査](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)では，seed128／38 の既知 3 手に 10 連鎖候補が無く，楽観上界でも最大 7 連鎖だった．旧 60 run の G2 FAIL も再確認した．[PUYO-269 の区間 CPU 診断](../benchmarks/puyo-269-frame-variance-20261009/README.md)では，同期 prepare／finish，deepcopy，gen2 GC の負荷を測定したが，単独の狭い変更で 25 ms gate を安定達成する根拠は無かった．両件とも製品コードを変更せず，raw と停止条件を PR #178／#181 に保存し，最上段 #182 へ反映した．最新の詳細な状態と PR 順序は[実行表](puyo-274-handoff/sprint14-execution-20261008.md)にある．
 
 実人間 GUI QA はまだ報告待ちである．上記の起動コマンドで最上段 `PUYO-274/sprint14-closeout` を使い，1P nextgen／2P human／速度 x1.0 で，`o` の先読み，現在組 ghost との区別，下押し＋横／回転の配置感，カクつき，対戦 seed／1P policy seed を報告してもらう．完了まで PUYO-266／273／269／274 は draft／In Progress を維持する．
+
+## 10. 2026-10-10 Sprint 15／16 への更新
+
+依頼者は最上段で 1P nextgen／2P human／速度 x1.0 の先読み切替と配置操作を確認し，実用上大きな問題なしと回答した．この QA の seed／replay は未記録なので，保存済み機械 trace と同一対局にはしない．PUYO-269／273 は承認された Sprint 14 実用基準で Complete，PUYO-266／274 は In Progress のまま Sprint 15 へ移した．新しい配ぷよ方式・とこぷよ本線評価・対戦時の副砲／攻撃対応・QA replay・v1.7.3 release と，Sprint 16 の設計限定リファクタリングは [Sprint 15／16 計画](puyo-sprint-15-16-plan.md) にまとめた．
+
+旧 G2 の 60 run は停止相手・攻撃抑止だったため，相手攻撃による未達とは解釈しない．今後の単独能力は eスポーツ通配ぷよを用いる明示的なとこぷよで判定し，対戦対応は別 gate に分ける．旧完全ランダムの失敗 raw を保持し，新しい pattern ID と同一視しない．

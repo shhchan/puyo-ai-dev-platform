@@ -121,3 +121,11 @@ PUYO-266 は製品 source を変えず，保存した seed128／38 の全 40 判
 PUYO-269 は最上段 runtime source `32280fd` と製品コードが同一である #181 source で，区間 wall／thread CPU と GC を分ける専用 GUI 診断を固定 minimal-two 360 frame に 1 回実施した．prepare 10 回は合計 wall／CPU 83.00／80.57 ms，finish は 49.89／43.49 ms，その内 `to_dict` は 15.00／14.67 ms，activation 内 deepcopy は 27.24／26.64 ms．gen2 GC 2 回は 32.46／32.55 ms の wall を使い，回収 0 でも CPU を消費した．一部の accept／finish には wall−CPU 約 5 ms の待ちがあり，reader との GIL 競合も候補である．診断自体に負荷があるため，この run の frame p95／p99 21.82／42.17 ms を gate PASS として扱わない．同期コピーを一部削るだけで安定して 25 ms 未満になる証拠はなく，所有権・正規化契約の確認前に製品コードを変えない．[診断器・raw・分析・停止条件](../../benchmarks/puyo-269-frame-variance-20261009/README.md)を #181 に保存した．
 
 親は両証跡を #180→#181→#182 へ履歴保持 merge した．新しい製品変更はなく，最上段で該当 6 module の 20 tests＋25 subtests，追加 Python 3 ファイルの Ruff，差分検査が成功した．直前の同 source GUI gate は初回 7／8，再測 8／8 であり，安定達成や実人間 QA の完了には読み替えない．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress を維持する．PR merge／release／reviewer 指定／force-push はしていない．
+
+## 2026-10-10 Sprint 14 完了判断と後続計画
+
+依頼者は最上段の 1P nextgen／2P human／速度 x1.0 で，`o` の先読みと下押し＋横移動／回転を確認し，実用上大きな問題なしと回答した．この対局の seed／replay は未記録．固定 8 条件 × 2 回の frame p95 ≤ 26 ms／p99 ≤ 50 ms，入力 p95 ≤ 25 ms／p99 ≤ 50 ms を Sprint 14 の実用受入とし，旧 frame p95 ≤ 25 ms の失敗 raw（16 run 中 1 run は 25.59 ms）を維持した．PUYO-269／273 を Complete に遷移し，厳密 25 ms の安定化は PUYO-279 の Sprint 16 設計に残した．
+
+PUYO-266／274 は In Progress のまま Sprint 15 へ移した．Sprint 15 に PUYO-275（完全ランダム／eスポーツ通配ぷよ），PUYO-276（人間 QA replay の保存導線），PUYO-277（攻撃対応／副砲 gate），PUYO-278（v1.7.3 release 判断）を To Do で起票した．Sprint 16 は PUYO-279 の設計・後続起票のみで，runtime 実装は含めない．新しい評価と依存，元 seed 証拠の扱いは [Sprint 15／16 計画](../puyo-sprint-15-16-plan.md)を参照する．
+
+旧正式 G2 の 60 run は停止相手・攻撃抑止で行われており，対戦相手からのおじゃまが平均最大 8.8667 の直接原因ではない．新しいとこぷよ単独評価は，eスポーツ通配ぷよと単独ルールを明示するための再設計であり，旧 FAIL を PASS に読み替えるものではない．
