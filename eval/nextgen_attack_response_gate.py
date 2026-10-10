@@ -845,7 +845,10 @@ def execute(output, case_id, condition, *, source=None):
         or build_identity() != manifest["build"]
     ):
         raise ValueError("source/native/environment drift since manifest freeze")
-    if registered_cases() != manifest["fixtures"]:
+    extended = manifest.get("observation_registration_commit") is not None
+    if extended and manifest["observation_registration_commit"] != OBSERVATION_COMMIT:
+        raise ValueError("observation registration drift")
+    if registered_cases(extended=extended) != manifest["fixtures"]:
         raise ValueError("fixture drift")
     case = next(c for c in manifest["fixtures"]["cases"] if c["id"] == case_id)
     path = output / f"{case_id}-{condition}"

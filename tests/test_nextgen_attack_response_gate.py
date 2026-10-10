@@ -2,14 +2,17 @@
 
 import copy
 import os
+import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices, transition
 from agents.nextgen_shared_search import ResponseSearchResult
+from eval import nextgen_attack_response_gate as gate
 from eval.nextgen_attack_response_gate import (
     assess,
     audit_replay,
@@ -100,6 +103,24 @@ class PublicAuditTests(unittest.TestCase):
                 result = assess(case, "attack", [], [], False, {"status": "not_proven"})
                 self.assertIn("minimum_arrival_observation_window_incomplete", result["issues"])
             self.assertEqual(changed, expected)
+
+    def test_execute_accepts_frozen_extension_and_rejects_observation_drift(self):
+        cases = registered_cases(extended=True)
+        manifest = {"fixtures": cases, "source_files": {}, "build": {},
+                    "source_path": "unused", "actual_policy": {},
+                    "observation_registration_commit": gate.OBSERVATION_COMMIT}
+        with (tempfile.TemporaryDirectory() as directory,
+              patch.object(gate, "source_identity", return_value={}),
+              patch.object(gate, "build_identity", return_value={}),
+              patch.object(gate, "run_case", return_value=({"policy": {}}, {})) as run):
+            path = Path(directory)
+            gate.write(path / "manifest.json", manifest)
+            gate.execute(path, cases["cases"][0]["id"], "attack")
+            self.assertEqual(run.call_args.args[1]["max_resolutions"], 8)
+            manifest["fixtures"]["cases"][0]["max_resolutions"] = 7
+            gate.write(path / "manifest.json", manifest)
+            with self.assertRaisesRegex(ValueError, "fixture drift"):
+                gate.execute(path, cases["cases"][0]["id"], "no_attack")
 
     def test_missing_key_is_a_counterfactual_not_an_available_piece(self):
         search = SimpleNamespace(
