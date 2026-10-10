@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
+import signal
+import subprocess
 import sys
+import time
 import uuid
 from collections import deque
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +34,7 @@ from agents.deep_chain_search_backend import LONG_HORIZON_BACKEND_CHOICES
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
 from agents.nextgen_profiles import DEFAULT_NEXTGEN_PROFILE, nextgen_search_settings
 from eval.lifecycle_audit import audit_realtime_lifecycle
+from eval.qa_session import QASessionSaveError, save_qa_session
 from eval.realtime_gui_qa import (
     GUI_QA_PROFILES,
     criteria_for_profile,
@@ -57,6 +62,7 @@ from src.core.headless import PlacementAction
 from src.core.realtime import TickInput
 from src.ui.launcher_settings import NEXTGEN_CATALOG_PATH, NEXTGEN_PROFILE_CHOICES, resolve_nextgen_catalog
 from src.ui.nextgen_display import history_entries_for_tick
+from train.artifacts import file_sha256, git_commit
 
 if pygame is not None:
     from src.ui.keybindings import ACTION_ORDER, KeyBindings
@@ -162,6 +168,10 @@ class RealtimeVersusUiConfig:
     checkpoint_a: str | None = None
     checkpoint_b: str | None = None
     seed: int = 1
+    tsumo_mode: str = "random"
+    tsumo_source: str | None = None
+    tsumo_pattern_id: int | None = None
+    tsumo_player_1_pattern_id: int | None = None
     seed_a: int | None = None
     seed_b: int | None = None
     max_ticks: int | None = None
@@ -206,6 +216,9 @@ class RealtimeVersusUiConfig:
     keybindings_path: str | None = None
     result_json: str | None = None
     replay_path: str | None = None
+    qa_auto_save: bool = False
+    qa_save_root: str = "runs/gui-qa-sessions"
+    qa_session_id: str | None = None
     qa_notes: str | None = None
     qa_profile: str | None = None
     max_frames: int | None = None
@@ -264,6 +277,13 @@ def validate_config(config: RealtimeVersusUiConfig) -> None:
         raise ValueError("exit_after_finish_frames must be positive")
     if config.replay_path is not None and not config.replay_path.strip():
         raise ValueError("replay_path must not be empty")
+    if config.qa_auto_save and not config.qa_save_root.strip():
+        raise ValueError("qa_save_root must not be empty when QA auto save is enabled")
+    if config.qa_session_id is not None and (
+        len(config.qa_session_id) != 32
+        or any(letter not in "0123456789abcdef" for letter in config.qa_session_id)
+    ):
+        raise ValueError("qa_session_id must be 32 lowercase hex characters")
     if "nextgen_tactic_manager" in policies:
         for side in ("a", "b"):
             if getattr(config, f"policy_{side}") == "nextgen_tactic_manager" and getattr(config, f"checkpoint_{side}"):
@@ -314,6 +334,10 @@ class RealtimeVersusMatchController:
     ):
         validate_config(config)
         self.config = config
+        self.qa_session_path = (
+            str(Path(config.qa_save_root).expanduser().resolve() / config.qa_session_id)
+            if config.qa_auto_save and config.qa_session_id else None
+        )
         self.policy_factory = policy_factory
         self.nextgen_catalog = None
         self.nextgen_resolved_catalog = None
@@ -332,6 +356,10 @@ class RealtimeVersusMatchController:
             seed=config.seed,
             max_ticks=config.max_ticks,
             use_reachable_action_mask=config.use_reachable_action_mask,
+            tsumo_mode=config.tsumo_mode,
+            tsumo_source=config.tsumo_source,
+            tsumo_pattern_id=config.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=config.tsumo_player_1_pattern_id,
         )
         self.speed = config.speed
         self.paused = config.start_paused
@@ -359,6 +387,7 @@ class RealtimeVersusMatchController:
         self.collection_enabled = config.collection_enabled
         self.collection_replay_ticks: list[dict] = []
         self.replay_ticks: list[dict] = []
+        self._last_qa_decision_tokens: dict[str, tuple[int | None, int]] = {}
         self.tactic_history: list[dict[str, Any]] = []
         self.history_seen: dict[str, Any] = {}
         self.history_open = False
@@ -827,6 +856,7 @@ class RealtimeVersusMatchController:
         self.last_inputs = {}
         self.collection_replay_ticks = []
         self.replay_ticks = []
+        self._last_qa_decision_tokens = {}
         self.tactic_history = []
         self.history_seen = {}
         self.history_offset = 0
@@ -884,7 +914,7 @@ class RealtimeVersusMatchController:
             tick_payload = self._build_replay_tick(inputs, match_result)
             self.tactic_history.extend(history_entries_for_tick(tick_payload, self.history_seen))
             self._update_latest_attack_diagnostics(tick_payload["attack_diagnostics"])
-            if self.config.replay_path:
+            if self.config.replay_path or self.config.qa_auto_save:
                 self.replay_ticks.append(self._compact_replay_tick(tick_payload))
             if self.collection_enabled:
                 self.collection_replay_ticks.append(tick_payload)
@@ -930,7 +960,7 @@ class RealtimeVersusMatchController:
         return "saves inputs / boards / AI plans / result / optional feedback"
 
     def _build_replay_tick(self, inputs: dict[str, TickInput], match_result) -> dict[str, Any]:
-        capture_full = bool(self.config.replay_path or self.collection_enabled)
+        capture_full = bool(self.config.replay_path or self.config.qa_auto_save or self.collection_enabled)
         attack_diagnostics = {
             agent: {
                 **dict(match_result.attack_diagnostics[agent]),
@@ -976,10 +1006,11 @@ class RealtimeVersusMatchController:
             "public_events": public_events,
         }
         if capture_full:
+            compact_qa_ticks = self.config.qa_auto_save and not self.config.replay_path and not self.collection_enabled
             tick.update({
                 "inputs": {agent: value.to_json() for agent, value in sorted(inputs.items())},
                 "controller_diagnostics": {
-                    agent: self.controllers[agent].diagnostics.to_dict()
+                    agent: self._qa_controller_diagnostics(agent) if compact_qa_ticks else self.controllers[agent].diagnostics.to_dict()
                     for agent in REALTIME_AGENTS
                 },
                 "controller_status": {
@@ -1012,6 +1043,30 @@ class RealtimeVersusMatchController:
                     "executed_action": last.executed_action,
                 }}
         return tick
+
+    def _qa_controller_diagnostics(self, agent: str) -> dict[str, Any]:
+        diagnostics = self.controllers[agent].diagnostics
+        decision = diagnostics.last_decision
+        token = (id(decision) if decision is not None else None, diagnostics.decisions_activated)
+        if self._last_qa_decision_tokens.get(agent) != token:
+            self._last_qa_decision_tokens[agent] = token
+            return diagnostics.to_dict()
+        payload = {
+            field.name: getattr(diagnostics, field.name)
+            for field in fields(diagnostics)
+            if field.name != "last_decision"
+        }
+        payload["mean_policy_elapsed_ms"] = diagnostics.mean_policy_elapsed_ms
+        payload["mean_inference_latency_ticks"] = diagnostics.mean_inference_latency_ticks
+        payload["last_decision"] = None if decision is None else {
+            "outcome": decision.outcome,
+            "reason": decision.reason,
+            "request_tick": decision.request_tick,
+            "completion_tick": decision.completion_tick,
+            "activation_tick": decision.activation_tick,
+            "policy_decision_id": decision.policy_decision_id,
+        }
+        return payload
 
     def _update_latest_attack_diagnostics(
         self,
@@ -1586,6 +1641,10 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--checkpoint-a")
     parser.add_argument("--checkpoint-b")
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--tsumo-mode", choices=("random", "esports_tsu"), default="random")
+    parser.add_argument("--tsumo-source")
+    parser.add_argument("--tsumo-pattern-id", type=int)
+    parser.add_argument("--tsumo-player-1-pattern-id", type=int)
     parser.add_argument("--seed-a", "--policy-seed-a", dest="seed_a", type=int)
     parser.add_argument("--seed-b", "--policy-seed-b", dest="seed_b", type=int)
     parser.add_argument("--max-ticks", type=int)
@@ -1677,6 +1736,9 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
     parser.add_argument("--use-reachable-action-mask", action="store_true")
     parser.add_argument("--result-json", help="Write the final UI smoke result as JSON.")
     parser.add_argument("--replay", dest="replay_path", help="Write the realtime diagnostic replay as JSON.")
+    parser.add_argument("--qa-auto-save", action="store_true", help="Save replay, result, and manifest to one QA session directory.")
+    parser.add_argument("--qa-save-root", default="runs/gui-qa-sessions", help="Parent directory for QA sessions.")
+    parser.add_argument("--qa-session-id", help="Preselected 32-character QA session ID.")
     parser.add_argument("--qa-notes", help="Attach reviewer notes to the GUI QA result.")
     parser.add_argument(
         "--qa-profile",
@@ -1708,6 +1770,10 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         checkpoint_a=args.checkpoint_a,
         checkpoint_b=args.checkpoint_b,
         seed=args.seed,
+        tsumo_mode=args.tsumo_mode,
+        tsumo_source=args.tsumo_source,
+        tsumo_pattern_id=args.tsumo_pattern_id,
+        tsumo_player_1_pattern_id=args.tsumo_player_1_pattern_id,
         seed_a=args.seed_a,
         seed_b=args.seed_b,
         max_ticks=args.max_ticks,
@@ -1752,6 +1818,9 @@ def parse_config(argv=None) -> RealtimeVersusUiConfig:
         keybindings_path=args.keybindings_path,
         result_json=args.result_json,
         replay_path=args.replay_path,
+        qa_auto_save=args.qa_auto_save,
+        qa_save_root=args.qa_save_root,
+        qa_session_id=args.qa_session_id,
         qa_notes=args.qa_notes,
         qa_profile=args.qa_profile,
         max_frames=args.max_frames,
@@ -1777,6 +1846,54 @@ def _write_json(path: str | Path, payload: Mapping[str, Any]) -> None:
     )
 
 
+def _qa_source_identity() -> dict[str, Any]:
+    try:
+        dirty = bool(subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        ).stdout.strip())
+    except (OSError, subprocess.CalledProcessError):
+        dirty = None
+    return {"git_commit": git_commit(ROOT), "dirty": dirty}
+
+
+def _qa_native_identity(config: RealtimeVersusUiConfig) -> dict[str, Any]:
+    requested = "nextgen_tactic_manager" in (config.policy_a, config.policy_b) or (
+        "deep_chain_builder" in (config.policy_a, config.policy_b)
+        and config.deep_chain_backend in {"native", "auto"}
+    )
+    if not requested:
+        return {"requested": False, "module_path": None, "sha256": None}
+    spec = importlib.util.find_spec("_puyo_deep_chain_native")
+    wrapper = Path(spec.origin) if spec is not None and spec.origin else None
+    extensions = tuple(wrapper.parent.glob("*.so")) if wrapper is not None else ()
+    path = extensions[0] if len(extensions) == 1 else None
+    return {
+        "requested": True,
+        "module_path": str(path) if path is not None else None,
+        "sha256": file_sha256(path) if path is not None and path.is_file() else None,
+        "wrapper_path": str(wrapper) if wrapper is not None else None,
+        "wrapper_sha256": file_sha256(wrapper) if wrapper is not None and wrapper.is_file() else None,
+    }
+
+
+def _qa_tsumo_identity(replay: Mapping[str, Any], config: RealtimeVersusUiConfig) -> dict[str, Any]:
+    recorded = dict(replay.get("match_rules", {}).get("tsumo") or {})
+    return {
+        "mode": config.tsumo_mode,
+        "source_path": recorded.get("source_path", config.tsumo_source),
+        "source_version": recorded.get("source_version"),
+        "source_sha256": recorded.get("source_sha256"),
+        "pattern_id": recorded.get("pattern_id", config.tsumo_pattern_id),
+        "player_1_pattern_id": recorded.get("player_1_pattern_id", config.tsumo_player_1_pattern_id),
+        "color_mapping": recorded.get("color_mapping"),
+    }
+
+
+def _interrupt_on_sigterm(_signal: int, _frame: Any) -> None:
+    raise KeyboardInterrupt
+
+
 def run_ui(
     config: RealtimeVersusUiConfig,
     *,
@@ -1786,6 +1903,11 @@ def run_ui(
 ) -> dict:
     if pygame is None:
         raise ImportError("realtime versus UI requires pygame; install requirements.txt")
+    if config.qa_auto_save and config.qa_session_id is None:
+        config = replace(config, qa_session_id=uuid.uuid4().hex)
+    qa_source = _qa_source_identity() if config.qa_auto_save else None
+    qa_native = _qa_native_identity(config) if config.qa_auto_save else None
+    qa_config = asdict(config) if config.qa_auto_save else None
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puyo AI Realtime Versus")
@@ -1795,12 +1917,29 @@ def run_ui(
         policy_factory=policy_factory,
     )
     renderer = VersusRenderer(screen)
+    previous_sigterm = None
+    if config.qa_auto_save:
+        try:
+            previous_sigterm = signal.getsignal(signal.SIGTERM)
+            signal.signal(signal.SIGTERM, _interrupt_on_sigterm)
+        except ValueError:
+            previous_sigterm = None
     running = True
     frames = 0
     finish_frames = 0
+    frame_ms_total = 0
+    frame_ms_max = 0
+    frames_over_33ms = 0
+    frame_ms_histogram = [0] * 1001
+    match_started = time.perf_counter()
     try:
         while running and (max_frames is None or frames < max_frames):
-            delta_time = clock.tick(60) / 1000.0
+            frame_ms = clock.tick(60)
+            delta_time = frame_ms / 1000.0
+            frame_ms_total += frame_ms
+            frame_ms_max = max(frame_ms_max, frame_ms)
+            frames_over_33ms += frame_ms > 33
+            frame_ms_histogram[min(frame_ms, 1000)] += 1
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -1823,6 +1962,8 @@ def run_ui(
     except KeyboardInterrupt:
         pass
     finally:
+        if previous_sigterm is not None:
+            signal.signal(signal.SIGTERM, previous_sigterm)
         interrupted = bool(controller.env.agents)
         collection_manifest = controller.finalize_collection(interrupted=interrupted)
         if config.replay_path:
@@ -1841,9 +1982,54 @@ def run_ui(
             collection_manifest=collection_manifest,
             interrupted=interrupted,
         )
+        def frame_percentile(percentage: float) -> int | None:
+            if not frames:
+                return None
+            target = max(1, int(frames * percentage + 0.999999))
+            seen = 0
+            for duration, count in enumerate(frame_ms_histogram):
+                seen += count
+                if seen >= target:
+                    return duration
+            return 1000
+
+        result["runtime"] = {
+            "frames": frames,
+            "match_elapsed_seconds": time.perf_counter() - match_started,
+            "frame_ms_mean": frame_ms_total / frames if frames else None,
+            "frame_ms_max": frame_ms_max if frames else None,
+            "frame_ms_p95": frame_percentile(0.95),
+            "frame_ms_p99": frame_percentile(0.99),
+            "frames_over_33ms": frames_over_33ms,
+        }
         if nextgen_config_path is not None:
             result["artifacts"]["nextgen_config"] = nextgen_config_path
             result["artifacts"]["nextgen_ledger"] = config.nextgen_trajectory_path
+        if config.qa_auto_save:
+            started = time.perf_counter()
+            try:
+                replay = controller.replay_payload(interrupted=interrupted)
+                session_path, _manifest = save_qa_session(
+                    config.qa_save_root,
+                    session_id=config.qa_session_id,
+                    replay=replay,
+                    result=result,
+                    config=qa_config,
+                    source=qa_source,
+                    native=qa_native,
+                    tsumo=_qa_tsumo_identity(replay, config),
+                )
+                result["artifacts"].update({
+                    "qa_session": str(session_path),
+                    "replay": str(session_path / "replay.json"),
+                    "result": str(session_path / "result.json"),
+                    "manifest": str(session_path / "manifest.json"),
+                    "qa_save_status": "complete",
+                })
+            except (QASessionSaveError, OSError, ValueError, AssertionError) as exc:
+                result["artifacts"]["qa_save_status"] = "failed"
+                result["artifacts"]["qa_save_error"] = str(exc)
+            result["artifacts"]["qa_save_elapsed_seconds"] = time.perf_counter() - started
         controller.shutdown()
         pygame.quit()
     return result
@@ -1858,6 +2044,10 @@ def main(argv=None) -> None:
         f"result: winner={result['winner']} score_player_0={result['score_player_0']} "
         f"score_player_1={result['score_player_1']} ticks={result['ticks']}"
     )
+    if config.qa_auto_save:
+        print(f"QA session: {result['artifacts'].get('qa_session') or result['artifacts'].get('qa_save_error')}")
+        if result["artifacts"].get("qa_save_status") == "failed":
+            raise SystemExit(1)
     if result["quality_gate"]["enabled"] and not result["quality_gate"]["passed"]:
         raise SystemExit(2)
 

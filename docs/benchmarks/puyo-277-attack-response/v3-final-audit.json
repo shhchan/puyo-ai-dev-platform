@@ -1,0 +1,45 @@
+{
+  "cohorts": {
+    "extended": {
+      "activated": 128,
+      "conditions": 16,
+      "deadline_misses": 0,
+      "decisions": 128,
+      "lock_mismatches": 0,
+      "manifest_sha256": "356a4416c930d20ba71f7efaa9d2e2284f3e103461b62391f101a552d940f675",
+      "maximum_decision_seconds": 4.549127102000057,
+      "no_attack_statuses": {
+        "pass": 8
+      },
+      "public_root_unconfirmed": 0,
+      "quota_violations": 0,
+      "replay_event_tick_finalhash_reverified": 16,
+      "statuses": {
+        "pass": 16
+      }
+    },
+    "formal": {
+      "activated": 160,
+      "conditions": 56,
+      "deadline_misses": 0,
+      "decisions": 160,
+      "lock_mismatches": 0,
+      "manifest_sha256": "03d92102e8f82c474f672f3313bef57c6835cdcee331dcff86b90e399bebb3dc",
+      "maximum_decision_seconds": 3.0977007739998044,
+      "no_attack_statuses": {
+        "pass": 28
+      },
+      "public_root_unconfirmed": 0,
+      "quota_violations": 0,
+      "replay_event_tick_finalhash_reverified": 56,
+      "statuses": {
+        "excluded_unavoidable": 4,
+        "pass": 52
+      }
+    }
+  },
+  "head": "27b9c6e8da616c553c41402b63be9794707c071b",
+  "run_seconds": 472.3182040229999,
+  "schema": "puyo.nextgen.response_final_audit.v1",
+  "source_sha256": "568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb"
+}

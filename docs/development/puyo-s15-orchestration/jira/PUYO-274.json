@@ -1,0 +1,228 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10594",
+  "key": "PUYO-274",
+  "fields": {
+    "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+    "description": "## What\n\nノート PC の現状成果をレビュー可能にし，デスクトップ PC の新しい親オーケストレーター／チケット別子セッションへ残課題を引き継ぐ．ユーザー指定により，残作業の再開窓口をこの 1 Task に集約する．既存 A/C を重複実装・緩和せず，266／269／273 の受入責務を保持する．\n\n## Why\n\n2026-09-28 の依頼者 GUI QA：264 OK，268 OK，273 は目視上配置に問題なし．266 は連鎖品質を暫定許容するが，上部まで積み上げても生存用単発消しをせず自滅する例が残る．269 はノート PC で若干改善したがカクつきが残る．ノート PC スペックの影響はユーザーの仮説で，原因確定ではない．N=3 の先読み配置ゴースト（o トグル）が nextgen_tactic_manager で見えなくなったとの別報告もある．今は追加 runtime 修正・重い実測をせず PR レビューと資料の移送を完了する．\n\n## How／担当境界\n\n1. 今回：必要なローカル文書・実行表・証跡の保存先を監査し，秘密情報・仮想環境・再生成可能 binary/cache を除いて commit/push．旧「ローカルメモを commit しない」指示は，今回の明示的な移送指示で置き換える．既存ファイルを消去しない．\n2. デスクトップ：Jira，open PR，stack #167，最新 integration/puyo-228-v1-8-0 SHA と host/native/config を再確認．未 merge の成果は stack 最上段 head を専用 worktree の起点に使い，merge 済みなら integration の最新 SHA から開始．古い SHA を盲目的に使わない．\n3. PUYO-266 の生存品質：以下の終盤を replay/ledger 付きで新規再現．候補不足／順位／選択戦術／定型の明示解除／実採用／到達可能 mask を分離．生存可能な小消しが存在するのに非消去で窒息する反例を固定し，低リスクで有効な単発消しを許す狭い契約を設計する．既存 Complete の PUYO-270 を確認し再実装しない．seed 特例や単発消し一律優先，根拠のない重み変更は禁止．共有 agents/nextgen_shared_search.py・nextgen_tactic_manager.py・template_phase／scheduler 契約は親が排他管理する．\n4. ゴースト：N=3 の今後の配置 preview と操作中の組ぷよの落下位置 ghost を分け，o ON/OFF，adopted plan/diagnostics，描画経路を確認．初期候補 eval/realtime_versus_ui.py，puyo_env/realtime_ai.py，src/ui の preview/render．原因も 273 の回帰かどうかも未確定．表示内容の将来保証を捏造しない．\n5. PUYO-269／273：軽量・片側・両側・1P nextgen/2P human をデスクトップで別条件の実 GUI 計測．event→state→draw，frame/update/render/IPC，scheduler accept/finish，tick catch-up，native thread/process CPU/RSS を測定．ノート PC とデスクトップを同条件 A/B と扱わず，各 host 内で source/config/native/公開ツモ/盤面/予算を固定する．性能原因が大きな独立変更を必要とする場合は，この窓口に記録して分割判断を行う．\n6. 正式 G2 と残る G0/G1／脅威 fixture／known-solution gap は PUYO-266 に保持し，30 seed×2 repeat を含む規定条件未達のまま品質 PASS を作らない．256〜258 本学習は開始条件が満たされるまで開始しない．\n\n## 再現条件／人間証拠の限界\n\n窒息報告のコマンド引数：\n`--policy-a nextgen_tactic_manager --policy-b random --seed 59 --nextgen-templates daa --seed-a 55 --seed-b 59`\n終盤に上部まで積み上げながら生存用の消去を選ばず自滅．元 run の replay，速度，source/config/native SHA は未提供／未確認なので，新規再現との同一性は未確定とする．seed 59（対局）と seed-a 55／seed-b 59 を混同しない．旧 seed55/GTR の機械窒息とは別条件．先読み表示消失の正確な run 条件も未確定．        \ngtr seed123 の元 GUI raw は未保存．逆発火セカンド10連鎖の seed は不明で，同一 run としない．daa 初回の下2段 L 字形状の細部は今回対象外．human/random と通常/0.25x/低速 n の観測を混合しない．\n\n## A/C\n\n- [ ] デスクトップの clone/fetch から記載コマンドで最新レビュー成果を起動でき，必要な文書・小規模 raw・manifest が Git 経由で取得できる．移送対象と欠損／再生成対象を明示する．\n- [ ] 上記 daa/random 条件の終盤で，公開入力，候補 root/順位，戦術，選択理由，receipt，実 lock，発火，生存を保存．生存消去が合法で有効な反例では，非消去での回避可能な自滅を抑え，消去不能の反例を合格に混ぜない．\n- [ ] seed55/123/124 baseline と seed126/128/132/135/144，3定型で最小回帰．通常時の土台保持と有効な逆発火を維持．改善前後は同一 host/公開情報/予算/source/config/native を対にする．\n- [ ] nextgen の N=3 先読み配置 preview を o で ON/OFF でき，現在組 ghost と区別できる．表示がない理由も観測可能にし，人間 GUI QA を保存．\n- [ ] 軽量／片側／両側／human の frame/input 遅延分布，欠落・過剰入力，tick catch-up を別集計．frame と入力の p95≤25 ms／p99≤50 ms を維持．押しっぱなし下＋横/回転で人間が意図した位置へ置けることを確認．未達なら269/273をCOMPLETEにしない．\n- [ ] PUYO-266 の正式 G2 と残る品質 A/C の所有先・結果を更新．暫定人間許容や3seed成功を G2 PASS としない．\n- [ ] 各子は担当worktree/branch・最小十分検証・明示ファイルcommit/push・指定base PR・1セッション1コメントまで．親はPR差分，stack，組合せQAを管理．reviewer指定，merge/release，履歴書換えはしない．\n\n## 性能予算／排他資源\n\n既存 nextgen_safe_build depth16/width250/6 scenario/shared quota600000，template128 nodes を起点に固定．変更理由と前後 latency を記録し，無根拠に増やさない．GUI と native build／重い探索／正式 G2 は並走しない．デスクトップ host の容量を先に確認．親は短い確認を担当，重い原因究明は高能力モデル/high，明確な実装は標準コードモデル/medium の子へ委任し，再帰委任禁止．実設定・理由・依存・排他資源を実行表へ記録．\n\n## 現在の証跡／PR\n\nstack #167: #162→#161→#163→#164→#165→#166→#168→#169→#170．最下段は integration/puyo-228-v1-8-0．現最上段 #170 head d3acb77d9542e66209618deb36eaae6d2bcaca9d．今回の引継ぎ PR はこの head の後に積む予定で，完成後 read-back する．\n\n* 268 #165：公開prefix修正，固定55/123/124で初回GTR2/3→3/3，最大0/10/11→10/10/11．\n* 273 #168：共有mask＋live clock実lock一致．同期mask一部は短縮したが全frame gate未達．\n* 269 #169：event edge順序修正，合成held不一致/余分な横発火0．最終frame p95/p99(ms) 軽量19.3/22.3，片側30.9/70.9，両側71.6/97.3，human31.1/64.3．片側activation_unreachable_fallback1件，原因未確定．実人間の意図した配置の確認は未達．\n* 266 #170：全60run平均最大8.8667，10連鎖以上25/30seed，premature6，窒息10，repeat一致30/30，decision p95 .8349s．全入力replay実lock不一致0．品質FAIL/G2 BLOCKED．\n\n## References\n\nhttps://shhchan.atlassian.net/browse/PUYO-228        \nPUYO-264/266/268/269/270/273，PUYO-82/188（先読み表示の既存契約）．        \nhttps://github.com/shhchan/puyo-ai-dev-platform/pull/165        \nhttps://github.com/shhchan/puyo-ai-dev-platform/pull/168        \nhttps://github.com/shhchan/puyo-ai-dev-platform/pull/169        \nhttps://github.com/shhchan/puyo-ai-dev-platform/pull/170        \nAGENTS.md，docs/development/codex_autonomous_workflow.md，docs/benchmarks/puyo-268-template-integration/，puyo-273-timed-placement/，puyo-269-followup/integrated/，puyo-266-safe-build/integrated-g2-20260927/．\n\n## 親・優先度・Sprint／完了境界\n\n親 PUYO-228，独立 Task，未割り当て，High．Sprint12終盤でPC移行が先決のため Sprint 未設定・優先バックログ（次回Sprint候補）．今回着手するのは引継ぎ資料とレビュー整備のみ．窒息・preview・性能・正式品質は次回デスクトップで実施する．文書 PR がレビュー可能でも本件／266／269／273をCOMPLETEにしない．264/268の人間OKは記録するが未達の正式測定を補完した扱いにはしない．        \nRelates:264/266/268/269/270/273/82/188．窓口は既存タスクの完了に依存して開始するものではないため Blocks を付けず，循環を作らない．\n\n## レビュー準備中に判明した CI（2026-09-28）\n\n既存 #164/#168/#169 の native CI は，共通 PUYO-272 コードの Clippy 2件（long_horizon.rs collapsible_if，selected_template.rs too_many_arguments）で停止．インフラ障害ではなく，後続 Rust/Python 検証は未到達だった．今回の引継ぎ PR に実行契約を変えない lint 修正のみを含め，headで remote CI を再確認する．既存lower-headの失敗は履歴として保持し，無検証の成功に読み替えない．\n\n## 保存済み引継ぎ成果と再開入口\n\nhttps://github.com/shhchan/puyo-ai-dev-platform/pull/171 （branch PUYO-274/desktop-handoff，base PUYO-266/gtr-asset-quality）を stack #167 最上段へ接続済み．既存9 PRは残条件付きレビュー可能．保存資料：AGENTS.md，docs/development/puyo-sprint-12-codex-batch-prompts.local.md，puyo-274-desktop-handoff.md，puyo-274-handoff/ の親実行表3件・manifest・artifact inventory・8 GUI catalog．原本保持，catalog54本はseed/argv/source/速度を持たず元daa runを同定できない．過去の大きなuser datasets/runsは今回と無関係と確認し，サイズ/日時を記録して原本保持．仮想環境・binary・cache・秘密情報は除外．\n\n資料の GitHub 入口：https://github.com/shhchan/puyo-ai-dev-platform/blob/PUYO-274/desktop-handoff/docs/development/puyo-274-desktop-handoff.md ．デスクトップでこの文書の取得・main.py起動・正確なdaa CLI・次セッション依頼文を使う．親はJira/PR/SHAを読み直して，重い作業を担当別の子へ委任し共有API/GUI/CPUを排他管理する．正式 G2 と frame/input gate は不変．\n\nCI追補：Clippy修正後，run36367954188でwheel，Rustfmt/Clippy/units，frozen corpusが成功．Python境界step先頭の継承Ruff I001 4件で停止し，Python tests/worker契約は未到達．import block4箇所のみを追加整形しローカルRuff0.16.0 check成功．挙動・探索重み・quotaは変更せず，再pushの最上段headでremote CIを確認する．\n\n## 親のレビュー取りまとめ（2026-09-28）\n\n最終 PR #171 head は 0c90fd27d38f546dba80aebd25bc6bb0c694eee8．追加範囲は移送 docs/AGENTS/8catalog と Rust2ファイル・Python4import block の継承lint修正のみ．重み／quota／runtime挙動は変えていない．原本4件の保持，JSON，catalog SHA，ローカルリンク，差分範囲，Ruff0.16.0，rustfmt，Git祖先を確認．新たなGUI・正式G2は実施していない．\n\nstack #167 の10 PR (#162→#161→#163→#164→#165→#166→#168→#169→#170→#171) を ready for review にした．最下段は integration/puyo-228-v1-8-0，後続baseは実際の直前branch．既存head/履歴は保持，reviewer未指定，merge/releaseなし．\n\n最終headの remote CI run36368282133/36368287977 は wheel，Rustfmt/Clippy/units，frozen corpus を通過し，Python境界・worker検証は確認時点で実行中．CI全体PASSを宣言していない．新セッションはまずこのheadの実際のCI結果を取得し，未達が出た場合は本窓口で原因・受入責務を記録する．旧下段headのred checksは履歴であり，最上段の確認とは分ける．\n\n本件・264・266・268・269・273はIn Progressを維持．264/268人間OK，273配置目視OKは記録済みだが正式A/Cの未達を補完した扱いにしない．生存小消し／N=3preview／desktop cadence／人間操作／正式品質は次回の残作業．PC移行では https://github.com/shhchan/puyo-ai-dev-platform/blob/PUYO-274/desktop-handoff/docs/development/puyo-274-desktop-handoff.md の手順・次セッション依頼文を使う．\n\n## 2026-10-10 Sprint 15 残件と引継ぎ範囲\n\n本節の Sprint 15 受入条件が上記の旧「元 seed の同一再現・旧 G2（停止相手・攻撃抑止）を本件で合格させる」条件に優先する．旧条件と失敗 raw は履歴として保持し，単独能力／対戦 gate の未達を表示する．\n\n依頼者は最上段の 1P nextgen／2P human，速度 x1.0 で，o の先読み切替と下押し＋横移動／回転を確認し，実用上大きな問題がないと回答した．今回の seed／replay は未記録．PUYO-269／273 は依頼者承認の Sprint 14 実用基準で Complete とし，厳密 25 ms 安定化は PUYO-279 の Sprint 16 計画へ残す．本件の未完了部分だけを Sprint 15 へ移す．\n\n新しい受入条件：PUYO-275 の完全ランダム／eスポーツ通選択と provenance，PUYO-266 のとこぷよ本線能力判定，PUYO-277 の相手攻撃対応・副砲 gate，PUYO-276 の人間 QA replay 共有を最上段の統合 QA で確認する．模式的な 10 連鎖能力を対戦中の最大実連鎖で判定しない．新規 eスポーツ pattern ID を事前登録して少数評価し，全 65,536 pattern の品質測定は要求しない．\n\n元の完全ランダム seed59／127 対局は replay がなく，同じ対局の再現成功とは扱えない．旧 seed corpus・失敗 raw は legacy random 証跡として保持し，新モードでは pattern ID・replay・公開入力・実 lock・source/config/native identity を保存して新たに評価する．先読みと人間操作の良好という現結果は維持するが，PUYO-266／277／276 の未達を隠して本件を COMPLETE にしない．v1.7.3 release の境界は PUYO-278，v1.8.0 のリファクタリング設計は PUYO-279 が所有する．\n\n依存：PUYO-266／277／276 は本件を Blocks，本件は PUYO-278 を Blocks．Sprint 15 の統合条件未達のため In Progress を維持する．既存 draft PR #182 の Sprint 14 部分成果は review 可能にし，後続の Sprint 15 実装・QA と同一視しない．",
+    "status": {
+      "name": "In Progress",
+      "statusCategory": {
+        "name": "In Progress"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10764",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-264",
+          "fields": {
+            "summary": "[次世代モデル] 通常速度の縦積みを解消し定型・rule 戦術能力を検証する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10765",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-266",
+          "fields": {
+            "summary": "[次世代モデル] 定型完成後の自由構築と 10 連鎖級の品質を回復する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "10766",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-268",
+          "fields": {
+            "summary": "[次世代モデル] 定型の色配置と将来完成可能性を保って大連鎖を探索する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10767",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-269",
+          "fields": {
+            "summary": "[次世代モデル/GUI] 推論中の描画・入力 cadence 低下を切り分けて改善する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10768",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-270",
+          "fields": {
+            "summary": "[次世代モデル] 窒息が迫る局面で到達可能な生存行動を優先する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10769",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-273",
+          "fields": {
+            "summary": "[次世代モデル/GUI] 到達可能 action mask の同期計算を改善する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10770",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-82",
+          "fields": {
+            "summary": "AI の N 手 plan を盤面上のゴーストとして可視化する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10771",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-188",
+          "fields": {
+            "summary": "[大連鎖構築] main.py GUI に思考表示と N 手ゴーストを統合する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10802",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-266",
+          "fields": {
+            "summary": "[次世代モデル] 定型完成後の自由構築と 10 連鎖級の品質を回復する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "10803",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-277",
+          "fields": {
+            "summary": "[次世代モデル/対戦] 攻撃対応と副砲の準備・使用を別 gate で検証する",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "10804",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-276",
+          "fields": {
+            "summary": "[GUI QA] 人間対局の replay を自動保存して不具合報告へ添付しやすくする",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "10805",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-278",
+          "fields": {
+            "summary": "[v1.7.3/リリース] 強化学習前のモデルと QA を release PR で確定する",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

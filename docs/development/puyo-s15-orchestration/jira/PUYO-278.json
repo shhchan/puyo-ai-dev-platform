@@ -1,0 +1,58 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10630",
+  "key": "PUYO-278",
+  "fields": {
+    "summary": "[v1.7.3/リリース] 強化学習前のモデルと QA を release PR で確定する",
+    "description": "## What\n\n強化学習の本実行前に受け入れた次世代モデル・配ぷよ・GUI QA の状態を v1.7.3 の release PR とタグで固定する．v1.8.0 はその release 後のシミュレータ／GUI 改善を対象とし，学習作業はさらに後段とする．この Task は release 判断と手順を所有し，作成時点で merge／tag は行わない．\n\n## Why\n\n現行 master の最新タグは v1.7.2 だが，未 merge の Sprint 14 stack #176 は `integration/puyo-228-v1-8-0` を base にしている．branch 名のまま v1.7.3 を出すと，1 統合 branch＝1 version の既存運用と矛盾する．履歴・PR 差分・QA を保ちながら release 境界を明確にする必要がある．\n\n## How\n\n先行 PR のレビューと取り込み後，master／統合起点／対象 Jira／全 PR／差分／CI・人間 QA・G2／対戦 gate／配ぷよ dataset version を監査する．v1.7.3 用統合 branch の作成または既存 branch からの履歴保持移送と，残る v1.8.0 branch の切り分けを具体的な SHA／PR で決める．release PR は適切な統合 branch から master へ作成し，人間の release 判断・merge 後に tag を打つ．既存共有 PR の force-push／黙った rebase は行わない．\n\n## A/C\n\n* PUYO-275／266／277／276／274 の受入状態と非公開 future・replay・人間 QA を確認し，未達の条件を残したまま「G2 PASS」や本学習準備完了と表示しない．\n* stack #176 の review／merge 状態を read-back し，v1.7.3 に入る commit の一覧と v1.8.0 に残す差分を固定する．branch 名・release PR base・SHA の運用矛盾を解消する．\n* v1.7.3 release PR の QA と Jira 判断を記録する．master への直接 push，force-push，release 前 tag は行わない．tag は release PR が merge された commit のみを指す．\n* v1.8.0 のシミュレータ／GUI リファクタリング着手は v1.7.3 release 後の master を起点とし，Sprint 16 の計画 Task と整合させる．\n\n## References\n\n* docs/development/branch-governance.md，AGENTS.md．\n* 現行 stack #176：https://github.com/shhchan/puyo-ai-dev-platform/pull/176\n* 現行 integration：integration/puyo-228-v1-8-0，master tag v1.7.2．\n\n",
+    "status": {
+      "name": "To Do",
+      "statusCategory": {
+        "name": "To Do"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10805",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-274",
+          "fields": {
+            "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "10806",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-279",
+          "fields": {
+            "summary": "[v1.8.0/設計] シミュレータと GUI のリファクタリング計画を作る",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

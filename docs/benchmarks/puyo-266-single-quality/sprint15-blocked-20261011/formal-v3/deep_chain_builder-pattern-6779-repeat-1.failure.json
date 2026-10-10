@@ -1,0 +1,8 @@
+{
+  "policy": "deep_chain_builder",
+  "pattern_id": 6779,
+  "repeat": 1,
+  "manifest_sha256": "ef46fca284d5766279c7bcd264cff330c31a3584d7131c30e4cca9f420121e90",
+  "error_type": "InterruptedWorker",
+  "error": "stopped to investigate fixed-cohort quality failure; progress retained"
+}

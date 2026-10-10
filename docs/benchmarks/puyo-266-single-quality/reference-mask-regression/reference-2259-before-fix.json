@@ -1,0 +1,29 @@
+{
+  "tick": 1789,
+  "selected_action": 19,
+  "reachable_actions": [
+    7,
+    9
+  ],
+  "ranked_roots": [
+    19,
+    21,
+    16,
+    20,
+    9,
+    15,
+    7
+  ],
+  "validation_error": "deep-chain flow selected an illegal placement action",
+  "profile": {
+    "schema_version": "puyo.deep_chain_builder.profile.v1",
+    "name": "reference",
+    "version": "1.0",
+    "profile_id": "deep_chain_builder:reference@1.0",
+    "purpose": "canonical quality and benchmark execution",
+    "depth": 16,
+    "width": 250,
+    "scenarios": 6,
+    "max_expanded_nodes": 600000
+  }
+}

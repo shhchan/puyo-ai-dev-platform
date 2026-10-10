@@ -1,0 +1,194 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10554",
+  "key": "PUYO-266",
+  "fields": {
+    "summary": "[次世代モデル] 定型完成後の自由構築と 10 連鎖級の品質を回復する",
+    "description": "## What\n\n定型土台が完成したら N=14 を待たずに自由形の大連鎖構築へ移り，組んだ土台を理由のない単発消しで壊さないようにする．`deep_chain_builder` で見えていた 10 連鎖級の構築・発火能力を，次世代モデルの rule 経路で回復・検証する．N=14 は未完成時の定型構築の上限である．\n\n## Why\n\nユーザーの通常 GUI QA では，GTR の最小限のフィット後，すぐ単発消しで土台を崩し，長い連鎖が見られない．現在の nextgen smoke は depth 4／width 4／1 scenario，minimum_chain_count 2，rule の fire_main threshold 6 で，`deep_chain_builder` reference の target 10／quality floor 10／depth 16 と異なる．候補生成・順位・selector・phase のどこが早消しを起こすか実採用 receipt で切り分ける．\n\n## How\n\nPUYO-265 の計測・高速化した確定 head を起点にする．GTR 完成／14 手未完成／脅威あり・なしの公開 fixture と複数固定 seed の対局を用意し，phase exit，候補，選択，実際の発火を追う．完成時は即 `build_main` に移し，無脅威では単発や小連鎖を早打ちせず，既存 `deep_chain_builder` の safe-build 目標に整合した自由構築を継続する．脅威対応と明確な決定的短期攻撃は，別の明示条件として保つ．必要な profile／backend は速度結果を踏まえ，遅延と品質を一緒に比較する．\n\n## A/C\n\n* 完成前後の ledger で，完成時に N=14 を待たず自由構築へ移ること，未完成時だけ 14 手上限を使うことを確認できる．\n* 無脅威の固定 GTR 完成盤面・複数固定 seed で，選択／実行が理由のない単発消しで土台を破壊しない．短期発火が正当化される場合は公開情報に基づく理由を記録する．\n* `deep_chain_builder` と同じ条件で次世代モデルの最大実連鎖・premature・窒息・決定時間を比較し，10 連鎖級の回復度と残差を示す．接続 smoke や only240 の採用だけを品質 PASS としない．\n* 固定 quota，公開情報境界，rule 切替，receipt／replay の回帰を確認する．正式 G2 の規定全条件または人間 GUI QA が未実施なら PASS／COMPLETE にしない．\n\n## References\n\n* PUYO-265（性能改善の確定 head を起点）\n* PUYO-264／draft PR #158: https://github.com/shhchan/puyo-ai-dev-platform/pull/158\n* PUYO-255 gate: https://shhchan.atlassian.net/browse/PUYO-255\n* `docs/development/puyo-234-next-generation-model-design.md`，`docs/development/puyo-232-safe-build-target-contract.md`，`train/config/deep_chain_builder.yaml`\n* 統合先 `integration/puyo-228-v1-8-0`，stack #156 の後続 PR．\n\n## 2026-09-27 QA 後の追加 A/C と境界\n\n* GTR セカンド 10 連鎖の逆発火では，seed は未確定であり seed 123 の膨らんだ地形と同一 run としない．公開入力・実採用 receipt が得られる条件で，構築済み GTR の利用／残存形，逆発火の有効性，代替本線の見通しを比較する．有効な逆発火を一律に禁止せず，不要な未使用土台だけを抑える狭い根拠付き修正にする．PUYO-268 の定型構築中の地形順位と所有範囲を分ける．\n* seed 55/123/124 の旧 baseline と変更後を，同一公開ツモ・盤面・固定 quota・host・source/config SHA で比較し，候補欠落／順位／実採用／発火／生存／decision latency を保存する．機械評価の seed 55 窒息・GTR 初回成立 2/3 と今回の GUI 窒息非観測・長連鎖を別条件として残す．\n* 正式 G2 は 30 seed × 2 repeat と残る品質 A/C の全条件を本件で所有する．3 seed や GUI 連鎖数を G2 PASS とせず，未達なら In Progress を維持する．PUYO-256〜258 の本学習は開始しない．\n\n## 2026-09-28 人間 QA とレビュー・デスクトップ引継ぎ\n\n依頼者は連鎖品質を暫定許容するが，daa/random の --policy-a nextgen_tactic_manager --policy-b random --seed 59 --nextgen-templates daa --seed-a 55 --seed-b 59 の終盤で，上部に達しても生存用小消しをせず積み上げて自滅すると報告．これは旧GTR seed55失敗とは別条件．元replay/速度/source/config/native SHAは未提供・未確認．新規再現で候補不足／順位／選択／定型解除／実採用／到達可能maskを分け，有効な生存消去が存在するかを確認する．正式G2と残る品質A/Cの所有は本件のまま，quality FAIL／G2 BLOCKEDを維持．\n\n依頼者の明示指示により，今回の部分成果を PR レビュー可能にする．draft 解除は A/C 達成や Jira COMPLETE を意味しない．残作業の新しい窓口は https://shhchan.atlassian.net/browse/PUYO-274 （親228，High，Sprint未設定）．元の責務・gate・過去の失敗証拠を保持する．ローカル資料も Git に保存し，デスクトップの親オーケストレーター／担当別の子セッションで再開する．\n\n## 2026-10-10 Sprint 15 評価対象の変更\n\n本節の Sprint 15 受入条件が上記の旧「停止相手・攻撃抑止の 30 seed×2 G2」完了条件に優先する．旧条件・測定 raw は削除せず履歴として扱う．単独能力 gate と PUYO-277 の対戦 gate が揃うまで，次世代モデル全体の G2 PASS は宣言しない．\n\n依頼者の判断により，本件の残品質を Sprint 15 へ移す．旧完全ランダム／停止相手・攻撃抑止の 30 seed×2 G2 raw（平均最大 8.8667，premature 6，窒息 10）は過去の失敗証拠として保持するが，新しい単独連鎖能力の合否へ直接流用しない．旧 seed128 等を新しい eスポーツ pattern ID と同一視しない．旧 G2 の失敗は相手のおじゃまだけでは説明できない．固定 GTR 55／123／124／126 は各 40 配置・最大実 10 連鎖，128 は 40 配置非窒息／最大 1 連鎖という現結果も消さない．\n\n本件は PUYO-275 の配ぷよ方式完成後，ぷよぷよ eスポーツ・通ルール 4 色の配ぷよを使い，相手攻撃のないとことんぷよぷよ相当の単独環境で本線を組む能力を評価・改善する．事前登録した 30 個の異なる pattern ID × 2 repeat を代表集合とし，全 65,536 pattern の品質測定は要求しない．同一 pattern・公開情報・固定予算で deep_chain_builder と比較し，40 手構築＋最大 6 手の発火機会（または明示した終端）で最大実連鎖・不要な小発火・窒息・判断時間を保存する．10 連鎖級の目標（平均最大実連鎖 ≥ 10）は単独環境で判定し，閾値は結果を見て後から変えない．\n\n新しい受入条件：定型完成後の自由構築と未完成時 N=14 上限，正常時の土台保持，公開 current／NEXT／NEXT2 境界，quota，実 lock／replay hash 一致を維持する．選定した 30 pattern × 2 repeat の全結果・失敗例・repeat 一致を保存し，平均最大実連鎖 ≥ 10，理由のない premature 0，回避可能な窒息 0 を確認する．生存のため証明された小消しは理由つきで別分類する．未達なら品質 PASS／COMPLETE にしない．対戦中の攻撃対応・副砲は PUYO-277 の別 gate とし，対戦中の最大実連鎖 ≥ 10 を本件の合否には使わない．本学習 PUYO-256～258 は単独能力と対戦 gate の両方の結果が揃うまで開始しない．\n\n依存：PUYO-275 Blocks 本件．本件 Blocks PUYO-274，PUYO-274 が v1.7.3 release 判断 PUYO-278 を Blocks．Sprint 15 の新評価が未実施のため，本件は In Progress を維持する．",
+    "status": {
+      "name": "In Progress",
+      "statusCategory": {
+        "name": "In Progress"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10695",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-265",
+          "fields": {
+            "summary": "[次世代モデル] 探索段階を実測し通常速度の意思決定を高速化する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10697",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "outwardIssue": {
+          "key": "PUYO-255",
+          "fields": {
+            "summary": "[次世代モデル] 候補能力・戦術選択・timing・latencyを分離する評価gateを実装する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10734",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-267",
+          "fields": {
+            "summary": "[次世代モデル/調査] Ama と現行探索の差分を再評価し改善タスクを起票する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10739",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-268",
+          "fields": {
+            "summary": "[次世代モデル] 定型の色配置と将来完成可能性を保って大連鎖を探索する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10750",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-270",
+          "fields": {
+            "summary": "[次世代モデル] 窒息が迫る局面で到達可能な生存行動を優先する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10754",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-271",
+          "fields": {
+            "summary": "[次世代モデル/QA] 定型崩壊・生存・GUI 応答の回帰 corpus と比較証跡を整備する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10762",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-272",
+          "fields": {
+            "summary": "[次世代モデル] 選択定型を保持する長期探索の Python/native 基盤を実装する",
+            "status": {
+              "name": "Done"
+            }
+          }
+        }
+      },
+      {
+        "id": "10765",
+        "type": {
+          "name": "Relates",
+          "inward": "relates to",
+          "outward": "relates to"
+        },
+        "inwardIssue": {
+          "key": "PUYO-274",
+          "fields": {
+            "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "10800",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-275",
+          "fields": {
+            "summary": "[次世代モデル/ツモ] 完全ランダムとぷよぷよ eスポーツ通の配ぷよを切り替える",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "10802",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-274",
+          "fields": {
+            "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

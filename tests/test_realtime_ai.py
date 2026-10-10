@@ -1,13 +1,16 @@
 import os
 import unittest
 from concurrent.futures import Future
+from dataclasses import asdict
 
 from puyo_env.action_planner import plan_placement_action
 from puyo_env.actions import NUM_ACTIONS, action_to_placement
 from puyo_env.realtime_ai import (
     REALTIME_OBSERVATION_SCHEMA_VERSION,
     PolicyProcessExecutor,
+    RealtimeControllerDiagnostics,
     RealtimeDecisionConfig,
+    RealtimeDecisionRecord,
     RealtimePolicyController,
     RealtimePuyoEnv,
     build_realtime_info,
@@ -32,6 +35,55 @@ class ProcessTestPolicy:
 
 
 class TestRealtimeAI(unittest.TestCase):
+    def test_diagnostics_snapshot_copies_decision_once_and_is_independent(self):
+        copies = []
+
+        class CountingLeaf:
+            def __init__(self, value):
+                self.value = value
+
+            def __deepcopy__(self, memo):
+                copies.append(self.value)
+                return CountingLeaf(self.value)
+
+        decision_input = {"board": [["RED"]]}
+        nextgen = {"search": {"batch": CountingLeaf("original")}}
+        decision = RealtimeDecisionRecord(
+            tick=1, action_index=0, axis_x=0, rotation="none",
+            reachable=True, plan_ticks=1, inference_latency_ticks=0,
+            timeout=False, deadline_miss=False, fallback=False,
+            reason="selected", policy_elapsed_seconds=0.0,
+            latency_mode="configured", request_tick=1, completion_tick=1,
+            scheduled_activation_tick=1, activation_tick=1,
+            timeout_tick=None, outcome="activated", fallback_reason=None,
+            decision_input=decision_input, nextgen_diagnostics=nextgen,
+        )
+        emitted = {"press": ["LEFT"]}
+        diagnostics = RealtimeControllerDiagnostics(
+            decisions_started=2, policy_elapsed_seconds=0.2,
+            inference_latency_ticks=4, last_emitted_input=emitted,
+            last_decision=decision,
+        )
+
+        payload = diagnostics.to_dict()
+
+        self.assertEqual(copies, ["original"])
+        self.assertEqual(set(payload), set(asdict(diagnostics)) | {
+            "mean_policy_elapsed_ms", "mean_inference_latency_ticks",
+        })
+        self.assertEqual(payload["mean_policy_elapsed_ms"], 100.0)
+        self.assertEqual(payload["mean_inference_latency_ticks"], 2.0)
+        self.assertEqual(payload["last_decision"]["outcome"], "activated")
+        decision_input["board"][0][0] = "BLUE"
+        emitted["press"].append("RIGHT")
+        nextgen["search"]["batch"].value = "changed"
+        self.assertEqual(payload["last_decision"]["decision_input"]["board"], [["RED"]])
+        self.assertEqual(payload["last_emitted_input"], {"press": ["LEFT"]})
+        self.assertEqual(payload["last_decision"]["nextgen_diagnostics"]["search"]["batch"].value, "original")
+
+        diagnostics.last_decision = None
+        self.assertIsNone(diagnostics.to_dict()["last_decision"])
+
     def test_policy_process_executor_uses_spawned_process_and_returns_diagnostics(self):
         executor = PolicyProcessExecutor(ProcessTestPolicy())
         try:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Iterable
@@ -37,6 +38,7 @@ SETTINGS_ROWS_PER_PAGE = 12
 KEY_REPEAT_DELAY_MS = 500
 KEY_REPEAT_INTERVAL_MS = 60
 JOB_STOP_TIMEOUT_SECONDS = 1.0
+QA_SAVE_STOP_TIMEOUT_SECONDS = 30.0
 
 
 @dataclass(frozen=True)
@@ -86,6 +88,8 @@ class LauncherService:
         self.actions = self._build_actions()
         self.current_job: LauncherJob | None = None
         self.message = "準備完了。"
+        self.qa_session_id: str | None = None
+        self.qa_session_path: Path | None = None
 
     def _build_actions(self) -> dict[str, LauncherAction]:
         return {
@@ -178,6 +182,10 @@ class LauncherService:
             checkpoint_a=settings.checkpoint_a,
             checkpoint_b=settings.checkpoint_b,
             seed=settings.seed,
+            tsumo_mode=settings.tsumo_mode,
+            tsumo_source=settings.tsumo_source,
+            tsumo_pattern_id=settings.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=settings.tsumo_player_1_pattern_id,
             seed_a=settings.seed_a,
             seed_b=settings.seed_b,
             max_ticks=settings.max_ticks,
@@ -221,6 +229,9 @@ class LauncherService:
             keybindings_path=settings.keybindings_path,
             result_json=settings.result_json,
             replay_path=settings.replay_path,
+            qa_auto_save=settings.qa_auto_save,
+            qa_save_root=settings.qa_save_root,
+            qa_session_id=self.qa_session_id,
             qa_notes=settings.qa_notes,
             qa_profile=settings.qa_profile,
             max_frames=settings.max_frames,
@@ -236,6 +247,10 @@ class LauncherService:
             checkpoint_a=settings.checkpoint_a,
             checkpoint_b=settings.checkpoint_b,
             seed=settings.seed,
+            tsumo_mode=settings.tsumo_mode,
+            tsumo_source=settings.tsumo_source,
+            tsumo_pattern_id=settings.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=settings.tsumo_player_1_pattern_id,
             seed_a=settings.seed_a,
             seed_b=settings.seed_b,
             max_ticks=settings.max_ticks,
@@ -274,6 +289,9 @@ class LauncherService:
             keybindings_path=settings.keybindings_path,
             result_json=settings.result_json,
             replay_path=settings.replay_path,
+            qa_auto_save=settings.qa_auto_save,
+            qa_save_root=settings.qa_save_root,
+            qa_session_id=self.qa_session_id,
             qa_notes=settings.qa_notes,
             qa_profile=settings.qa_profile,
             collection_enabled=settings.collection_enabled,
@@ -342,6 +360,7 @@ class LauncherService:
                 args.append("--paired-sides")
             if settings.replay_path:
                 args.extend(["--replay", settings.replay_path])
+            args.extend(_tsumo_argv(settings))
             return tuple(args)
         if action_key == "training":
             settings = self.settings.for_action("training")
@@ -438,6 +457,15 @@ class LauncherService:
             settings = self.settings.for_action("training")
             if settings.training_operation == "submit":
                 self.settings.update("training", "training_job_id", settings.run_id)
+        if action_key in {"play", "spectate"} and self.settings.for_action(action_key).qa_auto_save:
+            self.qa_session_id = uuid.uuid4().hex
+            root = Path(self.settings.for_action(action_key).qa_save_root).expanduser()
+            if not root.is_absolute():
+                root = self.repo_root / root
+            self.qa_session_path = root.resolve() / self.qa_session_id
+        else:
+            self.qa_session_id = None
+            self.qa_session_path = None
         command = self.command_for(action_key)
         try:
             process = self.popen_factory(command, cwd=str(self.repo_root))
@@ -446,7 +474,10 @@ class LauncherService:
             return False
         self.current_job = LauncherJob(action=action, command=command, process=process)
         self.settings.save_recent(action_key)
-        self.message = f"{action.label} を開始しました。"
+        self.message = (
+            f"{action.label} を開始しました．保存予定: {self.qa_session_path}  Ctrl+C で path をコピー"
+            if self.qa_session_path else f"{action.label} を開始しました。"
+        )
         return True
 
     def stop(self) -> bool:
@@ -466,7 +497,7 @@ class LauncherService:
         if not callable(wait):
             return
         try:
-            wait(timeout=timeout)
+            wait(timeout=max(timeout, QA_SAVE_STOP_TIMEOUT_SECONDS) if self.qa_session_path else timeout)
         except subprocess.TimeoutExpired:
             kill = getattr(process, "kill", None)
             if callable(kill):
@@ -489,9 +520,16 @@ class LauncherService:
                     self.message = f"学習 job は失敗しました: {job_record.get('error', 'log を確認してください。')}"
                 return f"学習 job {settings.training_job_id}: {state}"
         if status.startswith("失敗"):
-            self.message = f"{self.current_job.action.label} は失敗しました ({status})。terminal 出力と path を確認してください。"
+            self.message = (
+                f"{self.current_job.action.label} の保存に失敗しました ({status})．保存予定: {self.qa_session_path}．terminal 出力を確認してください"
+                if self.qa_session_path else
+                f"{self.current_job.action.label} は失敗しました ({status})。terminal 出力と path を確認してください。"
+            )
         elif status == "完了":
-            self.message = f"{self.current_job.action.label} は完了しました。"
+            if self.qa_session_path and (self.qa_session_path / "manifest.json").is_file():
+                self.message = f"保存先: {self.qa_session_path}  Ctrl+C で path をコピー"
+            else:
+                self.message = f"{self.current_job.action.label} は完了しました。"
         return f"{self.current_job.action.label}: {status}"
 
 
@@ -608,6 +646,17 @@ class LauncherController:
 
     def handle_keydown(self, key: int) -> bool:
         if pygame is None:
+            return True
+        if key == pygame.K_c and pygame.key.get_mods() & pygame.KMOD_CTRL:
+            path = self.service.qa_session_path
+            if path is not None:
+                try:
+                    if not pygame.scrap.get_init():
+                        pygame.scrap.init()
+                    pygame.scrap.put(pygame.SCRAP_TEXT, str(path).encode("utf-8") + b"\0")
+                    self.service.message = f"保存先 path をコピーしました: {path}"
+                except pygame.error as exc:
+                    self.service.message = f"clipboard を使えません: {exc}．保存先: {path}"
             return True
         if self.editing_field is not None:
             if key in (pygame.K_ESCAPE, pygame.K_RETURN):
@@ -883,7 +932,15 @@ class LauncherRenderer:
         )
         y += 18
         recovery = "起動に失敗した場合は terminal 出力、依存関係、path を確認してください。"
-        self._draw_wrapped(recovery, self.font, ERROR, content.x + 18, y, content.width - 36)
+        y = self._draw_wrapped(recovery, self.font, ERROR, content.x + 18, y, content.width - 36)
+        if action.key in {"play", "spectate"}:
+            settings = controller.service.settings.for_action(action.key)
+            status = "ON" if settings.qa_auto_save else "OFF"
+            path = controller.service.qa_session_path or Path(settings.qa_save_root)
+            self._draw_wrapped(
+                f"QA replay 保存 {status}: {path}  Ctrl+C で path をコピー",
+                self.small_font, ACCENT, content.x + 18, y + 12, content.width - 36,
+            )
 
         options = controller.current_options
         for index, option in enumerate(options):
@@ -1013,6 +1070,17 @@ def versus_config_to_argv(config: VersusUiConfig) -> tuple[str, ...]:
     return tuple(args)
 
 
+def _tsumo_argv(config) -> list[str]:
+    args = ["--tsumo-mode", config.tsumo_mode]
+    if config.tsumo_source:
+        args.extend(["--tsumo-source", config.tsumo_source])
+    if config.tsumo_pattern_id is not None:
+        args.extend(["--tsumo-pattern-id", str(config.tsumo_pattern_id)])
+    if config.tsumo_player_1_pattern_id is not None:
+        args.extend(["--tsumo-player-1-pattern-id", str(config.tsumo_player_1_pattern_id)])
+    return args
+
+
 def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     args = [
         "--policy-a",
@@ -1060,6 +1128,7 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     ]
     if config.max_ticks is not None:
         args.extend(["--max-ticks", str(config.max_ticks)])
+    args.extend(_tsumo_argv(config))
     if config.checkpoint_a:
         args.extend(["--checkpoint-a", config.checkpoint_a])
     if config.checkpoint_b:
@@ -1083,6 +1152,10 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
         args.extend(["--result-json", config.result_json])
     if config.replay_path:
         args.extend(["--replay", config.replay_path])
+    if config.qa_auto_save:
+        args.extend(["--qa-auto-save", "--qa-save-root", config.qa_save_root])
+        if config.qa_session_id:
+            args.extend(["--qa-session-id", config.qa_session_id])
     if config.nextgen_seed is not None:
         args.extend(["--nextgen-seed", str(config.nextgen_seed)])
     if config.nextgen_trajectory_path:

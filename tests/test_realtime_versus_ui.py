@@ -201,6 +201,53 @@ class TestRealtimeVersusUiConfig(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestRealtimeVersusMatchController(unittest.TestCase):
+    def test_qa_tick_diagnostics_preserve_new_receipts_and_activation(self):
+        from dataclasses import replace
+
+        from puyo_env.realtime_ai import RealtimeDecisionRecord
+
+        controller = RealtimeVersusMatchController(
+            RealtimeVersusUiConfig(policy_a="first", policy_b="human", qa_auto_save=True)
+        )
+        try:
+            diagnostics = controller.controllers["player_0"].diagnostics
+            first = RealtimeDecisionRecord(
+                tick=1, action_index=0, axis_x=0, rotation="none",
+                reachable=True, plan_ticks=1, inference_latency_ticks=0,
+                timeout=False, deadline_miss=False, fallback=False,
+                reason="selected", policy_elapsed_seconds=0.0,
+                latency_mode="configured", request_tick=1, completion_tick=1,
+                scheduled_activation_tick=2, activation_tick=None,
+                timeout_tick=None, outcome="completed", fallback_reason=None,
+                nextgen_diagnostics={"receipt": {"id": "first", "large": "x" * 1000}},
+            )
+            diagnostics.last_decision = first
+            new_decision = controller._qa_controller_diagnostics("player_0")
+            self.assertEqual(new_decision["last_decision"]["nextgen_diagnostics"]["receipt"]["id"], "first")
+            repeated = controller._qa_controller_diagnostics("player_0")
+            self.assertNotIn("nextgen_diagnostics", repeated["last_decision"])
+
+            diagnostics.last_decision = replace(
+                first, outcome="activated", activation_tick=2,
+                nextgen_diagnostics={"receipt": {"id": "activated"}},
+            )
+            diagnostics.decisions_activated += 1
+            activated = controller._qa_controller_diagnostics("player_0")
+            self.assertEqual(activated["last_decision"]["nextgen_diagnostics"]["receipt"]["id"], "activated")
+            self.assertEqual(activated["last_decision"]["activation_tick"], 2)
+            self.assertNotIn("nextgen_diagnostics", controller._qa_controller_diagnostics("player_0")["last_decision"])
+
+            # Some controllers update their activation counter before replacing
+            # the last record; either transition must retain the complete receipt.
+            diagnostics.decisions_activated += 1
+            activation_update = controller._qa_controller_diagnostics("player_0")
+            self.assertEqual(activation_update["last_decision"]["nextgen_diagnostics"]["receipt"]["id"], "activated")
+            diagnostics.last_decision = replace(first, nextgen_diagnostics={"receipt": {"id": "second"}})
+            next_receipt = controller._qa_controller_diagnostics("player_0")
+            self.assertEqual(next_receipt["last_decision"]["nextgen_diagnostics"]["receipt"]["id"], "second")
+        finally:
+            controller.shutdown()
+
     def test_human_tap_during_catchup_moves_once_without_stale_hold(self):
         controller = RealtimeVersusMatchController(
             RealtimeVersusUiConfig(policy_a="human", policy_b="first")
@@ -1133,6 +1180,41 @@ class TestRealtimeVersusMatchController(unittest.TestCase):
 
 @unittest.skipUnless(PYGAME_AVAILABLE, "pygame is not installed")
 class TestRealtimeVersusUiSmoke(unittest.TestCase):
+    def test_sigterm_recovers_interrupted_auto_save(self):
+        import signal
+        from eval.qa_session import validate_qa_session
+
+        with tempfile.TemporaryDirectory() as directory:
+            previous = signal.getsignal(signal.SIGTERM)
+            result = run_ui(
+                RealtimeVersusUiConfig(
+                    policy_a="first", policy_b="random", seed=127,
+                    max_ticks=80, qa_auto_save=True, qa_save_root=directory,
+                ),
+                frame_callback=lambda _screen, _frame: os.kill(os.getpid(), signal.SIGTERM),
+            )
+            self.assertIs(signal.getsignal(signal.SIGTERM), previous)
+            self.assertTrue(result["result"]["interrupted"])
+            self.assertEqual(validate_qa_session(result["artifacts"]["qa_session"]), [])
+
+    def test_auto_save_writes_valid_normal_and_interrupted_bundles(self):
+        from eval.qa_session import validate_qa_session
+
+        with tempfile.TemporaryDirectory() as directory:
+            for max_frames, max_ticks, interrupted in ((4, 1, False), (1, 80, True)):
+                result = run_ui(
+                    RealtimeVersusUiConfig(
+                        policy_a="first", policy_b="random", seed=127,
+                        speed=4.0, max_ticks=max_ticks, qa_auto_save=True,
+                        qa_save_root=directory,
+                    ),
+                    max_frames=max_frames,
+                )
+                session = Path(result["artifacts"]["qa_session"])
+                self.assertEqual(result["artifacts"]["qa_save_status"], "complete")
+                self.assertEqual(result["result"]["interrupted"], interrupted)
+                self.assertEqual(validate_qa_session(session), [])
+
     def test_initial_paused_frame_renders_before_first_tick(self):
         result = run_ui(
             RealtimeVersusUiConfig(
@@ -1190,6 +1272,24 @@ class TestRealtimeVersusUiSmoke(unittest.TestCase):
                 "puyo.all_clear_diagnostics.v1",
             )
             self.assertIn("attack_diagnostics", replay["ticks"][0])
+
+    def test_manual_replay_keeps_complete_controller_diagnostics_each_tick(self):
+        with tempfile.TemporaryDirectory() as directory:
+            replay_path = Path(directory) / "manual.json"
+            run_ui(
+                RealtimeVersusUiConfig(
+                    policy_a="first", policy_b="random", seed=54,
+                    max_ticks=4, speed=4.0, replay_path=str(replay_path),
+                    qa_auto_save=True, qa_save_root=directory,
+                ),
+                max_frames=6,
+            )
+            replay = json.loads(replay_path.read_text(encoding="utf-8"))
+            self.assertGreaterEqual(len(replay["ticks"]), 2)
+            for tick in replay["ticks"][:2]:
+                receipt = tick["controller_diagnostics"]["player_0"]["last_decision"]
+                self.assertIn("decision_input", receipt)
+                self.assertIn("nextgen_diagnostics", receipt)
 
     def test_terminal_frame_auto_exit_and_frame_callback(self):
         rendered_frames = []

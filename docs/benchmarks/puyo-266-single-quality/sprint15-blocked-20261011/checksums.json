@@ -1,0 +1,117 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 5585,
+    "sha256": "bb95050aff0a7021fd12dffb4e5c1e7e54a17045b831d457c830ea0e506fb8ed"
+  },
+  {
+    "path": "exit-code",
+    "bytes": 2,
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  {
+    "path": "formal-v3/deep_chain_builder-pattern-4519-repeat-1.json.gz",
+    "bytes": 1715702,
+    "sha256": "9e6d436389b1bc33005206d761bc1936c2e761d1ea2f27eb14515dbd4bd62fd4"
+  },
+  {
+    "path": "formal-v3/deep_chain_builder-pattern-4519-repeat-2.json.gz",
+    "bytes": 1715723,
+    "sha256": "8175de4b7c81048bdc25fa42d3d5ba642b92c7a967c2af07f7f2a966e4e0cb83"
+  },
+  {
+    "path": "formal-v3/deep_chain_builder-pattern-6779-repeat-1.failure.json",
+    "bytes": 285,
+    "sha256": "e27b4e2a0cea8e2d7761e6031612cea3ce966e344a74bf552eecbe0dd42c2b62"
+  },
+  {
+    "path": "formal-v3/deep_chain_builder-pattern-6779-repeat-1.progress.json.gz",
+    "bytes": 223634,
+    "sha256": "591513cadb2a3e94cc269c9f641a681ef9f7c57553e681cb57ef35c35fb71d57"
+  },
+  {
+    "path": "formal-v3/manifest.json",
+    "bytes": 50334,
+    "sha256": "147c5868b08f45af5a53273622a94c3a288a0f3a8749423812d1797f73cc145d"
+  },
+  {
+    "path": "formal-v3/nextgen_tactic_manager-pattern-6779-repeat-1.json.gz",
+    "bytes": 1933428,
+    "sha256": "f09c44250b55845d65767e1693478c86a9bd01930b3bf06b327c283c97d0cbdf"
+  },
+  {
+    "path": "formal-v3/nextgen_tactic_manager-pattern-6779-repeat-2.json.gz",
+    "bytes": 1933480,
+    "sha256": "496a0503dc1b974870cdb135a8adce5626283bb33ca468fe61348c8849b4dee7"
+  },
+  {
+    "path": "formal-v3/summary.json",
+    "bytes": 33670,
+    "sha256": "2609389f7e8a876aa010c8d65d7b039a6d5ced5360a3680ebd2c03cf50adf3a7"
+  },
+  {
+    "path": "formal-v3-runner.log",
+    "bytes": 3643,
+    "sha256": "d2fc79ec933a2548fc553c738300592b192952cc52a228d3d35bcbfda7b7d29e"
+  },
+  {
+    "path": "reference-candidate-prefix.json",
+    "bytes": 12697,
+    "sha256": "898674a6d29d2b4b2d3fe051298258f3a0fb4922543d55e14093bb07ad415bf6"
+  },
+  {
+    "path": "reference-known-prefix.json",
+    "bytes": 20858,
+    "sha256": "c13051fbd9dbfe14384e8e68f89e55790dac612059a50f4e542f45440bb2cb6d"
+  },
+  {
+    "path": "reference-root17-counterfactual.json.gz",
+    "bytes": 96652,
+    "sha256": "8f1f9cd932a33f527545afb07f556f1786fa968987181747317f2ce66c6cbb12"
+  },
+  {
+    "path": "reference-root17-probe.log",
+    "bytes": 928,
+    "sha256": "c65ee84abbbaa9bf474ab831e9b510a54a2b725b10350bd8c88c532a369afb93"
+  },
+  {
+    "path": "reference-root17-probe.py",
+    "bytes": 3504,
+    "sha256": "666429ba084ffe504dcda60d66a78db594628e93d494e6f86ac54dd87f0a4436"
+  },
+  {
+    "path": "runner.log",
+    "bytes": 2899,
+    "sha256": "105fdac105832b16e7db80bbf24189bdf0c5545c0aada28e5a3a1e8c8bc9c75c"
+  },
+  {
+    "path": "targeted/deep_chain_builder-pattern-4519-repeat-1.json.gz",
+    "bytes": 1715714,
+    "sha256": "551ffec0164d6d1321cee8a290831d8650b2c94509f9cdca3c8fd819a111ec72"
+  },
+  {
+    "path": "targeted/deep_chain_builder-pattern-4519-repeat-2.json.gz",
+    "bytes": 1715733,
+    "sha256": "12d126a48324685a1ad3fb77b1e892a004de65057cefc5c55be2bb15671073eb"
+  },
+  {
+    "path": "targeted/manifest.json",
+    "bytes": 50838,
+    "sha256": "6b6d80ac1912a0707584944199d3413c7f0ec929beef28694c9fb3f15e2e4a79"
+  },
+  {
+    "path": "targeted/nextgen_tactic_manager-pattern-6779-repeat-1.json.gz",
+    "bytes": 2488426,
+    "sha256": "005b97c2f302cc385657d0adc44960334da7c9aae7fd1b9fd343ec7c1e11122f"
+  },
+  {
+    "path": "targeted/nextgen_tactic_manager-pattern-6779-repeat-2.json.gz",
+    "bytes": 2488371,
+    "sha256": "cd4327ec0a99fcc243172274729c1f80bb0ec00514781cea7d2c820b37e9ae60"
+  },
+  {
+    "path": "targeted/summary.json",
+    "bytes": 10140,
+    "sha256": "cd5d3fd43c088cef1df12f71518040e48d8a64e68d520e510240bd40f03952ae"
+  }
+]
