@@ -94,9 +94,9 @@ class TestTsumoProvider(unittest.TestCase):
 
     def test_policy_infos_expose_visible_pairs_without_private_provider(self):
         try:
+            from puyo_env.realtime_ai import build_realtime_info
             from puyo_env.single_env import SinglePuyoEnv
             from puyo_env.versus_env import VersusPuyoEnv
-            from puyo_env.realtime_ai import build_realtime_info
         except ImportError:
             self.skipTest("gymnasium/numpy unavailable")
         with patch("src.core.tsumo.ESPORTS_SOURCE_SHA256", self.checksum):
