@@ -22,7 +22,7 @@ from src.core.constants import VISIBLE_HEIGHT
 from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.ojama import convert_score_to_ojama
-from src.core.tsumo import EsportsTsuSource
+from src.core.tsumo import EsportsTsuSource, public_tsumo_game_copy
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import (
@@ -237,6 +237,15 @@ class VersusPuyoEnv:
     def _info(self, agent: str) -> dict[str, Any]:
         state = self.player_states[agent]
         opponent_state = self.player_states[self._opponent(agent)]
+        policy_simulator = state.simulator
+        policy_opponent = opponent_state.simulator
+        if self.tsumo_mode == "esports_tsu":
+            policy_simulator = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(state.simulator.game), auto_spawn=False,
+            )
+            policy_opponent = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(opponent_state.simulator.game), auto_spawn=False,
+            )
         return {
             "action_mask": self.action_mask(agent),
             "score": state.simulator.game.score,
@@ -263,14 +272,14 @@ class VersusPuyoEnv:
             "last_chain_end_score": state.simulator.game.last_chain_end_score,
             "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
             "max_chain_count": state.max_chain_count,
-            "simulator": state.simulator,
+            "simulator": policy_simulator,
             "opponent_pending_ojama": opponent_state.pending_ojama,
             "opponent_incoming_turns": self._incoming_turns(self._opponent(agent)),
             "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
             "opponent_score_carry": opponent_state.score_carry,
             "opponent_received_ojama_total": opponent_state.received_ojama_total,
             "opponent_max_chain_count": opponent_state.max_chain_count,
-            "opponent_simulator": opponent_state.simulator,
+            "opponent_simulator": policy_opponent,
             "step_count": self.step_count,
             "max_steps": self.max_steps,
             "termination_reason": self._termination_reasons.get(agent),
