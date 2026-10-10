@@ -177,6 +177,14 @@ class SingleRuntimeTests(unittest.TestCase):
 
 
 class SingleSummaryTests(unittest.TestCase):
+    def test_matching_but_reduced_policy_budgets_cannot_change_declaration(self):
+        reference = SimpleNamespace(depth=4, width=4, scenarios=1, max_expanded_nodes=256)
+        with (patch.object(gate, "EsportsTsuSource"),
+              patch.object(gate, "load_deep_chain_builder_config",
+                           return_value=SimpleNamespace(profile=lambda _: reference)),
+              self.assertRaisesRegex(ValueError, "preregistration")):
+            gate.configuration("unused-source")
+
     def test_resume_preserves_completed_failed_and_interrupted_identities(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)

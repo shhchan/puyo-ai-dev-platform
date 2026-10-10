@@ -77,6 +77,10 @@ def configuration(source_path):
     source = EsportsTsuSource(source_path)
     reference = load_deep_chain_builder_config().profile("reference")
     profile, search = nextgen_search_settings("nextgen_safe_build", seed=POLICY_SEED)
+    if (tuple(getattr(reference, key) for key in ("depth", "width", "scenarios", "max_expanded_nodes"))
+            != (16, 250, 6, 600000) or search.minimum_chain_count != 10
+            or (profile.shared_quota, profile.template_quota, profile.response_quota) != (600000, 128, 256)):
+        raise ValueError("configured budgets/target differ from preregistration")
     if any(getattr(search, key) != getattr(reference, key) for key in (
             "depth", "width", "scenarios", "max_expanded_nodes")):
         raise ValueError("reference and nextgen budgets differ")
@@ -448,7 +452,7 @@ def smoke(output, source_path):
         started = time.perf_counter()
         progress_path = output / f"{policy}.progress.json.gz"
 
-        def preserve_partial(value):
+        def preserve_partial(value, progress_path=progress_path):
             staging = progress_path.with_suffix(".tmp")
             staging.write_bytes(gzip.compress(json.dumps(value, allow_nan=False).encode(), mtime=0))
             staging.replace(progress_path)
