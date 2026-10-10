@@ -1,0 +1,4712 @@
+{
+  "schema": "puyo.nextgen.attack_response_cases.v1",
+  "owner": "PUYO-277",
+  "registration": "before first gate execution; no outcome-based selection",
+  "source_sha256": "568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb",
+  "source_version": "haipuyo-2019-05-19-sha256-568a066c",
+  "pattern_ids": [
+    0,
+    1,
+    32768,
+    65535
+  ],
+  "conditions": [
+    "attack",
+    "no_attack"
+  ],
+  "timing": {
+    "tick_rate": 60,
+    "gravity_interval_ticks": 300,
+    "das_initial_delay_ticks": 9,
+    "das_repeat_interval_ticks": 3,
+    "soft_drop_repeat_interval_ticks": 5,
+    "vanish_flash_ticks": 30,
+    "chain_drop_tween_ticks": 14,
+    "lock_frame_limit": 32,
+    "attack_delay_ticks": 0
+  },
+  "controller": {
+    "inference_latency_ticks": 0,
+    "latency_mode": "configured",
+    "timeout_ticks": 120,
+    "action_deadline_ticks": 120,
+    "max_plan_expanded_states": 2000
+  },
+  "policy": {
+    "backend": "native",
+    "seed": 277,
+    "profile": {
+      "profile_id": "puyo277_response_gate",
+      "shared_quota": 256,
+      "template_quota": 128,
+      "response_quota": 4000
+    },
+    "search": {
+      "depth": 4,
+      "width": 4,
+      "scenarios": 1,
+      "minimum_chain_count": 10,
+      "max_expanded_nodes": 256,
+      "decision_seed": 277
+    },
+    "template_binding_budget": 128
+  },
+  "case_classes": [
+    "cancel_boundary",
+    "post_arrival_recovery",
+    "independent_subchain",
+    "mainline_without_key",
+    "no_secondary_chain",
+    "preserve_mainline",
+    "unavoidable_loss"
+  ],
+  "limits": [
+    "Configured deadline is checked with real receipts and locks; CPU duration is measured separately. No real-time latency SLA claim.",
+    "Artificial public initial boards are challenge fixtures, not naturally built game states.",
+    "Declared mainline cells are fixture annotations; trace must verify preservation and missing-key counterfactual.",
+    "Arrival tick enables boundary drop and is not a fire deadline.",
+    "No mean maximum chain threshold in this gate."
+  ],
+  "cases": [
+    {
+      "id": "cancel_boundary-0",
+      "case_class": "cancel_boundary",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": true,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "post_arrival_recovery-0",
+      "case_class": "post_arrival_recovery",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          4,
+          "GREEN"
+        ],
+        [
+          0,
+          5,
+          "GREEN"
+        ],
+        [
+          0,
+          6,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": true,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "independent_subchain-0",
+      "case_class": "independent_subchain",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          1,
+          "BLUE"
+        ],
+        [
+          4,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          2,
+          "GREEN"
+        ],
+        [
+          4,
+          1,
+          "GREEN"
+        ],
+        [
+          5,
+          0,
+          "GREEN"
+        ],
+        [
+          5,
+          1,
+          "GREEN"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "mainline_without_key-0",
+      "case_class": "mainline_without_key",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          1,
+          0,
+          "RED"
+        ],
+        [
+          1,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          1,
+          0,
+          "RED"
+        ],
+        [
+          1,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          2,
+          "RED"
+        ],
+        [
+          0,
+          0,
+          "BLUE"
+        ],
+        [
+          0,
+          1,
+          "BLUE"
+        ],
+        [
+          1,
+          3,
+          "BLUE"
+        ]
+      ],
+      "missing_key": [
+        0,
+        2,
+        "BLUE"
+      ],
+      "secondary_kind": "mainline_without_key",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "no_secondary_chain-0",
+      "case_class": "no_secondary_chain",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 6,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "absent",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "preserve_mainline-0",
+      "case_class": "preserve_mainline",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          1,
+          "BLUE"
+        ],
+        [
+          4,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          2,
+          "GREEN"
+        ],
+        [
+          4,
+          1,
+          "GREEN"
+        ],
+        [
+          5,
+          0,
+          "GREEN"
+        ],
+        [
+          5,
+          1,
+          "GREEN"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 240
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": true,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "unavoidable_loss-0",
+      "case_class": "unavoidable_loss",
+      "pattern_id": 0,
+      "public_prefix": [
+        [
+          "RED",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "RED"
+        ],
+        [
+          "GREEN",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "unavoidable",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": true
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "cancel_boundary-1",
+      "case_class": "cancel_boundary",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": true,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "post_arrival_recovery-1",
+      "case_class": "post_arrival_recovery",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          4,
+          "RED"
+        ],
+        [
+          0,
+          5,
+          "RED"
+        ],
+        [
+          0,
+          6,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": true,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "independent_subchain-1",
+      "case_class": "independent_subchain",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          1,
+          "RED"
+        ],
+        [
+          4,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          2,
+          "BLUE"
+        ],
+        [
+          4,
+          1,
+          "BLUE"
+        ],
+        [
+          5,
+          0,
+          "BLUE"
+        ],
+        [
+          5,
+          1,
+          "BLUE"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "mainline_without_key-1",
+      "case_class": "mainline_without_key",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          1,
+          0,
+          "GREEN"
+        ],
+        [
+          1,
+          1,
+          "GREEN"
+        ],
+        [
+          1,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          1,
+          0,
+          "GREEN"
+        ],
+        [
+          1,
+          1,
+          "GREEN"
+        ],
+        [
+          1,
+          2,
+          "GREEN"
+        ],
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          3,
+          "RED"
+        ]
+      ],
+      "missing_key": [
+        0,
+        2,
+        "RED"
+      ],
+      "secondary_kind": "mainline_without_key",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "no_secondary_chain-1",
+      "case_class": "no_secondary_chain",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 6,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "absent",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "preserve_mainline-1",
+      "case_class": "preserve_mainline",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          1,
+          "RED"
+        ],
+        [
+          4,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          2,
+          "BLUE"
+        ],
+        [
+          4,
+          1,
+          "BLUE"
+        ],
+        [
+          5,
+          0,
+          "BLUE"
+        ],
+        [
+          5,
+          1,
+          "BLUE"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 240
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": true,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "unavoidable_loss-1",
+      "case_class": "unavoidable_loss",
+      "pattern_id": 1,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "unavoidable",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": true
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "cancel_boundary-32768",
+      "case_class": "cancel_boundary",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": true,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "post_arrival_recovery-32768",
+      "case_class": "post_arrival_recovery",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          4,
+          "BLUE"
+        ],
+        [
+          0,
+          5,
+          "BLUE"
+        ],
+        [
+          0,
+          6,
+          "BLUE"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": true,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "independent_subchain-32768",
+      "case_class": "independent_subchain",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          1,
+          "RED"
+        ],
+        [
+          4,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          2,
+          "BLUE"
+        ],
+        [
+          4,
+          1,
+          "BLUE"
+        ],
+        [
+          5,
+          0,
+          "BLUE"
+        ],
+        [
+          5,
+          1,
+          "BLUE"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "mainline_without_key-32768",
+      "case_class": "mainline_without_key",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          1,
+          0,
+          "GREEN"
+        ],
+        [
+          1,
+          1,
+          "GREEN"
+        ],
+        [
+          1,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          1,
+          0,
+          "GREEN"
+        ],
+        [
+          1,
+          1,
+          "GREEN"
+        ],
+        [
+          1,
+          2,
+          "GREEN"
+        ],
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          3,
+          "RED"
+        ]
+      ],
+      "missing_key": [
+        0,
+        2,
+        "RED"
+      ],
+      "secondary_kind": "mainline_without_key",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "no_secondary_chain-32768",
+      "case_class": "no_secondary_chain",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 6,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "absent",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "preserve_mainline-32768",
+      "case_class": "preserve_mainline",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "RED",
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "GREEN",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "GREEN"
+        ],
+        [
+          0,
+          1,
+          "GREEN"
+        ],
+        [
+          0,
+          2,
+          "GREEN"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          1,
+          "RED"
+        ],
+        [
+          4,
+          0,
+          "RED"
+        ],
+        [
+          3,
+          2,
+          "BLUE"
+        ],
+        [
+          4,
+          1,
+          "BLUE"
+        ],
+        [
+          5,
+          0,
+          "BLUE"
+        ],
+        [
+          5,
+          1,
+          "BLUE"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 240
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": true,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "unavoidable_loss-32768",
+      "case_class": "unavoidable_loss",
+      "pattern_id": 32768,
+      "public_prefix": [
+        [
+          "GREEN",
+          "YELLOW"
+        ],
+        [
+          "BLUE",
+          "BLUE"
+        ],
+        [
+          "RED",
+          "YELLOW"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED",
+          "BLUE",
+          "RED"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "unavoidable",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": true
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "cancel_boundary-65535",
+      "case_class": "cancel_boundary",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": true,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "post_arrival_recovery-65535",
+      "case_class": "post_arrival_recovery",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "YELLOW",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "YELLOW",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "YELLOW",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          4,
+          "YELLOW"
+        ],
+        [
+          0,
+          5,
+          "YELLOW"
+        ],
+        [
+          0,
+          6,
+          "YELLOW"
+        ]
+      ],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": true,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "independent_subchain-65535",
+      "case_class": "independent_subchain",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          1,
+          "BLUE"
+        ],
+        [
+          4,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          2,
+          "GREEN"
+        ],
+        [
+          4,
+          1,
+          "GREEN"
+        ],
+        [
+          5,
+          0,
+          "GREEN"
+        ],
+        [
+          5,
+          1,
+          "GREEN"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "mainline_without_key-65535",
+      "case_class": "mainline_without_key",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "BLUE",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "BLUE",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "BLUE",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          1,
+          0,
+          "RED"
+        ],
+        [
+          1,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          1,
+          0,
+          "RED"
+        ],
+        [
+          1,
+          1,
+          "RED"
+        ],
+        [
+          1,
+          2,
+          "RED"
+        ],
+        [
+          0,
+          0,
+          "BLUE"
+        ],
+        [
+          0,
+          1,
+          "BLUE"
+        ],
+        [
+          1,
+          3,
+          "BLUE"
+        ]
+      ],
+      "missing_key": [
+        0,
+        2,
+        "BLUE"
+      ],
+      "secondary_kind": "mainline_without_key",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": true,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "no_secondary_chain-65535",
+      "case_class": "no_secondary_chain",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 6,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "absent",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "preserve_mainline-65535",
+      "case_class": "preserve_mainline",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "BLUE",
+          "GREEN",
+          "GREEN"
+        ],
+        [
+          "RED",
+          "EMPTY",
+          "EMPTY",
+          "GREEN",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [
+        [
+          0,
+          0,
+          "RED"
+        ],
+        [
+          0,
+          1,
+          "RED"
+        ],
+        [
+          0,
+          2,
+          "RED"
+        ]
+      ],
+      "mainline_cells": [
+        [
+          3,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          1,
+          "BLUE"
+        ],
+        [
+          4,
+          0,
+          "BLUE"
+        ],
+        [
+          3,
+          2,
+          "GREEN"
+        ],
+        [
+          4,
+          1,
+          "GREEN"
+        ],
+        [
+          5,
+          0,
+          "GREEN"
+        ],
+        [
+          5,
+          1,
+          "GREEN"
+        ]
+      ],
+      "missing_key": null,
+      "secondary_kind": "independent_subchain",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 1,
+          "delay_ticks": 240
+        }
+      ],
+      "expected": {
+        "classification": "prepared",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": true,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": false
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    },
+    {
+      "id": "unavoidable_loss-65535",
+      "case_class": "unavoidable_loss",
+      "pattern_id": 65535,
+      "public_prefix": [
+        [
+          "RED",
+          "YELLOW"
+        ],
+        [
+          "YELLOW",
+          "YELLOW"
+        ],
+        [
+          "RED",
+          "BLUE"
+        ]
+      ],
+      "board_bottom_up": [
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN"
+        ],
+        [
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE",
+          "GREEN",
+          "BLUE"
+        ],
+        [
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY",
+          "EMPTY"
+        ]
+      ],
+      "score_carry": 30,
+      "secondary_cells": [],
+      "mainline_cells": [],
+      "missing_key": null,
+      "secondary_kind": "none",
+      "attack_script": [
+        {
+          "tick": 0,
+          "units": 30,
+          "delay_ticks": 0
+        }
+      ],
+      "expected": {
+        "classification": "unavoidable",
+        "require_cancel": false,
+        "require_post_drop_fire": false,
+        "preserve_mainline": false,
+        "require_secondary_fire": false,
+        "unavoidable_excluded_from_success": true
+      },
+      "max_resolutions": 3,
+      "max_ticks": 1800
+    }
+  ]
+}
