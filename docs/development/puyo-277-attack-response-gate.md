@@ -62,3 +62,17 @@ PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
 各 `case_id × condition` を順に実行する．保存先は `<output>/<case_id>-<condition>/{report,replay}.json.gz`，集約は `<output>/summary.json` である．未実行条件があれば `incomplete` となる．例外・停止時は `error.json` と，取得済みの `partial.json.gz` を保持する．PASS を確認するには，summary の全条件と除外理由，report の receipt／実 lock／resolution／公開盤面，replay 検証 hash を照合する．
 
 初期実装時の `/tmp/puyo277-native-smoke-v1` は cutoff を一律 FAIL とした旧判定の調査証跡であり，正式結果へ置き換えない．
+
+## 公開盤面の観測タイミングと再監査
+
+おじゃま演出中は公開盤面が `None` になる．resolution event の時点で公開盤面が未確定なら照合を保留し，演出後に初めて公開された盤面で検証する．この待機中に policy の手を差し替えない．また上端が埋まっている盤面では，30 個の攻撃が予告されても 4 個しか配置できず窒息する場合がある．全合法 root の致死証明と実 lock／resolution／窒息がある場合は `excluded_unavoidable` とし，未落下 packet を応答成功に数えない．
+
+旧 collector で記録した結果は保存したまま，次のコマンドで既存 tick 入力だけを再監査できる．元 report／replay の digest と engine の全 event／hash を照合し，追加 tick・policy 呼出しはともに 0 でなければならない．runtime や source が元 manifest から変わっている場合は拒否する．修正版 collector の source checksum と元の判定を sidecar に保存する．
+
+```bash
+PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
+  -m eval.nextgen_attack_response_gate --output /tmp/puyo277-formal-v1 \
+  audit --destination /tmp/puyo277-formal-v1-public-audit
+```
+
+元 replay の範囲に観測可能な盤面がなければ未達のままとする．観測窓を伸ばす評価は別の事前登録を必要とする．元の未観測 FAIL や実際の本線消費を再監査で隠さない．

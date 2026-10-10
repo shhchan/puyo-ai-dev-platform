@@ -12,6 +12,8 @@ from agents.compact_search import legal_action_indices, transition
 from agents.nextgen_shared_search import ResponseSearchResult
 from eval.nextgen_attack_response_gate import (
     assess,
+    audit_replay,
+    confirm_public_resolution,
     original_cell_flow,
     public_trace,
     registered_cases,
@@ -186,6 +188,78 @@ class PublicAuditTests(unittest.TestCase):
         self.assertIn("attack_boundary_outcome_unobserved", result["issues"])
         self.assertIn("resolution_window_incomplete", result["issues"])
 
+    def test_animation_unknown_board_waits_for_public_visibility(self):
+        public = make_request(board=((0,) * 6,) * 14).public.own
+        row = {
+            "diagnostics": {"receipt": {"executed_action": 0}},
+            "lock_matches": True,
+            "resolution": {"tick": 10, "data": {"chain_count": 0}},
+            "resolution_drop_amount": 6,
+            "trace": {
+                "public_roots": [
+                    {
+                        "action": 0,
+                        "chain_count": 0,
+                        "remaining_board_bottom_up": [["EMPTY"] * 6 for _ in range(14)],
+                        "reachable": True,
+                        "valid": True,
+                        "original_cell_flow": {"consistent": True},
+                    }
+                ]
+            },
+        }
+        hidden = replace(public, visible_board=((None,) * 6,) * 14)
+        confirm_public_resolution(row, hidden, 11)
+        self.assertEqual(
+            row["public_validation_status"], "pending_animation_visibility"
+        )
+        self.assertNotIn("public_root_confirmed", row)
+        # The actual six garbage cells become public after animation.
+        visible = replace(public, visible_board=((0,) * 6,) * 13 + ((5,) * 6,))
+        confirm_public_resolution(row, visible, 32)
+        self.assertTrue(row["public_root_confirmed"])
+        self.assertEqual(row["public_validation_tick"], 32)
+
+    def test_saturated_terminal_drop_is_excluded_not_a_response_success(self):
+        case = self.case("unavoidable_loss-0")
+        event = {"type": "resolution_complete", "tick": 38, "data": {"chain_count": 0}}
+        row = {
+            "diagnostics": {
+                "receipt": {"outcome": "activated"},
+                "selection": {"reason": "build"},
+            },
+            "lock": {},
+            "lock_matches": True,
+            "within_deadline": True,
+            "quota_ok": True,
+            "resolution": event,
+            "observed_trace_matches": True,
+            "public_root_confirmed": True,
+            "trace": {
+                "response_status": "evaluated",
+                "response_cutoff": None,
+                "certainty": "conditional_hidden_rows",
+                "prepared": False,
+                "preparation_status": "absent",
+                "public_roots": [],
+            },
+        }
+        ticks = [
+            {
+                "injected_attacks": case["attack_script"],
+                "result": {
+                    "tick": 38,
+                    "events": {"player_0": [event]},
+                    "attack": {"player_0": {"canceled": 0}},
+                    "dropped": {"player_0": 4},
+                },
+            }
+        ]
+        result = assess(case, "attack", [row], ticks, True, unavoidable_oracle(case))
+        self.assertEqual(result["status"], "excluded_unavoidable")
+        self.assertTrue(result["excluded_from_response_success"])
+        self.assertNotEqual(result["status"], "pass")
+
 
 @unittest.skipUnless(SOURCE.exists(), "PUYO277_SOURCE verified corpus required")
 class RuntimeEvidenceTests(unittest.TestCase):
@@ -213,6 +287,9 @@ class RuntimeEvidenceTests(unittest.TestCase):
         )
         self.assertEqual(result["assessment"]["status"], "fail")
         self.assertEqual(replay_run(replay, SOURCE), result["replay_verified_hash"])
+        audit = audit_replay(result, replay, SOURCE)
+        self.assertEqual((audit["policy_calls"], audit["ticks_added"]), (0, 0))
+        self.assertEqual(audit["assessment"]["status"], "fail")
         altered = copy.deepcopy(replay)
         altered["ticks"][0]["result"]["snapshot_hash"] = "bad"
         with self.assertRaisesRegex(ValueError, "event/hash"):

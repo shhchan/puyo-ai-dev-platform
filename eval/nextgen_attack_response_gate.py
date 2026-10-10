@@ -8,6 +8,7 @@ public request. Offline public-root audits never influence a selected action.
 from __future__ import annotations
 
 import argparse
+import copy
 import gzip
 import hashlib
 import json
@@ -453,6 +454,68 @@ def replay_run(replay, source):
     return match.state_hash()
 
 
+def confirm_public_resolution(row, public, tick):
+    """Validate once the post-resolution public board becomes observable.
+
+    Garbage animation deliberately exposes None cells. Waiting for visibility
+    is evidence collection, not a policy replan or permission to alter a replay.
+    """
+    if "resolution" not in row or "public_validation_tick" in row:
+        return
+    if any(v is None for line in public.visible_board[-12:] for v in line):
+        row["public_validation_status"] = "pending_animation_visibility"
+        return
+    row["public_validation_tick"] = tick
+    row["public_validation_status"] = "observed"
+    row["remaining_public_board"] = public.to_dict()["visible_board"]
+    actual = [
+        [c.PUBLIC_CELL_TO_COLOR[v].name if v is not None else None for v in line]
+        for line in reversed(public.visible_board)
+    ]
+    root = next(
+        (
+            r
+            for r in row["trace"]["public_roots"]
+            if r["action"] == row["diagnostics"]["receipt"]["executed_action"]
+        ),
+        {},
+    )
+    predicted = root.get("remaining_board_bottom_up", [])
+    event = row["resolution"]
+    row["observed_trace_matches"] = (
+        row.get("lock_matches", False)
+        and root.get("chain_count") == event["data"].get("chain_count", 0)
+        and bool(predicted)
+        and all(
+            actual[y][x] == predicted[y][x]
+            or (
+                row.get("resolution_drop_amount", 0) > 0
+                and predicted[y][x] == "EMPTY"
+                and actual[y][x] == "OJAMA"
+            )
+            for y in range(12)
+            for x in range(6)
+        )
+    )
+    row["public_root_confirmed"] = (
+        row["observed_trace_matches"]
+        and root.get("reachable", False)
+        and root.get("valid", False)
+        and root.get("original_cell_flow", {}).get("consistent", False)
+    )
+    row["used_secondary"] = (
+        row["public_root_confirmed"]
+        and root.get("uses_secondary", False)
+        and event["data"].get("chain_count", 0) > 0
+    )
+    row["mainline_consumed"] = row["public_root_confirmed"] and root.get(
+        "uses_mainline", False
+    )
+    row["mainline_shape_preserved"] = (
+        root.get("mainline_shape_preserved") if row["public_root_confirmed"] else None
+    )
+
+
 def assess(case, condition, decisions, ticks, game_over, oracle):
     issues = []
     resolutions = [
@@ -528,7 +591,15 @@ def assess(case, condition, decisions, ticks, game_over, oracle):
         if applied != case["attack_script"]:
             issues.append("attack_script_not_fully_applied")
         received = sum(t["result"]["dropped"].get("player_0", 0) for t in ticks)
-        if received + cancels < sum(p["units"] for p in case["attack_script"]):
+        # Saturated fields can accept fewer than 30 cells and terminate with
+        # packets still pending. This is an observed terminal boundary, never
+        # a successful defensive response.
+        terminal_exclusion = (
+            excluded and oracle["status"] == "unavoidable" and game_over
+        )
+        if not terminal_exclusion and received + cancels < sum(
+            p["units"] for p in case["attack_script"]
+        ):
             issues.append("attack_boundary_outcome_unobserved")
         if expected["require_cancel"] and cancels < sum(
             p["units"] for p in case["attack_script"]
@@ -558,6 +629,7 @@ def assess(case, condition, decisions, ticks, game_over, oracle):
         "drop_ticks": drops,
         "fire_ticks": [e["tick"] for e in fires],
         "game_over": game_over,
+        "excluded_from_response_success": excluded,
         "maximum_chain_observed_not_threshold": max(
             (e["data"].get("chain_count", 0) for e in resolutions), default=0
         ),
@@ -662,70 +734,17 @@ def run_case(
                     resolved += 1
                     if active is not None:
                         active["resolution"] = event
-                        public = match.public_snapshot().own
-                        active["remaining_public_board"] = public.to_dict()[
-                            "visible_board"
-                        ]
-                        actual = [
-                            [
-                                c.PUBLIC_CELL_TO_COLOR[v].name
-                                if v is not None
-                                else None
-                                for v in row
-                            ]
-                            for row in reversed(public.visible_board)
-                        ]
-                        root = next(
-                            (
-                                r
-                                for r in active["trace"]["public_roots"]
-                                if r["action"]
-                                == active["diagnostics"]["receipt"]["executed_action"]
-                            ),
-                            {},
+                        active["resolution_drop_amount"] = record["dropped"].get(
+                            "player_0", 0
                         )
-                        predicted = root.get("remaining_board_bottom_up", [])
-                        drop_here = record["dropped"].get("player_0", 0) > 0
-                        active["observed_trace_matches"] = (
-                            active.get("lock_matches", False)
-                            and root.get("chain_count")
-                            == event["data"].get("chain_count", 0)
-                            and bool(predicted)
-                            and all(
-                                actual[y][x] == predicted[y][x]
-                                or (
-                                    drop_here
-                                    and predicted[y][x] == "EMPTY"
-                                    and actual[y][x] == "OJAMA"
-                                )
-                                for y in range(12)
-                                for x in range(6)
-                            )
-                        )
-                        active["public_root_confirmed"] = (
-                            active["observed_trace_matches"]
-                            and root.get("reachable", False)
-                            and root.get("valid", False)
-                            and root.get("original_cell_flow", {}).get(
-                                "consistent", False
-                            )
-                        )
-                        # Credit requires actual lock, chain count, and final colored cells.
-                        active["used_secondary"] = (
-                            active.get("used_secondary", False)
-                            and active["observed_trace_matches"]
-                            and event["data"].get("chain_count", 0) > 0
-                        )
-                        active["mainline_consumed"] = (
-                            active.get("mainline_consumed", False)
-                            and active["observed_trace_matches"]
-                        )
-                        active["mainline_shape_preserved"] = (
-                            root.get("mainline_shape_preserved")
-                            if active["observed_trace_matches"]
-                            else None
-                        )
-            if resolved >= case["max_resolutions"] or match.finished:
+            if active is not None:
+                confirm_public_resolution(
+                    active, match.public_snapshot().own, match.tick
+                )
+            if (
+                resolved >= case["max_resolutions"]
+                and (active is None or "public_validation_tick" in active)
+            ) or match.finished:
                 break
         replay = {
             "schema": "puyo.nextgen.attack_response_replay.v1",
@@ -888,6 +907,132 @@ def summarize(output):
     return result
 
 
+def audit_replay(report, replay, source):
+    """Reobserve an existing run without executing a policy or adding ticks."""
+    if digest(replay) != report["replay_sha256"]:
+        raise ValueError("report/replay identity mismatch")
+    match = setup_match(replay["config"], replay["case"], source)
+    if match.state_hash() != replay["initial_hash"]:
+        raise ValueError("audit initial state mismatch")
+    decisions = copy.deepcopy(report["decisions"])
+    for row in decisions:
+        for key in (
+            "public_validation_tick",
+            "public_validation_status",
+            "observed_trace_matches",
+            "public_root_confirmed",
+            "used_secondary",
+            "mainline_consumed",
+            "mainline_shape_preserved",
+        ):
+            row.pop(key, None)
+    for entry in replay["ticks"]:
+        applied = inject_attacks(match, replay["case"], replay["condition"])
+        if entry["input_tick"] != match.tick or applied != entry["injected_attacks"]:
+            raise ValueError("audit tick/script mismatch")
+        result = match.step(
+            {a: TickInput.from_names(**v) for a, v in entry["inputs"].items()}
+        )
+        if event_record(result) != entry["result"]:
+            raise ValueError("audit replay hash/event mismatch")
+        for row in decisions:
+            resolution = row.get("resolution")
+            if resolution is not None and resolution["tick"] <= result.tick:
+                if resolution["tick"] == result.tick:
+                    if resolution not in entry["result"]["events"]["player_0"]:
+                        raise ValueError("report resolution differs from replay")
+                    row["resolution_drop_amount"] = result.dropped_ojama.get(
+                        "player_0", 0
+                    )
+                confirm_public_resolution(row, match.public_snapshot().own, match.tick)
+    if (
+        match.state_hash() != report["replay_verified_hash"]
+        or match.state_hash() != replay["final_hash"]
+    ):
+        raise ValueError("audit final hash mismatch")
+    return {
+        "schema": "puyo.nextgen.attack_response_audit.v1",
+        "case_id": report["case_id"],
+        "condition": report["condition"],
+        "original_report_sha256": digest(report),
+        "replay_sha256": digest(replay),
+        "replay_verified_hash": match.state_hash(),
+        "ticks_added": 0,
+        "policy_calls": 0,
+        "original_assessment": report["assessment"],
+        "assessment": assess(
+            replay["case"],
+            replay["condition"],
+            decisions,
+            replay["ticks"],
+            match.player_states["player_0"].simulator.game.game_over,
+            report["oracle"],
+        ),
+        "observations": [
+            {
+                "decision_id": row["diagnostics"]["request"]["identity"]["decision_id"],
+                **{
+                    key: row.get(key)
+                    for key in (
+                        "public_validation_tick",
+                        "public_validation_status",
+                        "resolution_drop_amount",
+                        "observed_trace_matches",
+                        "public_root_confirmed",
+                        "used_secondary",
+                        "mainline_consumed",
+                        "mainline_shape_preserved",
+                    )
+                },
+            }
+            for row in decisions
+        ],
+    }
+
+
+def audit_saved(output, destination, source=None):
+    output, destination = Path(output), Path(destination)
+    if destination.exists():
+        raise ValueError("audit destination already exists; retain prior audits")
+    manifest = read(output / "manifest.json")
+    allowed = {
+        "eval/nextgen_attack_response_gate.py",
+        "tests/test_nextgen_attack_response_gate.py",
+    }
+    actual = source_identity()
+    if any(
+        actual.get(path) != sha
+        for path, sha in manifest["source_files"].items()
+        if path not in allowed
+    ):
+        raise ValueError("runtime/source drift: offline collector-only audit required")
+    destination.mkdir(parents=True)
+    rows = []
+    for case in manifest["fixtures"]["cases"]:
+        for condition in manifest["fixtures"]["conditions"]:
+            name = f"{case['id']}-{condition}"
+            audit = audit_replay(
+                read(output / name / "report.json.gz"),
+                read(output / name / "replay.json.gz"),
+                source or manifest["source_path"],
+            )
+            write(destination / f"{name}.json", audit)
+            rows.append(
+                {"case_id": case["id"], "condition": condition, **audit["assessment"]}
+            )
+    summary = {
+        "schema": "puyo.nextgen.attack_response_audit_summary.v1",
+        "status": "fail" if any(r["status"] == "fail" for r in rows) else "pass",
+        "original_manifest_sha256": digest(manifest),
+        "audit_source_files": {p: actual[p] for p in sorted(allowed)},
+        "rows": rows,
+        "ticks_added": 0,
+        "policy_calls": 0,
+    }
+    write(destination / "summary.json", summary)
+    return summary
+
+
 def main():
     def interrupted(signum, frame):
         raise InterruptedError(
@@ -905,6 +1050,9 @@ def main():
     run.add_argument("--condition", choices=("attack", "no_attack"), required=True)
     run.add_argument("--source")
     commands.add_parser("summarize")
+    audit = commands.add_parser("audit")
+    audit.add_argument("--destination", type=Path, required=True)
+    audit.add_argument("--source")
     args = parser.parse_args()
     if args.command == "init":
         result = initialize(args.output, args.source)
@@ -919,6 +1067,12 @@ def main():
     elif args.command == "run":
         result = execute(args.output, args.case, args.condition, source=args.source)
         print(json.dumps(result["assessment"], indent=2))
+    elif args.command == "audit":
+        result = audit_saved(args.output, args.destination, args.source)
+        print(
+            json.dumps({"status": result["status"], "conditions": len(result["rows"])})
+        )
+        raise SystemExit(result["status"] != "pass")
     else:
         result = summarize(args.output)
         print(json.dumps(result, indent=2))
