@@ -1,0 +1,751 @@
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 10
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+RESULT gtr 55 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 123 1 chain 0
+nextgen 123 2 chain 0
+nextgen 123 3 chain 0
+nextgen 123 4 chain 0
+nextgen 123 5 chain 0
+nextgen 123 6 chain 0
+nextgen 123 7 chain 0
+nextgen 123 8 chain 0
+nextgen 123 9 chain 0
+nextgen 123 10 chain 0
+nextgen 123 11 chain 0
+nextgen 123 12 chain 0
+nextgen 123 13 chain 0
+nextgen 123 14 chain 0
+nextgen 123 15 chain 0
+nextgen 123 16 chain 0
+nextgen 123 17 chain 0
+nextgen 123 18 chain 0
+nextgen 123 19 chain 0
+nextgen 123 20 chain 0
+nextgen 123 21 chain 0
+nextgen 123 22 chain 0
+nextgen 123 23 chain 0
+nextgen 123 24 chain 0
+nextgen 123 25 chain 0
+nextgen 123 26 chain 0
+nextgen 123 27 chain 0
+nextgen 123 28 chain 0
+nextgen 123 29 chain 0
+nextgen 123 30 chain 0
+nextgen 123 31 chain 10
+nextgen 123 32 chain 0
+nextgen 123 33 chain 0
+nextgen 123 34 chain 0
+nextgen 123 35 chain 0
+nextgen 123 36 chain 0
+nextgen 123 37 chain 0
+nextgen 123 38 chain 0
+nextgen 123 39 chain 0
+nextgen 123 40 chain 0
+RESULT gtr 123 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 124 1 chain 0
+nextgen 124 2 chain 0
+nextgen 124 3 chain 0
+nextgen 124 4 chain 0
+nextgen 124 5 chain 0
+nextgen 124 6 chain 0
+nextgen 124 7 chain 0
+nextgen 124 8 chain 0
+nextgen 124 9 chain 0
+nextgen 124 10 chain 0
+nextgen 124 11 chain 0
+nextgen 124 12 chain 0
+nextgen 124 13 chain 0
+nextgen 124 14 chain 0
+nextgen 124 15 chain 0
+nextgen 124 16 chain 0
+nextgen 124 17 chain 0
+nextgen 124 18 chain 0
+nextgen 124 19 chain 0
+nextgen 124 20 chain 0
+nextgen 124 21 chain 0
+nextgen 124 22 chain 0
+nextgen 124 23 chain 0
+nextgen 124 24 chain 0
+nextgen 124 25 chain 0
+nextgen 124 26 chain 0
+nextgen 124 27 chain 0
+nextgen 124 28 chain 0
+nextgen 124 29 chain 0
+nextgen 124 30 chain 0
+nextgen 124 31 chain 11
+nextgen 124 32 chain 0
+nextgen 124 33 chain 0
+nextgen 124 34 chain 0
+nextgen 124 35 chain 0
+nextgen 124 36 chain 0
+nextgen 124 37 chain 0
+nextgen 124 38 chain 0
+nextgen 124 39 chain 0
+nextgen 124 40 chain 0
+RESULT gtr 124 11 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 126 1 chain 0
+nextgen 126 2 chain 0
+nextgen 126 3 chain 0
+nextgen 126 4 chain 0
+nextgen 126 5 chain 0
+nextgen 126 6 chain 0
+nextgen 126 7 chain 0
+nextgen 126 8 chain 0
+nextgen 126 9 chain 0
+nextgen 126 10 chain 0
+nextgen 126 11 chain 0
+nextgen 126 12 chain 0
+nextgen 126 13 chain 0
+nextgen 126 14 chain 0
+nextgen 126 15 chain 0
+nextgen 126 16 chain 0
+nextgen 126 17 chain 0
+nextgen 126 18 chain 0
+nextgen 126 19 chain 0
+nextgen 126 20 chain 0
+nextgen 126 21 chain 0
+nextgen 126 22 chain 0
+nextgen 126 23 chain 0
+nextgen 126 24 chain 0
+nextgen 126 25 chain 0
+nextgen 126 26 chain 0
+nextgen 126 27 chain 0
+nextgen 126 28 chain 0
+nextgen 126 29 chain 0
+nextgen 126 30 chain 0
+nextgen 126 31 chain 0
+nextgen 126 32 chain 0
+nextgen 126 33 chain 0
+nextgen 126 34 chain 0
+nextgen 126 35 chain 0
+nextgen 126 36 chain 0
+RESULT gtr 126 0 0 True 36
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 128 1 chain 0
+nextgen 128 2 chain 0
+nextgen 128 3 chain 0
+nextgen 128 4 chain 0
+nextgen 128 5 chain 0
+nextgen 128 6 chain 0
+nextgen 128 7 chain 0
+nextgen 128 8 chain 0
+nextgen 128 9 chain 0
+nextgen 128 10 chain 0
+nextgen 128 11 chain 0
+nextgen 128 12 chain 0
+nextgen 128 13 chain 0
+nextgen 128 14 chain 0
+nextgen 128 15 chain 0
+nextgen 128 16 chain 0
+nextgen 128 17 chain 0
+nextgen 128 18 chain 0
+nextgen 128 19 chain 0
+nextgen 128 20 chain 0
+nextgen 128 21 chain 0
+nextgen 128 22 chain 0
+nextgen 128 23 chain 0
+nextgen 128 24 chain 0
+nextgen 128 25 chain 0
+nextgen 128 26 chain 0
+nextgen 128 27 chain 0
+nextgen 128 28 chain 0
+nextgen 128 29 chain 0
+nextgen 128 30 chain 0
+nextgen 128 31 chain 0
+nextgen 128 32 chain 0
+nextgen 128 33 chain 0
+nextgen 128 34 chain 0
+nextgen 128 35 chain 0
+nextgen 128 36 chain 0
+nextgen 128 37 chain 0
+nextgen 128 38 chain 0
+nextgen 128 39 chain 0
+RESULT gtr 128 0 0 True 39
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 132 1 chain 0
+nextgen 132 2 chain 0
+nextgen 132 3 chain 0
+nextgen 132 4 chain 0
+nextgen 132 5 chain 0
+nextgen 132 6 chain 0
+nextgen 132 7 chain 0
+nextgen 132 8 chain 0
+nextgen 132 9 chain 0
+nextgen 132 10 chain 0
+nextgen 132 11 chain 0
+nextgen 132 12 chain 0
+nextgen 132 13 chain 0
+nextgen 132 14 chain 0
+nextgen 132 15 chain 0
+nextgen 132 16 chain 0
+nextgen 132 17 chain 0
+nextgen 132 18 chain 0
+nextgen 132 19 chain 0
+nextgen 132 20 chain 0
+nextgen 132 21 chain 0
+nextgen 132 22 chain 0
+nextgen 132 23 chain 0
+nextgen 132 24 chain 0
+nextgen 132 25 chain 0
+nextgen 132 26 chain 0
+nextgen 132 27 chain 0
+nextgen 132 28 chain 0
+nextgen 132 29 chain 0
+nextgen 132 30 chain 0
+nextgen 132 31 chain 0
+nextgen 132 32 chain 0
+nextgen 132 33 chain 0
+RESULT gtr 132 0 0 True 33
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 135 1 chain 0
+nextgen 135 2 chain 0
+nextgen 135 3 chain 0
+nextgen 135 4 chain 0
+nextgen 135 5 chain 0
+nextgen 135 6 chain 0
+nextgen 135 7 chain 1
+nextgen 135 8 chain 0
+nextgen 135 9 chain 1
+nextgen 135 10 chain 0
+nextgen 135 11 chain 0
+nextgen 135 12 chain 0
+nextgen 135 13 chain 0
+nextgen 135 14 chain 0
+nextgen 135 15 chain 0
+nextgen 135 16 chain 0
+nextgen 135 17 chain 0
+nextgen 135 18 chain 0
+nextgen 135 19 chain 0
+nextgen 135 20 chain 0
+nextgen 135 21 chain 0
+nextgen 135 22 chain 0
+nextgen 135 23 chain 0
+nextgen 135 24 chain 0
+nextgen 135 25 chain 0
+nextgen 135 26 chain 0
+nextgen 135 27 chain 0
+nextgen 135 28 chain 0
+nextgen 135 29 chain 0
+nextgen 135 30 chain 0
+nextgen 135 31 chain 0
+nextgen 135 32 chain 0
+nextgen 135 33 chain 0
+nextgen 135 34 chain 0
+nextgen 135 35 chain 0
+nextgen 135 36 chain 0
+nextgen 135 37 chain 0
+RESULT gtr 135 1 2 True 37
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 144 1 chain 0
+nextgen 144 2 chain 0
+nextgen 144 3 chain 0
+nextgen 144 4 chain 0
+nextgen 144 5 chain 0
+nextgen 144 6 chain 0
+nextgen 144 7 chain 0
+nextgen 144 8 chain 0
+nextgen 144 9 chain 0
+nextgen 144 10 chain 0
+nextgen 144 11 chain 0
+nextgen 144 12 chain 0
+nextgen 144 13 chain 0
+nextgen 144 14 chain 0
+nextgen 144 15 chain 0
+nextgen 144 16 chain 0
+nextgen 144 17 chain 0
+nextgen 144 18 chain 0
+nextgen 144 19 chain 0
+nextgen 144 20 chain 0
+nextgen 144 21 chain 0
+nextgen 144 22 chain 0
+nextgen 144 23 chain 0
+nextgen 144 24 chain 0
+nextgen 144 25 chain 0
+nextgen 144 26 chain 0
+nextgen 144 27 chain 0
+nextgen 144 28 chain 0
+nextgen 144 29 chain 0
+nextgen 144 30 chain 0
+nextgen 144 31 chain 0
+nextgen 144 32 chain 0
+nextgen 144 33 chain 1
+nextgen 144 34 chain 0
+nextgen 144 35 chain 0
+nextgen 144 36 chain 0
+nextgen 144 37 chain 0
+nextgen 144 38 chain 0
+RESULT gtr 144 1 1 True 38
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 10
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+RESULT daa 55 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 10
+nextgen 55 31 chain 0
+nextgen 55 32 chain 0
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+RESULT persian 55 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 10
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+RESULT gtr 55 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 123 1 chain 0
+nextgen 123 2 chain 0
+nextgen 123 3 chain 0
+nextgen 123 4 chain 0
+nextgen 123 5 chain 0
+nextgen 123 6 chain 0
+nextgen 123 7 chain 0
+nextgen 123 8 chain 0
+nextgen 123 9 chain 0
+nextgen 123 10 chain 0
+nextgen 123 11 chain 0
+nextgen 123 12 chain 0
+nextgen 123 13 chain 0
+nextgen 123 14 chain 0
+nextgen 123 15 chain 0
+nextgen 123 16 chain 0
+nextgen 123 17 chain 0
+nextgen 123 18 chain 0
+nextgen 123 19 chain 0
+nextgen 123 20 chain 0
+nextgen 123 21 chain 0
+nextgen 123 22 chain 0
+nextgen 123 23 chain 0
+nextgen 123 24 chain 0
+nextgen 123 25 chain 0
+nextgen 123 26 chain 0
+nextgen 123 27 chain 0
+nextgen 123 28 chain 0
+nextgen 123 29 chain 3
+nextgen 123 30 chain 0
+nextgen 123 31 chain 0
+nextgen 123 32 chain 0
+nextgen 123 33 chain 0
+nextgen 123 34 chain 0
+nextgen 123 35 chain 0
+nextgen 123 36 chain 0
+nextgen 123 37 chain 1
+nextgen 123 38 chain 0
+nextgen 123 39 chain 0
+nextgen 123 40 chain 0
+RESULT gtr 123 3 2 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 124 1 chain 0
+nextgen 124 2 chain 0
+nextgen 124 3 chain 0
+nextgen 124 4 chain 0
+nextgen 124 5 chain 0
+nextgen 124 6 chain 0
+nextgen 124 7 chain 0
+nextgen 124 8 chain 0
+nextgen 124 9 chain 0
+nextgen 124 10 chain 0
+nextgen 124 11 chain 0
+nextgen 124 12 chain 0
+nextgen 124 13 chain 0
+nextgen 124 14 chain 0
+nextgen 124 15 chain 0
+nextgen 124 16 chain 0
+nextgen 124 17 chain 0
+nextgen 124 18 chain 0
+nextgen 124 19 chain 0
+nextgen 124 20 chain 0
+nextgen 124 21 chain 0
+nextgen 124 22 chain 0
+nextgen 124 23 chain 0
+nextgen 124 24 chain 0
+nextgen 124 25 chain 0
+nextgen 124 26 chain 0
+nextgen 124 27 chain 0
+nextgen 124 28 chain 0
+nextgen 124 29 chain 0
+nextgen 124 30 chain 0
+nextgen 124 31 chain 13
+nextgen 124 32 chain 0
+nextgen 124 33 chain 0
+nextgen 124 34 chain 0
+nextgen 124 35 chain 0
+nextgen 124 36 chain 0
+nextgen 124 37 chain 0
+nextgen 124 38 chain 0
+nextgen 124 39 chain 0
+nextgen 124 40 chain 0
+RESULT gtr 124 13 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 126 1 chain 0
+nextgen 126 2 chain 0
+nextgen 126 3 chain 0
+nextgen 126 4 chain 0
+nextgen 126 5 chain 0
+nextgen 126 6 chain 0
+nextgen 126 7 chain 0
+nextgen 126 8 chain 0
+nextgen 126 9 chain 0
+nextgen 126 10 chain 0
+nextgen 126 11 chain 0
+nextgen 126 12 chain 0
+nextgen 126 13 chain 0
+nextgen 126 14 chain 0
+nextgen 126 15 chain 0
+nextgen 126 16 chain 0
+nextgen 126 17 chain 0
+nextgen 126 18 chain 0
+nextgen 126 19 chain 0
+nextgen 126 20 chain 0
+nextgen 126 21 chain 0
+nextgen 126 22 chain 0
+nextgen 126 23 chain 0
+nextgen 126 24 chain 0
+nextgen 126 25 chain 0
+nextgen 126 26 chain 0
+nextgen 126 27 chain 0
+nextgen 126 28 chain 0
+nextgen 126 29 chain 0
+nextgen 126 30 chain 0
+nextgen 126 31 chain 0
+nextgen 126 32 chain 0
+nextgen 126 33 chain 10
+nextgen 126 34 chain 0
+nextgen 126 35 chain 0
+nextgen 126 36 chain 0
+nextgen 126 37 chain 0
+nextgen 126 38 chain 0
+nextgen 126 39 chain 0
+nextgen 126 40 chain 0
+RESULT gtr 126 10 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 128 1 chain 0
+nextgen 128 2 chain 0
+nextgen 128 3 chain 0
+nextgen 128 4 chain 0
+nextgen 128 5 chain 0
+nextgen 128 6 chain 0
+nextgen 128 7 chain 0
+nextgen 128 8 chain 0
+nextgen 128 9 chain 0
+nextgen 128 10 chain 0
+nextgen 128 11 chain 0
+nextgen 128 12 chain 0
+nextgen 128 13 chain 0
+nextgen 128 14 chain 0
+nextgen 128 15 chain 0
+nextgen 128 16 chain 0
+nextgen 128 17 chain 0
+nextgen 128 18 chain 0
+nextgen 128 19 chain 0
+nextgen 128 20 chain 0
+nextgen 128 21 chain 0
+nextgen 128 22 chain 0
+nextgen 128 23 chain 0
+nextgen 128 24 chain 0
+nextgen 128 25 chain 0
+nextgen 128 26 chain 0
+nextgen 128 27 chain 0
+nextgen 128 28 chain 0
+nextgen 128 29 chain 0
+nextgen 128 30 chain 0
+nextgen 128 31 chain 0
+nextgen 128 32 chain 0
+nextgen 128 33 chain 0
+nextgen 128 34 chain 0
+nextgen 128 35 chain 0
+nextgen 128 36 chain 0
+nextgen 128 37 chain 1
+nextgen 128 38 chain 1
+nextgen 128 39 chain 0
+nextgen 128 40 chain 1
+RESULT gtr 128 1 3 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 132 1 chain 0
+nextgen 132 2 chain 0
+nextgen 132 3 chain 0
+nextgen 132 4 chain 0
+nextgen 132 5 chain 0
+nextgen 132 6 chain 0
+nextgen 132 7 chain 0
+nextgen 132 8 chain 0
+nextgen 132 9 chain 0
+nextgen 132 10 chain 0
+nextgen 132 11 chain 0
+nextgen 132 12 chain 0
+nextgen 132 13 chain 0
+nextgen 132 14 chain 0
+nextgen 132 15 chain 0
+nextgen 132 16 chain 0
+nextgen 132 17 chain 0
+nextgen 132 18 chain 0
+nextgen 132 19 chain 0
+nextgen 132 20 chain 0
+nextgen 132 21 chain 0
+nextgen 132 22 chain 0
+nextgen 132 23 chain 0
+nextgen 132 24 chain 0
+nextgen 132 25 chain 0
+nextgen 132 26 chain 0
+nextgen 132 27 chain 0
+nextgen 132 28 chain 0
+nextgen 132 29 chain 0
+nextgen 132 30 chain 0
+nextgen 132 31 chain 11
+nextgen 132 32 chain 0
+nextgen 132 33 chain 0
+nextgen 132 34 chain 0
+nextgen 132 35 chain 0
+nextgen 132 36 chain 0
+nextgen 132 37 chain 0
+nextgen 132 38 chain 0
+nextgen 132 39 chain 0
+nextgen 132 40 chain 0
+RESULT gtr 132 11 0 False 40
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 135 1 chain 0
+nextgen 135 2 chain 0
+nextgen 135 3 chain 0
+nextgen 135 4 chain 0
+nextgen 135 5 chain 0
+nextgen 135 6 chain 0
+nextgen 135 7 chain 1
+nextgen 135 8 chain 0
+nextgen 135 9 chain 1
+nextgen 135 10 chain 0
+nextgen 135 11 chain 0
+nextgen 135 12 chain 0
+nextgen 135 13 chain 0
+nextgen 135 14 chain 0
+nextgen 135 15 chain 0
+nextgen 135 16 chain 0
+nextgen 135 17 chain 0
+nextgen 135 18 chain 0
+nextgen 135 19 chain 0
+nextgen 135 20 chain 0
+nextgen 135 21 chain 0
+nextgen 135 22 chain 0
+nextgen 135 23 chain 0
+nextgen 135 24 chain 0
+nextgen 135 25 chain 0
+nextgen 135 26 chain 0
+nextgen 135 27 chain 0
+nextgen 135 28 chain 0
+nextgen 135 29 chain 0
+nextgen 135 30 chain 0
+nextgen 135 31 chain 0
+nextgen 135 32 chain 0
+nextgen 135 33 chain 0
+nextgen 135 34 chain 0
+nextgen 135 35 chain 0
+nextgen 135 36 chain 0
+nextgen 135 37 chain 0
+RESULT gtr 135 1 2 True 37
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 144 1 chain 0
+nextgen 144 2 chain 0

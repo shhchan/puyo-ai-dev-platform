@@ -1,0 +1,724 @@
+{
+  "kind": "machine_public_prefix_projection",
+  "human_gui_qa": false,
+  "source_base": "732ed3da17a1a6144a98c7995fbe9dfe2e45ea91",
+  "backend": "python bounded test fixture",
+  "requested_steps": 3,
+  "generation_iterations": 100,
+  "generation_ms": {
+    "median": 0.5711404999146907,
+    "p95": 0.6691529999898194,
+    "max": 0.9248500000467175
+  },
+  "selected_candidate": {
+    "identity": {
+      "episode_id": "episode",
+      "player_id": 0,
+      "decision_id": 1,
+      "request_id": "request",
+      "snapshot_digest": "229a25b508a6b98c8b2c3eb630348c407f41275a6839fa4b659e25cf5e7651e3"
+    },
+    "candidate_id": "candidate:1c4933e7c31edd38b823828f1f422e9a3be008de828004f67b250ef8f0009d84",
+    "root_action": 1,
+    "plan": [
+      {
+        "action": 1,
+        "piece": [
+          1,
+          2
+        ],
+        "provenance": "public_known"
+      }
+    ],
+    "tactics": [
+      "build_main"
+    ],
+    "rank": 0,
+    "root_legal": true,
+    "root_reachable": true,
+    "assumptions": {
+      "snapshot_digest": "229a25b508a6b98c8b2c3eb630348c407f41275a6839fa4b659e25cf5e7651e3",
+      "scenario_digest": "fa40ed4007ba6876cce197961f6d12ada1764f2782839328b4be85a7afd0d21a",
+      "timing_digest": "b086de7b32510701e873f3d4ae742917ca1cc1141ffe4a8387d604ef474ef9e4",
+      "search_profile_digest": "791c23f0d470235577ee9a74bf21ca436d59368119a1b3658d9ebfc2195dd29c",
+      "template_config_hash": "10836d110209ee1eb4cfdf1e51c18065c94a361c5773c2971657f31f29f1d989"
+    },
+    "evidence": [
+      {
+        "name": "chain_count",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "score",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "generated",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "canceled",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "outgoing",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "fire_depth",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "fire_start_lower",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "fire_start_upper",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "fire_end_lower",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "fire_end_upper",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "deadline_lower",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "deadline_upper",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "response_surplus",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "trigger_survives",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "counter_after_first_drop",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "scenario_support",
+        "evidence": {
+          "value": 0.0,
+          "status": "partial",
+          "source": "sampled_future"
+        }
+      },
+      {
+        "name": "scenario_coverage",
+        "evidence": {
+          "value": 1.0,
+          "status": "partial",
+          "source": "sampled_future"
+        }
+      },
+      {
+        "name": "scenario_worst",
+        "evidence": {
+          "value": 0.0,
+          "status": "partial",
+          "source": "sampled_future"
+        }
+      },
+      {
+        "name": "fatal_rate",
+        "evidence": {
+          "value": 0.0,
+          "status": "partial",
+          "source": "sampled_future"
+        }
+      },
+      {
+        "name": "template_progress",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "survival_safe",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "survival_status",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "survival_root_chain",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      },
+      {
+        "name": "survival_depth",
+        "evidence": {
+          "value": null,
+          "status": "not_evaluated",
+          "source": "visible_exact"
+        }
+      }
+    ],
+    "fallback": false
+  },
+  "diagnostics": {
+    "plan": {
+      "schema_version": "n-turn-plan-v1",
+      "plan_id": "nextgen-preview:c3e7dcc93bd65bea084451af",
+      "candidate_id": "candidate:1c4933e7c31edd38b823828f1f422e9a3be008de828004f67b250ef8f0009d84",
+      "request_identity": {
+        "episode_id": "episode",
+        "player_id": 0,
+        "decision_id": 1,
+        "request_id": "request",
+        "snapshot_digest": "229a25b508a6b98c8b2c3eb630348c407f41275a6839fa4b659e25cf5e7651e3"
+      },
+      "public_snapshot_digest": "229a25b508a6b98c8b2c3eb630348c407f41275a6839fa4b659e25cf5e7651e3",
+      "root_action": 1,
+      "strategy": "nextgen_tactic_manager",
+      "selected_tactic_id": "build_main",
+      "max_steps": 3,
+      "visible_steps": 3,
+      "steps": [
+        {
+          "step_index": 0,
+          "action": 1,
+          "axis_x": 0,
+          "axis_y": 0,
+          "rotation": "RIGHT",
+          "known_tsumo": true,
+          "scenario": "visible",
+          "scenario_id": 0,
+          "tsumo": [
+            "RED",
+            "BLUE"
+          ],
+          "placement_cells": [
+            {
+              "x": 0,
+              "y": 0,
+              "color": "RED"
+            },
+            {
+              "x": 1,
+              "y": 0,
+              "color": "BLUE"
+            }
+          ],
+          "predicted_board": [
+            [
+              "RED",
+              "BLUE",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ]
+          ],
+          "predicted_chain_count": 0,
+          "predicted_score": 0,
+          "state_fingerprint": "45d67cc8ecf1731fe8a485c970a984a411598edae69ab85f5d58e4406cd22547",
+          "reference_only": true,
+          "continuation_guaranteed": false,
+          "board_complete": true
+        },
+        {
+          "step_index": 1,
+          "action": 16,
+          "axis_x": 4,
+          "axis_y": 0,
+          "rotation": "RIGHT",
+          "known_tsumo": true,
+          "scenario": "visible",
+          "scenario_id": 0,
+          "tsumo": [
+            "BLUE",
+            "GREEN"
+          ],
+          "placement_cells": [
+            {
+              "x": 4,
+              "y": 0,
+              "color": "BLUE"
+            },
+            {
+              "x": 5,
+              "y": 0,
+              "color": "GREEN"
+            }
+          ],
+          "predicted_board": [
+            [
+              "RED",
+              "BLUE",
+              "EMPTY",
+              "EMPTY",
+              "BLUE",
+              "GREEN"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ]
+          ],
+          "predicted_chain_count": 0,
+          "predicted_score": 0,
+          "state_fingerprint": "6549b9e216205f586d85ba1dc536392c222d8fb8717d72d68c1ffb1bce3535f1",
+          "reference_only": true,
+          "continuation_guaranteed": false,
+          "board_complete": true
+        },
+        {
+          "step_index": 2,
+          "action": 21,
+          "axis_x": 5,
+          "axis_y": 1,
+          "rotation": "LEFT",
+          "known_tsumo": true,
+          "scenario": "visible",
+          "scenario_id": 0,
+          "tsumo": [
+            "GREEN",
+            "YELLOW"
+          ],
+          "placement_cells": [
+            {
+              "x": 4,
+              "y": 1,
+              "color": "YELLOW"
+            },
+            {
+              "x": 5,
+              "y": 1,
+              "color": "GREEN"
+            }
+          ],
+          "predicted_board": [
+            [
+              "RED",
+              "BLUE",
+              "EMPTY",
+              "EMPTY",
+              "BLUE",
+              "GREEN"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "YELLOW",
+              "GREEN"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ],
+            [
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY",
+              "EMPTY"
+            ]
+          ],
+          "predicted_chain_count": 0,
+          "predicted_score": 0,
+          "state_fingerprint": "af75b07c3f5e6bfa4344455dcc540e4c84c85f163334948a03362669055a9e9f",
+          "reference_only": true,
+          "continuation_guaranteed": false,
+          "board_complete": true
+        }
+      ],
+      "execution_queue": false,
+      "replan_reason": "public_decision_projection",
+      "status": "available",
+      "reason": "public_prefix_reference",
+      "requested_steps": 3,
+      "available_steps": 3,
+      "source": "selected_root_representative",
+      "reference_only": true,
+      "continuation_guaranteed": false,
+      "board_complete": true
+    },
+    "plan_id": "nextgen-preview:c3e7dcc93bd65bea084451af",
+    "replan_reason": "public_decision_projection",
+    "plan_preview": {
+      "status": "available",
+      "reason": "public_prefix_reference",
+      "requested_steps": 3,
+      "available_steps": 3,
+      "source": "selected_root_representative",
+      "reference_only": true,
+      "continuation_guaranteed": false,
+      "board_complete": true
+    }
+  }
+}

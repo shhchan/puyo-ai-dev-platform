@@ -28,7 +28,10 @@ from agents.long_horizon_search import (
     ScenarioPairSequence,
     build_scenario_sequences_from_known_pairs,
 )
-from agents.nextgen_survival import probe as survival_probe, evidence_for as survival_evidence
+from agents.nextgen_survival import (
+    probe as survival_probe, evidence_for as survival_evidence,
+    inferred_state, refine_inferred,
+)
 from agents.template_catalog import compile_selected_template, MatchResult, TemplateCatalog, match_templates
 from src.core.constants import GRID_HEIGHT, PuyoColor
 
@@ -459,11 +462,20 @@ class SharedSearchBatchBuilder:
         stage_ms = {"shared": (time.perf_counter() - stage_started) * 1000, "template": template_elapsed_ms}
         stage_started = time.perf_counter()
         response_budget = ResponseBudget(profile.response_quota)
+        survival_state = inferred_state(request, state)
+        survival_cache = {} if survival_state is not None else None
         survival, survival_diagnostics = survival_probe(
-            request, state, roots, response_budget,
+            request, survival_state if survival_state is not None else state, roots, response_budget,
             timing=getattr(self.response_provider, "timing", None),
-            board_complete=board_complete,
+            board_complete=board_complete, transition_cache=survival_cache,
+            reuse_transitions=survival_state is not None,
         )
+        if survival_state is not None:
+            survival, survival_diagnostics = refine_inferred(
+                request, survival_state, survival, survival_diagnostics, response_budget,
+                tuple(v.root_action for v in shared.ranked_roots) if shared else roots,
+                survival_cache,
+            )
         if any(v.status == "cutoff" for v in survival.values()):
             cutoffs.append("survival_quota")
         response = ResponseSearchResult()
@@ -666,7 +678,16 @@ class SharedSearchBatchBuilder:
                 for name in c.EVIDENCE_NAMES
             )
             entries[cid] = (plan, tactics, evidence, key, fallback)
+        # The rule selector requires fatal_rate == 0 for fire_main. An
+        # unevaluated multi-step plan must not hide an already eligible fire
+        # merely because its score is higher. Preserve the original order
+        # within each group, and let the survival ordering below remain first.
+        for cid, key in tuple(tactic_keys["fire_main"].items()):
+            fatal = next(e.evidence.value for e in entries[cid][2] if e.name == "fatal_rate")
+            tactic_keys["fire_main"][cid] = (fatal != 0, key)
         if survival_diagnostics.get("active"):
+            recovery_root = survival_diagnostics.get("control_proof", {}).get(
+                "landed_garbage_recovery", {}).get("preferred_root")
             for tactic in c.TACTIC_IDS:
                 for cid, key in tuple(tactic_keys[tactic].items()):
                     result = survival.get(entries[cid][0][0].action)
@@ -675,6 +696,9 @@ class SharedSearchBatchBuilder:
                                    else 1 if result and result.status == "witness"
                                    else 3 if result and result.status == "fatal" else 2)
                     tactic_keys[tactic][cid] = (safety_rank, key)
+                    if tactic == "build_main" and recovery_root is not None:
+                        tactic_keys[tactic][cid] = (
+                            entries[cid][0][0].action != recovery_root, safety_rank, key)
         candidates = tuple(
             c.Candidate(
                 request.identity,

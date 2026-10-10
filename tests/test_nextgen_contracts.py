@@ -54,6 +54,8 @@ def make_diagnostics(
                 "fixture.v1", c.semantic_digest(player.known_pieces), "search", h
             ),
         ),
+        # These committed fixtures deliberately retain their original v1 wire.
+        schema_version=c.LEGACY_REQUEST_SCHEMA_VERSION,
     )
     assumptions = c.CandidateAssumptions(
         public.digest, h, h, c.semantic_digest(profile), h

@@ -239,7 +239,8 @@ class SurvivalReceiptTests(unittest.TestCase):
             result = real(simulator, **kwargs)
             result[7] = False
             return result
-        with patch.object(ai, 'realtime_reachable_action_mask', side_effect=without_selected):
+        with (patch.object(ai, 'nextgen_plan_is_current', return_value=False),
+              patch.object(ai, 'realtime_reachable_action_mask', side_effect=without_selected)):
             controller.next_input(match, 'player_0')
         receipt = controller.nextgen_scheduler.ledger[0].receipt
         self.assertEqual(receipt.outcome, 'fallback')

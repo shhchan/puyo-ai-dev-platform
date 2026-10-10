@@ -6,7 +6,6 @@ from pathlib import Path
 
 from agents import nextgen_contracts as c
 from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
-from agents.template_catalog import match_templates
 from eval.nextgen_gate_benchmark import SafeNoThreatMatch
 from eval.nextgen_realtime_diagnostic import template_observation
 from puyo_env.realtime_ai import RealtimeDecisionConfig, RealtimePolicyController
@@ -43,15 +42,10 @@ class GtrCapabilityTests(unittest.TestCase):
         self.assertEqual(runtime.ledger[0].receipt.outcome, "activated")
         self.assertEqual(runtime.ledger[0].request.control.search_profile.template_quota, 128)
         self.assertLessEqual(runtime.ledger[0].batch.counters.template_nodes, 128)
-        request = runtime.ledger[0].request
-        legacy = match_templates(
-            catalog, request.public.own.visible_board, request.public.own.known_pieces,
-            node_budget=128, binding_budget=4096,
-            reachable_mask=request.execution.reachable_mask,
-        )
-        # Reproduce initial static fallback starvation without the nextgen
-        # opt-in. Existing catalog consumers keep their enumeration contract.
-        self.assertFalse(next(v for v in legacy.candidates if v.key == key).witness_actions)
+        # After PUYO-268's selected-template integration, this fixture has a
+        # witness even without the binding opt-in. Historical starvation
+        # belongs to its old source; this fixture checks current adoption and
+        # completion instead of requiring that older matcher limitation.
         match.step({"player_0": first})
         for _ in range(200):
             match.step({"player_0": controller.next_input(match, "player_0")})

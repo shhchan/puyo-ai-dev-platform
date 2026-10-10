@@ -21,6 +21,19 @@ def _map(value: Any) -> Mapping[str, Any]:
     return value if isinstance(value, Mapping) else {}
 
 
+def live_nextgen_receipt_summary(policy_diagnostics, last_decision):
+    """Read a live receipt without serializing the full search batch each frame.
+
+    The nested diagnostics are borrowed only during this read. The returned
+    summary contains display scalars; replay serialization remains detached.
+    """
+    decision = {} if last_decision is None else {
+        "nextgen_diagnostics": last_decision.nextgen_diagnostics,
+        "outcome": last_decision.outcome,
+    }
+    return nextgen_receipt_summary(policy_diagnostics, {"last_decision": decision})
+
+
 def nextgen_receipt_summary(
     policy_diagnostics: Mapping[str, Any] | None,
     controller_diagnostics: Mapping[str, Any] | None = None,

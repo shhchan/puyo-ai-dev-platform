@@ -102,6 +102,9 @@ class RealtimeVersusMatch:
         self.tick = 0
         self._last_winner = None
         self._public_snapshot_adapter = None
+        self._public_inference_trackers = None
+        self._public_inference_reset_available = True
+        self._public_episode_index = getattr(self, "_public_episode_index", 0) + 1
         self.player_states = {
             agent: RealtimeVersusPlayerState(
                 simulator=RealtimeHeadlessSimulator(seed=self.seed, timing=self.timing)
@@ -202,6 +205,9 @@ class RealtimeVersusMatch:
         )
         if self._public_snapshot_adapter is not None:
             self._public_snapshot_adapter.observe_tick(self, result)
+        self._public_inference_reset_available = False
+        if self._public_inference_trackers is not None:
+            self._observe_public_inference(current_tick)
         return result
 
     def public_snapshot(self, player_id: int = 0):
@@ -213,7 +219,7 @@ class RealtimeVersusMatch:
         if self._public_snapshot_adapter is None:
             from puyo_env.nextgen_public_snapshot import PublicVersusSnapshotAdapter
 
-            self._public_snapshot_adapter = PublicVersusSnapshotAdapter()
+            self._public_snapshot_adapter = PublicVersusSnapshotAdapter(started_tick=self.tick)
         return self._public_snapshot_adapter.snapshot(self, player_id)
 
     def public_timing_history(self):
@@ -221,6 +227,57 @@ class RealtimeVersusMatch:
         if self._public_snapshot_adapter is None:
             self.public_snapshot()
         return self._public_snapshot_adapter.timing_history()
+
+    def public_placement_history(self, player_id: int = 0):
+        """Actual public lock history, separate from intent and timing schemas."""
+        if self._public_snapshot_adapter is None:
+            self.public_snapshot(player_id)
+        return self._public_snapshot_adapter.placement_history(player_id)
+
+    @property
+    def public_inference_episode_id(self):
+        """Reset-owned observer origin, independent of scheduler lifetimes."""
+        return f"public-episode-{self._public_episode_index}"
+
+    def public_board_inference(self, player_id: int = 0):
+        """Opt-in deduction from public lifecycle, separate from visible state.
+
+        Only reset's explicit empty-field origin can initialize certainty. A late
+        observer is unknown even when the visible board happens to be empty.
+        """
+        if type(player_id) is not int or player_id not in (0, 1):
+            raise ValueError("player_id must be 0 or 1")
+        if self._public_inference_trackers is None:
+            from puyo_env.nextgen_public_inference import PublicInferenceTracker
+
+            public = self.public_snapshot()
+            self._public_inference_trackers = tuple(PublicInferenceTracker(
+                own, episode_id=self.public_inference_episode_id,
+                player_id=p, started_tick=self.tick,
+                empty_reset=self._public_inference_reset_available,
+            ) for p, own in enumerate((public.own, public.opponent)))
+            self._inference_counts = (
+                tuple(len(self.public_placement_history(p).records) for p in (0, 1)),
+                len(self.public_timing_history().resolutions), len(public.events),
+            )
+        return self._public_inference_trackers[player_id].snapshot()
+
+    def _observe_public_inference(self, tick):
+        public, history = self.public_snapshot(), self.public_timing_history()
+        lock_counts, resolution_count, event_count = self._inference_counts
+        placements = tuple(self.public_placement_history(p).records for p in (0, 1))
+        for p, (tracker, own) in enumerate(zip(
+            self._public_inference_trackers, (public.own, public.opponent)
+        )):
+            tracker.observe(
+                own, tick=tick, episode_id=self.public_inference_episode_id,
+                locks=placements[p][lock_counts[p]:],
+                resolutions=history.resolutions[resolution_count:],
+                events=public.events[event_count:],
+            )
+        self._inference_counts = (
+            tuple(len(rows) for rows in placements), len(history.resolutions), len(public.events),
+        )
 
     def advance_ticks(
         self,

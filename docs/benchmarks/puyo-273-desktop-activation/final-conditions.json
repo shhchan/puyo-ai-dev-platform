@@ -1,0 +1,43 @@
+{
+  "source_sha": "ec2d3c0447d685d14fd472d3bda1a1fde3bfe548",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "python_executable": "/home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python",
+  "native_path": "/home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/lib/python3.12/site-packages/_puyo_deep_chain_native/_puyo_deep_chain_native.cpython-312-x86_64-linux-gnu.so",
+  "native_sha256": "d7e6fff7c808323fb367c632e1c87dd03bbfd122c0854dc4b09466ae90c9c654",
+  "host": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "display": ":0",
+  "cpu": 28,
+  "fixed_gate": {
+    "frame_p95_ms": 25,
+    "frame_p99_ms": 50,
+    "input_schedule_p95_ms": 25,
+    "input_schedule_p99_ms": 50
+  },
+  "seed": 55,
+  "speed": 1.0,
+  "resolution": [
+    1120,
+    780
+  ],
+  "fps_cap": 60,
+  "overlay": true,
+  "runs": [
+    "final-before-one",
+    "final-after-one",
+    "final-before-two",
+    "final-after-two",
+    "final-after-human",
+    "final-after-light",
+    "final-after-minimal-one",
+    "final-after-minimal-light"
+  ],
+  "frames": {
+    "one": 600,
+    "two": 360,
+    "human": 600,
+    "light": 600
+  },
+  "run_policy": "One run per declared condition; retain all results; no best-of repeats.",
+  "reference_source_sha": "b7365babf7177fb373b41e19620a68d57df001a9",
+  "reference_mode": "--reference-activation"
+}

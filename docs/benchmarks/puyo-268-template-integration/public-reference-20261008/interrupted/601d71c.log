@@ -1,0 +1,196 @@
+/home/sion2000114/workspaces/dev/puyo_ai_dev_platform/.venv/lib/python3.12/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+nextgen 55 1 chain 0
+nextgen 55 2 chain 0
+nextgen 55 3 chain 0
+nextgen 55 4 chain 0
+nextgen 55 5 chain 0
+nextgen 55 6 chain 0
+nextgen 55 7 chain 0
+nextgen 55 8 chain 0
+nextgen 55 9 chain 0
+nextgen 55 10 chain 0
+nextgen 55 11 chain 0
+nextgen 55 12 chain 0
+nextgen 55 13 chain 0
+nextgen 55 14 chain 0
+nextgen 55 15 chain 0
+nextgen 55 16 chain 0
+nextgen 55 17 chain 0
+nextgen 55 18 chain 0
+nextgen 55 19 chain 0
+nextgen 55 20 chain 0
+nextgen 55 21 chain 0
+nextgen 55 22 chain 0
+nextgen 55 23 chain 0
+nextgen 55 24 chain 0
+nextgen 55 25 chain 0
+nextgen 55 26 chain 0
+nextgen 55 27 chain 0
+nextgen 55 28 chain 0
+nextgen 55 29 chain 0
+nextgen 55 30 chain 0
+nextgen 55 31 chain 0
+nextgen 55 32 chain 10
+nextgen 55 33 chain 0
+nextgen 55 34 chain 0
+nextgen 55 35 chain 0
+nextgen 55 36 chain 0
+nextgen 55 37 chain 0
+nextgen 55 38 chain 0
+nextgen 55 39 chain 0
+nextgen 55 40 chain 0
+deep_chain 55 1 chain 0
+deep_chain 55 2 chain 0
+deep_chain 55 3 chain 0
+deep_chain 55 4 chain 0
+deep_chain 55 5 chain 0
+deep_chain 55 6 chain 0
+deep_chain 55 7 chain 0
+deep_chain 55 8 chain 0
+deep_chain 55 9 chain 0
+deep_chain 55 10 chain 0
+deep_chain 55 11 chain 0
+deep_chain 55 12 chain 0
+deep_chain 55 13 chain 0
+deep_chain 55 14 chain 0
+deep_chain 55 15 chain 0
+deep_chain 55 16 chain 0
+deep_chain 55 17 chain 0
+deep_chain 55 18 chain 0
+deep_chain 55 19 chain 0
+deep_chain 55 20 chain 0
+deep_chain 55 21 chain 0
+deep_chain 55 22 chain 0
+deep_chain 55 23 chain 0
+deep_chain 55 24 chain 0
+deep_chain 55 25 chain 0
+deep_chain 55 26 chain 0
+deep_chain 55 27 chain 0
+deep_chain 55 28 chain 0
+deep_chain 55 29 chain 0
+deep_chain 55 30 chain 10
+deep_chain 55 31 chain 0
+deep_chain 55 32 chain 0
+deep_chain 55 33 chain 0
+deep_chain 55 34 chain 0
+deep_chain 55 35 chain 0
+deep_chain 55 36 chain 0
+deep_chain 55 37 chain 0
+deep_chain 55 38 chain 0
+deep_chain 55 39 chain 0
+deep_chain 55 40 chain 0
+{"seed": 55, "metrics": {"nextgen": {"max_chain": 10, "premature": 0, "game_over": false, "placements": 40, "decision_seconds": {"n": 40, "p50": 0.4298153950001051, "p95": 0.49427988149986957, "max": 0.5085920129999977}, "errors": [], "semantic_digest": "7d04f115878f1b03d028915d5e61088f491765e52ac17d3c19bb6c1f4ef40701", "initial_binding_completed_within_14_at": 10}, "public_reference": {"max_chain": 10, "premature": 0, "game_over": false, "placements": 40, "decision_seconds": {"n": 40, "p50": 0.34870501099999274, "p95": 0.41082558214943665, "max": 0.4774505030004548}, "errors": [], "semantic_digest": "296697757a495473d66303fb903aa4c6d992b260db06b40f8ce8b3ef382ad83d", "initial_binding_completed_within_14_at": null}}, "paired_decisions": 40, "selected_key": ["gtr", "left_supported_core", "identity", [["A", 1], ["B", 2], ["C", 1]]]}
+nextgen 123 1 chain 0
+nextgen 123 2 chain 0
+nextgen 123 3 chain 0
+nextgen 123 4 chain 0
+nextgen 123 5 chain 0
+nextgen 123 6 chain 0
+nextgen 123 7 chain 0
+nextgen 123 8 chain 0
+nextgen 123 9 chain 0
+nextgen 123 10 chain 0
+nextgen 123 11 chain 0
+nextgen 123 12 chain 0
+nextgen 123 13 chain 0
+nextgen 123 14 chain 0
+nextgen 123 15 chain 0
+nextgen 123 16 chain 0
+nextgen 123 17 chain 0
+nextgen 123 18 chain 0
+nextgen 123 19 chain 0
+nextgen 123 20 chain 0
+nextgen 123 21 chain 0
+nextgen 123 22 chain 0
+nextgen 123 23 chain 0
+nextgen 123 24 chain 0
+nextgen 123 25 chain 0
+nextgen 123 26 chain 0
+nextgen 123 27 chain 0
+nextgen 123 28 chain 0
+nextgen 123 29 chain 0
+nextgen 123 30 chain 0
+nextgen 123 31 chain 10
+nextgen 123 32 chain 0
+nextgen 123 33 chain 0
+nextgen 123 34 chain 0
+nextgen 123 35 chain 0
+nextgen 123 36 chain 0
+nextgen 123 37 chain 0
+nextgen 123 38 chain 0
+nextgen 123 39 chain 0
+nextgen 123 40 chain 0
+deep_chain 123 1 chain 0
+deep_chain 123 2 chain 0
+deep_chain 123 3 chain 0
+deep_chain 123 4 chain 0
+deep_chain 123 5 chain 0
+deep_chain 123 6 chain 0
+deep_chain 123 7 chain 0
+deep_chain 123 8 chain 0
+deep_chain 123 9 chain 0
+deep_chain 123 10 chain 0
+deep_chain 123 11 chain 0
+deep_chain 123 12 chain 0
+deep_chain 123 13 chain 0
+deep_chain 123 14 chain 0
+deep_chain 123 15 chain 0
+deep_chain 123 16 chain 0
+deep_chain 123 17 chain 0
+deep_chain 123 18 chain 0
+deep_chain 123 19 chain 0
+deep_chain 123 20 chain 0
+deep_chain 123 21 chain 0
+deep_chain 123 22 chain 0
+deep_chain 123 23 chain 0
+deep_chain 123 24 chain 0
+deep_chain 123 25 chain 0
+deep_chain 123 26 chain 0
+deep_chain 123 27 chain 0
+deep_chain 123 28 chain 0
+deep_chain 123 29 chain 0
+deep_chain 123 30 chain 0
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 255, in <module>
+    main()
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 251, in main
+    run(args.output, args.seeds, args.placements)
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 222, in run
+    actual_reference = diagnostic.measure('deep_chain', seed, 'nextgen_safe_build', placements=placements)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/nextgen_safe_build_diagnostic.py", line 58, in measure
+    "player_0": controller.next_input(match, "player_0"),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/puyo_env/realtime_ai.py", line 589, in next_input
+    self._pending_decision = self._start_decision(match, agent, observation, info)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/puyo_env/realtime_ai.py", line 695, in _start_decision
+    selected_action = int(self.policy.select_action(observation, info))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/agents/deep_chain_builder.py", line 1063, in select_action
+    result = self.decide(observation, info)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 107, in decide
+    context = super().decide(observation, info)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/agents/deep_chain_builder.py", line 1038, in decide
+    _require_legal_selected_action(result, visible_input)
+  File "/usr/lib/python3.12/unittest/mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/mock.py", line 1199, in _execute_mock_call
+    result = effect(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/eval/puyo_268_public_reference.py", line 84, in validate_selection
+    ORIGINAL_VALIDATE(context, visible)
+  File "/home/sion2000114/workspaces/dev/puyo-s14-268/agents/deep_chain_builder.py", line 1356, in _require_legal_selected_action
+    raise ValueError("deep-chain flow selected an illegal placement action")
+ValueError: deep-chain flow selected an illegal placement action

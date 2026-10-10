@@ -1,5 +1,11 @@
 # PUYO-274 デスクトップ再開とレビュー引継ぎ
 
+デスクトップ側の再開結果は [2026-09-28 実行表](puyo-274-handoff/execution-desktop-20260928.md) と [環境記録](puyo-274-handoff/desktop-environment-20260928.json) を参照する．以下はノート PC からの引継ぎ時点の記録であり，PR/SHA/QA の現在値は新しい実行表を優先する．先読み表示は 2026-10-08 に人間 GUI QA を実施した．最新の両側 frame 機械 gate は通過し，窒息・正式品質・修正後の人間 QA は未解決である．
+
+2026-10-08 の Sprint 14 再開状況は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) に追記した．以下の旧 PR 番号・旧観測値より，新しい実行表と Jira/GitHub の現在値を優先する．
+
+最上段の結合 GUI 機械 QA は [8 run の raw／集計](../benchmarks/puyo-274-sprint14-combined-20261008/README.md)で確認できる．PUYO-266 の新しい公開推定を含むが，seed 127／128 の窒息と正式 G2 FAIL は残り，修正後の人間 GUI QA は結果待ちである．
+
 記録日：2026-09-28．窓口は [PUYO-274](https://shhchan.atlassian.net/browse/PUYO-274)，親は PUYO-228．今回はノート PC 上の資料保存・レビュー整備まで．残る生存品質・先読み表示・性能・正式品質はデスクトップで再開する．本資料の完成だけで PUYO-274/266/269/273 を COMPLETE にしない．
 
 ## 1. 保存した成果と最新値
@@ -28,6 +34,12 @@ frame/input の p95 ≤ 25 ms/p99 ≤ 50 ms，実人間の意図した配置，�
 - PUYO-269 はノート PC で若干改善したがまだカクつく．ノート PC のスペックが原因という見立ては仮説．デスクトップでの改善・gate 合格を先取りしない．
 
 daa/random 元 run の replay，速度，source/config/native SHA は未提供・未確認．新規再現との同一性は保証できない．gtr seed 123 元 GUI raw も未保存，セカンド逆発火の seed は不明．先読み消失の正確な run 条件も不明．human/random と通常/0.25x/低速 `n` の結果を混合しない．daa 初回下 2 段 L 字の細部は対象外．
+
+### 2026-10-08 の依頼者 GUI QA
+
+デスクトップ `puyo-desktop-274` で 1P nextgen／2P human を起動し，`o` による 3 手先読み配置の表示・非表示，現在組の落下位置 ghost との区別を確認した．移動・回転は意図する位置へ置けそうな操作感との報告．これは人間の目視確認であり，frame/input 25/50 ms gate の代用ではない．
+
+別の対局では対戦 seed 127，1P policy seed 58，土台 daa，softmax 温度 1.0，速度 x1.0 を使用．人間側が最初の 2 手で全消しを取り，おじゃま送付後に 1P が窒息した．元 replay／結果 JSON は未保存で，正確な human 入力列は不明．新規の固定入力再現は元対局と区別する．`softmax`／`1.0` は現在の launcher 既定値ではなく，明示選択した条件である．
 
 ## 3. デスクトップで取得・起動する
 
@@ -102,3 +114,32 @@ N=3 preview とactive pair drop ghostを分け，o切替とadopted plan/diagnost
 品質FAIL/G2 BLOCKEDと未達25/50ms gateを保持し，256〜258の本学習は開始しないでください．
 親がPR差分・組合せQA・stackを確認し，一覧と残条件を提示してください．reviewer指定，merge/releaseはしません．
 ```
+
+## 7. 2026-10-08 Sprint 14 実行更新
+
+2026-10-08 時点の担当・検証・PR 順序は [Sprint 14 実行表](puyo-274-handoff/sprint14-execution-20261008.md) を参照する．最上段は `PUYO-274/sprint14-closeout`／runtime 測定 source `3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f`，draft [PR #182](https://github.com/shhchan/puyo-ai-dev-platform/pull/182) である．PUYO-266 の公開情報に基づく着弾おじゃま回復後，新規固定 human 入力 seed 127 は 60 実 lock まで窒息しなかった．元の人間対局とは同一視しない．追加の適格発火順位修正で固定 GTR126 は実 10 連鎖・小発火 0／40 配置非窒息となった．GUI 機械 QA はこの最上段の [8 run](../benchmarks/puyo-274-sprint14-eligible-fire-20261008/README.md) ですべて事前 gate を通過したが，正式 G2 FAIL と変更後の実人間 GUI QA は残る．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．
+
+実人間 GUI QA は次で launcher を開き，1P=`nextgen_tactic_manager`，2P=`human`，速度 x1.0 を選ぶ．`o` の 3 手先読み表示／非表示，現在組の落下位置との区別，下押し＋横移動／回転で意図した位置へ置けるか，カクつき，対戦 seed／1P policy seed を記録する．この確認は最上段 head `3724eb9` 以降に実施したかを区別する．
+
+```bash
+cd /home/sion2000114/workspaces/dev/puyo-s14-274
+/home/sion2000114/workspaces/dev/puyo-desktop-274/.venv/bin/python main.py
+```
+
+## 8. 2026-10-09 中断後の最新状態
+
+最新の runtime 測定 source は `32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee`，最上段 branch は `PUYO-274/sprint14-closeout` である．PUYO-266 の有限代替証明で固定 seed128 は 40 配置まで窒息を回避したが，最大 1 連鎖／premature 1 のため正式 G2 は FAIL のまま．正常 55／123／124／126 は各 40 配置・最大 10 連鎖・premature／窒息 0．新規固定 human127 は 60 実 lock，両者非窒息，おじゃま 30→0 を保存 replay で確認した．元の手動対局とは同一視しない．詳細は [実行表](puyo-274-handoff/sprint14-execution-20261008.md) と [PUYO-266 証跡](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照する．
+
+最上段の GUI 機械 QA は[初回 7／8 通過](../benchmarks/puyo-274-sprint14-bounded-20261009/README.md)，[同 source 再測 8／8 通過](../benchmarks/puyo-274-sprint14-bounded-repeat-20261009/README.md)．初回 minimal-two frame p95 は 25.59 ms で固定 25 ms gate を超えたため，安定達成とは扱わない．PUYO-264／268 は Complete，266／273／269／274 は draft／In Progress のままである．変更後の実人間 GUI QA は依頼者の結果待ち．上の起動コマンドは同じだが，結果には今回の最上段 head を添える．
+
+## 9. 2026-10-09 追加監査と再開位置
+
+[PUYO-266 の公開情報監査](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)では，seed128／38 の既知 3 手に 10 連鎖候補が無く，楽観上界でも最大 7 連鎖だった．旧 60 run の G2 FAIL も再確認した．[PUYO-269 の区間 CPU 診断](../benchmarks/puyo-269-frame-variance-20261009/README.md)では，同期 prepare／finish，deepcopy，gen2 GC の負荷を測定したが，単独の狭い変更で 25 ms gate を安定達成する根拠は無かった．両件とも製品コードを変更せず，raw と停止条件を PR #178／#181 に保存し，最上段 #182 へ反映した．最新の詳細な状態と PR 順序は[実行表](puyo-274-handoff/sprint14-execution-20261008.md)にある．
+
+実人間 GUI QA はまだ報告待ちである．上記の起動コマンドで最上段 `PUYO-274/sprint14-closeout` を使い，1P nextgen／2P human／速度 x1.0 で，`o` の先読み，現在組 ghost との区別，下押し＋横／回転の配置感，カクつき，対戦 seed／1P policy seed を報告してもらう．完了まで PUYO-266／273／269／274 は draft／In Progress を維持する．
+
+## 10. 2026-10-10 Sprint 15／16 への更新
+
+依頼者は最上段で 1P nextgen／2P human／速度 x1.0 の先読み切替と配置操作を確認し，実用上大きな問題なしと回答した．この QA の seed／replay は未記録なので，保存済み機械 trace と同一対局にはしない．PUYO-269／273 は承認された Sprint 14 実用基準で Complete，PUYO-266／274 は In Progress のまま Sprint 15 へ移した．新しい配ぷよ方式・とこぷよ本線評価・対戦時の副砲／攻撃対応・QA replay・v1.7.3 release と，Sprint 16 の設計限定リファクタリングは [Sprint 15／16 計画](puyo-sprint-15-16-plan.md) にまとめた．
+
+旧 G2 の 60 run は停止相手・攻撃抑止だったため，相手攻撃による未達とは解釈しない．今後の単独能力は eスポーツ通配ぷよを用いる明示的なとこぷよで判定し，対戦対応は別 gate に分ける．旧完全ランダムの失敗 raw を保持し，新しい pattern ID と同一視しない．

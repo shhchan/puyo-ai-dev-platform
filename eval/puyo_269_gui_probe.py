@@ -13,6 +13,12 @@ import types
 from eval.puyo_273_gui_probe import main
 
 
+ALLOCATION_REFERENCE_SHA = "4056baa70de9b1d0ae897e2fcb1d07ae69db3441"
+
+
+CADENCE_REFERENCE_SHA = "0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222"
+
+
 REFERENCE_SHA = "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02"
 
 
@@ -39,6 +45,45 @@ def use_reference_behavior() -> str:
 
 
 if __name__ == "__main__":
+    reference_allocation = "--reference-allocation" in sys.argv
+    if reference_allocation:
+        sys.argv.remove("--reference-allocation")
+        import puyo_env.realtime_ai as ai
+        source = subprocess.check_output(
+            ["git", "show", f"{ALLOCATION_REFERENCE_SHA}:puyo_env/action_planner.py"], text=True
+        )
+        reference_planner = types.ModuleType("puyo_269_allocation_reference")
+        sys.modules[reference_planner.__name__] = reference_planner
+        exec(compile(source, reference_planner.__name__, "exec"), vars(reference_planner))
+        for name in ("plan_placement_action", "reachable_placement_actions", "planned_inputs_reach_target"):
+            setattr(ai, name, getattr(reference_planner, name))
+    reference_wire = "--reference-wire" in sys.argv
+    if reference_wire:
+        sys.argv.remove("--reference-wire")
+        import puyo_env.nextgen_scheduler as scheduler
+        source = subprocess.check_output(
+            ["git", "show", f"{CADENCE_REFERENCE_SHA}:puyo_env/nextgen_scheduler.py"], text=True
+        )
+        exec(compile(source, "puyo_269_wire_reference", "exec"), vars(scheduler))
+    ui_decode = "--ui-decode" in sys.argv
+    if ui_decode:
+        sys.argv.remove("--ui-decode")
+        import puyo_env.nextgen_scheduler as scheduler
+        scheduler.decode_nextgen_payload = lambda payload: payload
+    legacy_render = "--legacy-render" in sys.argv
+    if legacy_render:
+        sys.argv.remove("--legacy-render")
+        import src.ui.versus_renderer as renderer
+        from src.ui.nextgen_display import nextgen_receipt_summary
+        from puyo_env.realtime_ai import RealtimeControllerDiagnostics
+
+        def legacy_summary(payload, last_decision):
+            # Reproduce the old per-frame full copy with the same decision.
+            # Other controller counters are not read by the receipt summary.
+            diagnostics = RealtimeControllerDiagnostics(last_decision=last_decision)
+            return nextgen_receipt_summary(payload, diagnostics.to_dict())
+
+        renderer.live_nextgen_receipt_summary = legacy_summary
     reference = "--reference-269" in sys.argv
     reference_source_sha256 = None
     if reference:
@@ -47,6 +92,10 @@ if __name__ == "__main__":
     main()
     output = Path(sys.argv[sys.argv.index("--output") + 1])
     result = json.loads(output.read_text())
+    result["allocation_reference"] = ALLOCATION_REFERENCE_SHA if reference_allocation else None
+    result["wire_reference"] = CADENCE_REFERENCE_SHA if reference_wire else None
+    result["legacy_render"] = legacy_render
+    result["ui_decode"] = ui_decode
     result["puyo_269_reference"] = {
         "enabled": reference,
         "source_revision": REFERENCE_SHA if reference else None,

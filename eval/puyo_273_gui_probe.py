@@ -4,8 +4,10 @@ from __future__ import annotations
 import argparse
 import ast
 from collections import defaultdict
+import gc
 import hashlib
 import json
+import multiprocessing.queues
 import os
 from pathlib import Path
 import platform
@@ -19,21 +21,29 @@ import pygame
 import _puyo_deep_chain_native as native
 from agents.deep_chain_native import NativeDeepChainBackend
 import puyo_env.realtime_ai as ai
+import puyo_env.nextgen_scheduler as scheduler_module
+import src.ui.versus_renderer as renderer_module
 from eval.puyo_271_gui_probe import proc, stats
 from eval.realtime_versus_ui import RealtimeVersusMatchController, RealtimeVersusUiConfig
 from src.ui.versus_renderer import SCREEN_HEIGHT, SCREEN_WIDTH, VersusRenderer
 
 
 def run(args):
+    native_binary = Path(getattr(native, "_puyo_deep_chain_native", native).__file__)
     source_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
     source_diff = hashlib.sha256(subprocess.check_output(["git", "diff", "--", "puyo_env"])).hexdigest()
+    source_files = {
+        str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+        for root in ("agents", "puyo_env", "eval", "src")
+        for path in sorted(Path(root).rglob("*.py"))
+    }
     if args.geometric_reference:
         module = types.ModuleType("puyo273_geometric_reference")
         sys.modules[module.__name__] = module
         source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/action_planner.py"], text=True)
         exec(compile(source, "geometric_reference_planner", "exec"), module.__dict__)
         ai.plan_placement_action = module.plan_placement_action
-        ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
+        ai.reachable_placement_actions = lambda simulator, actions, *, timing=None, max_expanded_states=2000, plan_results=None: module.reachable_placement_actions(simulator, actions, max_expanded_states=max_expanded_states)
         controller_source = subprocess.check_output(["git", "show", "f53252bbd4f0c526a6a4ab3ea497eae96fce1e02:puyo_env/realtime_ai.py"], text=True)
         cls = next(node for node in ast.parse(controller_source).body if isinstance(node, ast.ClassDef) and node.name == "RealtimePolicyController")
         method = next(node for node in cls.body if isinstance(node, ast.FunctionDef) and node.name == "_should_abort_active_plan")
@@ -42,21 +52,21 @@ def run(args):
         ai.RealtimePolicyController._should_abort_active_plan = namespace["_should_abort_active_plan"]
     if args.reference_mask:
         # Baseline implementation at 595dbed, retained only in this evaluator.
-        def reference(simulator, *, timing=None, max_expanded_states=2000):
+        def reference(simulator, *, timing=None, max_expanded_states=2000, plan_results=None):
             if simulator.game.state != "control" or simulator.game.game_over:
                 return ai.np.zeros(ai.NUM_ACTIONS, dtype=ai.np.bool_)
             return ai.np.asarray([ai.plan_placement_action(simulator, action, timing=timing,
                 max_expanded_states=max_expanded_states).reachable for action in ai.PLACEMENT_ACTIONS], dtype=ai.np.bool_)
         ai.realtime_reachable_action_mask = reference
     settings = dict(policy_a=args.policy, policy_b=args.opponent, seed=55, speed=1.0,
-                    max_ticks=2400, plan_overlay=False, nextgen_profile="nextgen_safe_build",
+                    max_ticks=2400, plan_overlay=args.overlay, nextgen_profile="nextgen_safe_build",
                     nextgen_backend="native", keybindings_path="/tmp/puyo273-no-keybindings.json")
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     controller = RealtimeVersusMatchController(RealtimeVersusUiConfig(**settings))
     renderer, clock = VersusRenderer(screen), pygame.time.Clock()
     samples, functions = defaultdict(list), defaultdict(list)
-    events, ticks, processes, cache = [], [], [], []
+    events, ticks, processes, cache, previews = [], [], [], [], []
     pending, rendered = [], []
     workers = [e.process_pid for e in controller._decision_executors.values() if e.process_pid]
     frame = 0
@@ -81,6 +91,18 @@ def run(args):
                                       "matches":expected.get(agent)==actual if agent in expected else None})
         return result
     controller.env.step = step_with_lock_receipts
+    if args.overlay:
+        preview = controller._nextgen_preview
+        previous_preview = {}
+        def preview_recorded(agent):
+            plan, metadata = preview(agent)
+            row = {"agent": agent, "plan_id": plan.get("plan_id"),
+                   "steps": len(plan.get("steps", [])), **metadata}
+            if previous_preview.get(agent) != row:
+                previews.append({"frame": frame, "tick": controller.env.match.tick, **row})
+                previous_preview[agent] = row
+            return plan, metadata
+        controller._nextgen_preview = preview_recorded
 
     def wrap(obj, name, label):
         original = getattr(obj, name)
@@ -89,16 +111,27 @@ def run(args):
             try:
                 return original(*a, **kw)
             finally:
-                functions[label].append({"frame": frame, "ms": (time.perf_counter_ns()-started)/1e6})
+                functions[label].append({"frame": frame, "started_ns": started,
+                                         "thread": threading.current_thread().name,
+                                         "ms": (time.perf_counter_ns()-started)/1e6})
         setattr(obj, name, measured)
 
     if not args.minimal:
+        wrap(scheduler_module, "decode_nextgen_payload", "reader_decode")
+        if hasattr(renderer_module, "live_nextgen_receipt_summary"):
+            wrap(renderer_module, "live_nextgen_receipt_summary", "render_receipt_summary")
+        # Queue.get includes worker wait; measure the actual parent-side decode
+        # separately. These wrappers are local to this evaluator process.
+        wrap(multiprocessing.queues._ForkingPickler, "loads", "ipc_deserialize")
+        wrap(multiprocessing.queues._ForkingPickler, "dumps", "ipc_serialize")
         for name in ("_build_replay_tick", "_sync_display_boards", "tactical_diagnostics"):
             wrap(controller, name, name)
         wrap(controller.env, "step", "simulation")
         wrap(ai, "nextgen_authoritative_action_mask", "authoritative_mask")
+        wrap(ai, "nextgen_plan_is_current", "authoritative_plan_proof")
         for agent, item in controller.controllers.items():
             wrap(item, "next_input", "next_input_" + agent)
+            wrap(item.diagnostics, "to_dict", "controller_diagnostics_" + agent)
             if getattr(item, "nextgen_scheduler", None):
                 for name in ("prepare", "stale", "accept", "finish"):
                     wrap(item.nextgen_scheduler, name, "scheduler_" + name)
@@ -114,6 +147,21 @@ def run(args):
                 item._complete_decision = completed
         for executor in controller._decision_executors.values():
             wrap(executor, "submit_policy", "ipc_submit_enqueue")
+            wrap(executor._request_queue, "_send_bytes", "ipc_send_bytes")
+
+    gc_started = {}
+    def record_gc(phase, info):
+        generation = info["generation"]
+        if phase == "start":
+            gc_started[generation] = time.perf_counter_ns()
+        else:
+            started = gc_started.pop(generation, None)
+            if started is not None:
+                functions["gc_collect"].append({"frame": frame, "started_ns": started,
+                    "thread": threading.current_thread().name, "generation": generation,
+                    "ms": (time.perf_counter_ns()-started)/1e6})
+    if not args.minimal:
+        gc.callbacks.append(record_gc)
 
     def human_state():
         game = controller.env.match.player_states["player_1"].simulator.game
@@ -212,19 +260,27 @@ def run(args):
                   "samples":{k:stats(v) for k,v in samples.items()},"raw_samples":dict(samples),
                   "functions_ms":{k:stats([r["ms"] for r in v]) for k,v in functions.items()},
                   "functions_raw":dict(functions),"cache_samples":cache,"input_events":events,
+                  "preview_samples":previews,
                   "human_ticks":ticks,"process_samples":processes,
                   "diagnostics":{a:i.diagnostics.to_dict() for a,i in controller.controllers.items()},
                   "scheduler_errors": {a:i.nextgen_scheduler.errors for a,i in controller.controllers.items()
                                        if getattr(i,"nextgen_scheduler",None)},
                   "native": {"capabilities":NativeDeepChainBackend().capabilities.to_dict(),
-                             "module":native.__file__, "sha256":hashlib.sha256(Path(native.__file__).read_bytes()).hexdigest()},
+                             "module":str(native_binary), "sha256":hashlib.sha256(native_binary.read_bytes()).hexdigest()},
                   "lock_receipts":locks,
                   "source_sha":source_sha, "reference_mask":args.reference_mask,
                   "geometric_reference":args.geometric_reference,
                   "source_diff_sha256":source_diff,
+                  "source_files_sha256":source_files,
+                  "python":sys.version,"pygame":pygame.version.ver,
+                  "cpu_count":os.cpu_count(),
+                  "cpu_info":Path("/proc/cpuinfo").read_text(),
+                  "memory_info":Path("/proc/meminfo").read_text(),
                   "host":platform.uname()._asdict(),"display":os.environ.get("DISPLAY"),
                   "resolution":[SCREEN_WIDTH,SCREEN_HEIGHT],"clock_ticks":os.sysconf("SC_CLK_TCK")}
     finally:
+        if not args.minimal:
+            gc.callbacks.remove(record_gc)
         stop.set()
         feeder.join(timeout=1)
         controller.shutdown()
@@ -249,6 +305,7 @@ def main():
     parser.add_argument("--opponent",default="random")
     parser.add_argument("--frames",type=int,default=600)
     parser.add_argument("--minimal",action="store_true")
+    parser.add_argument("--overlay",action="store_true")
     parser.add_argument("--reference-mask",action="store_true")
     parser.add_argument("--geometric-reference",action="store_true")
     parser.add_argument("--output",required=True)

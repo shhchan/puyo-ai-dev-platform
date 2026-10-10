@@ -1,0 +1,10 @@
+{
+  "bytes": 2944510796,
+  "sha256": "6aa8c8221c07be2daf6201c22a0ad9fc3b954577aa996f511c02c92691678584",
+  "omitted_tick_keys": [
+    "policy_diagnostics",
+    "controller_diagnostics",
+    "controller_status"
+  ],
+  "ticks": 5520
+}

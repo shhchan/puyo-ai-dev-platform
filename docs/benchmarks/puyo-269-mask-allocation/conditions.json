@@ -1,0 +1,38 @@
+{
+  "baseline": "4056baa70de9b1d0ae897e2fcb1d07ae69db3441",
+  "gate": {
+    "frame_interval_ms": {
+      "p95": 25,
+      "p99": 50
+    },
+    "input_schedule_ms": {
+      "p95": 25,
+      "p99": 50
+    }
+  },
+  "seed": 55,
+  "speed": 1.0,
+  "frames": {
+    "one": 600,
+    "two": 360,
+    "human": 600,
+    "light": 600
+  },
+  "stages": {
+    "before-wire": [
+      "--reference-wire",
+      "--reference-allocation"
+    ],
+    "before": [
+      "--reference-allocation"
+    ],
+    "after": []
+  },
+  "extra_runs": [
+    "after-repeat-two",
+    "after-minimal-two",
+    "after-minimal-one",
+    "after-minimal-light"
+  ],
+  "human_acceptance": "not performed"
+}

@@ -1,0 +1,64 @@
+======================================================================
+FAIL: test_normal_gtr123_hidden_continuation_is_preserved (tests.test_nextgen_survival_walls.SurvivalWallTests.test_normal_gtr123_hidden_continuation_is_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2000114/workspaces/dev/puyo-s14-266/tests/test_nextgen_survival_walls.py", line 55, in test_normal_gtr123_hidden_continuation_is_preserved
+    self.assertEqual(before[1].witness, (1, 3, 8))
+AssertionError: Tuples differ: () != (1, 3, 8)
+
+Second tuple contains 3 additional elements.
+First extra element 0:
+1
+
+- ()
++ (1, 3, 8)
+
+======================================================================
+FAIL: test_reported_public_witness_no_longer_crosses_full_wall (tests.test_nextgen_survival_walls.SurvivalWallTests.test_reported_public_witness_no_longer_crosses_full_wall)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2000114/workspaces/dev/puyo-s14-266/tests/test_nextgen_survival_walls.py", line 39, in test_reported_public_witness_no_longer_crosses_full_wall
+    self.assertEqual(before[3].witness, (3, 0, 11))
+AssertionError: Tuples differ: () != (3, 0, 11)
+
+Second tuple contains 3 additional elements.
+First extra element 0:
+3
+
+- ()
++ (3, 0, 11)
+
+======================================================================
+FAIL: test_late_and_reachability_fallback_are_not_reported_as_adopted (tests.test_nextgen_survival.SurvivalReceiptTests.test_late_and_reachability_fallback_are_not_reported_as_adopted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2000114/workspaces/dev/puyo-s14-266/tests/test_nextgen_survival.py", line 247, in test_late_and_reachability_fallback_are_not_reported_as_adopted
+    self.assertIn('survival_not_adopted_fallback', receipt.reason)
+AssertionError: 'survival_not_adopted_fallback' not found in 'template_not_adopted_fallback:activation_unreachable_fallback'
+
+======================================================================
+FAIL: test_survival_receipt_then_actual_clear_and_return_to_build (tests.test_nextgen_survival.SurvivalReceiptTests.test_survival_receipt_then_actual_clear_and_return_to_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2000114/workspaces/dev/puyo-s14-266/tests/test_nextgen_survival.py", line 212, in test_survival_receipt_then_actual_clear_and_return_to_build
+    self.assertEqual(d.selection.reason, 'legitimate_survival_exception')
+AssertionError: 'rule_priority_build_template' != 'legitimate_survival_exception'
+- rule_priority_build_template
++ legitimate_survival_exception
+
+
+======================================================================
+FAIL: test_known_next_only_recovery_after_public_deadline (tests.test_nextgen_survival.SurvivalTests.test_known_next_only_recovery_after_public_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sion2000114/workspaces/dev/puyo-s14-266/tests/test_nextgen_survival.py", line 85, in test_known_next_only_recovery_after_public_deadline
+    self.assertEqual(root['status'], status)
+AssertionError: 'cutoff' != 'witness'
+- cutoff
++ witness
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.551s
+
+FAILED (failures=5)

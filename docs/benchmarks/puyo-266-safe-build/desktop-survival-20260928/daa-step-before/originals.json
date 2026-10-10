@@ -1,0 +1,21 @@
+{
+  "report": {
+    "sha256": "dfcb27243eda0b5d6db6d6b95e95ad8921752768b72daecc6d386d818a8fdda4",
+    "bytes": 25244164
+  },
+  "ledger": {
+    "sha256": "5c3196150f2a8d1ce9400f9446e85c0c58667e55b3d2765a0465decd9beffe30",
+    "bytes": 11302502
+  },
+  "replay": {
+    "sha256": "b091d7a556ded83485235e1df7b4934317022e8e02001184729980acabcbcc38",
+    "bytes": 730414402,
+    "projection_removed_tick_keys": [
+      "controller_diagnostics",
+      "controller_status",
+      "policy_diagnostics",
+      "nextgen_agents"
+    ],
+    "retained": "all inputs, snapshot hashes, attack/all-clear diagnostics, public events; full decision evidence remains in report/ledger"
+  }
+}

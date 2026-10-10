@@ -1,0 +1,50 @@
+[
+  {
+    "condition": "new-repeat",
+    "source_head": "32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee",
+    "raw_sha256": "00a033f65e602ae4bd56115ac7c38452692d6f906c0a42159dc5c6f09b6d1cf2",
+    "frame_p95_ms": 23.297142550000007,
+    "frame_p99_ms": 38.97541148000001,
+    "input_p95_ms": 17.065163,
+    "input_p99_ms": 23.8392822,
+    "native_sha256": "d7e6fff7c808323fb367c632e1c87dd03bbfd122c0854dc4b09466ae90c9c654",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host": {
+      "system": "Linux",
+      "node": "ShionWindows",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "resolution": [
+      1120,
+      780
+    ],
+    "display": ":0"
+  },
+  {
+    "condition": "old-reference",
+    "source_head": "3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f",
+    "raw_sha256": "a855a03d7b91c6e1364f1b12d9763bbe62fab2613b92e98577f58ba18ce67cc7",
+    "frame_p95_ms": 25.9550431,
+    "frame_p99_ms": 33.83628096000005,
+    "input_p95_ms": 16.657189,
+    "input_p99_ms": 21.701843399999994,
+    "native_sha256": "d7e6fff7c808323fb367c632e1c87dd03bbfd122c0854dc4b09466ae90c9c654",
+    "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host": {
+      "system": "Linux",
+      "node": "ShionWindows",
+      "release": "6.6.87.2-microsoft-standard-WSL2",
+      "version": "#1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "resolution": [
+      1120,
+      780
+    ],
+    "display": ":0"
+  }
+]

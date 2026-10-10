@@ -23,15 +23,16 @@ from agents.deep_chain_search_backend import (
     NativeLongHorizonSearchBackend,
     PythonLongHorizonSearchBackend,
 )
+from agents.nextgen_plan_preview import build_plan_preview
 from agents.nextgen_profiles import nextgen_search_settings
 from agents.nextgen_response_search import PublicResponseProvider
-from agents.nextgen_survival import apply_envelope
 from agents.nextgen_shared_search import (
     PreparedTemplateSearch,
     SharedSearchBatchBuilder,
     SharedSearchCache,
     scenario_provenance,
 )
+from agents.nextgen_survival import apply_envelope
 from agents.template_catalog import (
     MatchResult,
     TemplateCandidate,
@@ -256,6 +257,7 @@ class PreparePhaseStep(DecisionStep):
                 policy.catalog.semantic_digest,
                 scenario_provenance(public.own.known_pieces, policy.search_config),
             ),
+            inference=data.get("inference"),
         )
         key = phase.candidate.key if phase.candidate is not None else None
         prepared = PreparedTemplateSearch(
@@ -394,6 +396,8 @@ class NextgenTacticManagerPolicy:
 
     def reset(self):
         self.last_context = None
+        self._plan_preview_context = None
+        self._plan_preview = {}
         self.shared_cache = SharedSearchCache(owned_native_backend=self._owned_native_backend)
 
     def decision_input_identity(self, observation, info):
@@ -420,7 +424,14 @@ class NextgenTacticManagerPolicy:
         if self.last_context is None:
             return {}
         context = self.last_context
+        if self._plan_preview_context is not context:
+            self._plan_preview = build_plan_preview(
+                context.require("request"), context.require("candidate"),
+                context.require("search"), context.require("selection"),
+            )
+            self._plan_preview_context = context
         return {
+            **copy.deepcopy(self._plan_preview),
             "nextgen": context.require("diagnostics").to_dict(),
             "template_match": asdict(context.require("prepared_template").result),
             "template_phase": context.require("phase").diagnostics(),

@@ -1,0 +1,52 @@
+{
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "native": {
+    "abi_version": 1,
+    "schema": {
+      "major": 1,
+      "minor_min": 0,
+      "minor_max": 0,
+      "request_digest": "fab9cfdae1b6a88a21fdfd2358df9e6f7276bd543f393ee095f581dd8f01c05e",
+      "result_digest": "1e47e96f202f45bdf7e96ec6c2363ac1eb5ad73bfa76bc05e209820027c93211"
+    },
+    "limits": {
+      "max_request_bytes": 16777216,
+      "max_response_bytes": 16777216,
+      "max_sections": 64
+    },
+    "source_revision": "732ed3da17a1a6144a98c7995fbe9dfe2e45ea91-dirty",
+    "compiler": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "build_profile": "release",
+    "target": "x86_64-unknown-linux-gnu",
+    "python_abi": "cp312",
+    "cpu_features": [
+      "scalar",
+      "sse2",
+      "ssse3",
+      "sse4.1",
+      "avx2"
+    ],
+    "scalar_fallback": true,
+    "simd_path": "scalar",
+    "gil_detach": true,
+    "parallel": true,
+    "wheel_hash_hook": true,
+    "thread_modes": [
+      "oracle-1",
+      "scenario-6"
+    ],
+    "max_threads": 6,
+    "crate_version": "0.4.0",
+    "wire_name": "puyo.deep_chain_native.envelope.v1",
+    "compact_hot_result": {
+      "abi_version": 1,
+      "schema": "puyo.native_compact_hot_result.v1",
+      "child_state_bytes": 80,
+      "result_bytes": 24,
+      "flags_mask": 15
+    }
+  },
+  "wheel": "puyo_deep_chain_native-0.4.0-cp312-cp312-manylinux_2_28_x86_64.whl",
+  "wheel_sha256": "b1c2baf386a2dd4cc32faefcd508e9156fd452bc695a774b2b24c7a6237cfa39"
+}

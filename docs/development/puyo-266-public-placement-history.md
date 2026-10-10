@@ -1,0 +1,74 @@
+# PUYO-266 公開自配置履歴と生存推定
+
+実装済みなのは実 lock の公開履歴，独立した公開推定 observer，後続配置が完全満杯列を横断する誤った witness の除外である．hidden 推定の worker 接続，時間を含む後続操作の保証，窒息修正完了を意味しない．
+
+## 公開履歴の境界
+
+`RealtimeVersusMatch.public_placement_history(player_id)` は，既存 `PublicSnapshot`/`PublicTimingHistory` と独立した `puyo.nextgen.public_placements.v1` を返す．既存 wire schema，actor feature，snapshot digest は変えない．
+
+各 record は player，lock tick，event ID，実 lock の列・向きから求めた action，その tick の直前に公開されていた current pair だけを持つ．採用 intent/receipt からは生成しない．したがって stale/timeout/未 lock は記録を増やさず，fallback が実際に lock すればその実結果を記録する．axis_y，field の着地点，hidden board，未公開ツモ，garbage RNG は読まない．lock は消去完了でも最終着地点でもない．split pair の落下・clear・おじゃまは既存公開 lifecycle と別に照合する必要がある．
+
+adapter の設置前に起きた lock は復元しない．`started_tick` は途中参加の開始点であり，0 という値だけで完全な初期盤面を証明しない．履歴の ID は同じ adapter/episode 内だけで有効で，reset は adapter 全体を作り直す．呼出側は別 episode の履歴を結合しない．player 別の取得と schema 検証で相手履歴の混入を拒否する．
+
+## 採用した必要条件
+
+既存有限 probe の後続候補から，spawn 列 2 と着地軸列の間に 14 セルすべてが埋まった列がある配置だけを除外する．軸の水平移動・side kick は 1 列ずつで，満杯列のどの高さにも軸が入れない．root の可到達性は引き続き scheduler の authoritative mask を使う．
+
+最上段のセルだけで満杯と判定しない．14 行目は消去後に浮いたまま残る仕様であり，13 段の壁や合法な hidden 継続を一律禁止しない．これは定数個の occupancy 検査で，探索の追加や quota の拡張はない．placement/drop は従来どおり response 256 内の survival 128 に事前課金する．cutoff は fatal にしない．
+
+## 不採用の control 探索案
+
+公開 compact board と既知 pair だけで fresh spawn の geometry BFS を構成し，control-state 展開も同じ 128 枠に事前課金する試作を行った．placement/drop/control を別集計し，generator の round robin と root の初回 coverage は保った．しかし正常 GTR 123/28 で placement 23 + control 105 に達し，従来の正当な `[1,3,8]` が cutoff になった．NEXT 救済と実採用 receipt の回帰も失敗したため runtime へ採用していない．[棄却 patch と結果](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/rejected-control-prototype.json)を保存した．
+
+単独 witness の対象 pose だけなら正常 123 は 8 + 13 control states で証明できるが，全 root の同時探索へ単純追加すると共有予算を使い切る．加えて，fresh spawn/補間 0 の幾何探索は自然落下・floor kick を含む実時間の到達不能証明ではない．完全盤面を policy へ渡すことや，unknown/cutoff を死亡扱いして小消しへ切り替えることで代用しない．
+
+## 次の最小設計と検証条件
+
+1. 実 lock 履歴から推定した hidden を visible board とは別の sidecar に保持する．推定値，観測値，unknown を分離し，episode ID，公開入力 digest，最終 lock ID を bind する．未確定の着地点や receipt のみを確定情報に昇格しない．
+2. 次の settled snapshot と visible 領域を照合する．clear/garbage/途中参加/欠損/不整合では，復元できないセルを unknown に戻す．private garbage RNG による着弾列を推測して確定しない．worker transport と replay/receipt に provenance を保存する．
+3. shared/native 順位に沿う段階的な証明と公開 geometry cache を設計し，placement と control の合計を既存 128 内に保つ．どの候補を先に証明したかで quota 切れを fatal と誤認しない．正常 123/28 の有効な証明を維持してから scheduler 契約へ接続する．
+4. seed 127/26 の root 3 を排除するだけでは不十分である．公開モデルには root 11 の `[11,0,3]` も残り，実 hidden が列 0 を塞いでいる．履歴推定と後続操作証明を同時に満たして，合法 4 連鎖 `[7,8,10]` の実 lock/clear まで検証する．55/123/124，126/128/132/135/144，3 定型，reset/stale/fallback/timeout/unknown/quota を再確認する．
+
+正式 G2 の 30 seed × 2 repeat と残る品質条件，人間 GUI QA は未達であり，PUYO-266 は In Progress のまま扱う．
+
+## 公開推定 observer（第一段階）
+
+`public_board_inference()` は独立 opt-in observer である．空の Field を作る `reset()` の明示起点を，最初の step より前に受け取った場合だけ hidden 2 行を空と確定する．tick 0 や可視盤面が空というだけでは確定しない．遅い設置，episode/tick 欠測，実 lock/pair 不一致，複数の lock 高さ，clear/visible 不整合は unknown とし，unknown の wire に推測セルを含めない．reset は observer を破棄して起点を更新する．
+
+推定器は public state，実 lock action/pair，公開 lifecycle だけを受け取る．settled な既知盤面から grounded lock の可能な高さを列挙し，lock 直後の visible と一致する結果を公開の重力/消去ルールで解決する．次の control snapshot と整合する一意の結果のみ確定する．clear 中やおじゃま animation 中は unknown．おじゃまは公開ルールで visible 行の空セルだけに配置されるため，表示が確定した結果と照合して hidden の保存を判断する．乱数や着弾予定位置を読まない．scratch Field は公開セルだけから構成し，元 match/simulator/private field は推定器へ渡さない．
+
+sidecar は episode/player/tick，visible digest，last lock ID，known/unknown と hidden 2 行を持つ．既存 PublicSnapshot は hidden=None のままで，actor と native の入力は変えない．この段階では worker/request へは接続していない．`tests/test_nextgen_public_inference.py` が起点，欠測，clear/drop 整合と private 非干渉を検証する．保存済み GTR 123/132/135 と新規 human fixture の 133 判断を比較する offline script は `docs/benchmarks/puyo-266-safe-build/sprint14-human-20261008/public-inference-audit.py`．完全盤面は script の期待結果監査だけに使い，推定器の入力ではない．
+
+## request への明示 bind（第二段階）
+
+新規 request は `puyo.nextgen.request.v2` とし，独立した `inference` field を持つ．scheduler の prepare が identity/execution の digest に sidecar を結び付け，accept は返却された sidecar の厳密一致を確認する．既存 decode cache 本体は変更しない．phase worker はこの値を request に明示して渡す．
+
+`known_inference()` は known，player，request tick，visible digest，identity/execution digest がすべて一致し，control 中の場合だけ値を返す．missing/unknown/mismatch は利用不能であり，従来の公開盤面経路へ戻す．履歴 producer の信頼境界を置き換える API ではない．sidecar の raw hidden セルは native 検索入力や actor feature に追加しない．
+
+旧 `request.v1` は inference field を含めず，旧 wire と semantic digest の完全一致を保って読む．v1 に新 field を混入させる入力は拒否する．新 v2 は field の明示を必須とするが，値 None を許容する．専用 wire tests で v1/v2 の往復，nested digest，bind 不整合，native 入力一致，actor feature 非露出を検証する．
+
+## 順位順 control/terminal 証明（第三段階）
+
+request に bind された known 推定のみを survival 用 compact state に重ねる．native/shared backend と response provider は従来の visible state を受け取る．未着弾の公開攻撃がある場合は，単一代表 witness で着弾分岐の control を証明できないため従来経路を使う．unknown/mismatch の推定を順位根拠にしない．
+
+従来 probe の root coverage を先に完了し，その placement 結果を request 内だけで cache する．key は immutable state 全体・公開既知 pair・action で，色，bonus，score，hidden 推定を区別する．shared の build_main 順位に沿い，既存の非発火優先を保ちながら witness を調べる．fresh spawn/補間 0 の control state を対象 pose まで best-first で探索し，展開前に response 予算へ課金する．geometry cache は占有 bitmask と対象 action を key とし，毎 request 破棄する．別の色でも同じ占有なら幾何ルールが等しく，最短時間や実時間採用を保証する cache ではない．
+
+terminal は追加 1 配置の色に依存しない十分条件である．中央 spawn/choke 3 セルが空で，制御可能な追加配置後も中央の重力対象セル数が 11 以下なら，消去に依存せず次の choke を避けられる．未知の将来ツモ・相手攻撃・無限の生存を証明したとは扱わない．上位 witness の control 不成立または terminal 不十分は unknown であり，fatal に変更しない．最初の証明成功時だけ，それまで検証できなかった上位候補を unknown にして順位へ反映する．未調査の明示 fire/cancel 候補を一律に禁止しない．
+
+probe + control + cache miss placement + terminal の合計を既存 survival 128 内で事前課金し，残った response 256 の枠だけを response provider に渡す．証明が cutoff/unknown で終わった場合は `control_proof.status` を明示し，元の有限 horizon envelope に戻す．この fallback の bounded witness を terminal 証明や長期安全へ昇格させない．`safety_guarantee=False` を維持する．
+
+固定 6 判断の結果は [監査 JSON](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/inferred-survival-audit.json)．関連 135 tests（既存 43 を含む）と legacy 383 判断の完全一致を確認した．保存 batch 上の実 `apply_envelope` では 127/26 が root 8 の 4 連鎖になり，正常 123/28，132/30，135/34 を維持した．新規対局，実 lock，正式 G2 と人間 QA は別の検証であり，この固定結果で達成扱いにしない．
+
+observer の `origin_episode_id` と scheduler の `episode_id` は独立の ID 空間である．prepare は元 observer episode/origin が match の現在 origin と一致することを先に照合し，不一致なら hidden を消して unknown にする．その後 scheduler episode と request digest を bind する．`known_inference()` は scheduler episode の厳密一致と origin の存在も必須とする．古い observer を新しい request digest で再 bind しても known に復活しない回帰 test を追加した．
+
+### 着弾後の回復候補（2026-10-08 追補）
+
+`0633af0` は公開推定が known，未着弾 packet なし，到達可能 fatal root ありという境界で，着弾済みおじゃまを実際に減らす即時非fatal消去の証明を先に行う．既存128枠内でcontrol/terminalが認証されたrootだけをbuild_main順位へ反映し，cutoff/unknownと他tacticは従来経路を保つ．静かな未検証witnessをfatalにはしない．wire/native/actor入力とresponse256を維持した．
+
+保存228判断ではhuman127の6判断だけが変わり，おじゃま0の207判断（固定55/123/124/126/128の全199含む）とlegacy383は非退行．140tests成功．同じ製品sourceの新規human127/58/daa/softmax1.0/x1.0は3500tick時点で43lock生存，max_ticks7000のfresh別runで5090tick/60lock生存だった．6回の回復の実1/1/3/5/2/9連鎖と予測・実おじゃま除去数が一致し，66推定hidden誤確定0，実lock不一致0，quota超過0，全hash一致．normalのwall-clock分岐を含むため同一prefix A/Bとはしない．詳しいraw・再監査・残課題は[保存README](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照．無脅威G2と人間GUI QAは未達のままである．
+
+### 既存適格 fire_main 候補を先頭へ置く修正
+
+`1969271` はfire_mainの固定順位だけを修正する．未評価の後続候補が先頭にあるためtactic全体が拒否され，即時10連鎖の既存適格候補を選べなかった126の原因に対し，fatal_rate=0という既存必要条件を満たす群を先に置く．群内順位と外側のsurvival順位を維持し，候補・evidence・selector条件・quotaは変更しない．
+
+固定native55/123/124/126は全40配置，最大10連鎖，premature0，非窒息．126は旧最大1/小発火2から改善し，31手目の10連鎖後9配置を生存した．124の最大11→10と，正常123/124で早まった発火は明示して保持する．全160の実lock/hash/public推定一致，quota超過0，関連141tests成功．旧G2の読取では132/135/144にも同じ候補隠蔽があるが，新規対局は未検証．128は適格fire順位では変化せず，代替known-prefix経路と固定予算の独立課題が残る．[保存README](../benchmarks/puyo-266-safe-build/sprint14-human-20261008/README.md)を参照．

@@ -3,12 +3,55 @@
 from __future__ import annotations
 
 import copy
+import pickle
 from dataclasses import replace
 
 from agents import nextgen_contracts as c
 from agents.nextgen_tactic_manager import match_result_from_dict, reconcile_phase
 from agents.template_phase import TemplatePhaseController
 from puyo_env.nextgen_public_snapshot import TickInterval, TimingProfile
+
+
+class _DecodedNextgenPayload(dict):
+    """Parent-local proof of pure schema validation, never a wire contract.
+
+    Contracts are frozen and recursively tuple-valued. Keep an exact wire
+    serialization: a consumer changing even a nested wire field or its type
+    must not retain the proof for the previous value. This avoids constructing
+    a second full dictionary tree and walking it in Python on the UI thread.
+    Pickle is used only to compare local bytes; no bytes are loaded here.
+    """
+
+    def __init__(self, payload, diagnostics):
+        super().__init__(payload)
+        self._diagnostics = diagnostics
+        self._validated_wire = pickle.dumps(payload["nextgen"], protocol=5)
+
+    def decoded(self):
+        try:
+            current = pickle.dumps(self.get("nextgen"), protocol=5)
+        except Exception:
+            # A mutated value can define a failing __reduce__. Treat any local
+            # serialization failure as lost proof; the schema path rejects it.
+            return None
+        if current == self._validated_wire:
+            return self._diagnostics
+        return None
+
+
+def decode_nextgen_payload(payload):
+    """Validate only immutable worker data on the existing result reader.
+
+    Malformed values retain the old UI-side error/outcome path. Request identity,
+    current public state, phase and authoritative reachability are NOT accepted
+    here; those remain owned by the simulation thread.
+    """
+    if not isinstance(payload, dict) or "nextgen" not in payload:
+        return payload
+    try:
+        return _DecodedNextgenPayload(payload, c.Diagnostics.from_dict(payload["nextgen"]))
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return payload
 
 
 class NextgenScheduler:
@@ -73,6 +116,15 @@ class NextgenScheduler:
             "phase": copy.deepcopy(self.phase),
             "piece_id": f"piece-{sum(e.kind == 'placement' and e.player_id == player for e in public.events)}",
         }
+        inference = match.public_board_inference(player)
+        if (inference.episode_id != match.public_inference_episode_id or
+                inference.origin_episode_id != match.public_inference_episode_id):
+            inference = replace(inference, status="unknown", hidden_rows=((None,) * 6,) * 2,
+                                reason="origin_episode_mismatch")
+        self.data["inference"] = replace(
+            inference, episode_id=identity.episode_id,
+            request_digest=c.inference_request_digest(identity, self.data["execution"]),
+        )
         self.result = None
         self.result_candidate = None
         self.result_phase = None
@@ -87,12 +139,15 @@ class NextgenScheduler:
 
     def accept(self, payload, selected_action):
         try:
-            diagnostics = c.Diagnostics.from_dict(payload["nextgen"])
+            diagnostics = payload.decoded() if isinstance(payload, _DecodedNextgenPayload) else None
+            if diagnostics is None:
+                diagnostics = c.Diagnostics.from_dict(payload["nextgen"])
             request = diagnostics.request
             if (
                 request.identity != self.data["identity"]
                 or request.public != self.data["public"]
                 or request.execution != self.data["execution"]
+                or request.inference != self.data["inference"]
                 or request.control.search_profile != self.policy.profile
                 or request.control.template_config_hash
                 != self.policy.catalog.semantic_digest

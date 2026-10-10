@@ -28,6 +28,11 @@ PLANNER_ACTIONS = (
 )
 
 
+# TickInput is frozen and tuple-valued: these edges have no per-plan state.
+_PLANNER_PULSES = {action: inputs_from_action_pulses((action,)) for action in PLANNER_ACTIONS}
+_IDLE_INPUT = TickInput()
+
+
 @dataclass(frozen=True)
 class PlannedPlacement:
     action: PlacementAction
@@ -121,7 +126,11 @@ def _control_probe(source, timing):
 
 def _step_control_probe(probe, tick_input):
     """Mirror the control branch of step without snapshots or chain animation."""
-    fired = probe._collect_fired_actions(probe.tick, tick_input)
+    # With no edges and no held action, collection cannot fire or alter repeat
+    # deadlines. Ground-lock and gravity still run on every authoritative tick.
+    fired = (() if type(probe) is RealtimeHeadlessSimulator
+             and tick_input is _IDLE_INPUT and not probe.held_actions
+             else probe._collect_fired_actions(probe.tick, tick_input))
     probe.game.update(fired, held_actions={a: True for a in probe.held_actions})
     probe._apply_gravity_if_due(probe.tick)
     probe.tick += 1
@@ -140,7 +149,7 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
         step_action = remaining.popleft()
         predicted = _geometry_transition(probe.game, current, step_action, transition_cache)
         actions.append(step_action)
-        for tick_input in inputs_from_action_pulses((step_action,)):
+        for tick_input in _PLANNER_PULSES[step_action]:
             if probe.game.state != "control":
                 break
             inputs.append(tick_input)
@@ -165,7 +174,7 @@ def _verify_path(source, action, target, path, *, timing, max_expanded_states, r
     for _ in range(probe.timing.lock_frame_limit + 2):
         if probe.game.state != "control":
             break
-        tick_input = TickInput()
+        tick_input = _IDLE_INPUT
         inputs.append(tick_input)
         _step_control_probe(probe, tick_input)
     if probe.game._planner_lock != target:
@@ -229,11 +238,19 @@ def reachable_placement_actions(
     *,
     timing: RealtimeTimingConfig | None = None,
     max_expanded_states: int = 2_000,
+    plan_results: dict[PlacementAction, PlannedPlacement] | None = None,
 ) -> tuple[bool, ...]:
-    """Share geometry BFS and return only roots with verified timed witnesses."""
+    """Return verified roots, optionally retaining this call's timed witnesses.
+
+    The output mapping is cleared on every call. Witnesses belong to this exact
+    live state; callers must not carry them across simulation ticks or mutations.
+    """
     actions = tuple(actions)
     plans = _plans_for_actions(game_or_simulator, actions, timing=timing,
                                max_expanded_states=max_expanded_states)
+    if plan_results is not None:
+        plan_results.clear()
+        plan_results.update((action, plan) for action, plan in plans.items() if plan is not None)
     return tuple(plans.get(action) is not None for action in actions)
 
 
@@ -289,7 +306,8 @@ def _transition_piece_state(
 ) -> tuple[int, int, Direction, int] | None:
     # Movement probes only mutate piece/control counters and read the board.
     # Sharing the field avoids thousands of deep board copies per BFS.
-    probe = copy.copy(base_game)
+    probe = object.__new__(type(base_game))
+    probe.__dict__ = base_game.__dict__.copy()
     probe.puyo_x, probe.puyo_y, probe.puyo_rot, probe.blocked_rotate_input_count = state
     probe.vertical_interpolation_progress = 0.0
     probe.floor_kick_horizontal_grace = False
