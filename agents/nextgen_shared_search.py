@@ -503,7 +503,7 @@ class SharedSearchBatchBuilder:
             survival, survival_diagnostics = refine_inferred(
                 request, survival_state, survival, survival_diagnostics, response_budget,
                 tuple(v.root_action for v in shared.ranked_roots) if shared else roots,
-                survival_cache,
+                survival_cache, target_chain_count=self.config.minimum_chain_count,
             )
         if any(v.status == "cutoff" for v in survival.values()):
             cutoffs.append("survival_quota")
