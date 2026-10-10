@@ -7,8 +7,8 @@ charged to the existing response quota before evaluation.
 """
 from __future__ import annotations
 
-from collections import deque
 import heapq
+from collections import deque
 from dataclasses import dataclass, replace
 
 from agents import nextgen_contracts as c
@@ -72,8 +72,13 @@ def needs_probe(request):
 def probe(request, state, roots, budget, *, timing=None, board_complete=False, transition_cache=None, reuse_transitions=False):
     # Local import keeps the shared-search/provider injection boundary acyclic.
     from agents.nextgen_response_search import (
-        PublicResponseProvider, _Node, _consume, _due_options, _plus,
-        drop_distributions, drop_public_garbage,
+        PublicResponseProvider,
+        _consume,
+        _due_options,
+        _Node,
+        _plus,
+        drop_distributions,
+        drop_public_garbage,
     )
 
     reachable = tuple(a for a in roots if request.execution.reachable_mask[a])
