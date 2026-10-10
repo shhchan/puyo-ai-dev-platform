@@ -27,6 +27,47 @@ from src.core.constants import PuyoColor
 from src.core.puyo import Puyo
 
 
+class NativeIdentityTests(unittest.TestCase):
+    def test_real_extension_hash_and_replacement_drift_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            binary = output / ("native" + gate.importlib.machinery.EXTENSION_SUFFIXES[0])
+            binary.write_bytes(b"original native binary")
+            name = gate.NATIVE_MODULE_NAME + ".native"
+            package = SimpleNamespace(capabilities=SimpleNamespace(__module__=name))
+            extension = SimpleNamespace(__file__=str(binary))
+            with (patch.object(gate, "legacy_build_identity", return_value={"wrapper": "unchanged"}),
+                  patch.object(gate.importlib, "import_module", side_effect=lambda n:
+                               package if n == gate.NATIVE_MODULE_NAME else extension)):
+                before = gate.build_identity()
+                self.assertEqual(before["native_extension"]["path"], str(binary))
+                self.assertEqual(before["native_extension"]["sha256"],
+                                 gate.hashlib.sha256(binary.read_bytes()).hexdigest())
+                config = {"preregistration": gate.declaration(), "pattern_ids": list(gate.PATTERN_IDS),
+                          "repeats": list(gate.REPEATS), "policies": list(POLICIES),
+                          "total_resolved_placements": 46, "thresholds": gate.declaration()["thresholds"]}
+                manifest = {"schema": gate.SCHEMA, "source": {}, "build": copy.deepcopy(before),
+                            "config": config, "config_sha256": gate.digest(config)}
+                manifest["sha256"] = gate.digest(manifest)
+                gate.write_new(output / "manifest.json", manifest)
+                binary.write_bytes(b"replacement native binary")
+                with (patch.object(gate, "require_clean"),
+                      patch.object(gate, "current_source", return_value={}),
+                      self.assertRaisesRegex(ValueError, "source/build/host changed")):
+                    gate.load_manifest(output, execution=True)
+
+    def test_wrapper_or_missing_extension_fails_closed(self):
+        name = gate.NATIVE_MODULE_NAME + ".native"
+        package = SimpleNamespace(capabilities=SimpleNamespace(__module__=name))
+        for origin in (None, "/missing/__init__.py", "/missing/native.so"):
+            with (self.subTest(origin=origin),
+                  patch.object(gate, "legacy_build_identity", return_value={}),
+                  patch.object(gate.importlib, "import_module", side_effect=lambda n:
+                               package if n == gate.NATIVE_MODULE_NAME else SimpleNamespace(__file__=origin)),
+                  self.assertRaises((ValueError, FileNotFoundError))):
+                gate.build_identity()
+
+
 class SingleRuntimeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

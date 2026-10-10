@@ -10,6 +10,8 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import importlib
+import importlib.machinery
 import json
 import subprocess
 import sys
@@ -20,10 +22,12 @@ from pathlib import Path
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices, transition
 from agents.deep_chain_builder import load_deep_chain_builder_config
+from agents.deep_chain_native import NATIVE_MODULE_NAME
 from agents.nextgen_profiles import nextgen_search_settings
 from eval.nextgen_gates import digest, distribution
 from eval.nextgen_realtime_diagnostic import source_identity
-from eval.nextgen_safe_build_gate import build_identity, read, write_new
+from eval.nextgen_safe_build_gate import build_identity as legacy_build_identity
+from eval.nextgen_safe_build_gate import read, write_new
 from eval.nextgen_single_quality_runtime import (
     POLICIES,
     POLICY_SEED,
@@ -55,6 +59,24 @@ def declaration():
             or value["thresholds"] != {"mean_maximum_actual_chain": 10,
                                         "unjustified_premature": 0, "avoidable_suffocation": 0}):
         raise ValueError("preregistered cohort/thresholds changed")
+    return value
+
+
+def build_identity():
+    value = legacy_build_identity()
+    package = importlib.import_module(NATIVE_MODULE_NAME)
+    module_name = getattr(package.capabilities, "__module__", None)
+    if not module_name or not (module_name == NATIVE_MODULE_NAME
+                               or module_name.startswith(NATIVE_MODULE_NAME + ".")):
+        raise ValueError("native capabilities do not identify an extension module")
+    extension = importlib.import_module(module_name)
+    origin = getattr(extension, "__file__", None)
+    if (not origin or not any(str(origin).endswith(suffix)
+                              for suffix in importlib.machinery.EXTENSION_SUFFIXES)):
+        raise ValueError("native extension binary is missing or is not a shared library")
+    binary = Path(origin).resolve(strict=True)
+    value["native_extension"] = {"module": module_name, "path": str(binary),
+                                 "sha256": hashlib.sha256(binary.read_bytes()).hexdigest()}
     return value
 
 
