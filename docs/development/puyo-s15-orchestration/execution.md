@@ -4,12 +4,12 @@
 
 | Jira | 依存／待機条件 | worktree／branch | 起点／PR base | 担当範囲 | モデル／推論／理由 | 排他資源 | 子／状態／PR |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 275 | なし | /home/sion2000114/workspaces/dev/puyo-s15-275 / PUYO-275/esports-tsumo-provider | 7757f23 / integration は 278 監査後確定 | 配ぷよ provider，core/env/CLI/開始設定，関連テスト | gpt-6-sol / medium / 明確な provider 追加 | launcher/UI の編集を 276 に先行，native build は要調整 | 起動準備 |
-| 276 | 275 の GUI/CLI 編集完了後に実装 | /home/sion2000114/workspaces/dev/puyo-s15-276 / PUYO-276/automatic-qa-replay | 7757f23，実装時に 275 head へ更新 / 275 branch | QA 保存，launcher/UI/manifest/validator，関連テスト | gpt-6-sol / medium / 既存 replay の保存導線 | 当初は読取調査のみ，GUI 計測は排他 | 起動準備 |
-| 266 | 275 の受入達成．当初は読取設計のみ | /home/sion2000114/workspaces/dev/puyo-s15-266 / PUYO-266/sprint15-single-quality | 調査用 7757f23，依存実装前に検証済み先行 head を親が取り込む / stack の先行 branch | 単独 gate，nextgen 構築品質 | gpt-6-astra / high / 探索・品質原因調査 | 重い探索と GUI/native build は排他 | /root/puyo266，読取設計 |
-| 277 | 275 達成，266 と契約編集を直列化 | /home/sion2000114/workspaces/dev/puyo-s15-277 / PUYO-277/attack-response-gate | 調査用 7757f23，実装前に先行確定 head を取り込む / stack の先行 branch | 対戦 gate，独立 eval sidecar を優先 | gpt-6-astra / high / deadline と採用整合 | 266 と shared_search/tactic_manager の編集は排他 | /root/puyo277，読取設計完了・clean 待機 |
-| 274 | 266／276／277 の結果 | /home/sion2000114/workspaces/dev/puyo-s15-274 / PUYO-274/sprint15-closeout | 7757f23，実装時に全先行 head を取り込む / 先行 branch | 親実行表，統合・人間 QA 手順，完了境界 | 継承モデル / 継承推論 / 親統合，後で子に専用範囲委任 | 全体記録は親所有，GUI QA は排他 | 親準備中 |
-| 278 | release 実行は 274 達成後，監査は先行 | /home/sion2000114/workspaces/dev/puyo-s15-278 / PUYO-278/v173-release-audit | 7757f23 / 最終先行 branch | v1.7.3 release 監査 docs のみ | gpt-6-sol / medium / 履歴と文書監査 | branch 作成/共有設定は親のみ | 起動準備 |
+| 275 | なし | /home/sion2000114/workspaces/dev/puyo-s15-275 / PUYO-275/esports-tsumo-provider | 7757f23 / integration/puyo-228-v1-7-3 | 配ぷよ provider，core/env/CLI/開始設定，関連テスト | gpt-6-sol / medium / 明確な provider 追加 | native build は要調整 | /root/puyo275，Complete，PR #183，51d53a8 |
+| 276 | 275 | /home/sion2000114/workspaces/dev/puyo-s15-276 / PUYO-276/automatic-qa-replay | 275 head / 275 branch | QA 保存，launcher/UI/manifest/validator，関連テスト | gpt-6-sol / medium / 既存 replay の保存導線 | GUI 計測は排他 | /root/puyo276，PR #184，30405d8，人間 GUI QA 待ち |
+| 277 | 275，実際の次世代検索修正を 266 の正式評価より前に確定 | /home/sion2000114/workspaces/dev/puyo-s15-277 / PUYO-277/attack-response-gate | 275 head，親が 276 head を通常 merge / 276 branch | 対戦 gate，独立 eval sidecar，限定的な response ranking | gpt-6-astra / high / deadline と採用整合 | 72 条件の正式評価は CPU 排他 | /root/puyo277，draft PR #185，cb2ecde，正式 72 条件実行中 |
+| 266 | 275，276，277 の実装確定後に正式評価 | /home/sion2000114/workspaces/dev/puyo-s15-266 / PUYO-266/sprint15-single-quality | 275 head，276 head 取り込み済み．親が 277 head を通常 merge / 277 branch | 単独 gate，nextgen 構築品質 | gpt-6-astra / high / 探索・品質原因調査 | 120 run は対戦評価後の CPU 排他 | /root/puyo266，be21c99，正式 120 run 待機 |
+| 274 | 266／276／277 の結果 | /home/sion2000114/workspaces/dev/puyo-s15-274 / PUYO-274/sprint15-closeout | 7757f23，実装時に全先行 head を取り込む / 266 branch | 親実行表，統合・人間 QA 手順，完了境界 | 継承モデル / 継承推論 / 親統合 | 統合 GUI QA は排他 | /root/puyo274，0f4b48a，統合待ち |
+| 278 | release 実行は 274 達成後，監査は先行 | /home/sion2000114/workspaces/dev/puyo-s15-278 / PUYO-278/v173-release-audit | 7757f23 / 274 branch | v1.7.3 release 監査 docs のみ | gpt-6-sol / medium / 履歴と文書監査 | branch 作成/共有設定は親のみ | /root/puyo278，1f86a57，最終監査待ち |
 
 host: Intel i7-14700F，28 logical CPU，15 GiB RAM (約 12 GiB available)．最大 3 子だが GUI/重い探索/native build は同時実行しない．子は再委任しない．各子が自分の Jira 更新を所有し，親はコメントを重複しない．人間 QA は実コマンド，操作，期待結果，証跡保存先を具体的に示す．
 
@@ -34,7 +34,7 @@ host: Intel i7-14700F，28 logical CPU，15 GiB RAM (約 12 GiB available)．最
 
 - 275 最終 head `51d53a8d5008fca3554c7b97502b6a31e637c749`，PR [#183](https://github.com/shhchan/puyo-ai-dev-platform/pull/183)，base `integration/puyo-228-v1-7-3`，ready，reviewer なし．Jira Complete，セッションコメント 10819．privacy 境界修正後 89 tests，外部 source audit，legacy/new replay を子が確認．親も source 専用 8 tests／Ruff F／diff check 成功．GitHub CI は進行中であり成功を未確認．親が継続追跡する．
 - 276 へ親が最終 provider を通常 merge，起点 `8717839653edcd15a02d754d1e05418a50913c4f`．GUI/launcher/renderer と新 QA module の担当を保持．root read-only venv で 77 tests 成功．保存 OFF/ON 各 120 frame の GUI/native 実測排他枠を付与した．他の子は重い実行を待機する．
-- 266／277 の worktree を親が `51d53a8` へ fast-forward，clean 確認後，同じ子を再開して gate 実装を開始．両 PR の当初 base は 275 branch，最終 stack では 276→266→277 の通常 merge による ancestry を親が全子停止後に構築する．共有 agents/runtime/core/UI は所有範囲に含めず，必要な修正は根拠つきで再割当する．
+- 266／277 の worktree を親が `51d53a8` へ fast-forward，clean 確認後，同じ子を再開して gate 実装を開始．共有 agents/runtime/core/UI は当初の担当範囲に含めず，必要な修正は根拠つきで再割当した．277 の response ranking 修正を 266 の正式評価に含めるため，最終 stack は 275→276→277→266→274→278 の順とする．親が停止した子の clean worktree へ確定 head を通常 merge し，履歴を保持する．
 - 266 は新 eval 専用の単独 gate を担当．reference 入力も真の hidden/ghost にアクセスせず，public snapshot と既存 PublicInferenceTracker の公開履歴による推定だけを使う．unknown は BLOCKED．120 run の正式評価は manifest 固定と排他枠付与後に実行する．
 - 277 は `00a8fe1` で 4 pattern × 7 case の fixture を初回評価前に固定．人工公開盤面／攻撃 script を既存 realtime engine に適用する eval wrapper を作る．配置・resolution・cancel/drop の実 trace，public witness の prepared/fireable 分類と replay を照合し，未観測や cutoff を PASS にしない．
 
@@ -44,3 +44,11 @@ host: Intel i7-14700F，28 logical CPU，15 GiB RAM (約 12 GiB available)．最
 - 276 PR [#184](https://github.com/shhchan/puyo-ai-dev-platform/pull/184)，base 275，head `66206e6`，reviewer なし．79 tests 成功，Jira In Progress，comment 10820．人間操作 QA と長い対局測定を未完と分離した．docs/probe 準備 `92d100a` で長い実測を実施：random seed127 nextgen/human x1.0，50 ms key script，OFF 987 frame／1000 tick，ON 1008 frame／1000 tick．ON replay 14,845,041 bytes，保存 0.753 s，移送 validator 成功．frame p95/p99 OFF 21/45 ms，ON 18/30 ms．input schedule p95/p99 OFF 18.94/40.77 ms，ON 16.42/57.82 ms．ON input p99 は既存 50 ms 基準未達であり，S14 SLA の再合格や保存機能との因果関係は未証明．子が raw/probe/限界を docs/PR/既存コメントへ保存する．
 - 266 gate 実装 `651449a`，専用 15＋既存 38＝53 tests 成功．pattern 0 の両 policy 各 3 placement の native smoke は全 lock／receipt／quota／tick hash 一致，incomplete window 以外の integrity 問題なし．nextgen 平均 decision 0.269 s，reference 0.291 s．raw 2 件と manifest は `6600314` で保存．正式 120 run は 90〜120 分見積．先に 276 長い測定と 277 formal を完了し，その後排他枠を付与する．
 - 277 `7091afd`，専用 9 tests／Ruff 成功．manifest `/tmp/puyo277-formal-v1/manifest.json`，SHA `c047f98a23a8dfc91eb48a96cd82efe31177e6c78d8a74c2f94b46e9ec67cb63` を固定，56 条件の formal を 1 worker／各 thread 1／600 s alarm で開始．探索の partial/cutoff と，肯定的に証明された public root＋実 receipt／lock／resolution／cancel/drop の結果を分離する．全候補列挙の完了は Jira A/C が要求しておらず，未発見・unknown を成功や不可避にしない．旧 cutoff 一律 FAIL smoke は保持する．
+
+## 再開後の状態（2026-10-10）
+
+- `/tmp` の原本はモデル切替後に消失したため，配布元から再取得し，SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb` を再照合した．現在の read-only 原本は `/home/sion2000114/.cache/puyo-s15/haipuyo.txt`．原本自体は Git に追加しない．
+- 275 PR #183 と 276 PR #184 の GitHub CI は成功．276 の確定 head は `30405d8`，1000 tick の OFF／ON 各 2 repeat は frame と input schedule の p95 25 ms／p99 50 ms gate をすべて通過した．初回 ON 失敗 raw も保持する．人間の実画面操作は未実施のため Jira は In Progress のまま．
+- 266 は親が 276 確定 head を通常 merge した `be21c99` で clean．277 の修正と正式評価を確定するまで 120 run の manifest を作らない．
+- 277 は初回 56 条件の 47 PASS／5 FAIL／4 回避不能除外を保持．cancel ranking の狭い修正と追加 16 条件の fixture を commit した `cb2ecde` で，56＋16 条件の新 manifest を固定して `runs/puyo-277-formal-v2`／`runs/puyo-277-extended-v2` に 1 worker の排他評価を開始した．途中の失敗も原物を保持し，評価中は source を変更しない．
+- 278 の独立監査は `1f86a57` まで更新．Jira 278 は In Progress．統合ブランチには Sprint 15 PR は未 merge であり，release PR／tag の作成条件は未達．
