@@ -8,9 +8,14 @@ from unittest.mock import patch
 from agents import nextgen_contracts as c
 from agents.compact_search import legal_action_indices, transition
 from agents.nextgen_shared_search import ResponseBudget, _pairs, _public_state
-from agents.nextgen_survival import _ControlProof, inferred_state, probe, refine_inferred
-from tests.test_nextgen_inferred_survival import fixtures, selection
+from agents.nextgen_survival import (
+    _ControlProof,
+    inferred_state,
+    probe,
+    refine_inferred,
+)
 from tests.test_nextgen_inference_wire import bind
+from tests.test_nextgen_inferred_survival import fixtures, selection
 
 
 class QuietSurvivalTests(unittest.TestCase):
