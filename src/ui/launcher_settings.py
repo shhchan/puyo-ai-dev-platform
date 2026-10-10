@@ -119,6 +119,8 @@ class LauncherSettings:
     max_frames: int | None = None
     paired_sides: bool = True
     replay_path: str | None = None
+    qa_auto_save: bool = False
+    qa_save_root: str = "runs/gui-qa-sessions"
     qa_notes: str | None = None
     qa_profile: str | None = None
     config_path: str = "train/config/realtime_smoke.yaml"
@@ -145,7 +147,7 @@ class LauncherSettings:
 
 def default_settings(action_key: str) -> LauncherSettings:
     if action_key == "play":
-        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=None, start_paused=True)
+        return LauncherSettings(policy_a="human", policy_b="greedy", seed=57, max_steps=100, max_ticks=None, start_paused=True, qa_auto_save=True)
     if action_key == "spectate":
         return LauncherSettings(policy_a="first", policy_b="random", seed=57, max_ticks=None, start_paused=True)
     if action_key == "arena":
@@ -220,6 +222,8 @@ FIELD_SPECS: dict[str, LauncherFieldSpec] = {
     "games": LauncherFieldSpec("games", "試合数", "--games", "arena で実行する game 数です。"),
     "paired_sides": LauncherFieldSpec("paired_sides", "左右入替評価", "--paired-sides", "ON の場合、arena で 1P/2P を入れ替えた paired evaluation を行います。"),
     "replay_path": LauncherFieldSpec("replay_path", "replay path", "--replay", "arena または realtime UI の診断 replay 出力 path です。auto の場合は書き出しません。"),
+    "qa_auto_save": LauncherFieldSpec("qa_auto_save", "QA replay 自動保存", "--qa-auto-save", "ON なら対局ごとに replay／result／manifest を保存します．"),
+    "qa_save_root": LauncherFieldSpec("qa_save_root", "QA 保存先", "--qa-save-root", "QA session の保存先 root です．対局ごとに衝突しない subdirectory を作ります．"),
     "tsumo_mode": LauncherFieldSpec("tsumo_mode", "配ぷよ方式", "--tsumo-mode", "random は従来の完全ランダム，esports_tsu は検証済み外部データを使います．"),
     "tsumo_source": LauncherFieldSpec("tsumo_source", "配ぷよ source", "--tsumo-source", "作者公開の haipuyo.txt への path です．SHA-256 を検証します．"),
     "tsumo_pattern_id": LauncherFieldSpec("tsumo_pattern_id", "配ぷよ ID", "--tsumo-pattern-id", "0〜65535 の 1P pattern ID です．"),
@@ -475,6 +479,8 @@ class LauncherSettingsManager:
                 "collection_feedback",
                 "result_json",
                 "replay_path",
+                "qa_auto_save",
+                "qa_save_root",
                 "qa_notes",
                 "qa_profile",
                 "tsumo_mode", "tsumo_source", "tsumo_pattern_id", "tsumo_player_1_pattern_id",
@@ -529,6 +535,8 @@ class LauncherSettingsManager:
                 "keybindings_path",
                 "result_json",
                 "replay_path",
+                "qa_auto_save",
+                "qa_save_root",
                 "qa_notes",
                 "qa_profile",
                 "max_frames",
@@ -673,7 +681,7 @@ class LauncherSettingsManager:
 
     def field_kind(self, action_key: str, field: str) -> str:
         value = getattr(self.for_action(action_key), field)
-        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_notes", "dataset_root", "collection_feedback", "nextgen_catalog_path", "nextgen_trajectory_path", "tsumo_source"}:
+        if field in {"checkpoint_a", "checkpoint_b", "config_path", "run_id", "training_job_id", "parent_checkpoint_path", "device", "device_a", "device_b", "keybindings_path", "result_json", "replay_path", "qa_save_root", "qa_notes", "dataset_root", "collection_feedback", "nextgen_catalog_path", "nextgen_trajectory_path", "tsumo_source"}:
             return "string"
         if isinstance(value, bool) or field in {"deterministic_a", "deterministic_b"}:
             return "choice"
@@ -718,6 +726,8 @@ class LauncherSettingsManager:
             return DEEP_CHAIN_PROFILE_CHOICES
         if field == "tsumo_mode":
             return ("random", "esports_tsu")
+        if field == "qa_save_root":
+            return tuple(dict.fromkeys((settings.qa_save_root, "runs/gui-qa-sessions")))
         if field == "tsumo_source":
             return tuple(dict.fromkeys((None, settings.tsumo_source, os.environ.get("PUYO_TSUMO_SOURCE"))))
         if field == "tsumo_pattern_id":
@@ -746,7 +756,7 @@ class LauncherSettingsManager:
             return ("rule", "rl")
         if field == "qa_profile":
             return QA_PROFILE_CHOICES
-        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled"}:
+        if field in {"deterministic", "start_paused", "use_reachable_action_mask", "paired_sides", "collection_enabled", "qa_auto_save"}:
             return (False, True)
         if field in {"deterministic_a", "deterministic_b"}:
             return (None, True, False)
@@ -811,6 +821,8 @@ class LauncherSettingsManager:
                     errors.append("nextgen_seed must be a non-negative integer or auto")
             if settings.speed not in SPEED_CHOICES and action_key != "arena":
                 errors.append(f"speed must be one of: {SPEED_CHOICES}")
+            if settings.qa_auto_save and not settings.qa_save_root.strip():
+                errors.append("qa_save_root must not be empty when QA auto save is ON")
             if settings.max_steps <= 0:
                 errors.append("max_steps must be positive")
             if settings.max_ticks is not None and settings.max_ticks <= 0:

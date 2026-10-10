@@ -1,0 +1,2 @@
+QA session valid: /tmp/puyo-276-qa-after/archive-review/8a2de3a7f3624d04bb33bd0a8904d1ca
+QA session valid: /tmp/puyo-276-qa-after/archive-review/54264fd71f8747288a0a304325f60049
