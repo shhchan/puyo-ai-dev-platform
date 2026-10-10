@@ -62,7 +62,7 @@ class NativeIdentityTests(unittest.TestCase):
         for origin in (None, "/missing/__init__.py", "/missing/native.so"):
             with (self.subTest(origin=origin),
                   patch.object(gate, "legacy_build_identity", return_value={}),
-                  patch.object(gate.importlib, "import_module", side_effect=lambda n:
+                  patch.object(gate.importlib, "import_module", side_effect=lambda n, origin=origin:
                                package if n == gate.NATIVE_MODULE_NAME else SimpleNamespace(__file__=origin)),
                   self.assertRaises((ValueError, FileNotFoundError))):
                 gate.build_identity()
