@@ -751,7 +751,7 @@ class AggregateScenarioScoresStep(_DeferredDeepChainStep):
 class SelectPlacementStep(_DeferredDeepChainStep):
     contract = DecisionStepContract(
         step_id="select_placement",
-        requires=(AGGREGATED_ROOT_SCORES_ARTIFACT,),
+        requires=(AGGREGATED_ROOT_SCORES_ARTIFACT, RUNTIME_INPUT_ARTIFACT),
         provides=(
             SELECTED_ACTION_ARTIFACT,
             SELECTED_PLAN_ARTIFACT,
@@ -768,6 +768,7 @@ class SelectPlacementStep(_DeferredDeepChainStep):
         return {
             "aggregated_root_count": len(values),
             "root_actions": [int(value["root_action"]) for value in values],
+            "execution_action_mask": list(context.require(RUNTIME_INPUT_ARTIFACT).action_mask),
         }
 
     def run(self, context: DecisionContext) -> StepResult:
@@ -782,6 +783,17 @@ class SelectPlacementStep(_DeferredDeepChainStep):
             ),
             reverse=True,
         )
+        visible_input = context.require(RUNTIME_INPUT_ARTIFACT)
+        if not isinstance(visible_input, VisibleRuntimeInput):
+            raise TypeError("selection requires a visible runtime input")
+        # Search keeps its complete geometric root ranking and fixed budget.
+        # The public execution mask only restricts which ranked root can run.
+        if visible_input.action_mask:
+            ranked = [value for value in ranked
+                      if 0 <= int(value["root_action"]) < len(visible_input.action_mask)
+                      and visible_input.action_mask[int(value["root_action"])]]
+            if not ranked:
+                raise ValueError("no ranked placement is allowed by the public action mask")
         selected = ranked[0]
         action = int(selected["root_action"])
         representative = selected.get("representative")

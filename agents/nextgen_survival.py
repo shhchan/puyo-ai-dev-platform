@@ -7,8 +7,8 @@ charged to the existing response quota before evaluation.
 """
 from __future__ import annotations
 
-from collections import deque
 import heapq
+from collections import deque
 from dataclasses import dataclass, replace
 
 from agents import nextgen_contracts as c
@@ -72,8 +72,13 @@ def needs_probe(request):
 def probe(request, state, roots, budget, *, timing=None, board_complete=False, transition_cache=None, reuse_transitions=False):
     # Local import keeps the shared-search/provider injection boundary acyclic.
     from agents.nextgen_response_search import (
-        PublicResponseProvider, _Node, _consume, _due_options, _plus,
-        drop_distributions, drop_public_garbage,
+        PublicResponseProvider,
+        _consume,
+        _due_options,
+        _Node,
+        _plus,
+        drop_distributions,
+        drop_public_garbage,
     )
 
     reachable = tuple(a for a in roots if request.execution.reachable_mask[a])
@@ -228,11 +233,13 @@ class _ProofCutoff(Exception):
 class _ControlProof:
     """Request-local geometry cache and shared, precharged work accounting."""
 
-    def __init__(self, budget, start_nodes):
+    def __init__(self, budget, start_nodes, *, reuse_control_graph=False):
         self.budget, self.start_nodes = budget, start_nodes
         self.cache = {}
         self.charged = {"control": 0, "placement": 0, "terminal": 0}
         self.hits = 0
+        self.control_graph = {} if reuse_control_graph else None
+        self.control_graph_hits = 0
 
     def charge(self, kind):
         if self.budget.nodes - self.start_nodes >= SURVIVAL_NODE_LIMIT or not self.budget.consume():
@@ -270,13 +277,30 @@ class _ControlProof:
         start = game.puyo_x, game.puyo_y, game.puyo_rot, 0
         queue, seen, sequence = [(priority(start), 0, start)], {start}, 0
         while queue:
-            self.charge("control")
             _, _, value = heapq.heappop(queue)
+            if self.control_graph is None:
+                self.charge("control")
+                successors = None
+            else:
+                # Collision transitions depend only on occupied geometry and
+                # the full planner pose (including its timing component).
+                # Reuse never crosses a request or a distinct occupied board.
+                graph_key = state.occupied_mask, value
+                if graph_key not in self.control_graph:
+                    self.charge("control")
+                    self.control_graph[graph_key] = tuple(
+                        nxt for operation in PLANNER_ACTIONS
+                        if (nxt := _transition_piece_state(game, value, operation)) is not None)
+                else:
+                    self.control_graph_hits += 1
+                successors = self.control_graph[graph_key]
             if value[:3] == target:
                 self.cache[key] = True
                 return True
-            for operation in PLANNER_ACTIONS:
-                nxt = _transition_piece_state(game, value, operation)
+            if successors is None:
+                successors = (_transition_piece_state(game, value, operation)
+                              for operation in PLANNER_ACTIONS)
+            for nxt in successors:
                 if nxt is not None and nxt not in seen:
                     seen.add(nxt)
                     sequence += 1
@@ -377,7 +401,70 @@ def _alternate_witness(state, pairs, results, ordered, cache, proof):
     return refined, certified, trials
 
 
-def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, transition_cache):
+def _quiet_control_witness(state, pairs, results, ordered, cache, proof):
+    """Try alternate quiet prefixes in existing root order within the same cap.
+
+    Unlike the geometric probe, prune a prefix as soon as its next placement
+    has no control route. Cached transitions and control graph expansions are
+    request-local; every new expansion is precharged by the existing proof.
+    """
+    terminal_bounds = {}
+    prefilter = {"evaluations": 0, "cache_hits": 0, "charged_as": "terminal"}
+
+    def visit(current, path):
+        if len(path) == len(pairs):
+            terminal = proof.terminal(current, pairs[0])
+            return (path, terminal) if terminal is not None else None
+        for action in continuation_actions(current):
+            key = current, pairs[len(path)], action
+            if key not in cache:
+                proof.charge("placement")
+                cache[key] = transition(*key)
+            result = cache[key]
+            if not result.valid or result.game_over:
+                continue
+            if len(path) + 1 == len(pairs):
+                occupied = result.state.occupied_mask
+                if occupied not in terminal_bounds:
+                    proof.charge("terminal")
+                    prefilter["evaluations"] += 1
+                    terminal_bounds[occupied] = next(_terminal_actions(result.state), None) is not None
+                else:
+                    prefilter["cache_hits"] += 1
+                if not terminal_bounds[occupied]:
+                    continue
+            if not proof.reachable(current, pairs[len(path)], action):
+                continue
+            found = visit(result.state, path + (action,))
+            if found is not None:
+                return found
+        return None
+
+    trials = []
+    for root in ordered:
+        result = results.get(root)
+        if result is None or result.status != "witness" or result.root_chain:
+            continue
+        try:
+            key = state, pairs[0], root
+            if key not in cache:
+                proof.charge("placement")
+                cache[key] = transition(*key)
+            first = cache[key]
+            found = visit(first.state, (root,)) if first.valid and not first.game_over else None
+        except _ProofCutoff:
+            trials.append({"root": root, "status": "unknown_cutoff"})
+            break
+        trials.append({"root": root, "status": "certified" if found else "unknown",
+                       "witness": list(found[0]) if found else [],
+                       "terminal_action": found[1] if found else None})
+        if found:
+            return root, found[0], trials, prefilter
+    return None, (), trials, prefilter
+
+
+def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, transition_cache,
+                    *, target_chain_count=None):
     """Check high-ranked bounded witnesses within the SAME survival quota.
 
     A failed witness is unknown, not a proof of death. If no terminal witness
@@ -387,7 +474,11 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
     if not results:
         return results, diagnostics
     start_nodes = budget.nodes - diagnostics["nodes"]
-    proof = _ControlProof(budget, start_nodes)
+    quiet_refinement = (target_chain_count is not None and request.known_inference() is not None
+                        and not state.planes[5]
+                        and not any(p.amount and p.landed_tick is None
+                                    for p in request.public.own.attack_packets))
+    proof = _ControlProof(budget, start_nodes, reuse_control_graph=quiet_refinement)
     pairs = tuple(tuple(c.PUBLIC_CELL_TO_COLOR[v] for v in pair)
                   for pair in request.public.own.known_pieces)
     ordered = list(dict.fromkeys((*ranked_roots, *results)))
@@ -452,6 +543,14 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
     if certified is not None:
         for action in failed:
             refined[action] = replace(results[action], status="unknown", witness=())
+    quiet_trials, quiet_prefilter = [], {}
+    if (quiet_refinement and certified is not None
+            and 0 < results[certified].root_chain < target_chain_count):
+        extra_root, witness, quiet_trials, quiet_prefilter = _quiet_control_witness(
+            state, pairs, results, ordered, transition_cache, proof)
+        if extra_root is not None:
+            certified = extra_root
+            refined[extra_root] = replace(results[extra_root], witness=witness)
     details = {
         "status": "certified" if certified is not None else "unknown_cutoff" if cutoff else "unknown",
         "certified_root": certified, "trials": trials, "charged": proof.charged,
@@ -461,6 +560,14 @@ def refine_inferred(request, state, results, diagnostics, budget, ranked_roots, 
         "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
         "safety_guarantee": False, "fallback": certified is None,
     }
+    if quiet_refinement:
+        details["quiet_alternative"] = {
+            "trials": quiet_trials, "target_chain_count": target_chain_count,
+            "terminal_prefilter": quiet_prefilter,
+            "control_graph_entries": len(proof.control_graph),
+            "control_graph_hits": proof.control_graph_hits,
+            "scope": "public_known_prefix; unchanged_root_order_and_survival_quota",
+        }
     saved = diagnostics.get("reused_transition_nodes", 0)
     if saved and certified is None and request.known_inference() is not None and not any(
             p.amount and p.landed_tick is None for p in request.public.own.attack_packets):

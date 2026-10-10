@@ -1,0 +1,42 @@
+{
+  "formal_maximum_resolved_placements": 5520,
+  "formal_run_count": 120,
+  "limit": "three opening decisions per policy do not estimate late-game proof/replay overhead reliably",
+  "linear_elapsed_estimate_seconds": 4666.453662639724,
+  "linear_raw_gzip_estimate_bytes": 229279640.0,
+  "policies": [
+    {
+      "decision_seconds": {
+        "mean": 0.2688098980003512,
+        "n": 3,
+        "p50": 0.2680522650007333,
+        "p95": 0.27762932610012286
+      },
+      "elapsed_seconds": 2.109692469000038,
+      "integrity_issues": [
+        "incomplete_window"
+      ],
+      "max_chain": 0,
+      "placements": 3,
+      "policy": "nextgen_tactic_manager",
+      "raw_gzip_bytes": 107640
+    },
+    {
+      "decision_seconds": {
+        "mean": 0.2911518256666265,
+        "n": 3,
+        "p50": 0.2923992259984516,
+        "p95": 0.3059538029006944
+      },
+      "elapsed_seconds": 2.962539772999662,
+      "integrity_issues": [
+        "incomplete_window"
+      ],
+      "max_chain": 0,
+      "placements": 3,
+      "policy": "deep_chain_builder",
+      "raw_gzip_bytes": 141577
+    }
+  ],
+  "quality_status": "DIAGNOSTIC_ONLY"
+}
