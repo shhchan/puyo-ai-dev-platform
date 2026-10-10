@@ -21,9 +21,10 @@ Sprint 14 の stack は PR #172，#173，#174，#175，#177，#178，#179，#180
 | --- | --- | --- | --- |
 | [#183／PUYO-275](https://github.com/shhchan/puyo-ai-dev-platform/pull/183) | `integration/puyo-228-v1-7-3` | `51d53a8d5008fca3554c7b97502b6a31e637c749` | OPEN，required `linux-cp312-release` 成功．Jira Complete． |
 | [#184／PUYO-276](https://github.com/shhchan/puyo-ai-dev-platform/pull/184) | `PUYO-275/esports-tsumo-provider` | `30405d87f764bc51332bd0ec1d7bd8ca038fe3bf` | OPEN，required `linux-cp312-release` 成功．人間実画面 QA 待ち． |
-| [#185／PUYO-277](https://github.com/shhchan/puyo-ai-dev-platform/pull/185) | `PUYO-275/esports-tsumo-provider` | `cb2ecde34f012eff39724c788df44ffa2aaf19f2` | OPEN／draft，確認時に CI 結果なし．正式 72 条件を実行中． |
+| [#185／PUYO-277](https://github.com/shhchan/puyo-ai-dev-platform/pull/185) | `PUYO-276/automatic-qa-replay` | `06c0e1ae3783904790c8506265b1af9f41086d0f` | OPEN／ready，required `linux-cp312-release` 成功．Jira Complete． |
+| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `b6046e87942c18d6e4e3927b1c3678b8ff894946` | OPEN／draft．確認時，required CI は実行中．正式単独 120 run も実行中． |
 
-PUYO-266 は `be21c99b7c9821b68e235822f95f9d06ba7c889a` で #184 の head を取り込み済み．正式 120 run は未開始．PUYO-274 の独立 QA 手順文書 head は `0f4b48a8ff266b0762b1e83abf210de54a3170f2` だが，実統合 QA は未実施．これらの PR・SHA を統合候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
+PUYO-266 の head は公開 action mask を尊重する reference 修正 `b6046e8` を含む．同じ事前登録 120 identity を v3 として永続 `runs/puyo-266-formal-v3/` で実行中であり，結果は未確定．PUYO-274 の独立 CI／QA 手順文書 head は `4f84611317ad75f87aa935ca91504c7d287a255c` だが，依存 PR の統合と実統合 QA を待つ．これらの PR・SHA を統合候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
 
 `master` の GitHub branch protection は PR 必須，`linux-cp312-release` の required check，管理者にも適用，force-push／削除禁止，会話 resolve 必須，approval 数 0 だった．追加 ruleset の branch API 応答は空配列．release 判断前に protection を再確認する．
 
@@ -32,8 +33,8 @@ PUYO-266 は `be21c99b7c9821b68e235822f95f9d06ba7c889a` で #184 の head を取
 | Gate | 必要な証拠 | 現状 |
 | --- | --- | --- |
 | 配ぷよ source（PUYO-275） | 来歴・利用／再配布条件・別実装照合・checksum・128 手境界，provider と公開 current／NEXT／NEXT2 契約．30 pattern ID と条件を結果より前に固定する． | Complete，PR #183 は OPEN／CI 成功．原本 `haipuyo.txt` は 65,536 行・SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．別実装の照合済み．公式実対局による独立証明ではない． |
-| 単独本線（PUYO-266） | 固定 30 pattern ID × 2 repeat × 2 policy の正式 120 run，40 手構築＋最大 6 手発火，平均最大実連鎖 ≥ 10，理由のない小発火 0，回避可能窒息 0．旧 legacy random の失敗 raw は別に保持する． | In Progress．runner と事前登録は用意され，head `be21c99` は #184 を取り込み済み．正式 120 run 未開始，約 90～120 分の見積は実測完了を意味しない． |
-| 対戦（PUYO-277） | 予告おじゃま対応・独立小連鎖／副砲の発火を，単独 gate と分けて固定条件で評価する．hidden future を観測に渡さない． | In Progress．draft PR #185．旧 v1 の 56 条件監査は 47 PASS／5 FAIL／4 回避不能除外．修正後の 56＋追加 16＝72 条件の正式実行中で，受入未判定． |
+| 単独本線（PUYO-266） | 固定 30 pattern ID × 2 repeat × 2 policy の正式 120 run，40 手構築＋最大 6 手発火，平均最大実連鎖 ≥ 10，理由のない小発火 0，回避可能窒息 0．旧 legacy random の失敗 raw は別に保持する． | In Progress，draft PR #186．v2 の reference は公開 mask 外の root 選択で停止し，raw を保全した．`b6046e8` の修正を含む v3 を同じ事前登録 120 identity で永続 `runs/` に再実行中．判定未了． |
+| 対戦（PUYO-277） | 予告おじゃま対応・独立小連鎖／副砲の発火を，単独 gate と分けて固定条件で評価する．hidden future を観測に渡さない． | Complete，PR #185 は ready／CI 成功．正式 v3 の元 56 条件は 52 PASS／4 回避不能除外／0 FAIL，追加 16 条件は全 PASS．全 72 replay の event／全 tick hash／最終 hash が一致した．これは bounded 公開 challenge の合格であり，全体 G2 や単独品質の合格ではない． |
 | 人間 QA replay（PUYO-276） | GUI 実対局から自動保存された既存形式 replay，結果・設定・実行 identity・pattern ID・保存先，replay 再生一致． | In Progress，PR #184 は OPEN／CI 成功．修正後 dummy 環境の 1000 tick，OFF／ON 各 2 repeat は frame／input schedule の p95 ≤ 25 ms／p99 ≤ 50 ms を全回通過．旧 ON の input p99 57.82 ms 失敗 raw は保存．人間実画面操作は未実施． |
 | 統合・人間 QA（PUYO-274） | 上記証拠の組合せ，非公開 future 漏れの否定，先読み表示・操作感，固定 GUI cadence と人間確認． | In Progress．独立 CI／手順文書を準備した head `0f4b48a` はあるが，Sprint 15 の実統合 QA は未実施．Sprint 14 人間 GUI QA の実用受け入れは記録済み． |
 | release 監査（PUYO-278） | 対象 Jira と全 PR／SHA／差分の突合，統合 branch head に対する CI・回帰・人間 QA，release 判断． | In Progress．この文書は先行監査のみ． |
