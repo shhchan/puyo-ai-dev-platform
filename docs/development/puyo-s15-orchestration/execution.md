@@ -29,3 +29,11 @@ host: Intel i7-14700F，28 logical CPU，15 GiB RAM (約 12 GiB available)．最
 - 276 の clean `47fb772877f33532cb5fa368b0b8a49e285b42c6` へ，親が 275 の head を通常 merge (`5fa8501`) し，既存 launcher/UI/renderer 接続を許可．PR base は 275 branch．
 - 275 の追加 review で legacy policy info の simulator から原本全列・pattern ID へ到達できる経路を確認．275 に core/tsumo と puyo_env の info 境界だけを再割当し，新方式で public snapshot 化する修正を進行中．UI は 276 所有のまま．privacy 未達で 275 COMPLETE と後続正式 gate を保留する．
 - 277 は read-only で既存 response/survival coverage を確認し，新 eval wrapper・副砲分類 sidecar・人工盤面/攻撃 script を freeze する設計を報告．共有 agents の変更をせず gate 専用 replay wrapper を優先する．実装は 275 受入後．
+
+## Provider 受入後の実行
+
+- 275 最終 head `51d53a8d5008fca3554c7b97502b6a31e637c749`，PR [#183](https://github.com/shhchan/puyo-ai-dev-platform/pull/183)，base `integration/puyo-228-v1-7-3`，ready，reviewer なし．Jira Complete，セッションコメント 10819．privacy 境界修正後 89 tests，外部 source audit，legacy/new replay を子が確認．親も source 専用 8 tests／Ruff F／diff check 成功．GitHub CI は進行中であり成功を未確認．親が継続追跡する．
+- 276 へ親が最終 provider を通常 merge，起点 `8717839653edcd15a02d754d1e05418a50913c4f`．GUI/launcher/renderer と新 QA module の担当を保持．root read-only venv で 77 tests 成功．保存 OFF/ON 各 120 frame の GUI/native 実測排他枠を付与した．他の子は重い実行を待機する．
+- 266／277 の worktree を親が `51d53a8` へ fast-forward，clean 確認後，同じ子を再開して gate 実装を開始．両 PR の当初 base は 275 branch，最終 stack では 276→266→277 の通常 merge による ancestry を親が全子停止後に構築する．共有 agents/runtime/core/UI は所有範囲に含めず，必要な修正は根拠つきで再割当する．
+- 266 は新 eval 専用の単独 gate を担当．reference 入力も真の hidden/ghost にアクセスせず，public snapshot と既存 PublicInferenceTracker の公開履歴による推定だけを使う．unknown は BLOCKED．120 run の正式評価は manifest 固定と排他枠付与後に実行する．
+- 277 は `00a8fe1` で 4 pattern × 7 case の fixture を初回評価前に固定．人工公開盤面／攻撃 script を既存 realtime engine に適用する eval wrapper を作る．配置・resolution・cancel/drop の実 trace，public witness の prepared/fireable 分類と replay を照合し，未観測や cutoff を PASS にしない．
