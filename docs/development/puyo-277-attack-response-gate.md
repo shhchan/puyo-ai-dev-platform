@@ -1,6 +1,6 @@
 # PUYO-277 攻撃対応・副砲 gate
 
-本線品質の PUYO-266 と独立した，公開盤面 challenge の gate である．対戦中の平均最大 10 連鎖を条件にしない．既存 PUYO-250 の response search，PUYO-270 の生存 envelope，scheduler，controller，対戦 engine をそのまま使用する．製品の policy や公開 schema は変更しない．
+本線品質の PUYO-266 と独立した，公開盤面 challenge の gate である．対戦中の平均最大 10 連鎖を条件にしない．既存 PUYO-250 の response search，PUYO-270 の生存 envelope，scheduler，controller，対戦 engine をそのまま使用する．公開 schema は変更しない．後続改善では，相殺候補の順位だけを限定して変更した（下記）．
 
 ## 事前固定
 
@@ -76,3 +76,19 @@ PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
 ```
 
 元 replay の範囲に観測可能な盤面がなければ未達のままとする．観測窓を伸ばす評価は別の事前登録を必要とする．元の未観測 FAIL や実際の本線消費を再監査で隠さない．
+
+## 必要量を満たす相殺と追加観測
+
+`agents/nextgen_shared_search.py` の cancel 専用順位では，公開 pending 全量を現在の合法・非致死 response transition で相殺できる場合に，過剰発生量，連鎖数，score の順で小さい候補を優先する．現在組の発火開始推定が request timeout 内であり，発火と相殺が同じ解決境界の時間区間に収まることを要求する．時間区間は相関しており，arrival tick を独立した hard deadline にしない．これらは公開推定であり，実 receipt／lock の期限確認は gate が別に行う．
+
+外側の survival 優先順位を保持し，全量相殺に足りない候補の最大火力順位，counter／短攻撃／build の順位は変更しない．future，pattern ID，fixture の本線・副砲 annotation を製品へ渡さない．小さい消去は保持の代理であり，任意の本線を保持できる保証ではない．実際の登録形状保持は公開 trace で検証する．
+
+[追加観測登録](../../tests/fixtures/puyo_277_attack_response_observations.json) は commit `b9e277b` で実行前に固定した．`preserve_mainline` と `post_arrival_recovery` の全 4 IDs × attack/no_attack，計 16 条件を，同じ自然 controller で 8 resolutions／1,800 ticks まで観測する．入力盤面，pattern，script，quota，120 tick request／lock deadline，期待 witness は元登録のままである．preserve の attack 条件は全相殺，または tick 240 以後の resolution の観測を最低窓とし，8 resolution 上限で未観測なら FAIL を保持する．途中成功による早期終了や policy の停止・手の差し替えは行わない．
+
+```bash
+PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
+  -m eval.nextgen_attack_response_gate --output /tmp/puyo277-extended-v2 \
+  init --source /tmp/puyo275-haipuyo.txt --extended-observations
+```
+
+元 56 条件の v1 と公開再監査は不変である．モデル変更後の 56 条件は別出力 `formal-v2`，追加 16 条件は `extended-v2` として保存し，元の 3 resolution 未観測 FAIL を追加結果で書き換えない．

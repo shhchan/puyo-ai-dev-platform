@@ -85,6 +85,22 @@ class PublicAuditTests(unittest.TestCase):
             )
         )
 
+    def test_extended_observations_preserve_every_original_input(self):
+        extended = registered_cases(extended=True)
+        self.assertEqual(len(extended["cases"]), 8)
+        for case in extended["cases"]:
+            original = self.case(case["id"])
+            self.assertEqual(case["max_resolutions"], 8)
+            self.assertEqual(case["max_ticks"], 1800)
+            changed = {k for k in case if case[k] != original.get(k)}
+            expected = {"max_resolutions"}
+            if case["id"].startswith("preserve_mainline-"):
+                expected.add("minimum_attack_observation_tick")
+                self.assertEqual(case["minimum_attack_observation_tick"], 240)
+                result = assess(case, "attack", [], [], False, {"status": "not_proven"})
+                self.assertIn("minimum_arrival_observation_window_incomplete", result["issues"])
+            self.assertEqual(changed, expected)
+
     def test_missing_key_is_a_counterfactual_not_an_available_piece(self):
         search = SimpleNamespace(
             response_result=ResponseSearchResult(), diagnostics={"survival": {}}

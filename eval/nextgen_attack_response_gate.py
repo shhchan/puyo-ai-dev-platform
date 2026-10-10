@@ -36,6 +36,8 @@ from src.core.tsumo import EsportsTsuSource
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests/fixtures/puyo_277_attack_response_cases.json"
 REGISTRATION_COMMIT = "00a8fe1"
+OBSERVATIONS = ROOT / "tests/fixtures/puyo_277_attack_response_observations.json"
+OBSERVATION_COMMIT = "b9e277b"
 SOURCE_DIRS = ("agents", "puyo_env", "src/core", "eval", "train/config", "tests")
 
 
@@ -69,7 +71,7 @@ def source_identity():
     return {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in paths}
 
 
-def registered_cases():
+def registered_cases(*, extended=False):
     fixtures = read(FIXTURES)
     frozen = subprocess.check_output(
         ["git", "show", f"{REGISTRATION_COMMIT}:{FIXTURES.relative_to(ROOT)}"], cwd=ROOT
@@ -78,10 +80,30 @@ def registered_cases():
         raise ValueError(
             "preregistered fixtures changed; retain failures, do not replace the cohort"
         )
+    if not extended:
+        return fixtures
+    extension = read(OBSERVATIONS)
+    frozen_extension = subprocess.check_output(
+        ["git", "show", f"{OBSERVATION_COMMIT}:{OBSERVATIONS.relative_to(ROOT)}"], cwd=ROOT
+    )
+    if json.loads(frozen_extension) != extension:
+        raise ValueError("preregistered additional observation changed")
+    if extension["original_fixture_sha256"] != digest(fixtures):
+        raise ValueError("additional observation original fixture mismatch")
+    fixtures["cases"] = [v for v in fixtures["cases"] if v["id"] in extension["case_ids"]]
+    if [v["id"] for v in fixtures["cases"]] != extension["case_ids"]:
+        raise ValueError("additional observation cohort incomplete")
+    for case in fixtures["cases"]:
+        case["max_resolutions"] = extension["max_resolutions"]
+        case["max_ticks"] = extension["max_ticks"]
+        if case["id"].startswith("preserve_mainline-"):
+            case["minimum_attack_observation_tick"] = max(
+                p["tick"] + p["delay_ticks"] for p in case["attack_script"])
+    fixtures["additional_observation"] = extension
     return fixtures
 
 
-def initialize(output, source):
+def initialize(output, source, *, extended=False):
     output = Path(output)
     if (output / "manifest.json").exists():
         raise ValueError("manifest already exists")
@@ -92,7 +114,7 @@ def initialize(output, source):
     )
     if dirty.strip():
         raise ValueError("commit implementation and tests before formal registration")
-    cases = registered_cases()
+    cases = registered_cases(extended=extended)
     corpus = EsportsTsuSource(source)
     if corpus.checksum != cases["source_sha256"]:
         raise ValueError("corpus differs from registration")
@@ -103,6 +125,7 @@ def initialize(output, source):
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
         ).strip(),
         "registration_commit": REGISTRATION_COMMIT,
+        "observation_registration_commit": OBSERVATION_COMMIT if extended else None,
         "source_files": source_identity(),
         "build": build_identity(),
         "fixtures": cases,
@@ -591,6 +614,11 @@ def assess(case, condition, decisions, ticks, game_over, oracle):
         if applied != case["attack_script"]:
             issues.append("attack_script_not_fully_applied")
         received = sum(t["result"]["dropped"].get("player_0", 0) for t in ticks)
+        minimum = case.get("minimum_attack_observation_tick")
+        if (minimum is not None
+                and cancels < sum(p["units"] for p in case["attack_script"])
+                and not any(e["tick"] >= minimum for e in resolutions)):
+            issues.append("minimum_arrival_observation_window_incomplete")
         # Saturated fields can accept fewer than 30 cells and terminate with
         # packets still pending. This is an observed terminal boundary, never
         # a successful defensive response.
@@ -1045,6 +1073,7 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init")
     init.add_argument("--source", required=True)
+    init.add_argument("--extended-observations", action="store_true")
     run = commands.add_parser("run")
     run.add_argument("--case", required=True)
     run.add_argument("--condition", choices=("attack", "no_attack"), required=True)
@@ -1055,7 +1084,7 @@ def main():
     audit.add_argument("--source")
     args = parser.parse_args()
     if args.command == "init":
-        result = initialize(args.output, args.source)
+        result = initialize(args.output, args.source, extended=args.extended_observations)
         print(
             json.dumps(
                 {
