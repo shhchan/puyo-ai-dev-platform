@@ -27,6 +27,7 @@ from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, R
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
 from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.tsumo import PuyoSequence
 from src.core.realtime import DEFAULT_REALTIME_TIMING, RealtimeTimingConfig, TickInput
 
 
@@ -1421,6 +1422,13 @@ def build_realtime_info(
     incoming_ticks = _incoming_ticks(match, agent)
     opponent_incoming_ticks = _incoming_ticks(match, opponent)
     feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
+    policy_realtime = state.simulator
+    policy_opponent_realtime = opponent_state.simulator
+    if match.tsumo_mode == "esports_tsu":
+        policy_realtime = copy.deepcopy(state.simulator)
+        policy_opponent_realtime = copy.deepcopy(opponent_state.simulator)
+        policy_realtime.game.puyo_sequence = PuyoSequence(seed=0)
+        policy_opponent_realtime.game.puyo_sequence = PuyoSequence(seed=0)
     return {
         "action_mask": action_mask,
         "action_mask_source": "reachable_planner" if use_reachable_action_mask else "placement_legal",
@@ -1444,16 +1452,16 @@ def build_realtime_info(
         "score_carry": state.score_carry,
         "last_chain_end_score": state.simulator.game.last_chain_end_score,
         "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
-        "simulator": _placement_simulator_snapshot(state.simulator.game),
-        "realtime_simulator": state.simulator,
+        "simulator": _placement_simulator_snapshot(policy_realtime.game),
+        "realtime_simulator": policy_realtime,
         "opponent_pending_ojama": opponent_state.pending_ojama,
         "opponent_incoming_ticks": 0 if opponent_incoming_ticks is None else opponent_incoming_ticks,
         "opponent_incoming_turns": _ticks_to_turns(match, opponent_incoming_ticks),
         "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
         "opponent_score_carry": opponent_state.score_carry,
         "opponent_received_ojama_total": opponent_state.received_ojama_total,
-        "opponent_simulator": _placement_simulator_snapshot(opponent_state.simulator.game),
-        "opponent_realtime_simulator": opponent_state.simulator,
+        "opponent_simulator": _placement_simulator_snapshot(policy_opponent_realtime.game),
+        "opponent_realtime_simulator": policy_opponent_realtime,
         "own_phase": state.simulator.game.state,
         "opponent_phase": opponent_state.simulator.game.state,
         "active_pair": state.simulator.snapshot().active_pair,

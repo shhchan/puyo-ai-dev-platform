@@ -92,6 +92,41 @@ class TestTsumoProvider(unittest.TestCase):
                                 alternate.player_states["player_0"].simulator.game.puyo_sequence.source.rows[1])
             self.assertEqual(first.public_snapshot().digest, alternate.public_snapshot().digest)
 
+    def test_policy_infos_expose_visible_pairs_without_private_provider(self):
+        try:
+            from puyo_env.single_env import SinglePuyoEnv
+            from puyo_env.versus_env import VersusPuyoEnv
+            from puyo_env.realtime_ai import build_realtime_info
+        except ImportError:
+            self.skipTest("gymnasium/numpy unavailable")
+        with patch("src.core.tsumo.ESPORTS_SOURCE_SHA256", self.checksum):
+            kwargs = {"tsumo_mode": "esports_tsu", "tsumo_source": str(self.path), "tsumo_pattern_id": 0}
+            single = SinglePuyoEnv(**kwargs)
+            _, info = single.reset()
+            self.assert_public_simulator(info["simulator"], single.simulator)
+            versus = VersusPuyoEnv(**kwargs)
+            _, infos = versus.reset()
+            self.assert_public_simulator(infos["player_0"]["simulator"], versus.player_states["player_0"].simulator)
+            self.assert_public_simulator(infos["player_0"]["opponent_simulator"], versus.player_states["player_1"].simulator)
+            match = RealtimeVersusMatch(seed=7, **kwargs)
+            realtime_info = build_realtime_info(match, "player_0", use_reachable_action_mask=False)
+            for key, agent in (("simulator", "player_0"), ("realtime_simulator", "player_0"),
+                               ("opponent_simulator", "player_1"), ("opponent_realtime_simulator", "player_1")):
+                self.assert_public_simulator(realtime_info[key], match.player_states[agent].simulator)
+            legacy = RealtimeVersusMatch(seed=7)
+            legacy_info = build_realtime_info(legacy, "player_0", use_reachable_action_mask=False)
+            self.assertIs(legacy_info["realtime_simulator"], legacy.player_states["player_0"].simulator)
+
+    def assert_public_simulator(self, public, private):
+        self.assertIsNot(public, private)
+        self.assertIsInstance(public.game.puyo_sequence, PuyoSequence)
+        self.assertFalse(hasattr(public.game.puyo_sequence, "pattern_id"))
+        self.assertFalse(hasattr(public.game.puyo_sequence, "source"))
+        self.assertEqual(colors((public.game.current_puyo_1, public.game.current_puyo_2)),
+                         colors((private.game.current_puyo_1, private.game.current_puyo_2)))
+        self.assertEqual([colors(pair) for pair in public.game.next_puyo_queue],
+                         [colors(pair) for pair in private.game.next_puyo_queue])
+
     def test_random_seed_preserves_pair_stream(self):
         from src.core.headless import HeadlessPuyoSimulator
         expected = PuyoSequence(seed=123)

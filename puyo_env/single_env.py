@@ -17,7 +17,7 @@ except ImportError:  # pragma: no cover - dependency guard
     np = None
 
 from src.core.headless import HeadlessPuyoSimulator
-from src.core.tsumo import EsportsTsuSource
+from src.core.tsumo import EsportsTsuSource, public_tsumo_game_copy
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import encode_observation, make_observation_space
@@ -90,8 +90,13 @@ class SinglePuyoEnv(_BaseEnv):
             include_action_mask=self.include_action_mask_in_observation,
         )
         game = self.simulator.game
+        policy_simulator = self.simulator
+        if self.tsumo_mode == "esports_tsu":
+            policy_simulator = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(self.simulator.game), auto_spawn=False,
+            )
         return observation, {
-            "action_mask": mask, "simulator": self.simulator,
+            "action_mask": mask, "simulator": policy_simulator,
             "score": int(game.score), "step_count": self.step_count,
             "max_steps": self.max_steps,
             "last_chain_end_score": int(game.last_chain_end_score),

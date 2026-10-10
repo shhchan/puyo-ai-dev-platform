@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import random
 from pathlib import Path
@@ -102,3 +103,16 @@ def make_tsumo_sequence(*, seed=None, mode="random", source=None, pattern_id=Non
             raise ValueError("esports_tsu requires source and pattern_id")
         return source.sequence(pattern_id)
     raise ValueError(f"unknown tsumo mode: {mode}")
+
+
+def public_tsumo_game_copy(game):
+    """Copy a game for policy input, replacing private corpus state.
+
+    The current pair and two visible NEXT pairs already reside on the game.
+    A deterministic random provider supplies only synthetic unknown future
+    after those pairs are consumed by planning.
+    """
+    visible = copy.deepcopy(game)
+    if isinstance(visible.puyo_sequence, EsportsTsuSequence):
+        visible.puyo_sequence = PuyoSequence(seed=0)
+    return visible

@@ -32,4 +32,4 @@ python -c 'import json; from eval.realtime_arena import replay_realtime_match; p
 
 通常の表示環境で `python -m eval.realtime_versus_ui --policy-a human --policy-b first --tsumo-mode esports_tsu --tsumo-source /tmp/puyo275-haipuyo.txt --tsumo-pattern-id 34066 --replay /tmp/puyo275-gui-replay.json` を起動し，1P／2P の current・NEXT・NEXT2 が同じ色と軸／子順で始まること，配置後に NEXT が一組進むことを確認する．この ID の初手は原本 `bp` から内部 `BLUE/RED` へ正規化される．実際の対局が終了したら上記 replay 検証コマンドの path を GUI の保存先へ変更して hash を照合する．launcher では事前に `PUYO_TSUMO_SOURCE=/tmp/puyo275-haipuyo.txt` を設定すると source 候補を選べる．配ぷよ方式を `esports_tsu`，ID を 34066 にして開始する．
 
-既定 `random` は既存 seed／hash と同じ．旧 seed corpus は legacy random 回帰として扱い，新しい ID と同一視しない．新方式の pattern ID／source の来歴は replay の `match_rules.tsumo` だけに記録し，policy 公開 snapshot に渡さない．
+既定 `random` は既存 seed／hash と同じ．旧 seed corpus は legacy random 回帰として扱い，新しい ID と同一視しない．新方式の pattern ID／source の来歴は replay の `match_rules.tsumo` だけに記録する．policy 公開 snapshot と legacy policy `info` の simulator には渡さない．legacy policy の simulator コピーは現在組／NEXT／NEXT2 を維持し，その後は独立した合成乱数列になる．この合成列は原本の将来組を予告しない．
