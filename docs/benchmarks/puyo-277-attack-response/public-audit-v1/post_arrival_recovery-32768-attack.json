@@ -1,0 +1,119 @@
+{
+  "assessment": {
+    "canceled": 1,
+    "drop_ticks": [
+      44,
+      158
+    ],
+    "excluded_from_response_success": false,
+    "fire_ticks": [
+      158
+    ],
+    "game_over": false,
+    "issues": [],
+    "maximum_chain_observed_not_threshold": 1,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": true,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      },
+      {
+        "actual_positive_witness": true,
+        "cutoff": "response_quota",
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      },
+      {
+        "actual_positive_witness": true,
+        "cutoff": "response_quota",
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "pass"
+  },
+  "case_id": "post_arrival_recovery-32768",
+  "condition": "attack",
+  "observations": [
+    {
+      "decision_id": 1,
+      "mainline_consumed": false,
+      "mainline_shape_preserved": null,
+      "observed_trace_matches": true,
+      "public_root_confirmed": true,
+      "public_validation_status": "observed",
+      "public_validation_tick": 66,
+      "resolution_drop_amount": 28,
+      "used_secondary": false
+    },
+    {
+      "decision_id": 2,
+      "mainline_consumed": false,
+      "mainline_shape_preserved": null,
+      "observed_trace_matches": true,
+      "public_root_confirmed": true,
+      "public_validation_status": "observed",
+      "public_validation_tick": 180,
+      "resolution_drop_amount": 1,
+      "used_secondary": true
+    },
+    {
+      "decision_id": 3,
+      "mainline_consumed": false,
+      "mainline_shape_preserved": null,
+      "observed_trace_matches": true,
+      "public_root_confirmed": true,
+      "public_validation_status": "observed",
+      "public_validation_tick": 235,
+      "resolution_drop_amount": 0,
+      "used_secondary": false
+    }
+  ],
+  "original_assessment": {
+    "canceled": 1,
+    "drop_ticks": [
+      44,
+      158
+    ],
+    "fire_ticks": [
+      158
+    ],
+    "game_over": false,
+    "issues": [
+      "public_prediction_actual_resolution_mismatch",
+      "selected_public_root_not_confirmed"
+    ],
+    "maximum_chain_observed_not_threshold": 1,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": false,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      },
+      {
+        "actual_positive_witness": false,
+        "cutoff": "response_quota",
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      },
+      {
+        "actual_positive_witness": true,
+        "cutoff": "response_quota",
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "fail"
+  },
+  "original_report_sha256": "5caec50b2e7e475691ec2224ec100893aee4dfa874581e97821fc5cd5fb1d611",
+  "policy_calls": 0,
+  "replay_sha256": "49b1af952d5eb94eaf15b56ae80d24655705182e5c7c5a1a8291f5b3fedb6307",
+  "replay_verified_hash": "aa178e21912a1ec8dd746d0d7c3d57f232b66a2747aad26553656a870be8010f",
+  "schema": "puyo.nextgen.attack_response_audit.v1",
+  "ticks_added": 0
+}
