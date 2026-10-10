@@ -36,3 +36,9 @@ tar -xzf docs/benchmarks/puyo-276-qa-session/raw/on-session.tar.gz -C /tmp/puyo-
 PYTHONPATH=. SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python docs/benchmarks/puyo-276-qa-session/probe.py --mode off --output /tmp/puyo-276-qa-long/off --frames 1100
 PYTHONPATH=. SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python docs/benchmarks/puyo-276-qa-session/probe.py --mode on --output /tmp/puyo-276-qa-long/on --frames 1100
 ```
+
+## input p99 未達の調査
+
+旧 ON raw の input schedule tail には event ID 8／159／167 の 78.02／86.27／104.76 ms があり，同じ ID の OFF は 43.20／33.96／44.65 ms だった．保存 replay には tick 49／477／502 付近で 0.63 MB 前後の完全な nextgen decision が含まれる．raw に旧 serialization 呼出時刻はないため，この近接だけでは遅延の直接原因とは確定できない．
+
+`RealtimeControllerDiagnostics.to_dict()` の旧処理は `asdict(self)` で decision を深くコピーした後，`last_decision.to_json()` で再度深くコピーしていた．保存 replay の 629,555 byte の実 decision を復元し，旧相当関数と新関数を交互に 30 回ずつ呼ぶ軽い測定では，旧中央値／p95 が 13.17／39.34 ms，新関数が 6.52／6.77 ms だった．値の同一性は確認したが，この microprofile は GUI gate の代替ではない．[個票](raw/decision-copy-profile.json)を保存した．新しい長時間 probe は実対局中の `to_dict()` 呼出時刻・時間を測り，入力 event の tail と照合する．
