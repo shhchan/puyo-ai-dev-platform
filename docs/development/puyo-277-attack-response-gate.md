@@ -92,3 +92,11 @@ PYTHONPATH=. /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python \
 ```
 
 元 56 条件の v1 と公開再監査は不変である．モデル変更後の 56 条件は別出力 `formal-v2`，追加 16 条件は `extended-v2` として保存し，元の 3 resolution 未観測 FAIL を追加結果で書き換えない．
+
+## v2 後の selector 修正
+
+v2 の全 72 条件と失敗を `122a144` に保存した後，`RuleTacticSelector` の比較を限定して修正した．現在 1 手の public response が pending 全量を相殺し，trigger が生存し，既存の時間 witness と request timeout が整合する場合は，攻撃が immediate になる前でも十分相殺を採用できる．fire と cancellation は同じ解決境界なので，相関する上下限が同じ境界を表すことを確認する．将来手を現在 request の実採用証明にしない．既知の致死 root，時間超過，不十分な相殺，無攻撃はこの追加条件の対象外である．実 lock／期限の確認は引き続き scheduler と gate が行う．
+
+相殺不足時の比較では，致死率・相殺量・送付量が同じ場合に限り，`sampled_future` の致死率 0 より明示的な公開応答の生存証拠を優先する．実際の致死危険や相殺量を犠牲にして counter を優先しない．これは条件付き公開 witness の優先であり，探索 cutoff や隠れ行を完全証明へ格上げする変更ではない．
+
+保存済み v2 公開 request／batch の selector-only 回帰では，preserve の 1／32768 は現在 action 0 の相殺，post-arrival の 65535 は公開 counter `[0,1]` を選ぶ．このテストは実配置の PASS ではない．v3 の同一 56＋16 条件の正式実行と replay 照合は，親の統合後の clean head で改めて行う．
