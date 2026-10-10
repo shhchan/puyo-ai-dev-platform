@@ -21,7 +21,7 @@ launcher の「対戦」では「QA replay 自動保存」が既定 ON であり
 
 リポジトリ root で `/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python main.py` を実行し，「対戦」を選ぶ．設定で 1P を `nextgen_tactic_manager`，2P を `human`，速度を `1.0`，配ぷよ mode を `random` または検証対象の `esports_tsu` にする．「QA replay 自動保存」が ON であることと「QA 保存先」を確認し，開始する．起動前の launcher と対局画面には具体的な session dir が表示される．2P の既定キーは `A`／`D` または左右矢印で左右移動，`Q`／`E` または上／下矢印で回転，`W`／`S`／`Enter`／`Space` で soft drop．`P` は一時停止，`O` は両側の将来配置 plan overlay の表示／非表示を切り替える．`O` を 2 回押して overlay が消え，再表示されることを確かめる．現在組の落下位置 ghost と将来 plan を区別する．キー割当を変更済みなら `F1` の設定画面で実際の割当を確認する．
 
-人間が 2P を操作して通常終了させ，launcher の「保存先」表示を `Ctrl+C` でコピーする．session dir に 3 ファイルがあり，次の validator が終了コード 0 と `QA session valid:` を返すことを確認する．対局前に OFF へ切り替えた場合は session dir が作られないことを確認する．
+人間が 2P を操作して通常終了させ，launcher の「保存先」表示を `Ctrl+C` でコピーする．session dir に 3 ファイルがあり，次の validator が終了コード 0 と `QA session valid:` を返すことを確認する．対局前に OFF へ切り替えた場合は session dir が作られないことを確認する．`O` による将来 plan の描画は plan が得られた場面で確認し，描画されない場合は receipt／plan status と併せて記録する．
 
 途中終了も同じ設定で開始して対局画面を `Esc` で閉じる．保存された `result.json` の `result.interrupted` が `true` であり，validator が成功することを確認する．端末から `Ctrl+C` または `SIGTERM` で中断した場合も session を回収する．保存失敗時は launcher／CLI に失敗 path が表示され，root 配下の `.<session-id>.pending/save_failure.json` を調べる．
 
@@ -33,7 +33,7 @@ CLI から再現する場合の実コマンド例は次のとおり．`--max-tic
 /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.realtime_versus_ui --policy-a nextgen_tactic_manager --policy-b human --speed 1.0 --seed 127 --max-ticks 120 --tsumo-mode esports_tsu --tsumo-source /path/to/haipuyo.txt --tsumo-pattern-id 34066 --qa-auto-save --qa-save-root runs/gui-qa-sessions
 /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.qa_session runs/gui-qa-sessions/<session-id>
 mkdir -p /tmp/qa-review
-cp -a runs/gui-qa-sessions/<session-id> /tmp/qa-review/<session-id>
+cp -a runs/gui-qa-sessions/<session-id> /tmp/qa-review/
 /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.qa_session /tmp/qa-review/<session-id> --tsumo-source /path/to/verified/haipuyo.txt
 ```
 
@@ -41,4 +41,4 @@ cp -a runs/gui-qa-sessions/<session-id> /tmp/qa-review/<session-id>
 
 ## 短時間の保存負荷測定
 
-dummy video driver，random 配ぷよ，nextgen policy と scripted human 入力，各 120 frame の機能測定では，OFF は 143 tick，対局 2.087 秒，frame p95/p99 は 22/65 ms，ON は 145 tick，対局 2.11 秒，frame p95/p99 は 21/84 ms だった．ON の保存は 0.137 秒，replay 2.4 MiB，result 584 KiB だった．tick 数と実行条件が揃った因果比較ではなく，既存 S14 SLA の達成判定にも使わない．長時間の対局での cadence・保存量は別途実機で確認する．`qa_save_elapsed_seconds` は保存後に返す値であり，保存された `result.json` の対局中 `runtime` には含めない．
+dummy video driver，random 配ぷよ，nextgen policy と scripted human 入力，各 120 frame の機能測定では，OFF は 143 tick，対局 2.087 秒，frame p95/p99 は 22/65 ms，ON は 145 tick，対局 2.11 秒，frame p95/p99 は 21/84 ms だった．ON の保存は 0.137 秒，replay 2.4 MiB，result 584 KiB だった．tick 数と実行条件が揃った因果比較ではなく，既存 S14 SLA の達成判定にも使わない．追加の [1000 tick 計測](../benchmarks/puyo-276-qa-session/README.md)では input schedule p99 が既存 50 ms gate に未達で，raw 入力時刻と移送可能な bundle を保存した．`qa_save_elapsed_seconds` は保存後に返す値であり，保存された `result.json` の対局中 `runtime` には含めない．
