@@ -998,8 +998,8 @@
       "removed_trajectory_count": 53,
       "max_additional_nodes": 838,
       "seconds": 0.47679640800015477,
-      "raw_path": "runs/puyo-266-formal-v3/deep_chain_builder-pattern-4519-repeat-1.json.gz",
-      "raw_sha256": "9e6d436389b1bc33005206d761bc1936c2e761d1ea2f27eb14515dbd4bd62fd4",
+      "raw_path": "runs/puyo-266-quality-targeted-v1/deep_chain_builder-pattern-4519-repeat-1.json.gz",
+      "raw_sha256": "551ffec0164d6d1321cee8a290831d8650b2c94509f9cdca3c8fd819a111ec72",
       "diagnostic_path": "runs/puyo-266-reference-readonly-20261011/support-filter.json",
       "diagnostic_sha256": "1a5b462b238fb4357ccff5d0f3f64f188b5f4de52e4773728e5dbddff448f20b",
       "decision_columns": [
