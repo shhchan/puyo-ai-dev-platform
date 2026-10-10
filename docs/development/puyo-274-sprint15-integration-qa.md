@@ -1,0 +1,81 @@
+# PUYO-274 Sprint 15 統合 QA
+
+この文書は v1.7.3 の最上段で PUYO-275，276，266，277 を組み合わせて確認する手順と判定境界である．この手順の記載や CI の単体テスト成功だけでは統合 QA は完了しない．PUYO-266／277 の正式 gate，PUYO-276 の人間による実画面確認が揃うまで PUYO-274 は In Progress に置く．PUYO-278 の release 判断は別チケットで行う．
+
+## 起点と証拠
+
+統合前に作業ブランチの起点，取り込む各 PR の確定 head，差分，Jira の受け入れ状態を記録する．順序は 275 → 276 → 266 → 277 → 274 → 278 とし，最下段の base は `integration/puyo-228-v1-7-3` とする．親セッションが先行 PR を確定 head で取り込み，PUYO-274 の作業ブランチを更新する．取り込み後に `git status --short` が空であることと `git rev-parse HEAD` を記録する．先行 PR の変更を PUYO-274 の独自実績として重複計上しない．
+
+| 条件 | 確認する記録 |
+| --- | --- |
+| PUYO-275 | `random` と `esports_tsu` の選択，pattern ID，原本 SHA-256，色 mapping，公開 current／NEXT／NEXT2，replay 決定性． |
+| PUYO-266 | 事前登録 30 pattern × 2 repeat × 2 policy の 120 run，46 resolution または game over，平均最大実連鎖 ≥ 10，理由のない premature 0，回避可能窒息 0，repeat と integrity． |
+| PUYO-277 | 4 pattern × 7 case × 攻撃あり／なしの 56 条件，receipt／実 lock／解決／相殺・着弾・副砲の観測，replay hash，未実行・unknown・例外の有無． |
+| PUYO-276 | 1P nextgen／2P human，速度 1.0 の実画面操作，保存 ON／OFF，通常・途中終了，保存 bundle の別場所での検証，frame／input 分布． |
+
+原本 `haipuyo.txt` は repository と QA bundle に含めない．照合済み原本はローカルの `/tmp/puyo275-haipuyo.txt` にあり，期待 SHA-256 は `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb` である．別 host では各自が原本を入手し，この checksum を確認する．元の random seed 59／127 対局は replay が残っていないため，同一対局の再現成功とは主張しない．旧 raw と新しい `esports_tsu` の pattern ID は別の証拠として扱う．
+
+## 統合後の機械検証
+
+以下は先行実装をすべて取り込んだ **確定 head** の repository root で行う．4 module を明示して実行する．対象の test ファイルがない場合は止め，0 test の成功表示で代用しない．この単体テストは外部原本を伴う正式 gate の代用ではない．
+
+```bash
+git status --short
+git rev-parse HEAD
+test -f tests/test_tsumo_provider.py
+test -f tests/test_qa_session.py
+test -f tests/test_nextgen_single_quality_gate.py
+test -f tests/test_nextgen_attack_response_gate.py
+sha256sum /tmp/puyo275-haipuyo.txt
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m unittest \
+  tests.test_tsumo_provider tests.test_qa_session \
+  tests.test_nextgen_single_quality_gate tests.test_nextgen_attack_response_gate -v
+```
+
+`tests.test_tsumo_provider` の原本往復テストは `PUYO_TSUMO_SOURCE` が未設定なら skip される．`tests.test_nextgen_attack_response_gate` の外部原本を要する runtime 2 件も source がなければ skip される．原本付きでそれらを走らせる場合は次を用い，結果の skipped 数まで保存する．GitHub CI では原本を配布しないので，原本依存部分の skip を正式 gate PASS としない．
+
+```bash
+PUYO_TSUMO_SOURCE=/tmp/puyo275-haipuyo.txt \
+PUYO277_SOURCE=/tmp/puyo275-haipuyo.txt \
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m unittest \
+  tests.test_tsumo_provider tests.test_nextgen_attack_response_gate -v
+```
+
+PUYO-266 の 120 run と PUYO-277 の 56 条件は各チケットの正式手順と親セッションの CPU 排他枠で行う．CI の単体テストで再実行せず，[単独品質 gate](puyo-266-sprint15-single-gate.md)と[攻撃対応 gate](puyo-277-attack-response-gate.md)にある manifest／report／replay／checksum／summary の identity と判定を照合する．欠損，未分類，失敗を成功母集団から除かず，その状態を PUYO-274 の統合結果へ記録する．
+
+## 人間の実画面確認
+
+GUI と native の排他枠が空いた状態で行う．[QA session 契約](puyo-276-qa-session.md)に従い，1P `nextgen_tactic_manager`，2P `human`，速度 `1.0` とし，`random` と `esports_tsu` を別対局で確認する．`esports_tsu` は検証済み原本と事前登録 ID の 1 つを明示する．各対局の source／config／native identity，seed または pattern ID，画面速度，開始・終了時刻，session path と人間の観測を保存する．原本 path を変えても checksum は一致させる．
+
+```bash
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.realtime_versus_ui \
+  --policy-a nextgen_tactic_manager --policy-b human --speed 1.0 \
+  --seed 127 --max-ticks 10000 --qa-auto-save \
+  --qa-save-root runs/gui-qa-sessions
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.realtime_versus_ui \
+  --policy-a nextgen_tactic_manager --policy-b human --speed 1.0 \
+  --seed 127 --max-ticks 10000 --tsumo-mode esports_tsu \
+  --tsumo-source /tmp/puyo275-haipuyo.txt --tsumo-pattern-id 0 \
+  --qa-auto-save --qa-save-root runs/gui-qa-sessions
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.realtime_versus_ui \
+  --policy-a nextgen_tactic_manager --policy-b human --speed 1.0 \
+  --seed 127 --max-ticks 10000
+```
+
+2P で soft drop を押し続けながら左／右と回転を加え，意図した列・向きに実 lock するか確認する．既定では `W`／`S`／`Enter`／`Space` が soft drop，`A`／`D` または矢印が左右，`Q`／`E` または上下矢印が回転である．変更済みの割当は `F1` で確認する．`O` を 2 回押し，N=3 の将来配置 preview が消えて再表示されることを，現在組の落下位置 ghost と区別して確認する．表示がない場面は plan／receipt status を記録し，無表示を即座に表示回帰と断定しない．通常終了と `Esc` による途中終了の bundle を別々に保存する．保存 OFF では session dir が作られないことを確認する．
+
+表示された `<session-id>` に置き換え，bundle をコピーしてから検証する．成功時は終了コード 0 と `QA session valid:` を期待する．`esports_tsu` の移送先検証には同じ SHA-256 の原本を `--tsumo-source` で渡す．`random` の bundle ではこの引数を省く．`manifest.json` の checksum，source/native/config，replay 各 tick hash・最終 hash，result の `interrupted` と実 lock を照合する．不一致は失敗として保存する．
+
+```bash
+mkdir -p /tmp/puyo-274-qa-review
+cp -a runs/gui-qa-sessions/<session-id> /tmp/puyo-274-qa-review/
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.qa_session \
+  /tmp/puyo-274-qa-review/<session-id> \
+  --tsumo-source /tmp/puyo275-haipuyo.txt
+```
+
+frame と input は p95 ≤ 25 ms／p99 ≤ 50 ms を維持して観測し，保存 ON／OFF，random／`esports_tsu`，実人間入力を混ぜず個別に記録する．PUYO-276 の既存 1000 tick 合成入力では保存 ON の input schedule p99 が 57.82 ms で未達であり，実画面の人間 QA も未了である．厳密な frame 25 ms 安定化の新規改善は Sprint 16 の PUYO-279 が所有するが，今回の未達測定を隠して統合 PASS とはしない．
+
+## 完了判定
+
+CI の 4 suite と既存 boundary が成功し，先行 PR の確定 head で PUYO-266／277 の正式結果が受け入れられ，PUYO-276 の人間 QA が bundle と操作記録付きで確認でき，PUYO-275 の provenance と replay が整合した場合だけ統合結果を受け入れる．判定表には各 artifact path，SHA-256，実行 head，PASS／FAIL／BLOCKED と理由を残す．未達が残る間は PUYO-274 を In Progress に置き，PUYO-278 の release 判定を確定しない．
