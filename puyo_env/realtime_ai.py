@@ -1142,6 +1142,10 @@ class RealtimePuyoEnv:
         reward_config: RealtimeRewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
         use_reachable_action_mask: bool = False,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
+        tsumo_player_1_pattern_id: int | None = None,
     ):
         self.base_seed = seed
         self.max_ticks = None if max_ticks is None else int(max_ticks)
@@ -1150,7 +1154,11 @@ class RealtimePuyoEnv:
         self.reward_config = reward_config or RealtimeRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
         self.use_reachable_action_mask = use_reachable_action_mask
-        self.match = RealtimeVersusMatch(seed=seed, timing=self.timing)
+        self.match = RealtimeVersusMatch(
+            seed=seed, timing=self.timing, tsumo_mode=tsumo_mode,
+            tsumo_source=tsumo_source, tsumo_pattern_id=tsumo_pattern_id,
+            tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
+        )
         self.agents: list[str] = []
         self._episode_index = 0
         self._episode_returns = {agent: 0.0 for agent in self.possible_agents}

@@ -22,6 +22,7 @@ from src.core.constants import VISIBLE_HEIGHT
 from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.ojama import convert_score_to_ojama
+from src.core.tsumo import EsportsTsuSource
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import (
@@ -120,6 +121,10 @@ class VersusPuyoEnv:
         max_ojama_drop: int = 30,
         attack_delay_steps: int = 1,
         capture_visuals: bool = False,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
+        tsumo_player_1_pattern_id: int | None = None,
     ):
         if gym is None or spaces is None or np is None:
             raise ImportError(
@@ -127,6 +132,10 @@ class VersusPuyoEnv:
                 "`pip install -r requirements.txt`."
             )
         self.base_seed = seed
+        self.tsumo_mode = tsumo_mode
+        self.tsumo_source = EsportsTsuSource(tsumo_source) if tsumo_mode == "esports_tsu" and tsumo_source else None
+        self.tsumo_pattern_id = tsumo_pattern_id
+        self.tsumo_player_1_pattern_id = tsumo_player_1_pattern_id
         self.max_steps = max_steps
         self.reward_config = reward_config or VersusRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
@@ -179,7 +188,11 @@ class VersusPuyoEnv:
         self._termination_reasons = {agent: None for agent in self.possible_agents}
 
         self.player_states = {
-            agent: VersusPlayerState(simulator=HeadlessPuyoSimulator(seed=effective_seed))
+            agent: VersusPlayerState(simulator=HeadlessPuyoSimulator(
+                seed=effective_seed, tsumo_mode=self.tsumo_mode,
+                tsumo_source=self.tsumo_source,
+                tsumo_pattern_id=(self.tsumo_player_1_pattern_id if agent == "player_1" and self.tsumo_player_1_pattern_id is not None else self.tsumo_pattern_id),
+            ))
             for agent in self.possible_agents
         }
         rng_seed = 0 if effective_seed is None else effective_seed
