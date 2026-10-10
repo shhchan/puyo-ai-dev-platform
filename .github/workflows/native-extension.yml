@@ -20,6 +20,23 @@ on:
       - "src/core/constants.py"
       - "src/core/field.py"
       - "src/core/game.py"
+      - "src/core/tsumo.py"
+      - "eval/qa_session.py"
+      - "eval/nextgen_single_quality_gate.py"
+      - "eval/nextgen_single_quality_runtime.py"
+      - "eval/nextgen_attack_response_gate.py"
+      - "eval/nextgen_response_fixtures.py"
+      - "tests/fixtures/nextgen_single_preregistration.json"
+      - "tests/fixtures/puyo_277_attack_response_cases.json"
+      - "tests/test_tsumo_provider.py"
+      - "tests/test_qa_session.py"
+      - "tests/test_nextgen_single_quality_gate.py"
+      - "tests/test_nextgen_attack_response_gate.py"
+      - "docs/development/puyo-266-sprint15-single-gate.md"
+      - "docs/development/puyo-275-tsumo-source.md"
+      - "docs/development/puyo-276-qa-session.md"
+      - "docs/development/puyo-277-attack-response-gate.md"
+      - "docs/development/puyo-274-sprint15-integration-qa.md"
       - "eval/simulator_parity.py"
       - "eval/ghost_row_reclassification.py"
       - "eval/deep_chain_target_ablation.py"
@@ -147,6 +164,23 @@ on:
       - "src/core/constants.py"
       - "src/core/field.py"
       - "src/core/game.py"
+      - "src/core/tsumo.py"
+      - "eval/qa_session.py"
+      - "eval/nextgen_single_quality_gate.py"
+      - "eval/nextgen_single_quality_runtime.py"
+      - "eval/nextgen_attack_response_gate.py"
+      - "eval/nextgen_response_fixtures.py"
+      - "tests/fixtures/nextgen_single_preregistration.json"
+      - "tests/fixtures/puyo_277_attack_response_cases.json"
+      - "tests/test_tsumo_provider.py"
+      - "tests/test_qa_session.py"
+      - "tests/test_nextgen_single_quality_gate.py"
+      - "tests/test_nextgen_attack_response_gate.py"
+      - "docs/development/puyo-266-sprint15-single-gate.md"
+      - "docs/development/puyo-275-tsumo-source.md"
+      - "docs/development/puyo-276-qa-session.md"
+      - "docs/development/puyo-277-attack-response-gate.md"
+      - "docs/development/puyo-274-sprint15-integration-qa.md"
       - "eval/simulator_parity.py"
       - "eval/ghost_row_reclassification.py"
       - "eval/deep_chain_target_ablation.py"
@@ -295,6 +329,8 @@ jobs:
           .venv/bin/python -m eval.deep_chain_native_profile verify --historical
       - name: Run Python boundary tests
         run: |
+          .venv/bin/ruff check src/core/tsumo.py eval/qa_session.py eval/nextgen_single_quality_gate.py eval/nextgen_single_quality_runtime.py eval/nextgen_attack_response_gate.py eval/nextgen_response_fixtures.py tests/test_tsumo_provider.py tests/test_qa_session.py tests/test_nextgen_single_quality_gate.py tests/test_nextgen_attack_response_gate.py
+          .venv/bin/python -m unittest tests.test_tsumo_provider tests.test_qa_session tests.test_nextgen_single_quality_gate tests.test_nextgen_attack_response_gate
           .venv/bin/ruff check eval/deep_chain_safe_build_benchmark.py tests/test_deep_chain_safe_build_contract.py eval/deep_chain_target_ablation.py tests/test_deep_chain_target_ablation.py eval/deep_chain_gui_qa.py tests/test_deep_chain_gui_qa.py eval/simulator_parity.py eval/ghost_row_reclassification.py tests/test_ghost_row_contract.py tests/test_ghost_row_reclassification.py agents/deep_chain_builder.py agents/deep_chain_search_backend.py agents/deep_chain_native.py agents/deep_chain_native_evaluator.py agents/deep_chain_native_search.py agents/deep_chain_native_transition.py agents/long_horizon_search.py eval/deep_chain_builder_benchmark.py eval/deep_chain_builder_smoke.py eval/deep_chain_native_base_features.py eval/deep_chain_native_candidate_ranking.py eval/deep_chain_native_evaluator_benchmark.py eval/deep_chain_native_evaluator_profile.py eval/deep_chain_native_evaluator_revalidation.py eval/deep_chain_native_incremental_resolution.py eval/deep_chain_native_next_bottleneck.py eval/deep_chain_native_placement_enumeration.py eval/deep_chain_native_placement_frontier.py eval/deep_chain_native_quiescence_frontier.py eval/deep_chain_native_search_benchmark.py eval/deep_chain_native_transition_benchmark.py eval/deep_chain_native_transition_profile.py eval/deep_chain_native_transition_investigation.py eval/deep_chain_native_transition_restart_decision.py tests/test_deep_chain_search_backend.py tests/test_deep_chain_native.py tests/test_deep_chain_native_base_features.py tests/test_deep_chain_native_candidate_ranking.py tests/test_deep_chain_native_evaluator.py tests/test_deep_chain_native_evaluator_benchmark.py tests/test_deep_chain_native_evaluator_profile.py tests/test_deep_chain_native_evaluator_revalidation.py tests/test_deep_chain_native_incremental_resolution.py tests/test_deep_chain_native_next_bottleneck.py tests/test_deep_chain_native_placement_enumeration.py tests/test_deep_chain_native_placement_frontier.py tests/test_deep_chain_native_quiescence_frontier.py tests/test_deep_chain_native_search.py tests/test_deep_chain_native_search_benchmark.py tests/test_deep_chain_native_transition.py tests/test_deep_chain_native_transition_benchmark.py tests/test_deep_chain_native_transition_profile.py tests/test_deep_chain_native_transition_investigation.py tests/test_deep_chain_native_transition_restart_decision.py
           .venv/bin/python -m unittest tests.test_chain_structure tests.test_deep_chain_target_ablation tests.test_deep_chain_safe_build_contract tests.test_deep_chain_gui_qa tests.test_deep_chain_search_backend tests.test_deep_chain_builder tests.test_deep_chain_builder_benchmark tests.test_deep_chain_builder_smoke tests.test_realtime_ai tests.test_realtime_versus_ui tests.test_realtime_arena tests.test_launcher tests.test_deep_chain_native tests.test_deep_chain_native_base_features tests.test_deep_chain_native_candidate_ranking tests.test_deep_chain_native_evaluator tests.test_deep_chain_native_evaluator_benchmark tests.test_deep_chain_native_evaluator_profile tests.test_deep_chain_native_evaluator_revalidation tests.test_deep_chain_native_incremental_resolution tests.test_deep_chain_native_next_bottleneck tests.test_deep_chain_native_placement_enumeration tests.test_deep_chain_native_placement_frontier tests.test_deep_chain_native_quiescence_frontier tests.test_deep_chain_native_search tests.test_deep_chain_native_search_benchmark tests.test_deep_chain_native_transition tests.test_deep_chain_native_transition_benchmark tests.test_deep_chain_native_transition_profile tests.test_deep_chain_native_transition_investigation tests.test_deep_chain_native_transition_restart_decision
           .venv/bin/python -m unittest tests.test_ghost_row_contract tests.test_ghost_row_reclassification tests.test_logic tests.test_controls tests.test_headless_simulator tests.test_compact_search tests.test_single_env_optional tests.test_versus_env
