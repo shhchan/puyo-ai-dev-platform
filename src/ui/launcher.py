@@ -178,6 +178,10 @@ class LauncherService:
             checkpoint_a=settings.checkpoint_a,
             checkpoint_b=settings.checkpoint_b,
             seed=settings.seed,
+            tsumo_mode=settings.tsumo_mode,
+            tsumo_source=settings.tsumo_source,
+            tsumo_pattern_id=settings.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=settings.tsumo_player_1_pattern_id,
             seed_a=settings.seed_a,
             seed_b=settings.seed_b,
             max_ticks=settings.max_ticks,
@@ -236,6 +240,10 @@ class LauncherService:
             checkpoint_a=settings.checkpoint_a,
             checkpoint_b=settings.checkpoint_b,
             seed=settings.seed,
+            tsumo_mode=settings.tsumo_mode,
+            tsumo_source=settings.tsumo_source,
+            tsumo_pattern_id=settings.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=settings.tsumo_player_1_pattern_id,
             seed_a=settings.seed_a,
             seed_b=settings.seed_b,
             max_ticks=settings.max_ticks,
@@ -342,6 +350,7 @@ class LauncherService:
                 args.append("--paired-sides")
             if settings.replay_path:
                 args.extend(["--replay", settings.replay_path])
+            args.extend(_tsumo_argv(settings))
             return tuple(args)
         if action_key == "training":
             settings = self.settings.for_action("training")
@@ -1013,6 +1022,17 @@ def versus_config_to_argv(config: VersusUiConfig) -> tuple[str, ...]:
     return tuple(args)
 
 
+def _tsumo_argv(config) -> list[str]:
+    args = ["--tsumo-mode", config.tsumo_mode]
+    if config.tsumo_source:
+        args.extend(["--tsumo-source", config.tsumo_source])
+    if config.tsumo_pattern_id is not None:
+        args.extend(["--tsumo-pattern-id", str(config.tsumo_pattern_id)])
+    if config.tsumo_player_1_pattern_id is not None:
+        args.extend(["--tsumo-player-1-pattern-id", str(config.tsumo_player_1_pattern_id)])
+    return args
+
+
 def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     args = [
         "--policy-a",
@@ -1060,6 +1080,7 @@ def realtime_config_to_argv(config: RealtimeVersusUiConfig) -> tuple[str, ...]:
     ]
     if config.max_ticks is not None:
         args.extend(["--max-ticks", str(config.max_ticks)])
+    args.extend(_tsumo_argv(config))
     if config.checkpoint_a:
         args.extend(["--checkpoint-a", config.checkpoint_a])
     if config.checkpoint_b:

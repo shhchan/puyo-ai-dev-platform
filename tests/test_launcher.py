@@ -69,6 +69,23 @@ class TestLauncherService(unittest.TestCase):
         self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 
+    def test_tsumo_settings_reach_realtime_play_and_arena(self):
+        service = self.make_service()
+        for action in ("play", "arena"):
+            service.update_setting(action, "tsumo_mode", "esports_tsu")
+            service.update_setting(action, "tsumo_source", "/tmp/haipuyo.txt")
+            service.update_setting(action, "tsumo_pattern_id", 34066)
+            service.update_setting(action, "tsumo_player_1_pattern_id", 65535)
+        config = service.realtime_play_config()
+        self.assertEqual(config.tsumo_pattern_id, 34066)
+        self.assertEqual(config.tsumo_player_1_pattern_id, 65535)
+        parsed = parse_realtime_config(service.command_for("play")[3:])
+        self.assertEqual(parsed.tsumo_source, "/tmp/haipuyo.txt")
+        from eval.realtime_arena import parse_args
+        arena = parse_args(service.command_for("arena")[3:])
+        self.assertEqual(arena.tsumo_pattern_id, 34066)
+        self.assertEqual(arena.tsumo_player_1_pattern_id, 65535)
+
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
         service = self.make_service()
         config = parse_realtime_config(service.command_for("spectate")[3:])
