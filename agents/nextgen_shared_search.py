@@ -38,6 +38,35 @@ from src.core.constants import GRID_HEIGHT, PuyoColor
 SCENARIO_GENERATOR_VERSION = "nextgen.long_horizon_scenarios.v1"
 
 
+def _cancel_response_key(request, proposal, original_key):
+    """Prefer a smaller sufficient current clear, never weaken a partial cancel.
+
+    Response proposals already require a legal, nonfatal public transition.
+    For a one-step full cancellation no incoming drop remains at that boundary.
+    This is a public witness (possibly conditional on hidden rows), not a claim
+    about arbitrary main-chain geometry. The outer survival order stays first.
+    """
+    incoming = sum(p.amount for p in request.public.own.attack_packets
+                   if p.landed_tick is None)
+    values = {e.name: e.evidence.value for e in proposal.evidence}
+    needed = ("canceled", "generated", "response_surplus", "chain_count", "score",
+              "fire_start_upper", "fire_end_lower", "fire_end_upper",
+              "deadline_lower", "deadline_upper")
+    sufficient = (
+        incoming > 0 and len(proposal.plan) == 1
+        and all(values.get(name) is not None for name in needed)
+        and values["canceled"] >= incoming
+        and values["response_surplus"] >= 0
+        and values["fire_start_upper"] <= request.execution.timeout_tick
+        # These are correlated intervals for the same resolve/cancel boundary,
+        # not an independent wall-clock arrival deadline.
+        and values["fire_end_lower"] <= values["deadline_lower"]
+        and values["fire_end_upper"] <= values["deadline_upper"]
+    )
+    return ((0, values["generated"] - incoming, values["chain_count"],
+             values["score"], original_key) if sufficient else (1, original_key))
+
+
 def scenario_provenance(known_pieces, config: LongHorizonSearchConfig):
     """Public helper used when constructing the request's scenario contract."""
     sequences = _sequences(known_pieces, config) if known_pieces else ()
@@ -661,6 +690,13 @@ class SharedSearchBatchBuilder:
                 value.evidence,
                 (0, -value.priority, tuple(s.action for s in value.plan)),
             )
+        # Keep response strength for counter/short attack and partial cancels.
+        # Only the cancel tactic prefers a smaller fully sufficient current
+        # clear; candidate deduplication must not leak this into build ranking.
+        for cid, key in tuple(tactic_keys["cancel"].items()):
+            plan, _, evidence, _, _ = entries[cid]
+            tactic_keys["cancel"][cid] = _cancel_response_key(
+                request, ResponseProposal(plan, ("cancel",), evidence), key)
         # Preserve explicit missingness for every wire evidence dimension.
         for cid, (plan, tactics, evidence, key, fallback) in tuple(entries.items()):
             result = survival.get(plan[0].action)

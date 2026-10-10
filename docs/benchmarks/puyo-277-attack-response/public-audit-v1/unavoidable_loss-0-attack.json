@@ -1,0 +1,66 @@
+{
+  "assessment": {
+    "canceled": 0,
+    "drop_ticks": [
+      38
+    ],
+    "excluded_from_response_success": true,
+    "fire_ticks": [],
+    "game_over": true,
+    "issues": [],
+    "maximum_chain_observed_not_threshold": 0,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": true,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "excluded_unavoidable"
+  },
+  "case_id": "unavoidable_loss-0",
+  "condition": "attack",
+  "observations": [
+    {
+      "decision_id": 1,
+      "mainline_consumed": false,
+      "mainline_shape_preserved": null,
+      "observed_trace_matches": true,
+      "public_root_confirmed": true,
+      "public_validation_status": "observed",
+      "public_validation_tick": 39,
+      "resolution_drop_amount": 4,
+      "used_secondary": false
+    }
+  ],
+  "original_assessment": {
+    "canceled": 0,
+    "drop_ticks": [
+      38
+    ],
+    "fire_ticks": [],
+    "game_over": true,
+    "issues": [
+      "attack_boundary_outcome_unobserved"
+    ],
+    "maximum_chain_observed_not_threshold": 0,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": true,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "fail"
+  },
+  "original_report_sha256": "9c8f82f2b87093e725d27c0ef3361d3f3c269c60a23b7576abf77e191947d7e7",
+  "policy_calls": 0,
+  "replay_sha256": "8233fb34c12634da01f646ff181ae661190c8bae4a8ac4feb0dbd0c5b1fbe0fb",
+  "replay_verified_hash": "0ed23feab96647639a9016f625540cc130d5dff74d5b2e2ad812212145799533",
+  "schema": "puyo.nextgen.attack_response_audit.v1",
+  "ticks_added": 0
+}

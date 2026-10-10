@@ -1,0 +1,10 @@
+{
+  "completed_conditions": 72,
+  "elapsed_seconds": 472.3182040229999,
+  "finished": true,
+  "last_case": "preserve_mainline-65535",
+  "last_condition": "no_attack",
+  "outcome": "completed",
+  "pid": 25655,
+  "started_unix": 1791643528.4963198
+}

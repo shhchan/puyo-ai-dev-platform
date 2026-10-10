@@ -90,22 +90,50 @@ class RuleTacticSelector:
         if features.action_mask != batch.action_mask:
             raise ValueError("selector feature mask mismatch")
         rows = {row.tactic_id: row for row in batch.tactics}
-        incoming = sum(p.amount for p in request.public.own.attack_packets)
+        incoming = sum(p.amount for p in request.public.own.attack_packets
+                       if p.landed_tick is None)
         cancel = rows["cancel"]
         end, deadline = (
             evidence(cancel, "fire_end_upper"),
             evidence(cancel, "deadline_lower"),
         )
         immediate = timing.threat == "immediate"
+        cancel_candidate = next((v for v in batch.candidates
+                                 if v.candidate_id == cancel.best_id), None)
+        # PublicResponseProvider cancels at its own resolution boundary. Its
+        # fire/deadline intervals are correlated, so upper <= lower is not the
+        # correct test for this one-step witness. A pending future packet can
+        # already be canceled; waiting until arrival may bury the trigger.
+        boundary_names = ("fire_start_upper", "fire_end_lower", "fire_end_upper",
+                          "deadline_lower", "deadline_upper")
+        boundary = {v.name: v.evidence for v in cancel.evidence}
+        current_full_cancel = (
+            incoming > 0 and cancel_candidate is not None
+            and len(cancel_candidate.plan) == 1
+            and evidence(cancel, "fire_depth") == 1
+            and evidence(cancel, "trigger_survives") == 1
+            and evidence(cancel, "survival_status") != 2
+            and (evidence(cancel, "canceled") or 0) >= incoming
+            and evidence(cancel, "response_surplus") is not None
+            and evidence(cancel, "response_surplus") >= 0
+            and all(n in boundary and boundary[n].value is not None
+                    and boundary[n].source in ("visible_exact", "public_estimate")
+                    for n in boundary_names)
+            and boundary["fire_start_upper"].value <= request.execution.timeout_tick
+            and boundary["fire_end_lower"].value == boundary["deadline_lower"].value
+            and boundary["fire_end_upper"].value == boundary["deadline_upper"].value
+        )
         occupied = sum(
             bool(v) for row in request.public.opponent.visible_board for v in row
         )
         eligible = {
-            "cancel": immediate
-            and end is not None
-            and deadline is not None
-            and end <= deadline
-            and (evidence(cancel, "canceled") or 0) >= incoming,
+            "cancel": current_full_cancel or (
+                immediate
+                and end is not None
+                and deadline is not None
+                and end <= deadline
+                and (evidence(cancel, "canceled") or 0) >= incoming
+            ),
             "counter": immediate,
             "decisive_short_attack": (
                 evidence(rows["decisive_short_attack"], "outgoing") or 0
@@ -130,6 +158,11 @@ class RuleTacticSelector:
                     else 1,
                     -(evidence(r, "canceled") or 0),
                     -(evidence(r, "outgoing") or 0),
+                    # Equal observed survival/firepower is not equal evidence:
+                    # sampled zero fatalities cannot prove a post-drop route.
+                    # Keep cancellation strength and actual fatal risk first.
+                    any(v.name == "fatal_rate" and v.evidence.value == 0
+                        and v.evidence.source == "sampled_future" for v in r.evidence),
                     self.config.priority.index(r.tactic_id),
                 ),
             ).tactic_id
