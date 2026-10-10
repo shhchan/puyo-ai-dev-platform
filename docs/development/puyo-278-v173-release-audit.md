@@ -22,7 +22,7 @@ Sprint 14 の stack は PR #172，#173，#174，#175，#177，#178，#179，#180
 | [#183／PUYO-275](https://github.com/shhchan/puyo-ai-dev-platform/pull/183) | `integration/puyo-228-v1-7-3` | `51d53a8d5008fca3554c7b97502b6a31e637c749` | OPEN，required `linux-cp312-release` 成功．Jira Complete． |
 | [#184／PUYO-276](https://github.com/shhchan/puyo-ai-dev-platform/pull/184) | `PUYO-275/esports-tsumo-provider` | `30405d87f764bc51332bd0ec1d7bd8ca038fe3bf` | OPEN，required `linux-cp312-release` 成功．人間実画面 QA 待ち． |
 | [#185／PUYO-277](https://github.com/shhchan/puyo-ai-dev-platform/pull/185) | `PUYO-276/automatic-qa-replay` | `06c0e1ae3783904790c8506265b1af9f41086d0f` | OPEN／ready，required `linux-cp312-release` 成功．Jira Complete． |
-| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `21d6b16779480832412c838219c74f26e708b10d` | OPEN／draft．確認時，required CI は実行中．正式単独 gate は BLOCKED． |
+| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `21d6b16779480832412c838219c74f26e708b10d` | OPEN／draft．required `linux-cp312-release` 成功．正式単独 gate は BLOCKED． |
 
 PUYO-266 の head は公開 action mask 修正 `b6046e8` と追加調査を含む．同じ事前登録 120 identity の v3 は 14 final で停止し，未実行と未知分類を含む．正式 v4 は init も実行もしていない．PUYO-274 の確定 head `fd78cc56de362111d276086ee371283ccc95ce74` は親が本監査 branch へ履歴保持で取り込み，取り込み commit は `e76083198ea4fb1b896a638aedda6f6ad5c40793`．これは remote 統合 branch への merge ではない．PUYO-274 の独自 CI／QA 文書を含む stack 上の機械確認はあるが，統合受け入れは BLOCKED．これらの PR・SHA を release 候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
 
