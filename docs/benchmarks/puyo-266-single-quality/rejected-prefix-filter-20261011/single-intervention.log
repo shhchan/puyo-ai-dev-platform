@@ -1,0 +1,4 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+{"purpose": "diagnostic single public known-prefix counterfactual; not acceptance", "baseline_tick": 1474, "replacement_root": 0, "replacement_events": [{"type": "lock", "tick": 1505, "axis_x": 0, "axis_y": 12, "rotation": "UP"}, {"type": "resolution_complete", "tick": 1506, "score_delta": 0, "attack_score_delta": 0, "chain_end_score": 0, "chain_count": 0, "game_over": false, "all_clear_achieved": false, "all_clear_bonus_pending": false, "all_clear_bonus_consumed": false, "all_clear_bonus_score": 0}], "all_replay_hashes_match": true, "total_placements": 34, "max_actual_chain": 1}
+{"final": {"placements": 5, "tick": 1732, "state_hash": "703cef6c7cecb9c809a6163db67cb660f212730674fa03562b3d6e8d7cf05045", "max_chain": 1, "small_clears": 1}, "game_over": true, "chains": [0, 0, 0, 0, 1]}

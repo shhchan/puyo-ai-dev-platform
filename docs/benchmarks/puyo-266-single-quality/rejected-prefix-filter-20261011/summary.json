@@ -1,0 +1,81 @@
+{
+  "purpose": "rejected diagnostic only; formal gate remains BLOCKED",
+  "product_source": "6baef386f37a7303b121d4275b05c48c9cf976d8",
+  "single_intervention": {
+    "pattern": 4519,
+    "request_tick": 1474,
+    "root": 0,
+    "placements": 34,
+    "max_chain": 1,
+    "game_over": true,
+    "all_tick_replay_hashes_match": true
+  },
+  "per_decision_filter": [
+    {
+      "pattern": 4519,
+      "final": {
+        "max_chain": 0,
+        "placements": 34,
+        "small_clears": 0,
+        "state_hash": "5d0601f6a4f118eff300ec36ce34064dd00cf1852897daad2fa9e34650848f89",
+        "tick": 1684
+      },
+      "small_clears": {
+        "necessary_survival": 0,
+        "unjustified": 0,
+        "unknown": 0
+      },
+      "suffocation": "unknown",
+      "all_tick_replay_hashes_match": true,
+      "lock_mismatches": 0,
+      "max_total_nodes": 465030,
+      "max_additional_nodes": 838,
+      "changed_roots": [
+        [
+          1474,
+          10,
+          0
+        ],
+        [
+          1540,
+          11,
+          8
+        ],
+        [
+          1651,
+          9,
+          7
+        ]
+      ]
+    },
+    {
+      "pattern": 2259,
+      "final": {
+        "max_chain": 11,
+        "placements": 46,
+        "small_clears": 0,
+        "state_hash": "c506180f216e801ed39f57f6c4f97b4e3d21d800a3a8eb4c275f1582f1ce25bd",
+        "tick": 2956
+      },
+      "small_clears": {
+        "necessary_survival": 0,
+        "unjustified": 0,
+        "unknown": 0
+      },
+      "suffocation": "none",
+      "all_tick_replay_hashes_match": true,
+      "lock_mismatches": 0,
+      "max_total_nodes": 465036,
+      "max_additional_nodes": 747,
+      "changed_roots": [
+        [
+          1756,
+          6,
+          4
+        ]
+      ]
+    }
+  ],
+  "adopted": false,
+  "formal_v4_started": false
+}
