@@ -27,6 +27,7 @@ from puyo_env.realtime_versus import REALTIME_AGENTS, RealtimeMatchTickResult, R
 from src.core.constants import Direction, GRID_HEIGHT, GRID_WIDTH
 from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
+from src.core.tsumo import PuyoSequence
 from src.core.realtime import DEFAULT_REALTIME_TIMING, RealtimeTimingConfig, TickInput
 
 
@@ -216,7 +217,9 @@ class RealtimeControllerDiagnostics:
         return self.inference_latency_ticks / self.decisions_started
 
     def to_dict(self) -> dict[str, Any]:
-        payload = asdict(self)
+        # Serialize the potentially large decision once.  asdict(self) would
+        # copy it here and to_json() would copy it a second time below.
+        payload = asdict(replace(self, last_decision=None))
         payload["mean_policy_elapsed_ms"] = self.mean_policy_elapsed_ms
         payload["mean_inference_latency_ticks"] = self.mean_inference_latency_ticks
         if self.last_decision is not None:
@@ -1142,6 +1145,10 @@ class RealtimePuyoEnv:
         reward_config: RealtimeRewardConfig | None = None,
         include_action_mask_in_observation: bool = False,
         use_reachable_action_mask: bool = False,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
+        tsumo_player_1_pattern_id: int | None = None,
     ):
         self.base_seed = seed
         self.max_ticks = None if max_ticks is None else int(max_ticks)
@@ -1150,7 +1157,11 @@ class RealtimePuyoEnv:
         self.reward_config = reward_config or RealtimeRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
         self.use_reachable_action_mask = use_reachable_action_mask
-        self.match = RealtimeVersusMatch(seed=seed, timing=self.timing)
+        self.match = RealtimeVersusMatch(
+            seed=seed, timing=self.timing, tsumo_mode=tsumo_mode,
+            tsumo_source=tsumo_source, tsumo_pattern_id=tsumo_pattern_id,
+            tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
+        )
         self.agents: list[str] = []
         self._episode_index = 0
         self._episode_returns = {agent: 0.0 for agent in self.possible_agents}
@@ -1413,6 +1424,13 @@ def build_realtime_info(
     incoming_ticks = _incoming_ticks(match, agent)
     opponent_incoming_ticks = _incoming_ticks(match, opponent)
     feature_max_ticks = max_ticks or DEFAULT_REALTIME_FEATURE_HORIZON
+    policy_realtime = state.simulator
+    policy_opponent_realtime = opponent_state.simulator
+    if match.tsumo_mode == "esports_tsu":
+        policy_realtime = copy.deepcopy(state.simulator)
+        policy_opponent_realtime = copy.deepcopy(opponent_state.simulator)
+        policy_realtime.game.puyo_sequence = PuyoSequence(seed=0)
+        policy_opponent_realtime.game.puyo_sequence = PuyoSequence(seed=0)
     return {
         "action_mask": action_mask,
         "action_mask_source": "reachable_planner" if use_reachable_action_mask else "placement_legal",
@@ -1436,16 +1454,16 @@ def build_realtime_info(
         "score_carry": state.score_carry,
         "last_chain_end_score": state.simulator.game.last_chain_end_score,
         "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
-        "simulator": _placement_simulator_snapshot(state.simulator.game),
-        "realtime_simulator": state.simulator,
+        "simulator": _placement_simulator_snapshot(policy_realtime.game),
+        "realtime_simulator": policy_realtime,
         "opponent_pending_ojama": opponent_state.pending_ojama,
         "opponent_incoming_ticks": 0 if opponent_incoming_ticks is None else opponent_incoming_ticks,
         "opponent_incoming_turns": _ticks_to_turns(match, opponent_incoming_ticks),
         "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
         "opponent_score_carry": opponent_state.score_carry,
         "opponent_received_ojama_total": opponent_state.received_ojama_total,
-        "opponent_simulator": _placement_simulator_snapshot(opponent_state.simulator.game),
-        "opponent_realtime_simulator": opponent_state.simulator,
+        "opponent_simulator": _placement_simulator_snapshot(policy_opponent_realtime.game),
+        "opponent_realtime_simulator": policy_opponent_realtime,
         "own_phase": state.simulator.game.state,
         "opponent_phase": opponent_state.simulator.game.state,
         "active_pair": state.simulator.snapshot().active_pair,

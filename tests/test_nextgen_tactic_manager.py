@@ -1,10 +1,12 @@
 """Selector separation and actual scheduler receipt/ledger integration."""
 
 import copy
+import gzip
 import json
 import unittest
 from concurrent.futures import Future
 from dataclasses import replace
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -42,13 +44,13 @@ def policy():
     )
 
 
-def all_tactics(board=None):
+def all_tactics(board=None, *, threat=True):
     p = policy()
     req = request(
         p.search_config,
         quota=(80, 100, 20),
         active=True,
-        threat=True,
+        threat=threat,
         cat=p.catalog,
         board=board,
     )
@@ -142,6 +144,64 @@ class SelectorTests(unittest.TestCase):
             self.select(req, batch, "immediate").selected_tactic_id, "cancel"
         )
         self.assertTrue(batch.action_mask[3])
+
+    def test_pending_current_full_cancel_uses_correlated_resolution_boundary(self):
+        req, batch = all_tactics()
+        amount = sum(p.amount for p in req.public.own.attack_packets)
+        values = {"canceled": amount, "response_surplus": 0, "fire_depth": 1,
+                  "trigger_survives": 1, "fire_start_upper": req.execution.timeout_tick,
+                  "fire_end_lower": 32, "fire_end_upper": 183,
+                  "deadline_lower": 32, "deadline_upper": 183}
+        batch = with_evidence(batch, "cancel", **values)
+        self.assertEqual(self.select(req, batch, "pressing").selected_tactic_id, "cancel")
+        for change in ({"canceled": amount - 1}, {"response_surplus": -1},
+                       {"fire_depth": 2}, {"trigger_survives": 0},
+                       {"survival_status": 2}, {"deadline_upper": 182},
+                       {"fire_start_upper": req.execution.timeout_tick + 1}):
+            altered = with_evidence(batch, "cancel", **dict(values, **change))
+            self.assertEqual(self.select(req, altered, "pressing").selected_tactic_id,
+                             "build_template")
+        quiet, quiet_batch = all_tactics(threat=False)
+        quiet_batch = with_evidence(quiet_batch, "cancel", **values)
+        self.assertEqual(self.select(quiet, quiet_batch).selected_tactic_id,
+                         "build_template")
+
+    def test_public_counter_breaks_only_equal_sampled_zero_tie(self):
+        req, batch = all_tactics()
+        batch = with_evidence(batch, "cancel", canceled=1, outgoing=0, fatal_rate=0)
+        batch = with_evidence(batch, "counter", canceled=1, outgoing=0, fatal_rate=0,
+                              counter_after_first_drop=1)
+        batch = replace(batch, tactics=tuple(replace(row, evidence=tuple(
+            replace(v, evidence=replace(v.evidence, source="sampled_future"))
+            if v.name == "fatal_rate" else v for v in row.evidence))
+            if row.tactic_id == "cancel" else row for row in batch.tactics))
+        self.assertEqual(self.select(req, batch, "immediate").selected_tactic_id, "counter")
+        stronger = replace(batch, tactics=tuple(replace(row, evidence=tuple(
+            replace(v, evidence=replace(v.evidence, value=2)) if v.name == "canceled" else v
+            for v in row.evidence)) if row.tactic_id == "cancel" else row for row in batch.tactics))
+        self.assertEqual(self.select(req, stronger, "immediate").selected_tactic_id, "cancel")
+        dangerous = with_evidence(batch, "counter", canceled=1, outgoing=0, fatal_rate=1)
+        self.assertEqual(self.select(req, dangerous, "immediate").selected_tactic_id, "cancel")
+
+    def test_saved_public_batches_admit_early_cancel_and_public_counter(self):
+        root = Path(__file__).resolve().parents[1] / "docs/benchmarks/puyo-277-attack-response/formal-v2"
+        for case, threat, expected in (
+            ("preserve_mainline-1", "pressing", "cancel"),
+            ("preserve_mainline-32768", "pressing", "cancel"),
+            ("post_arrival_recovery-65535", "immediate", "counter"),
+        ):
+            with self.subTest(case=case):
+                saved = json.loads(gzip.decompress((root / (case + "-attack") / "report.json.gz").read_bytes()))
+                diagnostic = saved["decisions"][0]["diagnostics"]
+                req = c.NextgenRequest.from_dict(diagnostic["request"])
+                batch = c.CandidateBatch.from_dict(diagnostic["batch"])
+                before = batch.to_json()
+                choice = self.select(req, batch, threat)
+                selected = next(v for v in batch.candidates if v.candidate_id == choice.candidate_id)
+                self.assertEqual(choice.selected_tactic_id, expected)
+                self.assertEqual(selected.root_action, 0)
+                self.assertTrue(req.execution.reachable_mask[selected.root_action])
+                self.assertEqual(batch.to_json(), before)
 
     def test_short_attack_saturated_main_and_build_main(self):
         req, batch = all_tactics()
