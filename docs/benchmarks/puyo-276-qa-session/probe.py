@@ -22,6 +22,7 @@ from eval.realtime_versus_ui import (
     RealtimeVersusUiConfig,
     run_ui,
 )
+from puyo_env.realtime_ai import RealtimeControllerDiagnostics
 
 KEYS = (
     (pygame.KEYDOWN, pygame.K_w), (pygame.KEYDOWN, pygame.K_a),
@@ -65,12 +66,14 @@ def run(mode: str, output: Path, frames: int) -> dict:
     pending = []
     frame_ns = []
     memory = []
+    decision_serializations = []
     workers = []
     controller_ref = None
     last_frame_ns = None
     original_get = pygame.event.get
     original_advance = RealtimeVersusMatchController.advance_tick
     original_init = RealtimeVersusMatchController.__init__
+    original_to_dict = RealtimeControllerDiagnostics.to_dict
 
     def init_recorded(self, *args, **kwargs):
         nonlocal controller_ref, workers
@@ -102,6 +105,18 @@ def run(mode: str, output: Path, frames: int) -> dict:
                 event["state_ns"] = now
             pending.clear()
         return result
+
+    def to_dict_recorded(self):
+        started = time.perf_counter_ns()
+        try:
+            return original_to_dict(self)
+        finally:
+            if self.last_decision is not None:
+                decision_serializations.append({
+                    "started_ns": started, "ended_ns": time.perf_counter_ns(),
+                    "decision_tick": self.last_decision.tick,
+                    "policy_decision_id": self.last_decision.policy_decision_id,
+                })
 
     def feed():
         sequence = 0
@@ -137,6 +152,7 @@ def run(mode: str, output: Path, frames: int) -> dict:
 
     RealtimeVersusMatchController.__init__ = init_recorded
     RealtimeVersusMatchController.advance_tick = advance_recorded
+    RealtimeControllerDiagnostics.to_dict = to_dict_recorded
     pygame.event.get = get_recorded
     started = time.perf_counter()
     try:
@@ -148,6 +164,7 @@ def run(mode: str, output: Path, frames: int) -> dict:
         pygame.event.get = original_get
         RealtimeVersusMatchController.advance_tick = original_advance
         RealtimeVersusMatchController.__init__ = original_init
+        RealtimeControllerDiagnostics.to_dict = original_to_dict
     elapsed = time.perf_counter() - started
     session = result["artifacts"].get("qa_session")
     validation = validate_qa_session(session) if session else None
@@ -172,6 +189,11 @@ def run(mode: str, output: Path, frames: int) -> dict:
         "file_bytes": paths, "input_samples": samples,
         "frame_interval_ms": stats([n / 1e6 for n in frame_ns]),
         "events": active, "memory_samples": memory,
+        "decision_serializations": decision_serializations,
+        "decision_serialize_ms": stats([
+            (row["ended_ns"] - row["started_ns"]) / 1e6
+            for row in decision_serializations
+        ]),
         "max_parent_rss_kb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
         "workers_stopped": {str(pid): not Path(f"/proc/{pid}").exists() for pid in workers},
     }
@@ -179,7 +201,8 @@ def run(mode: str, output: Path, frames: int) -> dict:
     print(json.dumps({key: report[key] for key in (
         "mode", "frames", "ticks", "interrupted", "elapsed_seconds", "runtime",
         "qa_save_elapsed_seconds", "qa_validation_errors", "file_bytes",
-        "input_samples", "max_parent_rss_kb", "workers_stopped",
+        "input_samples", "decision_serialize_ms", "max_parent_rss_kb",
+        "workers_stopped",
     )}))
     return report
 

@@ -217,7 +217,9 @@ class RealtimeControllerDiagnostics:
         return self.inference_latency_ticks / self.decisions_started
 
     def to_dict(self) -> dict[str, Any]:
-        payload = asdict(self)
+        # Serialize the potentially large decision once.  asdict(self) would
+        # copy it here and to_json() would copy it a second time below.
+        payload = asdict(replace(self, last_decision=None))
         payload["mean_policy_elapsed_ms"] = self.mean_policy_elapsed_ms
         payload["mean_inference_latency_ticks"] = self.mean_inference_latency_ticks
         if self.last_decision is not None:

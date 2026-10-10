@@ -41,4 +41,4 @@ cp -a runs/gui-qa-sessions/<session-id> /tmp/qa-review/
 
 ## 短時間の保存負荷測定
 
-dummy video driver，random 配ぷよ，nextgen policy と scripted human 入力，各 120 frame の機能測定では，OFF は 143 tick，対局 2.087 秒，frame p95/p99 は 22/65 ms，ON は 145 tick，対局 2.11 秒，frame p95/p99 は 21/84 ms だった．ON の保存は 0.137 秒，replay 2.4 MiB，result 584 KiB だった．tick 数と実行条件が揃った因果比較ではなく，既存 S14 SLA の達成判定にも使わない．追加の [1000 tick 計測](../benchmarks/puyo-276-qa-session/README.md)では input schedule p99 が既存 50 ms gate に未達で，raw 入力時刻と移送可能な bundle を保存した．`qa_save_elapsed_seconds` は保存後に返す値であり，保存された `result.json` の対局中 `runtime` には含めない．
+dummy video driver，random 配ぷよ，nextgen policy と scripted human 入力，各 120 frame の機能測定では，OFF は 143 tick，対局 2.087 秒，frame p95/p99 は 22/65 ms，ON は 145 tick，対局 2.11 秒，frame p95/p99 は 21/84 ms だった．ON の保存は 0.137 秒，replay 2.4 MiB，result 584 KiB だった．tick 数と実行条件が揃った因果比較ではなく，既存 S14 SLA の達成判定にも使わない．追加の [1000 tick 計測](../benchmarks/puyo-276-qa-session/README.md)では旧 ON run の input schedule p99 が既存 50 ms gate に未達だった．二重コピー除去後の OFF／ON 各 2 repeat は今回の固定 frame／input gate 内だが，旧失敗は保持し，幅広い環境での SLA PASS とは扱わない．raw 入力時刻と移送可能な bundle を保存した．`qa_save_elapsed_seconds` は保存後に返す値であり，保存された `result.json` の対局中 `runtime` には含めない．
