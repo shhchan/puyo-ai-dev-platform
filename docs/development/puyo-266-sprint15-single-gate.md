@@ -35,35 +35,36 @@ manifest は source／testファイル／native binary／host／設定／provide
 ```bash
 export PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1
 /home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m unittest tests.test_nextgen_single_quality_gate tests.test_nextgen_safe_build tests.test_nextgen_public_snapshot tests.test_nextgen_public_inference tests.test_nextgen_inference_wire tests.test_nextgen_safe_build_gate
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate smoke --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt --output /tmp/puyo266-single-smoke
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate init --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt --output /tmp/puyo266-single-formal
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate run-all --output /tmp/puyo266-single-formal
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate finalize --output /tmp/puyo266-single-formal
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate verify --output /tmp/puyo266-single-formal
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate smoke --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-smoke-v1
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate init --source /home/sion2000114/.cache/puyo-s15/haipuyo.txt --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate run-all --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate finalize --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate verify --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1
 ```
 
-原本の永続キャッシュは `/home/sion2000114/.cache/puyo-s15/haipuyo.txt`，検証済み SHA256 は `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．正式 manifest の作成は依存 head と親の実行枠が確定した後に行う．作成後は docs を含む commit／編集を止め，全120runと verify が完了するまでログ・メモを `/tmp` に置く．artifact 保存時には測定 HEAD と保存 commit を区別する．
+原本の永続キャッシュは `/home/sion2000114/.cache/puyo-s15/haipuyo.txt`，検証済み SHA256 は `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．正式 manifest の作成は依存 head と親の実行枠が確定した後に行う．作成後は docs を含む commit／編集を止め，全 120 run と verify が完了するまでログ・メモを Git ignored の `runs/puyo-266-control/` に置く．artifact 保存時には測定 HEAD と保存 commit を区別する．
 
-接続中断への備えとして，上記の foreground `run-all` の代わりに次を使える．先に `init` を済ませ，出力先を一致させる．`nohup` と独立 session により接続端末から切り離し，`flock` は二重起動を拒否する．OS／ホスト停止からの継続を保証するものではない．
+接続中断への備えとして，上記の foreground `run-all` の代わりに次を使える．先に `init` を済ませ，出力先を一致させる．`runs/` は既存 `.gitignore` の対象で，モデル切替時に消失した `/tmp` は正式証拠に使わない．manifest 出力 `runs/puyo-266-formal-v1/` は `init` が新規作成するため事前作成せず，script／lock／PID／終了コード／ログは sibling の `runs/puyo-266-control/` に置く．`nohup` と独立 session により接続端末から切り離し，`flock` は二重起動を拒否する．OS／ホスト停止からの継続を保証するものではない．
 
 ```bash
-cat > /tmp/puyo266-single-formal-runner.sh <<'SH'
+mkdir -p /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control
+cat > /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.sh <<'SH'
 #!/usr/bin/env bash
 set -u
-exec 9>/tmp/puyo266-single-formal.lock
+exec 9>/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.lock
 flock -n 9 || exit 75
 cd /home/sion2000114/workspaces/dev/puyo-s15-266 || exit 1
-printf '%s\n' "$$" > /tmp/puyo266-single-formal.pid
-trap 'rc=$?; printf "%s\n" "$rc" > /tmp/puyo266-single-formal.exit-code; exit "$rc"' EXIT
+printf '%s\n' "$$" > /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.pid
+trap 'rc=$?; printf "%s\n" "$rc" > /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/exit-code; exit "$rc"' EXIT
 export PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 RAYON_NUM_THREADS=1
-/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate run-all --output /tmp/puyo266-single-formal
+/home/sion2000114/workspaces/dev/puyo-s14-266/.venv/bin/python -m eval.nextgen_single_quality_gate run-all --output /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1
 SH
-bash -n /tmp/puyo266-single-formal-runner.sh
-nohup setsid bash /tmp/puyo266-single-formal-runner.sh </dev/null >>/tmp/puyo266-single-formal.log 2>&1 &
+bash -n /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.sh
+nohup setsid bash /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.sh </dev/null >>/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.log 2>&1 &
 ```
 
-監視は `tail -n 20 /tmp/puyo266-single-formal.log` と，PID ファイルに記録した process の `ps` 確認を使う．120 identity の final／failure と resolution ごとの progress は `/tmp/puyo266-single-formal/` に残る．`exit-code` の 0 は runner の終了のみを意味し，子 worker の失敗や品質 FAIL がないことを意味しない．終了後に上記 `finalize` と `verify` を実行して判定する．実プロセスが存在しないことを確認した後だけ同じ runner を再開し，元の final／failure／progress とログを削除しない．再開前は過去の `exit-code` を別名へ保存し，現在実行の終了状態と混同しない．
+監視は `tail -n 20 /home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-control/runner.log` と，PID ファイルに記録した process の `ps` 確認を使う．接続断後も同じ永続パスから追跡できる．120 identity の final／failure と resolution ごとの progress は `/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v1/` に残る．`exit-code` の 0 は runner の終了のみを意味し，子 worker の失敗や品質 FAIL がないことを意味しない．終了後に上記 `finalize` と `verify` を実行して判定する．実プロセスが存在しないことを確認した後だけ同じ runner を再開し，元の final／failure／progress とログを削除しない．再開前は過去の `exit-code` を別名へ保存し，現在実行の終了状態と混同しない．
 
 smoke は事前登録最初の pattern0・両policy各3手を固定し，通常profileで判断時間とgzip保存量を測る．その線形見積は終盤の重さを保証しない．正式120runは，smoke結果と最大5520resolution・30000tick/runの費用を親へ報告した後に実行枠を得る．
 
