@@ -1,0 +1,162 @@
+[
+  {
+    "placement": 30,
+    "tick": 1507,
+    "action": 3,
+    "chain": 0,
+    "path": [
+      3,
+      15,
+      11,
+      7,
+      20
+    ],
+    "ranking": [
+      4,
+      1.0,
+      6,
+      -5999999729380.0
+    ],
+    "prefix": [
+      {
+        "depth": 1,
+        "action": 3,
+        "reachable": true
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true
+      },
+      {
+        "depth": 3,
+        "action": 11,
+        "reachable": true
+      },
+      {
+        "depth": 4,
+        "action": 7,
+        "reachable": true
+      }
+    ]
+  },
+  {
+    "placement": 31,
+    "tick": 1540,
+    "action": 11,
+    "chain": 0,
+    "path": [
+      11,
+      11,
+      9,
+      21
+    ],
+    "ranking": [
+      4,
+      1.0,
+      3,
+      -2999999871480.0
+    ],
+    "prefix": [
+      {
+        "depth": 1,
+        "action": 11,
+        "reachable": true
+      },
+      {
+        "depth": 2,
+        "action": 11,
+        "reachable": true
+      },
+      {
+        "depth": 3,
+        "action": 9,
+        "reachable": true
+      },
+      {
+        "depth": 4,
+        "action": 21,
+        "reachable": false
+      }
+    ]
+  },
+  {
+    "placement": 32,
+    "tick": 1579,
+    "action": 11,
+    "chain": 0,
+    "path": [
+      11,
+      9,
+      15,
+      19
+    ],
+    "ranking": [
+      4,
+      1.0,
+      5,
+      -4999999796510.0
+    ],
+    "prefix": [
+      {
+        "depth": 1,
+        "action": 11,
+        "reachable": true
+      },
+      {
+        "depth": 2,
+        "action": 9,
+        "reachable": true
+      },
+      {
+        "depth": 3,
+        "action": 15,
+        "reachable": false
+      }
+    ]
+  },
+  {
+    "placement": 33,
+    "tick": 1614,
+    "action": 7,
+    "chain": 0,
+    "path": [
+      7
+    ],
+    "ranking": [
+      2,
+      1.0,
+      6,
+      -1000000000000.0
+    ],
+    "prefix": [
+      {
+        "depth": 1,
+        "action": 7,
+        "reachable": true
+      }
+    ]
+  },
+  {
+    "placement": 34,
+    "tick": 1651,
+    "action": 9,
+    "chain": 1,
+    "path": [
+      9
+    ],
+    "ranking": [
+      1,
+      1.0,
+      6,
+      -6000000054000.0
+    ],
+    "prefix": [
+      {
+        "depth": 1,
+        "action": 9,
+        "reachable": true
+      }
+    ]
+  }
+]

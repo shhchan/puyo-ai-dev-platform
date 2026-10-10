@@ -1,0 +1,210 @@
+{
+  "changed_roots": [
+    {
+      "additional_nodes": 143,
+      "charged": {
+        "control": 129,
+        "placement": 14,
+        "terminal": 0
+      },
+      "filtered_root": 4,
+      "native_expanded": 22078,
+      "native_root": 6,
+      "quiet_paths_unverified": true,
+      "removed": [
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 0
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 1
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 2
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 3
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 4
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 6,
+          "scenario": 5
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 3,
+          "scenario": 0
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 3,
+          "scenario": 1
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 3,
+          "scenario": 2
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 3,
+          "scenario": 3
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            20
+          ],
+          "root": 3,
+          "scenario": 4
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 3,
+          "scenario": 5
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 0
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 1
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 2
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 3
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 4
+        },
+        {
+          "class": "target_fire",
+          "failure": [
+            2,
+            19
+          ],
+          "root": 15,
+          "scenario": 5
+        }
+      ],
+      "tick": 1756,
+      "total_nodes": 22221,
+      "unrecorded_alternatives_unknown": true
+    }
+  ],
+  "checkpoint40": {
+    "max_chain": 11,
+    "placements": 40,
+    "small_clears": 0,
+    "state_hash": "b205d4eedab07a32d740c2312208a95ab9388b65367e49cf51d9508756110427",
+    "tick": 2578
+  },
+  "final": {
+    "max_chain": 11,
+    "placements": 46,
+    "small_clears": 0,
+    "state_hash": "c506180f216e801ed39f57f6c4f97b4e3d21d800a3a8eb4c275f1582f1ce25bd",
+    "tick": 2956
+  },
+  "game_over": false,
+  "integrity_issues": [],
+  "pattern_id": 2259,
+  "policy": "deep_chain_builder",
+  "repeat": 1,
+  "semantic_digest": "5720a91467deca56dbe2ff8dbeccc88246d048f56c0c47aa726caf0c3165aedb",
+  "small_clears": {
+    "necessary_survival": 0,
+    "unjustified": 0,
+    "unknown": 0
+  },
+  "suffocation": "none",
+  "termination": "placements"
+}
