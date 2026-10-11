@@ -1,6 +1,6 @@
 # PUYO-274 Sprint 15 統合 QA
 
-この文書は v1.7.3 の最上段で PUYO-275，276，277，266 を組み合わせて確認する手順と判定境界である．この手順の記載や CI の単体テスト成功だけでは統合 QA は完了しない．PUYO-275／276／277 は受け入れ済みだが，PUYO-266 の正式単独品質 gate が未達のため PUYO-274 は In Progress に置く．PUYO-278 の release 判断は別チケットで行う．
+この文書は v1.7.3 の最上段で PUYO-275，276，277，266 を組み合わせて確認する手順と判定境界である．この手順の記載や CI の単体テスト成功だけでは統合 QA は完了しない．PUYO-275／276／277 は受け入れ済みだが，PUYO-266 の正式 v4 単独品質 gate が FAIL のため PUYO-274 は In Progress に置く．PUYO-278 の release 判断は別チケットで行う．10 連鎖能力と窒息判定はとことんぷよぷよ相当の単独環境で測る．対戦相手のおじゃまからの回復改善は将来のモデル改良課題とし，単独品質の達成として扱わない．
 
 ## 起点と証拠
 
@@ -94,7 +94,7 @@ frame と input schedule は p95 ≤ 25 ms／p99 ≤ 50 ms を維持して観測
 
 CI の 4 suite と既存 boundary が成功し，先行 PR の確定 head で PUYO-266／277 の正式結果が受け入れられ，PUYO-276 の人間 QA が bundle と操作記録付きで確認でき，PUYO-275 の provenance と replay が整合した場合だけ統合結果を受け入れる．判定表には各 artifact path，SHA-256，実行 head，PASS／FAIL／BLOCKED と理由を残す．未達が残る間は PUYO-274 を In Progress に置き，PUYO-278 の release 判定を確定しない．
 
-## 2026-10-11 統合 head の暫定判定
+## 2026-10-11 統合 head の暫定判定（正式 v4 前）
 
 親が確定 PUYO-266 head `21d6b16779480832412c838219c74f26e708b10d` を通常 merge した直後の clean head は `075c1e392dfe789f138476fd620a027937999113`．最下段起点は `7757f2312f34a1d79593f43ebd4f41921c61f0a6`，積層順は 275 → 276 → 277 → 266 → 274 → 278．PUYO-274 の追加差分は CI trigger／検証対象と本記録であり，先行 4 PR の実装・正式 gate を本件の独自成果に数えない．
 
@@ -103,7 +103,7 @@ CI の 4 suite と既存 boundary が成功し，先行 PR の確定 head で PU
 | PUYO-275 | 最新 head `2e338b6`，PR #183，Jira Complete．原本は上記外部 path で SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb` を再照合．provider／replay の boundary は下記の統合テストにも含めた．最終 head は初回 `51d53a8` に Ruff 0.16.0 の import 修正を積んだもの． |
 | PUYO-276 | 最新 head `6d71dc4`，PR #184，Jira Complete．合成入力 OFF／ON 各 2 repeat，実人間対局の通常終了 2 bundle と `Esc` 中断 1 bundle，コピー先 validator，保存 OFF を確認．frame p95／p99 は 3 対局とも 25／50 ms 以内．上記の実人間入力 schedule の計測限界は保持する．PASS． |
 | PUYO-277 | 最新 head `555880c`，PR #185，Jira Complete．正式実行 head `27b9c6e` の 56 条件は PASS 52／回避不能除外 4／FAIL 0，追加 16 条件は全 PASS．72 replay の event／tick／最終 hash を再照合し，288 decisions の quota／実 lock／deadline 異常 0．[監査 JSON](../benchmarks/puyo-277-attack-response/v3-final-audit.json) SHA-256 `4da6540898fcb5d9f9cdc9b73bf2374c69e2bdc49893c8c57c5e57a6b5ee42ee`． |
-| PUYO-266 | 最新 head `b5c9881`，draft PR #186，Jira In Progress．正式 v3 は 14／120 final で中断し，nextgen pattern6779 に理由のない小発火と窒息 unknown，reference4519 に窒息 unknown．[保存した v3 summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/formal-v3/summary.json) SHA-256 `2609389f7e8a876aa010c8d65d7b039a6d5ced5360a3680ebd2c03cf50adf3a7`．修正後 targeted 4 run で nextgen6779 は両 repeat とも 46 手・最大 10 連鎖・不当小発火 0 となったが，reference4519 の両 repeat は 42 手で死亡し，窒息分類 unknown のまま．[targeted summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/targeted/summary.json) SHA-256 `cd5d3fd43c088cef1df12f71518040e48d8a64e68d520e510240bd40f03952ae`．追加の公開 prefix 診断では 29 手目だけの代替 root0 は 34 手死亡・最大 1 連鎖，毎決定の診断フィルタは 34 手死亡・最大 0 連鎖だった．[不採用の診断 summary](../benchmarks/puyo-266-single-quality/rejected-prefix-filter-20261011/summary.json) SHA-256 `d6bc048a0b011049e4e92001912ece44aa128b074b0eaa6224b57f02777e9889`．製品フィルタは不採用，正式 v4 は未実施で，全 120 件を PASS としない．BLOCKED． |
+| PUYO-266 | 当時の head `b5c9881`，draft PR #186，Jira In Progress．正式 v3 は 14／120 final で中断し，nextgen pattern6779 に理由のない小発火と窒息 unknown，reference4519 に窒息 unknown．[保存した v3 summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/formal-v3/summary.json) SHA-256 `2609389f7e8a876aa010c8d65d7b039a6d5ced5360a3680ebd2c03cf50adf3a7`．修正後 targeted 4 run で nextgen6779 は両 repeat とも 46 手・最大 10 連鎖・不当小発火 0 となったが，reference4519 の両 repeat は 42 手で死亡し，窒息分類 unknown のまま．[targeted summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/targeted/summary.json) SHA-256 `cd5d3fd43c088cef1df12f71518040e48d8a64e68d520e510240bd40f03952ae`．追加の公開 prefix 診断では 29 手目だけの代替 root0 は 34 手死亡・最大 1 連鎖，毎決定の診断フィルタは 34 手死亡・最大 0 連鎖だった．[不採用の診断 summary](../benchmarks/puyo-266-single-quality/rejected-prefix-filter-20261011/summary.json) SHA-256 `d6bc048a0b011049e4e92001912ece44aa128b074b0eaa6224b57f02777e9889`．製品フィルタは不採用，この時点では正式 v4 未実施のため BLOCKED． |
 | PUYO-274 | draft PR #187．機械テストと人間 GUI QA は PASS．PUYO-266 の正式単独品質 gate 未達により，統合品質は BLOCKED，Jira In Progress． |
 
 外部原本を `PUYO_TSUMO_SOURCE`／`PUYO277_SOURCE` に指定して，基礎 4 suite と追加の quiet survival／到達可能 mask／攻撃選択／戦術境界の計 8 suite，102 tests を実行し，skip 0 で成功した．親の統合 head で CI と同じ Ruff 0.16.0 の対象 16 ファイル，shared search の `--select F`，`git diff --check` も成功した．その後の PUYO-266 取り込みは証拠ファイルのみで製品コードを変更していない．`agents/nextgen_survival.py`，`tests/test_nextgen_quiet_survival.py`，固定公開 fixture を native-extension workflow の pull_request／push path と lint／test に追加した．初回 PR #187 の remote CI は Ruff の I001／B023 で失敗し，各担当 branch の限定修正を通常 merge した．最終 head `361398981f3a9083dbf63b79a9993f8548ec0fb7` の remote CI 2 件は SUCCESS と確認した．この機械検証は重い正式評価と実人間 GUI QA の代用にはならない．
@@ -118,3 +118,14 @@ PUYO277_SOURCE=/home/sion2000114/.cache/puyo-s15/haipuyo.txt \
   tests.test_deep_chain_execution_mask tests.test_nextgen_attack_response_gate \
   tests.test_nextgen_response_search tests.test_nextgen_tactic_manager
 ```
+
+## 2026-10-11 正式 v4 単独品質 gate の統合判定
+
+PUYO-266 の正式 v4 は source commit `b5c988140462beed05a3b5d913c72a066a8b6290` と宣言済み manifest SHA-256 `054e2dd9379b667d186c2ea0e2a7f82bcc11684b4fe2f2c639591cb0a74d38a0` で 30 pattern × 2 repeat × 2 policy の 120／120 run を完走した．親セッションは finalize と全 replay verify が exit 0 で一致し，source 変更と worker failure が 0 であることを確認した．ローカル原物は `/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v4/report.json` にあり，この `report.json` ファイル自体の SHA-256 は `f11c56c54fff0d2253502f38bc9377d042467852de30d2297c2dbfd94a7e1632`．Git 配布用の正式 artifact path は PUYO-266 側の保存後に照合する．
+
+| policy | 完了数 | repeat1 の平均最大実連鎖 | 小発火 | 死亡／窒息分類 | repeat／integrity | 判定 |
+| --- | ---: | ---: | --- | --- | --- | --- |
+| `nextgen_tactic_manager` | 60／60 | 9.6667（目標 ≥ 10） | 必要生存 10，不当 2，unknown 8（両 repeat 合計） | 死亡 0，回避可能窒息 0，unknown 窒息 0 | 不一致 0，欠損 0 | FAIL：平均連鎖・不当小発火が未達，unknown 小発火も未分類． |
+| `deep_chain_builder` | 60／60 | 9.1 | 必要生存 4，不当 0，unknown 0（両 repeat 合計） | 死亡 10，回避可能窒息 0，unknown 窒息 10 | 不一致 0，欠損 0 | FAIL：比較対象の平均連鎖未達と窒息未分類． |
+
+run 完走と replay integrity の成功を単独品質 PASS としない．PUYO-266 は `single_quality_status=FAIL`，`G2=BLOCKED`，`long_training_allowed=false` であり，PUYO-274 の統合品質も BLOCKED，Jira In Progress，PR #187 は draft のままとする．PUYO-275／276／277 と既存の人間 GUI QA の受入結果は維持する．次回の品質改善・再評価は PUYO-266 側で行い，この文書は確定した artifact identity と最新結果を追記して判定し直す．
