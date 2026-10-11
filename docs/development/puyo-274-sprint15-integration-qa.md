@@ -1,6 +1,6 @@
 # PUYO-274 Sprint 15 統合 QA
 
-この文書は v1.7.3 の最上段で PUYO-275，276，277，266 を組み合わせて確認する手順と判定境界である．この手順の記載や CI の単体テスト成功だけでは統合 QA は完了しない．PUYO-266／277 の正式 gate，PUYO-276 の人間による実画面確認が揃うまで PUYO-274 は In Progress に置く．PUYO-278 の release 判断は別チケットで行う．
+この文書は v1.7.3 の最上段で PUYO-275，276，277，266 を組み合わせて確認する手順と判定境界である．この手順の記載や CI の単体テスト成功だけでは統合 QA は完了しない．PUYO-275／276／277 は受け入れ済みだが，PUYO-266 の正式単独品質 gate が未達のため PUYO-274 は In Progress に置く．PUYO-278 の release 判断は別チケットで行う．
 
 ## 起点と証拠
 
@@ -74,7 +74,21 @@ cp -a runs/gui-qa-sessions/<session-id> /tmp/puyo-274-qa-review/
   --tsumo-source /home/sion2000114/.cache/puyo-s15/haipuyo.txt
 ```
 
-frame と input schedule は p95 ≤ 25 ms／p99 ≤ 50 ms を維持して観測し，保存 ON／OFF，random／`esports_tsu`，実人間入力を混ぜず個別に記録する．PUYO-276 の旧 1000 tick 合成入力では保存 ON の input schedule p99 が 57.82 ms で未達だった．保存処理の単一コピー化後，OFF／ON 各 2 repeat の frame p99 は 27／32／25／31 ms，input schedule p99 は 34.51／48.46／25.97／25.51 ms で固定 gate 内だった．[4 run の raw と旧失敗 raw](../benchmarks/puyo-276-qa-session/README.md)をともに保持する．この 4 run は実画面の人間 QA でも広い環境の SLA 証明でもなく，ON／OFF の因果差も確定しない．実画面の人間 QA は未了である．厳密な frame 25 ms 安定化の新規改善は Sprint 16 の PUYO-279 が所有するが，未達測定を隠して統合 PASS とはしない．
+frame と input schedule は p95 ≤ 25 ms／p99 ≤ 50 ms を維持して観測し，保存 ON／OFF，random／`esports_tsu`，実人間入力を混ぜず個別に記録する．PUYO-276 の旧 1000 tick 合成入力では保存 ON の input schedule p99 が 57.82 ms で未達だった．保存処理の単一コピー化後，OFF／ON 各 2 repeat の frame p99 は 27／32／25／31 ms，input schedule p99 は 34.51／48.46／25.97／25.51 ms で固定 gate 内だった．[4 run の raw と旧失敗 raw](../benchmarks/puyo-276-qa-session/README.md)をともに保持する．この 4 run は実画面の人間 QA でも広い環境の SLA 証明でもなく，ON／OFF の因果差も確定しない．実画面の人間 QA は下記の 3 bundle で確認済みである．厳密な frame 25 ms 安定化の新規改善は Sprint 16 の PUYO-279 が所有するが，未達測定を隠して統合 PASS とはしない．
+
+## 2026-10-11 人間実画面 QA の結果
+
+依頼者は統合 head `361398981f3a9083dbf63b79a9993f8548ec0fb7`（dirty=false），native SHA-256 `35735a1a6bce0a45a64a46453cd4302f34099fb626ef4fc226a61c32bb2c52ca`，1P `nextgen_tactic_manager`／2P `human`／速度 1.0 で対局した．2P の左右移動・回転・soft drop が意図どおりで，`O` を 2 回押すと先読み表示が消えて再表示されると報告した．
+
+| mode／終了 | seed／pattern | session ID | tick | frame p95／p99 | コピー先 validator |
+| --- | --- | --- | ---: | ---: | --- |
+| random／通常終了 | seed 1127 | `f54e176489a148d78515ea7a31cf533b` | 2962 | 18／37 ms | exit 0，`QA session valid:` |
+| esports_tsu／通常終了 | pattern 0 | `abb6fc23d5984d24821b3c8ad546f485` | 2980 | 17／35 ms | exit 0，`QA session valid:` |
+| random／`Esc` 中断 | seed 127 | `ae8b6b865c7a4c3b9742935e455df51c` | 4641 | 17／30 ms | exit 0，`QA session valid:` |
+
+各 bundle は worktree の `runs/gui-qa-sessions/<session ID>/` から `/tmp/puyo-274-qa-review/` へコピーした．validator は同梱 replay の入力，全 tick／最終 hash と manifest の source／config／native・ファイル checksum を検査した．`Esc` bundle の `result.interrupted` は `true`．esports_tsu 原本 SHA-256 は `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．3 bundle の `replay.json` SHA-256 は順に `cfb09fb6c68586f4fa1bcca2975994552775f95fa0bdff42d2b5a04a173d0c85`，`3d289f6e2437e499eaf433068e07c40bde42e3a20e8e344f3a0a94a25adec096`，`e779380a5c8ae26fc7a13d4efb9955cbfd3eae3f7b304619af4d68a2d85699d3`．原物 bundle は Git 非収録の `runs/` に保持する．
+
+保存 OFF は同じ統合 head の dummy GUI を `--qa-auto-save` なし・`--max-frames 30` で起動し，exit 0 と指定 QA root の非生成を確認した．既存の合成入力 OFF／ON 各 2 repeat は frame／input schedule gate を満たす．この 3 実人間対局の frame p95／p99 は 25／50 ms 以内だが，実人間入力の input schedule 分位点は bundle に存在しないため合成入力結果と混同しない．PUYO-276 は Jira Complete．PUYO-266 の正式品質 gate は別件として BLOCKED のまま．
 
 ## 完了判定
 
@@ -87,12 +101,12 @@ CI の 4 suite と既存 boundary が成功し，先行 PR の確定 head で PU
 | 対象 | 証拠と判定 |
 | --- | --- |
 | PUYO-275 | 最新 head `2e338b6`，PR #183，Jira Complete．原本は上記外部 path で SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb` を再照合．provider／replay の boundary は下記の統合テストにも含めた．最終 head は初回 `51d53a8` に Ruff 0.16.0 の import 修正を積んだもの． |
-| PUYO-276 | 最新 head `6d71dc4`，PR #184，Jira In Progress．合成入力 OFF／ON 各 2 repeat の結果は上記のとおり．最終統合 head に対する人間の実画面操作，通常／途中終了の bundle，コピー先での検証，実 frame／input 分布は未取得．BLOCKED． |
+| PUYO-276 | 最新 head `6d71dc4`，PR #184，Jira Complete．合成入力 OFF／ON 各 2 repeat，実人間対局の通常終了 2 bundle と `Esc` 中断 1 bundle，コピー先 validator，保存 OFF を確認．frame p95／p99 は 3 対局とも 25／50 ms 以内．上記の実人間入力 schedule の計測限界は保持する．PASS． |
 | PUYO-277 | 最新 head `555880c`，PR #185，Jira Complete．正式実行 head `27b9c6e` の 56 条件は PASS 52／回避不能除外 4／FAIL 0，追加 16 条件は全 PASS．72 replay の event／tick／最終 hash を再照合し，288 decisions の quota／実 lock／deadline 異常 0．[監査 JSON](../benchmarks/puyo-277-attack-response/v3-final-audit.json) SHA-256 `4da6540898fcb5d9f9cdc9b73bf2374c69e2bdc49893c8c57c5e57a6b5ee42ee`． |
 | PUYO-266 | 最新 head `b5c9881`，draft PR #186，Jira In Progress．正式 v3 は 14／120 final で中断し，nextgen pattern6779 に理由のない小発火と窒息 unknown，reference4519 に窒息 unknown．[保存した v3 summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/formal-v3/summary.json) SHA-256 `2609389f7e8a876aa010c8d65d7b039a6d5ced5360a3680ebd2c03cf50adf3a7`．修正後 targeted 4 run で nextgen6779 は両 repeat とも 46 手・最大 10 連鎖・不当小発火 0 となったが，reference4519 の両 repeat は 42 手で死亡し，窒息分類 unknown のまま．[targeted summary](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/targeted/summary.json) SHA-256 `cd5d3fd43c088cef1df12f71518040e48d8a64e68d520e510240bd40f03952ae`．追加の公開 prefix 診断では 29 手目だけの代替 root0 は 34 手死亡・最大 1 連鎖，毎決定の診断フィルタは 34 手死亡・最大 0 連鎖だった．[不採用の診断 summary](../benchmarks/puyo-266-single-quality/rejected-prefix-filter-20261011/summary.json) SHA-256 `d6bc048a0b011049e4e92001912ece44aa128b074b0eaa6224b57f02777e9889`．製品フィルタは不採用，正式 v4 は未実施で，全 120 件を PASS としない．BLOCKED． |
-| PUYO-274 | draft PR #187．本統合の機械テストは PASS．上記 266／276 の受入未達により統合品質は BLOCKED，Jira In Progress． |
+| PUYO-274 | draft PR #187．機械テストと人間 GUI QA は PASS．PUYO-266 の正式単独品質 gate 未達により，統合品質は BLOCKED，Jira In Progress． |
 
-外部原本を `PUYO_TSUMO_SOURCE`／`PUYO277_SOURCE` に指定して，基礎 4 suite と追加の quiet survival／到達可能 mask／攻撃選択／戦術境界の計 8 suite，102 tests を実行し，skip 0 で成功した．親の統合 head で CI と同じ Ruff 0.16.0 の対象 16 ファイル，shared search の `--select F`，`git diff --check` も成功した．その後の PUYO-266 取り込みは証拠ファイルのみで製品コードを変更していない．`agents/nextgen_survival.py`，`tests/test_nextgen_quiet_survival.py`，固定公開 fixture を native-extension workflow の pull_request／push path と lint／test に追加した．初回 PR #187 の remote CI は Ruff の I001／B023 で失敗し，各担当 branch の限定修正を通常 merge した．修正後 head `1b5abbc` の remote CI は 2026-10-10 17:08 UTC 開始で判定待ちであり，成功とは記録しない．この機械検証は重い正式評価と実人間 GUI QA の代用にはならない．
+外部原本を `PUYO_TSUMO_SOURCE`／`PUYO277_SOURCE` に指定して，基礎 4 suite と追加の quiet survival／到達可能 mask／攻撃選択／戦術境界の計 8 suite，102 tests を実行し，skip 0 で成功した．親の統合 head で CI と同じ Ruff 0.16.0 の対象 16 ファイル，shared search の `--select F`，`git diff --check` も成功した．その後の PUYO-266 取り込みは証拠ファイルのみで製品コードを変更していない．`agents/nextgen_survival.py`，`tests/test_nextgen_quiet_survival.py`，固定公開 fixture を native-extension workflow の pull_request／push path と lint／test に追加した．初回 PR #187 の remote CI は Ruff の I001／B023 で失敗し，各担当 branch の限定修正を通常 merge した．最終 head `361398981f3a9083dbf63b79a9993f8548ec0fb7` の remote CI 2 件は SUCCESS と確認した．この機械検証は重い正式評価と実人間 GUI QA の代用にはならない．
 
 ```bash
 cd /home/sion2000114/workspaces/dev/puyo-s15-274
