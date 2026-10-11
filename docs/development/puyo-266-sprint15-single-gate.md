@@ -77,3 +77,9 @@ v2 は reference の pattern2259／両 repeat が 35 手後に illegal action �
 v3 は nextgen pattern6779 の premature と窒息 unknown，reference4519 の窒息 unknown を保全して中断した．nextgen の public-prefix 生存証明には request 内の control graph cache と quiet 代替検証を追加し，128 node のうち 116 node で固定失敗 state の非小発火 root を証明した．末端幾何 prefilter も初回ごとに precharge する．公開情報境界・既存根順位・探索予算を維持し，大連鎖発火／攻撃中／着弾おじゃまの既存経路を変更しない．native request と実 selector は action0 を選び，実 lock／replay と非発火 resolution を確認した．証拠は `docs/benchmarks/puyo-266-single-quality/quiet-prefix-regression/`．v3 証跡は `runs/puyo-266-formal-v3/` と `runs/puyo-266-control-v3/` に保全する．v4 の正式再開前に nextgen6779 と reference4519 の両 repeat を別の targeted smoke として測り，残る unknown の原因を確認する．
 
 修正 head `e441b8f` の targeted 4 run は，nextgen6779 の両 repeat が 46 手／最大10連鎖／小発火0／窒息なし，reference4519 の両 repeat は 42 手死亡／最大2連鎖／必要生存小発火2／窒息 unknown となった．全実 lock／replay，repeat digest は一致するが，120 件の受入完了ではない．reference の公開 known3 path に不達を確認したものの，到達可能な次順位 root への counterfactual でも結果は改善しなかったため，追加フィルタは不採用．正式 v4 は未初期化／未実行，単独品質 BLOCKED／In Progress を維持する．[raw・集計・棄却根拠](../benchmarks/puyo-266-single-quality/sprint15-blocked-20261011/README.md)に保存した．
+
+## 正式 v4 の結果（2026-10-11）
+
+上記は v4 開始前の記録である．測定 head `b5c988140462beed05a3b5d913c72a066a8b6290` で事前登録 120 run を完走し，`finalize` と全件独立 `verify` が成功した．原本 source，manifest，native extension は宣言時から変更されていない．欠損・worker failure・integrity issue・repeat semantic mismatch は 0．[manifest・report・選択 raw・SHA](../benchmarks/puyo-266-single-quality/sprint15-formal-v4/README.md)を保存した．
+
+単独環境で nextgen は 60/60 生存し，窒息 0 だった．一方，repeat1 の平均最大実連鎖は 9.6667 で受け入れ閾値 10 未満．pattern 29377 の両 repeat で不当小発火が 1 件ずつあり，小発火 unknown も 8 件残る．reference は平均 9.1，10 死亡／窒息 unknown 10．従って両 policy の品質は `FAIL`，単独品質の A/C は未達であり，PUYO-266 は `In Progress`，G2 は `BLOCKED`，本学習は未許可を維持する．
