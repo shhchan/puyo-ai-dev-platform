@@ -121,7 +121,7 @@ PUYO277_SOURCE=/home/sion2000114/.cache/puyo-s15/haipuyo.txt \
 
 ## 2026-10-11 正式 v4 単独品質 gate の統合判定
 
-PUYO-266 の正式 v4 は source commit `b5c988140462beed05a3b5d913c72a066a8b6290` と宣言済み manifest SHA-256 `054e2dd9379b667d186c2ea0e2a7f82bcc11684b4fe2f2c639591cb0a74d38a0` で 30 pattern × 2 repeat × 2 policy の 120／120 run を完走した．親セッションは finalize と全 replay verify が exit 0 で一致し，source 変更と worker failure が 0 であることを確認した．ローカル原物は `/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v4/report.json` にあり，この `report.json` ファイル自体の SHA-256 は `f11c56c54fff0d2253502f38bc9377d042467852de30d2297c2dbfd94a7e1632`．Git 配布用の正式 artifact path は PUYO-266 側の保存後に照合する．
+PUYO-266 の正式 v4 は source commit `b5c988140462beed05a3b5d913c72a066a8b6290` と宣言済み manifest SHA-256 `054e2dd9379b667d186c2ea0e2a7f82bcc11684b4fe2f2c639591cb0a74d38a0` で 30 pattern × 2 repeat × 2 policy の 120／120 run を完走した．親セッションは finalize と全 replay verify が exit 0 で一致し，source 変更と worker failure が 0 であることを確認した．[Git 配布用の manifest／report／選択 raw と SHA](../benchmarks/puyo-266-single-quality/sprint15-formal-v4/README.md)を照合済み．全 120 raw のローカル原物は `/home/sion2000114/workspaces/dev/puyo-s15-266/runs/puyo-266-formal-v4/` にあり，`report.json` ファイル自体の SHA-256 は `f11c56c54fff0d2253502f38bc9377d042467852de30d2297c2dbfd94a7e1632`．
 
 | policy | 完了数 | repeat1 の平均最大実連鎖 | 小発火 | 死亡／窒息分類 | repeat／integrity | 判定 |
 | --- | ---: | ---: | --- | --- | --- | --- |
