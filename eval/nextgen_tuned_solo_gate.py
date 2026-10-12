@@ -23,11 +23,12 @@ from eval.nextgen_fire_goal_comparison import new_match
 from eval.nextgen_gates import digest, distribution
 from eval.nextgen_safe_build_gate import read, write_new
 from eval.nextgen_single_quality_gate import (
-    PATTERN_IDS as TUNING_PATTERNS,
+    PATTERN_IDS as TUNING_PATTERNS, classify_suffocation,
     build_identity, complete_evidence, current_source, require_clean,
 )
 from eval.nextgen_single_quality_runtime import (
-    POLICY_SEED, make_policy, measure, replay_audit, semantic_payload,
+    POLICY_SEED, classify_small_clear, make_policy, measure,
+    replay_audit, semantic_payload,
 )
 from src.core.tsumo import EsportsTsuSource
 
@@ -36,6 +37,7 @@ COHORTS = {
     "v1": tuple((i * 65536 + 32768) // 30 + 73 for i in range(30)),
     "v2": tuple((i * 65536 + 32768) // 30 + 151 for i in range(30)),
     "v3": tuple((i * 65536 + 32768) // 30 + 229 for i in range(30)),
+    "v4": tuple((i * 65536 + 32768) // 30 + 307 for i in range(30)),
 }
 SCHEMAS = {cohort: f"puyo.nextgen.tuned_solo_gate.{cohort}" for cohort in COHORTS}
 assert all(len(set(patterns)) == 30 and
@@ -88,7 +90,27 @@ def declaration(source_path, cohort="v1"):
         "acceptance": {"mean_maximum_actual_chain": 10, "unjustified_premature": 0,
                        "avoidable_suffocation": 0, "unknown_quality": 0,
                        "repeat_mismatch": 0},
+        **({"small_clear_context": "later_actual_main"} if cohort == "v4" else {}),
     }
+
+
+def contextualize_small_clears(classifications, chains):
+    """Record an observed later main without erasing the local public proof."""
+    positions = [i for i, chain in enumerate(chains) if 0 < chain < 10]
+    if len(positions) != len(classifications):
+        raise ValueError("small-clear count differs from actual resolutions")
+    result = []
+    for classification, position in zip(classifications, positions, strict=True):
+        later = next((i for i in range(position + 1, len(chains)) if chains[i] >= 10), None)
+        if later is None or classification["status"] == "necessary_survival":
+            result.append(classification)
+        else:
+            result.append({"status": "later_main_reached", "reason": "observed_later_actual_main",
+                           "chain_count": classification["chain_count"],
+                           "request_tick": classification["request_tick"],
+                           "later_main_placement": later + 1, "later_main_chain": chains[later],
+                           "local_result": classification})
+    return result
 
 
 def initialize(output, source_path, cohort="v1"):
@@ -152,6 +174,10 @@ def validate_raw(raw, manifest):
     if (len(raw["small_clear_classifications"]) != sum(0 < x < 10 for x in chains) or
             raw["suffocation_classification"]["status"] not in ("none", "unknown", "avoidable")):
         raise ValueError("quality evidence incomplete")
+    if raw["schema"] == SCHEMAS["v4"]:
+        local = [value.get("local_result", value) for value in raw["small_clear_classifications"]]
+        if contextualize_small_clears(local, chains) != raw["small_clear_classifications"]:
+            raise ValueError("later-main classification differs from actual resolutions")
     if raw["audit"]["lock_mismatches"] or raw["audit"]["unlocked_requests"]:
         raise ValueError("lock or replay mismatch")
     if (raw["controller"]["fallback_actions"] or raw["controller"]["stale_decisions"] or
@@ -183,6 +209,10 @@ def worker(output, goal, pattern_id, repeat):
         raw.update(schema=manifest["schema"], goal=goal, pattern_id=pattern_id, repeat=repeat,
                    manifest_sha256=manifest["sha256"])
         complete_evidence(raw, new_match(manifest["config"], pattern_id))
+        if manifest["schema"] == SCHEMAS["v4"]:
+            raw["small_clear_classifications"] = contextualize_small_clears(
+                raw["small_clear_classifications"], raw["chains"])
+            raw["semantic_digest"] = digest(semantic_payload(raw))
         # The historical 46-placement gate flags every different window as
         # incomplete. The 60-placement boundary is checked above instead.
         raw["integrity_issues"] = [x for x in raw["integrity_issues"]
@@ -237,6 +267,15 @@ def report(output, *, verify_replays=False):
         if (verify_replays and replay_audit(raw, new_match(manifest["config"],
                                              raw["pattern_id"])) != raw["audit"]):
             raise ValueError("stored tick replay differs")
+        if verify_replays and manifest["schema"] == SCHEMAS["v4"]:
+            by_tick = {row["tick"]: row for row in raw["rows"]}
+            local = [classify_small_clear(by_tick[record["request_tick"]],
+                                          record["resolution"]["chain_count"])
+                     for record in raw["audit"]["records"]
+                     if record["resolution"] and 0 < record["resolution"]["chain_count"] < 10]
+            if (contextualize_small_clears(local, raw["chains"]) != raw["small_clear_classifications"]
+                    or classify_suffocation(raw) != raw["suffocation_classification"]):
+                raise ValueError("stored public quality proof differs")
         fires = [event for event in raw["events"]
                  if event["type"] == "resolution_complete" and event["chain_count"] > 0]
         rows.append({"goal": raw["goal"], "pattern_id": raw["pattern_id"],
@@ -245,7 +284,8 @@ def report(output, *, verify_replays=False):
                      "placements": len(raw["chains"]), "game_over": raw["game_over"],
                      "termination": raw["termination"],
                      "small_clears": {key: sum(v["status"] == key for v in raw["small_clear_classifications"])
-                                      for key in ("necessary_survival", "unjustified", "unknown")},
+                                      for key in ("necessary_survival", "unjustified", "unknown",
+                                                  "later_main_reached")},
                      "suffocation": raw["suffocation_classification"]["status"],
                      "semantic_digest": raw["semantic_digest"],
                      "decision_seconds": [v["seconds"] for v in raw["rows"]]})
@@ -262,7 +302,8 @@ def report(output, *, verify_replays=False):
                       if (pattern, 1) in keyed and (pattern, 2) in keyed and
                           keyed[pattern, 1]["semantic_digest"] != keyed[pattern, 2]["semantic_digest"]]
         counts = {key: sum(row["small_clears"][key] for row in selected)
-                  for key in ("necessary_survival", "unjustified", "unknown")}
+                  for key in ("necessary_survival", "unjustified", "unknown",
+                              "later_main_reached")}
         mean = sum(row["max_chain"] for row in primary) / 30 if len(primary) == 30 else None
         failed = (mean is not None and mean < 10 or counts["unjustified"] > 0 or
                   any(row["suffocation"] == "avoidable" for row in selected))

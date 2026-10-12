@@ -12,6 +12,7 @@ import numpy as np
 
 from agents.deep_chain_builder import DeepChainBuilderPolicy, DeepChainBuilderProfile
 from eval import nextgen_single_quality_gate as gate
+from eval import nextgen_tuned_solo_gate as tuned_gate
 from eval.nextgen_single_quality_runtime import (
     POLICIES,
     SingleQualityMatch,
@@ -84,6 +85,30 @@ class ScoreGoalFallbackTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "requires fire_goal_score"):
             make_policy("nextgen_tactic_manager", backend="python", smoke=True,
                         score_goal_fallback=True)
+
+
+class LaterMainContextTests(unittest.TestCase):
+    def test_later_actual_main_preserves_local_proof(self):
+        unknown = {"status": "unknown", "reason": "proof_cutoff", "chain_count": 8,
+                   "request_tick": 12, "proof_nodes": 4000}
+        result = tuned_gate.contextualize_small_clears([unknown], [0, 8, 0, 12])
+        self.assertEqual(result[0]["status"], "later_main_reached")
+        self.assertEqual(result[0]["later_main_placement"], 4)
+        self.assertEqual(result[0]["later_main_chain"], 12)
+        self.assertEqual(result[0]["local_result"], unknown)
+        self.assertEqual(unknown["status"], "unknown")
+
+    def test_no_later_main_or_necessary_survival_keeps_local_status(self):
+        unknown = {"status": "unknown", "chain_count": 1, "request_tick": 1}
+        necessary = {"status": "necessary_survival", "chain_count": 1, "request_tick": 2}
+        self.assertEqual(tuned_gate.contextualize_small_clears([unknown], [1, 0]), [unknown])
+        self.assertEqual(tuned_gate.contextualize_small_clears([necessary], [1, 10]), [necessary])
+        with self.assertRaisesRegex(ValueError, "count differs"):
+            tuned_gate.contextualize_small_clears([], [1, 10])
+
+    def test_formal_cohorts_do_not_overlap(self):
+        groups = list(tuned_gate.COHORTS.values())
+        self.assertEqual(sum(map(len, groups)), len(set().union(*groups)))
 
 
 class SingleRuntimeTests(unittest.TestCase):
