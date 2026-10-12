@@ -60,6 +60,7 @@ class RuleSelectorConfig:
     short_attack_ojama: int = 30
     opponent_occupied_cells: int = 48
     saturated_chain_count: int = 10
+    saturated_chain_score: int | None = None
 
     def __post_init__(self):
         if len(self.priority) != 6 or set(self.priority) != set(c.TACTIC_IDS):
@@ -73,6 +74,10 @@ class RuleSelectorConfig:
             < 1
         ):
             raise ValueError("rule thresholds must be positive")
+        if self.saturated_chain_score is not None and (
+            type(self.saturated_chain_score) is not int or self.saturated_chain_score <= 0
+        ):
+            raise ValueError("saturated_chain_score must be a positive integer")
 
 
 def evidence(row, name):
@@ -141,8 +146,13 @@ class RuleTacticSelector:
             >= self.config.short_attack_ojama
             and occupied >= self.config.opponent_occupied_cells,
             "build_template": request.control.phase.active,
-            "fire_main": (evidence(rows["fire_main"], "chain_count") or 0)
-            >= self.config.saturated_chain_count
+            "fire_main": (
+                (evidence(rows["fire_main"], "score") or 0)
+                >= self.config.saturated_chain_score
+                if self.config.saturated_chain_score is not None
+                else (evidence(rows["fire_main"], "chain_count") or 0)
+                >= self.config.saturated_chain_count
+            )
             and evidence(rows["fire_main"], "fatal_rate") == 0,
             "build_main": True,
         }

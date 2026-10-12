@@ -622,7 +622,9 @@ class SharedSearchBatchBuilder:
                         continue
                     tactics = (
                         ("fire_main", "decisive_short_attack")
-                        if fire.chain_count >= self.config.minimum_chain_count
+                        if (fire.chain_score >= self.config.winning_score_threshold
+                            if self.config.winning_score_threshold is not None
+                            else fire.chain_count >= self.config.minimum_chain_count)
                         else ("decisive_short_attack",)
                     )
                     add(

@@ -15,7 +15,10 @@ NEXTGEN_PROFILES = {
 NEXTGEN_PROFILE_CHOICES = tuple(NEXTGEN_PROFILES)
 
 
-def nextgen_search_settings(profile_id=DEFAULT_NEXTGEN_PROFILE, *, seed=0):
+def nextgen_search_settings(profile_id=DEFAULT_NEXTGEN_PROFILE, *, seed=0,
+                            fire_goal_score=None):
+    if fire_goal_score is not None and (type(fire_goal_score) is not int or fire_goal_score <= 0):
+        raise ValueError("fire_goal_score must be a positive integer")
     quotas = NEXTGEN_PROFILES[profile_id]
     reference = profile_id == "nextgen_safe_build"
     config = LongHorizonSearchConfig(
@@ -23,6 +26,8 @@ def nextgen_search_settings(profile_id=DEFAULT_NEXTGEN_PROFILE, *, seed=0):
         width=250 if reference else 4,
         scenarios=6 if reference else 1,
         minimum_chain_count=10,
+        winning_score_threshold=fire_goal_score,
+        score_target_only=fire_goal_score is not None,
         max_expanded_nodes=quotas[0],
         decision_seed=seed ^ 0x4E4753,
         **({"future_sampling_mode": FUTURE_SAMPLING_LEGACY_FIXED_SIX} if reference else {}),
