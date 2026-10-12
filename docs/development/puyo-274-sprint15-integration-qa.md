@@ -129,3 +129,16 @@ PUYO-266 の正式 v4 は source commit `b5c988140462beed05a3b5d913c72a066a8b629
 | `deep_chain_builder` | 60／60 | 9.1 | 必要生存 4，不当 0，unknown 0（両 repeat 合計） | 死亡 10，回避可能窒息 0，unknown 窒息 10 | 不一致 0，欠損 0 | FAIL：比較対象の平均連鎖未達と窒息未分類． |
 
 run 完走と replay integrity の成功を単独品質 PASS としない．PUYO-266 は `single_quality_status=FAIL`，`G2=BLOCKED`，`long_training_allowed=false` であり，PUYO-274 の統合品質も BLOCKED，Jira In Progress，PR #187 は draft のままとする．PUYO-275／276／277 と既存の人間 GUI QA の受入結果は維持する．次回の品質改善・再評価は PUYO-266 側で行い，この文書は確定した artifact identity と最新結果を追記して判定し直す．
+
+## 2026-10-12 発火目標と 60 手の追加比較
+
+PUYO-266 head `ba1c9f981827db296c6ea16f0089b16932477667` を #187 の base から通常 merge し，PUYO-274 の clean head は `54333c44575bcc5d42b7539f737b4e2397812947` となった．この追加比較は正式 v4 の 46 手・閾値・raw を変更していない．[HTML レポート](../benchmarks/puyo-266-fire-goal-v3/index.html)と manifest SHA-256 `3554f9184ec8098f7a4520743c4f3872de59eaec723e1a5331a525e6851dcbd0` を確認した．30 pattern × 2 repeat × 2 発火目標の 120／120 run と全 tick replay は成功し，欠損・worker failure・repeat 不一致は 0．
+
+| 目標 | 実 10 連鎖以上 | 実 95,000 点以上 | 平均最大実連鎖 | 窒息 |
+| --- | ---: | ---: | ---: | ---: |
+| 10 連鎖 | 28／30 | 0／30 | 10.03 | 0／30 |
+| 95,000 点 | 5／30 | 3／30 | 4.27 | 16／30 |
+
+旧 46 手で低連鎖だった 11299 は 49 手目に実 11 連鎖へ到達したが，18078 と 42936 は 60 手でも最大 3 連鎖．旧「不当」小発火の 29377 は 1 連鎖の後に 11 連鎖へ到達している．新評価は最初の実 10 連鎖で停止するため，旧平均最大実連鎖と直接比較しない．95,000 点目標は一部で 13～14 連鎖を実現したものの，現行の生存判断との併用で窒息が増えた．正式 v4 の品質 A/C は未達のままで，PUYO-266 と本件の Jira は In Progress，統合品質は BLOCKED，release 判断は保留する．
+
+新しい stack head で原本付きの統合 8 suite を再実行し，103 tests・skip 0 で成功した．既存 3 件の実人間 GUI QA は旧 head での証拠であり，新しい 95,000 点設定での GUI 動作保証に読み替えない．#187 の required CI はこの head の結果を別途 read-back する．
