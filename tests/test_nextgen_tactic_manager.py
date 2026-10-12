@@ -224,6 +224,18 @@ class SelectorTests(unittest.TestCase):
             self.select(req, batch, selector=selector).selected_tactic_id, "build_main"
         )
 
+    def test_score_goal_waits_for_actual_fire_score(self):
+        req, batch = all_tactics()
+        req = replace(req, control=replace(
+            req.control, phase=replace(req.control.phase, active=False, remaining_decisions=0)))
+        selector = RuleTacticSelector(RuleSelectorConfig(saturated_chain_score=95_000))
+        batch = with_evidence(batch, "fire_main", chain_count=14, score=94_999, fatal_rate=0)
+        self.assertEqual(self.select(req, batch, selector=selector).selected_tactic_id,
+                         "build_main")
+        batch = with_evidence(batch, "fire_main", chain_count=13, score=95_000, fatal_rate=0)
+        self.assertEqual(self.select(req, batch, selector=selector).selected_tactic_id,
+                         "fire_main")
+
     def test_short_attack_teacher_positive_estimate_is_separate_from_mask(self):
         req, batch = all_tactics(board=((0,) * 6,) * 13 + ((1, 0, 0, 0, 0, 0),))
         batch = with_evidence(batch, "decisive_short_attack", outgoing=40)
