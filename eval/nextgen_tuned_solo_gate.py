@@ -39,9 +39,10 @@ COHORTS = {
     "v3": tuple((i * 65536 + 32768) // 30 + 229 for i in range(30)),
     "v4": tuple((i * 65536 + 32768) // 30 + 307 for i in range(30)),
     "v5": tuple((i * 65536 + 32768) // 30 + 389 for i in range(30)),
+    "v6": tuple((i * 65536 + 32768) // 30 + 467 for i in range(30)),
 }
 SCHEMAS = {cohort: f"puyo.nextgen.tuned_solo_gate.{cohort}" for cohort in COHORTS}
-CONTEXTUAL_SCHEMAS = {SCHEMAS[cohort] for cohort in ("v4", "v5")}
+CONTEXTUAL_SCHEMAS = {SCHEMAS[cohort] for cohort in ("v4", "v5", "v6")}
 assert all(len(set(patterns)) == 30 and
            not set(patterns) & (set(TUNING_PATTERNS) | {1092})
            for patterns in COHORTS.values())
@@ -92,7 +93,7 @@ def declaration(source_path, cohort="v1"):
         "acceptance": {"mean_maximum_actual_chain": 10, "unjustified_premature": 0,
                        "avoidable_suffocation": 0, "unknown_quality": 0,
                        "repeat_mismatch": 0},
-        **({"small_clear_context": "later_actual_main"} if cohort in ("v4", "v5") else {}),
+        **({"small_clear_context": "later_actual_main"} if cohort in ("v4", "v5", "v6") else {}),
     }
 
 
