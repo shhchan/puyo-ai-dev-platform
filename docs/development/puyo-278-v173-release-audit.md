@@ -60,3 +60,11 @@ PUYO-275 の再配布ライセンスは確認されていないため，原本�
 5. merge 後に remote `master` と PR の merge commit を照合し，`v1.7.3` が remote に未存在であることを再確認する．tag は **release PR が merge された `master` commit** にだけ付け，SHA／tag の dereference を read-back する．既存 tag は移動しない．その後に v1.8.0 の起点を新 `master` に固定する．
 
 人間が最終判断時に確認する証跡は，この監査，PUYO-275／266／277／276／274 の Jira A/C と PR，各 gate の raw／verifier，release PR の head/base／CI，`master` と tag の remote SHA である．現時点では release PR・tag・GitHub Release を作成しない．
+
+## 2026-10-12 PUYO-266 追加比較後の stack 再監査
+
+上記の 2026-10-11 SHA と候補 commit 一覧は当時の監査 snapshot として保持する．今回，#186 の新 head `ba1c9f981827db296c6ea16f0089b16932477667` を #187 へ通常 merge し，#187 の head `940dbf8` を #188 へ通常 merge した．#188 の取り込み直後 head は `1de6554`．いずれも rebase／force-push をせず，#187 の独自差分は統合 QA 記録と CI workflow，#188 の独自差分は release 監査文書のままである．3 PR は引き続き OPEN・draft，reviewer 未指定，未 merge．GitHub required CI は新しい head ごとに再確認する．
+
+PUYO-266 の[追加比較 HTML](../benchmarks/puyo-266-fire-goal-v3/index.html)は，10 連鎖目標と 95,000 点目標を 60 手枠で各 30 pattern × 2 repeat 測定したもの．manifest SHA-256 `3554f9184ec8098f7a4520743c4f3872de59eaec723e1a5331a525e6851dcbd0`，全 120 raw の replay，repeat 一致，欠損・worker failure 0 を確認した．10 連鎖目標は実 10 連鎖以上 28／30，窒息 0／30．95,000 点目標は実 95,000 点以上 3／30，窒息 16／30．旧低連鎖 3 件のうち 11299 は 49 手で 11 連鎖へ到達したが，18078・42936 は 60 手でも最大 3 連鎖．
+
+この追加比較は正式 v4 の 46 手・小発火分類の受入条件を変更しない．正式 v4 は引き続き `FAIL`，PUYO-266／274／278 は In Progress，統合品質と release gate は BLOCKED である．#187 の新 stack head では原本付き統合 8 suite・103 tests・skip 0 が成功した．人間 GUI QA 3 件は以前の head に対する結果で，新しい 95,000 点設定の実画面確認とは扱わない．統合 branch への取り込みや release PR／tag は行っていない．
