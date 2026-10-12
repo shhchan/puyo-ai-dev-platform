@@ -32,10 +32,15 @@ from eval.nextgen_single_quality_runtime import (
 from src.core.tsumo import EsportsTsuSource
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = "puyo.nextgen.tuned_solo_gate.v1"
-PATTERN_IDS = tuple((i * 65536 + 32768) // 30 + 73 for i in range(30))
-assert (len(set(PATTERN_IDS)) == 30 and
-        not set(PATTERN_IDS) & (set(TUNING_PATTERNS) | {1092}))
+COHORTS = {
+    "v1": tuple((i * 65536 + 32768) // 30 + 73 for i in range(30)),
+    "v2": tuple((i * 65536 + 32768) // 30 + 151 for i in range(30)),
+}
+SCHEMAS = {cohort: f"puyo.nextgen.tuned_solo_gate.{cohort}" for cohort in COHORTS}
+assert all(len(set(patterns)) == 30 and
+           not set(patterns) & (set(TUNING_PATTERNS) | {1092})
+           for patterns in COHORTS.values())
+assert not set(COHORTS["v1"]) & set(COHORTS["v2"])
 REPEATS = (1, 2)
 GOALS = {"chain10": None, "score95000": 95000}
 EVALUATORS = {
@@ -57,17 +62,18 @@ def policy_for(goal):
                        evaluator_config=evaluator)
 
 
-def declaration(source_path):
+def declaration(source_path, cohort="v1"):
     source = EsportsTsuSource(source_path)
     policies = {goal: policy_for(goal) for goal in GOALS}
+    patterns = COHORTS[cohort]
     return {
-        "pattern_ids": list(PATTERN_IDS), "repeats": list(REPEATS),
+        "pattern_ids": list(patterns), "repeats": list(REPEATS),
         "placements": PLACEMENTS, "stop_first_actual_chain": 10,
         "goals": GOALS, "policy_seed": POLICY_SEED, "environment_seed": 55,
         "provider": {"mode": "esports_tsu", "source_path": str(Path(source_path).resolve()),
                      "sha256": source.checksum, "version": source.version,
                      "color_mapping": {str(i): {k: v.name for k, v in source.color_mapping(i).items()}
-                                       for i in PATTERN_IDS}},
+                                       for i in patterns}},
         "policies": {goal: {"profile": policy.profile.to_dict(),
                             "search": asdict(policy.search_config),
                             "selector": asdict(policy.selector.config),
@@ -83,10 +89,10 @@ def declaration(source_path):
     }
 
 
-def initialize(output, source_path):
+def initialize(output, source_path, cohort="v1"):
     require_clean()
-    config = declaration(source_path)
-    manifest = {"schema": SCHEMA, "config": config, "config_sha256": digest(config),
+    config = declaration(source_path, cohort)
+    manifest = {"schema": SCHEMAS[cohort], "config": config, "config_sha256": digest(config),
                 "source": current_source(), "build": build_identity(),
                 "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     manifest["sha256"] = digest(manifest)
@@ -98,10 +104,11 @@ def initialize(output, source_path):
 def manifest_at(output, *, execution=False):
     manifest = read(output / "manifest.json")
     config = manifest["config"]
-    if (manifest["schema"] != SCHEMA or
+    cohort = next((key for key, value in SCHEMAS.items() if value == manifest["schema"]), None)
+    if (cohort is None or
             digest({k: v for k, v in manifest.items() if k != "sha256"}) != manifest["sha256"] or
             digest(config) != manifest["config_sha256"] or
-            config["pattern_ids"] != list(PATTERN_IDS) or
+            config["pattern_ids"] != list(COHORTS[cohort]) or
             config["repeats"] != list(REPEATS) or config["goals"] != GOALS or
             config["placements"] != PLACEMENTS):
         raise ValueError("formal declaration mismatch")
@@ -109,7 +116,7 @@ def manifest_at(output, *, execution=False):
         require_clean()
         if (current_source() != manifest["source"] or
                 build_identity() != manifest["build"] or
-                digest(declaration(config["provider"]["source_path"])) != digest(config)):
+                digest(declaration(config["provider"]["source_path"], cohort)) != digest(config)):
             raise ValueError("source, native build, provider, or settings changed")
     return manifest
 
@@ -117,8 +124,8 @@ def manifest_at(output, *, execution=False):
 def validate_raw(raw, manifest):
     config = manifest["config"]
     goal, pattern_id, repeat = (raw[k] for k in ("goal", "pattern_id", "repeat"))
-    if (goal not in GOALS or pattern_id not in PATTERN_IDS or repeat not in REPEATS or
-            raw["schema"] != SCHEMA or raw["manifest_sha256"] != manifest["sha256"] or
+    if (goal not in GOALS or pattern_id not in config["pattern_ids"] or repeat not in REPEATS or
+            raw["schema"] != manifest["schema"] or raw["manifest_sha256"] != manifest["sha256"] or
             raw["policy"] != "nextgen_tactic_manager" or
             raw["semantic_digest"] != digest(semantic_payload(raw))):
         raise ValueError("artifact identity or semantic digest mismatch")
@@ -153,7 +160,7 @@ def validate_raw(raw, manifest):
 
 def worker(output, goal, pattern_id, repeat):
     manifest = manifest_at(output, execution=True)
-    if goal not in GOALS or pattern_id not in PATTERN_IDS or repeat not in REPEATS:
+    if goal not in GOALS or pattern_id not in manifest["config"]["pattern_ids"] or repeat not in REPEATS:
         raise ValueError("unexpected cohort identity")
     path = output / artifact_name(goal, pattern_id, repeat)
     prefix = path.name.removesuffix(".json.gz")
@@ -171,7 +178,7 @@ def worker(output, goal, pattern_id, repeat):
         raw = measure(new_match(manifest["config"], pattern_id), policy_for(goal),
                       "nextgen_tactic_manager", placements=PLACEMENTS,
                       stop_first_chain=10, progress=save_progress)
-        raw.update(schema=SCHEMA, goal=goal, pattern_id=pattern_id, repeat=repeat,
+        raw.update(schema=manifest["schema"], goal=goal, pattern_id=pattern_id, repeat=repeat,
                    manifest_sha256=manifest["sha256"])
         complete_evidence(raw, new_match(manifest["config"], pattern_id))
         # The historical 46-placement gate flags every different window as
@@ -193,8 +200,8 @@ def worker(output, goal, pattern_id, repeat):
 
 
 def run_all(output, jobs):
-    manifest_at(output, execution=True)
-    tasks = [(goal, pattern_id, repeat) for pattern_id in PATTERN_IDS
+    manifest = manifest_at(output, execution=True)
+    tasks = [(goal, pattern_id, repeat) for pattern_id in manifest["config"]["pattern_ids"]
              for goal in GOALS for repeat in REPEATS
              if not any((output / (artifact_name(goal, pattern_id, repeat)
                                      .removesuffix(".json.gz") + suffix)).exists()
@@ -217,6 +224,7 @@ def run_all(output, jobs):
 
 def report(output, *, verify_replays=False):
     manifest = manifest_at(output)
+    patterns = manifest["config"]["pattern_ids"]
     rows, artifacts = [], {}
     for path in sorted(output.glob("*-pattern-*-repeat-*.json.gz")):
         if path.name.endswith(".progress.json.gz"):
@@ -246,9 +254,9 @@ def report(output, *, verify_replays=False):
         selected = [row for row in rows if row["goal"] == goal]
         keyed = {(row["pattern_id"], row["repeat"]): row for row in selected}
         primary = [row for row in selected if row["repeat"] == 1]
-        missing = [(pattern, repeat) for pattern in PATTERN_IDS for repeat in REPEATS
+        missing = [(pattern, repeat) for pattern in patterns for repeat in REPEATS
                    if (pattern, repeat) not in keyed]
-        mismatches = [pattern for pattern in PATTERN_IDS
+        mismatches = [pattern for pattern in patterns
                       if (pattern, 1) in keyed and (pattern, 2) in keyed and
                           keyed[pattern, 1]["semantic_digest"] != keyed[pattern, 2]["semantic_digest"]]
         counts = {key: sum(row["small_clears"][key] for row in selected)
@@ -272,7 +280,7 @@ def report(output, *, verify_replays=False):
                        "game_overs": sum(row["game_over"] for row in primary),
                        "decision_seconds": distribution([seconds for row in selected
                                                          for seconds in row["decision_seconds"]])}
-    result = {"schema": SCHEMA, "manifest_sha256": manifest["sha256"],
+    result = {"schema": manifest["schema"], "manifest_sha256": manifest["sha256"],
               "PUYO-266": goals["chain10"]["status"], "goals": goals,
               "rows": rows, "artifacts": artifacts, "failed_workers": failures,
               "source_changed_since_declaration": current_source() != manifest["source"]}
@@ -286,6 +294,7 @@ def main():
     parser.add_argument("command", choices=("init", "worker", "run-all", "report"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tsumo-source", type=Path)
+    parser.add_argument("--cohort", choices=COHORTS, default="v1")
     parser.add_argument("--goal", choices=GOALS)
     parser.add_argument("--pattern-id", type=int)
     parser.add_argument("--repeat", type=int)
@@ -295,7 +304,7 @@ def main():
     if args.command == "init":
         if args.tsumo_source is None:
             parser.error("init requires --tsumo-source")
-        value = initialize(args.output, args.tsumo_source)
+        value = initialize(args.output, args.tsumo_source, args.cohort)
         print(value["sha256"])
     elif args.command == "worker":
         if args.goal is None or args.pattern_id is None or args.repeat is None:
