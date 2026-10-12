@@ -100,7 +100,7 @@ def load_manifest(output, *, execution=False):
         require_clean()
         if (current_source() != manifest["source"] or
                 build_identity() != manifest["build"] or
-                declared_config(config["provider"]["source_path"]) != config):
+                digest(declared_config(config["provider"]["source_path"])) != digest(config)):
             raise ValueError("source/build/provider changed after declaration")
     return manifest
 
