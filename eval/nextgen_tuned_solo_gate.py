@@ -38,8 +38,10 @@ COHORTS = {
     "v2": tuple((i * 65536 + 32768) // 30 + 151 for i in range(30)),
     "v3": tuple((i * 65536 + 32768) // 30 + 229 for i in range(30)),
     "v4": tuple((i * 65536 + 32768) // 30 + 307 for i in range(30)),
+    "v5": tuple((i * 65536 + 32768) // 30 + 389 for i in range(30)),
 }
 SCHEMAS = {cohort: f"puyo.nextgen.tuned_solo_gate.{cohort}" for cohort in COHORTS}
+CONTEXTUAL_SCHEMAS = {SCHEMAS[cohort] for cohort in ("v4", "v5")}
 assert all(len(set(patterns)) == 30 and
            not set(patterns) & (set(TUNING_PATTERNS) | {1092})
            for patterns in COHORTS.values())
@@ -90,7 +92,7 @@ def declaration(source_path, cohort="v1"):
         "acceptance": {"mean_maximum_actual_chain": 10, "unjustified_premature": 0,
                        "avoidable_suffocation": 0, "unknown_quality": 0,
                        "repeat_mismatch": 0},
-        **({"small_clear_context": "later_actual_main"} if cohort == "v4" else {}),
+        **({"small_clear_context": "later_actual_main"} if cohort in ("v4", "v5") else {}),
     }
 
 
@@ -174,7 +176,7 @@ def validate_raw(raw, manifest):
     if (len(raw["small_clear_classifications"]) != sum(0 < x < 10 for x in chains) or
             raw["suffocation_classification"]["status"] not in ("none", "unknown", "avoidable")):
         raise ValueError("quality evidence incomplete")
-    if raw["schema"] == SCHEMAS["v4"]:
+    if raw["schema"] in CONTEXTUAL_SCHEMAS:
         local = [value.get("local_result", value) for value in raw["small_clear_classifications"]]
         if contextualize_small_clears(local, chains) != raw["small_clear_classifications"]:
             raise ValueError("later-main classification differs from actual resolutions")
@@ -209,7 +211,7 @@ def worker(output, goal, pattern_id, repeat):
         raw.update(schema=manifest["schema"], goal=goal, pattern_id=pattern_id, repeat=repeat,
                    manifest_sha256=manifest["sha256"])
         complete_evidence(raw, new_match(manifest["config"], pattern_id))
-        if manifest["schema"] == SCHEMAS["v4"]:
+        if manifest["schema"] in CONTEXTUAL_SCHEMAS:
             raw["small_clear_classifications"] = contextualize_small_clears(
                 raw["small_clear_classifications"], raw["chains"])
             raw["semantic_digest"] = digest(semantic_payload(raw))
@@ -267,7 +269,7 @@ def report(output, *, verify_replays=False):
         if (verify_replays and replay_audit(raw, new_match(manifest["config"],
                                              raw["pattern_id"])) != raw["audit"]):
             raise ValueError("stored tick replay differs")
-        if verify_replays and manifest["schema"] == SCHEMAS["v4"]:
+        if verify_replays and manifest["schema"] in CONTEXTUAL_SCHEMAS:
             by_tick = {row["tick"]: row for row in raw["rows"]}
             local = [classify_small_clear(by_tick[record["request_tick"]],
                                           record["resolution"]["chain_count"])

@@ -1,7 +1,7 @@
-# PUYO-280: nextgen strict 95000-point evaluator; see docs/development/puyo-280-search-tuning.md.
+# PUYO-280: nextgen 95000-point evaluator with safe 10-chain fallback.
 schema_version: puyo.chain_structure_weights.v1
 feature_version: puyo.chain_structure_features.v1
-weight_version: puyo-280-score-v2
+weight_version: puyo-280-score-v5
 
 quiescence:
   max_added_puyos: 3
@@ -29,7 +29,7 @@ weights:
   height_spread: -25.0
   well_depth: -55.0
   bump_height: -70.0
-  danger_ratio: -120000.0
+  danger_ratio: -180000.0
   nuisance_puyo: -240.0
   hidden_row_puyo: -1500.0
   tear: -4000.0
