@@ -68,6 +68,24 @@ class NativeIdentityTests(unittest.TestCase):
                 gate.build_identity()
 
 
+class ScoreGoalFallbackTests(unittest.TestCase):
+    def test_score_goal_keeps_winning_threshold_and_allows_chain_target(self):
+        strict = make_policy("nextgen_tactic_manager", backend="python", smoke=True,
+                             fire_goal_score=95000)
+        fallback = make_policy("nextgen_tactic_manager", backend="python", smoke=True,
+                               fire_goal_score=95000, score_goal_fallback=True)
+        self.assertTrue(strict.search_config.score_target_only)
+        self.assertFalse(fallback.search_config.score_target_only)
+        self.assertEqual(fallback.search_config.winning_score_threshold, 95000)
+        self.assertEqual(fallback.search_config.minimum_chain_count, 10)
+        self.assertEqual(fallback.selector.config.saturated_chain_score, 95000)
+
+    def test_fallback_requires_score_goal(self):
+        with self.assertRaisesRegex(ValueError, "requires fire_goal_score"):
+            make_policy("nextgen_tactic_manager", backend="python", smoke=True,
+                        score_goal_fallback=True)
+
+
 class SingleRuntimeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -35,12 +35,14 @@ ROOT = Path(__file__).resolve().parents[1]
 COHORTS = {
     "v1": tuple((i * 65536 + 32768) // 30 + 73 for i in range(30)),
     "v2": tuple((i * 65536 + 32768) // 30 + 151 for i in range(30)),
+    "v3": tuple((i * 65536 + 32768) // 30 + 229 for i in range(30)),
 }
 SCHEMAS = {cohort: f"puyo.nextgen.tuned_solo_gate.{cohort}" for cohort in COHORTS}
 assert all(len(set(patterns)) == 30 and
            not set(patterns) & (set(TUNING_PATTERNS) | {1092})
            for patterns in COHORTS.values())
-assert not set(COHORTS["v1"]) & set(COHORTS["v2"])
+assert all(not set(COHORTS[a]) & set(COHORTS[b])
+           for a in COHORTS for b in COHORTS if a < b)
 REPEATS = (1, 2)
 GOALS = {"chain10": None, "score95000": 95000}
 EVALUATORS = {
@@ -59,7 +61,7 @@ def policy_for(goal):
         raise ValueError("unknown goal")
     evaluator = load_chain_structure_config(EVALUATORS[goal])
     return make_policy("nextgen_tactic_manager", fire_goal_score=GOALS[goal],
-                       evaluator_config=evaluator)
+                       evaluator_config=evaluator, score_goal_fallback=goal == "score95000")
 
 
 def declaration(source_path, cohort="v1"):
