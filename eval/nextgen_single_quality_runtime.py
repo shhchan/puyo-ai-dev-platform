@@ -44,17 +44,18 @@ class SingleQualityMatch(RealtimeVersusMatch):
         return None
 
 
-def make_policy(kind, *, backend="native", smoke=False):
+def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
     if kind == "deep_chain_builder":
         return DeepChainBuilderPolicy(profile="smoke" if smoke else "reference", backend=backend)
     if kind != "nextgen_tactic_manager":
         raise ValueError("unknown policy")
-    if backend != "native":
+    if fire_goal_score is not None or backend != "native":
         # Test-only injection, retaining the production catalog/selector defaults.
         from pathlib import Path
 
         from agents.nextgen_profiles import nextgen_search_settings
-        from agents.nextgen_tactic_manager import NextgenTacticManagerPolicy
+        from agents.nextgen_tactic_manager import (NextgenTacticManagerPolicy,
+                                                   RuleSelectorConfig, RuleTacticSelector)
         from src.ui.launcher_settings import resolve_nextgen_catalog
 
         catalog, _ = resolve_nextgen_catalog(
@@ -63,9 +64,12 @@ def make_policy(kind, *, backend="native", smoke=False):
             repo_root=Path(__file__).resolve().parents[1],
         )
         profile, search = nextgen_search_settings(
-            "nextgen_smoke" if smoke else "nextgen_safe_build", seed=POLICY_SEED)
+            "nextgen_smoke" if smoke else "nextgen_safe_build", seed=POLICY_SEED,
+            fire_goal_score=fire_goal_score)
         return NextgenTacticManagerPolicy(catalog=catalog, seed=POLICY_SEED,
-                                         profile=profile, search_config=search, backend=backend)
+                                         profile=profile, search_config=search, backend=backend,
+                                         selector=RuleTacticSelector(RuleSelectorConfig(
+                                             saturated_chain_score=fire_goal_score)))
     return legacy_make_policy("nextgen", POLICY_SEED,
                               "nextgen_smoke" if smoke else "nextgen_safe_build")
 
@@ -145,7 +149,8 @@ def _decision_payload(policy, kind):
             "fallback": diagnostics["fallback"], "phase": None}
 
 
-def measure(match, policy, kind, *, placements=46, max_ticks=30000, progress=None):
+def measure(match, policy, kind, *, placements=46, max_ticks=30000, progress=None,
+            stop_first_chain=None):
     """Run the unchanged policy through actual tick controls and resolutions."""
     controller = RealtimePolicyController(policy, config=RealtimeDecisionConfig(
         latency_mode="configured", use_reachable_action_mask=True))
@@ -163,7 +168,10 @@ def measure(match, policy, kind, *, placements=46, max_ticks=30000, progress=Non
             "ledger": [d.to_dict() for d in runtime.ledger] if runtime else [],
             "errors": list(runtime.errors) if runtime else [],
             "controller": controller.diagnostics.to_dict(), "game_over": game_over,
-            "termination": "game_over" if game_over else "placements" if len(chains) == placements else "tick_limit",
+            "termination": "game_over" if game_over else (
+                "first_target_chain" if stop_first_chain is not None and
+                chains and chains[-1] >= stop_first_chain else
+                "placements" if len(chains) == placements else "tick_limit"),
             "checkpoint40": forty, "final": checkpoint(chains, match.tick, match.state_hash()),
         }
 
@@ -216,7 +224,8 @@ def measure(match, policy, kind, *, placements=46, max_ticks=30000, progress=Non
                     forty = checkpoint(chains, match.tick, ticks[-1]["state_hash"])
                 if progress is not None:
                     progress(snapshot())
-        if len(chains) >= placements or match.finished:
+        if (len(chains) >= placements or match.finished or
+                (stop_first_chain is not None and chains and chains[-1] >= stop_first_chain)):
             break
     return snapshot()
 

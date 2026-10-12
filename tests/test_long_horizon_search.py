@@ -601,6 +601,20 @@ class TestLongHorizonSearch(unittest.TestCase):
                 boundary["expected_fire_class"],
             )
 
+    def test_score_only_goal_does_not_classify_ten_chain_as_target(self):
+        self.assertEqual(
+            classify_build_main_fire(chain_count=10, chain_score=50_000,
+                                     target_chain_count=10, winning_score_threshold=95_000,
+                                     score_target_only=True),
+            FIRE_CLASS_PREMATURE,
+        )
+        self.assertEqual(
+            classify_build_main_fire(chain_count=13, chain_score=95_000,
+                                     target_chain_count=10, winning_score_threshold=95_000,
+                                     score_target_only=True),
+            FIRE_CLASS_WINNING,
+        )
+
     def test_safe_build_fire_classes_rank_quiet_above_premature_and_target_above_quiet(
         self,
     ):
