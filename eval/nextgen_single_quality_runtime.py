@@ -54,8 +54,11 @@ def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
         from pathlib import Path
 
         from agents.nextgen_profiles import nextgen_search_settings
-        from agents.nextgen_tactic_manager import (NextgenTacticManagerPolicy,
-                                                   RuleSelectorConfig, RuleTacticSelector)
+        from agents.nextgen_tactic_manager import (
+            NextgenTacticManagerPolicy,
+            RuleSelectorConfig,
+            RuleTacticSelector,
+        )
         from src.ui.launcher_settings import resolve_nextgen_catalog
 
         catalog, _ = resolve_nextgen_catalog(
