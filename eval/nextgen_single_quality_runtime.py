@@ -44,12 +44,13 @@ class SingleQualityMatch(RealtimeVersusMatch):
         return None
 
 
-def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
+def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None,
+                evaluator_config=None):
     if kind == "deep_chain_builder":
         return DeepChainBuilderPolicy(profile="smoke" if smoke else "reference", backend=backend)
     if kind != "nextgen_tactic_manager":
         raise ValueError("unknown policy")
-    if fire_goal_score is not None or backend != "native":
+    if fire_goal_score is not None or evaluator_config is not None or backend != "native":
         # Test-only injection, retaining the production catalog/selector defaults.
         from pathlib import Path
 
@@ -71,6 +72,7 @@ def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
             fire_goal_score=fire_goal_score)
         return NextgenTacticManagerPolicy(catalog=catalog, seed=POLICY_SEED,
                                          profile=profile, search_config=search, backend=backend,
+                                         evaluator_config=evaluator_config,
                                          selector=RuleTacticSelector(RuleSelectorConfig(
                                              saturated_chain_score=fire_goal_score)))
     return legacy_make_policy("nextgen", POLICY_SEED,
