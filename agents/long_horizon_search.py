@@ -726,6 +726,7 @@ def classify_build_main_fire(
     target_chain_count: int,
     fire_context: str = FIRE_CONTEXT_SAFE_BUILD,
     winning_score_threshold: int | None = None,
+    score_target_only: bool = False,
 ) -> str:
     """Classify a fire without letting sub-target official score imply success."""
 
@@ -737,7 +738,7 @@ def classify_build_main_fire(
         winning_score_threshold
     ):
         return FIRE_CLASS_WINNING
-    if int(chain_count) >= int(target_chain_count):
+    if not score_target_only and int(chain_count) >= int(target_chain_count):
         return FIRE_CLASS_TARGET
     if fire_context == FIRE_CONTEXT_FORCED_SAFETY:
         return FIRE_CLASS_FORCED_SAFETY
@@ -764,8 +765,12 @@ def _terminal_fire_score(
     if not math.isfinite(structural_score):
         structural_score = -1_000_000_000_000.0
     target_gap = max(0, int(config.minimum_chain_count) - int(result.chain_count))
+    penalty_gap = (
+        max(0, config.winning_score_threshold - int(result.score_delta)) / 1000.0
+        if config.score_target_only else float(target_gap)
+    )
     target_gap_penalty = (
-        -float(config.premature_target_gap_penalty) * float(target_gap)
+        -float(config.premature_target_gap_penalty) * penalty_gap
         if fire_class == FIRE_CLASS_PREMATURE
         else 0.0
     )
@@ -1175,6 +1180,7 @@ class LongHorizonSearchConfig:
     fire_context: str = FIRE_CONTEXT_SAFE_BUILD
     premature_target_gap_penalty: float = 1_000.0
     winning_score_threshold: int | None = None
+    score_target_only: bool = False
     use_transposition_table: bool = True
 
     def __post_init__(self) -> None:
@@ -1223,6 +1229,8 @@ class LongHorizonSearchConfig:
             and self.winning_score_threshold <= 0
         ):
             raise ValueError("winning score threshold must be positive when configured")
+        if self.score_target_only and self.winning_score_threshold is None:
+            raise ValueError("score target needs a winning score threshold")
 
     @property
     def resolved_decision_seed(self) -> int | None:
@@ -2103,6 +2111,7 @@ def _run_long_horizon_search(
                     target_chain_count=config.minimum_chain_count,
                     fire_context=config.fire_context,
                     winning_score_threshold=config.winning_score_threshold,
+                    score_target_only=config.score_target_only,
                 )
                 terminal_score, terminal_breakdown = _terminal_fire_score(
                     result=result,
@@ -2221,6 +2230,7 @@ def _run_long_horizon_search(
                             target_chain_count=config.minimum_chain_count,
                             fire_context=config.fire_context,
                             winning_score_threshold=config.winning_score_threshold,
+                            score_target_only=config.score_target_only,
                         )
                         terminal_score, terminal_breakdown = _terminal_fire_score(
                             result=result,
