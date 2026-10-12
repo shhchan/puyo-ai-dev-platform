@@ -305,7 +305,7 @@ tbody th {{font-weight:600}} tr.low {{background:#fff2e3}} .note {{line-height:1
 <h2>Pattern ごとの軌跡</h2><p>橙色はどちらかの設定で 10 連鎖未満だった pattern．発火点は最初の実 10 連鎖以上の <code>score_delta</code>．差は 95,000 点目標 − 10 連鎖目標．</p>
 <div class="scroll"><table><thead><tr><th rowspan="2">pattern ID</th><th colspan="4">10 連鎖目標</th><th colspan="4">95,000 点目標</th><th rowspan="2">最大連鎖差</th></tr>
 <tr><th>手数</th><th>最大連鎖</th><th>発火点</th><th>終了</th><th>手数</th><th>最大連鎖</th><th>発火点</th><th>終了</th></tr></thead><tbody>{''.join(pattern_rows)}</tbody></table></div>
-<h2>読み方と限界</h2><div class="note"><p>95,000 点設定では <code>winning_score_threshold</code> を探索に渡し，<code>fire_main</code> の候補生成と rule selector も 95,000 点を要求する．探索の既存の 10 連鎖分類は残るため，内部順位の全項目をスコア専用に置き換えた実験ではない．また最初の実 10 連鎖で停止するため，そこで 95,000 点未満なら，その先のスコア達成可否は測れない．</p>
+<h2>読み方と限界</h2><div class="note"><p>95,000 点設定では <code>winning_score_threshold</code> と <code>score_target_only</code> を探索に渡し，95,000 点未満の発火を目標達成に分類せず，点数不足に応じて減点する．<code>fire_main</code> の候補生成と rule selector も 95,000 点を要求する．生存上必要な発火や <code>build_main</code> の 1 手から 95,000 点未満の連鎖が起きる余地はある．最初の実 10 連鎖で停止するため，そこで 95,000 点未満なら，その先のスコア達成可否は測れない．</p>
 <p>小消し回数は 1〜9 連鎖の実発火数．「不当」かどうかの因果判定ではない．平均は各 pattern の 1 回目のみ，repeat 2 は同一軌跡の再現確認用．旧 46 手正式 gate の受入基準は維持し，本結果をその PASS に読み替えない．</p>
 <p>証拠: <code>manifest SHA-256 {esc(report['manifest_sha256'])}</code>．source 身元 {source}．failed worker {len(report['failed_workers'])} 件．raw と report.json は同じディレクトリに保存．</p></div></body></html>'''
 
