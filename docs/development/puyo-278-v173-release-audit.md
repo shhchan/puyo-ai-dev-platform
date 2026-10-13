@@ -88,3 +88,5 @@ PUYO-266 の[追加比較 HTML](../benchmarks/puyo-266-fire-goal-v3/index.html)�
 | 7 | #188 | #187 | 本監査更新前 `c71c9ea`．確定値は PR API を参照． |
 
 #190 の確定 head を #187，その更新 head を #188 に通常 merge し，`merge-base --is-ancestor` で各層の祖先関係を確認した．#187 の独自差分は workflow／統合 QA 記録・実行表，#188 は本監査と候補 commit 一覧である．結合した #188 head で原本付き 8 suite の **111 tests，skip 0** と対象 Python ファイルの Ruff，`git diff --check`，第 6 回 HTML の JavaScript 構文確認が成功した．[受入結果 JSON](../benchmarks/puyo-280-search-tuning/formal-v6-acceptance.json) は凍結 report・manifest・120 raw の SHA-256 と照合した `PASS` と，旧厳格判定 `FAIL` を併記する．第 6 回 raw の source identity は文書追補前の commit `8d4d64a` で固定されており，今回の文書 commit の SHA で再測定したと誤記しない．
+
+最終 read-back では Sprint 15 の PUYO-266／274／275／276／277／278／280 は全件 `Complete`．stack #191 の 7 PR は全件 OPEN，draft=false，reviewer 未指定，base と祖先関係が一致し，GitHub の merge state は `CLEAN`．#186 head `aaeb5b1` の required CI，#187 head `25a27a1` の 2 実行，#188 が製品コードを取り込んだ head `8a41380` の CI はすべて SUCCESS．#190 は当該 PR head 固有の GitHub check が報告されておらず，#188 の最終追加変更は監査文書のみである．実装を含む結合 head の 111 tests と CI の結果を区別して記録する．release PR／tag は未実施で，後続 [PUYO-281](https://shhchan.atlassian.net/browse/PUYO-281) が追跡する．
