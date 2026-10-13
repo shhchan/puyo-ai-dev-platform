@@ -1,0 +1,303 @@
+\section{公開情報に基づく連鎖探索}\label{sec:search}
+\subsection{探索問題とシナリオ}
+探索時の単独状態を $x=(B,b)\in\mathcal X=\mathcal B\times\{0,1\}$ とする．
+$B$ は安定盤面，$b$ は全消し保留 bit である．
+遷移 $T(x,p,a)$ は式 \eqref{eq:placement} と \eqref{eq:allclear-bit} を適用した
+$(x',L,S,d)$ を返す．$x'$ は次状態，$L$ は連鎖数，$S$ は今回の得点，
+$d\in\{0,1\}$ は次の生成時の窒息を表す．非法行動では $T=\none$ とする．
+この $T$ は相手の進行と受信 packet を含まない．対戦応答候補には別途実時間の検証が必要である．
+
+根で公開されている組ぷよ列を $p_{0:k-1}=(p_0,\ldots,p_{k-1})$，$1\le k\le3$ とする．
+探索深さ $D_s\ge1$，シナリオ数 $M_s\ge1$，幅 $w\ge1$，展開上限 $Q\ge1$，
+根ごとの確保枠 $q_r\ge1$ を整数で与える．シナリオ $m\in\{1,\ldots,M_s\}$ は
+長さ $D_s$ の対列 $\omega^m=(p_0^m,\ldots,p_{D_s-1}^m)$ であり，
+公開 prefix に対して $p_j^m=p_j$（$j<\min(k,D_s)$）を要求する．
+補完アルゴリズムは公開列と独立な探索 seed のみを引数に取る．
+
+\textbf{実装記述．} 標準 \code{nextgen_safe_build} は
+\begin{equation}\label{eq:profile}
+ (D_s,w,M_s,Q,q_r)=(16,250,6,600000,1)
+\end{equation}
+であり，\code{legacy-fixed-six} を使う．基礎色順の添字 $0,1,2,3$ に対し
+$(0,1,2,3)$，$(0,2,1,3)$，$(0,3,1,2)$，$(1,2,0,3)$，$(1,3,0,2)$，$(2,3,0,1)$
+の各列を $2$ 組に分け，公開 prefix 後に反復する．設定 seed があるとシナリオ順と色対応を置換する．
+別方式 \code{seeded-authoritative} は探索 seed と sample index から導いた seed を
+\code{PuyoSequence} に渡す．名前の \code{authoritative} は乱数生成方式の再利用を指し，試合の実未来へのアクセスを意味しない．
+特に $6$ 代表未来は真の条件付き分布からの独立標本ではない．
+
+\subsection{ノード評価を与える方法}\label{sec:evaluator}
+目標連鎖数 $L_*\ge1$ をあらかじめ固定する（標準 $10$）．
+探索木のノード $v$ は，状態 $x(v)$，根行動 $a_0(v)$，配置列 $\mathbf a(v)$，
+シナリオ番号，親ノード，直前遷移の $L,S,d$ を持つ有限レコードとする．
+評価器 $U:\mathcal N\to\R$ の定義域 $\mathcal N$ はこのような有効ノード全体である．
+ここでは評価器を探索アルゴリズムの固定パラメータとし，学習方策とは別に固定する．
+現行版との対応を閉じるため，次の\textbf{実装による定義}を採用する．
+$\psi(v)\in\R^{24}$ と $d_U(v)\in\{0,1\}$ を，固定 SHA の
+\src{agents/chain_structure.py}{ChainStructureEvaluator} が，ノードの盤面・親の評価結果・直前行動を受け取り，
+\code{_build_features}，\code{_action_features}，\code{_score} の順に計算する次表の値とする．
+予算・重みは固定した設定ファイルの値を使う．$\psi$ は学習対象の未定義関数ではなく，この有限手続きの出力である．
+
+\begin{longtable}{p{.26\linewidth}p{.67\linewidth}}
+\toprule 評価特徴群（合計 24 成分） & 数学上の意味・算出対象\\\midrule\endhead
+見込み連鎖数・得点 & 最大 3 個の仮想キーを補う有限探索で選ばれた発火の $L,S$．未発見は $0$．\\
+必要キー数，発火点高さ，保護度 & 同じ仮想発火に必要な追加セル数，発火セル高さ，周囲の占有に基づく実装の保護度．未発見時は $0$．\\
+残り 2 連結，残り 3 連結 & 仮想発火後の色成分のうち大きさが $2,3$ の個数．\\
+連結辺 & 現盤面の同色色成分内の隣接辺数と，仮想発火後の同数の和．\\
+接続候補，到達可能発火点 & \code{connection_candidates} の有限接続レコード数，到達可能な拡張セルを持つ大きさ $3$ の色成分数．\\
+伸長箇所，土台セル，折返し空間 & 到達可能拡張セルの和集合の大きさ，$y\le2$ で下が支えられた色セル数，隣接列の可視空き高さの小さい方の総和（色セルなしなら $0$）．\\
+凹凸，高さ幅，谷，突起 & 隣接列高さの絶対差の総和，最大と最小の高さ差，両隣より低い谷の深さ総和，内部列の両隣より高い突起の高さ総和．\\
+危険度，おじゃま数，隠れ行占有数 & 式 \eqref{eq:danger} の値，盤面全体のおじゃま数，$y\ge12$ の占有数．\\
+切断，浪費，発火点損傷，小発火 & 親に対する接続辺・接続候補の損失，隠れ行増加と未達発火の色資源損失，仮想発火能力の低下，$0<L<L_*$ の指示値．\\\bottomrule
+\end{longtable}
+構造評価用の色成分は，消去判定とは異なり $D$ 全域で隣接を定義する．
+評価器内部は紫も含む 5 色の仮想列挙に対応するが，通常の公開盤面・ツモは本稿の 4 色である．
+保護度・接続候補などの細かな列挙方法は上記関数をそのまま定義とする．
+この表だけから独立実装を作り Python/native の全ビット一致を主張するものではない．
+数学的モデルとしては，型を満たす別の明示した評価器にも置換できるが，その場合は別のモデル設定になる．
+
+列 $x$ の最高占有セルの高さを $h_x=1+\max\{y:B(x,y)\ne\emptycell\}$ とし，空列は $h_x=0$ とする．
+おじゃまセル数を $n_g$ とする．実装の危険度 $d_{\rm ratio}$ は
+\begin{equation}\label{eq:danger}
+ d_{\rm ratio}=\min\left(1,\ 0.55\frac{\max(h_2,h_3)}{12}
+                       +0.35\frac{\max_xh_x}{12}+0.10\min(1,n_g/30)\right).
+\end{equation}
+評価器の death 判定には中央 \emph{2 列}の高さによる保守的条件も含まれる．
+これをゲームの単一窒息セル判定と同一視しない．
+仮想キー探索の内部上限は pattern $512$ ノード，resolution $96$ ノード，候補 $12$ 個である．
+打切りで仮想発火が未発見なのか，この有限列挙を完了して未発見なのかも区別する．
+
+\input{evaluator-details}
+
+重みを $\mathbf w=(w_1,\ldots,w_{24})\in\R^{24}$，致命評価値を $u_{\rm fatal}=-10^{12}$ とする．
+$d_U(v)=1$ は実装の death，探索完了時の発火点未発見，構造的行止まり，直前行動の death のいずれかが成立する場合である．
+評価値を
+\begin{equation}\label{eq:evaluator}
+ U(v)=\begin{cases}u_{\rm fatal}&d_U(v)=1,\\
+ \displaystyle\sum_{j=1}^{24}w_j\psi_j(v)&d_U(v)=0
+ \end{cases}
+\end{equation}
+とする．$\psi_j$ は表の順に展開した第 $j$ 成分である．標準重みの正本は
+\src{train/config/nextgen_chain_structure.yaml}{nextgen_chain_structure.yaml} であり，
+例えば見込み連鎖数 $45000$，見込み得点 $0.25$，危険度 $-480000$，小発火 $-16000$ である．
+仮想キーの $L$ は実際の公開ツモで達成した連鎖数ではない．
+得点目標モードは別の \code{nextgen_score_structure.yaml} を使う．
+
+\subsection{幅制限探索と根の保護}\label{sec:beam}
+1 つのシナリオ $m$ を固定する．深さ $d$ の生存ノード列を $\mathcal L_d^m$，
+次層の展開候補列を $\mathcal E_{d+1}^m$ とする．$\mathcal L_0^m$ は初期状態だけからなる．
+既定では連鎖数 $L\ge1$ の子を「発火終端」として記録して以後の展開から外し，
+連鎖なしで窒息する子も外す．「発火終端」は探索の停止であって試合終了ではない．
+展開は
+\begin{equation}\label{eq:beam-expand}
+ \mathcal E_{d+1}^m=\bigl(T(x(v),p_d^m,a):
+       v\in\mathcal L_d^m,\ a\in\mathcal A_{\rm geo}(B(v))\bigr)
+\end{equation}
+から有効な子ノードを構成し，選択中テンプレートの構造制約を検査する操作である．
+$B(v)$ は $x(v)$ の盤面成分である．括弧は順序付き列挙を表し，展開予算 $Q$ に達したら途中で止める．
+根では前節の到達可能性も最終候補化時に検査する．
+
+生存候補を $U$ の降順で並べ，同点では根行動 ID，状態の標準 byte 列，直前行動 ID，経路 ID 列の昇順で並べる．
+この全順序を $\prec_U$ とする．状態が合流した場合も根行動が異なる候補は分ける．
+同じ根と同じ compact 遷移キー（盤面・全消し等の状態，scenario，ツモ cursor，深さ）の候補が複数あれば，
+$\prec_U$ の先頭だけを保持する．これを重複除去と定義する．
+
+切詰め写像 $\operatorname{Keep}_{w,q_r}$ は，根行動 ID 順に各根の第 $1$ 候補を取り，
+次に各根の第 $2$ 候補という順で $q_r$ 巡まで確保し，残りを $\prec_U$ 順で埋める．
+どの段階でも総数 $w$ を超えない．該当候補がなければ飛ばす．従って
+\begin{equation}\label{eq:beam-prune}
+ \mathcal L_{d+1}^m=\operatorname{Keep}_{w,q_r}
+     (\text{重複除去後の非発火・非窒息候補}),\qquad |\mathcal L_{d+1}^m|\le w.
+\end{equation}
+単純に全体の上位 $w$ 個を選ぶ式とは異なる．$w$ が小さければ全根の確保も保証しない．
+各シナリオを固定順で処理し，全シナリオで展開予算 $Q$ を共有する．
+盤面評価器の仮想キー探索予算はこれとは別の内部上限である．
+
+\subsection{発火分類とシナリオ集約}\label{sec:aggregate}
+既定した目標連鎖数 $L_*$ に加え，任意の得点目標を $S_*\in\{1,2,\ldots\}\cup\{\none\}$ とする．
+得点のみを目標にする flag を $b_S\in\{0,1\}$，強制安全対応の文脈 flag を $b_F\in\{0,1\}$ とする．
+$b_S=1$ なら $S_*\ne\none$ を要求する．発火分類 $c(L,S)$ は次の先勝ち条件で決まる．
+\begin{equation}\label{eq:fireclass}
+ c(L,S)=\begin{cases}
+ \mathsf{quiet}&L=0,\\
+ \mathsf{winning}&S_*\ne\none\text{ かつ }S\ge S_*,\\
+ \mathsf{target}&b_S=0\text{ かつ }L\ge L_*,\\
+ \mathsf{forced}&b_F=1,\\
+ \mathsf{premature}&\text{それ以外}.
+ \end{cases}
+\end{equation}
+$\mathsf{winning}$ は閾値到達の内部名であり，対戦勝利の証明ではない．
+未評価を $\mathsf{unavailable}$ とし，優先度写像 $P$ は
+$\mathsf{unavailable},\mathsf{premature},\mathsf{quiet},\mathsf{forced},\mathsf{target},\mathsf{winning}$
+の順に $0,1,2,3,4,5$ を割り当てる．
+
+発火子 $v$ の $L,S$ に対し，不足量 $g(v)$ を $b_S=0$ なら $[L_*-L]_+$，
+$b_S=1$ なら $[S_*-S]_+/1000$ とする．不足罰則係数を $\lambda_g\ge0$（標準 $1000$），
+許容発火分類集合を $\mathcal C_+=\{\mathsf{forced},\mathsf{target},\mathsf{winning}\}$ とする．
+発火評価値 $U_{\rm fire}$ は
+\begin{equation}\label{eq:firevalue}
+ U_{\rm fire}(v)=U(v)-\lambda_g g(v)\ind\{c(L,S)=\mathsf{premature}\}
+                     +S\ind\{c(L,S)\in\mathcal C_+\}.
+\end{equation}
+
+各根 $a$ の各シナリオ $m$ について，実際に根を評価した bit を $e_{am}$，
+選ばれた代表分類を $c_{am}$，発火代表の得点・連鎖数を $s_{am},\ell_{am}$，
+発火評価を $u_{am}$，非発火継続評価を $v_{am}$ とする．
+数値が存在しなければその値は $\none$ とする．代表は
+\src{agents/long_horizon_search.py}{_ScenarioTracker} の固定順位で選んだ観測済み候補である．
+これはシナリオ内の全合法経路の最大値ではない．
+評価済み添字集合 $I_a=\{m:e_{am}=1\}$，coverage $\rho_a=|I_a|/M_s$ とする．
+$I_a$ が空なら分類は $\mathsf{unavailable}$．それ以外では
+$c_a$ を $\{c_{am}:m\in I_a\}$ のうち $P$ が最大の分類とし，その支持数を
+$n_a=|\{m\in I_a:c_{am}=c_a\}|$ とする．
+
+$m\in I_a$ に対し $\tilde s_{am},\tilde\ell_{am}$ は，$c_{am}=c_a$ で発火代表がある場合に
+$s_{am},\ell_{am}$，それ以外では $0$ とする．有限数列 $z=(z_1,\ldots,z_n)$ の
+平均と標準偏差を $\mu(z)=n^{-1}\sum_jz_j$，
+$\sigma(z)=\sqrt{n^{-1}\sum_j(z_j-\mu(z))^2}$ と定義し，空列では両者 $0$ とする．
+$c_a=\mathsf{quiet}$ なら候補値 $V_a$ は評価済み非発火継続の $v_{am}$ の平均，
+発火分類なら同じ分類の発火代表が持つ $u_{am}$ の和とする．該当数値がなければ $V_a=-10^{12}$ とする．
+また $k_a$ を発火が一度でも観測されたシナリオ数，$j_a$ を $\mathsf{quiet}$ のシナリオ数，
+$\bar v_a$ を有効な非発火継続評価の平均（なければ $-\infty$）とする．
+$-\infty$ は全実数より小さい順序用の値であり，学習特徴には渡さない．
+
+根の基本順位キー $K_a$ は，次の列の辞書式降順である．$\mathrm{id}(a)$ は配置 ID とする．
+\begin{equation}\label{eq:rootrank}
+\begin{split}
+ K_a=(&P(c_a),\rho_a,n_a,V_a,
+ \textstyle\sum_{m\in I_a}\tilde s_{am},\sum_{m\in I_a}\tilde\ell_{am},k_a,\\
+ &\min_{m\in I_a}\tilde s_{am},\min_{m\in I_a}\tilde\ell_{am},
+ -\sigma(\tilde s_a),-\sigma(\tilde\ell_a),\bar v_a,j_a,-\mathrm{id}(a)).
+\end{split}
+\end{equation}
+$\tilde s_a,\tilde\ell_a$ は $I_a$ をシナリオ ID 順に並べた列で，この式の空集合の最小値は $0$ とする．
+実装では浮動小数点の左からの加算順も固定する．
+
+標準 $6$ シナリオで全根が評価済み，安全構築文脈，発火で展開停止，
+winning/forced の根なしという条件の下で，目標到達の支持が $2$ 未満の根と，
+全 $6$ シナリオで打切りなく深さ $D_s$ に達した非発火生存根が共存するときは補正する．
+後者は深さ $D_s$ に残存候補があり，各継続評価が有限で $u_{\rm fatal}$ より大きいことも要求する．
+このとき前者の $P(c_a)$ を $2.25$，後者を $2.5$ に置換する．
+これが PR \#188 に含まれる \code{weak_scenario_support} 補正である．
+$\rho_a<1$ は未評価を含むためであって失敗確率ではない．
+$V_a$ や平均連鎖数は有限仮説に対する探索統計であり，真の勝率や不偏期待値ではない．
+
+\section{テンプレート，戦術，実行の分離}\label{sec:tactics}
+\subsection{テンプレートの制約}
+テンプレート記号の有限集合を $\Sigma$，底面を基準とした対象セルから記号への部分写像を
+$P_T:D\rightharpoonup\Sigma$ とする．$\rightharpoonup$ は一部の入力でのみ定義される写像を意味する．
+色束縛 $\beta:\Sigma\to\mathcal C$ は，同色関係 $R_=\subseteq\Sigma^2$ と異色関係
+$R_{\ne}\subseteq\Sigma^2$ に対して，それぞれ $\beta(A)=\beta(B)$ と $\beta(A)\ne\beta(B)$ を満たす．
+異なる記号であるだけでは異色を要求しない．
+空必須セル集合 $D_0$，占有必須セル集合 $D_+$，禁止色条件集合 $D_-\subseteq D\times\Sigma$ も与える．
+これらをまとめたレコードをテンプレート $T$ と呼び，$\operatorname{dom}P_T$ を $P_T$ の定義域とする．
+完全成立条件 $\operatorname{Sat}(B,T,\beta)$ は
+\begin{equation}\label{eq:template}
+ \begin{gathered}
+ B(u)=\beta(P_T(u))\ (u\in\operatorname{dom}P_T),\qquad
+ B(u)=\emptycell\ (u\in D_0),\qquad B(u)\ne\emptycell\ (u\in D_+),\\
+ B(u)\ne\beta(A)\ ((u,A)\in D_-)
+ \end{gathered}
+\end{equation}
+を全て満たすこととする．
+\code{.} と \code{*} は $\operatorname{dom}P_T$ に含まれない判定対象外のセルである．
+鏡映・平行移動・底上げは，これらのセル集合を先に変換してから同じ述語で評価する．
+
+variant の重みを $w_T>0$，同じ template 内の全 variant の重み和を $W_T$，
+記号・空・占有の必須条件数を $n_T>0$ とする．部分盤面で充足した必須条件数を $n_{\rm ok}$，
+既知セルによる矛盾と禁止色違反の個数を $n_{\rm conflict}$ とする．未観測セルは充足に数えない．
+静的適合値は
+\begin{equation}\label{eq:static-fit}
+ f_{\rm static}=\frac{w_T}{W_T}\frac{n_{\rm ok}-n_{\rm conflict}}{n_T}
+\end{equation}
+である．現行 matcher の最終 score は，この静的評価と公開ツモ prefix 上の有限探索結果から
+\src{agents/template_catalog.py}{match_templates} が計算する値と定義する．
+静的 score と探索後の score，部分適合 \code{fit} と完全成立 \code{complete} は異なる．
+公開ツモだけを用いた具体的配置列を適合の根拠とし，sampled future を確定根拠としない．
+
+template ごとの最良 variant の score を $f_j$，候補番号を $j\in J_T$ とする．
+$J_T$ は選択対象 template の有限添字集合である．初期選択では enabled 全候補，
+対応・発火後の再選択では fit 根拠がある候補だけを用いる．
+選択は score 最大（固定 key で同点解消），または温度 $\tau_T>0$ による
+\begin{equation}\label{eq:template-softmax}
+ p_T(j)=\frac{\exp((f_j-f_{\max})/\tau_T)}{\sum_{k\in J_T}\exp((f_k-f_{\max})/\tau_T)},
+ \qquad f_{\max}=\max_{k\in J_T}f_k
+\end{equation}
+とする．再選択で $J_T=\varnothing$ なら自由構築へ移る．この初期形状選択は戦術 RL の出力ではない．
+
+テンプレート phase を $\varphi=(j,\beta,n,N,\mathrm{active})$ とする．
+$j$ は選択済み template/variant/変換，$n$ は採用されたテンプレート構築 decision 数，
+$N\ge1$ は上限（標準 $14$），$\mathrm{active}$ は有効 bit である．
+同じ組ぷよの再要求や採用失敗では $n$ を増やさない．採用した \code{build_template} で $1$ 増やし，
+$n=N$，完成，整合喪失，他戦術への切替で閉じる．相殺・カウンター・発火の完了は実行 event で確認してから再選択する．
+
+\subsection{戦術と構造的な選択可能性}
+戦術集合 $\mathcal Z$ を，次表の順序を持つ $6$ 個の識別子集合とする．
+\begin{center}\begin{tabular}{ll}\toprule ID & 目的\\\midrule
+\code{build_main}&大連鎖本線の構築\\
+\code{build_template}&選択済み定型の構築\\
+\code{fire_main}&本線の発火準備・発火\\
+\code{cancel}&到来する攻撃の相殺準備・相殺\\
+\code{counter}&最初のおじゃま落下後の次の 1 配置で発火\\
+\code{decisive_short_attack}&決定的機会を狙う短期攻撃\\\bottomrule\end{tabular}\end{center}
+
+候補 $c$ は，根行動 $a(c)\in\mathcal A$，組ぷよと配置の有限計画列，
+所属戦術集合，予測の前提，根の合法性・到達可能性，評価根拠を持つレコードである．
+候補集合を $\mathcal C_n$，戦術 $z$ の候補を探索終了時の固定順で並べた列を $\mathcal C_n(z)$ とする．
+添字 $n$ は同一プレイヤーの意思決定番号であり，tick $t$ とは異なる．
+
+各数値根拠を $(v,e,s)$ と定める．$v\in\R\cup\{\none\}$ は値，
+$e$ は evaluated，partial，not\_evaluated，unsupported のいずれか，
+$s$ は visible\_exact，public\_estimate，sampled\_future のいずれかである．
+未評価・未対応では $v=\none$ とする．partial の有限値は評価済み範囲での値であり確定保証ではない．
+生存率推定，期限，火力にもこの型を用いる．
+
+全候補の根が合法・到達可能であり，戦術固有の構造条件を満たすよう provider が列を作る．
+構造条件には有効 template phase，対象攻撃，期限内到達，落下後の発火点が含まれる．
+火力不足や「勝ちそうにない」という選好だけで候補を隠さない．戦術 mask $m_n(z)$ と代表候補 $c_n^*(z)$ は
+\begin{equation}\label{eq:tactic-mask}
+ m_n(z)=\ind\{|\mathcal C_n(z)|>0\},\qquad
+ c_n^*(z)=\text{$\mathcal C_n(z)$ の先頭}\quad(m_n(z)=1)
+\end{equation}
+とする．探索打切りによる未発見は \code{not_found_within_budget} と記録する．
+$c_n^*$ は選択器から変更できず，戦術選択の後に再探索もしない．
+
+期限予測は点ではなく区間を持てる．発火開始区間を $[t_{s,-},t_{s,+}]$，完了区間を
+$[t_{e,-},t_{e,+}]$，受け手の落下境界区間を $[t_{d,-},t_{d,+}]$ とする．
+これらの端点は公開推定または公開事実として出典を持つ非負整数である．
+$t_{e,+}\le t_{d,-}$ は保守的な相殺間に合い条件だが，必要条件ではない．
+同じ配置境界で攻撃生成と落下が処理される場合，時刻推定の誤差は相関するためである．
+現行 selector は，公開根拠を持つ 1 手完全相殺で開始期限を満たし，完了と落下の区間端点が一致する場合も採用できる．
+カウンターの根拠は「落下後いつか」ではなく，最初の落下後の最初の配置解決で $L>0$ となる計画である．
+
+\subsection{現在のルール選択器}
+優先順列を
+$\mathbf p=(\mathsf{cancel},\mathsf{counter},\mathsf{short},\mathsf{template},\mathsf{fire},\mathsf{build})$
+とする．ここでは表の長い ID を順に略記した．
+$e_n(z)\in\{0,1\}$ を \code{RuleTacticSelector.select} の適格判定とする．
+その条件は，相殺可能な即時脅威または前述の 1 手完全相殺，カウンターは即時脅威，
+短期攻撃は送信量 $30$ 以上かつ相手占有セル $48$ 以上，テンプレートは active phase，
+本線発火は予測 $10$ 連鎖以上（得点目標指定時はその閾値以上）かつ fatal rate $0$，自由構築は常に真である．
+即時脅威で完全相殺不能なら，相殺・カウンターの候補を fatal rate 昇順，相殺量・送信量降順，
+sampled な生存根拠への罰，元優先順で比較して適格側を選び直す．欠損 fatal rate は $1$ と扱う．
+この手順で定義された $e_n$ を使い，現行戦術 $z_n^{\rm rule}$ は
+\begin{equation}\label{eq:rule}
+ z_n^{\rm rule}=\text{$\mathbf p$ の順で最初の $z$：$m_n(z)e_n(z)=1$}
+\end{equation}
+とする．該当要素なしなら scheduler に処理を戻す．
+この $e_n$ と構造 mask $m_n$ を混同しない．将来の学習器へルール優先順位を hard mask として持ち込まない．
+
+\subsection{実行境界}
+要求 tick を $t_n^{\rm req}$，完了通知受領 tick を $t_n^{\rm done}$，設定遅延を $\delta_n\in\N$，
+timeout tick を $t_n^{\rm timeout}$ とする．予定採用 tick $t_n^{\rm act}$ は
+\begin{equation}\label{eq:activation}
+ t_n^{\rm act}=\begin{cases}
+ t_n^{\rm req}+\delta_n&\text{configured mode},\\
+ \max(t_n^{\rm done},t_n^{\rm req}+\delta_n)&\text{measured mode}.
+ \end{cases}
+\end{equation}
+$t_n^{\rm act}>t_n^{\rm timeout}$，古くなった盤面，同一性不一致では要求を採用しない．
+要求行動 $a_n^{\rm req}=a(c_n^*(z_n))$ と，実際の行動 $a_n^{\rm exec}$ は別々に記録する．
+複数手の計画は根拠であり，実行するのは根の $1$ 手だけである．次の公開状態で再計算する．
+合法根があるのに全戦術 mask が偽になるのは契約違反であり，通常は
+\code{build_main} に決定的候補を用意する．操作不能・終端では方策を呼び出さない．
+候補自体の fallback 印と，scheduler が提案を採用せず代替行動を実行する fallback outcome は別概念である．

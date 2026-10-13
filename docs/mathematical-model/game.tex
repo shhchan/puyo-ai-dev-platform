@@ -1,0 +1,232 @@
+\section{盤面，配置，連鎖，得点}\label{sec:game}
+\subsection{盤面と重力}
+\begin{definition}[盤面の型]\label{def:board}
+色集合を $\mathcal C=\{\mathsf r,\mathsf b,\mathsf g,\mathsf y\}$，空セルを $\emptycell$，
+おじゃまを $\garb$ とする．セル値集合は $\mathcal V=\mathcal C\cup\{\emptycell,\garb\}$ である．
+幅 $W=6$，全高 $H=14$，消去対象の高さ $H_v=12$ を固定し，
+$x$ を左から，$y$ を下から数える座標とする．盤面領域 $D$，可視領域 $D_v$，盤面集合 $\mathcal B$ を
+\begin{equation}\label{eq:board}
+ D=\{0,\ldots,5\}\times\{0,\ldots,13\},\quad
+ D_v=\{0,\ldots,5\}\times\{0,\ldots,11\},\quad
+ \mathcal B=\mathcal V^D
+\end{equation}
+と定める．盤面 $B\in\mathcal B$ に対して $B(x,y)$ はセル値である．
+$y=12$ は落下可能だが消去判定の対象外，$y=13$ は一度置くと落下も消去もしない永続セルである．
+領域外は占有済みの壁として衝突判定するが，壁を $D$ 内のセル値には含めない．
+\end{definition}
+
+列 $x$ に対して，$y=0,\ldots,12$ を昇順に走査して空以外を抽出した列を
+$(v_{x,0},\ldots,v_{x,n_x-1})$ とする．$n_x$ はその長さである．
+重力写像 $G:\mathcal B\to\mathcal B$ を
+\begin{equation}\label{eq:gravity}
+ G(B)(x,y)=\begin{cases}
+ v_{x,y}&0\le y<n_x,\\
+ \emptycell&n_x\le y\le12,\\
+ B(x,13)&y=13
+ \end{cases}
+\end{equation}
+で定める．$G(B)=B$ を満たす盤面を安定盤面という．
+これは \src{src/core/field.py}{Field.drop_puyo} の規則であり，13 行全体の圧縮と永続行を分ける．
+
+\subsection{消去と停止性}
+$u=(x,y),v=(x',y')\in D_v$ に対し，$|x-x'|+|y-y'|=1$ のとき隣接するという．
+色 $c\in\mathcal C$ のセルを頂点，隣接を辺とする無向グラフの極大連結成分を色成分という．
+盤面 $B$ のうち要素数 $4$ 以上の色成分の集合を $\mathcal K(B)$ とする．
+消える色セル集合 $V(B)$ と，それに直接隣接するおじゃま集合 $J(B)$ を
+\begin{equation}\label{eq:erase}
+ \begin{split}
+ V(B)&=\bigcup_{K\in\mathcal K(B)}K,\\
+ J(B)&=\{u\in D_v:B(u)=\garb,\ \exists v\in V(B)\text{ が }u\text{ に隣接}\}
+ \end{split}
+\end{equation}
+と定める．消去写像 $E(B)$ は $V(B)\cup J(B)$ のセルを空にし，ほかを保持する写像である．
+おじゃま同士の隣接による連鎖的な除去は行わない．
+
+初期盤面 $B$ に対して $B^{(0)}=G(B)$ と置く．$\mathcal K(B^{(j)})\ne\varnothing$ の間だけ
+$B^{(j+1)}=G(E(B^{(j)}))$ とする．最初に $\mathcal K(B^{(j)})=\varnothing$ となる添字を
+連鎖数 $L(B)$ とし，解決後盤面を $\mathcal R(B)=B^{(L(B))}$ と定義する．
+\begin{proposition}[連鎖解決の有限性]\label{prop:finite}
+任意の $B\in\mathcal B$ について $L(B)\le21$ であり，$\mathcal R(B)$ は一意に定まる．
+\end{proposition}
+\begin{proof}
+各消去で少なくとも $4$ 個の色セルが失われ，重力はセルを増やさない．初期の色セル数は
+$|D|=84$ 以下なので，消去回数は $\lfloor84/4\rfloor=21$ 以下である．
+各段の同時消去と重力は決定的なので一意である．この上限は緩い上限であり，達成可能性は主張しない．
+\end{proof}
+
+\subsection{組ぷよと配置行動}
+組ぷよは順序付き色対 $p=(c_a,c_s)\in\mathcal C^2$ であり，第 1 成分を軸，第 2 成分を子とする．
+向き集合を $\mathcal O=\{\mathsf U,\mathsf R,\mathsf D,\mathsf L\}$ とし，子の相対座標を
+$\delta(\mathsf U)=(0,1)$，$\delta(\mathsf R)=(1,0)$，$\delta(\mathsf D)=(0,-1)$，
+$\delta(\mathsf L)=(-1,0)$ と定める．$\delta_x,\delta_y$ はその各成分である．
+配置行動集合 $\mathcal A$ は
+\begin{equation}\label{eq:actions}
+ \mathcal A=\{(x,o):x\in\{0,\ldots,5\},\ o\in\mathcal O,\ 0\le x+\delta_x(o)<6\},
+ \qquad |\mathcal A|=22
+\end{equation}
+とする．$x$ の昇順，向きの順 $\mathsf U,\mathsf R,\mathsf D,\mathsf L$ で列挙した位置
+$0,\ldots,21$ が実装の行動 ID である．例えば $(0,\mathsf U)$ は $0$，$(1,\mathsf L)$ は $6$ である．
+
+衝突しない姿勢の集合 $\mathcal P(B)$ を，軸と子の両セルが $D$ 内かつ空である
+$(x,y,o)$ 全体とする．同期配置における合法集合 $\mathcal A_{\rm geo}(B)$ は
+$(x,12,o)\in\mathcal P(B)$ を満たす配置行動全体とする．その行動の着地点 $y_*(B,x,o)$ は，
+$y=12$ から始め，$(x,y-1,o)\in\mathcal P(B)$ の間だけ $y$ を $1$ ずつ減らして得る値である．
+軸・子を着地点に書き込む写像を $I(B,p,a)$ とし，同期配置解決を
+\begin{equation}\label{eq:placement}
+ B'=\mathcal R(I(B,p,a)),\qquad a\in\mathcal A_{\rm geo}(B)
+\end{equation}
+と定める．横向きの両セルが異なる高さに落ちる現象も $G$ が処理する．
+
+\textbf{実装境界．} 式 \eqref{eq:placement} は配置単位の同期モデルである．
+実時間では現在の軸位置，壁蹴り，入力リピート，接地期限から到達できない配置もある．
+実時間制御状態を $\chi$（軸の座標・向き，押下状態，各入力と重力の次回 tick，接地回数・経過 tick）とする．
+$\mathcal U$ を左右・下・左右回転キーの押下集合と解放集合の対全体とする．
+設定済みの入力規則で $\chi$ から固定まで進む有限入力列 $u\in\mathcal U^*$ のうち，
+指定期限までに行動 $a$ の配置に達するものが存在するとき，$a$ を到達可能と呼ぶ．
+その集合を $\mathcal A_{\rm reach}(B,\chi)$ とする．
+運用上は \src{puyo_env/action_planner.py}{action_planner} が証明できた到達可能集合を用い，
+探索上限による未発見を物理的不可能の証明としない．
+候補の根は $\mathcal A_{\rm geo}(B)\cap\mathcal A_{\rm reach}(B,\chi)$ に限定する．
+
+\subsection{得点と全消し状態}
+連鎖の第 $j$ 段（$1\le j\le L(B)$）について，消える色セル数を $n_j$，
+同時に消える色の種類数を $d_j$，消える色成分集合を $\mathcal K_j=\mathcal K(B^{(j-1)})$ とする．
+連鎖ボーナス関数 $b_{\rm ch}$，色数ボーナス関数 $b_{\rm col}$，連結ボーナス関数 $b_{\rm con}$ を
+\begin{align}
+ b_{\rm ch}(j)&=\begin{cases}0&j=1,\\8&j=2,\\16&j=3,\\32&j=4,\\32(\min(j,19)-3)&j\ge5,\end{cases}\label{eq:chainbonus}\\
+ (b_{\rm col}(1),\ldots,b_{\rm col}(4))&=(0,3,6,12),\qquad
+ b_{\rm con}(n)=\begin{cases}0&n=4,\\n-3&5\le n\le10,\\10&n\ge11\end{cases}\label{eq:otherbonus}
+\end{align}
+と定める．第 $j$ 段の素点 $s_j$ は
+\begin{equation}\label{eq:score}
+ s_j=10n_j\max\left(1,b_{\rm ch}(j)+b_{\rm col}(d_j)
+                       +\sum_{K\in\mathcal K_j}b_{\rm con}(|K|)\right)
+\end{equation}
+である．消えたおじゃまは $n_j$ に加算しない．
+
+全消しボーナス保留 bit を $b\in\{0,1\}$ とする．解決開始時の $b$ と盤面 $B$ に対して，
+今回の連鎖得点 $S(B,b)$ と次の保留 bit $b'$ は
+\begin{align}
+ S(B,b)&=\sum_{j=1}^{L(B)}s_j+2100b\ind\{L(B)>0\},\label{eq:allclear-score}\\
+ b'&=\begin{cases}
+ b&L(B)=0,\\
+ \ind\{\forall u\in D,\ \mathcal R(B)(u)=\emptycell\}&L(B)>0.
+ \end{cases}\label{eq:allclear-bit}
+\end{align}
+全消しは隠れ行を含む $D$ 全体が空であることを要求し，ボーナスは次に成立した連鎖で消費する．
+素点と操作による落下点の累積を総得点 $q\in\N$ とする．前回の連鎖終了時の総得点を $q_{\rm last}$ として保持する．
+今回の連鎖終了時点の攻撃換算対象 $\Delta q$ は
+\begin{equation}\label{eq:attackscore}
+ \Delta q=\begin{cases}[q-q_{\rm last}]_+&L>0,\\0&L=0,\end{cases}
+ \qquad q'_{\rm last}=\begin{cases}q&L>0,\\q_{\rm last}&L=0.\end{cases}
+\end{equation}
+ここで $L$ は今回の配置による連鎖数である．従って，前回連鎖以後の落下点も次の連鎖時に攻撃へ換算される．
+同期配置では操作落下点がないため，その配置だけの素点と，対戦の攻撃差分を同一記号にしない．
+
+\begin{example}[数値の区別]\label{ex:score}
+同色 $4$ 個を消す $1$ 連鎖の素点は $40$ 点，その後さらに同色 $4$ 個を消す $2$ 段目は $320$ 点なので合計 $360$ 点となる．
+保留ボーナスがなければ，換算率 $70$ 点でおじゃま $5$ 個と剰余 $10$ 点になる．
+全消し成立時の盤面を空にするだけでは $2100$ 点を即時加算しない．
+\end{example}
+
+\section{実時間対戦と公開情報}\label{sec:versus}
+\subsection{時刻とおじゃま台帳}
+プレイヤー集合を $\mathcal I=\{0,1\}$ とし，$i\in\mathcal I$ の相手を $\bar i=1-i$ と書く．
+試合 tick を $t\in\N$，tick rate を $f=60$（1 秒あたりの tick 数）とする．
+おじゃま $1$ 個への換算点を $\kappa\in\{1,2,\ldots\}$（標準値 $70$），
+攻撃換算の繰越点を $c_i\in\{0,\ldots,\kappa-1\}$ とする．
+同一 tick の攻撃差分 $\Delta q_i$ に対し，生成個数 $g_i$ と新繰越点 $c_i'$ は
+\begin{equation}\label{eq:carry}
+ g_i=\left\lfloor\frac{\Delta q_i+c_i}{\kappa}\right\rfloor,
+ \qquad c_i'=\Delta q_i+c_i-\kappa g_i.
+\end{equation}
+差分が $0$ の tick では攻撃を作らず，繰越点を保持する．
+
+受信 packet は $(\mathrm{id},n,t_a,t_c,i_s)$ というレコードとする．
+$\mathrm{id}$ は一意識別子，$n\in\N$ は残量，$t_a\in\N$ は到着可能 tick，
+$t_c\in\N$ は生成 tick，$i_s\in\mathcal I$ は送信者である．
+プレイヤー $i$ の未消費 packet の列を $Q_i$，その総量を $N_i$ とする．
+到着前も含む受信 packet との相殺個数 $a_i$，相殺後生成量 $r_i$，両者同時相殺量 $a_*$，送信量 $o_i$ を
+\begin{equation}\label{eq:cancel}
+ N_i=\sum_{p\in Q_i}p.n,\quad a_i=\min(g_i,N_i),\quad
+ r_i=g_i-a_i,\quad a_*=\min(r_0,r_1),\quad o_i=r_i-a_*
+\end{equation}
+と定める．$p.n$ は packet $p$ の残量である．$a_i$ 個を $(t_a,t_c)$ の昇順，同値なら元の列順で $Q_i$ から消費する．
+$o_i>0$ なら相手に $(n=o_i,t_a=t+d_a,t_c=t,i_s=i)$ の新 packet を加える．
+$d_a\in\N$ は固定攻撃遅延（標準値 $0$）である．
+
+落下上限を $M\in\{1,2,\ldots\}$（標準値 $30$）とする．
+受け手の配置・連鎖解決が終わった境界でのみ，到着済み残量から
+$\min(M,\sum_{p\in Q_i}\ind\{p.t_a\le t\}p.n)$ 個の落下を試みる．
+試行数を $n$ として $n=6h+r$，$h=\lfloor n/6\rfloor$，$0\le r<6$ と分解する．
+全列へ $h$ 回，その後重複なく一様抽出した $r$ 列へ各 $1$ 個ずつ置く．
+各列では $y=0,\ldots,11$ の最下の空セルへ挿入し，空セルがなければその試行を飛ばす．
+台帳から消費するのは実際に配置した個数のみである．
+到着済みでも操作中や連鎖中に割り込んで落下させない．残量は次の配置境界まで保持する．
+
+\subsection{全状態と勝敗}
+\begin{definition}[実時間状態と遷移]\label{def:state}
+全状態集合 $\mathcal S$ を，両者の $B,p,\chi,q,q_{\rm last},b,c_i,Q_i$，
+現在の phase，消去・落下の途中状態と残 tick，公開 event 履歴，
+組ぷよ列とその読取位置，乱数生成器状態，試合終了 flag を含む有効レコード全体とする．
+phase は操作中，連鎖演出中，生成待ち，おじゃま待ち，終了のいずれかである．
+途中状態は現在の消去集合，連鎖段数，演出タイマーを含む．
+再現に必要な有限長の内部カウンターも状態の一部とする．$s_t\in\mathcal S$ は tick $t$ の開始状態である．
+
+規則設定全体を $\eta$ とする．$\eta$ は本節の定数，入力リピート・接地・壁蹴り規則，乱数生成方式を固定する．
+$F_\eta:\mathcal S\times\mathcal U^2\to\mathcal S$ を，次の順に 1 tick を進める決定的写像として定義する．
+(1) 両者の入力・重力または連鎖演出を進める，
+(2) 両者の配置解決と窒息を調べる，
+(3) 完了した連鎖の攻撃を式 \eqref{eq:carry}，\eqref{eq:cancel} で処理する，
+(4) 試合終了過程でなければ到着済みおじゃまを配置境界で落とす，
+(5) おじゃま待ち後に次の組を生成し，勝敗を更新する．
+操作部分の具体的な $F_\eta$ は，固定 SHA の
+\src{src/core/realtime.py}{RealtimeHeadlessSimulator.step} と
+\src{puyo_env/realtime_versus.py}{RealtimeVersusMatch.step} の合成を採用する．
+これは関数の実装による定義であり，全ての壁蹴り分岐を別の近似式へ置換するものではない．
+\end{definition}
+
+通常の窒息判定は生成境界またはおじゃま落下後の $B(2,11)\ne\emptycell$ である．
+盤面最高点のみによる判定とは異なる．どちらかが窒息した後は新たな操作・生成・おじゃま落下を止め，
+既に進行中の消去連鎖だけを完了させる．その処理が終わった集合を終端集合 $\mathcal S_T\subseteq\mathcal S$ とする．
+$s\in\mathcal S_T$ におけるプレイヤー $i$ の結果 $z_i(s)\in\{-1,0,1\}$ は，
+単独生存なら $1$，単独窒息なら $-1$，両者窒息なら総得点の大小により高い側 $1$，低い側 $-1$，同点 $0$ とする．
+時間制限は $\mathcal S_T$ への遷移とはせず，後述の収集打切りとする．
+
+組ぷよ生成方式は実験設定に含める．独立一様 4 色の理想化なら各対 $p\in\mathcal C^2$ の確率は $1/16$ である．
+実装の \code{random} は seed 付き擬似乱数による同方式，\code{esports_tsu} は検証済み
+$65536$ 配牌のうち選択した $128$ 組を周期反復する方式である．後者の試合内の対は独立同分布ではない．
+配牌 ID の選択分布も実験設定として指定する．
+
+\subsection{観測・履歴・非公開未来}
+観測用セル集合を $\overline{\mathcal V}=\mathcal V\cup\{\unknown\}$ とし，$\unknown$ を未観測とする．
+盤面の部分観測は $\bar B\in\overline{\mathcal V}^{D}$ であり，$\unknown\ne\emptycell$ である．
+通信表現では空 $0$，通常色 $1,2,3,4$，おじゃま $5$，未観測 \code{None} を使い，上から下へ行を並べる．
+14 行を送るとき行番号 $r$ と本稿の座標は $y=13-r$ で対応する．
+行数が異なる観測は adapter の行配置を先に確定させ，この式を無条件には適用しない．
+
+プレイヤー $i$ の公開観測 $o_t^i$ は，両者の部分盤面，公開済みの current/NEXT/NEXT2（各最大 $3$ 組），
+公開 phase，公開 packet の量と到着・落下情報，繰越点，全消し状態，公開配置・消去等の event とする．
+観測集合 $\mathcal O_{\rm pub}$ はこの型のレコード全体とする．
+公開履歴 $h_t^i$ は時刻 $t$ までの $o^i$ と自分の入力・実行結果を時刻順に並べた有限列であり，
+履歴集合を $\mathcal H$ とする．観測写像 $O_i$ は全状態・公開履歴からこの許可情報だけを抽出する手続きと定義する．
+公開の配置履歴から一意に復元した隠れセルは観測へ追加できるが，非公開状態から補完しない．
+
+公開部分盤面と整合する完全盤面の集合を
+\begin{equation}\label{eq:completion}
+ \mathcal B(\bar B)=\{B\in\mathcal B:\ \bar B(u)\ne\unknown\Rightarrow B(u)=\bar B(u)
+ \text{ for every }u\in D\}
+\end{equation}
+とする．特定の補完盤面を使う予測はその補完を仮定した予測である．
+全 $B\in\mathcal B(\bar B)$ に対する保証とは区別する．
+
+探索・テンプレート選択・戦術抽選に用いる内部乱数列を $\xi$ とする．$\xi$ は環境の非公開 seed や配牌 ID から取得せず，
+独立に指定する．候補・特徴・要求行動という意味的出力を返す写像を $\mathcal D$ とする．
+計算の wall-clock 経過時間と scheduler の採用結果はこの写像の出力に含めない．情報境界の条件は
+\begin{equation}\label{eq:privacy}
+ h_t^i=h_t^{i\prime}\ \text{かつ同一の公開制御文脈と }\xi
+ \quad\Longrightarrow\quad
+ \mathcal D(h_t^i,\xi)=\mathcal D(h_t^{i\prime},\xi)
+\end{equation}
+である．右辺・左辺の非公開未来が異なっても，入力が同じなら出力は同じでなければならない．
+公開観測の型検査だけではこの条件は証明できないので，producer 側で対照検証する．

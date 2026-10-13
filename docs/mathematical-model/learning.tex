@@ -1,0 +1,256 @@
+\section{戦術選択を学習するモデル}\label{sec:learning}
+本節の方策ネットワーク，損失関数，更新則は\textbf{提案}である．
+公開契約・特徴量・ログを利用するが，PR \#188 に同じ学習器が存在すると主張しない．
+
+\subsection{方策に渡す特徴量}
+意思決定 $n$ における公開履歴と phase，候補 batch から生成した raw 要約を
+$y_n=(y_{n1},\ldots,y_{nF})\in(\R\cup\{\none\})^F$ とする．
+$F=93$ は \code{FEATURE_REGISTRY} の登録数である．
+要約生成写像は，固定 SHA の \code{feature_summaries} と \code{TimingSummary.feature_summaries} が
+登録名へ値を対応させる写像として定義する．入力にない・未評価の登録項目は $\none$ とする．
+生盤面や raw tick を 93 次元の中へ追加しない．登録順と意味は次の通りである．
+\begin{center}\begin{tabular}{p{.59\linewidth}rr}\toprule 要約群 & 個数 & 正規化 scale\\\midrule
+脅威 none/potential/pressing/immediate の各指示値 &4&1\\
+対応 possible/marginal/impossible/unknown の各指示値 &4&1\\
+自分の発火中に相手が完了する配置数の下限・上限 &2&3\\
+自他 $\times$ 本線・副砲 $\times$ 連鎖数・火力・危険度・発火点生存 &16&19/360/1/1\\
+phase active・残数比・進捗・fit/no\_fit/unknown &6&1\\
+前回戦術の各指示値 &6&1\\
+同じ戦術の継続数 &1&14\\
+各戦術 $\times$ available・known\_witness・候補数・火力・期限差の負/零/正・coverage・fatal rate &54&注記\\\bottomrule\end{tabular}\end{center}
+最後の 9 項目の scale は順に $1,1,8,360,1,1,1,1,1$ である．
+火力だけは対数変換，ほかは線形変換を用いる．
+火力はおじゃま個数，危険度は $[0,1]$，発火点生存は指示値である．
+期限差は公開推定の落下境界下限から発火完了上限を引いた値の符号，
+coverage は評価済みシナリオ数の要求数に対する比，fatal rate は評価対象で観測した失敗の比である．
+各比には評価範囲と根拠を sidecar に保持する．
+
+脅威階級は，公開推定の落下境界までに残る操作回数が $1$ 以下なら immediate，$2$ 以下なら pressing，
+それ以外なら potential とする．未評価時は none へ丸めず欠損にする．
+対応階級と先打ち損失の区間は，公開応答計画の発火・操作再開の区間を
+\src{puyo_env/nextgen_public_snapshot.py}{derive_timing_summary} で比較した結果として定義する．
+情報がなければ対応は unknown，損失は欠損になる．
+登録された自他本線・副砲の全項目が現行 producer で必ず埋まるわけではない．
+
+特徴 $j\in\{1,\ldots,F\}$ の scale を $s_j^{\rm feat}>0$，変換種別を $\tau_j\in\{\mathsf{linear},\mathsf{log}\}$ とする．
+欠損 bit $b_{nj}^{\rm miss}$，正規化値 $v_{nj}$，actor 入力 $x_n^{\rm pol}$ を
+\begin{align}
+ b_{nj}^{\rm miss}&=\ind\{y_{nj}=\none\},\label{eq:missing}\\
+ v_{nj}&=\begin{cases}
+ 0&y_{nj}=\none,\\
+ \operatorname{clip}([y_{nj}]_+/s_j^{\rm feat};0,1)&\tau_j=\mathsf{linear},\ y_{nj}\ne\none,\\
+ \operatorname{clip}\left(\dfrac{\log(1+[y_{nj}]_+)}{\log(1+s_j^{\rm feat})};0,1\right)&\tau_j=\mathsf{log},\ y_{nj}\ne\none,
+ \end{cases}\label{eq:normalize}\\
+ x_n^{\rm pol}&=(v_{n1},\ldots,v_{nF},b_{n1}^{\rm miss},\ldots,b_{nF}^{\rm miss})\in[0,1]^{186}
+ \label{eq:actor-input}
+\end{align}
+とする．mask は別に $m_n\in\{0,1\}^6$ として渡す．実際の学習入力はこの組だけとし，
+非公開 seed，配牌 ID，候補列，生盤面，oracle 評価を追加しない．
+
+\subsection{mask 付き方策と配置方策への合成}
+学習パラメータ空間を $\Theta=\R^p$（$p\ge1$ はパラメータ数）とし，$\theta\in\Theta$ を actor のパラメータとする．
+$f_\theta:[0,1]^{186}\to\R^6$ は戦術ごとの実数 logit（正規化前の score）を返すネットワークである．
+例えば隠れ層幅を正整数列 $(d_1,\ldots,d_K)$，$d_0=186$，$d_{K+1}=6$ と固定し，
+行列 $W_k\in\R^{d_k\times d_{k-1}}$ とバイアス $b_k\in\R^{d_k}$ をパラメータに含める．
+$h_0=x$，$h_k=\max(0,W_kh_{k-1}+b_k)$（成分ごとの最大値，$1\le k\le K$），
+$f_\theta(x)=W_{K+1}h_K+b_{K+1}$ とすれば具体的な多層パーセプトロンになる．
+隠れ幅は実験設定として保存し，本稿では未実測の特定値を既定採用しない．
+
+選択可能戦術集合を $\mathcal Z_n=\{z\in\mathcal Z:m_n(z)=1\}$ とする．
+$\mathcal Z_n\ne\varnothing$ のとき，戦術方策 $\pi_\theta$ を
+\begin{equation}\label{eq:policy}
+ \pi_\theta(z\mid x_n^{\rm pol},m_n)=
+ \begin{cases}
+ \dfrac{\exp f_\theta(x_n^{\rm pol})_z}
+       {\sum_{u\in\mathcal Z_n}\exp f_\theta(x_n^{\rm pol})_u}&z\in\mathcal Z_n,\\
+ 0&z\notin\mathcal Z_n
+ \end{cases}
+\end{equation}
+で定義する．添字 $z$ は登録された戦術順での成分を意味する．数値計算では有効 logit の最大値を分子・分母の指数から引く．
+全 false なら softmax を計算せず，前節の scheduler 境界で処理する．
+
+探索 batch を固定したとき，要求配置の条件付き分布 $\Pi_\theta$ は
+\begin{equation}\label{eq:composed-policy}
+ \Pi_\theta(a\mid x_n^{\rm pol},m_n,\mathcal C_n)
+ =\sum_{z\in\mathcal Z_n}\pi_\theta(z\mid x_n^{\rm pol},m_n)
+       \ind\{a(c_n^*(z))=a\}.
+\end{equation}
+同じ配置に複数戦術が対応してよい．戦術 ID を抽選・記録して更新するため，
+この配置確率を戦術の log-probability の代わりに使わない．
+phase と前回戦術・継続数が入力にあるため，戦術の維持・切替を学習できる．
+学習器は具体配置，目標連鎖数，探索幅，候補の順位，テンプレートの初期選択を直接出力しない．
+各 decision で再選択する構成なので，別の学習可能な option 終了確率を暗黙に追加しない．
+
+\subsection{履歴を状態とする可変時間モデル}\label{sec:semimarkov}
+相手の方策 $\pi^-$，環境初期分布 $\mu_0$，探索・scheduler・規則の設定を 1 回の rollout 中は固定する．
+相手の内部記憶と両者の scheduler 状態も含む拡張全状態を $\tilde s$ とし，その集合を $\widetilde{\mathcal S}$ とする．
+乱数 stream を初期状態に含めれば進行は決定的であり，$\mu_0$ と戦術抽選によって軌跡の確率法則が定まる．
+
+同一プレイヤーの意思決定 epoch を tick 列 $t_0<t_1<\cdots$ とする．
+再試行が同一 tick に複数ある場合は event としてまとめ，学習上の時間を偽って増やさない．
+$t_n$ から $t_{n+1}$ までの秒数を $\Delta_n=(t_{n+1}-t_n)/60>0$ とする．
+意思決定間に相手や連鎖・おじゃま・fallback は進行する．最後は次 decision の代わりに終端または収集境界 tick を使う．
+拡張状態から，選択戦術 $z$ の候補を実行して次 epoch に至る条件付き分布を
+\begin{equation}\label{eq:kernel}
+ K_\eta^{\pi^-}(\tilde s',\Delta\mid\tilde s,z)
+ =\Pr\{\tilde S_{n+1}=\tilde s',\ \Delta_n=\Delta\mid\tilde S_n=\tilde s,Z_n=z\}
+\end{equation}
+と定義する．大文字 $\tilde S_n,Z_n$ は軌跡上の確率変数である．
+この核は $F_\eta$，固定探索器，実行 planner，scheduler，相手方策の合成から誘導され，
+独立に「学習済み環境モデル」を仮定しない．遷移に可変時間が付く制御モデルを半マルコフモデルという．
+プレイヤーが全状態を観測できないため，ここでは部分観測の半マルコフ意思決定問題となる．
+
+epoch $n$ までの公開履歴と自分の制御記録を $H_n$ とする．この拡張した履歴型も $\mathcal H$ に含める．
+信念状態 $b_n(\tilde s)=\Pr(\tilde S_n=\tilde s\mid H_n)$ は理論上の条件付き分布であり，
+現行実装がこれを推定しているとは主張しない．
+$H_n$ を状態とすれば過去の全情報を保持するが，$x_n^{\rm pol}$ はその圧縮である．
+従って $x_n^{\rm pol}$ だけでマルコフ性が成立する保証はない．後述の価値ネットワークは履歴価値の近似である．
+
+\subsection{報酬・割引・価値の定義}
+1 秒あたりの割引率を $\gamma\in(0,1]$ とし，decision 間の割引を $\Gamma_n=\gamma^{\Delta_n}$ とする．
+対戦終了結果以外に基礎報酬を与えない．epoch 区間内で tick $t_T$ に終端へ到達した場合，
+プレイヤー $i$ の区間基礎報酬を
+\begin{equation}\label{eq:base-reward}
+ R_n^0=\gamma^{(t_T-t_n)/60}z_i(s_{t_T})
+\end{equation}
+とし，終端がない区間は $R_n^0=0$ とする．この定義では「終端の $\pm1$」を実際の発生時刻で割り引く．
+区間末尾報酬を割り引かず $\pm1$ とする別慣習と混ぜない．$\gamma<1$ は勝敗に時間選好も加えるため，
+純粋な勝率最大化と同一ではない．$\gamma=1$ の有限対局で初めて期待勝敗との一致が成立する．
+
+補助 potential を，有界写像 $\Phi:\mathcal H\to\R$ として事前に固定し，真の終端では $\Phi=0$ とする．
+実装案では公開特徴だけの有界関数を用いる．係数 $\alpha\ge0$ を固定し，区間報酬を
+\begin{equation}\label{eq:potential}
+ R_n=R_n^0+\alpha\{\Gamma_n\Phi(H_{n+1})-\Phi(H_n)\}
+\end{equation}
+とする．初期検証は $\alpha=0$．後で補助を導入する場合は関数・係数を manifest に保存する．
+小連鎖回数や全消し達成だけへの固定加点はこの目的に含めない．
+
+以下の有限対局の目的では，対象の方策・初期分布で対局が確率 $1$ で有限時間に終わると仮定する．
+実装で時間制限に達したデータを，この仮定が検証できた証拠にはしない．
+終端までの区間数を $N$，epoch $n$ からの収益を $G_n$ とする．
+\begin{equation}\label{eq:return}
+ G_n=\sum_{k=n}^{N-1}\left(\prod_{j=n}^{k-1}\Gamma_j\right)R_k,
+ \qquad G_N=0.
+\end{equation}
+学習目的は $J(\theta)=\mathbb E_{\mu_0,\pi^-,\pi_\theta}[G_0]$ の最大化である．
+期待値には組ぷよ・おじゃま列抽選・相手行動・探索乱数・戦術抽選を含める．
+任意の固定戦術方策を $\pi$ とし，その実験で正の確率を持つ履歴と選択戦術の対を $(H,z)$ とする．
+履歴価値と行動価値は
+\begin{equation}\label{eq:value}
+\begin{aligned}
+ V^\pi(H)&=\mathbb E[G_n\mid H_n=H],\\
+ Q^\pi(H,z)&=\mathbb E[G_n\mid H_n=H,Z_n=z],\\
+ A^\pi(H,z)&=Q^\pi(H,z)-V^\pi(H).
+\end{aligned}
+\end{equation}
+である．
+これらは履歴に対する定義であり，特徴要約だけに厳密な Bellman 方程式を仮定しない．
+
+\begin{proposition}[potential の相殺]\label{prop:potential}
+有限対局で式 \eqref{eq:return} の補助部分は $-\alpha\Phi(H_0)$ になる．
+\end{proposition}
+\begin{proof}
+$D_0=1$，$D_k=\prod_{j=0}^{k-1}\Gamma_j$ と置くと，$D_{k+1}=D_k\Gamma_k$ である．
+従って補助和は
+$\alpha\sum_{k=0}^{N-1}\{D_{k+1}\Phi(H_{k+1})-D_k\Phi(H_k)\}
+=\alpha\{D_N\Phi(H_N)-\Phi(H_0)\}=-\alpha\Phi(H_0)$．
+\end{proof}
+初期分布が方策に依存しなければ目的間の差は定数である．
+これは無限時間・有限標本・関数近似下で学習が必ず安定するという主張ではない．
+時間制限では終端 potential を強制的に $0$ にせず，続きの価値を bootstrap する．
+
+\subsection{教師による初期化と PPO 更新}
+教師データ集合を $\mathcal D_{\rm BC}=\{(x_j,m_j,z_j)\}_{j=1}^{M}$ とする．
+$M\ge1$ はサンプル数，$x_j$ は保存済み 186 次元入力，$m_j$ は同時点の mask，
+$z_j$ はその mask 内のルール戦術である．$j$ はデータ番号であり探索深さではない．
+交差エントロピー損失
+\begin{equation}\label{eq:bc}
+ \mathcal L_{\rm BC}(\theta)=-\frac1M\sum_{j=1}^M\log\pi_\theta(z_j\mid x_j,m_j)
+\end{equation}
+を最小化して初期化する．候補再順位付けや配置パラメータの教師損失は持たせない．
+episode と配色系列単位で train/validation/test を分離し，同じ軌跡の decision を別 split にしない．
+
+価値近似器を $V_\nu:[0,1]^{186}\to\R$，そのパラメータを $\nu$ とする．
+方策 \eqref{eq:policy} の出力層を $1$ 次元にした別ネットワークとして具体化できる．
+rollout 収集時のパラメータを $\theta_{\rm old},\nu_{\rm old}$ とし，更新中に固定する．
+真の終端 bit を $d_n^T$，時刻差付き trace 率を $\Lambda_n=\lambda^{\Delta_n}$ とする．
+$\lambda\in(0,1]$ は 1 秒あたりの trace 減衰率である．
+次価値 $\bar V_{n+1}$ は，真の終端なら $0$，それ以外では実際の境界特徴が取得できる場合の
+$V_{\nu_{\rm old}}(x_{n+1}^{\rm pol})$ と定義する．境界特徴がなければその行は value 更新の対象外である．
+rollout 末尾の次添字の advantage は $0$ と定義しておく．
+TD 残差 $\delta_n^{\rm TD}$，GAE 近似 $\hat A_n$，価値教師 $\hat G_n$ を
+\begin{align}
+ \delta_n^{\rm TD}&=R_n+\Gamma_n\bar V_{n+1}
+                            -V_{\nu_{\rm old}}(x_n^{\rm pol}),\label{eq:td}\\
+ \hat A_n&=\delta_n^{\rm TD}+\Gamma_n\Lambda_n c_n^{\rm trace}\hat A_{n+1},
+ \qquad \hat G_n=\hat A_n+V_{\nu_{\rm old}}(x_n^{\rm pol})\label{eq:gae}
+\end{align}
+とする．$c_n^{\rm trace}=1$ は同じ完全な軌跡の次区間をこの rollout 内で利用できる場合，
+それ以外は $0$ である．真の終端では $d_n^T=1,c_n^{\rm trace}=0$ とし，次価値項自体を評価しない．
+rollout 末尾・時間制限では $d_n^T=0,c_n^{\rm trace}=0$ とし，実際の境界観測から次価値を評価する．
+$\hat A$ は末尾から逆順に計算する．終端後のダミー特徴を実測観測と誤認しない．
+必要な次特徴が取得できなければ，その行を bootstrap 可能と偽らず value 不適格とする．
+初期案 $\gamma=0.99,\lambda=0.95$ は 1 秒あたりの実験値であり，1 decision あたりの定数ではない．
+
+actor 適格添字集合を $I_{\rm act}$，value 適格添字集合を $I_{\rm val}$ とする．
+前者には，同じ batch・mask に対する行動が実際に activated され，保存 log-probability が検証できる行だけを含める．
+後者には，時間差・報酬・次価値・継続履歴が再構成できる行を含める．両者は一致しなくてよい．
+stale/timeout/scheduler fallback は actor から除くが，経過時間と報酬は軌跡から削除しない．
+欠落した区間を飛び越えて $\Delta_n$ を縮めない．これは介入を含む実行システムを学習する仕様であり，
+介入のない方策の収益に対する不偏推定を保証するものではない．
+
+$n\in I_{\rm act}$ の選択戦術を $z_n$，保存された旧方策 log-probability を
+$\ell_n^{\rm old}=\log\pi_{\theta_{\rm old}}(z_n\mid x_n^{\rm pol},m_n)$ とする．
+以下の平均は適格集合が非空の場合に定義し，空の場合は対応する損失項を $0$ と定めて更新をスキップする．
+確率比 $r_n(\theta)$ と clipping 幅 $\epsilon\in(0,1)$ を用い，PPO の方策目的を
+\begin{align}
+ r_n(\theta)&=\exp\{\log\pi_\theta(z_n\mid x_n^{\rm pol},m_n)-\ell_n^{\rm old}\},\label{eq:ratio}\\
+ \mathcal L_{\rm clip}(\theta)&=\frac1{|I_{\rm act}|}\sum_{n\in I_{\rm act}}
+ \min\{r_n(\theta)\hat A_n,
+       \operatorname{clip}(r_n(\theta);1-\epsilon,1+\epsilon)\hat A_n\}
+ \label{eq:ppo}
+\end{align}
+と定め，最大化する\cite{ppo}．同じ保存済み mask で新旧確率を計算する．
+更新時に新たな探索で mask を変更すると，この確率比の意味が失われる．
+
+mask 付き entropy を
+$\mathsf H_n(\theta)=-\sum_{z\in\mathcal Z_n}\pi_\theta(z\mid x_n^{\rm pol},m_n)
+\log\pi_\theta(z\mid x_n^{\rm pol},m_n)$ とする．
+係数 $c_H,c_V\ge0$ を固定し，最小化する総損失を
+\begin{equation}\label{eq:loss}
+ \mathcal L(\theta,\nu)=
+ -\mathcal L_{\rm clip}(\theta)
+ -\frac{c_H}{|I_{\rm act}|}\sum_{n\in I_{\rm act}}\mathsf H_n(\theta)
+ +\frac{c_V}{|I_{\rm val}|}\sum_{n\in I_{\rm val}}
+       (V_\nu(x_n^{\rm pol})-\hat G_n)^2
+\end{equation}
+とする．$\hat A_n,\hat G_n$ は更新中は定数として扱う．各適格集合が空ならその項の更新をスキップし，$0$ 除算しない．
+GAE の可変時間版 \eqref{eq:gae} は通常の GAE\cite{gae} の割引を各区間の積に置き換えた本稿の提案である．
+
+学習率を $\alpha_{\rm opt}>0$，微分をパラメータごとの偏微分を並べた勾配 $\nabla$ とすると，
+最も単純な更新は $(\theta,\nu)\leftarrow(\theta,\nu)-\alpha_{\rm opt}\nabla\mathcal L$ である．
+最適化器，隠れ幅，clipping 幅，更新 epoch 数は設定値として固定・保存する．
+学習対象が $6$ 戦術だけであることは式 \eqref{eq:policy}--\eqref{eq:loss} 全体で維持する．
+
+\subsection{自己対戦と評価対象}
+凍結相手集合を $\mathcal P^-=\{\pi_1^-,\ldots,\pi_K^-\}$，選択重みを
+$w_k^-\ge0$，$\sum_{k=1}^K w_k^-=1$ とする．対局開始時に $k$ を抽選し，その対局中は相手を変えない．
+この場合の目的は
+\begin{equation}\label{eq:opponent-mixture}
+ J_{\rm pool}(\theta)=\sum_{k=1}^K w_k^-\,
+      \mathbb E_{\mu_0,\pi_k^-,\pi_\theta}[G_0].
+\end{equation}
+相手を更新したら核 \eqref{eq:kernel} と評価対象分布も変わるので，checkpoint と重みを記録する．
+単一相手に勝つことから全戦術・全相手への強さを結論しない．
+
+比較は search-only，ルール戦術，教師初期化，RL 戦術で探索予算と候補生成版を揃える．
+評価用の配牌対を $j=1,\ldots,N_e$，左右交換した $2$ 対局の結果を $z_{j,0},z_{j,1}\in\{-1,0,1\}$ とする．
+対ごとの勝敗点 $v_j=\tfrac12\sum_{b=0}^1(z_{j,b}+1)/2$ と定義すると，
+比較対象との点差 $d_j=v_j^{\rm RL}-v_j^{\rm rule}$ の標本平均は $N_e^{-1}\sum_jd_j$ となる．
+$v_j$ は引分を $0.5$ と数える勝敗点であり，純粋な勝利頻度は勝利指示値から別に計算する．
+信頼区間の再標本化単位はこの配牌対であり，decision 行や再現確認の repeat を独立標本として水増ししない．
+
+候補不足（公開参照解があるのに候補化できない），戦術内順位失敗（良い候補があるが代表でない），
+戦術選択失敗（良い代表戦術があるが選ばない）を別に評価する．
+探索で提示できない配置を，戦術だけを学ぶ actor が新しく作ることはできない．
+能力検証・短期学習・資源判断・昇格判定は別段階とし，本稿の式の成立だけを能力達成や長時間学習開始の証拠にしない．

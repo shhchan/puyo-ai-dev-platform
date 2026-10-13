@@ -1,0 +1,82 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage{xeCJK}
+\setCJKmainfont[BoldFont=HaranoAjiMincho-Bold.otf,ItalicFont=HaranoAjiMincho-Regular.otf]{HaranoAjiMincho-Regular.otf}
+\setCJKsansfont{HaranoAjiGothic-Medium.otf}
+\setCJKmonofont{HaranoAjiGothic-Medium.otf}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,array,enumitem}
+\usepackage{xcolor}
+\usepackage[unicode,colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,citecolor=blue!50!black]{hyperref}
+\usepackage{xurl}
+\usepackage{bookmark}
+\numberwithin{equation}{section}
+\newtheorem{definition}{定義}[section]
+\newtheorem{proposition}[definition]{命題}
+\newtheorem{example}[definition]{例}
+\renewcommand{\proofname}{証明}
+\renewcommand{\contentsname}{目次}
+\renewcommand{\abstractname}{概要}
+\renewcommand{\refname}{参考文献}
+\newcommand{\N}{\mathbb{N}_0}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\emptycell}{\mathsf{empty}}
+\newcommand{\garb}{\mathsf{garbage}}
+\newcommand{\unknown}{\mathsf{unknown}}
+\newcommand{\none}{\mathsf{none}}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\src}[2]{\href{https://github.com/shhchan/puyo-ai-dev-platform/blob/f8394d77578ecb66e15802fa502d8e1668223006/#1}{\code{#2}}}
+\newcommand{\srcja}[2]{\href{https://github.com/shhchan/puyo-ai-dev-platform/blob/f8394d77578ecb66e15802fa502d8e1668223006/#1}{#2}}
+\setlist{itemsep=2pt,topsep=4pt}
+\setlength{\emergencystretch}{3em}
+\title{ぷよぷよの状態遷移・連鎖探索・戦術強化学習\\\large nextgen\_tactic\_manager の数理的定式化}
+\author{puyo-ai-dev-platform / PUYO-282}
+\date{2026 年 10 月 13 日\quad 第 1 版}
+\begin{document}
+\maketitle
+\begin{abstract}
+有限盤面上の消去ゲームを出発点とし，公開情報に制限された候補探索と，有限個の戦術を選択する学習方策の合成を定義する．具体的な配置は固定探索器に，戦術の継続と切替は学習可能な選択器に担当させる．ゲームの得点，探索用評価値，対戦学習の報酬を区別し，時刻，未観測情報，探索打切り，実行失敗を明示する．PR \#188 の実装事実と，PUYO-234 の構想を具体化する将来仕様を区別する．
+\end{abstract}
+\setcounter{tocdepth}{1}
+\tableofcontents
+\clearpage
+\section{対象・定義の読み方}\label{sec:scope}
+本稿の「ぷよぷよ」は本リポジトリの 4 色対戦規則を指す．製品や大会規則全般との同一性は主張しない．実装の基準は
+\href{https://github.com/shhchan/puyo-ai-dev-platform/pull/188}{PR \#188} の
+\code{f8394d77578ecb66e15802fa502d8e1668223006} である．
+参照を可変なブランチ名に依存させない．構想の根拠は同じ版の
+\srcja{docs/development/puyo-234-next-generation-model-design.md}{PUYO-234 設計書}である．
+
+\textbf{実装記述}はこの版の動作，\textbf{抽象化}はその動作を扱うための数学的な型や写像，
+\textbf{提案}は今後の学習器に課す仕様を表す．現行の選択器は
+\code{RuleTacticSelector} であり，このモデル専用の学習済み戦術方策が接続済みとは扱わない．
+既存の別モデル用 PPO と，本稿の 6 戦術 PPO を区別する．
+
+記号は本文で初めて使用する直前に導入する．関数を設定として与える場合も定義域・値域・役割を明示し，
+未実装の関数を既存関数と偽らない．一般の集合・確率・線形代数の記法は次の規約を用いる．
+\begin{definition}[基礎記法]\label{def:notation}
+$\N=\{0,1,2,\ldots\}$ は非負整数，$\R$ は実数，$\R_{\geq0}$ は非負実数の集合である．
+$|A|$ は有限集合 $A$ の要素数，$A\times B$ は直積，$B^A$ は $A$ から $B$ への全写像の集合，
+$A^*$ は $A$ の有限列全体である．$\varnothing$ は空集合である．
+条件 $P$ の指示値 $\ind\{P\}$ は成立時に $1$，それ以外で $0$ とする．
+$[v]_+=\max(0,v)$，$\operatorname{clip}(v;l,u)=\min(u,\max(l,v))$ とする．
+$\lfloor v\rfloor$ は床関数，$\lceil v\rceil$ は天井関数，$\log$ は自然対数，$\exp$ はその逆関数である．
+$\sum$ と $\prod$ は添字集合上の和と積であり，空和は $0$，空積は $1$ とする．
+$\none$ は「該当値なし」を表す特別な記号で，数値 $0$ とは異なる．
+
+有限または可算集合 $A$ に対する $\Delta(A)$ は，非負で総和 $1$ の確率質量関数全体とする．
+$X\sim p$ は確率変数 $X$ が分布 $p$ に従うこと，
+$\Pr$ は指定した実験の確率，$\mathbb E$ はその期待値を表す．
+条件付き期待値は条件の確率が正の範囲で用いる．連続変数を持つ一般化では対応する確率測度と積分に置き換える．
+$\arg\max$，$\arg\min$ は最大値・最小値を与える要素の集合を表し，
+単一要素を必要とする箇所では必ず指定した全順序で同点を解消する．
+辞書式順序は，左から最初に異なる成分の大小で列を比較する順序である．
+$\circ$ は写像の合成である．
+\end{definition}
+
+\input{game}
+\input{search}
+\input{learning}
+\input{appendix}
+\end{document}
