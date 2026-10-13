@@ -8,12 +8,13 @@
 <div class="eyebrow">PUYO-280 · SPRINT 15 · 固定配牌の実測</div>
 <h1>第 6 回｜60 手単独探索</h1>
 <p class="lead"><code>nextgen_tactic_manager</code> の 10 連鎖目標と 95,000 点目標を，未使用の eスポーツ通 4 色配牌 30 件で各 2 回実行しました．表示する連鎖数とスコアは，探索予測ではなく実際の発火です．</p>
+<div class="card"><span class="pill green">Sprint 15 受入 PASS</span><p>2026-10-13 に依頼者が，単独 60 手・事前固定 30 配牌の平均最大実連鎖 10 以上を合格基準として承認しました．この結果は 10.633，実 10 連鎖到達 29／30 です．全 120 対局で欠損・repeat・全 tick replay・実 lock の不一致は 0 です．</p><p>下記の「旧厳格判定 FAIL」は当時の事前登録基準による記録です．配牌 62726 の窒息 1／30 と不当小発火 2／60 は今回許容された残差として残し，全配牌の生存や旧 gate の遡及的合格は主張しません．95,000 点目標は補助評価です．<a href="../../development/puyo-280-search-tuning.md">判断基準の記録</a>を参照してください．</p></div>
 <p id="verdict"></p><section class="grid" id="cards"></section>
 <h2>30 配牌の最大実発火連鎖</h2>
 <p class="note">各配牌の 1 回目だけを分布へ算入します．2 回目は同じ入力・決定・盤面の再現確認です．横棒は配牌数で，青が 10 連鎖目標，橙が 95,000 点目標です．</p>
 <div class="barlegend"><span><i class="key"></i>10 連鎖目標</span><span><i class="key score"></i>95,000 点目標</span></div><div class="card" id="chart"></div>
 <h2>何をもって合格とするか</h2>
-<div class="grid"><div class="card"><b>1．入力境界</b><p>方策に見せるのは現ぷよと NEXT／NEXT2，公開盤面だけです．配牌番号・未来列は隠します．</p></div><div class="card"><b>2．終了条件</b><p>最初の実 10 連鎖，窒息，60 手到達のいずれかで止めます．両目標に同じ境界を適用します．</p></div><div class="card"><b>3．品質</b><p>10 連鎖目標で平均最大実連鎖 10 以上，理由のない小発火 0，回避可能な窒息 0，未分類 0 が必要です．</p></div><div class="card"><b>4．再現</b><p>30 配牌 × 2 回 × 2 目標の欠損と repeat 差が 0，全 tick・実 lock の再生一致を確認します．</p></div></div>
+<div class="grid"><div class="card"><b>1．入力境界</b><p>方策に見せるのは現ぷよと NEXT／NEXT2，公開盤面だけです．配牌番号・未来列は隠します．</p></div><div class="card"><b>2．終了条件</b><p>最初の実 10 連鎖，窒息，60 手到達のいずれかで止めます．両目標に同じ境界を適用します．</p></div><div class="card"><b>3．旧厳格判定</b><p>平均最大実連鎖 10 以上に加え，理由のない小発火 0，回避可能な窒息 0，未分類 0 を要求していました．下記の FAIL はこの旧判定です．</p></div><div class="card"><b>4．Sprint 15 の受入</b><p>平均最大実連鎖 10 以上と全対局の再現・完全性を必須とし，少数の窒息・小発火は件数と失敗例を開示して許容します．</p></div></div>
 <p class="callout" id="context"></p>
 <h2>配牌ごとの結果</h2><div class="tabs"><button data-goal="chain10" aria-pressed="true">10 連鎖目標</button><button data-goal="score95000" aria-pressed="false">95,000 点目標</button><button data-mode="concerns" aria-pressed="true">要確認のみ</button><button data-mode="all" aria-pressed="false">全件</button></div>
 <div class="tablewrap"><table><thead><tr><th>配牌</th><th>最大実連鎖</th><th>最大実発火スコア</th><th>手数</th><th>結果</th><th>小発火（必要／後続本線／不当／未分類）</th></tr></thead><tbody id="patterns"></tbody></table></div>
