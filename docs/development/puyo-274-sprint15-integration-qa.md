@@ -148,3 +148,5 @@ PUYO-266 head `ba1c9f981827db296c6ea16f0089b16932477667` を #187 の base か�
 依頼者は，PUYO-266／280 の 60 手・30 配牌・2 repeat 正式第 6 回で，10 連鎖目標の平均最大実連鎖 **10.633** を確認し，数件の窒息・小発火を許容して合格とした．旧厳格 gate の `FAIL` と raw は保存する．許容した残差は配牌 62726 の窒息 **1／30** と不当小発火 **2／60** である．全 120 対局の欠損・worker 失敗・repeat 不一致・実 lock／全 tick replay 不一致は **0**．95,000 点目標は補助評価で，実 95,000 点到達 **6／30**，窒息 **5／30** を開示する．
 
 PUYO-275 の配ぷよ来歴，PUYO-276 の人間実画面 QA 3 bundle と保存 OFF，PUYO-277 の攻撃対応 gate は既に受入済みである．PUYO-280 の確定 head を本 PR に通常 merge し，原本付き境界テストと CI を再確認した上で，Sprint 15 の統合 QA を **PASS** とする．人間実画面 QA は旧製品 head の結果であり，新 head の全操作・全配牌への保証には拡張しない．`nextgen_tactic_manager` の単独本線と bounded 対戦 gate を受け入れるが，旧 legacy G2 の失敗を消したり，本学習の無条件開始を宣言したりしない．release PR／tag の実行は人間による stack review／merge 後の別段階である．
+
+最終の #190 head は，凍結済み第 6 回 report と 120 raw の SHA-256 を照合する `acceptance` コマンドを備える．[受入結果 JSON](../benchmarks/puyo-280-search-tuning/formal-v6-acceptance.json) は Sprint 15 `PASS`，旧厳格判定 `FAIL` を別欄で示す．この追加後の結合 head で原本付き 8 suite・**111 tests，skip 0**，Ruff，`git diff --check` が成功した．
