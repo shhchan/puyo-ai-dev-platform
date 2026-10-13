@@ -7,6 +7,8 @@ has deduced them. Unknown deductions never become empty cells.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import numpy as np
 
 from agents import nextgen_contracts as c
@@ -44,12 +46,16 @@ class SingleQualityMatch(RealtimeVersusMatch):
         return None
 
 
-def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
+def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None,
+                evaluator_config=None, score_goal_fallback=False):
     if kind == "deep_chain_builder":
         return DeepChainBuilderPolicy(profile="smoke" if smoke else "reference", backend=backend)
     if kind != "nextgen_tactic_manager":
         raise ValueError("unknown policy")
-    if fire_goal_score is not None or backend != "native":
+    if score_goal_fallback and fire_goal_score is None:
+        raise ValueError("score_goal_fallback requires fire_goal_score")
+    if (fire_goal_score is not None or evaluator_config is not None or
+            backend != "native" or score_goal_fallback):
         # Test-only injection, retaining the production catalog/selector defaults.
         from pathlib import Path
 
@@ -69,8 +75,13 @@ def make_policy(kind, *, backend="native", smoke=False, fire_goal_score=None):
         profile, search = nextgen_search_settings(
             "nextgen_smoke" if smoke else "nextgen_safe_build", seed=POLICY_SEED,
             fire_goal_score=fire_goal_score)
+        if score_goal_fallback:
+            # Keep the 95,000-point winning priority, while allowing a safe
+            # ten-chain target fire before a crowded board becomes terminal.
+            search = replace(search, score_target_only=False)
         return NextgenTacticManagerPolicy(catalog=catalog, seed=POLICY_SEED,
                                          profile=profile, search_config=search, backend=backend,
+                                         evaluator_config=evaluator_config,
                                          selector=RuleTacticSelector(RuleSelectorConfig(
                                              saturated_chain_score=fire_goal_score)))
     return legacy_make_policy("nextgen", POLICY_SEED,

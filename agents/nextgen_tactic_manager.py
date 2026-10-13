@@ -12,6 +12,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from agents import nextgen_contracts as c
+from agents.chain_structure import ChainStructureConfig, load_chain_structure_config
 from agents.decision_flow import (
     DecisionContext,
     DecisionFlow,
@@ -44,6 +45,12 @@ from puyo_env.nextgen_public_snapshot import derive_timing_summary
 POLICY_TYPE = "nextgen_tactic_manager"
 DEFAULT_CATALOG = (
     Path(__file__).resolve().parents[1] / "train/config/nextgen_templates.yaml"
+)
+DEFAULT_CHAIN_EVALUATOR = (
+    Path(__file__).resolve().parents[1] / "train/config/nextgen_chain_structure.yaml"
+)
+DEFAULT_SCORE_EVALUATOR = (
+    Path(__file__).resolve().parents[1] / "train/config/nextgen_score_structure.yaml"
 )
 
 
@@ -332,6 +339,7 @@ class SharedBatchStep(DecisionStep):
         builder = SharedSearchBatchBuilder(
             policy.backend,
             policy.search_config,
+            evaluator_config=policy.evaluator_config,
             template_catalog=policy.catalog,
             template_binding_budget=policy.template_binding_budget,
             response_provider=PublicResponseProvider(timing),
@@ -402,6 +410,7 @@ class NextgenTacticManagerPolicy:
         profile=None,
         backend=None,
         selector=None,
+        evaluator_config: ChainStructureConfig | None = None,
         template_binding_budget=4096,
     ):
         self.catalog = catalog or load_template_catalog(
@@ -417,6 +426,10 @@ class NextgenTacticManagerPolicy:
             raise ValueError("template_seed must be an integer")
         default_profile, default_search = nextgen_search_settings(seed=self.seed)
         self.search_config = search_config or default_search
+        self.evaluator_config = evaluator_config or load_chain_structure_config(
+            DEFAULT_SCORE_EVALUATOR if self.search_config.score_target_only
+            else DEFAULT_CHAIN_EVALUATOR
+        )
         self.profile = profile or default_profile
         # Use the existing strict release/ABI-checked adapter. Never silently
         # replace a missing/incompatible native extension with a slower policy.
