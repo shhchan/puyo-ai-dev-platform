@@ -1,6 +1,6 @@
 # PUYO-266 Sprint 15 単独品質 gate
 
-`eval.nextgen_single_quality_gate` は公開者推定 eスポーツ通配ぷよの単独品質を測る．旧 random seed の safe-build／G2 artifact と schema は変更しない．この runner の導入や短い smoke は品質 PASS，Jira COMPLETE，本学習の許可を意味しない．
+`eval.nextgen_single_quality_gate` は公開者推定 eスポーツ通配ぷよの単独品質を測る．旧 random seed の safe-build／G2 artifact と schema は変更しない．この runner の導入や短い smoke は品質 PASS，Jira COMPLETE，本学習の許可を意味しない．Sprint 15 の最終受入は，後述の 2026-10-13 更新を優先する．
 
 ## 固定条件
 
@@ -83,3 +83,9 @@ v3 は nextgen pattern6779 の premature と窒息 unknown，reference4519 の�
 上記は v4 開始前の記録である．測定 head `b5c988140462beed05a3b5d913c72a066a8b6290` で事前登録 120 run を完走し，`finalize` と全件独立 `verify` が成功した．原本 source，manifest，native extension は宣言時から変更されていない．欠損・worker failure・integrity issue・repeat semantic mismatch は 0．[manifest・report・選択 raw・SHA](../benchmarks/puyo-266-single-quality/sprint15-formal-v4/README.md)を保存した．
 
 単独環境で nextgen は 60/60 生存し，窒息 0 だった．一方，repeat1 の平均最大実連鎖は 9.6667 で受け入れ閾値 10 未満．pattern 29377 の両 repeat で不当小発火が 1 件ずつあり，小発火 unknown も 8 件残る．reference は平均 9.1，10 死亡／窒息 unknown 10．従って両 policy の品質は `FAIL`，単独品質の A/C は未達であり，PUYO-266 は `In Progress`，G2 は `BLOCKED`，本学習は未許可を維持する．
+
+## 2026-10-13 Sprint 15 の最終受入基準
+
+依頼者は PUYO-280 の第 6 回正式測定を受け，Sprint 15 の単独本線能力を次の条件で合格とした．攻撃のないとことんぷよぷよ相当の環境，eスポーツ通 4 色の未使用 30 配牌を事前固定し，最大 60 手または最初の実 10 連鎖・窒息で停止する．10 連鎖目標について repeat1 の 30 配牌の最大実連鎖平均が **10 以上**であり，両目標・各 2 repeat の 120 対局に欠損，worker 失敗，repeat 差，実 lock／全 tick replay 不一致がないことを必須とする．95,000 点目標は補助評価であり，合否閾値は設けない．
+
+第 6 回は平均 **10.633**，実 10 連鎖到達 **29／30**，再現・完全性の上記不一致 **0** であり，Sprint 15 の受入は **PASS** とする．窒息 **1／30**（配牌 62726）と不当小発火 **2／60** は依頼者が今回許容した残差として記録する．第 6 回の事前登録済み旧厳格 gate は `FAIL` のまま保全し，過去の v4 や未達の結果を遡及的に合格へ変更しない．この受入は対戦中のおじゃまからの回復や全配牌での生存を保証しない．正式結果とスコア目標の測定値は [PUYO-280 の記録](puyo-280-search-tuning.md)を参照する．
