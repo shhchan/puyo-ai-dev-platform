@@ -367,5 +367,45 @@ class SingleSummaryTests(unittest.TestCase):
                 gate.load_manifest(output)
 
 
+class Sprint15AcceptanceTests(unittest.TestCase):
+    def report(self, *, low_chain=False):
+        rows = []
+        for goal in tuned_gate.GOALS:
+            for pattern in range(30):
+                for repeat in tuned_gate.REPEATS:
+                    rows.append({"goal": goal, "pattern_id": pattern, "repeat": repeat,
+                                 "max_chain": 1 if low_chain and pattern == 0 else 11,
+                                 "semantic_digest": f"{goal}-{pattern}"})
+        return {"PUYO-266": "FAIL", "rows": rows, "failed_workers": [],
+                "source_changed_since_declaration": False,
+                "goals": {goal: {"runs": 60, "missing": [], "repeat_mismatch": [],
+                                 "mean_maximum_actual_chain": 10.666666666666666 if low_chain else 11,
+                                 "game_overs": 1, "small_clears": {"unjustified": 2}}
+                          for goal in tuned_gate.GOALS}}
+
+    def test_accepted_small_clear_and_death_do_not_override_mean_threshold(self):
+        result = tuned_gate.sprint15_acceptance(self.report())
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["strict_recorded_status"], "FAIL")
+        self.assertEqual(result["game_overs"], 1)
+        self.assertEqual(result["unjustified_small_clears"], 2)
+
+    def test_mean_below_ten_fails_and_incomplete_evidence_blocks(self):
+        low = self.report(low_chain=True)
+        self.assertEqual(tuned_gate.sprint15_acceptance(low)["status"], "PASS")
+        for row in low["rows"]:
+            if row["goal"] == "chain10":
+                row["max_chain"] = 9
+        low["goals"]["chain10"]["mean_maximum_actual_chain"] = 9
+        self.assertEqual(tuned_gate.sprint15_acceptance(low)["status"], "FAIL")
+        low["rows"].pop()
+        self.assertEqual(tuned_gate.sprint15_acceptance(low)["status"], "BLOCKED")
+
+    def test_repeat_mismatch_blocks_even_when_mean_is_high(self):
+        result = self.report()
+        result["rows"][1]["semantic_digest"] = "different"
+        self.assertEqual(tuned_gate.sprint15_acceptance(result)["status"], "BLOCKED")
+
+
 if __name__ == "__main__":
     unittest.main()
