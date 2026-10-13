@@ -1,0 +1,90 @@
+\paragraph{評価特徴の数学的な展開．}
+重み付けに用いる値を，さらに集合演算で記述する．
+以下で $B$ はノード $v$ の盤面であり，構造用同色色成分全体を $\mathcal K_s(B)$ とする．
+可視消去成分 $\mathcal K(B)$ と異なり，大きさ $1$ 以上，領域 $D$ 全体を対象とする．
+占有セル集合を $O_B=\{u\in D:B(u)\ne\emptycell\}$ とする．
+列番号を頂点，連続する列を辺とするグラフで，$h_x<12$ の列のみを残し，
+列 $2$ または $3$ から到達する列の集合を $R_B$ とする．これは評価器の近似到達性であり，実時間 planner とは異なる．
+成分 $K\in\mathcal K_s(B)$ の拡張セル集合 $X_B(K)$ と内部隣接辺数 $e(K)$ を
+\begin{equation}\label{eq:extensions}
+\begin{split}
+ X_B(K)&=\{(x,h_x)\in D_v\setminus O_B:x\in R_B,\
+                   \exists u\in K\text{ が }(x,h_x)\text{ に隣接}\},\\
+ e(K)&=|\{\{u,v\}\subseteq K:u\text{ と }v\text{ は隣接}\}|
+\end{split}
+\end{equation}
+とする．隣接は同じ上下左右規則を $D$ へ拡張したものである．
+通常色セル数を $n_c(B)$，隠れ行占有数を $n_h(B)$，成分内辺総数を $e_B$ とする．
+$\mathrm{color}(K)$ は成分 $K$ の共通色である．接続候補集合 $A_B$ は，
+$u=(x,h_x)\in D_v\setminus O_B$，$x\in R_B$ に対し，同じ色 $c$ の異なる成分が $2$ 個以上隣接する
+対 $(u,c)$ 全体とする．伸長数，発火可能な 3 連結数，土台セル数はそれぞれ
+\begin{equation}\label{eq:structural-counts}
+\begin{gathered}
+ \left|\bigcup_{K\in\mathcal K_s(B)}X_B(K)\right|,\qquad
+ \sum_{K\in\mathcal K_s(B)}\ind\{|K|=3,\ X_B(K)\ne\varnothing\},\\
+ \sum_{\substack{(x,y)\in D\\B(x,y)\in\mathcal C}}
+ \ind\{y\le2,\ y=0\text{ または }(x,y-1)\in O_B\}.
+\end{gathered}
+\end{equation}
+となる．ここで $e_B=\sum_{K\in\mathcal K_s(B)}e(K)$，
+$n_c(B)=\sum_{u\in D}\ind\{B(u)\in\mathcal C\}$，
+$n_h(B)=\sum_{(x,y)\in D}\ind\{y\ge12,(x,y)\in O_B\}$ である．
+
+可視余裕を $a_x=[12-h_x]_+$，隣列の高さを
+$l_x=h_{x-1}$（$x>0$），$l_0=h_1$，$r_x=h_{x+1}$（$x<5$），$r_5=h_4$ とする．
+折返し余裕 $f_B$，凹凸 $r_B$，高さ幅 $s_B$，谷 $w_B$，突起 $b_B$ は
+\begin{equation}\label{eq:shape-features}
+\begin{aligned}
+ f_B&=\ind\{n_c(B)>0\}\sum_{x=0}^4\min(a_x,a_{x+1}),
+ &r_B&=\sum_{x=0}^4|h_x-h_{x+1}|,\\
+ s_B&=\max_xh_x-\min_xh_x,
+ &w_B&=\sum_{x=0}^5[\min(l_x,r_x)-h_x]_+,\\
+ b_B&=\sum_{x=1}^4[h_x-\max(l_x,r_x)]_+.
+\end{aligned}
+\end{equation}
+
+仮想キー候補は $(A,c)$ とし，$A\subset D_v\setminus O_B$ は $1$ から $3$ 個の追加セル，
+$c$ は全追加セルに共通の色である．各列の追加セルは $(x,h_x),(x,h_x+1),\ldots$ の連続 prefix とし，
+$x\in R_B$ かつ高さ $12$ 未満を要求する．$B$ の $A$ へ色 $c$ を入れた盤面を $B\oplus(A,c)$ と書く．
+追加セルに触れる大きさ $4$ 以上の同色可視成分があり，その中に元の色セルが少なくとも $1$ 個あることを要求する．
+これを満たす最初の成分の元セル集合を anchor 集合 $A_0$ とする．
+列順・高さ順の最初の追加セルから調べて同点を解消する．
+どれか $1$ 列の最上追加セルを取り除いても同条件が成立する候補は除外する．
+これが実装の「小さいキーを優先する」検査であり，任意の構成に対する大域的最小性の証明ではない．
+
+有限予算内で解決した候補集合を $\mathcal Q_B$ とする．その列挙順は，追加個数昇順，
+重複を許す列番号の昇順組合せを鏡映同値類にまとめた順，通常色順，同値類内の列列の辞書順である．
+鏡映は $x\mapsto5-x$．mirror 対を予算途中で片方だけ追加せず，pattern/resolution の残予算を検査してから処理する．
+実装は紫も試すが，4 色盤面に紫の既存 anchor はなく，3 個以下の追加だけでは上の条件を満たさない．
+各候補について $\mathcal R(B\oplus(A,c))$ と式 \eqref{eq:score} の素点を計算する．
+仮想発火には全消し保留ボーナスを加えない．
+
+保護度 $p(A_0,A)$ は，anchor から可視領域内の隣接セルへ向かう向き付き辺の集合を $E_0$ として
+\begin{equation}\label{eq:protection}
+ p(A_0,A)=\begin{cases}
+ \displaystyle\frac{|\{(u,v)\in E_0:v\in O_B\setminus A\}|}{|E_0|}&|E_0|>0,\\
+ 0&|E_0|=0
+ \end{cases}
+\end{equation}
+である．候補の順位は，連鎖数降順，キー数昇順，素点降順，残り 3 連結数，2 連結数，内部辺数，伸長数，
+保護度の各降順，発火高さ昇順，最後に canonical signature の SHA-256 の辞書式降順で決める．
+canonical signature は色・鏡映標準化した追加セルと anchor・連鎖数・素点・キー数・発火高さ・残り連結と伸長数のレコードである．
+同一 signature の候補は順位の高い方を保持し，完全同順位は列挙が早い方を採る．
+$\mathcal Q_B$ の先頭を $q_B^*$ とする（空なら $\none$）．
+見込み連鎖数 $\ell_B$，必要キー数 $k_B$ 等は $q_B^*$ の各値で，未発見は $0$ として重み付けする．
+$\ell_B$ は実際の配置列で実現する連鎖数と区別する．
+
+親盤面を $B_-$，直前配置の連鎖数を $L$，消去した色セル数を $n_v$ とする．
+未達発火 bit を $p_L=\ind\{0<L<L_*\}$，目標達成 bit を $a_L=\ind\{L\ge L_*\}$ とする．
+切断値 $t_B$ と浪費値 $u_B$ は
+\begin{equation}\label{eq:action-costs}
+\begin{split}
+ t_B&=(1-a_L)\{[e_{B_-}-e_B]_+ + [|A_{B_-}|-|A_B|]_+\},\\
+ u_B&=[n_h(B)-n_h(B_-)]_+
+       +p_L\max([n_c(B_-)+2-n_c(B)]_+,n_v).
+\end{split}
+\end{equation}
+発火点損傷は，親の仮想発火が存在し目標未達の場合にだけ計算する．
+子の仮想探索が完了して発火未発見なら $\max(1,\ell_{B_-})$，
+子にも仮想発火があれば $[\ell_{B_-}-\ell_B]_+ + [k_B-k_{B_-}]_+$，
+それ以外は $0$ とする．親または行動の評価がない根ノードでは，これらの行動特徴を $0$ とする．

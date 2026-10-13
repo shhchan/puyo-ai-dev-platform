@@ -1,0 +1,123 @@
+\section{実装対応と未実装部分}\label{sec:mapping}
+以下のリンクは全て本文の固定 SHA を指す．本文の数学的集合はデータ構造の説明であり，
+実数演算がそのまま浮動小数点演算の全ビット一致を保証するわけではない．
+\begin{longtable}{p{.31\linewidth}p{.61\linewidth}}
+\toprule 本文の対象 & 実装・設計の対応\\\midrule\endhead
+盤面，重力，同時消去 & \src{src/core/field.py}{src/core/field.py}：\code{drop_puyo, get_vanish_groups, remove_puyos}\\
+配置と得点，全消し & \src{src/core/game.py}{src/core/game.py}：\code{find_landing_y, resolve_chains_synchronously}，得点計算と保留 bit\\
+行動 ID & \src{puyo_env/actions.py}{puyo_env/actions.py}：\code{PLACEMENT_ACTIONS}\\
+操作の到達可能性 & \src{puyo_env/action_planner.py}{puyo_env/action_planner.py}：\code{plan_placement_action}\\
+実時間 tick，勝敗 & \src{src/core/realtime.py}{src/core/realtime.py}，\src{puyo_env/realtime_versus.py}{puyo_env/realtime_versus.py}\\
+公開観測，時刻要約 & \src{puyo_env/nextgen_public_snapshot.py}{nextgen_public_snapshot.py}，\src{agents/nextgen_contracts.py}{nextgen_contracts.py}\\
+盤面構造評価 & \src{agents/chain_structure.py}{agents/chain_structure.py} と \src{train/config/nextgen_chain_structure.yaml}{nextgen_chain_structure.yaml}\\
+シナリオ，beam，根順位 & \src{agents/long_horizon_search.py}{agents/long_horizon_search.py}，\src{agents/nextgen_profiles.py}{nextgen_profiles.py}\\
+共有候補，対戦応答 & \src{agents/nextgen_shared_search.py}{nextgen_shared_search.py}，\src{agents/nextgen_response_search.py}{nextgen_response_search.py}\\
+公開情報による生存検証 & \src{agents/nextgen_survival.py}{nextgen_survival.py}：\code{apply_envelope}．候補根拠を補強し，戦術の固定順位へ反映\\
+テンプレート選択・phase & \src{agents/template_catalog.py}{template_catalog.py}，\src{agents/template_phase.py}{template_phase.py}，\src{train/config/nextgen_templates.yaml}{nextgen_templates.yaml}\\
+MVP 戦術選択 & \src{agents/nextgen_tactic_manager.py}{nextgen_tactic_manager.py}：\code{RuleTacticSelector, NextgenTacticManagerPolicy}\\
+特徴・mask・実行 receipt & \src{agents/nextgen_contracts.py}{nextgen_contracts.py}：\code{PolicyFeatures, Selection, ExecutionReceipt}\\
+学習用記録 & \src{train/nextgen_trajectory.py}{train/nextgen_trajectory.py}：検証・保存・読出し．専用 PPO trainer ではない\\
+将来の戦術 RL & \srcja{docs/development/puyo-234-next-generation-model-design.md}{PUYO-234 設計書} 第 13・15・17 節を本稿第 \ref{sec:learning} 節で具体化\\\bottomrule
+\end{longtable}
+
+\begin{center}\begin{tabular}{p{.44\linewidth}p{.47\linewidth}}\toprule 実装済みの境界 & 本稿の将来提案\\\midrule
+公開 request v2，candidate batch v3，features v1 & 186 入力・6 出力の戦術 actor の実体\\
+ルール戦術と固定候補順位 & 教師初期化，時刻差付き PPO/GAE\\
+観測，根拠，実行結果を記録する契約 & 次価値を保存・再構成できる rollout collector\\
+テンプレート・共有探索・応答探索の固定予算 & 凍結相手 pool による継続学習と採否評価\\\bottomrule\end{tabular}\end{center}
+探索予算は shared $600000$，template $128$，response $256$ を別々に数える．
+候補探索を戦術数の $6$ 倍だけ繰り返す構成ではない．
+定義したモデルの実験には設定，source/native build，feature registry，戦術順，template catalog，
+相手 checkpoint，乱数 stream，時刻モードを固定する必要がある．
+仕様として定義することと，受け入れ検証に合格することは別である．
+
+\section{読み違いを防ぐ検算例}\label{sec:examples}
+\begin{example}[同時相殺]
+換算後の生成量が $(g_0,g_1)=(10,8)$，受信残量が $(N_0,N_1)=(4,1)$ なら，
+自分の受信との相殺後は $(r_0,r_1)=(6,7)$，同時相殺量は $a_*=6$，
+送信量は $(o_0,o_1)=(0,1)$ である．到着前の受信 packet も最初の相殺対象に含める．
+\end{example}
+\begin{example}[未観測と空]
+$\bar B(0,12)=\unknown$ のとき，式 \eqref{eq:completion} はそのセルが空の盤面も赤の盤面も許す．
+一方 $\bar B(0,12)=\emptycell$ なら赤の盤面を許さない．
+従って未観測セルを $0$ 埋めした単一盤面の生存予測は，公開情報に整合する全盤面での生存証明にはならない．
+\end{example}
+\begin{example}[mask と log-probability]
+6 logit が全て $0$，有効戦術が build\_main と cancel だけなら，式 \eqref{eq:policy} はそれぞれ $1/2$，
+ほかを $0$ とする．cancel の保存 log-probability は $-\log2$ である．
+更新時に全 $6$ 戦術を有効にし直して $-\log6$ と比較するのは，保存された選択問題と異なる．
+\end{example}
+\begin{example}[可変時間割引]
+区間長が $\Delta_0=0.5$ 秒，$\Delta_1=2$ 秒なら，$\Gamma_0\Gamma_1=\gamma^{2.5}$ となる．
+$t_2$ に初めて勝ちが確定し補助なしなら，$R_0^0=0$，$R_1^0=\gamma^2$，
+$G_0=\gamma^{2.5}$ である．1 decision ごとに一定の割引を掛けると $\gamma^2$ になり，実時間と一致しない．
+\end{example}
+
+\appendix
+\section{主要記号の索引}\label{sec:notation-index}
+この索引は導入順の定義を参照するためのもので，本文で先に使った記号を事後的に補うものではない．
+局所添字と関数引数はそれぞれの式の直前で定義している．
+\begin{longtable}{p{.25\linewidth}p{.43\linewidth}p{.22\linewidth}}
+\toprule 記号 & 意味 & 定義箇所\\\midrule\endhead
+$\N,\R,\Delta(A),\none$ & 非負整数，実数，分布全体，該当値なし & 定義 \ref{def:notation}\\
+$\mathcal C,\mathcal V,D,D_v,\mathcal B$ & 色，セル値，全領域，可視領域，盤面集合 & 定義 \ref{def:board}\\
+$G,E,\mathcal R,L$ & 重力，消去，連鎖解決，連鎖数 & 式 \eqref{eq:gravity}，\eqref{eq:erase}\\
+$p,\mathcal O,\delta,\mathcal A$ & 組ぷよ，向き，子の偏位，配置行動集合 & 式 \eqref{eq:actions}\\
+$\mathcal A_{\rm geo},\mathcal A_{\rm reach}$ & 幾何合法配置と操作で到達可能な配置 & 第 \ref{sec:game} 節\\
+$s_j,S,b,q,q_{\rm last}$ & 段得点，連鎖得点，保留 bit，総得点，前回連鎖時総得点 & 式 \eqref{eq:score}--\eqref{eq:attackscore}\\
+$t,f,\kappa,c_i,g_i$ & tick，tick rate，換算点，繰越点，生成個数 & 式 \eqref{eq:carry}\\
+$Q_i,N_i,a_i,a_*,o_i$ & 受信台帳，残量，受信相殺，同時相殺，送信量 & 式 \eqref{eq:cancel}\\
+$\mathcal S,F_\eta,\mathcal S_T,z_i$ & 全状態，1 tick 遷移，終端集合，対戦結果 & 定義 \ref{def:state}\\
+$\bar B,o_t^i,h_t^i,\xi$ & 部分盤面，公開観測，公開履歴，探索等の独立乱数 & 第 \ref{sec:versus} 節\\
+$T,\omega^m,D_s,w,M_s,Q,q_r$ & 単独遷移，シナリオ，深さ，幅，数，予算，根確保枠 & 第 \ref{sec:search} 節\\
+$U,\psi,\mathbf w,d_U$ & 固定評価器，特徴，重み，致命判定 & 第 \ref{sec:evaluator} 節\\
+$\mathcal L_d^m,\mathcal E_d^m$ & beam の生存列，展開候補列 & 式 \eqref{eq:beam-expand}\\
+$c_a,P,\rho_a,K_a$ & 根の発火分類，優先度，coverage，根順位キー & 第 \ref{sec:aggregate} 節\\
+$\Sigma,P_T,\beta,\varphi$ & template 記号，形状，色束縛，phase & 第 \ref{sec:tactics} 節\\
+$\mathcal Z,\mathcal C_n(z),m_n,c_n^*$ & 戦術集合，候補列，mask，固定代表候補 & 式 \eqref{eq:tactic-mask}\\
+$x_n^{\rm pol},y_n,b_n^{\rm miss}$ & actor 入力，raw 要約，欠損 bit 列 & 式 \eqref{eq:actor-input}\\
+$\theta,f_\theta,\pi_\theta,\Pi_\theta$ & actor パラメータ，logit，戦術方策，要求配置分布 & 式 \eqref{eq:policy}，\eqref{eq:composed-policy}\\
+$\tilde S_n,H_n,b_n$ & 拡張全状態，decision 履歴，信念分布 & 第 \ref{sec:semimarkov} 節\\
+$\Delta_n,\Gamma_n,\Lambda_n$ & 区間秒数，割引，trace 減衰 & 式 \eqref{eq:td}--\eqref{eq:gae}\\
+$R_n^0,\Phi,\alpha,R_n,G_n,J$ & 基礎報酬，potential，補助係数，報酬，収益，目的 & 式 \eqref{eq:base-reward}--\eqref{eq:return}\\
+$V^\pi,Q^\pi,A^\pi,V_\nu$ & 履歴価値，行動価値，advantage，価値近似 & 式 \eqref{eq:value}，\eqref{eq:td}\\
+$I_{\rm act},I_{\rm val},\hat A,\hat G$ & actor/value 適格行，GAE，価値教師 & 式 \eqref{eq:gae}--\eqref{eq:loss}\\\bottomrule
+\end{longtable}
+
+\section{再現とレビューの手順}\label{sec:reproduce}
+文書ソースは \code{docs/mathematical-model/} にある．
+同じディレクトリの \code{README.md} に，日本語フォントを含む Tectonic の導入方法とビルドコマンドを記載する．
+数式番号は section ごとの LaTeX counter，参照は \code{label/eqref/ref}，出典は \code{cite} で管理する．
+番号を本文へ手入力しない．
+
+\code{build.py} はコンパイルと参照検査を行い，エラー・未解決参照・未収録文字・はみ出しを検出したら失敗する．
+\code{source-map.json} は対象 SHA と参照ファイルの SHA-256 を保持し，
+\code{verify.py} は Git object との一致と検算例を確認する．
+自動検査は文章中の数学的正しさや記号の定義順を完全には証明しない．
+そのためレビューでは次の順で確認する．
+\begin{enumerate}
+\item 定義 \ref{def:board} から式 \eqref{eq:placement} までの盤面・配置・消去が同じ座標と状態型を使っているか．
+\item 得点・おじゃま・探索評価・学習報酬が区別され，終了と打切りを混同していないか．
+\item 式 \eqref{eq:privacy} の境界を候補・特徴・学習サンプルが守っているか．
+\item 式 \eqref{eq:composed-policy} の合成から，学習対象が戦術だけであると読めるか．
+\item 時刻差と終端 bit が式 \eqref{eq:return}--\eqref{eq:loss} で一貫しているか．
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{repo}
+shhchan，puyo-ai-dev-platform，
+\href{https://github.com/shhchan/puyo-ai-dev-platform/tree/f8394d77578ecb66e15802fa502d8e1668223006}{固定 commit f8394d77578e}，2026．
+\bibitem{design}
+PUYO-234，\srcja{docs/development/puyo-234-next-generation-model-design.md}{次世代モデル設計メモ}，同固定 commit 所収．
+\bibitem{ppo}
+J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov,
+\emph{Proximal Policy Optimization Algorithms}, 2017.
+\url{https://arxiv.org/abs/1707.06347}．
+\bibitem{gae}
+J. Schulman, P. Moritz, S. Levine, M. Jordan, P. Abbeel,
+\emph{High-Dimensional Continuous Control Using Generalized Advantage Estimation}, 2015.
+\url{https://arxiv.org/abs/1506.02438}．
+\bibitem{tectonic}
+The Tectonic Project，\emph{Installing Tectonic}．
+\url{https://tectonic-typesetting.github.io/en-US/install.html}．
+\end{thebibliography}
