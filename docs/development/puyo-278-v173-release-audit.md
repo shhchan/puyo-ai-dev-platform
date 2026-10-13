@@ -74,3 +74,17 @@ PUYO-266 の[追加比較 HTML](../benchmarks/puyo-266-fire-goal-v3/index.html)�
 依頼者は PUYO-280 正式第 6 回の 10 連鎖目標について，単独 60 手・未使用 30 配牌の平均最大実連鎖 **10.633** を Sprint 15 の合格とし，窒息 **1／30**・不当小発火 **2／60** を今回の許容残差とした．120 対局の欠損・worker 失敗・repeat／実 lock／全 tick replay 不一致は 0．旧事前登録の厳格 gate `FAIL` は履歴として維持する．95,000 点目標は補助評価で，実 95,000 点 **6／30**，実 10 連鎖 **23／30**，窒息 **5／30**，平均最大実発火スコア **53,749** 点．
 
 このタスクの Sprint 15 完了境界は，対象 7 チケットの受入状態と PR の差分・祖先関係・CI・人間 QA を照合し，v1.7.3 向け stack を review 可能にするところまでとする．release PR 作成，`master` への merge，tag，GitHub Release は stack を依頼者が review／merge した後に行う工程であり，今回実施済みとは表示しない．上記「最終監査と release 手順」はその時点の実行手順として残す．全 PR の確定 SHA／base／CI と Sprint 15 Jira ステータスは，実際の取り込みと read-back 後にこの節へ追記する．
+
+最終 stack は [#191](https://github.com/shhchan/puyo-ai-dev-platform/stacks/191) で，統合 branch `integration/puyo-228-v1-7-3` を起点に #183 → #184 → #185 → #186 → #190 → #187 → #188 の 7 層である．既存 #189 は途中への挿入を受け付けなかったため，未 merge・auto-merge 無効を確認して GitHub の unstack API で解体し，#187 の base を #190 へ更新後に 7 件を再接続した．PR 自体や共有 Git 履歴は削除・書換えしていない．GitHub API で各 base と stack 所属を読み戻した．
+
+| 順 | PR | base | head SHA |
+| ---: | --- | --- | --- |
+| 1 | #183 | `integration/puyo-228-v1-7-3` | `2e338b6` |
+| 2 | #184 | #183 | `6d71dc4` |
+| 3 | #185 | #184 | `555880c` |
+| 4 | #186 | #185 | `aaeb5b1` |
+| 5 | #190 | #186 | `f7faa42` |
+| 6 | #187 | #190 | `7670b3c` |
+| 7 | #188 | #187 | `53dbcff`（本表追補前） |
+
+#190 の確定 head を #187，その更新 head を #188 に通常 merge し，`merge-base --is-ancestor` で各層の祖先関係を確認した．#187 の独自差分は workflow／統合 QA 記録・実行表，#188 は本監査と候補 commit 一覧である．結合した #188 head で原本付き 8 suite の **108 tests，skip 0** と対象 Python ファイルの Ruff，`git diff --check`，第 6 回 HTML の JavaScript 構文確認が成功した．第 6 回 raw の source identity は文書追補前の commit `8d4d64a` で固定されており，今回の文書 commit の SHA で再測定したと誤記しない．
