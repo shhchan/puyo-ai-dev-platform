@@ -31,6 +31,71 @@ def evidence(candidate):
 
 
 class PublicResponseTests(unittest.TestCase):
+    def test_sufficient_current_cancel_limits_excess_without_weakening_pressure(self):
+        # Independent red trigger beside a blue/green two-chain. These colors
+        # are ordinary public cells; no gate annotations enter product search.
+        board = ((0,) * 6,) * 11 + (
+            (1, 0, 0, 3, 0, 0),
+            (1, 0, 0, 2, 3, 3),
+            (1, 0, 0, 2, 2, 3),
+        )
+        for incoming in (0, 1, 120):
+            result = build(make_request(board=board, pieces=((1, 2),),
+                                        incoming=incoming, carry=30), horizon=1)
+            tactic = "cancel" if incoming else "decisive_short_attack"
+            selected = result.select(tactic)
+            proposals = [p for p in result.response_result.proposals if tactic in p.tactics]
+            maximum = max(evidence(p)["generated"].value for p in proposals)
+            self.assertGreater(maximum, 1)
+            self.assertEqual(evidence(selected)["generated"].value,
+                             1 if incoming == 1 else maximum)
+            if incoming == 1:
+                self.assertEqual(evidence(selected)["chain_count"].value, 1)
+                self.assertEqual(evidence(selected)["canceled"].value, incoming)
+            self.assertLessEqual(result.batch.counters.response_nodes, 2000)
+
+    def test_cancel_conservation_requires_current_full_timed_witness(self):
+        from agents.nextgen_shared_search import ResponseProposal, _cancel_response_key
+
+        req = make_request(incoming=2)
+        plan = (c.PlanStep(0, req.public.own.known_pieces[0], "public_known"),)
+        values = {"canceled": 2, "generated": 2, "response_surplus": 0, "chain_count": 1,
+                  "score": 140, "fire_start_upper": 2, "fire_end_lower": 20,
+                  "fire_end_upper": 30, "deadline_lower": 20, "deadline_upper": 30}
+
+        def key(changes=None, steps=plan):
+            altered = dict(values, **(changes or {}))
+            proposal = ResponseProposal(steps, ("cancel",), tuple(
+                c.NamedEvidence(n, c.NumericEvidence(v, "partial", "public_estimate")
+                                if v is not None else c.NumericEvidence(None, "not_evaluated", "public_estimate"))
+                for n, v in altered.items()))
+            return _cancel_response_key(req, proposal, (0, -999, (0,)))
+
+        self.assertEqual(key()[0], 0)
+        for changes in ({"canceled": 1}, {"response_surplus": -1},
+                        {"fire_end_upper": 31}, {"fire_end_upper": None},
+                        {"fire_start_upper": req.execution.timeout_tick + 1}):
+            self.assertEqual(key(changes)[0], 1)
+        self.assertEqual(key(steps=plan + plan)[0], 1)
+
+    def test_cancel_conservation_cannot_outrank_survival_witness(self):
+        board = ((0,) * 6,) * 11 + (
+            (1, 0, 0, 3, 0, 0), (1, 0, 0, 2, 3, 3), (1, 0, 0, 2, 2, 3))
+        req = make_request(board=board, pieces=((1, 2),), incoming=1, carry=30)
+        ordinary = build(req, horizon=1)
+        powerful = {p.plan[0].action for p in ordinary.response_result.proposals
+                    if evidence(p)["generated"].value > 1}
+        # A stronger survival proof must remain above the conservation key.
+        outcomes = {a: survival.RootSurvival(a, "witness" if a in powerful else "fatal",
+                                           root_chain=2 if a in powerful else 1,
+                                           witness=(a,) if a in powerful else ())
+                    for a in range(c.NUM_ACTIONS)}
+        with patch("agents.nextgen_shared_search.survival_probe",
+                   return_value=(outcomes, {"active": True})):
+            result = build(req, horizon=1)
+        self.assertIn(result.select("cancel").root_action, powerful)
+        self.assertGreater(evidence(result.select("cancel"))["generated"].value, 1)
+
     def test_required_public_fixture_coverage_and_fixed_cost(self):
         for name, values, tactic in FIXTURES:
             with self.subTest(fixture=name):

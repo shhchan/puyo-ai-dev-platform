@@ -15,6 +15,7 @@ from src.core.diagnostics import (
     build_all_clear_diagnostics,
 )
 from src.core.ojama import convert_score_to_ojama
+from src.core.tsumo import EsportsTsuSource
 from src.core.realtime import (
     DEFAULT_REALTIME_TIMING,
     RealtimeHeadlessSimulator,
@@ -76,8 +77,25 @@ class RealtimeVersusMatch:
         max_ojama_drop: int = 30,
         attack_delay_ticks: int | None = None,
         garbage_drop_ticks: int = DEFAULT_GARBAGE_DROP_TICKS,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
+        tsumo_player_1_pattern_id: int | None = None,
     ):
         self.seed = seed
+        self.tsumo_mode = tsumo_mode
+        self.tsumo_source_path = tsumo_source
+        self.tsumo_source = EsportsTsuSource(tsumo_source) if tsumo_mode == "esports_tsu" and tsumo_source else None
+        self.tsumo_pattern_id = tsumo_pattern_id
+        self.tsumo_player_1_pattern_id = tsumo_player_1_pattern_id
+        if tsumo_mode == "esports_tsu":
+            if self.tsumo_source is None:
+                raise ValueError("esports_tsu requires tsumo_source")
+            self.tsumo_source.sequence(tsumo_pattern_id)
+            if tsumo_player_1_pattern_id is not None:
+                self.tsumo_source.sequence(tsumo_player_1_pattern_id)
+        elif tsumo_mode != "random" or tsumo_pattern_id is not None or tsumo_player_1_pattern_id is not None or tsumo_source is not None:
+            raise ValueError("invalid random tsumo configuration")
         self.timing = timing or DEFAULT_REALTIME_TIMING
         self.target_score_per_ojama = int(target_score_per_ojama)
         if self.target_score_per_ojama <= 0:
@@ -107,7 +125,11 @@ class RealtimeVersusMatch:
         self._public_episode_index = getattr(self, "_public_episode_index", 0) + 1
         self.player_states = {
             agent: RealtimeVersusPlayerState(
-                simulator=RealtimeHeadlessSimulator(seed=self.seed, timing=self.timing)
+                simulator=RealtimeHeadlessSimulator(
+                    seed=self.seed, timing=self.timing, tsumo_mode=self.tsumo_mode,
+                    tsumo_source=self.tsumo_source,
+                    tsumo_pattern_id=(self.tsumo_player_1_pattern_id if agent == "player_1" and self.tsumo_player_1_pattern_id is not None else self.tsumo_pattern_id),
+                )
             )
             for agent in self.possible_agents
         }
@@ -375,11 +397,25 @@ class RealtimeVersusMatch:
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         return hashlib.sha256(encoded).hexdigest()
 
-    def replay_rules(self) -> dict[str, int]:
-        return {
+    def replay_rules(self) -> dict[str, object]:
+        rules = {
             "garbage_drop_ticks": self.garbage_drop_ticks,
             "attack_delay_ticks": self.attack_delay_ticks,
         }
+        if self.tsumo_mode == "esports_tsu":
+            rules["tsumo"] = {
+                "mode": self.tsumo_mode,
+                "pattern_id": self.tsumo_pattern_id,
+                "player_1_pattern_id": self.tsumo_player_1_pattern_id,
+                "source_path": self.tsumo_source_path,
+                "source_version": self.tsumo_source.version,
+                "source_sha256": self.tsumo_source.checksum,
+                "color_mapping": {
+                    agent: {letter: color.name for letter, color in self.player_states[agent].simulator.game.puyo_sequence.color_mapping.items()}
+                    for agent in self.possible_agents
+                },
+            }
+        return rules
 
     def all_clear_diagnostics(self) -> dict[str, object]:
         """Return versioned per-player diagnostics for runtime and replay consumers."""

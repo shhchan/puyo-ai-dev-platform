@@ -1,0 +1,617 @@
+[
+  {
+    "placement": 29,
+    "tick": 1474,
+    "candidates": [
+      {
+        "root": 10,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 10,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 0,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 0,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 8,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 3,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 3,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 0,
+            "reachable": false,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 7,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 7,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "placement": 30,
+    "tick": 1521,
+    "candidates": [
+      {
+        "root": 11,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 12,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 15,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 17,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 17,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 13,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 13,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 18,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 18,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 8,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 14,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 14,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 7,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 7,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 9,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 9,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "placement": 31,
+    "tick": 1560,
+    "candidates": [
+      {
+        "root": 15,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 15,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 19,
+            "reachable": false,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 13,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 17,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 17,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 7,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 7,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 8,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 9,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 9,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 14,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 14,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 12,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 12,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 18,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 18,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 11,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      },
+      {
+        "root": 13,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 13,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "placement": 32,
+    "tick": 1597,
+    "candidates": [
+      {
+        "root": 8,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 8,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 0,
+            "reachable": false,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      },
+      {
+        "root": 14,
+        "known_prefix": [
+          {
+            "depth": 1,
+            "action": 14,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 2,
+            "action": 11,
+            "reachable": true,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          },
+          {
+            "depth": 3,
+            "action": 0,
+            "reachable": false,
+            "valid": true,
+            "fatal": false,
+            "chain": 0
+          }
+        ]
+      }
+    ]
+  }
+]

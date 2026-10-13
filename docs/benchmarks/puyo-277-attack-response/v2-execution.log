@@ -1,0 +1,80 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+{"pid": 13620, "start": 1791642562.7385108}
+{"cohort": "formal", "manifest": "f3eb37bb70b7045cabd301b1be85dc9c53c879ae29641a0832267ba814b9cbab", "commit": "cb2ecde34f012eff39724c788df44ffa2aaf19f2"}
+{"cohort": "extended", "manifest": "d6aca57a52547784545a379b808e2c79747b77c14d6c9a28ced3c1c008eacbf5", "commit": "cb2ecde34f012eff39724c788df44ffa2aaf19f2"}
+{"cohort": "formal", "case": "cancel_boundary-0", "condition": "attack", "seconds": 2.397299083000007, "elapsed": 2.9595471259999613, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-0", "condition": "no_attack", "seconds": 3.342908368000053, "elapsed": 6.302493998000045, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-0", "condition": "attack", "seconds": 2.2684552919999987, "elapsed": 8.570987985000102, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-0", "condition": "no_attack", "seconds": 2.5806180719998792, "elapsed": 11.151659034999966, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-0", "condition": "attack", "seconds": 6.376614363000044, "elapsed": 17.528313717999936, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-0", "condition": "no_attack", "seconds": 7.5481749190000755, "elapsed": 25.076528813000095, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-0", "condition": "attack", "seconds": 3.0560855680000714, "elapsed": 28.13266017900014, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-0", "condition": "no_attack", "seconds": 4.368541036000124, "elapsed": 32.501250841, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-0", "condition": "attack", "seconds": 1.8620161470000767, "elapsed": 34.36330908600007, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-0", "condition": "no_attack", "seconds": 2.1843906549997882, "elapsed": 36.54781582999999, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-0", "condition": "attack", "seconds": 4.778478020999955, "elapsed": 41.32633153100005, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-0", "condition": "no_attack", "seconds": 7.446642765999968, "elapsed": 48.773016246, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-0", "condition": "attack", "seconds": 0.608423595999966, "elapsed": 49.38149398700011, "status": "excluded_unavoidable", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-0", "condition": "no_attack", "seconds": 1.7393295329998182, "elapsed": 51.12086961099999, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-1", "condition": "attack", "seconds": 3.9002432190000036, "elapsed": 55.02118706500005, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-1", "condition": "no_attack", "seconds": 4.159712288999799, "elapsed": 59.18094182799996, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-1", "condition": "attack", "seconds": 2.604672588999847, "elapsed": 61.78565927900013, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-1", "condition": "no_attack", "seconds": 3.6388894850001634, "elapsed": 65.424588632, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-1", "condition": "attack", "seconds": 7.5337571860000025, "elapsed": 72.95838183000001, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-1", "condition": "no_attack", "seconds": 6.971288416999869, "elapsed": 79.92971890700005, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-1", "condition": "attack", "seconds": 4.465965982000171, "elapsed": 84.39572924200002, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-1", "condition": "no_attack", "seconds": 3.525274940999907, "elapsed": 87.92104689100006, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-1", "condition": "attack", "seconds": 3.145556878999969, "elapsed": 91.06665417399995, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-1", "condition": "no_attack", "seconds": 3.3994649700000537, "elapsed": 94.46615852100012, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-1", "condition": "attack", "seconds": 2.6870000419999087, "elapsed": 97.15319899299993, "status": "fail", "issues": ["mainline_preservation_failed"]}
+{"cohort": "formal", "case": "preserve_mainline-1", "condition": "no_attack", "seconds": 6.751892838000003, "elapsed": 103.90512978800007, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-1", "condition": "attack", "seconds": 0.601945010999998, "elapsed": 104.50711901499994, "status": "excluded_unavoidable", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-1", "condition": "no_attack", "seconds": 1.8416271979999692, "elapsed": 106.34879924899997, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-32768", "condition": "attack", "seconds": 2.9920156489999954, "elapsed": 109.3408679690001, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-32768", "condition": "no_attack", "seconds": 3.8136387820002255, "elapsed": 113.15454819599995, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-32768", "condition": "attack", "seconds": 2.2165212950001205, "elapsed": 115.37111110399997, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-32768", "condition": "no_attack", "seconds": 3.8042423870001585, "elapsed": 119.17540654499999, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-32768", "condition": "attack", "seconds": 7.598506989000043, "elapsed": 126.77395245399998, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-32768", "condition": "no_attack", "seconds": 9.892193929999848, "elapsed": 136.666193389, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-32768", "condition": "attack", "seconds": 4.085567666000088, "elapsed": 140.75181682200014, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-32768", "condition": "no_attack", "seconds": 4.149032896000108, "elapsed": 144.90090648900014, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-32768", "condition": "attack", "seconds": 2.135271755999838, "elapsed": 147.03622161099997, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-32768", "condition": "no_attack", "seconds": 3.3399204749998717, "elapsed": 150.37618257100007, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-32768", "condition": "attack", "seconds": 4.989158250999935, "elapsed": 155.36540088200013, "status": "fail", "issues": ["mainline_preservation_failed"]}
+{"cohort": "formal", "case": "preserve_mainline-32768", "condition": "no_attack", "seconds": 9.813081634000127, "elapsed": 165.178523155, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-32768", "condition": "attack", "seconds": 0.5996558189999632, "elapsed": 165.778230097, "status": "excluded_unavoidable", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-32768", "condition": "no_attack", "seconds": 1.8976432399999794, "elapsed": 167.67592598600004, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-65535", "condition": "attack", "seconds": 2.1860776209998676, "elapsed": 169.86204574800013, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "cancel_boundary-65535", "condition": "no_attack", "seconds": 2.961450877000061, "elapsed": 172.82353436300014, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "post_arrival_recovery-65535", "condition": "attack", "seconds": 2.673619703999975, "elapsed": 175.49719804300003, "status": "fail", "issues": ["required_post_drop_fire_missing"]}
+{"cohort": "formal", "case": "post_arrival_recovery-65535", "condition": "no_attack", "seconds": 2.7637630910001008, "elapsed": 178.26100880400008, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-65535", "condition": "attack", "seconds": 5.3390432749999945, "elapsed": 183.60009457299998, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "independent_subchain-65535", "condition": "no_attack", "seconds": 6.223243541000102, "elapsed": 189.8233745770001, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-65535", "condition": "attack", "seconds": 4.043292255000097, "elapsed": 193.86671879899995, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "mainline_without_key-65535", "condition": "no_attack", "seconds": 6.84134099500011, "elapsed": 200.70811083800004, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-65535", "condition": "attack", "seconds": 1.859243761000016, "elapsed": 202.56741267999996, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "no_secondary_chain-65535", "condition": "no_attack", "seconds": 3.34820442299997, "elapsed": 205.9156636130001, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-65535", "condition": "attack", "seconds": 2.8481551269999272, "elapsed": 208.76385589999995, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "preserve_mainline-65535", "condition": "no_attack", "seconds": 6.169038082000043, "elapsed": 214.93293996500006, "status": "pass", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-65535", "condition": "attack", "seconds": 0.5969889019997936, "elapsed": 215.52997518200004, "status": "excluded_unavoidable", "issues": []}
+{"cohort": "formal", "case": "unavoidable_loss-65535", "condition": "no_attack", "seconds": 1.6825901550000708, "elapsed": 217.21261501200001, "status": "pass", "issues": []}
+{"cohort": "formal", "summary_status": "fail"}
+{"cohort": "extended", "case": "post_arrival_recovery-0", "condition": "attack", "seconds": 6.862716408000097, "elapsed": 225.67804459900003, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-0", "condition": "no_attack", "seconds": 11.772403748999977, "elapsed": 237.4504887180001, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-0", "condition": "attack", "seconds": 17.898164894000047, "elapsed": 255.34870493200015, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-0", "condition": "no_attack", "seconds": 20.7707563890001, "elapsed": 276.11951717400007, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-1", "condition": "attack", "seconds": 10.040953730999945, "elapsed": 286.16053062800006, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-1", "condition": "no_attack", "seconds": 17.654428803999963, "elapsed": 303.8150166990001, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-1", "condition": "attack", "seconds": 11.011702825999919, "elapsed": 314.8267770960001, "status": "fail", "issues": ["mainline_preservation_failed"]}
+{"cohort": "extended", "case": "preserve_mainline-1", "condition": "no_attack", "seconds": 16.28061020700011, "elapsed": 331.10744574700016, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-32768", "condition": "attack", "seconds": 5.6651143149999825, "elapsed": 336.772616837, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-32768", "condition": "no_attack", "seconds": 16.171039447999874, "elapsed": 352.94371389799994, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-32768", "condition": "attack", "seconds": 14.829308898999898, "elapsed": 367.77307138100014, "status": "fail", "issues": ["mainline_preservation_failed"]}
+{"cohort": "extended", "case": "preserve_mainline-32768", "condition": "no_attack", "seconds": 21.298913284000037, "elapsed": 389.072073305, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "post_arrival_recovery-65535", "condition": "attack", "seconds": 8.00426362799999, "elapsed": 397.076394316, "status": "fail", "issues": ["required_post_drop_fire_missing"]}
+{"cohort": "extended", "case": "post_arrival_recovery-65535", "condition": "no_attack", "seconds": 12.388060851000091, "elapsed": 409.46451601700005, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-65535", "condition": "attack", "seconds": 13.319479529999853, "elapsed": 422.78405107699996, "status": "pass", "issues": []}
+{"cohort": "extended", "case": "preserve_mainline-65535", "condition": "no_attack", "seconds": 18.02182314899983, "elapsed": 440.8059406940001, "status": "pass", "issues": []}
+{"cohort": "extended", "summary_status": "fail"}
+{"completed_seconds": 443.228684316}

@@ -1,0 +1,217 @@
+5ef93115bf56fc356c0f7eb18431fa7a7642aa41 Document autonomous ticket development and stacked PR workflow
+3de91c7400e2a9d5e6893cfea1082676b0b462c2 Merge pull request #139 from shhchan/PUYO-262/autonomous-ticket-workflow
+f721c9af3fd7e70a4bca8b83c3b25ef6bd18a90c Keep pending garbage hidden until its visual event completes
+e4190ddc6a21434bf6166d831e3824dd323425e2 Finish active chains before realtime match termination
+a4baa2e735052b9a58601555842cd8626d845ba7 Record normal-window terminal chain QA evidence
+c3c62dd06251ec5bac5a19c14f76e32a24bc9e75 Synchronize garbage falls with the next playable pair
+4089e0d02d430802777c3d0d21fa01a60e4d3be2 Merge PUYO-190 garbage timing into terminal resolution
+dd8e24282f066bed6a09fa3aecff2a9ada87b4b1 Test garbage wait expiry at terminal boundaries
+605f2cf6185624a892b60f543ba6f87ea163c1fc Merge pull request #141 from shhchan/PUYO-239/finish-chain-before-terminal
+4477f4a5879bb14558038fde48d385e436bd09b8 Add strict next-generation tactic contracts and fixtures
+b9a44816bba2dd404ced40242ee58eda7f0b9c14 Add public versus snapshot and timing summary adapter
+b921a2c18aff83b3434d74b228e6518c321b7279 Document public snapshot lifecycle and timing handoff
+8e1badc976d722fda59f46bb1d9c3510a3b801e7 Implement strict nextgen template catalog matcher and selector
+8b2729cb5c43ae5f33c60baa0bbbeb2f5819c6ba Merge commit '8e1badc976d722fda59f46bb1d9c3510a3b801e7' into PUYO-247/template-phase-controller
+4673fde6be5d31795be2bfc133762f9b670734ef Freeze source-grounded template cores and fixture inputs
+94e55f25e81a8425b6ac375e4a7ac2d25b8ae4d9 Revise incomplete one-turn boards and add color probes
+5dba86226703995e63ecfedbbc17e48fb64b1d15 Freeze two-decision public piece rollouts
+cfa35f6a8d3fa37493fdd19eb7136687b8fdb4ff Add nextgen decision trajectory artifacts and validator
+7407f42988ae4c55c0c62f8b828248dc2780c636 Add template phase lifecycle controller
+edb4f01e60d23dde4a8978ad0efe6eb93f99acaa Verify template catalog with legal public-piece rollouts
+7056b303fc2743d08db65d45144c52162f2ef071 Bound template color constraint search and reject impossible catalogs
+b963ce173795b1d1027d177ad758aa6122699481 Merge commit '7056b303fc2743d08db65d45144c52162f2ef071' into PUYO-246/template-catalog-fixtures
+e7a3095a0122ab24a8c942d371ba2cec6fb6caee Merge commit 'b963ce173795b1d1027d177ad758aa6122699481' into PUYO-248/public-versus-snapshot
+9d696afc114ccab8d9fb331fb60195395d3986b2 Merge commit 'e7a3095a0122ab24a8c942d371ba2cec6fb6caee' into PUYO-247/template-phase-controller
+2e73cc97fb0ca3a3bffe42ba1a7de67a60886e2d Merge commit '9d696afc114ccab8d9fb331fb60195395d3986b2' into PUYO-252/decision-trajectory-artifacts
+0f926673d64b8f0d5eea61258970b667a6d5e54f Migrate template fixture color-check budget
+cce46d1fb65a0b49c52275b3a607035e92342c2f Merge commit '0f926673d64b8f0d5eea61258970b667a6d5e54f' into PUYO-248/public-versus-snapshot
+36575a1974b3017cdcc5f30464da58ead55e01f9 Merge commit 'cce46d1fb65a0b49c52275b3a607035e92342c2f' into PUYO-247/template-phase-controller
+91607969ec0c7ada8bf50d9086b347abd222d7ca Merge commit '36575a1974b3017cdcc5f30464da58ead55e01f9' into PUYO-252/decision-trajectory-artifacts
+e7fd4e3a9ff42bdc6ba84e2034bffa1e24b73d42 Merge pull request #146 from shhchan/PUYO-252/decision-trajectory-artifacts
+1d9791f8a483ea4936759ffccf7b0052a3980f1a Validate explicit lineage decisions and missing artifacts
+6c1a6fab0e9bea9a5d94f84f18fdeb4d22525594 Show explicit adoption paths in model lineage viewer
+d90ea9926e7989c8964e296527316490c99a4e89 Add fixed-budget shared batches for nextgen tactics
+aed02746a5a039c8572e1e34f4b0866718128134 Keep all lineage decisions reachable in graph viewport
+be45e866a0174edad33b20bcd9299179a35b7fdb Add bounded public response candidate search and coverage fixtures
+cb25d05eb7b5f9ff25b5f3c63500ef4aa3136491 Connect nextgen tactic selection to scheduler receipts and phase lifecycle
+1cd3839e209147c513d311e4e50a11b5398b75af Merge commit 'cb25d05eb7b5f9ff25b5f3c63500ef4aa3136491' into PUYO-254/lineage-adoption-path
+e791df9492521e3e3416ac47461fff5bff85d9f7 Add fail-closed nextgen gates and frozen diagnostic runner
+0d7af15f390b463c7b01cd3aad691f026ab25751 Separate observed quality failures and paired measurement summaries
+3670bc298292a4f91934af07f983d547bb1742f2 Measure asynchronous policy latency against the realtime tick clock
+99c8cf8a4158bc0d5e1b650b887bae0567ec726d Distinguish activated training samples from stale measurement receipts
+35916d80049a9bd7c7971bb985cd9ad64e4fe727 Record nextgen capability failures and measured rollout costs
+b89a58523461a6a9b93085708c6e3579ea66bae9 Keep full controller payloads in raw evidence instead of summaries
+4902ba5b2753ef78461f33a9696fcd7abee28465 Refresh compact gate summaries without changing measured metrics
+e137b7a2fec7bf1e0faf334c735c60cce387d948 Add nextgen tactic controls and receipt history to GUI
+ad56600ef4e556613c868154b36004fd83974103 Merge commit 'e137b7a2fec7bf1e0faf334c735c60cce387d948' into PUYO-255/nextgen-evaluation-gates
+9c59b619035a1ef3380081e90f566fe90c63d212 Record integrated G0 and G1 verification
+126a61eccc27a555bc2fa525118f19d46d1f7fce Add Fn-free navigation for tactic history and lineage
+b9016432a78a202e2d9c2c4d9afbe5e411c7e3a4 Merge commit '126a61eccc27a555bc2fa525118f19d46d1f7fce' into PUYO-255/nextgen-evaluation-gates
+f8b75ecad4dabf1501bd36b819620c803736d9de Record keyboard and human quality QA findings
+9ff8379b9c832ac476c5f29b8aed711ecab39ffa Allow neutral template placements within commitment window
+9a7a1328c6458e75acbf3943cca0ecb2c4a6e1b9 Document neutral template phase continuation
+799e49485bd55ae755ba03b1239fffadce6ec8e9 Retry stale nextgen decisions with reusable shared search evidence
+f3663111472fce18ff89b26d0f7211d10bd4d4e6 Prioritize initial template bindings within nextgen search quotas
+3c4755d9fb3d2d5197e62de452dcf850c143bf86 Add realtime receipt diagnostics and GTR capability regression
+479d785787da7e4602472ad56e86aec4cf6db6bb Document realtime diagnostic artifact storage requirements
+ae5f92fb223c502bffc6d2816c4adecae76f5754 Use strict native shared search for nextgen decisions
+08d79a9a0c9a5e026aa0768db0e51b7c42f003ec Allow bounded latency diagnostics without tick replay retention
+349bcad28c9aa4f54ee5f3b76807fa81c36b548f Verify native nextgen isolation and runtime fail-closed behavior
+b36bbdddc83a223eb200651346ddc7007ddbfd04 Document nextgen latency parity and realtime measurements
+2f026754f32ae972e6edf60104a0c2cd6b9368b3 Preserve independent tactic ranks in versioned candidate batches
+6e82d78880253983804560f49fc7d6b9228a88d8 Restore safe-build search depth and target for nextgen policy
+05a6dd44d5814b24a646ecdce77465693edd71e1 Cache immutable nextgen schema annotations
+f10c0a5ac462a8c826994cecb79d52760bd6ff73 Reuse owned native results across public snapshot retries
+851b02fc9ea7e0c4afdaa260ebfc727b316ac023 Verify template limit through adopted scheduler receipts
+6e5d0aa5004e2fbad6f84f5a3a2c06f0eb1a565a Record safe-build quality and realtime validation
+c0c77d944ff3ed276a4b44a40a779cd72bc0977a Merge pull request #160 from shhchan/PUYO-266/post-template-safe-build
+0be88b9c6d9afe1ddda8bb4df8aa350bb2433f4b Avoid full replay diagnostics on live GUI ticks
+c511598fccc76cbfda6663f08d40d0144d3ead85 Freeze PUYO-271 regression corpus and before baseline
+7a99f283fbac1a5646994b31871d6b94188ae44b Archive GUI cadence profiling evidence
+3e054a84962327d69034cc89972ffa209064715f Include authoritative mask profiling trace
+9284bf604ef292f21d745385ed96e3ce57a9ace7 Add bounded public survival envelope before tactic execution
+1b7acdfd43143af5c3746091344dd1bc3f1f63f7 Preserve safe deliberate firing inside the survival envelope
+beead67b50d061065acb1f3125d392501f61ddbb Apply survival decisions once at the common selector boundary
+c62dd5ec14ad612123137f3fa9f5d909cda47be7 Record survival contract and paired regression evidence
+53c522b59684ca6cb878084f37feb35359b0ef22 Merge branch 'PUYO-271/regression-corpus' into PUYO-269/gui-cadence
+fe0da9892a41c54a6ab3528d4a58b3fca079f428 Merge branch 'PUYO-269/gui-cadence' into PUYO-270/survival-override
+9b64186087ea8b6e1219861ddbb534b39233966c Add fixed template constraints to Python and native search
+2c06a749449bca421bfb18d34d8e3df6ba0125ae Document template search contract and comparison evidence
+2746aeee5158a7ec1a4ffafc393f4c8eab5b1e7f Preserve selected template constraints through candidates and adoption
+efc242149487443098fa8941a1193754b15a4196 Read the backend semantic digest property in integration measurements
+b991c920fcb94e4407fcfeb706fe1a66a150187c Rank all preserved root progress before long-horizon ties
+41e11840c83983d7834fe0392f794d8d3a78a95c Record template integration regressions and fixed-budget measurements
+258397624245407e402ebf81c5ca20bdc007a475 Normalize Japanese spacing in integration notes
+63a96b2e82c55b61a95fd684b999231a454ff7a4 Add integrated regression and GUI evidence analyzers
+595dbed7851c4a995f1426103c1660fa8f0f0550 Record integrated PUYO-271 quality and cadence evidence
+de0e8718e85d398dd78ca77a896cdca031a56282 Share one reachability traversal across placement targets
+a01edabc70d2e43f2bb2d7354354b3372b7370c7 Add fixed GUI cadence and input boundary probe
+049a02da4568a79baedc9af92281fabb332b8538 Record native build and scheduler errors in cadence traces
+b502627fbe277982c93f9f3ec7ee83cd5a560b90 Compare public prefix progress for committed templates
+98d24f06c2fe5e3bdd10da9d31c0bf912c6ce31e Skip nonadvancing terminal calls in human tick traces
+f53252bbd4f0c526a6a4ab3ea497eae96fce1e02 Document mask cadence results and remaining input stalls
+9ce014552d5b103f87290095b2156e29e83608a4 Reduce public prefix search overhead with compact transitions
+273beb27c9e0e12fb8c733d7c200fdd7654eb2f9 Preserve human input edge order across realtime ticks
+2b99f5d8ba6b63c6f35e4adcf7be39bd5ab6d94d Reduce duplicate nextgen scheduler work
+7587d0bdfa166ec48135b1a6001951d54d7a0029 Cover human tap behavior during catch-up
+6c796bfa8a7da878a6e7ce0522d52a5a2395b55d Record public prefix reproduction and paired regression evidence
+10e56e1896b4391bfa125f0800d1f35655a55508 Merge commit '6c796bfa8a7da878a6e7ce0522d52a5a2395b55d' into PUYO-271/integrated-comparison
+247a62d940b3a6583e57c639750f347f3c586b2e Record paired GUI cadence and input traces
+af233dc1cf616f99a6bd0af293a5c16da09c9bf1 Keep cadence summary focused on review metrics
+4220f3a6069ef8dfef08ebb5de66eac80be6013b Merge commit '10e56e1896b4391bfa125f0800d1f35655a55508' into PUYO-273/reachable-mask-cadence
+156a7618027151134783197a969ba7ed50b3015f Merge commit '4220f3a6069ef8dfef08ebb5de66eac80be6013b' into PUYO-269/gui-input-cadence-followup
+f67dfd963f80e4728afe422f305b3758574870fb Audit completed template cell usage from public receipts
+1a25af1d3f3618d4ad7d44b6ae25080bbdf204fc Freeze native safe-build cohorts without bypassing G2 prerequisites
+6359f9696a0ca24d1cd609fe5336ce114672c1a0 Validate cohort summaries against recorded chain trajectories
+f955d5ada60b4d8055d6d9739859af8bbb7256e7 Replay receipt and lock mismatches from saved native inputs
+1649aa0a4c2e4b42cb883382be352df7e262dbe0 Archive native G2 failures and completed asset diagnostics
+3e193f7c75249f13bb877c7ed0669d9074d52fba Clarify template release policy ownership for seed 135
+e94bf76e9af4d463f0366cf9723bc2e0173ed2ff Verify placement witnesses against live gravity and lock timing
+f723f81ef2e6022a1c89bf05f45b7773bd4da8a3 Trace planned and actual lock roots in GUI comparisons
+79bbe41e1d4008d0d7c81fa0bf4a73bd7f859b3d Share repair transitions within each timed mask calculation
+c987ee9e1e1b7e3bf77d09105c681c87e5134516 Validate active placement input suffix before replanning
+d77e3c140e0f00a8c408c09204683be6b710b717 Record timed placement regression and GUI cadence evidence
+5bcdd1278cc70cee3f1edb396706d8d1552c68b3 Merge commit 'd77e3c140e0f00a8c408c09204683be6b710b717' into PUYO-269/gui-input-cadence-followup
+0b42445ec703cff5c696a70428c872c26a36ab4f Record integrated GUI input and cadence regression
+2d78cad9b26fb129d4b33dd75add90ff49456491 Merge commit '0b42445ec703cff5c696a70428c872c26a36ab4f' into PUYO-266/gtr-asset-quality
+d3acb77d9542e66209618deb36eaae6d2bcaca9d Archive integrated native G2 and fixed-seed paired measurements
+fbfd4bcfd4903692c033934c0bb7f747624d8798 Fix inherited selected-template Clippy failures
+c4b6eb582f98f76e2133358266def95a9d422d58 Document desktop handoff and preserve local orchestration records
+0c90fd27d38f546dba80aebd25bc6bb0c694eee8 Fix inherited boundary import lint and update handoff references
+732ed3da17a1a6144a98c7995fbe9dfe2e45ea91 Merge pull request #171 from shhchan/PUYO-274/desktop-handoff
+3a86e818131e8fd0e6291a4a4d1916b31916d874 Measure GUI diagnostic copies and parent IPC costs
+3b958b8dbe4e2264cf15897a4719d29e49808177 Expose bounded public nextgen plan previews
+98c84c1fc05dfce67b1d0f894e51fee961f62569 Document nextgen preview contract and validation
+ffbcd814fba423291de8ee9182fe5096840a232a Add reproducible desktop survival diagnostics
+d1060bad30c56a6d6ab158fa51247feefd7a43f8 Reject unobserved hidden capacity as a survival witness
+1f2113bfe565cf3f7b5bda4b80dda0b2902af04b Read live receipt summaries without copying search batches
+07f3189c14e49e69d9004c92b094b0ac8f2ef1cc Bind nextgen previews to adopted live receipts
+b034a4443687d7fb7315f0146248228c117c206a Trace adopted preview visibility in GUI probes
+18066db85fe18ea6c4b0f1520ee7489bd0270eca Keep adopted previews during independent opponent progress
+18c10518e4b9d026bb6c872cd6bec1c94b091f4a Revert "Reject unobserved hidden capacity as a survival witness"
+78edae77b7bce42245aca8f84e8d706e05c98ebb Decode nextgen diagnostics on the existing result reader
+22cece294ea5a6a85ed6c2f6ddfed19448476faa Preserve strict validation proof through controller handoff
+78b2c297e5cafb55b71fc1a2c8ec1a9d850b6fcc Preserve desktop survival counterexamples and rejected regression
+3f12dda1912e6e300b2e266ef66be2de7114765b Record desktop cadence comparisons and remaining frame gate
+25bdae7c291fa1445d8150cbedfc473d01126d34 Merge preview generation for desktop review stack
+d6ca1b94baa9cd226f7ff79b7b6600e7c11db511 Merge survival investigation for desktop review stack
+fcf362747af581ab27ffd9c33322d5c1c7e98581 Document desktop handoff results and combined GUI validation
+c812b3f8ad257645937fa6140412a6db6be29930 Record verified desktop review stack and Jira references
+b7faa3ffac039a751397454119c1d24aa51504eb Record Sprint 14 ownership and QA handoff
+28370abaa88f1282c9244cea58aee3af4ae5749a Keep GTR capability regression focused on current adoption
+6e9ec60d97c3742d1d3eb619cb7f220f84df696a Audit desktop capability evidence and outstanding G2 boundary
+a3396b6d10e6f9678fa44dac1ff2e5d2ece8147d Clarify capability completion separately from G2 quality
+b7365babf7177fb373b41e19620a68d57df001a9 Reuse current activation mask witnesses without replanning roots
+b0558c2fd9f6906add29dd3633c2600bd1f9d4e7 Add public-input reference comparison for template quality
+1b7ef0b465c9a7b6adaa94b4118564c22c1f7485 Record desktop activation A/B and remaining input tail
+71e737064e5091e8ea1652dfa5af917e1f3ef785 Record Sprint 14 desktop QA and execution updates
+58a40862e0646eb2cd2295144bffc95576d4bc6d Normalize realtime arrays before saving reference evidence
+ec2d3c0447d685d14fd472d3bda1a1fde3bfe548 Reprove selected completion witnesses against live activation state
+601d71ca0de807d872981d98b07e93b5c7b4edca Record rejected reference shadow roots without executing them
+f7cdf7fe3d161b9738a6c0e6f413ce862df2f28e Preserve incomplete live reference runs in comparison results
+3e1b523010d7a6e938a31d6f2f881058e4a03931 Add configurable human-input realtime survival diagnostics
+34e0d8d15af01a639951c872445b7b8c36498fde Record public actual-lock history independently of adopted intent
+0e7a707a27632777319437b85e91e4e2866dacc6 Exclude solid-column crossings from survival continuations
+b287a3c7aa40563237d7c2cdfce2d7462739bb52 Document survival counterexamples and rejected control-budget prototype
+d5656843b7511e3f93b2e6dc950c9b705c136ab5 Record public reference comparison and template acceptance evidence
+0a364aa2a6d8b5a5ca0313c5aa6ca3369a21f222 Preserve final cadence evidence and remaining prepare stalls
+c735ea7fa4c869d77afc5a2d20ed665fe381e3fc Record post-change human attack and fixed-seed regression evidence
+73743bb5d371a55f25da58ce198869de6bd9250b Reduce validated nextgen wire proof overhead
+f90ceca38b3bbc6b4d47a02ccf662241cf85e843 Record fixed desktop cadence gates and rejected mask experiments
+251b62d1c2cda145a5d912580af98305efdba4a0 Compress rejected planner patches without changing their bytes
+f3f40f62438bc7c3fa37fb7a33f65e9cb14bd7f1 Archive offline control feasibility evidence
+f8b660c2522f0cfc6328a75aab7e87e756185009 Record Sprint 14 ticket results and remaining gates
+1725fab93b331c6c7055c1295047c12acde49015 Remove unused reference comparison exception binding
+10caa2fa01256bfeea65b9f26d210e90a960afc2 Compress rejected prototype patch without changing bytes
+cfac8a69a5d4bb51d305114bd25f5a8c93a0dc76 Merge commit '1725fab93b331c6c7055c1295047c12acde49015' into PUYO-266/public-survival-history
+902e9d9e0846ae4ffc125937609bf5c30ea4c349 Merge commit 'cfac8a69a5d4bb51d305114bd25f5a8c93a0dc76' into PUYO-273/desktop-mask-cadence
+4056baa70de9b1d0ae897e2fcb1d07ae69db3441 Merge commit '902e9d9e0846ae4ffc125937609bf5c30ea4c349' into PUYO-269/desktop-cadence-finish
+6afd830cde46b3456efe65787c95d70a8099d815 Merge commit '4056baa70de9b1d0ae897e2fcb1d07ae69db3441' into PUYO-274/sprint14-closeout
+6663bf9be7b214792dd71e40d71c6d19c5f29ef6 Record combined QA and stacked review order
+6afac5bcb6e1d5ccdd655ec30aef637491f95c2e Reuse immutable planner inputs and skip inactive idle collection
+19da026dc6bd8ee358df2155552ab9b07a96908f Record planner allocation parity and fixed GUI stage comparisons
+ecad2500e74aeb4ad33c60a8be2371c67cf97706 Merge commit '19da026dc6bd8ee358df2155552ab9b07a96908f' into PUYO-274/sprint14-closeout
+b5c40e880ba454596f48378c4e25ce7e94900b06 Document updated desktop cadence gate result
+d2a6cbf4d2872d4bd22cb711e8413f9806495cd1 Track certain own hidden occupancy from public lock history
+7bc08a5e9a1b60968d182f090c02c351e35bad4c Bind public inference to versioned nextgen requests
+a0f69b8b004ca704e623da65ba473de7c61a74ab Refine public survival witnesses within existing control budget
+ce44f6ef4d47dafcb21613c907d285971f84000a Reject stale observer episodes before binding inference
+0f9f2b0ccdced4dcd8fc8fe2361fd816bf8e1789 Archive public inference survival cohort and remaining failures
+15aed37b005d9c8410a395511cdfbc178ff2caf6 Record rejected staged control proofs and final regressions
+2b8621b73e376ecab928bc22e62956661ffad34d Merge commit '15aed37b005d9c8410a395511cdfbc178ff2caf6' into PUYO-273/desktop-mask-cadence
+41a8079eb662e9e7a67463c898f67da6db3044ad Merge commit '2b8621b' into PUYO-269/desktop-cadence-finish
+cd299d7c2e25cf10c1130fb94ba0bc3f134c31ce Merge commit '41a8079' into PUYO-274/sprint14-closeout
+55dc13cc2d26134aca67c6b9630feb2a4c9c9437 Record combined desktop GUI gate evidence
+4e07395060f3a483d98c754eb20686463d12f85d Update Sprint 14 desktop closeout status
+0633af0bf3c4d1bda41c8be6b1053049aa0bc93b Prioritize certified recovery from landed public garbage
+72efe8a81df188db522ac3860bbb10bca27d0090 Archive landed recovery locks and bounded survival run
+a5b8be92b579a581c9ff4a5fc238af7b5ec1be3d Record sixty-lock public garbage recovery evidence
+e787567cdb4cfecb9aba8795a3844fb60ecbf891 Merge PUYO-266 recovery into desktop mask cadence
+ebb45858b90f412d86e724663298d89b48934901 Merge PUYO-273 recovery stack into desktop cadence
+5180bc7e3225915c6e254b798a0330bb2b892381 Merge PUYO-269 recovery stack into desktop closeout
+e26980cf9ed09bb143f61e2f13208a1b8630b8b2 Archive final stacked GUI gate evidence
+7ef9d6e33f936ccc978b56ab13c4eacc27f5a411 Update Sprint 14 handoff after recovery
+1969271aa64f3e4abca260bf6fdb2e6f2c4a9c81 Rank eligible main fires before unevaluated future plans
+cdac8b41cf5b9bf1a8a57a832d2a15031854f8e9 Archive eligible fire quality and remaining prefix limits
+64dd91c85fb6567938552731d2e46d23bf13602d Merge PUYO-266 eligible fire ranking into mask cadence
+a21a5a902d429c6830330f2d82c44c299714f4f2 Merge PUYO-273 eligible fire stack into cadence
+3724eb9af7ad23fd730d0a2ed8e6c6668fc3367f Merge PUYO-269 eligible fire stack into closeout
+929c458808968112972f86075ff61af237b3f1c5 Archive GUI gate after eligible fire ranking
+313e7482176a659b9c3ddb029fcd9fb04af9ec32 Update Sprint 14 recovery status
+e725e6daa85c06f09ed4e36e1a3d39debba496b0 Fund alternate survival witnesses with saved duplicate work
+1c4b2f0783d7ec73966e8f3990c46a1337a60866 Stream diagnostic JSON output to limit peak memory
+3e7e73d2cfe079f3960344463d42745b990c9ef0 Archive bounded human replay and offline audit evidence
+72d3f834a00fe9cd4e871ae538d1738585d60ef1 Preserve five-seed bounded survival verification
+58a9041f6bf015dd283910827812c315a88e231f Merge PUYO-266 bounded survival evidence into mask cadence
+a29e31f470a81d31bb2b7cc53b3bd0b056358a33 Merge PUYO-273 bounded survival stack into cadence
+32280fda0a4f980b9bbdf1d07b3cbf09bad7fbee Merge PUYO-269 bounded survival stack into closeout
+ac28e0fe93e8032ac0ea1ea2995c3e83b876c151 Archive bounded survival GUI gate variability
+7e46e6e0be2514d68ddcde337c9caefa95e97a43 Update Sprint 14 bounded survival handoff
+6e2c1404bcaa42eb5ba01dcb9fc61730c8d61d7c Document public-prefix quality residuals and G2 blockers
+4a04a9858c5611fd18f839bdc9a624b65c858c34 Add scoped CPU diagnostics for GUI frame variance
+a0a6e870bcefa7ee0f9c9a4e83e55e538fe705c3 Merge PUYO-266 quality audit into mask cadence
+b9006eb76d01af97aea798633908f5aaf27c8224 Merge PUYO-273 quality audit into cadence finish
+2f9e94199c927276e0dcd5cb85ac44d2e81e62e9 Merge PUYO-269 frame variance audit into closeout
+7a87150c6ea8b4862ac5a66aa228fba437694a96 Record Sprint 14 residual audits and QA handoff
+643199576b9229fa2f5b64ccb5e33c88c1c17f62 Plan Sprint 15 quality gates and Sprint 16 refactor design
+7757f2312f34a1d79593f43ebd4f41921c61f0a6 Merge pull request #182 from shhchan/PUYO-274/sprint14-closeout

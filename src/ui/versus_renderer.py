@@ -869,6 +869,9 @@ class VersusRenderer:
             collection_color = (110, 235, 160) if getattr(controller, "collection_enabled", False) else (245, 150, 135)
             collection_text = f"{collection_status}  {controller.collection_contents_label}"
             self._draw_text(collection_text, self.tiny_font, collection_color, (SCREEN_WIDTH // 2, 722), center=True)
+        qa_path = getattr(controller, "qa_session_path", None)
+        qa_status = f"QA SAVE ON  {qa_path}" if qa_path else "QA SAVE OFF"
+        self._draw_text(qa_status, self.tiny_font, (110, 235, 160) if qa_path else (245, 150, 135), (SCREEN_WIDTH // 2, 738), center=True)
         bindings = controller.keybindings
         controls = (
             f"{bindings.display_names('open_settings')} keys  "

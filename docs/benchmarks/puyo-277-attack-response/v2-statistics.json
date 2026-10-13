@@ -1,0 +1,57 @@
+{
+  "extended": {
+    "activated": 128,
+    "conditions": 16,
+    "deadline_misses": 0,
+    "decisions": 128,
+    "failures": {
+      "post_arrival_recovery-65535-attack": [
+        "required_post_drop_fire_missing"
+      ],
+      "preserve_mainline-1-attack": [
+        "mainline_preservation_failed"
+      ],
+      "preserve_mainline-32768-attack": [
+        "mainline_preservation_failed"
+      ]
+    },
+    "lock_mismatches": 0,
+    "no_attack_statuses": {
+      "pass": 8
+    },
+    "quota_violations": 0,
+    "replay_verified": 16,
+    "statuses": {
+      "fail": 3,
+      "pass": 13
+    }
+  },
+  "formal": {
+    "activated": 160,
+    "conditions": 56,
+    "deadline_misses": 0,
+    "decisions": 160,
+    "failures": {
+      "post_arrival_recovery-65535-attack": [
+        "required_post_drop_fire_missing"
+      ],
+      "preserve_mainline-1-attack": [
+        "mainline_preservation_failed"
+      ],
+      "preserve_mainline-32768-attack": [
+        "mainline_preservation_failed"
+      ]
+    },
+    "lock_mismatches": 0,
+    "no_attack_statuses": {
+      "pass": 28
+    },
+    "quota_violations": 0,
+    "replay_verified": 56,
+    "statuses": {
+      "excluded_unavoidable": 4,
+      "fail": 3,
+      "pass": 49
+    }
+  }
+}

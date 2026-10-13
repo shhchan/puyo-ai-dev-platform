@@ -1,0 +1,63 @@
+{
+  "schema": "puyo.sprint15.single_cohort_preregistration.v1",
+  "registered_utc": "2026-10-10",
+  "owner": "PUYO-266",
+  "selection_method": "30 evenly spaced logical provider pattern IDs including both endpoints, fixed before new provider evaluation",
+  "pattern_ids": [
+    0,
+    2259,
+    4519,
+    6779,
+    9039,
+    11299,
+    13558,
+    15818,
+    18078,
+    20338,
+    22598,
+    24858,
+    27117,
+    29377,
+    31637,
+    33897,
+    36157,
+    38417,
+    40676,
+    42936,
+    45196,
+    47456,
+    49716,
+    51976,
+    54235,
+    56495,
+    58755,
+    61015,
+    63275,
+    65535
+  ],
+  "repeats": [
+    1,
+    2
+  ],
+  "provider": "esports_tsu",
+  "dataset_identity": null,
+  "dataset_identity_note": "Resolve PUYO-275 source verification before formal evaluation; no synthetic or legacy random substitute",
+  "construction_placements": 40,
+  "maximum_activation_placements": 6,
+  "policies": [
+    "nextgen_tactic_manager",
+    "deep_chain_builder"
+  ],
+  "information_boundary": "current/NEXT/NEXT2 only; pattern ID and hidden stream inaccessible to policy",
+  "budget": "reference depth16/width250/scenarios6/shared quota600000; freeze exact config/source/native identities before execution",
+  "thresholds": {
+    "mean_maximum_actual_chain": 10,
+    "unjustified_premature": 0,
+    "avoidable_suffocation": 0
+  },
+  "notes": [
+    "Necessary survival clears require recorded public witness and separate count",
+    "Separate attack-response gate PUYO-277; no full G2 PASS until both gates and remaining A/C are met",
+    "No learning PUYO-256/257/258"
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "activated": 24,
+  "claim": "Three formerly failing attack cases only; not the formal 56+16 cohort",
+  "commit": "8ff8131e34ae56048f970fca8e873ebff00e01c9",
+  "conditions": 3,
+  "deadline_misses": 0,
+  "decisions": 24,
+  "lock_mismatches": 0,
+  "quota_violations": 0,
+  "replay_verified": 3,
+  "results": {
+    "post_arrival_recovery-65535": {
+      "canceled": 1,
+      "drop_ticks": [
+        44,
+        158
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        158
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    "preserve_mainline-1": {
+      "canceled": 1,
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    "preserve_mainline-32768": {
+      "canceled": 1,
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    }
+  },
+  "schema": "puyo.nextgen.targeted_response_check.v1",
+  "seconds": 48.73648788300011
+}

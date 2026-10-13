@@ -1,0 +1,1883 @@
+{
+  "audit_source_files": {
+    "eval/nextgen_attack_response_gate.py": "030395cf419f90e40dd14b9e471646e724db38c822b61ca0bcf1dd22a4259de3",
+    "tests/test_nextgen_attack_response_gate.py": "3688bddabe41b185dd744efded0002433db16f3e091229c12a64e342750a10e5"
+  },
+  "original_manifest_sha256": "c047f98a23a8dfc91eb48a96cd82efe31177e6c78d8a74c2f94b46e9ec67cb63",
+  "policy_calls": 0,
+  "rows": [
+    {
+      "canceled": 1,
+      "case_id": "cancel_boundary-0",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        82
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "cancel_boundary-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 2,
+      "case_id": "post_arrival_recovery-0",
+      "condition": "attack",
+      "drop_ticks": [
+        44
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        200
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 2,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "post_arrival_recovery-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "independent_subchain-0",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        82
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "independent_subchain-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "mainline_without_key-0",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        98
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "mainline_without_key-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-0",
+      "condition": "attack",
+      "drop_ticks": [
+        60
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-0",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [
+        "attack_boundary_outcome_unobserved"
+      ],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-0",
+      "condition": "attack",
+      "drop_ticks": [
+        38
+      ],
+      "excluded_from_response_success": true,
+      "fire_ticks": [],
+      "game_over": true,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "excluded_unavoidable"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-0",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "cancel_boundary-1",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "cancel_boundary-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "post_arrival_recovery-1",
+      "condition": "attack",
+      "drop_ticks": [
+        44,
+        156
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        156
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "post_arrival_recovery-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "independent_subchain-1",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "independent_subchain-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "mainline_without_key-1",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        98
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "mainline_without_key-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-1",
+      "condition": "attack",
+      "drop_ticks": [
+        56
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-1",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [
+        "attack_boundary_outcome_unobserved"
+      ],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-1",
+      "condition": "attack",
+      "drop_ticks": [
+        38
+      ],
+      "excluded_from_response_success": true,
+      "fire_ticks": [],
+      "game_over": true,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "excluded_unavoidable"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-1",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "cancel_boundary-32768",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "cancel_boundary-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "post_arrival_recovery-32768",
+      "condition": "attack",
+      "drop_ticks": [
+        44,
+        158
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        158
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "post_arrival_recovery-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "independent_subchain-32768",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "independent_subchain-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "mainline_without_key-32768",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        98
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "mainline_without_key-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-32768",
+      "condition": "attack",
+      "drop_ticks": [
+        56
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-32768",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [
+        "attack_boundary_outcome_unobserved"
+      ],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-32768",
+      "condition": "attack",
+      "drop_ticks": [
+        38
+      ],
+      "excluded_from_response_success": true,
+      "fire_ticks": [],
+      "game_over": true,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "excluded_unavoidable"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-32768",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "cancel_boundary-65535",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "cancel_boundary-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "post_arrival_recovery-65535",
+      "condition": "attack",
+      "drop_ticks": [
+        90
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        90
+      ],
+      "game_over": false,
+      "issues": [
+        "required_post_drop_fire_missing"
+      ],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "canceled": 0,
+      "case_id": "post_arrival_recovery-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "independent_subchain-65535",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        96
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "independent_subchain-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "mainline_without_key-65535",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        98
+      ],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 1,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "mainline_without_key-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-65535",
+      "condition": "attack",
+      "drop_ticks": [
+        58
+      ],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "no_secondary_chain-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 1,
+      "case_id": "preserve_mainline-65535",
+      "condition": "attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [
+        295
+      ],
+      "game_over": false,
+      "issues": [
+        "mainline_preservation_failed"
+      ],
+      "maximum_chain_observed_not_threshold": 3,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "canceled": 0,
+      "case_id": "preserve_mainline-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": "response_quota",
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-65535",
+      "condition": "attack",
+      "drop_ticks": [
+        38
+      ],
+      "excluded_from_response_success": true,
+      "fire_ticks": [],
+      "game_over": true,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "excluded_unavoidable"
+    },
+    {
+      "canceled": 0,
+      "case_id": "unavoidable_loss-65535",
+      "condition": "no_attack",
+      "drop_ticks": [],
+      "excluded_from_response_success": false,
+      "fire_ticks": [],
+      "game_over": false,
+      "issues": [],
+      "maximum_chain_observed_not_threshold": 0,
+      "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+      "search_completeness": [
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        },
+        {
+          "actual_positive_witness": true,
+          "cutoff": null,
+          "public_geometry": "conditional_hidden_rows",
+          "response_status": "partial"
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "schema": "puyo.nextgen.attack_response_audit_summary.v1",
+  "status": "fail",
+  "ticks_added": 0
+}

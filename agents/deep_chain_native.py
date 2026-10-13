@@ -658,7 +658,7 @@ def _encode_search(request: NativeDecisionRequest) -> bytes:
     writer.u8(seed is not None, "seed present")
     writer.u8(config.winning_score_threshold is not None, "winning score present")
     writer.u8(config.use_transposition_table, "transposition table flag")
-    writer.u8(0, "search reserved")
+    writer.u8(config.score_target_only, "score target only")
     writer.u64(0 if seed is None else seed, "decision seed")
     writer.u64(
         0 if config.winning_score_threshold is None else config.winning_score_threshold,
@@ -690,7 +690,7 @@ def _decode_search(payload: bytes) -> _SearchSection:
     seed_present = reader.u8("seed present")
     winning_present = reader.u8("winning score present")
     use_transposition_table = reader.u8("transposition table flag")
-    reserved = reader.u8("search reserved")
+    score_target_only = reader.u8("score target only")
     decision_seed = reader.u64("decision seed")
     winning_score_threshold = reader.u64("winning score threshold")
     premature_target_gap_penalty = reader.f64("premature target gap penalty")
@@ -705,7 +705,7 @@ def _decode_search(payload: bytes) -> _SearchSection:
         raise InvalidNativeInputError(
             "invalid search option flag", failing_tag=REQUEST_SEARCH_CONFIG_TAG
         )
-    if use_transposition_table not in (0, 1) or reserved:
+    if use_transposition_table not in (0, 1) or score_target_only not in (0, 1):
         raise InvalidNativeInputError(
             "invalid search control flag", failing_tag=REQUEST_SEARCH_CONFIG_TAG
         )
@@ -748,6 +748,7 @@ def _decode_search(payload: bytes) -> _SearchSection:
             winning_score_threshold=(
                 winning_score_threshold if winning_present else None
             ),
+            score_target_only=bool(score_target_only),
             use_transposition_table=bool(use_transposition_table),
         )
     except ValueError as exc:

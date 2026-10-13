@@ -1,0 +1,605 @@
+{
+  "request_tick": 1527,
+  "action": 0,
+  "selection": {
+    "selected_tactic_id": "build_main",
+    "candidate_id": "candidate:1881abe6b3b80316853a9c74621a5ffd314c833783dc171a20a9100c7769b92e",
+    "batch_digest": "c2963c9b8a275ca753a845c0f6e44c201ce146cbfa7e6c77dc5ba07eb46320cd",
+    "selector_kind": "rule",
+    "selector_checkpoint": null,
+    "behavior_log_prob": null,
+    "value": null,
+    "reason": "survival_safe_nonfire",
+    "schema_version": "puyo.nextgen.selection.v1"
+  },
+  "survival": {
+    "status": "bounded_witness",
+    "active": true,
+    "nodes": 116,
+    "horizon": 3,
+    "board_complete": false,
+    "reused_transition_nodes": 0,
+    "source": "public_history_inference",
+    "scope": "known_prefix_geometric_continuations; replan_each_spawn",
+    "safety_guarantee": false,
+    "roots": [
+      {
+        "action": 0,
+        "status": "witness",
+        "root_chain": 0,
+        "witness": [
+          0,
+          5,
+          7
+        ]
+      },
+      {
+        "action": 1,
+        "status": "witness",
+        "root_chain": 1,
+        "witness": [
+          1,
+          0,
+          3
+        ]
+      },
+      {
+        "action": 2,
+        "status": "unknown",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 3,
+        "status": "unknown",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 4,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 5,
+        "status": "witness",
+        "root_chain": 1,
+        "witness": [
+          5,
+          0,
+          0
+        ]
+      },
+      {
+        "action": 6,
+        "status": "unknown",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 7,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 9,
+        "status": "fatal",
+        "root_chain": 0,
+        "witness": []
+      },
+      {
+        "action": 10,
+        "status": "fatal",
+        "root_chain": 1,
+        "witness": []
+      }
+    ],
+    "unreachable_roots": [
+      8,
+      11,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "control_proof": {
+      "status": "certified",
+      "certified_root": 0,
+      "trials": [
+        {
+          "root": 2,
+          "status": "unknown_control",
+          "terminal_action": null
+        },
+        {
+          "root": 0,
+          "status": "unknown_control",
+          "terminal_action": null
+        },
+        {
+          "root": 3,
+          "status": "unknown_control",
+          "terminal_action": null
+        },
+        {
+          "root": 6,
+          "status": "unknown_terminal",
+          "terminal_action": null
+        },
+        {
+          "root": 1,
+          "status": "certified",
+          "terminal_action": 3
+        }
+      ],
+      "charged": {
+        "control": 48,
+        "placement": 32,
+        "terminal": 8
+      },
+      "placement_cache_hits": 11,
+      "placement_cache_entries": 60,
+      "control_cache_hits": 20,
+      "cache_scope": "request_local; full_state_pair_action; occupied_mask_target_for_geometry",
+      "scope": "public_inferred_known_prefix_control_and_one_color_independent_placement",
+      "safety_guarantee": false,
+      "fallback": false,
+      "quiet_alternative": {
+        "trials": [
+          {
+            "root": 2,
+            "status": "unknown",
+            "witness": [],
+            "terminal_action": null
+          },
+          {
+            "root": 0,
+            "status": "certified",
+            "witness": [
+              0,
+              5,
+              7
+            ],
+            "terminal_action": 0
+          }
+        ],
+        "target_chain_count": 10,
+        "terminal_prefilter": {
+          "evaluations": 6,
+          "cache_hits": 13,
+          "charged_as": "terminal"
+        },
+        "control_graph_entries": 48,
+        "control_graph_hits": 139,
+        "scope": "public_known_prefix; unchanged_root_order_and_survival_quota"
+      }
+    }
+  },
+  "counters": {
+    "shared_nodes": 87118,
+    "template_nodes": 0,
+    "response_nodes": 256,
+    "feature_evaluations": 55178,
+    "elapsed_ms": 158.089839999775
+  },
+  "actual_events": [
+    {
+      "type": "lock",
+      "tick": 1562,
+      "axis_x": 0,
+      "axis_y": 11,
+      "rotation": "UP"
+    },
+    {
+      "type": "resolution_complete",
+      "tick": 1563,
+      "score_delta": 1,
+      "attack_score_delta": 0,
+      "chain_end_score": 0,
+      "chain_count": 0,
+      "game_over": false,
+      "all_clear_achieved": false,
+      "all_clear_bonus_pending": false,
+      "all_clear_bonus_consumed": false,
+      "all_clear_bonus_score": 0
+    }
+  ],
+  "actual_lock_matches": true,
+  "all_replay_hashes_match": true,
+  "ticks": [
+    {
+      "tick": 1527,
+      "inputs": {
+        "player_0": {
+          "press": [
+            "LEFT"
+          ],
+          "release": []
+        }
+      },
+      "state_hash": "bc928292eafe26a8c7e23b4240bfc3b803cb7cc553b89626329e13452d405aaa"
+    },
+    {
+      "tick": 1528,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": [
+            "LEFT"
+          ]
+        }
+      },
+      "state_hash": "ecbb922cc377054c09535125e45205132025f0255ad1640fada577ce0d000dd0"
+    },
+    {
+      "tick": 1529,
+      "inputs": {
+        "player_0": {
+          "press": [
+            "LEFT"
+          ],
+          "release": []
+        }
+      },
+      "state_hash": "ed8bcb98f587b6942ae29e759bc2bf9eced80028591c2565d56d4952a1ac75af"
+    },
+    {
+      "tick": 1530,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": [
+            "LEFT"
+          ]
+        }
+      },
+      "state_hash": "3558502ebde93fab73777a14e622c5647e84c74b17291d1b1cbe91a07772ad15"
+    },
+    {
+      "tick": 1531,
+      "inputs": {
+        "player_0": {
+          "press": [
+            "DOWN"
+          ],
+          "release": []
+        }
+      },
+      "state_hash": "f57cdd95972910c87b14b9da6ed6d1a83e2e12ff8de7fef6531ab716a200285e"
+    },
+    {
+      "tick": 1532,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": [
+            "DOWN"
+          ]
+        }
+      },
+      "state_hash": "ed67b7e2b05036d6821399064f0e44edfdb753e13d7eb6a21fb1edb47471c023"
+    },
+    {
+      "tick": 1533,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "0a7c07ddcf5cb0500335f85438282d168944258a9362d6b3d52e75b7a2b03c55"
+    },
+    {
+      "tick": 1534,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "abd0ed40c422b3fa4c12ecca18e13da51498935fd8f39508e21289879e7fbdef"
+    },
+    {
+      "tick": 1535,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "c541b8116876d95c9d2618774614f87bd4d5fc021fa9b0b72bc6e57b5ebefb60"
+    },
+    {
+      "tick": 1536,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "d498cee2a165d1cdbc83c8b57991cd93c531aea8182055a0049ae324d85975e2"
+    },
+    {
+      "tick": 1537,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "989ba748d6725ec4e081968497c18e43d78ab00e7b9cc142ceaeec63d64706d6"
+    },
+    {
+      "tick": 1538,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "38de35e1497941d4455e8a0f7776864f70cc17687c0c013c070d67872396fbbf"
+    },
+    {
+      "tick": 1539,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "c6c857cebcba815edc619ef660a3dd9f463525a22ac71448e29e4bdd62b72985"
+    },
+    {
+      "tick": 1540,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "205d6195d83c2dc803d876ce3bd5832d02b6c4fdd29951eeecedd2264d28cd2c"
+    },
+    {
+      "tick": 1541,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "c192094f6a43276b8dd34ce2c28fa379b347e29a169e894e6253cf09bbf55cbf"
+    },
+    {
+      "tick": 1542,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "37718af2c807390cc898c232804e91dd23a9b1265fc7d04f53b2d39f9ace6108"
+    },
+    {
+      "tick": 1543,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "12a66183b6aa050ec45cd74b862c90a36f83e1b658a3bc449f9b3e3d9ff320c1"
+    },
+    {
+      "tick": 1544,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "71b51e0bdae3fc34975f649b7b0d04bdf8425c1ab95fe7b18058929d46b98afb"
+    },
+    {
+      "tick": 1545,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "77d865d44026a28c0cf7651aaf3462beaeb2191fb48466bcbac65c982fa84509"
+    },
+    {
+      "tick": 1546,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "e41a44f0b58bf532e33caadbf6e41f6cc8984240a7f0024388b3a320dc997556"
+    },
+    {
+      "tick": 1547,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "b7e335c1fe9d95b55d28b771509ae429563123a1982531489600b6b06ee4fccd"
+    },
+    {
+      "tick": 1548,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "520d13782caa0095a50ccd4b3bf9e6efec810fe71cef213f9fb57e511d108208"
+    },
+    {
+      "tick": 1549,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "5f838c0cf438ee454aab5a64607af4c1e555fa05ebe443b9824392bd87a296cb"
+    },
+    {
+      "tick": 1550,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "595c75e94196aa7b15e4aacdef7b57fd63b4ec0299d9ea935b9638ed94959021"
+    },
+    {
+      "tick": 1551,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "77b5f6739ecc742aa80648cf6647ca2495a2065ce498a3648697c787c24e7e1c"
+    },
+    {
+      "tick": 1552,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "d447568490330a4cc96568e6548ba7cb55e62b15dcb16e4f0690face0ee0a1fb"
+    },
+    {
+      "tick": 1553,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "dc224fecabbb10607321abed94334eead82689d0f0f7c7982271fff5d318a90b"
+    },
+    {
+      "tick": 1554,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "b25dc68a983a447e99af79256fa0345ba6bbf5b0ac998c390b682bc9d003d3c3"
+    },
+    {
+      "tick": 1555,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "26d3da8a1ca7299e69100fc78a364b171a4d33577268a2631e514200f44a4c04"
+    },
+    {
+      "tick": 1556,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "02ed20fcc470de879fa04bc011474ac42e0faaf84e804900d6b858c87e68968a"
+    },
+    {
+      "tick": 1557,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "5423f83e954823937c610a6c55d23ac48fa262df2b33327d867605832b786fd3"
+    },
+    {
+      "tick": 1558,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "a554d0f461693829d4cb15f3983e37377c47cb1729d29e4b27c8a07833c71e9a"
+    },
+    {
+      "tick": 1559,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "6caf72220dce4f71fd4f7c2b43a4bccb9b4ca9a76a0a0ff99ad91076d65433f8"
+    },
+    {
+      "tick": 1560,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "374ae4a37d40deb1dd15a35ccd2719aee81fc5dc189e0ab8e00177ef0c3d6559"
+    },
+    {
+      "tick": 1561,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "7d750964a32f28683d67135c25cb0b31686dce4f0b8dca56c9cd0adb07ba9484"
+    },
+    {
+      "tick": 1562,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "f49f8a3b4f58b8d6962ac40346b352cec02ec5179b369952a47f7bd093cf3c6e"
+    },
+    {
+      "tick": 1563,
+      "inputs": {
+        "player_0": {
+          "press": [],
+          "release": []
+        }
+      },
+      "state_hash": "b2fe3d2f4289d845a89fa446af1ad7fc5869f4f2f69b6df1f025bf6d034f5e96"
+    }
+  ],
+  "source_files_sha256": {
+    "agents/nextgen_survival.py": "7c634423e7605ab8295643474eda1483b1fa93672f33a9bebb211beab27a1a27",
+    "agents/nextgen_shared_search.py": "f76c4cb5bc5d19ed62e6fb0f78174cd881f837ede0813c103331d719c77b7126"
+  },
+  "source_base_commit": "b6046e87942c18d6e4e3927b1c3678b8ff894946"
+}

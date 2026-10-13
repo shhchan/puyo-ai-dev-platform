@@ -1,0 +1,2354 @@
+{
+  "failed_conditions": 3,
+  "latency_scope": "configured ticks and observed CPU time; no measured GUI SLA",
+  "missing": [],
+  "paired": [
+    {
+      "case_id": "post_arrival_recovery-0",
+      "conditions": {
+        "attack": {
+          "canceled": 2,
+          "drop_ticks": [
+            44
+          ],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            200
+          ],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 2,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": null,
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 111,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "RIGHT"
+              },
+              "tick": 250,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 311,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "RIGHT"
+              },
+              "tick": 356,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "RIGHT"
+              },
+              "tick": 413,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 472,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "RIGHT"
+              },
+              "tick": 513,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 1.4413406919998124,
+          "replay_verified_hash": "e55520d8616638065777ee2050d165e6c0f161fef7799af65b89139f85e09634",
+          "report": "post_arrival_recovery-0-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 3,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 100,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 4,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 159,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 200,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 257,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 296,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 361,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 4,
+                "rotation": "RIGHT"
+              },
+              "tick": 426,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.262473181000132,
+          "replay_verified_hash": "d8970a03504646771464950acd227c955c2e5c8f212b4f1bce155abf401fc46f",
+          "report": "post_arrival_recovery-0-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "preserve_mainline-0",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            163
+          ],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 49,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 4,
+                "rotation": "DOWN"
+              },
+              "tick": 118,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 219,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 4,
+                "rotation": "DOWN"
+              },
+              "tick": 274,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "LEFT"
+              },
+              "tick": 323,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 384,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 439,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "DOWN"
+              },
+              "tick": 484,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.9643543659999523,
+          "replay_verified_hash": "3e1e6e85a0a09b69d00123042d54c4e0810a7ddd5f11968a000674d86020653d",
+          "report": "preserve_mainline-0-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 49,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 116,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 165,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "RIGHT"
+              },
+              "tick": 212,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 279,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "RIGHT"
+              },
+              "tick": 324,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 379,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 432,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.6786820109998644,
+          "replay_verified_hash": "56102978c647bffb21cfa6990e42c860b9156fd0d9c720cf8fe4ac08eff8af23",
+          "report": "preserve_mainline-0-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "post_arrival_recovery-1",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [
+            44,
+            156
+          ],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            156
+          ],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": null,
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 111,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "RIGHT"
+              },
+              "tick": 219,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "RIGHT"
+              },
+              "tick": 274,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 331,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 370,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 409,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 12,
+                "rotation": "UP"
+              },
+              "tick": 442,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.2185039820001293,
+          "replay_verified_hash": "812f47a840bcab9b727c04ff6c392c65a39dca34989ad43a1e3f05901f867b7d",
+          "report": "post_arrival_recovery-1-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 7,
+                "rotation": "LEFT"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 112,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "RIGHT"
+              },
+              "tick": 157,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 3,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 228,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "RIGHT"
+              },
+              "tick": 271,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 11,
+                "rotation": "DOWN"
+              },
+              "tick": 326,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 3,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 379,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 12,
+                "rotation": "UP"
+              },
+              "tick": 414,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 4.049674875999926,
+          "replay_verified_hash": "8c0ab0c1eb2e96222e6d3a465a71b8c27c20f495bcc0ba1b87d14cc26c0a5b16",
+          "report": "post_arrival_recovery-1-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "preserve_mainline-1",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            296
+          ],
+          "game_over": false,
+          "issues": [
+            "mainline_preservation_failed"
+          ],
+          "maximum_chain_observed_not_threshold": 3,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "fail"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 55,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 2,
+                "rotation": "LEFT"
+              },
+              "tick": 108,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 177,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 350,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 403,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 4,
+                "rotation": "RIGHT"
+              },
+              "tick": 454,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 515,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "RIGHT"
+              },
+              "tick": 562,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.5518322049999824,
+          "replay_verified_hash": "980953a47b43020fa8f4925c1ac8556d9bddb9e4cee787c240ec59aa6f2348b8",
+          "report": "preserve_mainline-1-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 55,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 108,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 165,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "RIGHT"
+              },
+              "tick": 216,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 277,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 328,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 375,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 426,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.4437694330001705,
+          "replay_verified_hash": "09cd2ba8dbacb12be2911af92217554a27285ba9ca9267aba713dacbc5a7bb21",
+          "report": "preserve_mainline-1-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "post_arrival_recovery-32768",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [
+            44,
+            158
+          ],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            158
+          ],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": null,
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 12,
+                "rotation": "RIGHT"
+              },
+              "tick": 99,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "RIGHT"
+              },
+              "tick": 219,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 272,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 331,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 8,
+                "rotation": "UP"
+              },
+              "tick": 372,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 10,
+                "rotation": "RIGHT"
+              },
+              "tick": 411,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 462,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 0.7757765050000671,
+          "replay_verified_hash": "740f711d980fa35d3502d9d308929d0c607509fdd8c4299b3f7138a08951b4f2",
+          "report": "post_arrival_recovery-32768-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 7,
+                "rotation": "LEFT"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 4,
+                "axis_y": 0,
+                "rotation": "RIGHT"
+              },
+              "tick": 118,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 173,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "RIGHT"
+              },
+              "tick": 218,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 3,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 289,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 3,
+                "axis_y": 3,
+                "rotation": "DOWN"
+              },
+              "tick": 340,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 4,
+                "rotation": "UP"
+              },
+              "tick": 389,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 430,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.952156263000006,
+          "replay_verified_hash": "bf326a92b782ef3e96c53963cf033d584e1e5e60f39ac880dc048bf551fb663d",
+          "report": "post_arrival_recovery-32768-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "preserve_mainline-32768",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            141
+          ],
+          "game_over": false,
+          "issues": [
+            "mainline_preservation_failed"
+          ],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "fail"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 53,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 5,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 110,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 4,
+                "rotation": "DOWN"
+              },
+              "tick": 195,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 244,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "DOWN"
+              },
+              "tick": 291,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "DOWN"
+              },
+              "tick": 332,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 389,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 442,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.305097362000197,
+          "replay_verified_hash": "e4e63336672d9674ee0f89b8e50eb2cbc70a00a61cf554fad5cc3a3305f24dfb",
+          "report": "preserve_mainline-32768-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 53,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 106,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 163,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 2,
+                "rotation": "UP"
+              },
+              "tick": 216,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "RIGHT"
+              },
+              "tick": 267,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 328,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 375,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "RIGHT"
+              },
+              "tick": 420,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 3.1795363159999397,
+          "replay_verified_hash": "7dcc55f943d509ba606cf95512b3e643bf6d412bc7b28352a0be5069fb254b5d",
+          "report": "preserve_mainline-32768-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "post_arrival_recovery-65535",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [
+            90
+          ],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            90
+          ],
+          "game_over": false,
+          "issues": [
+            "required_post_drop_fire_missing"
+          ],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": null,
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "fail"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 8,
+                "rotation": "DOWN"
+              },
+              "tick": 45,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "UP"
+              },
+              "tick": 149,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "RIGHT"
+              },
+              "tick": 198,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "UP"
+              },
+              "tick": 259,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 302,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 341,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 378,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 12,
+                "rotation": "UP"
+              },
+              "tick": 425,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 1.4641402270001436,
+          "replay_verified_hash": "c1f8432d21c1a5dc66af04d125d9752a20ab03b30b698e74d876e16e597f2e06",
+          "report": "post_arrival_recovery-65535-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 43,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "UP"
+              },
+              "tick": 84,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 11,
+                "rotation": "RIGHT"
+              },
+              "tick": 123,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 0,
+                "rotation": "RIGHT"
+              },
+              "tick": 194,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "UP"
+              },
+              "tick": 249,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 302,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 5,
+                "rotation": "DOWN"
+              },
+              "tick": 365,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 6,
+                "rotation": "UP"
+              },
+              "tick": 410,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.166524743000082,
+          "replay_verified_hash": "1021371a2c84dc6036d9fc72bcd10afc06bc4c05b4d209113f3101e2c0826bb9",
+          "report": "post_arrival_recovery-65535-no_attack/report.json.gz"
+        }
+      }
+    },
+    {
+      "case_id": "preserve_mainline-65535",
+      "conditions": {
+        "attack": {
+          "canceled": 1,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [
+            210
+          ],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 1,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        },
+        "no_attack": {
+          "canceled": 0,
+          "drop_ticks": [],
+          "excluded_from_response_success": false,
+          "fire_ticks": [],
+          "game_over": false,
+          "issues": [],
+          "maximum_chain_observed_not_threshold": 0,
+          "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+          "search_completeness": [
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            },
+            {
+              "actual_positive_witness": true,
+              "cutoff": "response_quota",
+              "public_geometry": "conditional_hidden_rows",
+              "response_status": "partial"
+            }
+          ],
+          "status": "pass"
+        }
+      },
+      "metrics": {
+        "attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 53,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 106,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 1,
+                "rotation": "DOWN"
+              },
+              "tick": 165,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 2,
+                "rotation": "RIGHT"
+              },
+              "tick": 266,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 331,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 5,
+                "rotation": "RIGHT"
+              },
+              "tick": 382,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "RIGHT"
+              },
+              "tick": 445,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 4,
+                "rotation": "UP"
+              },
+              "tick": 508,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 2.5686231930001213,
+          "replay_verified_hash": "101aa26a3018dcbce5083d76f22f185dc0f8ae25cfa04f1102beea6e77c018f9",
+          "report": "preserve_mainline-65535-attack/report.json.gz"
+        },
+        "no_attack": {
+          "decisions": 8,
+          "locks": [
+            {
+              "data": {
+                "axis_x": 2,
+                "axis_y": 0,
+                "rotation": "UP"
+              },
+              "tick": 53,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 3,
+                "rotation": "RIGHT"
+              },
+              "tick": 108,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 4,
+                "rotation": "UP"
+              },
+              "tick": 173,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 6,
+                "rotation": "RIGHT"
+              },
+              "tick": 222,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 7,
+                "rotation": "UP"
+              },
+              "tick": 281,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 9,
+                "rotation": "RIGHT"
+              },
+              "tick": 324,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 1,
+                "axis_y": 3,
+                "rotation": "UP"
+              },
+              "tick": 389,
+              "type": "lock"
+            },
+            {
+              "data": {
+                "axis_x": 0,
+                "axis_y": 10,
+                "rotation": "UP"
+              },
+              "tick": 428,
+              "type": "lock"
+            }
+          ],
+          "max_decision_seconds": 3.063896599000145,
+          "replay_verified_hash": "2cc8ec0e5c56eef35910ba764021af1fc513711ccafabcd32183ba304c7939e2",
+          "report": "preserve_mainline-65535-no_attack/report.json.gz"
+        }
+      }
+    }
+  ],
+  "schema": "puyo.nextgen.attack_response_summary.v1",
+  "solo_quality_gate": "separate; no battle maximum-chain threshold",
+  "status": "fail"
+}

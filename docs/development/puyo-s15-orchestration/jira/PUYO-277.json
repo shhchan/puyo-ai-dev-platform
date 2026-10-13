@@ -1,0 +1,58 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10629",
+  "key": "PUYO-277",
+  "fields": {
+    "summary": "[次世代モデル/対戦] 攻撃対応と副砲の準備・使用を別 gate で検証する",
+    "description": "## What\n\n対戦中の品質を，とこぷよの本線構築能力から分離して評価・改善する．相手の攻撃に対する相殺／回復と，副砲（独立した小連鎖，またはキーぷよ未設置の本線の一部）の準備・使用を，実際の配置と deadline で検証する．\n\n## Why\n\n対戦中の最大実連鎖は相手のおじゃま・攻撃時刻に左右される．その値だけでモデル固有の 10 連鎖構築能力を不合格とするのは適切でない．一方で，攻撃に対応できず回避可能な窒息をする問題は別の能力不足として残る．\n\n## How\n\nPUYO-275 の eスポーツ通配ぷよで事前固定した少数の pattern ID と攻撃 script を使用する．公開 board／予告おじゃま／deadline／到達可能 mask に基づき，本線，独立副砲，キーぷよ未設置の本線分岐，緊急消去の候補と採用を記録する．相手が攻撃しない対照条件と paired 比較し，相手による妨害と自分の構築失敗を分ける．旧 seed 127／59 の完全ランダム run は legacy 証跡として保持し，新モードで同じ seed を同一事象と呼ばない．\n\n## A/C\n\n* 相殺期限・着弾後・副砲あり／なし・主砲温存・回避不能の代表 fixture を事前固定し，対応可能な局面では公開情報で証明できる合法行動を期限内に選べる．回避不能を成功に混ぜない．\n* 副砲の「準備済み」と「実際に発火可能」を区別し，独立小連鎖とキーぷよ未設置の本線部分をそれぞれ trace に表示する．本線を壊す対応は理由と残存連鎖形を保存する．\n* 同じ pattern ID／攻撃 script の paired 対局で，予告・相殺・実着弾・発火・実 lock・窒息・replay hash・decision latency を比較する．対戦中の平均最大 10 連鎖は合否条件にしない．\n* 未公開 future／相手の private state を参照せず，探索 quota／fallback と正常時の本線構築回帰を維持する．未達は原因と replay を保存する．\n\n## References\n\n* PUYO-266 のとこぷよ能力判定とは別 gate，PUYO-274 の残件．\n* PUYO-250／PUYO-270 の既存相殺・生存契約と，PUYO-275 の配ぷよ方式．\n\n",
+    "status": {
+      "name": "To Do",
+      "statusCategory": {
+        "name": "To Do"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10801",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "inwardIssue": {
+          "key": "PUYO-275",
+          "fields": {
+            "summary": "[次世代モデル/ツモ] 完全ランダムとぷよぷよ eスポーツ通の配ぷよを切り替える",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      },
+      {
+        "id": "10803",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-274",
+          "fields": {
+            "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

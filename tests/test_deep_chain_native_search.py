@@ -150,6 +150,30 @@ class TestDeepChainNativeSearch(unittest.TestCase):
                             actual.evidence_by_action[case["action"]].ranking_key,
                         )
 
+    def test_score_only_goal_classification_matches_python(self):
+        from tests.test_long_horizon_search import _fire_fixture_simulator
+
+        case = next(c for c in json.loads(
+            Path("tests/fixtures/build_main_fire_cases.json").read_text()
+        )["cases"] if c["id"] == "target-fire")
+        state = CompactSearchState.from_simulator(_fire_fixture_simulator(case))
+        pairs = _pairs([case["current_pair"], *case["next_pairs"]])
+        config = LongHorizonSearchConfig(
+            depth=1, width=24, scenarios=1, minimum_chain_count=1,
+            max_expanded_nodes=100, winning_score_threshold=95_000,
+            score_target_only=True,
+        )
+        expected = run_compact_long_horizon_search(state, pairs, config)
+        for mode in ("oracle-1", "scenario-6"):
+            with self.subTest(mode=mode):
+                request = self.request(state=state, pairs=pairs, config=config,
+                                       execution_mode=mode)
+                actual = materialize_native_long_horizon_result(
+                    self.backend.decide(request), request)
+                self.assertEqual(actual.ranked_roots, expected.ranked_roots)
+                self.assertEqual(actual.evidence_by_action[case["action"]].fire_class,
+                                 "premature_fire")
+
     def test_seed146_decision22_materializes_in_both_execution_modes(self):
         request = decode_request(bytes.fromhex(
             (ROOT / "tests/fixtures/evaluator_candidate_alias_request.hex").read_text()

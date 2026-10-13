@@ -84,6 +84,7 @@ struct SearchConfig {
     root_survivor_quota: usize,
     decision_seed: Option<u64>,
     winning_score_threshold: Option<u64>,
+    score_target_only: bool,
     premature_target_gap_penalty: f64,
     sampling_mode: SamplingMode,
     record_and_stop: bool,
@@ -543,7 +544,7 @@ fn parse_search(data: &[u8]) -> ContractResult<(SearchConfig, u16, u16)> {
     let seed_present = reader.u8("seed present")?;
     let winning_present = reader.u8("winning score present")?;
     let use_transposition_table = reader.u8("transposition table")?;
-    let reserved = reader.u8("search reserved")?;
+    let score_target_only = reader.u8("score target only")?;
     let raw_seed = reader.u64("decision seed")?;
     let raw_winning_score = reader.u64("winning score")?;
     let premature_target_gap_penalty = reader.f64("premature penalty")?;
@@ -594,7 +595,8 @@ fn parse_search(data: &[u8]) -> ContractResult<(SearchConfig, u16, u16)> {
         || !matches!(seed_present, 0 | 1)
         || !matches!(winning_present, 0 | 1)
         || !matches!(use_transposition_table, 0 | 1)
-        || reserved != 0
+        || !matches!(score_target_only, 0 | 1)
+        || (score_target_only == 1 && winning_present == 0)
         || (seed_present == 0 && raw_seed != 0)
         || (winning_present == 0 && raw_winning_score != 0)
         || (winning_present == 1 && raw_winning_score == 0)
@@ -616,6 +618,7 @@ fn parse_search(data: &[u8]) -> ContractResult<(SearchConfig, u16, u16)> {
             root_survivor_quota,
             decision_seed: (seed_present == 1).then_some(raw_seed),
             winning_score_threshold: (winning_present == 1).then_some(raw_winning_score),
+            score_target_only: score_target_only == 1,
             premature_target_gap_penalty,
             sampling_mode,
             record_and_stop,
@@ -1086,7 +1089,7 @@ fn classify_fire(config: SearchConfig, transition: TransitionHotResult) -> FireC
         .is_some_and(|threshold| transition.score_delta >= threshold)
     {
         FireClass::Winning
-    } else if transition.chain_count >= config.minimum_chain_count {
+    } else if !config.score_target_only && transition.chain_count >= config.minimum_chain_count {
         FireClass::Target
     } else if config.forced_safety {
         FireClass::ForcedSafety
@@ -1115,8 +1118,17 @@ fn make_fire(
     let target_gap = config
         .minimum_chain_count
         .saturating_sub(transition.chain_count);
+    let penalty_gap = if config.score_target_only {
+        config
+            .winning_score_threshold
+            .unwrap_or_default()
+            .saturating_sub(transition.score_delta) as f64
+            / 1000.0
+    } else {
+        f64::from(target_gap)
+    };
     let target_gap_penalty = if class == FireClass::Premature {
-        -config.premature_target_gap_penalty * f64::from(target_gap)
+        -config.premature_target_gap_penalty * penalty_gap
     } else {
         0.0
     };
@@ -2551,6 +2563,7 @@ mod tests {
             root_survivor_quota: 1,
             decision_seed: Some(1),
             winning_score_threshold: None,
+            score_target_only: false,
             premature_target_gap_penalty: 1_000.0,
             sampling_mode: SamplingMode::SeededAuthoritative,
             record_and_stop: true,
@@ -2594,6 +2607,62 @@ mod tests {
     }
 
     #[test]
+    fn score_only_goal_requires_score_even_after_ten_chains() {
+        let config = SearchConfig {
+            winning_score_threshold: Some(95_000),
+            score_target_only: true,
+            ..SearchConfig {
+                depth: 3,
+                width: 22,
+                scenarios: 1,
+                minimum_chain_count: 10,
+                terminal_fire_chain_count: 1,
+                max_expanded_nodes: 512,
+                root_survivor_quota: 1,
+                decision_seed: Some(1),
+                winning_score_threshold: None,
+                score_target_only: false,
+                premature_target_gap_penalty: 1_000.0,
+                sampling_mode: SamplingMode::SeededAuthoritative,
+                record_and_stop: true,
+                forced_safety: false,
+                use_transposition_table: true,
+            }
+        };
+        let transition = TransitionHotResult {
+            score_delta: 50_000,
+            attack_score_delta: 50_000,
+            vanished_count: 40,
+            garbage_cleared_count: 0,
+            action_id: 0,
+            axis_y: 0,
+            chain_count: 10,
+            flags: 1,
+        };
+        assert_eq!(classify_fire(config, transition), FireClass::Premature);
+        assert_eq!(
+            classify_fire(
+                SearchConfig {
+                    forced_safety: true,
+                    ..config
+                },
+                transition
+            ),
+            FireClass::ForcedSafety
+        );
+        assert_eq!(
+            classify_fire(
+                config,
+                TransitionHotResult {
+                    score_delta: 95_000,
+                    ..transition
+                }
+            ),
+            FireClass::Winning
+        );
+    }
+
+    #[test]
     fn preallocated_survivor_prune_performs_no_heap_allocation() {
         let mut encoded = [0_u8; 87];
         encoded[..4].copy_from_slice(b"CSK1");
@@ -2608,6 +2677,7 @@ mod tests {
             root_survivor_quota: 1,
             decision_seed: Some(1),
             winning_score_threshold: None,
+            score_target_only: false,
             premature_target_gap_penalty: 1_000.0,
             sampling_mode: SamplingMode::SeededAuthoritative,
             record_and_stop: true,

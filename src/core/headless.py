@@ -3,6 +3,7 @@ from typing import Optional
 
 from .constants import GRID_WIDTH, Direction
 from .game import GameState
+from .tsumo import make_tsumo_sequence
 
 
 @dataclass(frozen=True)
@@ -42,8 +43,11 @@ class HeadlessStepResult:
 
 
 class HeadlessPuyoSimulator:
-    def __init__(self, seed=None, game_state=None, *, auto_spawn=True):
-        self.game = game_state or GameState(seed=seed)
+    def __init__(self, seed=None, game_state=None, *, auto_spawn=True,
+                 tsumo_mode="random", tsumo_source=None, tsumo_pattern_id=None):
+        self.game = game_state or GameState(puyo_sequence=make_tsumo_sequence(
+            seed=seed, mode=tsumo_mode, source=tsumo_source, pattern_id=tsumo_pattern_id,
+        ))
         if auto_spawn and self.game.state == "ready":
             self.game.spawn_puyo()
 

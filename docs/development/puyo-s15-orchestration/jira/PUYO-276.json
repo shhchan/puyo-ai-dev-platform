@@ -1,0 +1,41 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10628",
+  "key": "PUYO-276",
+  "fields": {
+    "summary": "[GUI QA] 人間対局の replay を自動保存して不具合報告へ添付しやすくする",
+    "description": "## What\n\n人間 GUI QA の対局を，追加の seed／操作情報を手で収集せず報告できるようにする．既存の `--replay`／`puyo-realtime-match-v1` を再利用し，launcher の分かりやすい保存設定，衝突しない自動ファイル名，終了時の保存先表示と共有用 manifest を追加する．\n\n## Why\n\n現状も replay_path を明示すれば保存できるが，launcher の auto 設定では書き出さない．依頼者の seed 127 対局は replay がなく，同一対局の原因を追えなかった．\n\n## How\n\n人間 QA 対局では保存を開始時に選べるようにし，既定の QA 設定と保存状態を画面に表示する．session ID を使って replay／result／設定 manifest を同じディレクトリへ原子的に保存し，対局中断時にも回収する．既存 replay validator で最終 hash・入力・tick を再検証し，保存費用と GUI cadence を測る．自動アップロードは行わない．\n\n## A/C\n\n* GUI の 1P nextgen／2P human・速度 x1.0 で，ユーザーが保存先を事前に手入力しなくても replay と結果の保存先が分かり，報告時にそのパスをコピーできる．保存 ON/OFF を明示的に選べる．\n* replay／manifest に対戦 seed，policy seed，配ぷよ方式・pattern ID／データ版，速度，policy／土台設定，source/config/native identity，入力・tick，最終 hash と保存成否を記録する．未設定項目は未設定と明示し，値を捏造しない．\n* 通常終了と途中終了の両方を replay validator で検査し，ファイル衝突・上書き・部分書込を防ぐ．大きい対局でのメモリ／書込費用と frame/input gate への影響を測定する．\n* 既存 replay 契約・旧 reader を壊さず，実際の保存済みファイルだけで seed・操作・結果を第三者が再現／監査できる．\n\n## References\n\n* PUYO-274 の seed 127 人間 QA（元 replay なし），PUYO-86／PUYO-235 の既存 replay／QA 契約．\n* src/ui/launcher_settings.py:217・692，eval/realtime_versus_ui.py:1679・1828，src/ui/model_viewer.py．\n\n",
+    "status": {
+      "name": "To Do",
+      "statusCategory": {
+        "name": "To Do"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10804",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-274",
+          "fields": {
+            "summary": "[次世代モデル/引継ぎ] デスクトップで窒息・先読み配置表示・GUI cadence の残課題を解決する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

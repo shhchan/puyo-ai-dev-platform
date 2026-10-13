@@ -22,6 +22,7 @@ from src.core.constants import VISIBLE_HEIGHT
 from src.core.diagnostics import build_all_clear_runtime_info
 from src.core.headless import HeadlessPuyoSimulator
 from src.core.ojama import convert_score_to_ojama
+from src.core.tsumo import EsportsTsuSource, public_tsumo_game_copy
 
 from .actions import NUM_ACTIONS, action_to_placement, legal_action_mask
 from .obs import (
@@ -120,6 +121,10 @@ class VersusPuyoEnv:
         max_ojama_drop: int = 30,
         attack_delay_steps: int = 1,
         capture_visuals: bool = False,
+        tsumo_mode: str = "random",
+        tsumo_source: str | None = None,
+        tsumo_pattern_id: int | None = None,
+        tsumo_player_1_pattern_id: int | None = None,
     ):
         if gym is None or spaces is None or np is None:
             raise ImportError(
@@ -127,6 +132,10 @@ class VersusPuyoEnv:
                 "`pip install -r requirements.txt`."
             )
         self.base_seed = seed
+        self.tsumo_mode = tsumo_mode
+        self.tsumo_source = EsportsTsuSource(tsumo_source) if tsumo_mode == "esports_tsu" and tsumo_source else None
+        self.tsumo_pattern_id = tsumo_pattern_id
+        self.tsumo_player_1_pattern_id = tsumo_player_1_pattern_id
         self.max_steps = max_steps
         self.reward_config = reward_config or VersusRewardConfig()
         self.include_action_mask_in_observation = include_action_mask_in_observation
@@ -179,7 +188,11 @@ class VersusPuyoEnv:
         self._termination_reasons = {agent: None for agent in self.possible_agents}
 
         self.player_states = {
-            agent: VersusPlayerState(simulator=HeadlessPuyoSimulator(seed=effective_seed))
+            agent: VersusPlayerState(simulator=HeadlessPuyoSimulator(
+                seed=effective_seed, tsumo_mode=self.tsumo_mode,
+                tsumo_source=self.tsumo_source,
+                tsumo_pattern_id=(self.tsumo_player_1_pattern_id if agent == "player_1" and self.tsumo_player_1_pattern_id is not None else self.tsumo_pattern_id),
+            ))
             for agent in self.possible_agents
         }
         rng_seed = 0 if effective_seed is None else effective_seed
@@ -224,6 +237,15 @@ class VersusPuyoEnv:
     def _info(self, agent: str) -> dict[str, Any]:
         state = self.player_states[agent]
         opponent_state = self.player_states[self._opponent(agent)]
+        policy_simulator = state.simulator
+        policy_opponent = opponent_state.simulator
+        if self.tsumo_mode == "esports_tsu":
+            policy_simulator = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(state.simulator.game), auto_spawn=False,
+            )
+            policy_opponent = HeadlessPuyoSimulator(
+                game_state=public_tsumo_game_copy(opponent_state.simulator.game), auto_spawn=False,
+            )
         return {
             "action_mask": self.action_mask(agent),
             "score": state.simulator.game.score,
@@ -250,14 +272,14 @@ class VersusPuyoEnv:
             "last_chain_end_score": state.simulator.game.last_chain_end_score,
             "last_chain_score_delta": state.simulator.game.last_chain_score_delta,
             "max_chain_count": state.max_chain_count,
-            "simulator": state.simulator,
+            "simulator": policy_simulator,
             "opponent_pending_ojama": opponent_state.pending_ojama,
             "opponent_incoming_turns": self._incoming_turns(self._opponent(agent)),
             "opponent_sent_ojama_total": opponent_state.sent_ojama_total,
             "opponent_score_carry": opponent_state.score_carry,
             "opponent_received_ojama_total": opponent_state.received_ojama_total,
             "opponent_max_chain_count": opponent_state.max_chain_count,
-            "opponent_simulator": opponent_state.simulator,
+            "opponent_simulator": policy_opponent,
             "step_count": self.step_count,
             "max_steps": self.max_steps,
             "termination_reason": self._termination_reasons.get(agent),

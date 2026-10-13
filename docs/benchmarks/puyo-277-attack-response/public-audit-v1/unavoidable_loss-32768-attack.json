@@ -1,0 +1,66 @@
+{
+  "assessment": {
+    "canceled": 0,
+    "drop_ticks": [
+      38
+    ],
+    "excluded_from_response_success": true,
+    "fire_ticks": [],
+    "game_over": true,
+    "issues": [],
+    "maximum_chain_observed_not_threshold": 0,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": true,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "excluded_unavoidable"
+  },
+  "case_id": "unavoidable_loss-32768",
+  "condition": "attack",
+  "observations": [
+    {
+      "decision_id": 1,
+      "mainline_consumed": false,
+      "mainline_shape_preserved": null,
+      "observed_trace_matches": true,
+      "public_root_confirmed": true,
+      "public_validation_status": "observed",
+      "public_validation_tick": 39,
+      "resolution_drop_amount": 4,
+      "used_secondary": false
+    }
+  ],
+  "original_assessment": {
+    "canceled": 0,
+    "drop_ticks": [
+      38
+    ],
+    "fire_ticks": [],
+    "game_over": true,
+    "issues": [
+      "attack_boundary_outcome_unobserved"
+    ],
+    "maximum_chain_observed_not_threshold": 0,
+    "proof_scope": "positive public root plus authoritative receipt/lock/resolution; no exhaustive-search or unknown-hidden-state guarantee",
+    "search_completeness": [
+      {
+        "actual_positive_witness": true,
+        "cutoff": null,
+        "public_geometry": "conditional_hidden_rows",
+        "response_status": "partial"
+      }
+    ],
+    "status": "fail"
+  },
+  "original_report_sha256": "ff662ab08911beedc7ae78e0e3e0b46b9b8fe603368985000c0b928ca792c174",
+  "policy_calls": 0,
+  "replay_sha256": "f973717124beb39f3aae3a9e0b6370866ac63f9ce8903918c3d72954b6a60171",
+  "replay_verified_hash": "ac19da41b058d891ef538659dcaf8d9f6ba7aa4a2782c6d9db2388ff4c7348e4",
+  "schema": "puyo.nextgen.attack_response_audit.v1",
+  "ticks_added": 0
+}

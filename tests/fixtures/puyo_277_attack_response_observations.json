@@ -1,0 +1,46 @@
+{
+  "case_classes": [
+    "preserve_mainline",
+    "post_arrival_recovery"
+  ],
+  "case_ids": [
+    "post_arrival_recovery-0",
+    "preserve_mainline-0",
+    "post_arrival_recovery-1",
+    "preserve_mainline-1",
+    "post_arrival_recovery-32768",
+    "preserve_mainline-32768",
+    "post_arrival_recovery-65535",
+    "preserve_mainline-65535"
+  ],
+  "claim": "Supplemental observation only; never overwrites or promotes original three-resolution results.",
+  "conditions": [
+    "attack",
+    "no_attack"
+  ],
+  "max_resolutions": 8,
+  "max_ticks": 1800,
+  "original_fixture_sha256": "a5e14406826639caa61efa64745fda1f44833bf165f46812fac64dd1cb17b5a6",
+  "original_registration_commit": "00a8fe1",
+  "pattern_ids": [
+    0,
+    1,
+    32768,
+    65535
+  ],
+  "preserve_minimum_window": {
+    "attack": "Full cancellation, or a resolution at/after all registered arrivals (tick 240), must be observed; max eight resolutions remains a hard cap and missing the minimum window fails.",
+    "no_attack": "Observe eight natural resolutions as the paired control."
+  },
+  "schema": "puyo.nextgen.attack_response_observation_extension.v1",
+  "stop_rule": "Run the same natural controller until eight completed, publicly observable resolutions, game over, or tick 1800. No early success stop, policy pause, or action override.",
+  "unchanged": [
+    "pattern IDs",
+    "initial boards",
+    "public prefix",
+    "attack scripts and arrival ticks",
+    "policy and search quotas",
+    "120 tick request and lock deadlines",
+    "expected public witnesses and pass rules"
+  ]
+}

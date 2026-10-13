@@ -1,0 +1,58 @@
+{
+  "appliedContentFormat": "markdown",
+  "id": "10627",
+  "key": "PUYO-275",
+  "fields": {
+    "summary": "[次世代モデル/ツモ] 完全ランダムとぷよぷよ eスポーツ通の配ぷよを切り替える",
+    "description": "## What\n\n対局／とこぷよ開始時に配ぷよ方式を「完全ランダム」と「ぷよぷよ eスポーツ・通ルール 4 色」から選択できるようにする．後続タイトルを追加できる provider 境界を設ける．従来の完全ランダムを互換既定値とし，新しい連鎖品質評価では後者を明示指定する．\n\n## Why\n\n現行の src/core/tsumo.py は各ぷよ色を独立抽選する．公開された一次調査には通ルール対戦の 65,536 配ぷよ，1 系列 128 手の記録があるが，セガの公式仕様としての完全一致までは確認できていない．実在しない配ぷよを新しい品質評価へ混ぜず，過去の完全ランダム評価を履歴として残す必要がある．\n\n## How\n\n配ぷよ source の来歴・利用条件・対象ルール・checksum と独立照合例を先に固定する．pattern ID，色対応，軸／子の順序，128 手の末尾と繰返し，2P への配布規則を検証し，GUI／headless／評価 CLI から同じ provider を使う．pattern ID と未公開 future は policy の公開観測へ渡さず，現在組／NEXT／NEXT2 の境界を維持する．replay には方式・pattern ID・データ版・checksum を記録する．根拠のない近似列を「eスポーツ準拠」と呼ばない．\n\n## A/C\n\n* 完全ランダム／eスポーツ通を開始設定で選べ，従来 seed の完全ランダム replay・hash が変わらない．新モードは同一 pattern ID とデータ版で決定論的に再生できる．\n* 65,536 ID の入力範囲と配ぷよ source を形式・checksum で検査し，別資料で代表的な序盤・中盤・128 手境界を照合する．品質評価を全 65,536 pattern で実施する要件は設けない．\n* 2P 共有／独立の配布規則，色対応，軸／子，公開 NEXT 境界を fixture で固定する．pattern ID や隠れた future が AI 入力へ漏れない．\n* source の権利・配布可否と「公式仕様との一致をどこまで確認したか」を記録し，照合不能な場合は未達として報告する．旧 seed corpus は legacy random 回帰として保持し，新モードの pattern ID に同一視しない．\n\n## References\n\n* PUYO-266／PUYO-274，親 PUYO-228．Sprint 15 の連鎖評価に先行する．\n* src/core/tsumo.py，src/core/game.py，puyo_env/single_env.py，puyo_env/realtime_versus.py．\n* 配ぷよ公開者の一次資料：https://puyo-camp.jp/posts/86154 （四色通対戦の推定データであり公式仕様ではない）．\n\n",
+    "status": {
+      "name": "To Do",
+      "statusCategory": {
+        "name": "To Do"
+      }
+    },
+    "parent": {
+      "id": "10480",
+      "key": "PUYO-228",
+      "fields": {
+        "summary": "deep_chain_builder と RL 戦略選択を組み合わせる次世代モデルを設計する"
+      }
+    },
+    "issuelinks": [
+      {
+        "id": "10800",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-266",
+          "fields": {
+            "summary": "[次世代モデル] 定型完成後の自由構築と 10 連鎖級の品質を回復する",
+            "status": {
+              "name": "In Progress"
+            }
+          }
+        }
+      },
+      {
+        "id": "10801",
+        "type": {
+          "name": "Blocks",
+          "inward": "is blocked by",
+          "outward": "blocks"
+        },
+        "outwardIssue": {
+          "key": "PUYO-277",
+          "fields": {
+            "summary": "[次世代モデル/対戦] 攻撃対応と副砲の準備・使用を別 gate で検証する",
+            "status": {
+              "name": "To Do"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

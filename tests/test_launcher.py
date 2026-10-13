@@ -68,6 +68,40 @@ class TestLauncherService(unittest.TestCase):
         self.assertEqual(config.seed, 57)
         self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
+        self.assertTrue(config.qa_auto_save)
+        self.assertEqual(config.qa_save_root, "runs/gui-qa-sessions")
+
+    def test_play_start_advertises_unique_qa_session_path(self):
+        commands = []
+
+        def fake_popen(command, cwd=None):
+            commands.append(command)
+            return FakeProcess()
+
+        service = self.make_service(popen_factory=fake_popen, repo_root=self.temp_dir.name)
+        self.assertTrue(service.start("play"))
+        self.assertIsNotNone(service.qa_session_path)
+        self.assertIn(str(service.qa_session_path), service.message)
+        parsed = parse_realtime_config(commands[0][3:])
+        self.assertEqual(parsed.qa_session_id, service.qa_session_path.name)
+        self.assertEqual(parsed.qa_save_root, "runs/gui-qa-sessions")
+
+    def test_tsumo_settings_reach_realtime_play_and_arena(self):
+        service = self.make_service()
+        for action in ("play", "arena"):
+            service.update_setting(action, "tsumo_mode", "esports_tsu")
+            service.update_setting(action, "tsumo_source", "/tmp/haipuyo.txt")
+            service.update_setting(action, "tsumo_pattern_id", 34066)
+            service.update_setting(action, "tsumo_player_1_pattern_id", 65535)
+        config = service.realtime_play_config()
+        self.assertEqual(config.tsumo_pattern_id, 34066)
+        self.assertEqual(config.tsumo_player_1_pattern_id, 65535)
+        parsed = parse_realtime_config(service.command_for("play")[3:])
+        self.assertEqual(parsed.tsumo_source, "/tmp/haipuyo.txt")
+        from eval.realtime_arena import parse_args
+        arena = parse_args(service.command_for("arena")[3:])
+        self.assertEqual(arena.tsumo_pattern_id, 34066)
+        self.assertEqual(arena.tsumo_player_1_pattern_id, 65535)
 
     def test_spectate_command_round_trips_through_existing_realtime_parser(self):
         service = self.make_service()
@@ -75,6 +109,7 @@ class TestLauncherService(unittest.TestCase):
 
         self.assertEqual(config.policy_a, "first")
         self.assertEqual(config.policy_b, "random")
+        self.assertFalse(config.qa_auto_save)
         self.assertIsNone(config.max_ticks)
         self.assertTrue(config.start_paused)
 

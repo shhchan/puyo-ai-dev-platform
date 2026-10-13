@@ -183,8 +183,16 @@ def run_realtime_match(
     max_ticks: int = 10_000,
     decision_config: RealtimeDecisionConfig | None = None,
     record_replay: bool = False,
+    tsumo_mode: str = "random",
+    tsumo_source: str | None = None,
+    tsumo_pattern_id: int | None = None,
+    tsumo_player_1_pattern_id: int | None = None,
 ) -> RealtimeArenaMatchResult:
-    env = RealtimePuyoEnv(seed=seed, max_ticks=max_ticks)
+    env = RealtimePuyoEnv(
+        seed=seed, max_ticks=max_ticks, tsumo_mode=tsumo_mode,
+        tsumo_source=tsumo_source, tsumo_pattern_id=tsumo_pattern_id,
+        tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
+    )
     observations, infos = env.reset(seed=seed)
     controllers = {
         "player_0": RealtimePolicyController(policy_player_0, config=decision_config),
@@ -299,6 +307,8 @@ def run_realtime_series(
     seed: int = 1,
     max_ticks: int = 10_000,
     decision_config: RealtimeDecisionConfig | None = None,
+    tsumo_mode: str = "random", tsumo_source: str | None = None,
+    tsumo_pattern_id: int | None = None, tsumo_player_1_pattern_id: int | None = None,
 ) -> RealtimeArenaResult:
     return RealtimeArenaResult(
         matches=tuple(
@@ -308,6 +318,9 @@ def run_realtime_series(
                 seed=seed + game_index,
                 max_ticks=max_ticks,
                 decision_config=decision_config,
+                tsumo_mode=tsumo_mode, tsumo_source=tsumo_source,
+                tsumo_pattern_id=tsumo_pattern_id,
+                tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
             )
             for game_index in range(games)
         )
@@ -322,6 +335,8 @@ def run_realtime_paired_series(
     seed: int = 1,
     max_ticks: int = 10_000,
     decision_config: RealtimeDecisionConfig | None = None,
+    tsumo_mode: str = "random", tsumo_source: str | None = None,
+    tsumo_pattern_id: int | None = None, tsumo_player_1_pattern_id: int | None = None,
 ) -> RealtimeArenaResult:
     matches = []
     for game_index in range(games):
@@ -333,6 +348,9 @@ def run_realtime_paired_series(
                 seed=match_seed,
                 max_ticks=max_ticks,
                 decision_config=decision_config,
+                tsumo_mode=tsumo_mode, tsumo_source=tsumo_source,
+                tsumo_pattern_id=tsumo_pattern_id,
+                tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
             )
         )
         swapped = run_realtime_match(
@@ -341,25 +359,40 @@ def run_realtime_paired_series(
             seed=match_seed,
             max_ticks=max_ticks,
             decision_config=decision_config,
+            tsumo_mode=tsumo_mode, tsumo_source=tsumo_source,
+            tsumo_pattern_id=tsumo_pattern_id,
+            tsumo_player_1_pattern_id=tsumo_player_1_pattern_id,
         )
         matches.append(replace(swapped, policy_a_side="player_1"))
     return RealtimeArenaResult(matches=tuple(matches))
 
 
-def match_from_replay(replay: Mapping[str, Any]):
+def match_from_replay(replay: Mapping[str, Any], *, tsumo_source_override: str | None = None):
     """Restore rule timing, including the pre-garbage-phase replay contract."""
     from puyo_env.realtime_versus import RealtimeVersusMatch
 
     rules = replay.get("match_rules", {})
-    return RealtimeVersusMatch(
+    tsumo = rules.get("tsumo", {})
+    if tsumo and tsumo.get("mode") == "esports_tsu":
+        from src.core.tsumo import ESPORTS_SOURCE_SHA256, ESPORTS_SOURCE_VERSION
+        if tsumo.get("source_sha256") != ESPORTS_SOURCE_SHA256 or tsumo.get("source_version") != ESPORTS_SOURCE_VERSION:
+            raise ValueError("replay tsumo source identity is unsupported")
+    match = RealtimeVersusMatch(
         seed=replay.get("seed"),
         garbage_drop_ticks=int(rules.get("garbage_drop_ticks", 0)),
         attack_delay_ticks=int(rules.get("attack_delay_ticks", 60)),
+        tsumo_mode=tsumo.get("mode", "random"),
+        tsumo_source=tsumo_source_override or tsumo.get("source_path"),
+        tsumo_pattern_id=tsumo.get("pattern_id"),
+        tsumo_player_1_pattern_id=tsumo.get("player_1_pattern_id"),
     )
+    if tsumo and match.replay_rules()["tsumo"]["color_mapping"] != tsumo.get("color_mapping"):
+        raise ValueError("replay tsumo color mapping differs from source")
+    return match
 
 
-def replay_realtime_match(replay: Mapping[str, Any]) -> str:
-    match = match_from_replay(replay)
+def replay_realtime_match(replay: Mapping[str, Any], *, tsumo_source_override: str | None = None) -> str:
+    match = match_from_replay(replay, tsumo_source_override=tsumo_source_override)
     expected_initial = replay.get("initial_all_clear_diagnostics")
     if expected_initial is not None:
         actual_initial = match.all_clear_diagnostics()
@@ -502,6 +535,10 @@ def parse_args(argv=None):
     parser.add_argument("--checkpoint-b", default=None)
     parser.add_argument("--games", type=int, default=4)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--tsumo-mode", choices=("random", "esports_tsu"), default="random")
+    parser.add_argument("--tsumo-source")
+    parser.add_argument("--tsumo-pattern-id", type=int)
+    parser.add_argument("--tsumo-player-1-pattern-id", type=int)
     parser.add_argument("--max-ticks", type=int, default=10_000)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--deterministic", action="store_true", default=True)
@@ -568,6 +605,10 @@ def main(argv=None):
             max_ticks=args.max_ticks,
             decision_config=decision_config,
             record_replay=True,
+            tsumo_mode=args.tsumo_mode,
+            tsumo_source=args.tsumo_source,
+            tsumo_pattern_id=args.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=args.tsumo_player_1_pattern_id,
         )
         replay = dict(match.replay or {})
         replay["policies"] = _replay_policy_metadata_from_args(args)
@@ -582,6 +623,10 @@ def main(argv=None):
             seed=args.seed,
             max_ticks=args.max_ticks,
             decision_config=decision_config,
+            tsumo_mode=args.tsumo_mode,
+            tsumo_source=args.tsumo_source,
+            tsumo_pattern_id=args.tsumo_pattern_id,
+            tsumo_player_1_pattern_id=args.tsumo_player_1_pattern_id,
         )
     summary = summarize_realtime_result(
         result,

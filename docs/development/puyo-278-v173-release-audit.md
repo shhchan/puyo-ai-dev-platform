@@ -1,0 +1,92 @@
+# PUYO-278 v1.7.3 release 監査
+
+2026-10-11 の再監査を履歴として保持する．Sprint 15 の最終受入と review 準備の判断は末尾の 2026-10-13 更新を優先する．この文書の旧 SHA と状態は release 判断の直前に再取得する．
+
+## 起点と対象履歴
+
+| 対象 | 確認値 |
+| --- | --- |
+| `origin/master`／`v1.7.2^{}` | `3defcc2b8c6f42824102166aa7011527dfd4fb9e` |
+| `origin/integration/puyo-228-v1-7-3` | `7757f2312f34a1d79593f43ebd4f41921c61f0a6` |
+| 旧 `origin/integration/puyo-228-v1-8-0` | `7757f2312f34a1d79593f43ebd4f41921c61f0a6` |
+| merge base (`master` と候補) | `3defcc2b8c6f42824102166aa7011527dfd4fb9e` |
+
+親セッションが旧統合 branch の head を履歴保持で新しい v1.7.3 統合 branch に作成し，remote を read-back した．両 branch の tree は一致する．旧 v1.8.0 branch は保持して使用を停止する．削除・再作成・force-push はしない．v1.8.0 の後続統合は，v1.7.3 release 後の `master` を起点に親が決める．PUYO-279 は Sprint 16 の設計・実装 Task 起票を担当し，この release 候補へ runtime 変更を混ぜない．
+
+`master..7757f23` は 217 commit，first-parent 6 merge である．全 SHA と subject は [候補 commit 一覧](puyo-278-v173-candidate-commits.txt)に固定した．first-parent は #139 `3de91c7`，#141 `605f2cf`，#146 `e7fd4e3`，#160 `c0c77d9`，#171 `732ed3d`，#182 `7757f23`．現時点の remote 統合 branch はまだこの 217 commit の境界であり，Sprint 15 PR は一件も merge されていない．個々の commit と Jira scope の最終突合は，Sprint 15 の全 PR を取り込んだ後に再実施する．
+
+Sprint 14 の stack は PR #172，#173，#174，#175，#177，#178，#179，#180，#181，#182 の 10 件で，全件 `MERGED`，GitHub が返す merge commit は `7757f23`．`#176` は stack の参照番号であり，同番号の PR は存在しない．最下段 #172 の当時の base は旧 v1.8.0 統合 branch だった．Sprint 15 の [stack #189](https://github.com/shhchan/puyo-ai-dev-platform/stacks/189) は v1.7.3 統合 branch を起点に #183→#184→#185→#186→#187→#188 の 6 層で接続済み．全 PR は OPEN，reviewer 未指定，未 merge．統合 branch の候補 commit 一覧にはまだ入らない．
+
+| PR／Jira | base | head | 状態／CI |
+| --- | --- | --- | --- |
+| [#183／PUYO-275](https://github.com/shhchan/puyo-ai-dev-platform/pull/183) | `integration/puyo-228-v1-7-3` | `2e338b6216bb463e173b2be4cf3d814bb6fa0d37` | OPEN，lint 修正後 head の required CI 成功．Jira Complete． |
+| [#184／PUYO-276](https://github.com/shhchan/puyo-ai-dev-platform/pull/184) | `PUYO-275/esports-tsumo-provider` | `6d71dc41829bf51d15fd6411b45600fc5a4b3752` | OPEN／ready，required CI 成功．人間実画面 QA 3 件と保存 OFF の自動確認が成功し，Jira Complete． |
+| [#185／PUYO-277](https://github.com/shhchan/puyo-ai-dev-platform/pull/185) | `PUYO-276/automatic-qa-replay` | `555880c69064177a9fcbf4d4b4ad780adb21e768` | OPEN／ready，head 固有の check は未報告．Jira Complete． |
+| [#186／PUYO-266](https://github.com/shhchan/puyo-ai-dev-platform/pull/186) | `PUYO-277/attack-response-gate` | `b5c988140462beed05a3b5d913c72a066a8b6290` | OPEN／draft，required CI 成功．正式単独 gate は BLOCKED． |
+| [#187／PUYO-274](https://github.com/shhchan/puyo-ai-dev-platform/pull/187) | `PUYO-266/sprint15-single-quality` | `63bf51f3632a2053745079c22cc1d32b343b676f` | OPEN／draft，製品 source head `3613989` の required CI は 2 run 成功．文書追補 head の required CI も 2 run 成功．統合 QA は PUYO-266 のため BLOCKED． |
+| [#188／PUYO-278](https://github.com/shhchan/puyo-ai-dev-platform/pull/188) | `PUYO-274/sprint15-closeout` | 本監査更新前 `aa5851345d53d53beee55804f7b31a26bab75b91` | OPEN／draft，更新前 head の required CI 成功．本監査更新後に head と CI を再取得する． |
+
+PUYO-266 の head は公開 action mask 修正 `b6046e8` と証拠専用 commit `b5c9881` を含む．同じ事前登録 120 identity の v3 は 14 final で停止した．正式 v4 は 120／120 run と全 replay verify を完走し，report の 120 行／120 artifact に欠落・repeat 不一致・integrity issue はないが，`single_quality_status=FAIL`，`G2=BLOCKED` である．nextgen の平均最大実連鎖は 9.6667（目標 ≥ 10），理由のない小発火 2，unknown 小発火 8，死亡 0．reference は平均 9.1，死亡 10／unknown 窒息 10．v4 の[Git 保存した manifest／report／選択 raw](../benchmarks/puyo-266-single-quality/sprint15-formal-v4/README.md)を照合済み．全 120 raw の原本は担当 worktree の `runs/puyo-266-formal-v4/`，manifest SHA-256 は `054e2dd9379b667d186c2ea0e2a7f82bcc11684b4fe2f2c639591cb0a74d38a0`．reference 4519 は targeted の両 repeat でも 42 手死亡・最大 2 連鎖・窒息 unknown のまま．公開 prefix の隔離診断で 29 手目だけを代替 root へ変更すると 34 手死亡・最大 1 連鎖，毎決定の診断 filter では 34 手死亡・最大 0 連鎖だった．公開到達不能な予測を除いても品質は改善せず，未知 future の仮定と代替解・quiet 継続の証明が残るため，製品 filter は採用しなかった．これらの別 policy 診断を正式 120 run の合格に数えない．
+
+PUYO-274 の製品 source head `361398981f3a9083dbf63b79a9993f8548ec0fb7` は親が本監査 branch へ履歴保持で取り込み，取り込み commit は `a390c52f12ba4f0c960b75644a3fa9b1a2c54b6a`．人間 QA 証拠を追補した head `63bf51f3632a2053745079c22cc1d32b343b676f` も取り込んだ．これらは remote 統合 branch への merge ではない．初回 #187 CI は Ruff 0.16.0 の I001／B023 で失敗した．担当別の lint 修正を積み上げた #187 の製品 source では，同じ Ruff 0.16.0 と原本付き 8 suite／102 tests（skip 0）がローカル成功し，required CI 2 run も成功した．以降の取り込みは証拠のみで製品コードを変更していない．文書追補 head `63bf51f` の remote required CI 2 run は成功であり，PUYO-266 の品質未達で統合受け入れは BLOCKED．これらの PR・SHA を release 候補の実績として数えず，後続の base／head／差分と取り込み順を最終監査で確認する．
+
+workflow ファイルを含む先行 push は OAuth token の `workflow` scope 不足で一度拒否された．ユーザーの再認証後，`gh auth status` は `workflow` scope を確認でき，親は #187／#188 を push・draft PR 作成済み．認証 blocker は解消した．#188 の本監査更新前 head `aa58513` の required CI run `38109695014` は SUCCESS と read-back した．更新後 head の required CI は別途 read-back する．旧 head の成功を新 head の成功としない．CI と PUYO-266／274 の品質 gate 未達は別に扱う．
+
+`master` の GitHub branch protection は PR 必須，`linux-cp312-release` の required check，管理者にも適用，force-push／削除禁止，会話 resolve 必須，approval 数 0 だった．追加 ruleset の branch API 応答は空配列．release 判断前に protection を再確認する．
+
+## release gate と証拠
+
+| Gate | 必要な証拠 | 現状 |
+| --- | --- | --- |
+| 配ぷよ source（PUYO-275） | 来歴・利用／再配布条件・別実装照合・checksum・128 手境界，provider と公開 current／NEXT／NEXT2 契約．30 pattern ID と条件を結果より前に固定する． | Complete，PR #183 は OPEN．原本 `haipuyo.txt` は 65,536 行・SHA-256 `568a066c7f50dc3ca9e3aa6bdcc284df5e20f3f39ef689a398c61641c34b52eb`．別実装の照合済み．公式実対局による独立証明ではない． |
+| 単独本線（PUYO-266） | 固定 30 pattern ID × 2 repeat × 2 policy の正式 120 run，40 手構築＋最大 6 手発火，平均最大実連鎖 ≥ 10，理由のない小発火 0，回避可能窒息 0．旧 legacy random の失敗 raw は別に保持する． | In Progress，draft PR #186．正式 v4 は 120／120 run と全 replay verify を完走．nextgen は平均最大実連鎖 9.6667，理由のない小発火 2，unknown 小発火 8，死亡 0 で `FAIL`．reference は平均 9.1，死亡 10／unknown 窒息 10．targeted／隔離診断を正式合格へ数えず，単独 gate と G2 は BLOCKED． |
+| 対戦（PUYO-277） | 予告おじゃま対応・独立小連鎖／副砲の発火を，単独 gate と分けて固定条件で評価する．hidden future を観測に渡さない． | Complete，PR #185 は ready．正式 v3 の元 56 条件は 52 PASS／4 回避不能除外／0 FAIL，追加 16 条件は全 PASS．全 72 replay の event／全 tick hash／最終 hash が一致した．これは bounded 公開 challenge の合格であり，全体 G2 や単独品質の合格ではない． |
+| 人間 QA replay（PUYO-276） | GUI 実対局から自動保存された既存形式 replay，結果・設定・実行 identity・pattern ID・保存先，replay 再生一致． | Complete，PR #184 は OPEN．修正後 dummy 環境の 1000 tick，OFF／ON 各 2 repeat は frame／input schedule の p95 ≤ 25 ms／p99 ≤ 50 ms を全回通過．旧 ON の input p99 57.82 ms 失敗 raw は保存．人間実画面 3 件の bundle 検証と操作／先読み確認が成功．保存 OFF は dummy 起動で保存先非作成を確認． |
+| 統合・人間 QA（PUYO-274） | 上記証拠の組合せ，非公開 future 漏れの否定，先読み表示・操作感，固定 GUI cadence と人間確認． | In Progress，draft PR #187．原本付き 8 suite／102 tests，skip 0，Ruff／差分確認は成功．人間実画面 QA は確認済み．PUYO-266 の正式品質未達で統合判定は BLOCKED．文書追補 head `63bf51f` の remote required CI 2 run は成功． |
+| release 監査（PUYO-278） | 対象 Jira と全 PR／SHA／差分の突合，統合 branch head に対する CI・回帰・人間 QA，release 判断． | In Progress，draft PR #188．stack と branch 境界は監査済み．先行 gate 未達のため release PR／tag は保留． |
+
+人間 QA の 3 件は同一 source `361398981f3a9083dbf63b79a9993f8548ec0fb7` で，session ID は `f54e176489a148d78515ea7a31cf533b`（通常），`abb6fc23d5984d24821b3c8ad546f485`（配ぷよ指定・通常），`ae8b6b865c7a4c3b9742935e455df51c`（Esc 中断）．各 bundle の隔離コピーを `python -m eval.qa_session` で検証し，frame p95/p99 は順に 18/37，17/35，17/30 ms．依頼者が 2P 操作と `O` 2 回の先読み切替を確認した．詳細な replay checksum と実行 identity は [統合 QA 記録](puyo-274-sprint15-integration-qa.md)を参照する．
+
+旧 G2 の停止相手・攻撃抑止，legacy random 30 seed × 2 repeat は平均最大実連鎖 8.8667，premature 6，窒息 10 で FAIL．新しい単独／対戦 gate の結果へ読み替えない．どちらかが未達なら「次世代モデル全体の G2 PASS」や PUYO-256～258 の本学習開始を宣言しない．Sprint 14 の GUI 実用受け入れは固定 8 条件 × 2 回の frame p95 ≤ 26 ms／p99 ≤ 50 ms，入力 p95 ≤ 25 ms／p99 ≤ 50 ms で受理済み，PUYO-269／273 は Complete．旧 25 ms frame gate の 1 run 未達は証拠として保持し，厳密 25 ms の安定化を Sprint 16 設計へ送る．旧 gate や元 seed 対局の再現を今回の PUYO-274 再完了条件へ混ぜない．
+
+PUYO-275 の再配布ライセンスは確認されていないため，原本は repository に同梱しない．検証者が同じ SHA-256 の原本をローカルに置いて明示指定する運用であり，追加の人間承認 blocker は設定しない．この監査では `/home/sion2000114/.cache/puyo-s15/haipuyo.txt` を read-only で `sha256sum` し，上記の値と一致した．同系の別実装との照合を公式ゲームの実測と呼ばない．128 手越えと 2P 配布規則も公式実測では未照合である．
+
+## 最終監査と release 手順
+
+1. 親が `git fetch origin --tags` した直後に，`git ls-remote origin` で `master`／v1.7.3 統合 branch／`v1.7.2`／`v1.7.3` を読み，`v1.7.3` の不存在と `master` の起点を確認する．各 Sprint 15 PR の base／head／merge 状態と Jira A/C，Blocks を再取得する．未 merge・未受入が一つでもあれば停止する．
+2. `git merge-base origin/master origin/integration/puyo-228-v1-7-3`，`git log --first-parent origin/master..origin/integration/puyo-228-v1-7-3`，`git log --format='%H %s' --reverse origin/master..origin/integration/puyo-228-v1-7-3`，`git diff --stat`／`--name-status` で ancestry・全 commit・差分を確定する．候補に無関係な commit，Sprint 16 runtime，未確認の変更があれば停止する．この文書の候補一覧を更新する．
+3. 統合 branch の確定 head に対して required CI `linux-cp312-release`，変更に応じた全自動回帰，単独／対戦 gate の固定 raw と verifier，人間 GUI replay と cadence を確認する．コマンド，exit code，artifact，dataset version／checksum，pattern ID，head SHA，実行 host を release PR の `QA` に記す．旧 SHA の PASS を新 head の PASS としない．
+4. 全 gate と release 差分監査が成立したら，委任された範囲として `head=integration/puyo-228-v1-7-3`，`base=master` の release PR を作り，What／Why／QA／References に対象 Jira，PR 一覧，SHA，既知の制限を書く．review request は指定しない．required check と会話 resolve を確認する．merge は人間の release 判断後に PR 経由で行い，`master` へ直接 push しない．
+5. merge 後に remote `master` と PR の merge commit を照合し，`v1.7.3` が remote に未存在であることを再確認する．tag は **release PR が merge された `master` commit** にだけ付け，SHA／tag の dereference を read-back する．既存 tag は移動しない．その後に v1.8.0 の起点を新 `master` に固定する．
+
+人間が最終判断時に確認する証跡は，この監査，PUYO-275／266／277／276／274 の Jira A/C と PR，各 gate の raw／verifier，release PR の head/base／CI，`master` と tag の remote SHA である．現時点では release PR・tag・GitHub Release を作成しない．
+
+## 2026-10-12 PUYO-266 追加比較後の stack 再監査
+
+上記の 2026-10-11 SHA と候補 commit 一覧は当時の監査 snapshot として保持する．今回，#186 の新 head `ba1c9f981827db296c6ea16f0089b16932477667` を #187 へ通常 merge し，#187 の head `940dbf8` を #188 へ通常 merge した．#188 の取り込み直後 head は `1de6554`．いずれも rebase／force-push をせず，#187 の独自差分は統合 QA 記録と CI workflow，#188 の独自差分は release 監査文書のままである．3 PR は引き続き OPEN・draft，reviewer 未指定，未 merge．GitHub required CI は新しい head ごとに再確認する．
+
+PUYO-266 の[追加比較 HTML](../benchmarks/puyo-266-fire-goal-v3/index.html)は，10 連鎖目標と 95,000 点目標を 60 手枠で各 30 pattern × 2 repeat 測定したもの．manifest SHA-256 `3554f9184ec8098f7a4520743c4f3872de59eaec723e1a5331a525e6851dcbd0`，全 120 raw の replay，repeat 一致，欠損・worker failure 0 を確認した．10 連鎖目標は実 10 連鎖以上 28／30，窒息 0／30．95,000 点目標は実 95,000 点以上 3／30，窒息 16／30．旧低連鎖 3 件のうち 11299 は 49 手で 11 連鎖へ到達したが，18078・42936 は 60 手でも最大 3 連鎖．
+
+この追加比較は正式 v4 の 46 手・小発火分類の受入条件を変更しない．正式 v4 は引き続き `FAIL`，PUYO-266／274／278 は In Progress，統合品質と release gate は BLOCKED である．#187 の新 stack head では原本付き統合 8 suite・103 tests・skip 0 が成功した．人間 GUI QA 3 件は以前の head に対する結果で，新しい 95,000 点設定の実画面確認とは扱わない．統合 branch への取り込みや release PR／tag は行っていない．
+
+## 2026-10-13 Sprint 15 review 準備の最終監査
+
+依頼者は PUYO-280 正式第 6 回の 10 連鎖目標について，単独 60 手・未使用 30 配牌の平均最大実連鎖 **10.633** を Sprint 15 の合格とし，窒息 **1／30**・不当小発火 **2／60** を今回の許容残差とした．120 対局の欠損・worker 失敗・repeat／実 lock／全 tick replay 不一致は 0．旧事前登録の厳格 gate `FAIL` は履歴として維持する．95,000 点目標は補助評価で，実 95,000 点 **6／30**，実 10 連鎖 **23／30**，窒息 **5／30**，平均最大実発火スコア **53,749** 点．
+
+このタスクの Sprint 15 完了境界は，対象 7 チケットの受入状態と PR の差分・祖先関係・CI・人間 QA を照合し，v1.7.3 向け stack を review 可能にするところまでとする．release PR 作成，`master` への merge，tag，GitHub Release は stack を依頼者が review／merge した後に行う工程であり，今回実施済みとは表示しない．上記「最終監査と release 手順」はその時点の実行手順として残す．全 PR の確定 SHA／base／CI と Sprint 15 Jira ステータスは，実際の取り込みと read-back 後にこの節へ追記する．
+
+最終 stack は [#191](https://github.com/shhchan/puyo-ai-dev-platform/stacks/191) で，統合 branch `integration/puyo-228-v1-7-3` を起点に #183 → #184 → #185 → #186 → #190 → #187 → #188 の 7 層である．既存 #189 は途中への挿入を受け付けなかったため，未 merge・auto-merge 無効を確認して GitHub の unstack API で解体し，#187 の base を #190 へ更新後に 7 件を再接続した．PR 自体や共有 Git 履歴は削除・書換えしていない．GitHub API で各 base と stack 所属を読み戻した．
+
+| 順 | PR | base | head SHA |
+| ---: | --- | --- | --- |
+| 1 | #183 | `integration/puyo-228-v1-7-3` | `2e338b6` |
+| 2 | #184 | #183 | `6d71dc4` |
+| 3 | #185 | #184 | `555880c` |
+| 4 | #186 | #185 | `aaeb5b1` |
+| 5 | #190 | #186 | `944a9e6` |
+| 6 | #187 | #190 | `25a27a1` |
+| 7 | #188 | #187 | 本監査更新前 `c71c9ea`．確定値は PR API を参照． |
+
+#190 の確定 head を #187，その更新 head を #188 に通常 merge し，`merge-base --is-ancestor` で各層の祖先関係を確認した．#187 の独自差分は workflow／統合 QA 記録・実行表，#188 は本監査と候補 commit 一覧である．結合した #188 head で原本付き 8 suite の **111 tests，skip 0** と対象 Python ファイルの Ruff，`git diff --check`，第 6 回 HTML の JavaScript 構文確認が成功した．[受入結果 JSON](../benchmarks/puyo-280-search-tuning/formal-v6-acceptance.json) は凍結 report・manifest・120 raw の SHA-256 と照合した `PASS` と，旧厳格判定 `FAIL` を併記する．第 6 回 raw の source identity は文書追補前の commit `8d4d64a` で固定されており，今回の文書 commit の SHA で再測定したと誤記しない．
+
+最終 read-back では Sprint 15 の PUYO-266／274／275／276／277／278／280 は全件 `Complete`．stack #191 の 7 PR は全件 OPEN，draft=false，reviewer 未指定，base と祖先関係が一致し，GitHub の merge state は `CLEAN`．#186 head `aaeb5b1` の required CI，#187 head `25a27a1` の 2 実行，#188 が製品コードを取り込んだ head `8a41380` の CI はすべて SUCCESS．#190 は当該 PR head 固有の GitHub check が報告されておらず，#188 の最終追加変更は監査文書のみである．実装を含む結合 head の 111 tests と CI の結果を区別して記録する．release PR／tag は未実施で，後続 [PUYO-281](https://shhchan.atlassian.net/browse/PUYO-281) が追跡する．

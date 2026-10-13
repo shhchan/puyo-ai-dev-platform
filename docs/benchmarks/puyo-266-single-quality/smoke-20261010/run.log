@@ -1,0 +1,38 @@
+pygame 2.6.1 (SDL 2.28.4, Python 3.12.3)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+{
+  "policies": [
+    {
+      "policy": "nextgen_tactic_manager",
+      "elapsed_seconds": 2.109692469000038,
+      "decision_seconds": {
+        "n": 3,
+        "mean": 0.2688098980003512,
+        "p50": 0.2680522650007333,
+        "p95": 0.27762932610012286
+      },
+      "placements": 3,
+      "raw_gzip_bytes": 107640,
+      "integrity_issues": [
+        "incomplete_window"
+      ],
+      "max_chain": 0
+    },
+    {
+      "policy": "deep_chain_builder",
+      "elapsed_seconds": 2.962539772999662,
+      "decision_seconds": {
+        "n": 3,
+        "mean": 0.2911518256666265,
+        "p50": 0.2923992259984516,
+        "p95": 0.3059538029006944
+      },
+      "placements": 3,
+      "raw_gzip_bytes": 141577,
+      "integrity_issues": [
+        "incomplete_window"
+      ],
+      "max_chain": 0
+    }
+  ]
+}

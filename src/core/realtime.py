@@ -21,6 +21,7 @@ from .constants import (
     REALTIME_VANISH_FLASH_TICKS,
 )
 from .game import GameState
+from .tsumo import make_tsumo_sequence
 
 
 HOLD_ACTIONS = (Action.LEFT, Action.RIGHT, Action.DOWN)
@@ -166,8 +167,11 @@ class RealtimeHeadlessSimulator:
         timing: RealtimeTimingConfig | None = None,
         *,
         auto_spawn: bool = True,
+        tsumo_mode="random", tsumo_source=None, tsumo_pattern_id=None,
     ):
-        self.game = game_state or GameState(seed=seed)
+        self.game = game_state or GameState(puyo_sequence=make_tsumo_sequence(
+            seed=seed, mode=tsumo_mode, source=tsumo_source, pattern_id=tsumo_pattern_id,
+        ))
         self.timing = timing or DEFAULT_REALTIME_TIMING
         self.tick = 0
         self.held_actions: set[Action] = set()

@@ -1,0 +1,1186 @@
+[
+  {
+    "placement": 1,
+    "tick": 0,
+    "action": 6,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 6,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 30
+  },
+  {
+    "placement": 2,
+    "tick": 59,
+    "action": 16,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 29
+  },
+  {
+    "placement": 3,
+    "tick": 120,
+    "action": 7,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 7,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 12,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 29
+  },
+  {
+    "placement": 4,
+    "tick": 175,
+    "action": 0,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 0,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 2,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 27
+  },
+  {
+    "placement": 5,
+    "tick": 232,
+    "action": 17,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 17,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 5,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 14,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 27
+  },
+  {
+    "placement": 6,
+    "tick": 291,
+    "action": 5,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 5,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 20,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 14,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 30
+  },
+  {
+    "placement": 7,
+    "tick": 346,
+    "action": 5,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 5,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 6,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 20
+  },
+  {
+    "placement": 8,
+    "tick": 399,
+    "action": 11,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 2,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 26
+  },
+  {
+    "placement": 9,
+    "tick": 456,
+    "action": 8,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 2,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 17,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 27
+  },
+  {
+    "placement": 10,
+    "tick": 509,
+    "action": 2,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 2,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 12,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 17,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 24
+  },
+  {
+    "placement": 11,
+    "tick": 564,
+    "action": 2,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 2,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 6,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 16
+  },
+  {
+    "placement": 12,
+    "tick": 615,
+    "action": 18,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 18,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 21
+  },
+  {
+    "placement": 13,
+    "tick": 668,
+    "action": 18,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 18,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 18
+  },
+  {
+    "placement": 14,
+    "tick": 717,
+    "action": 8,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 3,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 17
+  },
+  {
+    "placement": 15,
+    "tick": 778,
+    "action": 16,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 18
+  },
+  {
+    "placement": 16,
+    "tick": 843,
+    "action": 8,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 19
+  },
+  {
+    "placement": 17,
+    "tick": 902,
+    "action": 16,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 16,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 17
+  },
+  {
+    "placement": 18,
+    "tick": 963,
+    "action": 1,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 5,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 19
+  },
+  {
+    "placement": 19,
+    "tick": 1024,
+    "action": 5,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 5,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 16
+  },
+  {
+    "placement": 20,
+    "tick": 1071,
+    "action": 9,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 3,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 10
+  },
+  {
+    "placement": 21,
+    "tick": 1118,
+    "action": 6,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 6,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 0,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 11
+  },
+  {
+    "placement": 22,
+    "tick": 1161,
+    "action": 10,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 0,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 11
+  },
+  {
+    "placement": 23,
+    "tick": 1214,
+    "action": 4,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 4,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 6,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 9
+  },
+  {
+    "placement": 24,
+    "tick": 1265,
+    "action": 13,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 13,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 12,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 4,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 10
+  },
+  {
+    "placement": 25,
+    "tick": 1308,
+    "action": 0,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 0,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 13
+  },
+  {
+    "placement": 26,
+    "tick": 1349,
+    "action": 15,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 17,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 12
+  },
+  {
+    "placement": 27,
+    "tick": 1394,
+    "action": 17,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 17,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 7
+  },
+  {
+    "placement": 28,
+    "tick": 1435,
+    "action": 1,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 7,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 9
+  },
+  {
+    "placement": 29,
+    "tick": 1474,
+    "action": 10,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 10,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 9
+  },
+  {
+    "placement": 30,
+    "tick": 1521,
+    "action": 11,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 7
+  },
+  {
+    "placement": 31,
+    "tick": 1560,
+    "action": 15,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 15,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 19,
+        "reachable": false,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 13,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 18
+  },
+  {
+    "placement": 32,
+    "tick": 1597,
+    "action": 8,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 8,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 2,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      },
+      {
+        "depth": 3,
+        "action": 0,
+        "reachable": false,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 10
+  },
+  {
+    "placement": 33,
+    "tick": 1646,
+    "action": 0,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 0,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 34,
+    "tick": 1681,
+    "action": 11,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 11,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 35,
+    "tick": 1714,
+    "action": 9,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 9,
+        "reachable": true,
+        "valid": true,
+        "chain": 2,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 36,
+    "tick": 1839,
+    "action": 3,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 3,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 37,
+    "tick": 1874,
+    "action": 1,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 1,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 38,
+    "tick": 1907,
+    "action": 7,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 7,
+        "reachable": true,
+        "valid": true,
+        "chain": 1,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 39,
+    "tick": 1986,
+    "action": 3,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 3,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 40,
+    "tick": 2019,
+    "action": 13,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 13,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 41,
+    "tick": 2054,
+    "action": 7,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 7,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": false
+      }
+    ],
+    "proof_nodes": 0
+  },
+  {
+    "placement": 42,
+    "tick": 2091,
+    "action": 7,
+    "known_prefix": [
+      {
+        "depth": 1,
+        "action": 7,
+        "reachable": true,
+        "valid": true,
+        "chain": 0,
+        "fatal": true
+      }
+    ],
+    "proof_nodes": 0
+  }
+]

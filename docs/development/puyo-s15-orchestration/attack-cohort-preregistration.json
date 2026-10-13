@@ -1,0 +1,33 @@
+{
+  "schema": "puyo.sprint15.attack_cohort_preregistration.v1",
+  "owner": "PUYO-277",
+  "pattern_ids": [
+    0,
+    1,
+    32768,
+    65535
+  ],
+  "conditions": [
+    "attack",
+    "no_attack"
+  ],
+  "cases": [
+    "cancel_boundary",
+    "post_arrival_recovery",
+    "independent_subchain",
+    "mainline_without_key",
+    "no_secondary_chain",
+    "preserve_mainline",
+    "unavoidable_loss"
+  ],
+  "registration_phase": "before first attack gate execution",
+  "dataset_identity": null,
+  "final_fixture_registration": "Freeze exact public initial boards, attack scripts, timing, quota, expected witnesses and unavoidable/unknown labels before first execution",
+  "limits": [
+    "arrival tick is not automatically a hard firing deadline",
+    "prepared structure differs from currently fireable",
+    "quota cutoff and conditional/unknown witnesses do not imply inevitable loss",
+    "maximum mean chain >=10 is not a battle gate threshold",
+    "preserve all paired failures and replays"
+  ]
+}
