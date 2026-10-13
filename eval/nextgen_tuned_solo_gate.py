@@ -335,9 +335,71 @@ def report(output, *, verify_replays=False):
     return result
 
 
+def sprint15_acceptance(result):
+    """Evaluate the user-approved Sprint 15 threshold without rewriting the strict report."""
+    rows = result.get("rows", [])
+    keyed = {(row["goal"], row["pattern_id"], row["repeat"]): row for row in rows}
+    patterns = {row["pattern_id"] for row in rows
+                if row["goal"] == "chain10" and row["repeat"] == 1}
+    expected = {(goal, pattern, repeat) for goal in GOALS
+                for pattern in patterns for repeat in REPEATS}
+    primary = [keyed[("chain10", pattern, 1)] for pattern in patterns
+               if ("chain10", pattern, 1) in keyed]
+    mean = (sum(row["max_chain"] for row in primary) / 30
+            if len(primary) == 30 else None)
+    goals = result.get("goals", {})
+    complete = (len(patterns) == 30 and len(rows) == 120 and len(keyed) == 120
+                and set(keyed) == expected and not result.get("failed_workers")
+                and result.get("source_changed_since_declaration") is False)
+    for goal in GOALS:
+        summary = goals.get(goal, {})
+        complete = (complete and summary.get("runs") == 60
+                    and summary.get("missing") == []
+                    and summary.get("repeat_mismatch") == [])
+        for pattern in patterns:
+            first = keyed.get((goal, pattern, 1))
+            second = keyed.get((goal, pattern, 2))
+            if first is None or second is None or first["semantic_digest"] != second["semantic_digest"]:
+                complete = False
+    if mean is not None:
+        complete = complete and abs(goals.get("chain10", {}).get("mean_maximum_actual_chain", -1)
+                                    - mean) < 1e-9
+    status = "BLOCKED" if not complete else "PASS" if mean >= 10 else "FAIL"
+    chain = goals.get("chain10", {})
+    return {"status": status, "mean_maximum_actual_chain": mean,
+            "actual_10_plus": sum(row["max_chain"] >= 10 for row in primary),
+            "game_overs": chain.get("game_overs"),
+            "unjustified_small_clears": chain.get("small_clears", {}).get("unjustified"),
+            "strict_recorded_status": result.get("PUYO-266"),
+            "complete": complete}
+
+
+def acceptance_from_frozen_report(output):
+    """Check saved artifact hashes, then render a separate acceptance verdict."""
+    manifest = manifest_at(output)
+    report_path = output / "report.json"
+    result = read(report_path)
+    expected_names = {artifact_name(goal, pattern, repeat) for goal in GOALS
+                      for pattern in manifest["config"]["pattern_ids"] for repeat in REPEATS}
+    artifacts = result.get("artifacts", {})
+    hashes_match = (set(artifacts) == expected_names and
+                    all((output / name).is_file() and
+                        hashlib.sha256((output / name).read_bytes()).hexdigest() == artifacts[name]
+                        for name in expected_names))
+    verdict = sprint15_acceptance(result)
+    if (not hashes_match or result.get("manifest_sha256") != manifest["sha256"] or
+            result.get("schema") != manifest["schema"]):
+        verdict["status"] = "BLOCKED"
+        verdict["complete"] = False
+    verdict["manifest_sha256"] = manifest["sha256"]
+    verdict["report_sha256"] = hashlib.sha256(report_path.read_bytes()).hexdigest()
+    verdict["artifact_hashes_match"] = hashes_match
+    return verdict
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=("init", "worker", "run-all", "report"))
+    parser.add_argument("command", choices=("init", "worker", "run-all", "report", "acceptance"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tsumo-source", type=Path)
     parser.add_argument("--cohort", choices=COHORTS, default="v1")
@@ -360,6 +422,8 @@ def main():
         if args.jobs < 1:
             parser.error("--jobs must be positive")
         run_all(args.output, args.jobs)
+    elif args.command == "acceptance":
+        print(json.dumps(acceptance_from_frozen_report(args.output), indent=2))
     else:
         result = report(args.output, verify_replays=args.verify_replays)
         print(json.dumps({"PUYO-266": result["PUYO-266"], "goals": result["goals"],

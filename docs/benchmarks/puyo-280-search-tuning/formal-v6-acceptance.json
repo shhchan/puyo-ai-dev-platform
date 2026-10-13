@@ -1,0 +1,12 @@
+{
+  "actual_10_plus": 29,
+  "artifact_hashes_match": true,
+  "complete": true,
+  "game_overs": 1,
+  "manifest_sha256": "c05a4d8c08a19d5fb8b80ffb10f684e1812b24dd9efaf5b6a9fe01d02ff0b0ae",
+  "mean_maximum_actual_chain": 10.633333333333333,
+  "report_sha256": "7cdabb444a6d28014b515632313d02c79a882f8c8fc3641c24b135ed754e1b1f",
+  "status": "PASS",
+  "strict_recorded_status": "FAIL",
+  "unjustified_small_clears": 2
+}

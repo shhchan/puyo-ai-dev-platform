@@ -103,6 +103,8 @@ Ama の公開実装の `build` 重みは，連鎖見込み，連鎖を伸ばせ�
 
 少数の窒息・小発火はこのスプリントの拒否条件から外し，件数と失敗配牌を必ず併記する．第 6 回の 10 連鎖目標は窒息 **1／30**（62726），不当小発火 **2／60**，未分類小発火 **0** だった．旧事前登録 gate が `FAIL` だった事実と raw は変更しない．今回の「Sprint 15 受入 PASS」は，旧厳格 gate の遡及的 PASS や全配牌での生存保証を意味しない．残る失敗例は次の品質改善で扱う．
 
+読み取り専用の `acceptance` コマンドは凍結済み `report.json` と manifest・120 raw の SHA-256 を照合し，旧厳格判定と Sprint 15 の判定を別欄で出力する．第 6 回の[受入結果 JSON](../benchmarks/puyo-280-search-tuning/formal-v6-acceptance.json)は `status=PASS`，`strict_recorded_status=FAIL`，`artifact_hashes_match=true`．既存 report を書き換えずに再確認できる．
+
 95,000 点目標は補助評価とし，実 95,000 点 **6／30**，実 10 連鎖 **23／30**，窒息 **5／30**，平均最大実発火スコア **53,749** 点を観測した．95,000 点到達率や同モードの平均連鎖を Sprint 15 の合否条件にはしない．この条件で PUYO-280 のパラメータ調整と PUYO-266 への正式結果の引渡しを受け入れる．
 
 ## 再現コマンド
@@ -117,6 +119,8 @@ Ama の公開実装の `build` 重みは，連鎖見込み，連鎖を伸ばせ�
   --output runs/puyo-280-formal-v6 --jobs 6
 .venv/bin/python -m eval.nextgen_tuned_solo_gate report \
   --output runs/puyo-280-formal-v6 --verify-replays
+.venv/bin/python -m eval.nextgen_tuned_solo_gate acceptance \
+  --output runs/puyo-280-formal-v6
 ```
 
 旧 cohort の raw と manifest はそのまま保持する．
